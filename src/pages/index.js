@@ -365,8 +365,8 @@ export default function Home() {
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                 }}>
                   <div style={{
-                    minHeight: '200px',
-                    background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'contain', backgroundPosition: 'center',
+                    height: '200px',
+                    background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -450,8 +450,8 @@ export default function Home() {
                     boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   }}>
                     <div style={{
-                      minHeight: '160px',
-                      background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'contain', backgroundPosition: 'center',
+                      height: '160px',
+                      background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundPosition: 'center',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
