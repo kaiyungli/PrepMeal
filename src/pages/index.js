@@ -343,7 +343,7 @@ export default function Home() {
 
         {/* Menu Grid (Home View) */}
         {view === 'home' && (
-          <section style={{ padding: '20px 40px 60px', maxWidth: '1000px', margin: '0 auto' }}>
+          <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
             <h2 style={{ 
               fontSize: '24px', 
               fontWeight: '700', 
@@ -352,7 +352,7 @@ export default function Home() {
             }}>
               熱門食譜
             </h2>
-            <div style={{ maxWidth: '1000px', margin: '0 auto', 
+            <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
               gap: '16px',
