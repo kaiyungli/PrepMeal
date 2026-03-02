@@ -354,8 +354,10 @@ export default function Home() {
             </h2>
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '16px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+              gap: '20px',
+              width: '100%',
+              boxSizing: 'border-box',
             }}>
               {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
