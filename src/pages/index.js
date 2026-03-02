@@ -62,7 +62,7 @@ export default function Home() {
 
   function handleGenerate() {
     // Use recipes from database if available, otherwise fallback to mock
-    let availableRecipes = (recipes && recipes.length > 0) ? recipes : [];
+    let availableRecipes = (recipes || []).length > 0 ? recipes : [];
     
     // Apply filters
     let filtered = availableRecipes;
@@ -357,7 +357,7 @@ export default function Home() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
               gap: '24px' 
             }}>
-              {(recipes && recipes.length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
+              {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '16px',
