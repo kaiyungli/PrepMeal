@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { generateWeeklyMenu, generateShoppingList } from '../data/meals';
+import { generateShoppingList } from '../data/meals';
 
 const colors = {
   cream: '#fefefe',
@@ -66,7 +66,7 @@ export default function Home() {
 
   function handleGenerate() {
     // Use recipes from database if available, otherwise fallback to mock
-    let availableRecipes = (recipes && recipes.length > 0) ? recipes : generateWeeklyMenu(mealType);
+    let availableRecipes = recipes && recipes.length > 0 ? recipes : [];
     
     // Apply filters
     let filtered = availableRecipes;
@@ -361,7 +361,7 @@ export default function Home() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
               gap: '24px' 
             }}>
-              {(recipes && recipes.length > 0 ? recipes : generateWeeklyMenu('dinner')).slice(0, 6).map((meal, i) => (
+              {recipes && recipes.length > 0 ? recipes.slice(0, 6) : [].map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '16px',
@@ -369,14 +369,13 @@ export default function Home() {
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                 }}>
                   <div style={{
-                    height: '200px',
+                    minHeight: '200px',
                     background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'contain', backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '48px',
+                    fontSize: '0px',
                   }}>
-                    🍽️
                   </div>
                   <div style={{ padding: '16px' }}>
                     <h3 style={{ 
@@ -455,7 +454,7 @@ export default function Home() {
                     boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   }}>
                     <div style={{
-                      height: '160px',
+                      minHeight: '160px',
                       background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'contain', backgroundPosition: 'center',
                       display: 'flex',
                       alignItems: 'center',
