@@ -353,44 +353,48 @@ export default function Home() {
               熱門食譜
             </h2>
             <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
-              gap: '24px' 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '16px' 
             }}>
               {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
-                  borderRadius: '16px',
+                  borderRadius: '12px',
                   overflow: 'hidden',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+                  display: 'flex',
+                  flexDirection: 'row',
                 }}>
                   <div style={{
-                    height: '200px',
-                    background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundPosition: 'center',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0px',
-                  }}>
-                  </div>
-                  <div style={{ padding: '16px' }}>
+                    width: '120px',
+                    minHeight: '100px',
+                    background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                  }} />
+                  <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <h3 style={{ 
                       fontSize: '16px', 
                       fontWeight: '600', 
                       color: colors.brown,
-                      marginBottom: '12px',
+                      marginBottom: '8px',
                     }}>
                       {meal.name}
                     </h3>
+                    <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '12px' }}>
+                      {meal.cooking_time}分鐘 · {meal.cuisine}
+                    </p>
                     <button style={{
-                      width: '100%',
-                      padding: '10px',
+                      padding: '8px 16px',
                       background: 'transparent',
                       border: `1px solid ${colors.brown}`,
                       color: colors.brown,
                       borderRadius: '8px',
                       fontWeight: '500',
                       cursor: 'pointer',
+                      alignSelf: 'flex-start',
                     }}>
                       查看更多
                     </button>
