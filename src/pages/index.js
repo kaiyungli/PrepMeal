@@ -354,7 +354,7 @@ export default function Home() {
             </h2>
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(3, 1fr)',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
               gap: '16px',
             }}>
               {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
@@ -363,40 +363,57 @@ export default function Home() {
                   borderRadius: '12px',
                   overflow: 'hidden',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gridColumn: i === 0 ? 'span 2' : 'auto',
-                  gridRow: i === 0 ? 'span 2' : 'auto',
                 }}>
                   <div style={{
-                    width: i === 0 ? '200px' : '120px',
-                    minHeight: i === 0 ? '150px' : '100px',
+                    height: '140px',
                     background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                   }} />
-                  <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ padding: '16px' }}>
                     <h3 style={{ 
                       fontSize: '16px', 
                       fontWeight: '600', 
                       color: colors.brown,
-                      marginBottom: '8px',
+                      marginBottom: '6px',
                     }}>
                       {meal.name}
                     </h3>
-                    <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '12px' }}>
+                    <p style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px' }}>
                       {meal.cooking_time}分鐘 · {meal.cuisine}
                     </p>
+                    {meal.tags && meal.tags.length > 0 && (
+                      <div style={{ marginBottom: '8px' }}>
+                        {meal.tags.slice(0, 2).map((tag, idx) => (
+                          <span key={idx} style={{ 
+                            display: 'inline-block',
+                            background: colors.yellow, 
+                            color: 'white', 
+                            padding: '2px 8px', 
+                            borderRadius: '4px', 
+                            fontSize: '11px',
+                            marginRight: '4px',
+                          }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {meal.description && (
+                      <p style={{ fontSize: '12px', color: colors.textLight, marginBottom: '12px', lineHeight: '1.4' }}>
+                        {meal.description}
+                      </p>
+                    )}
                     <button style={{
-                      padding: '8px 16px',
+                      width: '100%',
+                      padding: '10px',
                       background: 'transparent',
                       border: `1px solid ${colors.brown}`,
                       color: colors.brown,
                       borderRadius: '8px',
                       fontWeight: '500',
                       cursor: 'pointer',
-                      alignSelf: 'flex-start',
                     }}>
                       查看更多
                     </button>
