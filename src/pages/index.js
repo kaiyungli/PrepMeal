@@ -152,38 +152,6 @@ export default function Home() {
           </button>
         </section>
 
-
-        {/* Search Bar */}
-        <section style={{ padding: '20px 40px', maxWidth: '600px', margin: '0 auto' }}>
-          <div style={{ 
-            position: 'relative',
-          }}>
-            <span style={{
-              position: 'absolute',
-              left: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              fontSize: '18px',
-            }}>🔍</span>
-            <input
-              type="text"
-              placeholder="搜尋食譜..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '14px 14px 14px 48px',
-                borderRadius: '30px',
-                border: '1px solid #e5e5e5',
-                fontSize: '16px',
-                outline: 'none',
-                boxSizing: 'border-box',
-                background: 'white',
-              }}
-            />
-          </div>
-        </section>
-
         {/* Categories */}
         <section style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
           <h2 style={{ 
@@ -241,6 +209,25 @@ export default function Home() {
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>
               🔍 篩選條件
             </h3>
+            
+            {/* Search */}
+            <div style={{ marginBottom: '24px' }}>
+              <input
+                type="text"
+                placeholder="搜尋食譜..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid #e5e5e5',
+                  fontSize: '15px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
             
             {/* Cuisine Filter */}
             <div style={{ marginBottom: '20px' }}>
