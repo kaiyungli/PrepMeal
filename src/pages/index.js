@@ -45,7 +45,7 @@ export default function Home() {
 
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #2A9D8F 0%, #E76F51 100%)',
         padding: '20px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}>
@@ -80,7 +80,7 @@ export default function Home() {
                   cursor: 'pointer',
                   fontSize: '16px',
                   fontWeight: '600',
-                  background: mealType === 'dinner' ? '#667eea' : '#f0f0f0',
+                  background: mealType === 'dinner' ? '#2A9D8F' : '#f0f0f0',
                   color: mealType === 'dinner' ? 'white' : '#333',
                 }}
               >
@@ -96,7 +96,7 @@ export default function Home() {
                   cursor: 'pointer',
                   fontSize: '16px',
                   fontWeight: '600',
-                  background: mealType === 'lunch' ? '#667eea' : '#f0f0f0',
+                  background: mealType === 'lunch' ? '#2A9D8F' : '#f0f0f0',
                   color: mealType === 'lunch' ? 'white' : '#333',
                 }}
               >
@@ -116,7 +116,7 @@ export default function Home() {
               cursor: 'pointer',
               fontSize: '18px',
               fontWeight: '700',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #2A9D8F 0%, #E76F51 100%)',
               color: 'white',
               boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
             }}
@@ -138,7 +138,7 @@ export default function Home() {
                 fontSize: '16px',
                 fontWeight: '600',
                 background: view === 'menu' ? 'white' : 'transparent',
-                color: view === 'menu' ? '#667eea' : 'white',
+                color: view === 'menu' ? '#2A9D8F' : 'white',
               }}
             >
               📋 餐單
@@ -153,7 +153,7 @@ export default function Home() {
                 fontSize: '16px',
                 fontWeight: '600',
                 background: view === 'shopping' ? 'white' : 'transparent',
-                color: view === 'shopping' ? '#667eea' : 'white',
+                color: view === 'shopping' ? '#2A9D8F' : 'white',
               }}
             >
               🛒 食材清單
@@ -168,7 +168,7 @@ export default function Home() {
               <div key={index} style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ background: '#667eea', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginRight: '12px' }}>
+                    <span style={{ background: '#2A9D8F', color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '14px', marginRight: '12px' }}>
                       {meal.day}
                     </span>
                     <span style={{ fontSize: '14px', color: '#888', marginLeft: '8px' }}>{meal.category}</span>
