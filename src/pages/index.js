@@ -353,9 +353,9 @@ export default function Home() {
               熱門食譜
             </h2>
             <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '16px' 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '16px',
             }}>
               {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
@@ -365,10 +365,12 @@ export default function Home() {
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   display: 'flex',
                   flexDirection: 'row',
+                  gridColumn: i === 0 ? 'span 2' : 'auto',
+                  gridRow: i === 0 ? 'span 2' : 'auto',
                 }}>
                   <div style={{
-                    width: '120px',
-                    minHeight: '100px',
+                    width: i === 0 ? '200px' : '120px',
+                    minHeight: i === 0 ? '150px' : '100px',
                     background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
