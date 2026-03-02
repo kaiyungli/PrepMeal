@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { generateWeeklyMenu, generateShoppingList } from '../data/meals';
 
@@ -21,10 +21,33 @@ const categories = [
 ];
 
 export default function Home() {
+  useEffect(() => {
+    async function fetchRecipes() {
+      try {
+        const res = await fetch('/api/recipes?limit=50');
+        const data = await res.json();
+        if (data.recipes && data.recipes.length > 0) {
+          setRecipes(data.recipes);
+        }
+      } catch (err) {
+        console.error('Error fetching recipes:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRecipes();
+  }, []);
+
+  function getRandomRecipes(count) {
+    const shuffled = [...recipes].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
   const [mealType, setMealType] = useState('dinner');
   const [menu, setMenu] = useState(null);
   const [shoppingList, setShoppingList] = useState(null);
   const [view, setView] = useState('home');
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cuisineFilter, setCuisineFilter] = useState('全部');
   const [timeFilter, setTimeFilter] = useState('全部');
@@ -42,13 +65,29 @@ export default function Home() {
   const equipmentOptions = ['全部', '微波爐', '焗爐', '氣炸鍋', '明火'];
 
   function handleGenerate() {
-    // Apply filters - in MVP, we just pass filters (actual filtering happens in generateWeeklyMenu)
-    const filters = {
-      cuisine: cuisineFilter !== '全部' ? cuisineFilter : null,
-      time: timeFilter !== '全部' ? timeFilter : null,
-      equipment: equipmentFilter !== '全部' ? equipmentFilter : null,
-    };
-    const weeklyMenu = generateWeeklyMenu(mealType, filters);
+    // Use recipes from database if available, otherwise fallback to mock
+    let availableRecipes = recipes.length > 0 ? recipes : generateWeeklyMenu(mealType);
+    
+    // Apply filters
+    let filtered = availableRecipes;
+    if (cuisineFilter !== '全部') {
+      filtered = filtered.filter(r => r.cuisine === cuisineFilter);
+    }
+    if (timeFilter !== '全部') {
+      const timeMap = { '15分鐘': 15, '30分鐘': 30, '1小時': 60 };
+      filtered = filtered.filter(r => r.cooking_time <= timeMap[timeFilter]);
+    }
+    
+    // Get 7 random recipes
+    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+    const weeklyMenu = shuffled.slice(0, 7).map(r => ({
+      name: r.name,
+      cuisine: r.cuisine,
+      cooking_time: r.cooking_time,
+      difficulty: r.difficulty,
+      image_url: r.image_url,
+    }));
+    
     setMenu(weeklyMenu);
     setShoppingList(generateShoppingList(weeklyMenu));
     setView('menu');
@@ -331,7 +370,7 @@ export default function Home() {
                 }}>
                   <div style={{
                     height: '140px',
-                    background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
+                    background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -417,7 +456,7 @@ export default function Home() {
                   }}>
                     <div style={{
                       height: '120px',
-                      background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
+                      background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundPosition: 'center',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
