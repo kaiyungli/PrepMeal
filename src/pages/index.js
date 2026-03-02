@@ -44,6 +44,7 @@ export default function Home() {
   const [view, setView] = useState('home');
   const [recipes, setRecipes] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cuisineFilter, setCuisineFilter] = useState('全部');
   const [timeFilter, setTimeFilter] = useState('全部');
@@ -407,7 +408,7 @@ export default function Home() {
                         {meal.description}
                       </p>
                     )}
-                    <button style={{
+                    <button onClick={() => setSelectedRecipe(meal)} style={{
                       width: '100%',
                       padding: '10px',
                       background: 'transparent',
@@ -565,6 +566,89 @@ export default function Home() {
               </button>
             </div>
           </section>
+        )}
+
+        {/* Recipe Detail Modal */}
+        {selectedRecipe && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto',
+            }}>
+              {selectedRecipe.image_url && (
+                <div style={{
+                  height: '250px',
+                  background: `url(${selectedRecipe.image_url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }} />
+              )}
+              <div style={{ padding: '24px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>
+                  {selectedRecipe.name}
+                </h2>
+                <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '16px' }}>
+                  {selectedRecipe.cooking_time}分鐘 · {selectedRecipe.difficulty} · {selectedRecipe.cuisine}
+                  {selectedRecipe.calories && ` · ${selectedRecipe.calories} kcal`}
+                </p>
+                {selectedRecipe.tags && selectedRecipe.tags.length > 0 && (
+                  <div style={{ marginBottom: '16px' }}>
+                    {selectedRecipe.tags.map((tag, idx) => (
+                      <span key={idx} style={{ 
+                        display: 'inline-block',
+                        background: colors.yellow, 
+                        color: 'white', 
+                        padding: '4px 12px', 
+                        borderRadius: '4px', 
+                        fontSize: '12px',
+                        marginRight: '8px',
+                      }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {selectedRecipe.description && (
+                  <p style={{ fontSize: '14px', color: colors.text, marginBottom: '20px', lineHeight: '1.6' }}>
+                    {selectedRecipe.description}
+                  </p>
+                )}
+                <button 
+                  onClick={() => setSelectedRecipe(null)}
+                  style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    background: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '40px',
+                    height: '40px',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Footer */}
