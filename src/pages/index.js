@@ -361,7 +361,7 @@ export default function Home() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
               gap: '24px' 
             }}>
-              {generateWeeklyMenu('dinner').slice(0, 6).map((meal, i) => (
+              {recipes.length > 0 ? recipes.slice(0, 6) : generateWeeklyMenu('dinner').slice(0, 6).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '16px',
