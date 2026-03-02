@@ -383,7 +383,7 @@ export default function Home() {
                       {meal.name}
                     </h3>
                     <p style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px' }}>
-                      {meal.cooking_time}分鐘 · {meal.cuisine}
+                      {meal.cooking_time}分鐘 · {meal.cuisine}{meal.calories && ` · ${meal.calories} kcal`}
                     </p>
                     {meal.tags && meal.tags.length > 0 && (
                       <div style={{ marginBottom: '8px' }}>
