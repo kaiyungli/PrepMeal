@@ -32,6 +32,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [flavorFilter, setFlavorFilter] = useState('全部');
   const [difficultyFilter, setDifficultyFilter] = useState('全部');
+  const [filterExpanded, setFilterExpanded] = useState(true);
 
   const flavorOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
   const difficultyOptions = ['全部', '易', '中', '難'];
@@ -164,10 +165,16 @@ export default function Home() {
             borderRadius: '16px', 
             padding: '24px',
             boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+            maxHeight: filterExpanded ? '2000px' : '100px',
+            overflow: 'hidden',
+            transition: 'max-height 0.3s ease',
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>
-              🔍 篩選條件
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown }}>🔍 篩選條件</h3>
+              <button onClick={() => setFilterExpanded(!filterExpanded)} style={{ padding: '8px 12px', border: 'none', background: '#f0f0f0', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                {filterExpanded ? '收起 ▲' : '展開 ▼'}
+              </button>
+            </div>
             
             {/* Search */}
             <div style={{ marginBottom: '24px' }}>
