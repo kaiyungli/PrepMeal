@@ -202,6 +202,47 @@ export default function Home() {
           </div>
         )}
 
+
+        {/* Benefits */}
+        <div style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: '700', marginBottom: '40px', color: 'white' }}>
+            點解揀今晚食乜？
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            <div style={{ textAlign: 'center', color: 'white' }}>
+              <span style={{ fontSize: '40px' }}>⏱️</span>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>30分鐘晚餐</h3>
+              <p style={{ fontSize: '14px', opacity: 0.8 }}>適合忙碌既人</p>
+            </div>
+            <div style={{ textAlign: 'center', color: 'white' }}>
+              <span style={{ fontSize: '40px' }}>🥗</span>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>營養均衡</h3>
+              <p style={{ fontSize: '14px', opacity: 0.8 }}>健康選擇</p>
+            </div>
+            <div style={{ textAlign: 'center', color: 'white' }}>
+              <span style={{ fontSize: '40px' }}>🤔</span>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '12px 0' }}>唔洗諗</h3>
+              <p style={{ fontSize: '14px', opacity: 0.8 }}>一click就有</p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', padding: '20px', color: 'white' }}>
+          <p style={{ fontSize: '18px', fontWeight: '600' }}>👍 已有 1,000+ 人使用</p>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '600px', margin: '0 auto 40px' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '24px', textAlign: 'center' }}>常見問題</h2>
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>整一個餐單幾耐？</h4>
+            <p style={{ fontSize: '14px', color: '#666' }}>1分鐘就搞掂，一click生成7日晚餐</p>
+          </div>
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>需要幾多材料？</h4>
+            <p style={{ fontSize: '14px', color: '#666' }}>超市買到，最平$50整一日三餐</p>
+          </div>
+        </div>
+
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: '60px', color: 'white', opacity: 0.7 }}>
           <p>© 2026 今晚食乜 Made with ❤️</p>
