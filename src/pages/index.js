@@ -384,7 +384,7 @@ export default function Home() {
                       {meal.name}
                     </h3>
                     <p style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px' }}>
-                      {meal.cooking_time}分鐘 · {meal.cuisine}{meal.calories && ` · ${meal.calories} kcal`}
+                      {meal.cooking_time}分鐘 · {meal.cuisine}{(meal?.calories) && ` · ${meal.calories} kcal`}
                     </p>
                     {meal.tags && meal.tags.length > 0 && (
                       <div style={{ marginBottom: '8px' }}>
@@ -591,7 +591,7 @@ export default function Home() {
               maxHeight: '90vh',
               overflow: 'auto',
             }}>
-              {selectedRecipe.image_url && (
+              {(selectedRecipe?.image_url) && (
                 <div style={{
                   height: '250px',
                   background: `url(${selectedRecipe.image_url})`,
@@ -607,7 +607,7 @@ export default function Home() {
                   {selectedRecipe.cooking_time}分鐘 · {selectedRecipe.difficulty} · {selectedRecipe.cuisine}
                   {selectedRecipe.calories && ` · ${selectedRecipe.calories} kcal`}
                 </p>
-                {selectedRecipe.tags && selectedRecipe.tags.length > 0 && (
+                {(selectedRecipe?.tags?.length > 0) && (
                   <div style={{ marginBottom: '16px' }}>
                     {selectedRecipe.tags.map((tag, idx) => (
                       <span key={idx} style={{ 
@@ -624,14 +624,14 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-                {selectedRecipe.description && (
+                {(selectedRecipe?.description) && (
                   <p style={{ fontSize: '14px', color: colors.text, marginBottom: '20px', lineHeight: '1.6' }}>
                     {selectedRecipe.description}
                   </p>
                 )}
                 
                 {/* Ingredients */}
-                {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+                {(selectedRecipe?.ingredients?.length > 0) && (
                   <div style={{ marginBottom: '20px' }}>
                     <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>材料</h4>
                     <ul style={{ paddingLeft: '20px', margin: 0 }}>
@@ -645,7 +645,7 @@ export default function Home() {
                 )}
                 
                 {/* Instructions */}
-                {selectedRecipe.instructions && selectedRecipe.instructions.length > 0 && (
+                {(selectedRecipe?.instructions?.length > 0) && (
                   <div style={{ marginBottom: '20px' }}>
                     <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>做法</h4>
                     <ol style={{ paddingLeft: '20px', margin: 0 }}>
