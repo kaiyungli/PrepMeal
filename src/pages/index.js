@@ -38,10 +38,6 @@ export default function Home() {
     fetchRecipes();
   }, []);
 
-  function getRandomRecipes(count) {
-    const shuffled = [...recipes].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  }
   const [mealType, setMealType] = useState('dinner');
   const [menu, setMenu] = useState(null);
   const [shoppingList, setShoppingList] = useState(null);
@@ -66,7 +62,7 @@ export default function Home() {
 
   function handleGenerate() {
     // Use recipes from database if available, otherwise fallback to mock
-    let availableRecipes = recipes && recipes.length > 0 ? recipes : [];
+    let availableRecipes = (recipes && recipes.length > 0) ? recipes : [];
     
     // Apply filters
     let filtered = availableRecipes;
@@ -79,7 +75,7 @@ export default function Home() {
     }
     
     // Get 7 random recipes
-    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+    const shuffled = [...(filtered || [])].sort(() => 0.5 - Math.random());
     const weeklyMenu = shuffled.slice(0, 7).map(r => ({
       name: r.name,
       cuisine: r.cuisine,
@@ -361,7 +357,7 @@ export default function Home() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
               gap: '24px' 
             }}>
-              {recipes && recipes.length > 0 ? recipes.slice(0, 6) : [].map((meal, i) => (
+              {(recipes && recipes.length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '16px',
