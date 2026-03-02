@@ -152,52 +152,6 @@ export default function Home() {
           </button>
         </section>
 
-        {/* Categories */}
-        <section style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-          <h2 style={{ 
-            fontSize: '24px', 
-            fontWeight: '700', 
-            color: colors.brown,
-            textAlign: 'center',
-            marginBottom: '24px',
-          }}>
-            選擇你既口味
-          </h2>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '20px',
-            flexWrap: 'wrap',
-          }}>
-            {categories.map((cat, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedCategory(cat.name)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '20px 32px',
-                  background: selectedCategory === cat.name ? colors.brown : colors.cream,
-                  border: `2px solid ${colors.brown}`,
-                  borderRadius: '16px',
-                  cursor: 'pointer',
-                  minWidth: '100px',
-                }}
-              >
-                <span style={{ fontSize: '32px' }}>{cat.icon}</span>
-                <span style={{ 
-                  fontWeight: '600',
-                  color: selectedCategory === cat.name ? 'white' : colors.brown,
-                }}>
-                  {cat.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-
         {/* Filters */}
         <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ 
@@ -227,33 +181,6 @@ export default function Home() {
                   boxSizing: 'border-box',
                 }}
               />
-            </div>
-            
-            {/* Cuisine Filter */}
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
-                菜系
-              </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {cuisineOptions.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setCuisineFilter(opt)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: '20px',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      background: cuisineFilter === opt ? colors.brown : '#f0f0f0',
-                      color: cuisineFilter === opt ? 'white' : colors.text,
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
             </div>
             
             {/* Time Filter */}
