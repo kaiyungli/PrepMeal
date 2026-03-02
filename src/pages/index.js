@@ -29,6 +29,7 @@ export default function Home() {
   const [cuisineFilter, setCuisineFilter] = useState('全部');
   const [timeFilter, setTimeFilter] = useState('全部');
   const [equipmentFilter, setEquipmentFilter] = useState('全部');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式'];
   const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
@@ -149,6 +150,38 @@ export default function Home() {
           >
             開始整 🍳
           </button>
+        </section>
+
+
+        {/* Search Bar */}
+        <section style={{ padding: '20px 40px', maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ 
+            position: 'relative',
+          }}>
+            <span style={{
+              position: 'absolute',
+              left: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '18px',
+            }}>🔍</span>
+            <input
+              type="text"
+              placeholder="搜尋食譜..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '14px 14px 14px 48px',
+                borderRadius: '30px',
+                border: '1px solid #e5e5e5',
+                fontSize: '16px',
+                outline: 'none',
+                boxSizing: 'border-box',
+                background: 'white',
+              }}
+            />
+          </div>
         </section>
 
         {/* Categories */}
