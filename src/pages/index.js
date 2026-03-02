@@ -30,6 +30,11 @@ export default function Home() {
   const [timeFilter, setTimeFilter] = useState('全部');
   const [equipmentFilter, setEquipmentFilter] = useState('全部');
   const [searchQuery, setSearchQuery] = useState('');
+  const [flavorFilter, setFlavorFilter] = useState('全部');
+  const [difficultyFilter, setDifficultyFilter] = useState('全部');
+
+  const flavorOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
+  const difficultyOptions = ['全部', '易', '中', '難'];
 
   const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式'];
   const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
@@ -202,6 +207,60 @@ export default function Home() {
                       fontWeight: '500',
                       background: timeFilter === opt ? colors.yellow : '#f0f0f0',
                       color: timeFilter === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Flavor Filter */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                口味
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {flavorOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setFlavorFilter(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: flavorFilter === opt ? colors.brown : '#f0f0f0',
+                      color: flavorFilter === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Difficulty Filter */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                難度
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {difficultyOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setDifficultyFilter(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: difficultyFilter === opt ? colors.yellow : '#f0f0f0',
+                      color: difficultyFilter === opt ? 'white' : colors.text,
                     }}
                   >
                     {opt}
