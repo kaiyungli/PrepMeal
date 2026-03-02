@@ -369,7 +369,7 @@ export default function Home() {
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                 }}>
                   <div style={{
-                    height: '140px',
+                    height: '200px',
                     background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundPosition: 'center',
                     display: 'flex',
                     alignItems: 'center',
@@ -455,7 +455,7 @@ export default function Home() {
                     boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   }}>
                     <div style={{
-                      height: '120px',
+                      height: '160px',
                       background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundPosition: 'center',
                       display: 'flex',
                       alignItems: 'center',
