@@ -26,9 +26,22 @@ export default function Home() {
   const [shoppingList, setShoppingList] = useState(null);
   const [view, setView] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [cuisineFilter, setCuisineFilter] = useState('全部');
+  const [timeFilter, setTimeFilter] = useState('全部');
+  const [equipmentFilter, setEquipmentFilter] = useState('全部');
+
+  const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式'];
+  const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
+  const equipmentOptions = ['全部', '微波爐', '焗爐', '氣炸鍋', '明火'];
 
   function handleGenerate() {
-    const weeklyMenu = generateWeeklyMenu(mealType);
+    // Apply filters - in MVP, we just pass filters (actual filtering happens in generateWeeklyMenu)
+    const filters = {
+      cuisine: cuisineFilter !== '全部' ? cuisineFilter : null,
+      time: timeFilter !== '全部' ? timeFilter : null,
+      equipment: equipmentFilter !== '全部' ? equipmentFilter : null,
+    };
+    const weeklyMenu = generateWeeklyMenu(mealType, filters);
     setMenu(weeklyMenu);
     setShoppingList(generateShoppingList(weeklyMenu));
     setView('menu');
@@ -183,6 +196,102 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        {/* Filters */}
+        <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '16px', 
+            padding: '24px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>
+              🔍 篩選條件
+            </h3>
+            
+            {/* Cuisine Filter */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                菜系
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {cuisineOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setCuisineFilter(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: cuisineFilter === opt ? colors.brown : '#f0f0f0',
+                      color: cuisineFilter === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Time Filter */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                ⏱️ 烹飪時間
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {timeOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setTimeFilter(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: timeFilter === opt ? colors.yellow : '#f0f0f0',
+                      color: timeFilter === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Equipment Filter */}
+            <div>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                🍳 烹飪設備
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {equipmentOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setEquipmentFilter(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: equipmentFilter === opt ? colors.brown : '#f0f0f0',
+                      color: equipmentFilter === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
 
         {/* Menu Grid (Home View) */}
         {view === 'home' && (
