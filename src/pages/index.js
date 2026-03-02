@@ -46,7 +46,7 @@ export default function Home() {
   const [menu, setMenu] = useState(null);
   const [shoppingList, setShoppingList] = useState(null);
   const [view, setView] = useState('home');
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cuisineFilter, setCuisineFilter] = useState('全部');
@@ -66,7 +66,7 @@ export default function Home() {
 
   function handleGenerate() {
     // Use recipes from database if available, otherwise fallback to mock
-    let availableRecipes = recipes.length > 0 ? recipes : generateWeeklyMenu(mealType);
+    let availableRecipes = (recipes && recipes.length > 0) ? recipes : generateWeeklyMenu(mealType);
     
     // Apply filters
     let filtered = availableRecipes;
@@ -361,7 +361,7 @@ export default function Home() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
               gap: '24px' 
             }}>
-              {recipes.length > 0 ? recipes.slice(0, 6) : generateWeeklyMenu('dinner').slice(0, 6).map((meal, i) => (
+              {(recipes && recipes.length > 0 ? recipes : generateWeeklyMenu('dinner')).slice(0, 6).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '16px',
