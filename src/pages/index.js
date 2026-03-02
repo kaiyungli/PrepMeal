@@ -629,6 +629,35 @@ export default function Home() {
                     {selectedRecipe.description}
                   </p>
                 )}
+                
+                {/* Ingredients */}
+                {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>材料</h4>
+                    <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                      {selectedRecipe.ingredients.map((ing, idx) => (
+                        <li key={idx} style={{ fontSize: '14px', color: colors.text, marginBottom: '6px' }}>
+                          {ing.ingredients?.name || ing.name}: {ing.quantity} {ing.unit}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {/* Instructions */}
+                {selectedRecipe.instructions && selectedRecipe.instructions.length > 0 && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>做法</h4>
+                    <ol style={{ paddingLeft: '20px', margin: 0 }}>
+                      {selectedRecipe.instructions.map((step, idx) => (
+                        <li key={idx} style={{ fontSize: '14px', color: colors.text, marginBottom: '8px', lineHeight: '1.5' }}>
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                
                 <button 
                   onClick={() => setSelectedRecipe(null)}
                   style={{
