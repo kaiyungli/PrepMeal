@@ -637,7 +637,7 @@ export default function Home() {
                     <ul style={{ paddingLeft: '20px', margin: 0 }}>
                       {selectedRecipe.ingredients.map((ing, idx) => (
                         <li key={idx} style={{ fontSize: '14px', color: colors.text, marginBottom: '6px' }}>
-                          {ing.ingredients?.name || ing.name}: {ing.quantity} {ing.unit}
+                          {(ing.ingredients?.name || ing.name || ing.ingredient_id)}
                         </li>
                       ))}
                     </ul>
