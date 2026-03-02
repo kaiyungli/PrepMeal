@@ -195,7 +195,7 @@ export default function Home() {
 
         {/* Filters */}
         <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ 
+          <div style={{ maxWidth: '1000px', margin: '0 auto', 
             background: 'white', 
             borderRadius: '16px', 
             padding: '24px',
@@ -352,7 +352,7 @@ export default function Home() {
             }}>
               熱門食譜
             </h2>
-            <div style={{ 
+            <div style={{ maxWidth: '1000px', margin: '0 auto', 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
               gap: '16px',
