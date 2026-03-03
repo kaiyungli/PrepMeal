@@ -177,12 +177,28 @@ const recipeIngredients = {
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({servings}人份)</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-              {shoppingList.map((item, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: colors.lightBg, borderRadius: '8px' }}>
-                  <span style={{ color: colors.text }}>{item.name}</span>
-                  <span style={{ color: colors.textLight }}>x{item.count}</span>
-                </div>
-              ))}
+              {shoppingList.map((item, i) => {
+                const getEmoji = (n) => {
+                  if (n.includes("蛋")) return "🥚";
+                  if (n.includes("雞")) return "🍗";
+                  if (n.includes("番茄")) return "🍅";
+                  if (n.includes("蔥")) return "🧅";
+                  if (n.includes("豆腐")) return "🧈";
+                  if (n.includes("肉")) return "🥩";
+                  if (n.includes("菜")) return "🥬";
+                  if (n.includes("菇")) return "🍄";
+                  if (n.includes("薯")) return "🥔";
+                  return "🥡";
+                };
+                const parts = item.name.split(" ");
+                return (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", background: "#faf8f5", borderRadius: "8px" }}>
+                    <span style={{ fontSize: "20px" }}>{getEmoji(item.name)}</span>
+                    <span style={{ color: "#264653", flex: 1 }}>{parts.slice(1).join(" ") || item.name}</span>
+                    <span style={{ color: "#6b7280", fontSize: "13px" }}>{parts[0]}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
