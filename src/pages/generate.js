@@ -36,7 +36,7 @@ export default function GeneratePage() {
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
-  const [filteredRecipes, setFilteredRecipes] = useState(recipes);
+  const [filteredRecipes, setFilteredRecipes] = useState([]);
 
   const filterRecipes = () => {
     let filtered = [...recipes];
@@ -46,7 +46,11 @@ export default function GeneratePage() {
     setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
   }
 
-  useEffect(() => { filterRecipes(); }, [cuisine, time, difficulty]);
+  useEffect(() => { 
+    if (allRecipes.length > 0) {
+      filterRecipes();
+    }
+  }, [allRecipes, cuisine, time, difficulty]);
 
   function handleGenerate() {
     router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}`);
