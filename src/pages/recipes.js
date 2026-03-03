@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -15,22 +14,13 @@ const colors = {
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
-    async function loadRecipes() {
-      try {
-        const res = await fetch('/api/recipes');
-        const data = await res.json();
-        setRecipes(data.recipes || []);
-      } catch (e) {
-        console.error('Error:', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadRecipes();
+    fetch('/api/recipes')
+      .then(res => res.json())
+      .then(data => setRecipes(data.recipes || []))
+      .catch(err => console.error(err));
   }, []);
 
   return (
@@ -50,9 +40,11 @@ export default function RecipesPage() {
 
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px' }}>全部食譜</h1>
-          {loading ? <p style={{ color: colors.textLight }}>載入中...</p> : <p style={{ color: colors.textLight, marginBottom: '32px' }}>共 {recipes.length} 款食譜</p>}
+          <p style={{ color: colors.textLight, marginBottom: '32px' }}>共 {recipes.length} 款食譜</p>
 
-          {!loading && (
+          {recipes.length === 0 ? (
+            <p style={{ color: colors.textLight, textAlign: 'center', padding: '40px' }}>載入中...</p>
+          ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
               {recipes.map((recipe) => (
                 <div key={recipe.id} onClick={() => setSelectedRecipe(recipe)} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
@@ -98,4 +90,3 @@ export default function RecipesPage() {
     </>
   );
 }
-export const dynamic = 'force-dynamic'
