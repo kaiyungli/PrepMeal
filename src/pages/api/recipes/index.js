@@ -5,6 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  console.time('API /recipes');
   try {
     const { cuisine, difficulty, limit = 20 } = req.query
     
@@ -26,9 +27,11 @@ export default async function handler(req, res) {
     const { data: recipes, error } = await query
     
     if (error || !recipes || recipes.length === 0) {
-      return res.status(200).json({ recipes: [], source: 'empty' })
+      return console.timeEnd('API /recipes');
+    res.status(200).json({ recipes: [], source: 'empty' })
     }
     
+    console.timeEnd('API /recipes');
     res.status(200).json({ recipes, source: 'supabase' })
   } catch (error) {
     console.error('Error:', error)

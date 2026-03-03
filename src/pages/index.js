@@ -22,12 +22,20 @@ const categories = [
 
 export default function Home() {
   useEffect(() => {
+    console.time('Page load');
+    console.time('API fetch');
     async function fetchRecipes() {
       try {
-        const res = await fetch('/api/recipes?limit=50');
+        console.time('API fetch');
+                    const res = await fetch('/api/recipes?limit=50');
         const data = await res.json();
+                        console.timeEnd('Detail fetch');
+        console.timeEnd('API fetch');
+        console.time('Render');
         if (data.recipes && data.recipes.length > 0) {
           setRecipes(data.recipes);
+        console.timeEnd('Render');
+        console.timeEnd('Page load');
         }
       } catch (err) {
         console.error('Error fetching recipes:', err);
@@ -417,8 +425,12 @@ export default function Home() {
                     <button onClick={async () => {
                       setSelectedRecipe({ ...meal, loadingDetails: true });
                       try {
-                        const res = await fetch('/api/recipes/' + meal.id);
+                        console.time('Detail fetch');
+                      const res = await fetch('/api/recipes/' + meal.id);
                         const data = await res.json();
+                        console.timeEnd('Detail fetch');
+        console.timeEnd('API fetch');
+        console.time('Render');
                         if (data.recipe) {
                           setSelectedRecipe({ ...meal, ...data.recipe, loadingDetails: false });
                         }
