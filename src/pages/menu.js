@@ -12,137 +12,71 @@ const colors = {
   textLight: '#6b7280',
 };
 
-// Recipes fetched from API
+const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
 
-const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
-const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
-const timeOptions = ['全部', '15分鐘', '30分鐘'];
-const difficultyOptions = ['全部', '易', '中', '難'];
-const servingOptions = [1, 2, 3, 4];
+// Simple static recipes for fast loading
+const sampleRecipes = [
+  { id: 4, name: "番茄炒蛋", cooking_time: 5, difficulty: "易", cuisine: "中式", calories: 180, image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
+  { id: 5, name: "麻婆豆腐", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 280, image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
+  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 120, image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
+  { id: 7, name: "魚香茄子", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 180, image_url: "" },
+  { id: 8, name: "鼓汁蒸排骨", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 320, image_url: "" },
+  { id: 9, name: "韭菜炒蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 150, image_url: "" },
+  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, difficulty: "中", cuisine: "中式", calories: 380, image_url: "" }
+];
 
-export default function MenuPage({ cuisine: initialCuisine, time: initialTime, difficulty: initialDifficulty, servings: initialServings, mealsPerDay: initialMealsPerDay }) {
-  const [allRecipes, setAllRecipes] = useState([]);
-  
-  useEffect(() => {
-    fetch('/api/recipes')
-      .then(res => res.json())
-      .then(data => {
-        setAllRecipes(data.recipes || []);
-        // Generate menu after recipes loaded
-        setTimeout(() => {
-          let filtered = [...(data.recipes || [])];
-          let shuffled;
-    if (allowDuplicates) {
-      shuffled = [...filtered];
-    } else {
-      shuffled = [...filtered].sort(() => 0.5 - Math.random());
-    }
-          const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
-          const mpd = parseInt(initialMealsPerDay) || 1;
-          const menu = [];
-          for (let i = 0; i < 7 * mpd; i++) {
-            menu.push({ day: days[Math.floor(i/mpd)], ...shuffled[i % shuffled.length] });
-          }
-          setWeeklyMenu(menu);
-          
-          // Shopping list
-          const recipeIngredients = {
-            4: ["番茄 2個", "雞蛋 2隻", "蔥 1棵"],
-            5: ["豆腐 1磚", "豬肉碎 100g", "麻辣醬 2湯匙"],
-            6: ["雞蛋 3隻", "蔥 2條"],
-            7: ["茄子 2條", "豬肉碎 80g"],
-            8: ["排骨 300g", "豆鼓 1湯匙"],
-            9: ["韭菜 200g", "雞蛋 2隻"],
-            10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊"],
-            11: ["排骨 300g", "白醋 3湯匙", "糖 2湯匙"],
-            12: ["菜心 300g", "蒜頭 3瓣"],
-            13: ["雞 半隻", "冬菇 5朵"],
-            14: ["五花肉 500g", "糖 3湯匙"],
-            18: ["蝦仁 150g", "雞蛋 3隻"],
-            19: ["雞翼 6隻", "蒜頭 4瓣"],
-            20: ["芥蘭 300g", "蠔油 2湯匙"],
-            21: ["西蘭花 1棵", "帶子 150g"],
-            23: ["通菜 300g", "腐乳 2件"]
-          };
-          const list = {};
-          menu.forEach(meal => {
-            const ings = recipeIngredients[meal.id] || [];
-            ings.forEach(ing => {
-              if (!list[ing]) list[ing] = { name: ing, count: 1 };
-              else list[ing].count++;
-            });
-          });
-          setShoppingList(Object.values(list));
-        }, 100);
-      })
-      .catch(() => {});
-  }, []);
-  const [cuisine, setCuisine] = useState(initialCuisine || '全部');
-  const [time, setTime] = useState(initialTime || '全部');
-  const [difficulty, setDifficulty] = useState(initialDifficulty || '全部');
-  const [servings, setServings] = useState(parseInt(initialServings) || 2);
-  const [mealsPerDay, setMealsPerDay] = useState(parseInt(initialMealsPerDay) || 1);
-  const [allowDuplicates, setAllowDuplicates] = useState(false);
-  const [weeklyMenu, setWeeklyMenu] = useState([]);
-  const [shoppingList, setShoppingList] = useState([]);
-
-  // Generate menu function
-  // Ingredients for each recipe
 const recipeIngredients = {
-  4: ["番茄 2個", "雞蛋 2隻", "蔥 1棵", "鹽 少許"],
-  5: ["豆腐 1磚", "豬肉碎 100g", "麻辣醬 2湯匙", "蒜頭 2瓣"],
-  6: ["雞蛋 3隻", "蔥 2條", "鹽 少許", "鼓油 1湯匙"],
-  7: ["茄子 2條", "豬肉碎 80g", "蒜頭 3瓣", "豆瓣醬 1湯匙"],
-  8: ["排骨 300g", "豆鼓 1湯匙", "蒜頭 2瓣", "鼓油 2湯匙"],
-  9: ["韭菜 200g", "雞蛋 2隻", "鹽 少許"],
-  10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊", "洋蔥 1個"],
-  11: ["排骨 300g", "白醋 3湯匙", "糖 2湯匙", "茄汁 2湯匙"],
-  12: ["菜心 300g", "蒜頭 3瓣", "蠔油 2湯匙"],
-  13: ["雞 半隻", "冬菇 5朵", "薑 3片", "鼓油 2湯匙"],
-  14: ["五花肉 500g", "糖 3湯匙", "生抽 2湯匙", "老抽 1湯匙"],
-  18: ["蝦仁 150g", "雞蛋 3隻", "鹽 少許"],
-  19: ["雞翼 6隻", "蒜頭 4瓣", "鹽 少許"],
-  20: ["芥蘭 300g", "蠔油 2湯匙", "蒜頭 2瓣"],
-  21: ["西蘭花 1棵", "帶子 150g", "蒜頭 2瓣", "鹽 少許"],
-  23: ["通菜 300g", "腐乳 2件", "蒜頭 3瓣", "辣椒 1隻"]
+  4: ["番茄 2個", "雞蛋 2隻", "蔥 1棵"],
+  5: ["豆腐 1磚", "豬肉碎 100g", "麻辣醬 2湯匙"],
+  6: ["雞蛋 3隻", "蔥 2條"],
+  7: ["茄子 2條", "豬肉碎 80g"],
+  8: ["排骨 300g", "豆鼓 1湯匙"],
+  9: ["韭菜 200g", "雞蛋 2隻"],
+  10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊"]
 };
 
-  const generateMenu = () => {
-    let filtered = [...allRecipes];
-    if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
-    if (time !== '全部') filtered = filtered.filter(r => r.cooking_time <= (time === '15分鐘' ? 15 : 30));
-    if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
+export default function MenuPage({ cuisine, time, difficulty, servings, mealsPerDay }) {
+  const [allRecipes] = useState(sampleRecipes);
+  const [weeklyMenu, setWeeklyMenu] = useState([]);
+  const [shoppingList, setShoppingList] = useState([]);
+  const [selectedCuisine, setSelectedCuisine] = useState(cuisine || '全部');
+  const [selectedTime, setSelectedTime] = useState(time || '全部');
+  const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty || '全部');
+  const [selectedServings] = useState(parseInt(servings) || 2);
+  const [selectedMeals] = useState(parseInt(mealsPerDay) || 1);
+  const [allowDuplicates, setAllowDuplicates] = useState(false);
 
-    // Fill up to 7 days with unique recipes (shuffle first)
-    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
-    let menu = [];
+  useEffect(() => {
+    generateMenu();
+  }, []);
+
+  function generateMenu() {
+    let filtered = [...allRecipes];
+    if (selectedCuisine !== '全部') filtered = filtered.filter(r => r.cuisine === selectedCuisine);
+    if (selectedTime !== '全部') filtered = filtered.filter(r => r.cooking_time <= (selectedTime === '15分鐘' ? 15 : 30));
+    if (selectedDifficulty !== '全部') filtered = filtered.filter(r => r.difficulty === selectedDifficulty);
+
+    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+    const mpd = selectedMeals;
+    const menu = [];
+    
     for (let i = 0; i < 7 * mpd; i++) {
-      menu.push({ day: days[Math.floor(i/mpd)], ...shuffled[i % shuffled.length] });
+      const dayIndex = Math.floor(i / mpd);
+      menu.push({ day: days[dayIndex], ...shuffled[i % shuffled.length], slot: i % mpd });
     }
     setWeeklyMenu(menu);
 
-    // Shopping list with ingredients
+    // Shopping list
     const list = {};
     menu.forEach(meal => {
-      const ingredients = recipeIngredients[meal.id] || [];
-      ingredients.forEach(ing => {
-        const name = ing.replace(/[0-9]/g, '').trim();
-        if (!list[name]) list[name] = { name: ing, count: 1 };
-        else list[name].count++;
+      const ings = recipeIngredients[meal.id] || [];
+      ings.forEach(ing => {
+        if (!list[ing]) list[ing] = { name: ing, count: 1 };
+        else list[ing].count++;
       });
     });
     setShoppingList(Object.values(list));
-  };
-
-  // Generate on mount
-  useEffect(() => { generateMenu(); }, [allRecipes]);
-
-  const regenerateDay = (dayIndex) => {
-    const newMenu = [...weeklyMenu];
-    const newRecipe = allRecipes[Math.floor(Math.random() * allRecipes.length)];
-    newMenu[dayIndex] = { day: days[dayIndex], ...newRecipe };
-    setWeeklyMenu(newMenu);
-  };
+  }
 
   return (
     <>
@@ -151,64 +85,57 @@ const recipeIngredients = {
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <span style={{ fontSize: '24px' }}>🥘</span>
-            <span style={{ fontSize: '20px', fontWeight: '700', color: colors.brown }}>今晚食乜</span>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: colors.brown }}>今晚食乜</span>
           </Link>
-          <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</Link>
+          <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>返回首頁</Link>
         </header>
 
-        {/* Filter Section - Always Visible */}
         <div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
             <div style={{ display: 'grid', gridTemplateColumns: { base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: '16px', marginBottom: '20px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                  {cuisineOptions.map((opt) => (
-                    <button key={opt} onClick={() => { setCuisine(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: cuisine === opt ? colors.brown : '#f0f0f0', color: cuisine === opt ? 'white' : colors.text }}>{opt}</button>
+                  {['全部', '中式', '西式', '日式', '韓式'].map(opt => (
+                    <button key={opt} onClick={() => { setSelectedCuisine(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, background: selectedCuisine === opt ? colors.brown : '#f0f0f0', color: selectedCuisine === opt ? 'white' : colors.text }}>{opt}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                  {timeOptions.map((opt) => (
-                    <button key={opt} onClick={() => { setTime(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: time === opt ? colors.yellow : '#f0f0f0', color: time === opt ? 'white' : colors.text }}>{opt}</button>
+                  {['全部', '15分鐘', '30分鐘'].map(opt => (
+                    <button key={opt} onClick={() => { setSelectedTime(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, background: selectedTime === opt ? colors.yellow : '#f0f0f0', color: selectedTime === opt ? 'white' : colors.text }}>{opt}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                  {difficultyOptions.map((opt) => (
-                    <button key={opt} onClick={() => { setDifficulty(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: difficulty === opt ? colors.yellow : '#f0f0f0', color: difficulty === opt ? 'white' : colors.text }}>{opt}</button>
+                  {['全部', '易', '中', '難'].map(opt => (
+                    <button key={opt} onClick={() => { setSelectedDifficulty(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, background: selectedDifficulty === opt ? colors.yellow : '#f0f0f0', color: selectedDifficulty === opt ? 'white' : colors.text }}>{opt}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                  {servingOptions.map((opt) => (
-                    <button key={opt} onClick={() => { setServings(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
+                  {[1,2,3,4].map(opt => (
+                    <button key={opt} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, background: selectedServings === opt ? colors.brown : '#f0f0f0', color: selectedServings === opt ? 'white' : colors.text }}>{opt}人</button>
                   ))}
                 </div>
               </div>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginRight: '12px' }}>
-              <input type="checkbox" checked={allowDuplicates} onChange={(e) => setAllowDuplicates(e.target.checked)} />
-              <span style={{ fontSize: '12px', color: 'white' }}>允許重複</span>
-            </label>
-            <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
+            <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
           </div>
         </div>
 
-        {/* Weekly Menu */}
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 20px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>一週餐單</h1>
-          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>
-            {cuisine !== '全部' && `${cuisine} · `}{time !== '全部' && `${time}內 · `}{difficulty !== '全部' && `${difficulty} · `}{servings}人份
-          </p>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>一週餐單</h1>
+          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>{selectedServings}人份 · 每日{selectedMeals}餐</p>
 
+          {/* Timeline Style */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '40px' }}>
             {weeklyMenu.map((meal, index) => (
               <div key={index} style={{ display: 'flex', gap: '16px' }}>
@@ -220,7 +147,7 @@ const recipeIngredients = {
                   <div style={{ height: '80px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
                   <div style={{ padding: '12px' }}>
                     <span style={{ background: colors.brown, color: 'white', padding: '2px 8px', borderRadius: '8px', fontSize: '11px' }}>{meal.day}</span>
-                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: colors.brown, margin: '8px 0 4px' }}>{meal.name}</h3>
+                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: colors.brown, margin: '8px 0 4px' }}>{meal.name}</h3>
                     <p style={{ fontSize: '12px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
                   </div>
                 </div>
@@ -228,16 +155,15 @@ const recipeIngredients = {
             ))}
           </div>
 
-          {/* Shopping List */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({servings}人份)</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({selectedServings}人份)</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {shoppingList.map((item, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", background: "#faf8f5", borderRadius: "8px" }}>
-            <span style={{ color: "#264653" }}>{item.name.split(' ')[0]}</span>
-            <span style={{ color: "#6b7280", fontSize: "13px" }}>{item.name.split(' ')[1] || ''}</span>
-          </div>
-        ))}
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#faf8f5', borderRadius: '8px' }}>
+                  <span style={{ color: colors.text }}>{item.name.split(' ')[1] || item.name}</span>
+                  <span style={{ color: colors.textLight, fontSize: '13px' }}>{item.name.split(' ')[0]}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -247,6 +173,5 @@ const recipeIngredients = {
         </footer>
       </div>
     </>
-  )
+  );
 }
-export const dynamic = 'force-dynamic'
