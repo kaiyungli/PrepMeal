@@ -153,7 +153,7 @@ const recipeIngredients = {
         <div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: { base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: '16px', marginBottom: '20px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
