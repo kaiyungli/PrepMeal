@@ -28,7 +28,7 @@ const categories = [
 
 const flavorOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
 const difficultyOptions = ['全部', '易', '中', '難'];
-const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
+const timeOptions = ['全部', '15分鐘', '30分鐘'];
 const equipmentOptions = ['全部', '微波爐', '焗爐', '氣炸鍋', '明火'];
 const servingOptions = [1, 2, 3, 4];
 
@@ -84,7 +84,7 @@ export default function Home() {
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🔍 篩選條件</h3>
             
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>口味</label>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>🥢 邊種菜式</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {flavorOptions.map((opt) => (
                   <button key={opt} onClick={() => setCuisineFilter(opt)} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: cuisineFilter === opt ? colors.brown : '#f0f0f0', color: cuisineFilter === opt ? 'white' : colors.text }}>{opt}</button>
@@ -93,7 +93,7 @@ export default function Home() {
             </div>
             
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>⏱️ 烹飪時間</label>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>⏱️ 煮食時間</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {timeOptions.map((opt) => (
                   <button key={opt} onClick={() => setTimeFilter(opt)} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: timeFilter === opt ? colors.yellow : '#f0f0f0', color: timeFilter === opt ? 'white' : colors.text }}>{opt}</button>
@@ -102,7 +102,7 @@ export default function Home() {
             </div>
             
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>難度</label>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>💪 難度</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {difficultyOptions.map((opt) => (
                   <button key={opt} onClick={() => setDifficultyFilter(opt)} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: difficultyFilter === opt ? colors.yellow : '#f0f0f0', color: difficultyFilter === opt ? 'white' : colors.text }}>{opt}</button>
@@ -111,7 +111,7 @@ export default function Home() {
             </div>
             
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>幾多人</label>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>👥 幾多人</label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {servingOptions.map((opt) => (
                   <button key={opt} onClick={() => setServings(opt)} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
