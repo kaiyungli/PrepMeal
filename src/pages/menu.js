@@ -28,6 +28,46 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
       .then(res => res.json())
       .then(data => {
         setAllRecipes(data.recipes || []);
+        // Generate menu after recipes loaded
+        setTimeout(() => {
+          let filtered = [...(data.recipes || [])];
+          const shuffled = filtered.sort(() => 0.5 - Math.random());
+          const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+          const menu = [];
+          for (let i = 0; i < 7; i++) {
+            menu.push({ day: days[i], ...shuffled[i % shuffled.length] });
+          }
+          setWeeklyMenu(menu);
+          
+          // Shopping list
+          const recipeIngredients = {
+            4: ["番茄 2個", "雞蛋 2隻", "蔥 1棵"],
+            5: ["豆腐 1磚", "豬肉碎 100g", "麻辣醬 2湯匙"],
+            6: ["雞蛋 3隻", "蔥 2條"],
+            7: ["茄子 2條", "豬肉碎 80g"],
+            8: ["排骨 300g", "豆鼓 1湯匙"],
+            9: ["韭菜 200g", "雞蛋 2隻"],
+            10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊"],
+            11: ["排骨 300g", "白醋 3湯匙", "糖 2湯匙"],
+            12: ["菜心 300g", "蒜頭 3瓣"],
+            13: ["雞 半隻", "冬菇 5朵"],
+            14: ["五花肉 500g", "糖 3湯匙"],
+            18: ["蝦仁 150g", "雞蛋 3隻"],
+            19: ["雞翼 6隻", "蒜頭 4瓣"],
+            20: ["芥蘭 300g", "蠔油 2湯匙"],
+            21: ["西蘭花 1棵", "帶子 150g"],
+            23: ["通菜 300g", "腐乳 2件"]
+          };
+          const list = {};
+          menu.forEach(meal => {
+            const ings = recipeIngredients[meal.id] || [];
+            ings.forEach(ing => {
+              if (!list[ing]) list[ing] = { name: ing, count: 1 };
+              else list[ing].count++;
+            });
+          });
+          setShoppingList(Object.values(list));
+        }, 100);
       })
       .catch(() => {});
   }, []);
