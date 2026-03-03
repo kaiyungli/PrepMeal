@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -12,6 +12,13 @@ const colors = {
   textLight: '#6b7280',
 };
 
+// Database recipes
+const recipes = [
+  { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜" },
+  { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理" },
+  { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋" }
+]
+
 const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
 const timeOptions = ['全部', '15分鐘', '30分鐘'];
 const difficultyOptions = ['全部', '易', '中', '難'];
@@ -23,6 +30,26 @@ export default function GeneratePage() {
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
+  const [filteredRecipes, setFilteredRecipes] = useState(recipes);
+
+  // Filter recipes when options change
+  useEffect(() => {
+    let filtered = [...recipes];
+    
+    if (cuisine !== '全部') {
+      filtered = filtered.filter(r => r.cuisine === cuisine);
+    }
+    if (time !== '全部') {
+      const timeMap = { '15分鐘': 15, '30分鐘': 30 };
+      const maxTime = timeMap[time] || 60;
+      filtered = filtered.filter(r => r.cooking_time <= maxTime);
+    }
+    if (difficulty !== '全部') {
+      filtered = filtered.filter(r => r.difficulty === difficulty);
+    }
+    
+    setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
+  }, [cuisine, time, difficulty]);
 
   function handleGenerate() {
     router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}`);
@@ -44,61 +71,101 @@ export default function GeneratePage() {
           <a href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</a>
         </header>
 
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>
-            設定餐單
-          </h1>
-          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>
-            選擇你既偏好，一click生成一週晚餐
-          </p>
+        {/* Search Criteria - Hotel.com Style */}
+        <div style={{ background: colors.brown, padding: '24px 40px' }}>
+          <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+              {/* Cuisine */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {cuisineOptions.map((opt) => (
+                    <button key={opt} onClick={() => setCuisine(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: cuisine === opt ? colors.brown : '#f0f0f0', color: cuisine === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Filters */}
-          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', marginBottom: '24px' }}>
-            {/* Cuisine */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '12px', fontSize: '16px' }}>🥢 邊種菜式</label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {cuisineOptions.map((opt) => (
-                  <button key={opt} onClick={() => setCuisine(opt)} style={{ padding: '10px 18px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: cuisine === opt ? colors.brown : '#f0f0f0', color: cuisine === opt ? 'white' : colors.text }}>{opt}</button>
-                ))}
+              {/* Time */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {timeOptions.map((opt) => (
+                    <button key={opt} onClick={() => setTime(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: time === opt ? colors.yellow : '#f0f0f0', color: time === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {difficultyOptions.map((opt) => (
+                    <button key={opt} onClick={() => setDifficulty(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: difficulty === opt ? colors.yellow : '#f0f0f0', color: difficulty === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Servings */}
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {servingOptions.map((opt) => (
+                    <button key={opt} onClick={() => setServings(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Time */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '12px', fontSize: '16px' }}>⏱️ 煮食時間</label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {timeOptions.map((opt) => (
-                  <button key={opt} onClick={() => setTime(opt)} style={{ padding: '10px 18px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: time === opt ? colors.yellow : '#f0f0f0', color: time === opt ? 'white' : colors.text }}>{opt}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* Difficulty */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '12px', fontSize: '16px' }}>💪 難度</label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {difficultyOptions.map((opt) => (
-                  <button key={opt} onClick={() => setDifficulty(opt)} style={{ padding: '10px 18px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: difficulty === opt ? colors.yellow : '#f0f0f0', color: difficulty === opt ? 'white' : colors.text }}>{opt}</button>
-                ))}
-              </div>
-            </div>
-
-            {/* Servings */}
-            <div style={{ marginBottom: '0px' }}>
-              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '12px', fontSize: '16px' }}>👥 幾多人</label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {servingOptions.map((opt) => (
-                  <button key={opt} onClick={() => setServings(opt)} style={{ padding: '10px 18px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
-                ))}
-              </div>
-            </div>
+            {/* Generate Button */}
+            <button onClick={handleGenerate} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+              🍳 生成餐單
+            </button>
           </div>
+        </div>
 
-          {/* Generate Button */}
-          <button onClick={handleGenerate} style={{ width: '100%', padding: '18px', fontSize: '18px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '30px', cursor: 'pointer' }}>
-            🍳 生成餐單
-          </button>
+        {/* Results - Hotel.com Style */}
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px 40px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>
+            搵到 {filteredRecipes.length} 款食譜
+          </h2>
+
+          {/* Recipe Results List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {filteredRecipes.map((recipe) => (
+              <div key={recipe.id} style={{ display: 'flex', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                {/* Image */}
+                <div style={{ width: '180px', minHeight: '140px', background: recipe.image_url ? `url(${recipe.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {!recipe.image_url && <span style={{ fontSize: '40px' }}>🍳</span>}
+                </div>
+                
+                {/* Info */}
+                <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '4px' }}>{recipe.name}</h3>
+                      <p style={{ fontSize: '14px', color: colors.textLight }}>{recipe.description}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+                    {recipe.tags && recipe.tags.map((tag, i) => (
+                      <span key={i} style={{ background: colors.lightBg, padding: '2px 10px', borderRadius: '4px', fontSize: '12px', color: colors.textLight }}>{tag}</span>
+                    ))}
+                  </div>
+                  
+                  {/* Meta */}
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: colors.text }}>
+                    <span>⏱️ {recipe.cooking_time}分鐘</span>
+                    <span>💪 {recipe.difficulty}</span>
+                    <span>🔥 {recipe.calories} kcal</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
