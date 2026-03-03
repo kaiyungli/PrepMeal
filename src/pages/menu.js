@@ -35,6 +35,18 @@ const recipeIngredients = {
   10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊"]
 };
 
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      cuisine: context.query.cuisine || '',
+      time: context.query.time || '',
+      difficulty: context.query.difficulty || '',
+      servings: context.query.servings || '',
+      mealsPerDay: context.query.mealsPerDay || 1
+    }
+  };
+}
+
 export default function MenuPage({ cuisine, time, difficulty, servings, mealsPerDay }) {
   const [allRecipes] = useState(sampleRecipes);
   const [weeklyMenu, setWeeklyMenu] = useState([]);
