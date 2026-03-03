@@ -27,7 +27,9 @@ export default function Home() {
     async function fetchRecipes() {
       try {
         console.time('API fetch');
+                    console.time('API fetch');
                     const res = await fetch('/api/recipes?limit=50');
+                    console.timeEnd('API fetch');
         const data = await res.json();
                         console.timeEnd('Detail fetch');
         console.timeEnd('API fetch');
