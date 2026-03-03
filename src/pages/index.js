@@ -386,7 +386,7 @@ export default function Home() {
                     <p style={{ fontSize: '13px', color: colors.textLight, marginBottom: '8px' }}>
                       {meal.cooking_time}分鐘 · {meal.cuisine}{(meal?.calories) && ` · ${meal.calories} kcal`}
                     </p>
-                    {meal.tags && meal.tags.length > 0 && (
+                    {(meal?.tags?.length > 0) && (
                       <div style={{ marginBottom: '8px' }}>
                         {meal.tags.slice(0, 2).map((tag, idx) => (
                           <span key={idx} style={{ 
@@ -628,20 +628,6 @@ export default function Home() {
                   <p style={{ fontSize: '14px', color: colors.text, marginBottom: '20px', lineHeight: '1.6' }}>
                     {selectedRecipe.description}
                   </p>
-                )}
-                
-                {/* Instructions */}
-                {(selectedRecipe?.instructions?.length > 0) && (
-                  <div style={{ marginBottom: '20px' }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>做法</h4>
-                    <ol style={{ paddingLeft: '20px', margin: 0 }}>
-                      {selectedRecipe.instructions.map((step, idx) => (
-                        <li key={idx} style={{ fontSize: '14px', color: colors.text, marginBottom: '8px', lineHeight: '1.5' }}>
-                          {step}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
                 )}
                 
                 <button 
