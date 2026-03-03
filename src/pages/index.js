@@ -630,6 +630,20 @@ export default function Home() {
                   </p>
                 )}
                 
+                {/* Instructions */}
+                {(selectedRecipe?.instructions && Array.isArray(selectedRecipe.instructions) && selectedRecipe.instructions.length > 0) && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>做法</h4>
+                    <ol style={{ paddingLeft: '20px', margin: 0 }}>
+                      {selectedRecipe.instructions.map((step, idx) => (
+                        <li key={idx} style={{ fontSize: '14px', color: colors.text, marginBottom: '8px', lineHeight: '1.5' }}>
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                
                 <button 
                   onClick={() => setSelectedRecipe(null)}
                   style={{
