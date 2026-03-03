@@ -39,6 +39,26 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
   const [shoppingList, setShoppingList] = useState([]);
 
   // Generate menu function
+  // Ingredients for each recipe
+const recipeIngredients = {
+  4: ["番茄 2個", "雞蛋 2隻", "蔥 1棵", "鹽 少許"],
+  5: ["豆腐 1磚", "豬肉碎 100g", "麻辣醬 2湯匙", "蒜頭 2瓣"],
+  6: ["雞蛋 3隻", "蔥 2條", "鹽 少許", "鼓油 1湯匙"],
+  7: ["茄子 2條", "豬肉碎 80g", "蒜頭 3瓣", "豆瓣醬 1湯匙"],
+  8: ["排骨 300g", "豆鼓 1湯匙", "蒜頭 2瓣", "鼓油 2湯匙"],
+  9: ["韭菜 200g", "雞蛋 2隻", "鹽 少許"],
+  10: ["雞翼 4隻", "薯仔 2個", "咖喱磚 1塊", "洋蔥 1個"],
+  11: ["排骨 300g", "白醋 3湯匙", "糖 2湯匙", "茄汁 2湯匙"],
+  12: ["菜心 300g", "蒜頭 3瓣", "蠔油 2湯匙"],
+  13: ["雞 半隻", "冬菇 5朵", "薑 3片", "鼓油 2湯匙"],
+  14: ["五花肉 500g", "糖 3湯匙", "生抽 2湯匙", "老抽 1湯匙"],
+  18: ["蝦仁 150g", "雞蛋 3隻", "鹽 少許"],
+  19: ["雞翼 6隻", "蒜頭 4瓣", "鹽 少許"],
+  20: ["芥蘭 300g", "蠔油 2湯匙", "蒜頭 2瓣"],
+  21: ["西蘭花 1棵", "帶子 150g", "蒜頭 2瓣", "鹽 少許"],
+  23: ["通菜 300g", "腐乳 2件", "蒜頭 3瓣", "辣椒 1隻"]
+};
+
   const generateMenu = () => {
     let filtered = [...allRecipes];
     if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
@@ -53,10 +73,15 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
     }
     setWeeklyMenu(menu);
 
-    // Shopping list
+    // Shopping list with ingredients
     const list = {};
     menu.forEach(meal => {
-      if (!list[meal.name]) list[meal.name] = { name: meal.name, count: servings };
+      const ingredients = recipeIngredients[meal.id] || [];
+      ingredients.forEach(ing => {
+        const name = ing.replace(/[0-9]/g, '').trim();
+        if (!list[name]) list[name] = { name: ing, count: 1 };
+        else list[name].count++;
+      });
     });
     setShoppingList(Object.values(list));
   };
