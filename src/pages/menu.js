@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 
@@ -12,11 +12,7 @@ const colors = {
   textLight: '#6b7280',
 };
 
-const allRecipes = [
-  { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜" },
-  { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理" },
-  { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋" }
-]
+// Recipes fetched from API
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
 const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
@@ -25,6 +21,16 @@ const difficultyOptions = ['全部', '易', '中', '難'];
 const servingOptions = [1, 2, 3, 4];
 
 export default function MenuPage({ cuisine: initialCuisine, time: initialTime, difficulty: initialDifficulty, servings: initialServings }) {
+  const [allRecipes, setAllRecipes] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/recipes')
+      .then(res => res.json())
+      .then(data => {
+        setAllRecipes(data.recipes || []);
+      })
+      .catch(() => {});
+  }, []);
   const [cuisine, setCuisine] = useState(initialCuisine || '全部');
   const [time, setTime] = useState(initialTime || '全部');
   const [difficulty, setDifficulty] = useState(initialDifficulty || '全部');
