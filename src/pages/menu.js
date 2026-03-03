@@ -38,9 +38,10 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
       shuffled = [...filtered].sort(() => 0.5 - Math.random());
     }
           const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+          const mpd = parseInt(initialMealsPerDay) || 1;
           const menu = [];
-          for (let i = 0; i < 7 * (parseInt(initialMealsPerDay) || 1); i++) {
-            menu.push({ day: days[Math.floor(i/(parseInt(initialMealsPerDay) || 1))], ...shuffled[i % shuffled.length] });
+          for (let i = 0; i < 7 * mpd; i++) {
+            menu.push({ day: days[Math.floor(i/mpd)], ...shuffled[i % shuffled.length] });
           }
           setWeeklyMenu(menu);
           
@@ -115,8 +116,8 @@ const recipeIngredients = {
     // Fill up to 7 days with unique recipes (shuffle first)
     const shuffled = [...filtered].sort(() => 0.5 - Math.random());
     let menu = [];
-    for (let i = 0; i < 7 * (parseInt(initialMealsPerDay) || 1); i++) {
-      menu.push({ day: days[Math.floor(i/(parseInt(initialMealsPerDay) || 1))], ...shuffled[i % shuffled.length] });
+    for (let i = 0; i < 7 * mpd; i++) {
+      menu.push({ day: days[Math.floor(i/mpd)], ...shuffled[i % shuffled.length] });
     }
     setWeeklyMenu(menu);
 
