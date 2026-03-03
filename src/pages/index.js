@@ -18,6 +18,16 @@ const recipes = [
   { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋", instructions: ["蛋發勻", "加入蔥花", "加水調味", "蒸10分鐘"] }
 ]
 
+const sampleMenu = [
+  { day: '星期一', recipe: recipes[0] },
+  { day: '星期二', recipe: recipes[1] },
+  { day: '星期三', recipe: recipes[2] },
+  { day: '星期四', recipe: recipes[0] },
+  { day: '星期五', recipe: recipes[1] },
+  { day: '星期六', recipe: recipes[2] },
+  { day: '星期日', recipe: recipes[0] },
+];
+
 const categories = [
   { name: '中式', icon: '🥢' },
   { name: '西式', icon: '🍝' },
@@ -65,7 +75,7 @@ export default function Home() {
           </div>
           <nav style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
             <a href="#" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>首頁</a>
-            <a href="#" style={{ color: colors.textLight, textDecoration: 'none' }}>食譜</a>
+            <a href="/recipes" style={{ color: colors.textLight, textDecoration: 'none' }}>食譜</a>
             <a href="#" style={{ color: colors.textLight, textDecoration: 'none' }}>關於</a>
             <button onClick={() => window.location.href = `/generate?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ background: colors.yellow, color: 'white', border: 'none', padding: '12px 24px', borderRadius: '25px', fontWeight: '600', cursor: 'pointer' }}>開始整</button>
           </nav>
@@ -78,8 +88,8 @@ export default function Home() {
           <button onClick={() => window.location.href = `/generate?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ padding: '16px 40px', fontSize: '18px', fontWeight: '600', background: 'white', color: colors.brown, border: 'none', borderRadius: '30px', cursor: 'pointer' }}>開始整 🍳</button>
         </section>
 
-        {/* Filters */}
-        <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
+        {/* Filters (use /generate page) */}
+        {/* <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🔍 篩選條件</h3>
             
