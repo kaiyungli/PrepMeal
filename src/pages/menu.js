@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -113,11 +114,11 @@ export default function MenuPage() {
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <span style={{ fontSize: '24px' }}>🥘</span>
             <span style={{ fontSize: '20px', fontWeight: '700', color: colors.brown }}>今晚食乜</span>
-          </div>
-          <a href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</a>
+          </Link>
+          <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</Link>
         </header>
 
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 20px' }}>

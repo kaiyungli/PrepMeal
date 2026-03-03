@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Head from 'next/head';
 
 const colors = {
@@ -29,10 +30,10 @@ export default function RecipesPage() {
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}
         <header style={{ background: colors.cream, padding: '20px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <span style={{ fontSize: '28px' }}>🥘</span>
             <span style={{ fontSize: '22px', fontWeight: '700', color: colors.brown }}>今晚食乜</span>
-          </div>
+          </Link>
           <nav style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
             <a href="/" style={{ color: colors.textLight, textDecoration: 'none' }}>首頁</a>
             <a href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>生成餐單</a>
