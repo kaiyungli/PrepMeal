@@ -19,6 +19,7 @@ const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素�
 const timeOptions = ['全部', '15分鐘', '30分鐘'];
 const difficultyOptions = ['全部', '易', '中', '難'];
 const servingOptions = [1, 2, 3, 4];
+const mealsPerDayOptions = [1, 2, 3];
 
 export default function GeneratePage() {
   const [allRecipes, setAllRecipes] = useState([]);
@@ -36,6 +37,7 @@ export default function GeneratePage() {
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
+  const [mealsPerDay, setMealsPerDay] = useState(1);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
 
   const filterRecipes = () => {
@@ -53,7 +55,7 @@ export default function GeneratePage() {
   }, [allRecipes, cuisine, time, difficulty]);
 
   function handleGenerate() {
-    router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}`);
+    router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}&mealsPerDay=${mealsPerDay}`);
   }
 
   return (
@@ -101,6 +103,14 @@ export default function GeneratePage() {
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {servingOptions.map((opt) => (
                     <button key={opt} onClick={() => setServings(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🍱 一日幾多個菜</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {mealsPerDayOptions.map((opt) => (
+                    <button key={opt} onClick={() => setMealsPerDay(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: mealsPerDay === opt ? colors.yellow : '#f0f0f0', color: mealsPerDay === opt ? 'white' : colors.text }}>{opt}個菜</button>
                   ))}
                 </div>
               </div>

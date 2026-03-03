@@ -20,7 +20,7 @@ const timeOptions = ['全部', '15分鐘', '30分鐘'];
 const difficultyOptions = ['全部', '易', '中', '難'];
 const servingOptions = [1, 2, 3, 4];
 
-export default function MenuPage({ cuisine: initialCuisine, time: initialTime, difficulty: initialDifficulty, servings: initialServings }) {
+export default function MenuPage({ cuisine: initialCuisine, time: initialTime, difficulty: initialDifficulty, servings: initialServings, mealsPerDay: initialMealsPerDay }) {
   const [allRecipes, setAllRecipes] = useState([]);
   
   useEffect(() => {
@@ -34,8 +34,8 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
           const shuffled = filtered.sort(() => 0.5 - Math.random());
           const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
           const menu = [];
-          for (let i = 0; i < 7; i++) {
-            menu.push({ day: days[i], ...shuffled[i % shuffled.length] });
+          for (let i = 0; i < 7 * mealsPerDay; i++) {
+            menu.push({ day: days[Math.floor(i/mealsPerDay)], ...shuffled[i % shuffled.length] });
           }
           setWeeklyMenu(menu);
           
@@ -75,6 +75,7 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
   const [time, setTime] = useState(initialTime || '全部');
   const [difficulty, setDifficulty] = useState(initialDifficulty || '全部');
   const [servings, setServings] = useState(parseInt(initialServings) || 2);
+  const [mealsPerDay, setMealsPerDay] = useState(parseInt(initialMealsPerDay) || 1);
   const [weeklyMenu, setWeeklyMenu] = useState([]);
   const [shoppingList, setShoppingList] = useState([]);
 
@@ -108,8 +109,8 @@ const recipeIngredients = {
     // Fill up to 7 days with unique recipes (shuffle first)
     const shuffled = [...filtered].sort(() => 0.5 - Math.random());
     let menu = [];
-    for (let i = 0; i < 7; i++) {
-      menu.push({ day: days[i], ...shuffled[i % shuffled.length] });
+    for (let i = 0; i < 7 * mealsPerDay; i++) {
+      menu.push({ day: days[Math.floor(i/mealsPerDay)], ...shuffled[i % shuffled.length] });
     }
     setWeeklyMenu(menu);
 
