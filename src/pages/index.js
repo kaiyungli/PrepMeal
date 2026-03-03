@@ -187,7 +187,7 @@ export default function Home() {
             每日晚餐話你知，一click生成一週餐單
           </p>
           <button
-            onClick={handleGenerate}
+            onClick={() => window.location.href = "/menu"}
             style={{
               padding: '16px 40px',
               fontSize: '18px',
@@ -606,7 +606,7 @@ export default function Home() {
             {/* Regenerate Button */}
             <div onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center', marginTop: '40px' }}>
               <button
-                onClick={handleGenerate}
+                onClick={() => window.location.href = "/menu"}
                 style={{
                   padding: '14px 36px',
                   fontSize: '16px',
