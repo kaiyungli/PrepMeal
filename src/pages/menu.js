@@ -153,19 +153,25 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
 
           {/* Grouped by Day */}
           <div style={{ marginBottom: '40px' }}>
-            {Object.entries(groupedMenu).map(([day, meals]) => (
-              <div key={day} style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>{day}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
-                  {meals.map((meal, idx) => (
-                    <div key={idx} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-                      <div style={{ height: '70px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                      <div style={{ padding: '10px' }}>
-                        <p style={{ fontSize: '14px', fontWeight: '600', color: colors.brown, marginBottom: '4px' }}>{meal.name}</p>
-                        <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
+            {Object.entries(groupedMenu).map(([day, meals], idx) => (
+              <div key={day} style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: colors.yellow, border: '3px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1 }} />
+                  {idx < Object.keys(groupedMenu).length - 1 && <div style={{ width: '2px', flex: 1, background: '#e5e5e5', marginTop: '4px' }} />}
+                </div>
+                <div style={{ flex: 1, marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>{day}</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+                    {meals.map((meal, midx) => (
+                      <div key={midx} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
+                        <div style={{ height: '70px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                        <div style={{ padding: '10px' }}>
+                          <p style={{ fontSize: '14px', fontWeight: '600', color: colors.brown, marginBottom: '4px' }}>{meal.name}</p>
+                          <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
