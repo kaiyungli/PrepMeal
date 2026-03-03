@@ -67,7 +67,7 @@ export default function Home() {
             <a href="#" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>首頁</a>
             <a href="#" style={{ color: colors.textLight, textDecoration: 'none' }}>食譜</a>
             <a href="#" style={{ color: colors.textLight, textDecoration: 'none' }}>關於</a>
-            <button onClick={() => window.location.href = `/menu?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ background: colors.yellow, color: 'white', border: 'none', padding: '12px 24px', borderRadius: '25px', fontWeight: '600', cursor: 'pointer' }}>開始整</button>
+            <button onClick={() => window.location.href = `/generate?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ background: colors.yellow, color: 'white', border: 'none', padding: '12px 24px', borderRadius: '25px', fontWeight: '600', cursor: 'pointer' }}>開始整</button>
           </nav>
         </header>
 
@@ -75,7 +75,7 @@ export default function Home() {
         <section style={{ background: `linear-gradient(135deg, ${colors.brown} 0%, ${colors.yellow} 100%)`, padding: '80px 40px', textAlign: 'center' }}>
           <h1 style={{ fontSize: '48px', fontWeight: '800', color: 'white', marginBottom: '16px' }}>今晚食乜？</h1>
           <p style={{ fontSize: '20px', color: 'white', marginBottom: '32px' }}>每日晚餐話你知，一click生成一週餐單</p>
-          <button onClick={() => window.location.href = `/menu?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ padding: '16px 40px', fontSize: '18px', fontWeight: '600', background: 'white', color: colors.brown, border: 'none', borderRadius: '30px', cursor: 'pointer' }}>開始整 🍳</button>
+          <button onClick={() => window.location.href = `/generate?cuisine=${cuisineFilter}&time=${timeFilter}&difficulty=${difficultyFilter}&servings=${servings}`} style={{ padding: '16px 40px', fontSize: '18px', fontWeight: '600', background: 'white', color: colors.brown, border: 'none', borderRadius: '30px', cursor: 'pointer' }}>開始整 🍳</button>
         </section>
 
         {/* Filters */}
