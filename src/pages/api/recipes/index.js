@@ -5,36 +5,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  console.time('API /recipes');
   try {
-    const { cuisine, difficulty, limit = 20 } = req.query
+    console.time('API /recipes')
     
-    // Only fetch essential fields for homepage
-    let query = supabase
+    const { limit = 20 } = req.query
+    
+    // Simple query - just get essential fields
+    const { data: recipes, error } = await supabase
       .from('recipes')
       .select('id, name, cooking_time, difficulty, cuisine, calories, tags, description, image_url')
-      .order('id')
       .limit(parseInt(limit))
     
-    if (cuisine && cuisine !== '全部') {
-      query = query.eq('cuisine', cuisine)
+    console.timeEnd('API /recipes')
+    
+    if (error) {
+      console.error('Supabase error:', error)
+      return res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
+    res.status(200).json({ recipes: [], source: 'error' })
     }
     
-    if (difficulty && difficulty !== '全部') {
-      query = query.eq('difficulty', difficulty)
-    }
-    
-    const { data: recipes, error } = await query
-    
-    if (error || !recipes || recipes.length === 0) {
-      return console.timeEnd('API /recipes');
-    res.status(200).json({ recipes: [], source: 'empty' })
-    }
-    
-    console.timeEnd('API /recipes');
-    res.status(200).json({ recipes, source: 'supabase' })
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    res.status(200).json({ recipes: recipes || [], source: 'supabase' })
   } catch (error) {
     console.error('Error:', error)
+    res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
     res.status(200).json({ recipes: [], source: 'error' })
   }
 }
