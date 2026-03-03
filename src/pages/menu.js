@@ -31,7 +31,12 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
         // Generate menu after recipes loaded
         setTimeout(() => {
           let filtered = [...(data.recipes || [])];
-          const shuffled = filtered.sort(() => 0.5 - Math.random());
+          let shuffled;
+    if (allowDuplicates) {
+      shuffled = [...filtered];
+    } else {
+      shuffled = [...filtered].sort(() => 0.5 - Math.random());
+    }
           const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
           const menu = [];
           for (let i = 0; i < 7 * (parseInt(initialMealsPerDay) || 1); i++) {
@@ -76,6 +81,7 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
   const [difficulty, setDifficulty] = useState(initialDifficulty || '全部');
   const [servings, setServings] = useState(parseInt(initialServings) || 2);
   const [mealsPerDay, setMealsPerDay] = useState(parseInt(initialMealsPerDay) || 1);
+  const [allowDuplicates, setAllowDuplicates] = useState(false);
   const [weeklyMenu, setWeeklyMenu] = useState([]);
   const [shoppingList, setShoppingList] = useState([]);
 
@@ -187,6 +193,10 @@ const recipeIngredients = {
                 </div>
               </div>
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginRight: '12px' }}>
+              <input type="checkbox" checked={allowDuplicates} onChange={(e) => setAllowDuplicates(e.target.checked)} />
+              <span style={{ fontSize: '12px', color: 'white' }}>允許重複</span>
+            </label>
             <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
           </div>
         </div>
@@ -198,16 +208,20 @@ const recipeIngredients = {
             {cuisine !== '全部' && `${cuisine} · `}{time !== '全部' && `${time}內 · `}{difficulty !== '全部' && `${difficulty} · `}{servings}人份
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '12px', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '40px' }}>
             {weeklyMenu.map((meal, index) => (
-              <div key={index} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-                <div style={{ padding: '12px', background: colors.brown, color: 'white', textAlign: 'center', fontSize: '13px', fontWeight: '600' }}>
-                  {meal.day}
+              <div key={index} style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: colors.yellow, border: '3px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1 }} />
+                  {index < weeklyMenu.length - 1 && <div style={{ width: '2px', flex: 1, background: '#e5e5e5', marginTop: '4px' }} />}
                 </div>
-                <div style={{ height: '60px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                <div style={{ padding: '12px' }}>
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: colors.brown, marginBottom: '4px', lineHeight: '1.3' }}>{meal.name}</p>
-                  <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘</p>
+                <div style={{ flex: 1, background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', marginBottom: index < weeklyMenu.length - 1 ? '16px' : '0' }}>
+                  <div style={{ height: '80px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div style={{ padding: '12px' }}>
+                    <span style={{ background: colors.brown, color: 'white', padding: '2px 8px', borderRadius: '8px', fontSize: '11px' }}>{meal.day}</span>
+                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: colors.brown, margin: '8px 0 4px' }}>{meal.name}</h3>
+                    <p style={{ fontSize: '12px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
+                  </div>
                 </div>
               </div>
             ))}
