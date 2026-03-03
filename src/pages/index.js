@@ -28,7 +28,7 @@ export default function Home() {
       <section style={{ padding: '40px 40px', maxWidth: '1000px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#264653', marginBottom: '24px', textAlign: 'center' }}>精選食譜</h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '32px' }}>
           {featuredRecipes.map((recipe) => (
             <div key={recipe.id} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
               <div style={{ height: '140px', background: `url(${recipe.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
