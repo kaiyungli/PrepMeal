@@ -414,7 +414,18 @@ export default function Home() {
                         {meal.description}
                       </p>
                     )}
-                    <button onClick={() => setSelectedRecipe(meal)} style={{
+                    <button onClick={async () => {
+                      setSelectedRecipe({ ...meal, loadingDetails: true });
+                      try {
+                        const res = await fetch('/api/recipes/' + meal.id);
+                        const data = await res.json();
+                        if (data.recipe) {
+                          setSelectedRecipe({ ...meal, ...data.recipe, loadingDetails: false });
+                        }
+                      } catch (e) {
+                        setSelectedRecipe({ ...meal, loadingDetails: false });
+                      }
+                    }} style={{
                       width: '100%',
                       padding: '10px',
                       background: 'transparent',
@@ -608,6 +619,7 @@ export default function Home() {
               <div style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>
                   {selectedRecipe.name}
+                  {selectedRecipe.loadingDetails && <span style={{ fontSize: '14px', color: colors.textLight }}> (載入中...)</span>}
                 </h2>
                 <p style={{ fontSize: '14px', color: colors.textLight, marginBottom: '16px' }}>
                   {selectedRecipe.cooking_time}分鐘 · {selectedRecipe.difficulty} · {selectedRecipe.cuisine}
