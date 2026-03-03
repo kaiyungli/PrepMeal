@@ -48,8 +48,6 @@ export default function Home() {
   const [servings, setServings] = useState(2);
 
   useEffect(() => {
-    // Use static data - instant!
-    setRecipeList(recipes);
     setLoading(false);
   }, []);
 
