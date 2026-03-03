@@ -595,13 +595,13 @@ export default function Home() {
 
         {/* Recipe Detail Modal */}
         {selectedRecipe && (
-          <div onClick={(e) => e.stopPropagation()} style={{
+          <div onClick={() => setSelectedRecipe(null)} style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.5)', onClick: () => setSelectedRecipe(null),
+            background: 'rgba(0,0,0,0.5)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
