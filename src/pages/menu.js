@@ -14,7 +14,6 @@ const colors = {
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
 
-// Simple static recipes for fast loading
 const sampleRecipes = [
   { id: 4, name: "番茄炒蛋", cooking_time: 5, difficulty: "易", cuisine: "中式", calories: 180, image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
   { id: 5, name: "麻婆豆腐", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 280, image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
@@ -56,7 +55,6 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty || '全部');
   const [selectedServings] = useState(parseInt(servings) || 2);
   const [selectedMeals] = useState(parseInt(mealsPerDay) || 1);
-  const [allowDuplicates, setAllowDuplicates] = useState(false);
 
   useEffect(() => {
     generateMenu();
@@ -74,11 +72,10 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
     
     for (let i = 0; i < 7 * mpd; i++) {
       const dayIndex = Math.floor(i / mpd);
-      menu.push({ day: days[dayIndex], ...shuffled[i % shuffled.length], slot: i % mpd });
+      menu.push({ day: days[dayIndex], ...shuffled[i % shuffled.length] });
     }
     setWeeklyMenu(menu);
 
-    // Shopping list
     const list = {};
     menu.forEach(meal => {
       const ings = recipeIngredients[meal.id] || [];
@@ -89,6 +86,13 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
     });
     setShoppingList(Object.values(list));
   }
+
+  // Group menu by day
+  const groupedMenu = weeklyMenu.reduce((acc, meal) => {
+    if (!acc[meal.day]) acc[meal.day] = [];
+    acc[meal.day].push(meal);
+    return acc;
+  }, {});
 
   return (
     <>
@@ -147,21 +151,21 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
           <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>一週餐單</h1>
           <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>{selectedServings}人份 · 每日{selectedMeals}餐</p>
 
-          {/* Timeline Style */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '40px' }}>
-            {weeklyMenu.map((meal, index) => (
-              <div key={index} style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
-                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: colors.yellow, border: '3px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1 }} />
-                  {index < weeklyMenu.length - 1 && <div style={{ width: '2px', flex: 1, background: '#e5e5e5', marginTop: '4px' }} />}
-                </div>
-                <div style={{ flex: 1, background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', marginBottom: index < weeklyMenu.length - 1 ? '16px' : '0' }}>
-                  <div style={{ height: '80px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                  <div style={{ padding: '12px' }}>
-                    <span style={{ background: colors.brown, color: 'white', padding: '2px 8px', borderRadius: '8px', fontSize: '11px' }}>{meal.day}</span>
-                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: colors.brown, margin: '8px 0 4px' }}>{meal.name}</h3>
-                    <p style={{ fontSize: '12px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
-                  </div>
+          {/* Grouped by Day */}
+          <div style={{ marginBottom: '40px' }}>
+            {Object.entries(groupedMenu).map(([day, meals]) => (
+              <div key={day} style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>{day}</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+                  {meals.map((meal, idx) => (
+                    <div key={idx} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
+                      <div style={{ height: '70px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                      <div style={{ padding: '10px' }}>
+                        <p style={{ fontSize: '14px', fontWeight: '600', color: colors.brown, marginBottom: '4px' }}>{meal.name}</p>
+                        <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
