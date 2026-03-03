@@ -54,7 +54,7 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
   const [selectedTime, setSelectedTime] = useState(time || '全部');
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty || '全部');
   const [selectedServings] = useState(parseInt(servings) || 2);
-  const [selectedMeals] = useState(parseInt(mealsPerDay) || 1);
+  const [selectedMeals, setSelectedMeals] = useState(parseInt(mealsPerDay) || 1);
 
   useEffect(() => {
     generateMenu();
@@ -142,6 +142,14 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
                   ))}
                 </div>
               </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: colors.textLight, marginBottom: '8px' }}>🍽️ 每日餐數</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {[1,2,3].map(opt => (
+                    <button key={opt} onClick={() => { setSelectedMeals(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, background: selectedMeals === opt ? colors.yellow : '#f0f0f0', color: selectedMeals === opt ? 'white' : colors.text }}>{opt}個菜</button>
+                  ))}
+                </div>
+              </div>
             </div>
             <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
           </div>
@@ -161,7 +169,7 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
                 </div>
                 <div style={{ flex: 1, marginBottom: '24px' }}>
                   <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>{day}</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
                     {meals.map((meal, midx) => (
                       <div key={midx} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
                         <div style={{ height: '70px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
