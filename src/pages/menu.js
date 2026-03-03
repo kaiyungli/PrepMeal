@@ -62,7 +62,7 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
   };
 
   // Generate on mount
-  useState(() => { generateMenu(); });
+  useEffect(() => { generateMenu(); }, [allRecipes]);
 
   const regenerateDay = (dayIndex) => {
     const newMenu = [...weeklyMenu];
