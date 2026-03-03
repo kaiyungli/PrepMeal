@@ -219,8 +219,8 @@ const recipeIngredients = {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {shoppingList.map((item, i) => (
           <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", background: "#faf8f5", borderRadius: "8px" }}>
-            <span style={{ color: "#264653" }}>{item.name.split(' ')[1] || item.name}</span>
-            <span style={{ color: "#6b7280", fontSize: "13px" }}>{item.name.split(' ')[0]}</span>
+            <span style={{ color: "#264653" }}>{item.name.split(' ')[0]}</span>
+            <span style={{ color: "#6b7280", fontSize: "13px" }}>{item.name.split(' ')[1] || ''}</span>
           </div>
         ))}
             </div>
