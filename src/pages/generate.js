@@ -32,25 +32,16 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
   const [filteredRecipes, setFilteredRecipes] = useState(recipes);
+  filterRecipes();
 
   // Filter recipes when options change
-  useEffect(() => {
+  const filterRecipes = () => {
     let filtered = [...recipes];
-    
-    if (cuisine !== '全部') {
-      filtered = filtered.filter(r => r.cuisine === cuisine);
-    }
-    if (time !== '全部') {
-      const timeMap = { '15分鐘': 15, '30分鐘': 30 };
-      const maxTime = timeMap[time] || 60;
-      filtered = filtered.filter(r => r.cooking_time <= maxTime);
-    }
-    if (difficulty !== '全部') {
-      filtered = filtered.filter(r => r.difficulty === difficulty);
-    }
-    
+    if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
+    if (time !== '全部') filtered = filtered.filter(r => r.cooking_time <= (time === '15分鐘' ? 15 : 30));
+    if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
     setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
-  }, [cuisine, time, difficulty]);
+  }
 
   function handleGenerate() {
     router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}`);
