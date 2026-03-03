@@ -44,6 +44,7 @@ export default function Home() {
   const [view, setView] = useState('home');
   const [recipes, setRecipes] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSpinner, setShowSpinner] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cuisineFilter, setCuisineFilter] = useState('全部');
@@ -360,7 +361,12 @@ export default function Home() {
               width: '100%',
               boxSizing: 'border-box',
             }}>
-              {((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
+              {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <div style={{ fontSize: '32px' }}>🍳</div>
+              <p style={{ color: colors.textLight }}>載入中...</p>
+            </div>
+          ) : ((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
                 <div key={i} style={{
                   background: 'white',
                   borderRadius: '12px',
