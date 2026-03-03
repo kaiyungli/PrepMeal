@@ -85,7 +85,7 @@ export default function Home() {
   }
 
   function handleGenerate() {
-    // Use recipes from database if available, otherwise fallback to mock
+    // Use recipes from database if available, otherwise fallback to empty array
     let availableRecipes = (recipes || []).length > 0 ? recipes : [];
     
     // Apply filters
