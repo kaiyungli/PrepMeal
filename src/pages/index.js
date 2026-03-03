@@ -122,7 +122,7 @@ export default function Home() {
         <meta name="description" content="Generate weekly meal plan" />
       </Head>
 
-      <div style={{
+      <div onClick={(e) => e.stopPropagation()} style={{
         minHeight: '100vh',
         background: colors.cream,
         fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -139,7 +139,7 @@ export default function Home() {
           top: 0,
           zIndex: 100,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '28px' }}>🥘</span>
             <span style={{ fontSize: '22px', fontWeight: '700', color: colors.brown }}>今晚食乜</span>
           </div>
@@ -201,7 +201,7 @@ export default function Home() {
 
         {/* Filters */}
         <section style={{ padding: '20px 40px', maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ maxWidth: '1000px', margin: '0 auto', 
+          <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1000px', margin: '0 auto', 
             background: 'white', 
             borderRadius: '16px', 
             padding: '24px',
@@ -210,7 +210,7 @@ export default function Home() {
             overflow: 'hidden',
             transition: 'max-height 0.3s ease',
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.brown }}>🔍 篩選條件</h3>
               <button onClick={() => setFilterExpanded(!filterExpanded)} style={{ padding: '8px 12px', border: 'none', background: '#f0f0f0', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
                 {filterExpanded ? '收起 ▲' : '展開 ▼'}
@@ -218,7 +218,7 @@ export default function Home() {
             </div>
             
             {/* Search */}
-            <div style={{ marginBottom: '24px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '24px' }}>
               <input
                 type="text"
                 placeholder="搜尋食譜..."
@@ -237,11 +237,11 @@ export default function Home() {
             </div>
             
             {/* Time Filter */}
-            <div style={{ marginBottom: '20px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
                 ⏱️ 烹飪時間
               </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {timeOptions.map((opt) => (
                   <button
                     key={opt}
@@ -264,11 +264,11 @@ export default function Home() {
             </div>
             
             {/* Flavor Filter */}
-            <div style={{ marginBottom: '20px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
                 口味
               </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {flavorOptions.map((opt) => (
                   <button
                     key={opt}
@@ -291,11 +291,11 @@ export default function Home() {
             </div>
             
             {/* Difficulty Filter */}
-            <div style={{ marginBottom: '20px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
                 難度
               </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {difficultyOptions.map((opt) => (
                   <button
                     key={opt}
@@ -322,7 +322,7 @@ export default function Home() {
               <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
                 🍳 烹飪設備
               </label>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {equipmentOptions.map((opt) => (
                   <button
                     key={opt}
@@ -358,7 +358,7 @@ export default function Home() {
             }}>
               熱門食譜
             </h2>
-            <div style={{ 
+            <div onClick={(e) => e.stopPropagation()} style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
               gap: '20px',
@@ -366,8 +366,8 @@ export default function Home() {
               boxSizing: 'border-box',
             }}>
               {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <div style={{ fontSize: '32px' }}>🍳</div>
+            <div onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center', padding: '40px' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ fontSize: '32px' }}>🍳</div>
               <p style={{ color: colors.textLight }}>載入中...</p>
             </div>
           ) : ((recipes || []).length > 0 ? recipes.slice(0, 6) : []).map((meal, i) => (
@@ -377,14 +377,14 @@ export default function Home() {
                   overflow: 'hidden',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                 }}>
-                  <div style={{
+                  <div onClick={(e) => e.stopPropagation()} style={{
                     height: '140px',
                     background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                   }} />
-                  <div style={{ padding: '16px' }}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ padding: '16px' }}>
                     <h3 style={{ 
                       fontSize: '16px', 
                       fontWeight: '600', 
@@ -397,7 +397,7 @@ export default function Home() {
                       {meal.cooking_time}分鐘 · {meal.cuisine}{(meal?.calories) && ` · ${meal.calories} kcal`}
                     </p>
                     {(meal?.tags?.length > 0) && (
-                      <div style={{ marginBottom: '8px' }}>
+                      <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '8px' }}>
                         {meal.tags.slice(0, 2).map((tag, idx) => (
                           <span key={idx} style={{ 
                             display: 'inline-block',
@@ -456,7 +456,7 @@ export default function Home() {
         {view === 'menu' && menu && (
           <section style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '32px', justifyContent: 'center' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '16px', marginBottom: '32px', justifyContent: 'center' }}>
               <button
                 onClick={() => setView('menu')}
                 style={{
@@ -492,7 +492,7 @@ export default function Home() {
 
             {/* Menu Grid */}
             {view === 'menu' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                 {menu.map((meal, index) => (
                   <div key={index} style={{
                     background: 'white',
@@ -500,7 +500,7 @@ export default function Home() {
                     overflow: 'hidden',
                     boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   }}>
-                    <div style={{
+                    <div onClick={(e) => e.stopPropagation()} style={{
                       height: '160px',
                       background: meal.image_url ? `url(${meal.image_url})` : `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundPosition: 'center',
                       display: 'flex',
@@ -510,7 +510,7 @@ export default function Home() {
                     }}>
                       🍽️
                     </div>
-                    <div style={{ padding: '20px' }}>
+                    <div onClick={(e) => e.stopPropagation()} style={{ padding: '20px' }}>
                       <span style={{
                         background: colors.brown,
                         color: 'white',
@@ -546,7 +546,7 @@ export default function Home() {
 
             {/* Shopping List */}
             {view === 'shopping' && shoppingList && (
-              <div style={{
+              <div onClick={(e) => e.stopPropagation()} style={{
                 background: 'white',
                 border: 'none',
                 padding: '32px',
@@ -555,7 +555,7 @@ export default function Home() {
                 <h3 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '24px', color: colors.brown }}>
                   🛒 食材清單
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+                <div onClick={(e) => e.stopPropagation()} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
                   {shoppingList.map((item, index) => (
                     <div key={index} style={{ 
                       display: 'flex', 
@@ -573,7 +573,7 @@ export default function Home() {
             )}
 
             {/* Regenerate Button */}
-            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center', marginTop: '40px' }}>
               <button
                 onClick={handleGenerate}
                 style={{
@@ -595,20 +595,20 @@ export default function Home() {
 
         {/* Recipe Detail Modal */}
         {selectedRecipe && (
-          <div style={{
+          <div onClick={(e) => e.stopPropagation()} style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
+            background: 'rgba(0,0,0,0.5)', onClick: () => setSelectedRecipe(null),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
             padding: '20px',
           }}>
-            <div style={{
+            <div onClick={(e) => e.stopPropagation()} style={{
               background: 'white',
               borderRadius: '16px',
               maxWidth: '600px',
@@ -617,14 +617,14 @@ export default function Home() {
               overflow: 'auto',
             }}>
               {(selectedRecipe?.image_url) && (
-                <div style={{
+                <div onClick={(e) => e.stopPropagation()} style={{
                   height: '250px',
                   background: `url(${selectedRecipe.image_url})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }} />
               )}
-              <div style={{ padding: '24px' }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>
                   {selectedRecipe.name}
                   {selectedRecipe.loadingDetails && <span style={{ fontSize: '14px', color: colors.textLight }}> (載入中...)</span>}
@@ -634,7 +634,7 @@ export default function Home() {
                   {selectedRecipe.calories && ` · ${selectedRecipe.calories} kcal`}
                 </p>
                 {(selectedRecipe?.tags?.length > 0) && (
-                  <div style={{ marginBottom: '16px' }}>
+                  <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '16px' }}>
                     {selectedRecipe.tags.map((tag, idx) => (
                       <span key={idx} style={{ 
                         display: 'inline-block',
@@ -665,7 +665,7 @@ export default function Home() {
                     : instructions.split(/\d+\.?/).filter(s => s.trim());
                   if (!steps || steps.length === 0) return null;
                   return (
-                    <div style={{ marginBottom: '20px' }}>
+                    <div onClick={(e) => e.stopPropagation()} style={{ marginBottom: '20px' }}>
                       <h4 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '12px' }}>做法</h4>
                       <ol style={{ paddingLeft: '20px', margin: 0 }}>
                         {steps.map((step, idx) => (
