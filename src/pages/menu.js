@@ -168,3 +168,4 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
     </>
   )
 }
+export const dynamic = 'force-dynamic'
