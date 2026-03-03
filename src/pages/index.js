@@ -4,15 +4,20 @@ import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout, Card } from '@/components';
 
-const sampleMenu = [
-  { day: '星期一', name: '番茄炒蛋', cooking_time: 5 },
-  { day: '星期二', name: '麻婆豆腐', cooking_time: 15 },
-  { day: '星期三', name: '蔥花蒸水蛋', cooking_time: 10 },
-  { day: '星期四', name: '番茄炒蛋', cooking_time: 5 },
-  { day: '星期五', name: '麻婆豆腐', cooking_time: 15 },
-  { day: '星期六', name: '蔥花蒸水蛋', cooking_time: 10 },
-  { day: '星期日', name: '番茄炒蛋', cooking_time: 5 },
+// Sample recipes for homepage
+const sampleRecipes = [
+  { name: '番茄炒蛋', cooking_time: 5 },
+  { name: '麻婆豆腐', cooking_time: 15 },
+  { name: '蔥花蒸水蛋', cooking_time: 10 },
+  { name: '魚香茄子', cooking_time: 15 },
+  { name: '鼓汁蒸排骨', cooking_time: 20 },
+  { name: '韭菜炒蛋', cooking_time: 10 },
+  { name: '蒜蓉炒菜心', cooking_time: 8 },
 ];
+const sampleMenu = sampleRecipes.map((r, i) => ({
+  day: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][i],
+  ...r
+}));
 
 export default function Home() {
   const [servings] = useState(2);

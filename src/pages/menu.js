@@ -45,10 +45,11 @@ export default function MenuPage({ cuisine: initialCuisine, time: initialTime, d
     if (time !== '全部') filtered = filtered.filter(r => r.cooking_time <= (time === '15分鐘' ? 15 : 30));
     if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
 
-    // Fill up to 7 days
+    // Fill up to 7 days with unique recipes (shuffle first)
+    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
     let menu = [];
     for (let i = 0; i < 7; i++) {
-      menu.push({ day: days[i], ...filtered[i % filtered.length] });
+      menu.push({ day: days[i], ...shuffled[i % shuffled.length] });
     }
     setWeeklyMenu(menu);
 
