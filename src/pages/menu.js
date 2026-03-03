@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 const colors = {
@@ -12,111 +12,62 @@ const colors = {
   textLight: '#6b7280',
 };
 
-// All recipes (could be from API in future)
 const allRecipes = [
-  { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜", instructions: ["番茄切塊", "蛋發勻", "炒蛋", "加入番茄"] },
-  { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理", instructions: ["豆腐切塊", "炒肉碎", "加入麻辣醬", "燜煮"] },
-  { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋", instructions: ["蛋發勻", "加入蔥花", "加水調味", "蒸10分鐘"] }
+  { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜" },
+  { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理" },
+  { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋" }
 ]
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
+const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
+const timeOptions = ['全部', '15分鐘', '30分鐘'];
+const difficultyOptions = ['全部', '易', '中', '難'];
+const servingOptions = [1, 2, 3, 4];
 
-export default function MenuPage() {
-  const router = useRouter()
-  const { cuisine, time, difficulty, servings } = router.query
-  
-  const [weeklyMenu, setWeeklyMenu] = useState([])
-  const [shoppingList, setShoppingList] = useState([])
-  const [selectedFilters, setSelectedFilters] = useState({})
+export default function MenuPage({ cuisine: initialCuisine, time: initialTime, difficulty: initialDifficulty, servings: initialServings }) {
+  const [cuisine, setCuisine] = useState(initialCuisine || '全部');
+  const [time, setTime] = useState(initialTime || '全部');
+  const [difficulty, setDifficulty] = useState(initialDifficulty || '全部');
+  const [servings, setServings] = useState(parseInt(initialServings) || 2);
+  const [weeklyMenu, setWeeklyMenu] = useState([]);
+  const [shoppingList, setShoppingList] = useState([]);
 
-  useEffect(() => {
-    // Get filters from URL
-    const filters = {
-      cuisine: cuisine || '全部',
-      time: time || '全部',
-      difficulty: difficulty || '全部',
-      servings: parseInt(servings) || 2
-    }
-    setSelectedFilters(filters)
-    generateMenu(filters)
-  }, [cuisine, time, difficulty, servings])
+  // Generate menu function
+  const generateMenu = () => {
+    let filtered = [...allRecipes];
+    if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
+    if (time !== '全部') filtered = filtered.filter(r => r.cooking_time <= (time === '15分鐘' ? 15 : 30));
+    if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
 
-  function generateMenu(filters) {
-    // Filter recipes based on user selection
-    let filtered = [...allRecipes]
-    
-    if (filters.cuisine && filters.cuisine !== '全部') {
-      filtered = filtered.filter(r => r.cuisine === filters.cuisine)
+    // Fill up to 7 days
+    let menu = [];
+    for (let i = 0; i < 7; i++) {
+      menu.push({ day: days[i], ...filtered[i % filtered.length] });
     }
-    
-    if (filters.time && filters.time !== '全部') {
-      const timeMap = { '15分鐘': 15, '30分鐘': 30, '1小時': 60 }
-      const maxTime = timeMap[filters.time] || 60
-      filtered = filtered.filter(r => r.cooking_time <= maxTime)
-    }
-    
-    if (filters.difficulty && filters.difficulty !== '全部') {
-      filtered = filtered.filter(r => r.difficulty === filters.difficulty)
-    }
-    
-    // If not enough recipes, add more from all (with limit to prevent infinite loop)
-    let attempts = 0
-    while (filtered.length < 7 && attempts < 10) {
-      const more = allRecipes.filter(r => !filtered.find(f => f.id === r.id))
-      if (more.length === 0) break
-      filtered = [...filtered, ...more]
-      attempts++
-    }
-    
-    // Shuffle and pick 7
-    const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, 7)
-    const menu = shuffled.map((r, i) => ({ day: days[i], ...r }))
-    setWeeklyMenu(menu)
-    
+    setWeeklyMenu(menu);
+
     // Shopping list
-    const list = {}
+    const list = {};
     menu.forEach(meal => {
-      if (!list[meal.name]) {
-        list[meal.name] = { name: meal.name, count: filters.servings || 2 }
-      }
-    })
-    setShoppingList(Object.values(list))
-  }
+      if (!list[meal.name]) list[meal.name] = { name: meal.name, count: servings };
+    });
+    setShoppingList(Object.values(list));
+  };
 
-  function regenerateDay(dayIndex) {
-    const used = new Set(weeklyMenu.map(m => m.name))
-    let newRecipe
-    let attempts = 0
-    do {
-      newRecipe = allRecipes[Math.floor(Math.random() * allRecipes.length)]
-      attempts++
-    } while (used.has(newRecipe.name) && attempts < 20)
-    
-    const newMenu = [...weeklyMenu]
-    newMenu[dayIndex] = { day: days[dayIndex], ...newRecipe }
-    setWeeklyMenu(newMenu)
-    
-    const list = {}
-    newMenu.forEach(meal => {
-      if (!list[meal.name]) {
-        list[meal.name] = { name: meal.name, count: selectedFilters.servings || 2 }
-      }
-    })
-    setShoppingList(Object.values(list))
-  }
+  // Generate on mount
+  useState(() => { generateMenu(); });
 
-  function regenerateAll() {
-    generateMenu(selectedFilters)
-  }
+  const regenerateDay = (dayIndex) => {
+    const newMenu = [...weeklyMenu];
+    const newRecipe = allRecipes[Math.floor(Math.random() * allRecipes.length)];
+    newMenu[dayIndex] = { day: days[dayIndex], ...newRecipe };
+    setWeeklyMenu(newMenu);
+  };
 
   return (
     <>
-      <Head>
-        <title>今晚食乜 - 一週餐單</title>
-      </Head>
-
+      <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <span style={{ fontSize: '24px' }}>🥘</span>
@@ -125,29 +76,66 @@ export default function MenuPage() {
           <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</Link>
         </header>
 
+        {/* Filter Section - Always Visible */}
+        <div style={{ background: colors.brown, padding: '24px 40px' }}>
+          <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {cuisineOptions.map((opt) => (
+                    <button key={opt} onClick={() => { setCuisine(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: cuisine === opt ? colors.brown : '#f0f0f0', color: cuisine === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {timeOptions.map((opt) => (
+                    <button key={opt} onClick={() => { setTime(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: time === opt ? colors.yellow : '#f0f0f0', color: time === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {difficultyOptions.map((opt) => (
+                    <button key={opt} onClick={() => { setDifficulty(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: difficulty === opt ? colors.yellow : '#f0f0f0', color: difficulty === opt ? 'white' : colors.text }}>{opt}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                  {servingOptions.map((opt) => (
+                    <button key={opt} onClick={() => { setServings(opt); setTimeout(generateMenu, 0); }} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
+          </div>
+        </div>
+
+        {/* Weekly Menu */}
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 20px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>
-            一週餐單
-          </h1>
-          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '24px' }}>
-            {selectedFilters.cuisine && selectedFilters.cuisine !== '全部' && `口味: ${selectedFilters.cuisine} · `}
-            {selectedFilters.time && selectedFilters.time !== '全部' && `時間: ${selectedFilters.time}內 · `}
-            {selectedFilters.difficulty && selectedFilters.difficulty !== '全部' && `難度: ${selectedFilters.difficulty} · `}
-            {selectedFilters.servings && `${selectedFilters.servings}人份`}
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>一週餐單</h1>
+          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>
+            {cuisine !== '全部' && `${cuisine} · `}{time !== '全部' && `${time}內 · `}{difficulty !== '全部' && `${difficulty} · `}{servings}人份
           </p>
 
-          {/* Weekly Menu Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginBottom: '40px' }}>
             {weeklyMenu.map((meal, index) => (
               <div key={index} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-                <div style={{ height: '120px', background: meal.image_url ? `url(${meal.image_url})` : '#f0f0f0', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                <div style={{ height: '120px', background: meal.image_url ? `url(${meal.image_url})` : '#f0f0f0', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {!meal.image_url && <span style={{ fontSize: '40px' }}>🍳</span>}
+                </div>
                 <div style={{ padding: '16px' }}>
                   <span style={{ background: colors.brown, color: 'white', padding: '2px 10px', borderRadius: '12px', fontSize: '12px' }}>{meal.day}</span>
                   <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, margin: '12px 0 8px' }}>{meal.name}</h3>
                   <p style={{ fontSize: '13px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty} · {meal.calories} kcal</p>
-                  <button onClick={() => regenerateDay(index)} style={{ marginTop: '12px', width: '100%', padding: '8px', background: 'transparent', border: `1px solid ${colors.brown}`, color: colors.brown, borderRadius: '8px', cursor: 'pointer' }}>
-                    🔄 轉另一款
-                  </button>
+                  <button onClick={() => regenerateDay(index)} style={{ marginTop: '12px', width: '100%', padding: '8px', background: 'transparent', border: `1px solid ${colors.brown}`, color: colors.brown, borderRadius: '8px', cursor: 'pointer' }}>🔄 轉另一款</button>
                 </div>
               </div>
             ))}
@@ -155,7 +143,7 @@ export default function MenuPage() {
 
           {/* Shopping List */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({selectedFilters.servings || 2}人份)</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({servings}人份)</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {shoppingList.map((item, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: colors.lightBg, borderRadius: '8px' }}>
@@ -165,16 +153,8 @@ export default function MenuPage() {
               ))}
             </div>
           </div>
-
-          {/* Regenerate All Button */}
-          <div style={{ textAlign: 'center', marginTop: '32px' }}>
-            <button onClick={regenerateAll} style={{ padding: '14px 32px', background: colors.yellow, color: 'white', border: 'none', borderRadius: '30px', fontSize: '16px', fontWeight: '600', cursor: 'pointer' }}>
-              🔄 重新生成
-            </button>
-          </div>
         </div>
 
-        {/* Footer */}
         <footer style={{ textAlign: 'center', padding: '40px', color: colors.textLight, borderTop: '1px solid #e5e5e5', background: colors.lightBg }}>
           <p>© 2026 今晚食乜 Made with ❤️</p>
         </footer>
