@@ -17,7 +17,7 @@ export default function RecipesPage() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
-    fetch('/api/recipes')
+    fetch('https://prep-meal-tan.vercel.app/api/recipes')
       .then(res => res.json())
       .then(data => setRecipes(data.recipes || []))
       .catch(err => console.error(err));
