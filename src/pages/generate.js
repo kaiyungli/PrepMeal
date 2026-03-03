@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Head from 'next/head';
 
 const colors = {
@@ -13,7 +13,6 @@ const colors = {
   textLight: '#6b7280',
 };
 
-// Database recipes
 const recipes = [
   { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜" },
   { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理" },
@@ -32,9 +31,7 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
   const [filteredRecipes, setFilteredRecipes] = useState(recipes);
-  filterRecipes();
 
-  // Filter recipes when options change
   const filterRecipes = () => {
     let filtered = [...recipes];
     if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
@@ -43,18 +40,16 @@ export default function GeneratePage() {
     setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
   }
 
+  useEffect(() => { filterRecipes(); }, [cuisine, time, difficulty]);
+
   function handleGenerate() {
     router.push(`/menu?cuisine=${cuisine}&time=${time}&difficulty=${difficulty}&servings=${servings}`);
   }
 
   return (
     <>
-      <Head>
-        <title>今晚食乜 - 生成餐單</title>
-      </Head>
-
+      <Head><title>今晚食乜 - 生成餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
             <span style={{ fontSize: '24px' }}>🥘</span>
@@ -63,13 +58,10 @@ export default function GeneratePage() {
           <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: '500' }}>返回首頁</Link>
         </header>
 
-        {/* Search Criteria - Hotel.com Style */}
         <div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
-            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
-              {/* Cuisine */}
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -78,8 +70,6 @@ export default function GeneratePage() {
                   ))}
                 </div>
               </div>
-
-              {/* Time */}
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -88,8 +78,6 @@ export default function GeneratePage() {
                   ))}
                 </div>
               </div>
-
-              {/* Difficulty */}
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -98,8 +86,6 @@ export default function GeneratePage() {
                   ))}
                 </div>
               </div>
-
-              {/* Servings */}
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
@@ -109,30 +95,18 @@ export default function GeneratePage() {
                 </div>
               </div>
             </div>
-
-            {/* Generate Button */}
-            <button onClick={handleGenerate} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-              🍳 生成餐單
-            </button>
+            <button onClick={handleGenerate} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: '600', background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🍳 生成餐單</button>
           </div>
         </div>
 
-        {/* Results - Hotel.com Style */}
         <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px 40px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>
-            搵到 {filteredRecipes.length} 款食譜
-          </h2>
-
-          {/* Recipe Results List */}
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>搵到 {filteredRecipes.length} 款食譜</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {filteredRecipes.map((recipe) => (
               <div key={recipe.id} style={{ display: 'flex', background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                {/* Image */}
                 <div style={{ width: '180px', minHeight: '140px', background: recipe.image_url ? `url(${recipe.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {!recipe.image_url && <span style={{ fontSize: '40px' }}>🍳</span>}
                 </div>
-                
-                {/* Info */}
                 <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
@@ -140,15 +114,11 @@ export default function GeneratePage() {
                       <p style={{ fontSize: '14px', color: colors.textLight }}>{recipe.description}</p>
                     </div>
                   </div>
-                  
-                  {/* Tags */}
                   <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
                     {recipe.tags && recipe.tags.map((tag, i) => (
                       <span key={i} style={{ background: colors.lightBg, padding: '2px 10px', borderRadius: '4px', fontSize: '12px', color: colors.textLight }}>{tag}</span>
                     ))}
                   </div>
-                  
-                  {/* Meta */}
                   <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: colors.text }}>
                     <span>⏱️ {recipe.cooking_time}分鐘</span>
                     <span>💪 {recipe.difficulty}</span>
@@ -160,7 +130,6 @@ export default function GeneratePage() {
           </div>
         </div>
 
-        {/* Footer */}
         <footer style={{ textAlign: 'center', padding: '40px', color: colors.textLight, borderTop: '1px solid #e5e5e5', background: colors.lightBg }}>
           <p>© 2026 今晚食乜 Made with ❤️</p>
         </footer>
