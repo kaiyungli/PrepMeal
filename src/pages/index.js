@@ -58,6 +58,7 @@ export default function Home() {
   const [cuisineFilter, setCuisineFilter] = useState('全部');
   const [timeFilter, setTimeFilter] = useState('全部');
   const [equipmentFilter, setEquipmentFilter] = useState('全部');
+  const [servings, setServings] = useState(2);
   const [searchQuery, setSearchQuery] = useState('');
   const [flavorFilter, setFlavorFilter] = useState('全部');
   const [difficultyFilter, setDifficultyFilter] = useState('全部');
@@ -69,14 +70,15 @@ export default function Home() {
   const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式'];
   const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
   const equipmentOptions = ['全部', '微波爐', '焗爐', '氣炸鍋', '明火'];
+  const servingOptions = [1, 2, 3, 4];
 
-  function generateShoppingListFromRecipes(menu) {
+  function generateShoppingListFromRecipes(menu, servings = 1) {
     // Simple shopping list from recipes
     const ingredients = {};
     menu.forEach(meal => {
       // Add placeholder - in real app, fetch from recipe_ingredients
       if (!ingredients[meal.name]) {
-        ingredients[meal.name] = { name: meal.name, count: 1 };
+        ingredients[meal.name] = { name: meal.name, count: servings };
       } else {
         ingredients[meal.name].count++;
       }
@@ -109,7 +111,7 @@ export default function Home() {
     }));
     
     setMenu(weeklyMenu);
-    setShoppingList(generateShoppingListFromRecipes(weeklyMenu));
+    setShoppingList(generateShoppingListFromRecipes(weeklyMenu, servings));
     setView('menu');
   }
 
@@ -312,6 +314,33 @@ export default function Home() {
                     }}
                   >
                     {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Servings Filter */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: colors.text, marginBottom: '10px' }}>
+                幾多人
+              </label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {servingOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setServings(opt)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      background: servings === opt ? colors.brown : '#f0f0f0',
+                      color: servings === opt ? 'white' : colors.text,
+                    }}
+                  >
+                    {opt}人
                   </button>
                 ))}
               </div>
