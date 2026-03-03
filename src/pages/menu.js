@@ -13,9 +13,9 @@ const colors = {
 
 // All recipes (could be from API in future)
 const allRecipes = [
-  { id: 1, name: "壽喜燒牛丼", cooking_time: 15, difficulty: "易", cuisine: "日式", calories: 450, image_url: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400", tags: ["送飯", "簡易"], description: "日式既牛肉蓋飯", instructions: ["洋蔥切絲", "煮醬汁", "加入牛肉", "燜10分鐘"] },
-  { id: 2, name: "咖喱雞", cooking_time: 40, difficulty: "中", cuisine: "中式", calories: 520, image_url: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400", tags: ["送飯", "辣"], description: "濃郁咖喱味", instructions: ["醃雞肉", "炒香洋蔥", "加入咖喱醬", "燜30分鐘"] },
-  { id: 3, name: "蕃茄烤雞", cooking_time: 45, difficulty: "中", cuisine: "西式", calories: 380, image_url: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400", tags: ["健身", "健康"], description: "健康既蕃茄烤雞", instructions: ["醃雞肉", "鋪上蕃茄", "放入焗爐", "烤35分鐘"] }
+  { id: 1, name: "番茄炒蛋", cooking_time: 15, difficulty: "易", cuisine: "中式", calories: 180, image_url: "", tags: ["送飯", "簡易"], description: "簡單美味既家常菜", instructions: ["番茄切塊", "蛋發勻", "炒蛋", "加入番茄"] },
+  { id: 2, name: "麻婆豆腐", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 280, image_url: "", tags: ["辣", "送飯"], description: "麻辣惹味既豆腐料理", instructions: ["豆腐切塊", "炒肉碎", "加入麻辣醬", "燜煮"] },
+  { id: 3, name: "蔥花蒸水蛋", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 120, image_url: "", tags: ["健康", "簡易"], description: "嫩滑既蒸水蛋", instructions: ["蛋發勻", "加入蔥花", "加水調味", "蒸10分鐘"] }
 ]
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
