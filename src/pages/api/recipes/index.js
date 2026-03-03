@@ -1,12 +1,29 @@
-// Ultra minimal - 3 recipes, just essential fields
-const recipes = [
-  { id: 1, name: "壽喜燒牛丼", cooking_time: 15, image_url: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300" },
-  { id: 2, name: "咖喱雞", cooking_time: 40, image_url: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=300" },
-  { id: 3, name: "蕃茄烤雞", cooking_time: 45, image_url: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=300" }
-]
+// Fast Supabase REST API - direct fetch with caching
+const SUPABASE_URL = 'https://hivnajhqqvaokthzhugx.supabase.co'
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpdm5hamhxcXZhb2t0aHpodWd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MzAzODgsImV4cCI6MjA4ODAwNjM4OH0.Y7V8xM0vP0K7r5X2t4dN9qG3jH6vL8cB1pS2wE5rT0'
 
-export default function handler(req, res) {
-  res.setHeader('Cache-Control', 'public, max-age=86400')
+export default async function handler(req, res) {
+  // Aggressive caching
+  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600')
   res.setHeader('Content-Type', 'application/json')
-  res.status(200).send('{"recipes":' + JSON.stringify(recipes) + '}')
+  
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/recipes?select=id,name,cooking_time,difficulty,cuisine,calories,description,tags,image_url&limit=10`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        }
+      }
+    )
+    
+    const data = await response.json()
+    
+    // Fast JSON serialization
+    res.status(200).send(JSON.stringify({ recipes: data }))
+  } catch (error) {
+    res.status(200).send(JSON.stringify({ recipes: [], error: 'Failed to fetch' }))
+  }
 }
