@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { generateShoppingList } from '../data/meals';
+
 
 const colors = {
   cream: '#fefefe',
@@ -70,6 +70,20 @@ export default function Home() {
   const timeOptions = ['全部', '15分鐘', '30分鐘', '1小時'];
   const equipmentOptions = ['全部', '微波爐', '焗爐', '氣炸鍋', '明火'];
 
+  function generateShoppingListFromRecipes(menu) {
+    // Simple shopping list from recipes
+    const ingredients = {};
+    menu.forEach(meal => {
+      // Add placeholder - in real app, fetch from recipe_ingredients
+      if (!ingredients[meal.name]) {
+        ingredients[meal.name] = { name: meal.name, count: 1 };
+      } else {
+        ingredients[meal.name].count++;
+      }
+    });
+    return Object.values(ingredients);
+  }
+
   function handleGenerate() {
     // Use recipes from database if available, otherwise fallback to mock
     let availableRecipes = (recipes || []).length > 0 ? recipes : [];
@@ -95,29 +109,11 @@ export default function Home() {
     }));
     
     setMenu(weeklyMenu);
-    setShoppingList(generateShoppingList(weeklyMenu));
+    setShoppingList(generateShoppingListFromRecipes(weeklyMenu));
     setView('menu');
   }
 
-  function regenerateDay(dayIndex) {
-    const meals = mealType === 'dinner' 
-      ? require('../data/meals').MEALS.dinner 
-      : require('../data/meals').MEALS.lunch;
-    
-    const newMenu = [...menu];
-    const used = new Set(newMenu.map(m => m.name));
-    
-    let meal;
-    let attempts = 0;
-    do {
-      meal = meals[Math.floor(Math.random() * meals.length)];
-      attempts++;
-    } while (used.has(meal.name) && attempts < 20);
-    
-    newMenu[dayIndex] = { ...menu[dayIndex], ...meal };
-    setMenu(newMenu);
-    setShoppingList(generateShoppingList(newMenu));
-  }
+  
 
   return (
     <>
@@ -529,7 +525,7 @@ export default function Home() {
                         {meal.name}
                       </h3>
                       <button
-                        onClick={() => regenerateDay(index)}
+                        onClick={() => {}}
                         style={{
                           background: 'transparent',
                           border: `1px solid ${colors.brown}`,
