@@ -1,4 +1,5 @@
 'use client';
+import Layout from '@/components/layout/Layout';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 

@@ -1,4 +1,5 @@
 'use client';
+import { Card, Modal } from '@/components';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
