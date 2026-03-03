@@ -59,9 +59,13 @@ export default function MenuPage() {
       filtered = filtered.filter(r => r.difficulty === filters.difficulty)
     }
     
-    // If not enough recipes, add more from all
-    while (filtered.length < 7) {
-      filtered = [...filtered, ...allRecipes.filter(r => !filtered.find(f => f.id === r.id))]
+    // If not enough recipes, add more from all (with limit to prevent infinite loop)
+    let attempts = 0
+    while (filtered.length < 7 && attempts < 10) {
+      const more = allRecipes.filter(r => !filtered.find(f => f.id === r.id))
+      if (more.length === 0) break
+      filtered = [...filtered, ...more]
+      attempts++
     }
     
     // Shuffle and pick 7
