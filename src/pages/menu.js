@@ -198,17 +198,22 @@ const recipeIngredients = {
             {cuisine !== '全部' && `${cuisine} · `}{time !== '全部' && `${time}內 · `}{difficulty !== '全部' && `${difficulty} · `}{servings}人份
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '40px' }}>
             {weeklyMenu.map((meal, index) => (
-              <div key={index} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-                <div style={{ height: '120px', background: meal.image_url ? `url(${meal.image_url})` : '#f0f0f0', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {!meal.image_url && <span style={{ fontSize: '40px' }}>🍳</span>}
+              <div key={index} style={{ display: 'flex', gap: '16px' }}>
+                {/* Timeline dot and line */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: colors.yellow, border: '3px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', zIndex: 1 }} />
+                  {index < weeklyMenu.length - 1 && <div style={{ width: '2px', flex: 1, background: '#e5e5e5', marginTop: '4px' }} />}
                 </div>
-                <div style={{ padding: '16px' }}>
-                  <span style={{ background: colors.brown, color: 'white', padding: '2px 10px', borderRadius: '12px', fontSize: '12px' }}>{meal.day}</span>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, margin: '12px 0 8px' }}>{meal.name}</h3>
-                  <p style={{ fontSize: '13px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty} · {meal.calories} kcal</p>
-                  <button onClick={() => regenerateDay(index)} style={{ marginTop: '12px', width: '100%', padding: '8px', background: 'transparent', border: `1px solid ${colors.brown}`, color: colors.brown, borderRadius: '8px', cursor: 'pointer' }}>🔄 轉另一款</button>
+                {/* Card */}
+                <div style={{ flex: 1, background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', marginBottom: index < weeklyMenu.length - 1 ? '16px' : '0' }}>
+                  <div style={{ height: '80px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                  <div style={{ padding: '12px' }}>
+                    <span style={{ background: colors.brown, color: 'white', padding: '2px 8px', borderRadius: '8px', fontSize: '11px' }}>{meal.day}</span>
+                    <h3 style={{ fontSize: '15px', fontWeight: '600', color: colors.brown, margin: '8px 0 4px' }}>{meal.name}</h3>
+                    <p style={{ fontSize: '12px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty}</p>
+                  </div>
                 </div>
               </div>
             ))}
