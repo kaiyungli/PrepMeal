@@ -18,13 +18,18 @@ export default function RecipesPage() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   useEffect(() => {
-    fetch('/api/recipes')
-      .then(res => res.json())
-      .then(data => {
+    async function loadRecipes() {
+      try {
+        const res = await fetch('/api/recipes');
+        const data = await res.json();
         setRecipes(data.recipes || []);
+      } catch (e) {
+        console.error('Error:', e);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
+    loadRecipes();
   }, []);
 
   return (
