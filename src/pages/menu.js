@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 const colors = {
@@ -10,7 +11,7 @@ const colors = {
   textLight: '#6b7280',
 };
 
-// Static recipe data
+// All recipes (could be from API in future)
 const allRecipes = [
   { id: 1, name: "壽喜燒牛丼", cooking_time: 15, difficulty: "易", cuisine: "日式", calories: 450, image_url: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400", tags: ["送飯", "簡易"], description: "日式既牛肉蓋飯", instructions: ["洋蔥切絲", "煮醬汁", "加入牛肉", "燜10分鐘"] },
   { id: 2, name: "咖喱雞", cooking_time: 40, difficulty: "中", cuisine: "中式", calories: 520, image_url: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400", tags: ["送飯", "辣"], description: "濃郁咖喱味", instructions: ["醃雞肉", "炒香洋蔥", "加入咖喱醬", "燜30分鐘"] },
@@ -19,33 +20,59 @@ const allRecipes = [
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
 
-export default function MenuPage({ weeklyMenu: initialMenu, shoppingList: initialList }) {
-  const [weeklyMenu, setWeeklyMenu] = useState(initialMenu || [])
-  const [shoppingList, setShoppingList] = useState(initialList || [])
-  const [selectedDay, setSelectedDay] = useState(null)
+export default function MenuPage() {
+  const router = useRouter()
+  const { cuisine, time, difficulty, servings } = router.query
+  
+  const [weeklyMenu, setWeeklyMenu] = useState([])
+  const [shoppingList, setShoppingList] = useState([])
+  const [selectedFilters, setSelectedFilters] = useState({})
 
-  // Generate menu if not provided
   useEffect(() => {
-    if (!weeklyMenu || weeklyMenu.length === 0) {
-      generateMenu()
+    // Get filters from URL
+    const filters = {
+      cuisine: cuisine || '全部',
+      time: time || '全部',
+      difficulty: difficulty || '全部',
+      servings: parseInt(servings) || 2
     }
-  }, [])
+    setSelectedFilters(filters)
+    generateMenu(filters)
+  }, [cuisine, time, difficulty, servings])
 
-  function generateMenu() {
-    const shuffled = [...allRecipes].sort(() => 0.5 - Math.random())
-    const menu = shuffled.slice(0, 7).map((r, i) => ({
-      day: days[i],
-      ...r
-    }))
+  function generateMenu(filters) {
+    // Filter recipes based on user selection
+    let filtered = [...allRecipes]
+    
+    if (filters.cuisine && filters.cuisine !== '全部') {
+      filtered = filtered.filter(r => r.cuisine === filters.cuisine)
+    }
+    
+    if (filters.time && filters.time !== '全部') {
+      const timeMap = { '15分鐘': 15, '30分鐘': 30, '1小時': 60 }
+      const maxTime = timeMap[filters.time] || 60
+      filtered = filtered.filter(r => r.cooking_time <= maxTime)
+    }
+    
+    if (filters.difficulty && filters.difficulty !== '全部') {
+      filtered = filtered.filter(r => r.difficulty === filters.difficulty)
+    }
+    
+    // If not enough recipes, add more from all
+    while (filtered.length < 7) {
+      filtered = [...filtered, ...allRecipes.filter(r => !filtered.find(f => f.id === r.id))]
+    }
+    
+    // Shuffle and pick 7
+    const shuffled = filtered.sort(() => 0.5 - Math.random()).slice(0, 7)
+    const menu = shuffled.map((r, i) => ({ day: days[i], ...r }))
     setWeeklyMenu(menu)
     
-    // Generate shopping list
+    // Shopping list
     const list = {}
     menu.forEach(meal => {
       if (!list[meal.name]) {
-        list[meal.name] = { name: meal.name, count: 1 }
-      } else {
-        list[meal.name].count++
+        list[meal.name] = { name: meal.name, count: filters.servings || 2 }
       }
     })
     setShoppingList(Object.values(list))
@@ -64,16 +91,17 @@ export default function MenuPage({ weeklyMenu: initialMenu, shoppingList: initia
     newMenu[dayIndex] = { day: days[dayIndex], ...newRecipe }
     setWeeklyMenu(newMenu)
     
-    // Update shopping list
     const list = {}
     newMenu.forEach(meal => {
       if (!list[meal.name]) {
-        list[meal.name] = { name: meal.name, count: 1 }
-      } else {
-        list[meal.name].count++
+        list[meal.name] = { name: meal.name, count: selectedFilters.servings || 2 }
       }
     })
     setShoppingList(Object.values(list))
+  }
+
+  function regenerateAll() {
+    generateMenu(selectedFilters)
   }
 
   return (
@@ -96,8 +124,11 @@ export default function MenuPage({ weeklyMenu: initialMenu, shoppingList: initia
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>
             一週餐單
           </h1>
-          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>
-            每日晚餐話你知
+          <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '24px' }}>
+            {selectedFilters.cuisine && selectedFilters.cuisine !== '全部' && `口味: ${selectedFilters.cuisine} · `}
+            {selectedFilters.time && selectedFilters.time !== '全部' && `時間: ${selectedFilters.time}內 · `}
+            {selectedFilters.difficulty && selectedFilters.difficulty !== '全部' && `難度: ${selectedFilters.difficulty} · `}
+            {selectedFilters.servings && `${selectedFilters.servings}人份`}
           </p>
 
           {/* Weekly Menu Grid */}
@@ -119,7 +150,7 @@ export default function MenuPage({ weeklyMenu: initialMenu, shoppingList: initia
 
           {/* Shopping List */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單</h2>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: colors.brown, marginBottom: '20px' }}>🛒 食材清單 ({selectedFilters.servings || 2}人份)</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
               {shoppingList.map((item, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', background: colors.lightBg, borderRadius: '8px' }}>
@@ -132,7 +163,7 @@ export default function MenuPage({ weeklyMenu: initialMenu, shoppingList: initia
 
           {/* Regenerate All Button */}
           <div style={{ textAlign: 'center', marginTop: '32px' }}>
-            <button onClick={generateMenu} style={{ padding: '14px 32px', background: colors.yellow, color: 'white', border: 'none', borderRadius: '30px', fontSize: '16px', fontWeight: '600', cursor: 'pointer' }}>
+            <button onClick={regenerateAll} style={{ padding: '14px 32px', background: colors.yellow, color: 'white', border: 'none', borderRadius: '30px', fontSize: '16px', fontWeight: '600', cursor: 'pointer' }}>
               🔄 重新生成
             </button>
           </div>
