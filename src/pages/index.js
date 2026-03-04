@@ -53,28 +53,39 @@ export default function Home() {
       </section>
 
       {/* Featured Recipes */}
-      <section style={{ padding: '40px 40px', maxWidth: '1000px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#264653', marginBottom: '24px', textAlign: 'center' }}>精選食譜</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-          {featuredRecipes.map((recipe) => (
-            <div key={recipe.id} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-              <div style={{ height: '140px', background: `url(${recipe.image_url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
-              <div style={{ padding: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#264653', marginBottom: '8px' }}>{recipe.name}</h3>
-                <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>{recipe.cooking_time}分鐘 · {recipe.calories} kcal</p>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {recipe.tags.slice(0, 2).map((tag, i) => (
-                    <span key={i} style={{ background: '#E76F51', color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' }}>{tag}</span>
-                  ))}
+      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+        <div className="max-w-[1200px] mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>精選食譜</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {featuredRecipes.map((recipe) => (
+              <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes'}>
+                <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(${recipe.image_url})` }} />
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#3A2010' }}>{recipe.name}</h3>
+                  <div className="flex items-center gap-4 text-sm" style={{ color: '#6B5B4F' }}>
+                    <span>⏱️ {recipe.cooking_time}分鐘</span>
+                    <span>🔥 {recipe.calories} kcal</span>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    {recipe.tags.slice(0, 2).map((tag, i) => (
+                      <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}>{tag}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div style={{ textAlign: 'center' }}>
-          <Button variant="secondary" onClick={() => window.location.href = '/recipes'}>睇更多食譜 →</Button>
+          <div className="text-center">
+            <button 
+              onClick={() => window.location.href = '/recipes'}
+              className="px-8 py-3 rounded-full font-semibold"
+              style={{ backgroundColor: '#9B6035', color: 'white' }}
+            >
+              睇更多食譜 →
+            </button>
+          </div>
         </div>
       </section>
     </Layout>
