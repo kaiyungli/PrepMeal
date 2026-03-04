@@ -1,12 +1,5 @@
 import Link from 'next/link';
 
-const colors = {
-  cream: '#fefefe',
-  brown: '#264653',
-  text: '#264653',
-  textLight: '#6b7280',
-};
-
 interface HeaderProps {
   showNav?: boolean;
 }
@@ -20,32 +13,56 @@ const navLinks = [
 
 export default function Header({ showNav = true }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50" style={{ backgroundColor: '#F8F3E8' }}>
-      <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🍜</span>
-          <span style={{ fontSize: '1.125rem', fontWeight: 800, color: '#9B6035' }}>今晚食乜</span>
+    <header style={{ 
+      position: 'sticky', 
+      top: 0, 
+      zIndex: 50, 
+      backgroundColor: '#F8F3E8',
+      borderBottom: '1px solid #e5e5e5'
+    }}>
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '0 16px', 
+        height: '64px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between' 
+      }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <span style={{ fontSize: '24px' }}>🍜</span>
+          <span style={{ fontSize: '18px', fontWeight: 800, color: '#9B6035' }}>今晚食乜</span>
         </Link>
         
         {showNav && (
-          <nav className="hidden md:flex items-center gap-8">
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
             {navLinks.map((link) => (
               <Link 
                 key={link.href} 
                 href={link.href}
-                className="font-medium hover:opacity-80 transition-opacity"
-                style={{ color: '#AA7A50' }}
+                style={{ 
+                  fontWeight: 500, 
+                  color: '#AA7A50',
+                  textDecoration: 'none'
+                }}
               >
                 {link.label}
               </Link>
             ))}
-            <Link href="/login" className="font-medium" style={{ color: '#AA7A50' }}>
+            <Link href="/login" style={{ fontWeight: 500, color: '#AA7A50', textDecoration: 'none' }}>
               登入
             </Link>
             <Link 
               href="/generate"
-              className="text-white px-5 py-2 rounded-lg shadow-md transition-transform hover:scale-105"
-              className="bg-red-500"
+              style={{ 
+                color: 'white', 
+                padding: '8px 20px', 
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                backgroundColor: '#9B6035',
+                textDecoration: 'none',
+                fontWeight: 500
+              }}
             >
               開始規劃
             </Link>
