@@ -31,6 +31,7 @@ export default function Header({ showNav = true }: HeaderProps) {
           <Link href="/" style={{ color: colors.textLight, textDecoration: 'none' }}>首頁</Link>
           <Link href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>生成餐單</Link>
           <Link href="/recipes" style={{ color: colors.textLight, textDecoration: 'none' }}>食譜</Link>
+          <Link href="/about" style={{ color: colors.textLight, textDecoration: 'none' }}>關於</Link>
           <Link href="/admin" style={{ color: colors.textLight, textDecoration: 'none' }}>管理</Link>
         </nav>
       )}
