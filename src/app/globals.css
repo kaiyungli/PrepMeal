@@ -13,7 +13,7 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #F8F3E8;
   --foreground: #171717;
 }
 
@@ -46,4 +46,14 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@layer components {
+  .btn-primary {
+    background-color: #9B6035;
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+  }
 }
