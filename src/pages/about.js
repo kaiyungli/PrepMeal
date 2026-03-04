@@ -26,7 +26,7 @@ export default function AboutPage() {
             <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>首頁</Link>
             <Link href="/recipes" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>食譜</Link>
             <Link href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>生成餐單</Link>
-            <Link href="/about" style={{ color: colors.yellow, textDecoration: 'none', fontWeight: 600 }}>關於</Link>
+            <Link href="/admin" style={{ color: colors.text, textDecoration: 'none', fontWeight: 600 }}>關於</Link>
           </nav>
         </header>
 
