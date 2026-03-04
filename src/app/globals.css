@@ -1,5 +1,69 @@
 @import "tailwindcss";
 
+/* Theme colors from Figma design */
+:root {
+  /* Primary colors */
+  --background: #F8F3E8;
+  --foreground: #3A2010;
+  
+  /* Card */
+  --card: #ffffff;
+  --card-foreground: #3A2010;
+  
+  /* Popover */
+  --popover: #ffffff;
+  --popover-foreground: #3A2010;
+  
+  /* Primary - chocolate brown */
+  --primary: #9B6035;
+  --primary-foreground: #ffffff;
+  
+  /* Secondary - sage green */
+  --secondary: #C8D49A;
+  --secondary-foreground: #3A2010;
+  
+  /* Accent - warm orange */
+  --accent: #F0A060;
+  --accent-foreground: #3A2010;
+  
+  /* Muted */
+  --muted: #E8E4DC;
+  --muted-foreground: #6B5B4F;
+  
+  /* Destructive */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  /* Border */
+  --border: #D4CFC6;
+  --input: #E8E4DC;
+  --ring: #9B6035;
+  
+  /* Radius */
+  --radius: 0.625rem;
+}
+
+/* Dark mode */
+.dark {
+  --background: #1A1410;
+  --foreground: #F8F3E8;
+  --card: #2A2018;
+  --card-foreground: #F8F3E8;
+  --primary: #C4956A;
+  --primary-foreground: #1A1410;
+  --secondary: #4A4035;
+  --secondary-foreground: #F8F3E8;
+  --accent: #F0A060;
+  --accent-foreground: #1A1410;
+  --muted: #3A3028;
+  --muted-foreground: #A89B8F;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #4A4035;
+  --input: #3A3028;
+  --ring: #C4956A;
+}
+
 @theme {
   --color-bg: #F8F3E8;
   --color-sage: #C8D49A;
@@ -12,48 +76,23 @@
   --color-light-bg: #faf8f5;
 }
 
-:root {
-  --background: #F8F3E8;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html, body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
 body {
+  background-color: var(--background);
   color: var(--foreground);
-  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 @layer components {
   .btn-primary {
-    background-color: #9B6035;
-    color: white;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
     padding: 0.5rem 1.25rem;
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
     font-weight: 500;
   }
 }
