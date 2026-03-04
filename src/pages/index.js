@@ -46,8 +46,12 @@ export default function Home() {
       
       {/* Hero */}
       <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: '#F8F3E8' }}>
-        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
-        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full" style={{ backgroundColor: '#E8C87A', opacity: 0.4 }} />
+        {/* Decorative circles */}
+        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full hidden md:block" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
+        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full hidden md:block" style={{ backgroundColor: '#E8C87A', opacity: 0.4 }} />
+        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full hidden md:block" style={{ backgroundColor: '#F0A060', opacity: 0.3 }} />
+        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full hidden md:block" style={{ backgroundColor: '#9B6035', opacity: 0.2 }} />
+        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full hidden md:block" style={{ backgroundColor: '#C8D49A', opacity: 0.4 }} />
         
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
