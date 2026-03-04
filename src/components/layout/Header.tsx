@@ -45,7 +45,7 @@ export default function Header({ showNav = true }: HeaderProps) {
             <Link 
               href="/generate"
               className="text-white px-5 py-2 rounded-lg shadow-md transition-transform hover:scale-105"
-              style={{ backgroundColor: '#9B6035' }}
+              className="bg-red-500"
             >
               開始規劃
             </Link>
