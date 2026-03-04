@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { Button, Input } from '@/components';
 import supabase from '@/lib/supabase';
 
 const colors = {
@@ -103,32 +104,21 @@ export default function ProfilePage() {
           </div>
 
           <form onSubmit={handleUpdate}>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.text, marginBottom: '8px' }}>顯示名稱</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ width: '100%', padding: '12px', fontSize: '14px', border: '1px solid #e5e5e5', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
-                placeholder="你的名稱"
-              />
+            <Input
+              label="顯示名稱"
+              value={name}
+              onChange={setName}
+              placeholder="你的名稱"
+            />
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <Button type="submit" disabled={saving}>
+                {saving ? '儲存中...' : '儲存'}
+              </Button>
+              <Button variant="secondary" onClick={handleLogout}>
+                登出
+              </Button>
             </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              style={{ padding: '12px 24px', fontSize: '16px', fontWeight: 600, background: saving ? '#ccc' : colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: saving ? 'not-allowed' : 'pointer', marginRight: '12px' }}
-            >
-              {saving ? '儲存中...' : '儲存'}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              style={{ padding: '12px 24px', fontSize: '16px', fontWeight: 600, background: 'transparent', color: colors.text, border: '1px solid #e5e5e5', borderRadius: '8px', cursor: 'pointer' }}
-            >
-              登出
-            </button>
           </form>
         </div>
 

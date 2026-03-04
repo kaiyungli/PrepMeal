@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { Button } from '@/components';
 import supabase from '@/lib/supabase';
 
 const colors = {
@@ -24,7 +25,6 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkUser = async () => {
       const { data: { user } } = await supabase?.auth.getUser();
       if (user) {
@@ -101,38 +101,26 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.text, marginBottom: '8px' }}>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{ width: '100%', padding: '12px', fontSize: '14px', border: '1px solid #e5e5e5', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
-                placeholder="your@email.com"
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="your@email.com"
+              required
+            />
+            <Input
+              label="密碼"
+              type="text"
+              value={password}
+              onChange={setPassword}
+              placeholder="••••••••"
+              required
+            />
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: colors.text, marginBottom: '8px' }}>密碼</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                style={{ width: '100%', padding: '12px', fontSize: '14px', border: '1px solid #e5e5e5', borderRadius: '8px', outline: 'none', boxSizing: 'border-box' }}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: loading ? '#ccc' : colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer', marginBottom: '16px' }}
-            >
+            <Button type="submit" disabled={loading} style={{ width: '100%', marginBottom: '16px' }}>
               {loading ? '載入中...' : (isSignUp ? '註冊' : '登入')}
-            </button>
+            </Button>
           </form>
 
           <p style={{ textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
@@ -153,3 +141,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+import { Input } from '@/components';
