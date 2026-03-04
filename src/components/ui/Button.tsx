@@ -5,13 +5,8 @@ interface ButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   type?: 'button' | 'submit';
-  style?: React.CSSProperties;
+  className?: string;
 }
-
-const colors = {
-  brown: '#264653',
-  yellow: '#E76F51',
-};
 
 export default function Button({ 
   variant = 'primary', 
@@ -20,18 +15,18 @@ export default function Button({
   onClick, 
   disabled = false,
   type = 'button',
-  style = {}
+  className = ''
 }: ButtonProps) {
-  const sizeStyles = {
-    sm: { padding: '8px 16px', fontSize: '13px' },
-    md: { padding: '10px 20px', fontSize: '14px' },
-    lg: { padding: '14px 28px', fontSize: '16px' }
+  const sizeClasses = {
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-7 py-3.5 text-lg'
   };
 
-  const variantStyles = {
-    primary: { background: colors.yellow, color: 'white', border: 'none' },
-    secondary: { background: 'transparent', color: colors.brown, border: `1px solid ${colors.brown}` },
-    danger: { background: '#dc3545', color: 'white', border: 'none' }
+  const variantClasses = {
+    primary: 'bg-yellow text-white border-none',
+    secondary: 'bg-transparent text-brown border border-brown',
+    danger: 'bg-red-500 text-white border-none'
   };
 
   return (
@@ -39,15 +34,9 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={{
-        ...sizeStyles[size],
-        ...variantStyles[variant],
-        borderRadius: '8px',
-        fontWeight: 600,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.6 : 1,
-        ...style
-      }}
+      className={`rounded-lg font-semibold cursor-pointer transition-all ${
+        disabled ? 'opacity-60 cursor-not-allowed' : ''
+      } ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
     >
       {children}
     </button>

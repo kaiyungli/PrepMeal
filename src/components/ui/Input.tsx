@@ -9,12 +9,8 @@ interface InputProps {
   max?: number;
   rows?: number;
   multiline?: boolean;
-  style?: React.CSSProperties;
+  className?: string;
 }
-
-const colors = {
-  text: '#264653',
-};
 
 export default function Input({ 
   label, 
@@ -27,28 +23,22 @@ export default function Input({
   max,
   rows = 3,
   multiline = false,
-  style = {}
+  className = ''
 }: InputProps) {
-  const inputStyle: React.CSSProperties = {
+  const inputStyle = {
     width: '100%',
     padding: '10px 12px',
     border: '1px solid #ddd',
     borderRadius: '8px',
     fontSize: '14px',
     fontFamily: 'inherit',
-    ...style
   };
 
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className={`mb-4 ${className}`}>
       {label && (
-        <label style={{ 
-          display: 'block', 
-          fontWeight: 600, 
-          marginBottom: '6px',
-          color: colors.text
-        }}>
-          {label} {required && <span style={{ color: '#dc3545' }}>*</span>}
+        <label className="block font-semibold mb-1.5 text-brown">
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
       {multiline ? (
@@ -58,7 +48,8 @@ export default function Input({
           placeholder={placeholder}
           required={required}
           rows={rows}
-          style={{ ...inputStyle, resize: 'vertical' }}
+          className="w-full p-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-yellow"
+          style={{ resize: 'vertical', ...inputStyle }}
         />
       ) : (
         <input
@@ -69,6 +60,7 @@ export default function Input({
           required={required}
           min={min}
           max={max}
+          className="w-full p-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-yellow"
           style={inputStyle}
         />
       )}

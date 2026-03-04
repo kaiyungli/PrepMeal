@@ -7,14 +7,8 @@ interface CardProps {
   onClick?: () => void;
   favorite?: boolean;
   onFavorite?: () => void;
-  style?: React.CSSProperties;
+  className?: string;
 }
-
-const colors = {
-  brown: '#264653',
-  yellow: '#E76F51',
-  textLight: '#6b7280',
-};
 
 export default function Card({ 
   title, 
@@ -25,88 +19,39 @@ export default function Card({
   onClick,
   favorite,
   onFavorite,
-  style = {} 
+  className = '' 
 }: CardProps) {
   return (
     <div 
       onClick={onClick}
-      style={{
-        background: 'white',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        ...style
-      }}
+      className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-${
+        onClick ? 'pointer' : 'default'
+      } ${className}`}
     >
-      <div style={{ 
-        height: '160px', 
-        background: image ? `url(${image})` : '#f5f5f5', 
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center',
-        position: 'relative'
-      }}>
+      <div className="h-40 relative" style={{ background: image ? `url(${image})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {!image && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <span style={{ fontSize: '48px' }}>🍳</span>
+          <div className="flex items-center justify-center h-full">
+            <span className="text-5xl">🍳</span>
           </div>
         )}
         {onFavorite && (
           <button
             onClick={(e) => { e.stopPropagation(); onFavorite(); }}
-            style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              background: 'rgba(255,255,255,0.95)',
-              border: '2px solid #ff4d4d',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-              zIndex: 10
-            }}
+            className="absolute top-3 right-3 bg-white/95 border-2 border-red-400 rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10 hover:scale-105 transition-transform"
           >
-            <span style={{ fontSize: '16px' }}>{favorite ? '❤️' : '🤍'}</span>
+            <span className="text-lg">{favorite ? '❤️' : '🤍'}</span>
           </button>
         )}
       </div>
-      <div style={{ padding: '16px' }}>
-        <h3 style={{ 
-          fontSize: '16px', 
-          fontWeight: 600, 
-          color: colors.brown, 
-          marginBottom: '8px' 
-        }}>
-          {title}
-        </h3>
+      <div className="p-4">
+        <h3 className="text-base font-semibold text-brown mb-2">{title}</h3>
         {description && (
-          <p style={{ 
-            fontSize: '13px', 
-            color: colors.textLight, 
-            marginBottom: '12px' 
-          }}>
-            {description}
-          </p>
+          <p className="text-sm text-gray-500 mb-3">{description}</p>
         )}
         {tags && tags.length > 0 && (
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div className="flex gap-1.5 flex-wrap">
             {tags.map((tag, i) => (
-              <span 
-                key={i} 
-                style={{ 
-                  background: colors.yellow, 
-                  color: 'white', 
-                  padding: '2px 8px', 
-                  borderRadius: '4px', 
-                  fontSize: '11px' 
-                }}
-              >
+              <span key={i} className="bg-yellow text-white px-2 py-0.5 rounded text-xs">
                 {tag}
               </span>
             ))}
