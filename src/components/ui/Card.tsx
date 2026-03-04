@@ -69,7 +69,7 @@ export default function Card({
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-              zIndex: 10'
+              zIndex: 10
             }}
           >
             <span style={{ fontSize: '16px' }}>{favorite ? '❤️' : '🤍'}</span>
