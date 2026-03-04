@@ -57,18 +57,19 @@ export default function Card({
             onClick={(e) => { e.stopPropagation(); onFavorite(); }}
             style={{
               position: 'absolute',
-              top: '8px',
-              right: '8px',
-              background: 'white',
-              border: 'none',
+              top: '12px',
+              right: '12px',
+              background: 'rgba(255,255,255,0.95)',
+              border: '2px solid #ff4d4d',
               borderRadius: '50%',
-              width: '32px',
-              height: '32px',
+              width: '40px',
+              height: '40px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              zIndex: 10'
             }}
           >
             <span style={{ fontSize: '16px' }}>{favorite ? '❤️' : '🤍'}</span>
