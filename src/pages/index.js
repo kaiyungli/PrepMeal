@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
@@ -21,7 +21,23 @@ const allRecipes = [
 ];
 
 export default function Home() {
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(4);
+  const loaderRef = useRef(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && visibleCount < allRecipes.length) {
+        setVisibleCount(prev => Math.min(prev + 4, allRecipes.length));
+      }
+    }, { threshold: 0.1 });
+    
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+    
+    return () => observer.disconnect();
+  }, [visibleCount]);
+  
   const visibleRecipes = allRecipes.slice(0, visibleCount);
   const hasMore = visibleCount < allRecipes.length;
   return (
@@ -89,14 +105,9 @@ export default function Home() {
           </div>
 
           {hasMore && (
-            <div className="text-center">
-              <button 
-                onClick={() => setVisibleCount(prev => prev + 4)}
-                className="px-8 py-3 rounded-full font-semibold mr-4"
-                style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}
-              >
-                睇多啲 →
-              </button>
+            <div ref={loaderRef} className="text-center py-8">
+              <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#9B6035', borderTopColor: 'transparent' }}></div>
+              <p className="mt-2 text-sm" style={{ color: '#6B5B4F' }}>載入中...</p>
             </div>
           )}
           {!hasMore && (
