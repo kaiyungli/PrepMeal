@@ -52,6 +52,9 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
   const [weeklyMenu, setWeeklyMenu] = useState([]);
   const [shoppingList, setShoppingList] = useState([]);
   const [totalCalories, setTotalCalories] = useState(0);
+  const [totalProtein, setTotalProtein] = useState(0);
+  const [totalCarbs, setTotalCarbs] = useState(0);
+  const [totalFat, setTotalFat] = useState(0);
   const [selectedCuisine, setSelectedCuisine] = useState(cuisine || '全部');
   const [selectedTime, setSelectedTime] = useState(time || '全部');
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty || '全部');
@@ -130,6 +133,17 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
       total += meal.calories || 0;
     });
     setTotalCalories(total);
+    
+    // Calculate macros
+    let protein = 0, carbs = 0, fat = 0;
+    menu.forEach(meal => {
+      protein += meal.protein || 0;
+      carbs += meal.carbs || 0;
+      fat += meal.fat || 0;
+    });
+    setTotalProtein(protein);
+    setTotalCarbs(carbs);
+    setTotalFat(fat);
   }
 
   // Group menu by day
@@ -222,7 +236,7 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
                         <div style={{ height: '70px', background: meal.image_url ? `url(${meal.image_url})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }} />
                         <div style={{ padding: '10px' }}>
                           <p style={{ fontSize: '14px', fontWeight: '600', color: colors.brown, marginBottom: '4px' }}>{meal.name}</p>
-                          <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.difficulty} · {meal.calories} kcal</p>
+                          <p style={{ fontSize: '11px', color: colors.textLight }}>{meal.cooking_time}分鐘 · {meal.calories}kcal · 蛋白{meal.protein}g</p>
                         </div>
                       </div>
                     ))}
