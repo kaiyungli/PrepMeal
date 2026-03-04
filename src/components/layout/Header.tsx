@@ -37,7 +37,7 @@ export default function Header({ showNav = true }: HeaderProps) {
             </Link>
             <Link 
               href="/generate"
-              className="text-white px-5 py-2 rounded-lg shadow-md hover:scale-105 transition-transform"
+              className="text-white px-5 py-2 rounded-lg shadow-md hover:scale-105 transition-transform bg-red-500"
               style={{ backgroundColor: '#9B6035', textDecoration: 'none', fontWeight: 500 }}
             >
               開始規劃
