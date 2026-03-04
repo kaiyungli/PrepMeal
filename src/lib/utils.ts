@@ -1,3 +1,10 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 // Utility functions
 
 // Format cooking time
@@ -27,7 +34,6 @@ export function formatServings(num: number): string {
 export function generateWeeklyMenu(recipes: any[], servings: number = 2) {
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   
-  // Shuffle and pick 7 (or repeat if not enough)
   const shuffled = [...recipes].sort(() => 0.5 - Math.random());
   const menu = [];
   
@@ -38,7 +44,6 @@ export function generateWeeklyMenu(recipes: any[], servings: number = 2) {
     });
   }
   
-  // Generate shopping list
   const shoppingList: Record<string, { name: string; count: number }> = {};
   menu.forEach(item => {
     if (!shoppingList[item.recipe.name]) {
@@ -55,17 +60,14 @@ export function generateWeeklyMenu(recipes: any[], servings: number = 2) {
   };
 }
 
-// Calculate total calories for a day's menu
 export function calculateDailyCalories(menuItem: any): number {
   return menuItem?.recipe?.calories || 0;
 }
 
-// Calculate weekly calories
 export function calculateWeeklyCalories(menu: any[]): number {
   return menu.reduce((sum, item) => sum + (item.recipe?.calories || 0), 0);
 }
 
-// Parse tags from string to array
 export function parseTags(tagString: string): string[] {
   return tagString
     .split(',')
@@ -73,13 +75,11 @@ export function parseTags(tagString: string): string[] {
     .filter(t => t.length > 0);
 }
 
-// Format tags array to string
 export function formatTags(tags: string[] | null): string {
   if (!tags || !Array.isArray(tags)) return '';
   return tags.join(', ');
 }
 
-// Validate recipe form
 export function validateRecipe(data: any): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   
