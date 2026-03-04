@@ -11,31 +11,47 @@ interface HeaderProps {
   showNav?: boolean;
 }
 
+const navLinks = [
+  { href: '/', label: '首頁' },
+  { href: '/generate', label: '生成餐單' },
+  { href: '/recipes', label: '食譜' },
+  { href: '/about', label: '關於' },
+];
+
 export default function Header({ showNav = true }: HeaderProps) {
   return (
-    <header style={{ 
-      background: colors.cream, 
-      padding: '20px 40px', 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      borderBottom: '1px solid #e5e5e5' 
-    }}>
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-        <span style={{ fontSize: '28px' }}>🥘</span>
-        <span style={{ fontSize: '22px', fontWeight: 700, color: colors.brown }}>今晚食乜</span>
-      </Link>
-      
-      {showNav && (
-        <nav style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-          <Link href="/" style={{ color: colors.textLight, textDecoration: 'none' }}>首頁</Link>
-          <Link href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>生成餐單</Link>
-          <Link href="/recipes" style={{ color: colors.textLight, textDecoration: 'none' }}>食譜</Link>
-          <Link href="/about" style={{ color: colors.textLight, textDecoration: 'none' }}>關於</Link>
-          <Link href="/login" style={{ color: colors.textLight, textDecoration: 'none' }}>登入</Link>
-          <Link href="/admin" style={{ color: colors.textLight, textDecoration: 'none' }}>管理</Link>
-        </nav>
-      )}
+    <header className="sticky top-0 z-50" style={{ backgroundColor: '#F8F3E8' }}>
+      <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-2xl">🍜</span>
+          <span style={{ fontSize: '1.125rem', fontWeight: 800, color: '#9B6035' }}>今晚食乜</span>
+        </Link>
+        
+        {showNav && (
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.href} 
+                href={link.href}
+                className="font-medium hover:opacity-80 transition-opacity"
+                style={{ color: '#AA7A50' }}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link href="/login" className="font-medium" style={{ color: '#AA7A50' }}>
+              登入
+            </Link>
+            <Link 
+              href="/generate"
+              className="text-white px-5 py-2 rounded-lg shadow-md transition-transform hover:scale-105"
+              style={{ backgroundColor: '#9B6035' }}
+            >
+              開始規劃
+            </Link>
+          </nav>
+        )}
+      </div>
     </header>
   );
 }
