@@ -4,15 +4,26 @@ import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
 
-// 4 Featured recipes for homepage
-const featuredRecipes = [
-  { id: 4, name: "番茄炒蛋", cooking_time: 5, difficulty: "易", cuisine: "中式", calories: 180, description: "經典廣東小菜，酸甜開胃", tags: ["簡易", "送飯"], image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
-  { id: 5, name: "麻婆豆腐", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 280, description: "四川經典麻辣豆腐", tags: ["辣", "送飯"], image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
-  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 120, description: "滑嫩蒸蛋，香蔥提味", tags: ["健康", "簡易"], image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
-  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, difficulty: "中", cuisine: "中式", calories: 380, description: "咖喱香濃，雞翼入味", tags: ["送飯", "咖喱"], image_url: "https://images.unsplash.com/photo-1606152426935-3381f2f6520c?w=400" }
+// All recipes for homepage
+const allRecipes = [
+  { id: 4, name: "番茄炒蛋", cooking_time: 5, calories: 180, tags: ["簡易", "送飯"], image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
+  { id: 5, name: "麻婆豆腐", cooking_time: 15, calories: 280, tags: ["辣", "送飯"], image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
+  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, calories: 120, tags: ["健康", "簡易"], image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
+  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, calories: 380, tags: ["送飯", "咖喱"], image_url: "https://images.unsplash.com/photo-1606152426935-3381f2f6520c?w=400" },
+  { id: 7, name: "魚香茄子", cooking_time: 15, calories: 180, tags: ["送飯", "中式"], image_url: "" },
+  { id: 8, name: "鼓汁蒸排骨", cooking_time: 20, calories: 320, tags: ["蒸", "送飯"], image_url: "" },
+  { id: 9, name: "韭菜炒蛋", cooking_time: 10, calories: 150, tags: ["簡易", "健康"], image_url: "" },
+  { id: 11, name: "蒜蓉炒菜心", cooking_time: 8, calories: 80, tags: ["健康", "簡易"], image_url: "" },
+  { id: 12, name: "西蘭花炒牛肉", cooking_time: 15, calories: 250, tags: ["送飯", "健康"], image_url: "" },
+  { id: 13, name: "乾炒牛河", cooking_time: 12, calories: 380, tags: ["主食", "經典"], image_url: "" },
+  { id: 14, name: "揚州炒飯", cooking_time: 15, calories: 420, tags: ["主食", "經典"], image_url: "" },
+  { id: 15, name: "雲吞麵", cooking_time: 12, calories: 320, tags: ["主食", "簡易"], image_url: "" }
 ];
 
 export default function Home() {
+  const [visibleCount, setVisibleCount] = useState(8);
+  const visibleRecipes = allRecipes.slice(0, visibleCount);
+  const hasMore = visibleCount < allRecipes.length;
   return (
     <Layout>
       <Head><title>今晚食乜 🥘</title></Head>
@@ -58,7 +69,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {featuredRecipes.map((recipe) => (
+            {visibleRecipes.map((recipe) => (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes'}>
                 <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(${recipe.image_url})` }} />
                 <div className="p-4">
@@ -77,15 +88,28 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center">
-            <button 
-              onClick={() => window.location.href = '/recipes'}
-              className="px-8 py-3 rounded-full font-semibold"
-              style={{ backgroundColor: '#9B6035', color: 'white' }}
-            >
-              睇更多食譜 →
-            </button>
-          </div>
+          {hasMore && (
+            <div className="text-center">
+              <button 
+                onClick={() => setVisibleCount(prev => prev + 4)}
+                className="px-8 py-3 rounded-full font-semibold mr-4"
+                style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}
+              >
+                睇多啲 →
+              </button>
+            </div>
+          )}
+          {!hasMore && (
+            <div className="text-center">
+              <button 
+                onClick={() => window.location.href = '/recipes'}
+                className="px-8 py-3 rounded-full font-semibold"
+                style={{ backgroundColor: '#9B6035', color: 'white' }}
+              >
+                睇更多食譜 →
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </Layout>
