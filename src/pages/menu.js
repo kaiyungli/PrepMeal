@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import supabase from '@/lib/supabase';
 import Head from 'next/head';
 
 const colors = {
@@ -56,10 +57,46 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
   const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty || '全部');
   const [selectedServings] = useState(parseInt(servings) || 2);
   const [selectedMeals, setSelectedMeals] = useState(parseInt(mealsPerDay) || 1);
+  const [user, setUser] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
   useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase?.auth.getUser();
+      setUser(user);
+    };
+    checkUser();
     generateMenu();
   }, []);
+
+  const saveMenu = async () => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+    if (weeklyMenu.length === 0) return;
+    
+    setSaving(true);
+    setSaveMessage('');
+    
+    const menuName = `${new Date().toLocaleDateString('zh-HK')} 餐單`;
+    const { error } = await supabase
+      .from('menus')
+      .insert({
+        user_id: user.id,
+        name: menuName,
+        menu_data: weeklyMenu
+      });
+    
+    if (error) {
+      setSaveMessage('❌ 儲存失敗');
+    } else {
+      setSaveMessage('✅ 已儲存！');
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+    setSaving(false);
+  };
 
   function generateMenu() {
     let filtered = [...allRecipes];
@@ -159,7 +196,9 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
                 </div>
               </div>
             </div>
-            <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>🔄 重新生成餐單</button>
+            <button onClick={generateMenu} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: colors.yellow, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '12px' }}>🔄 重新生成餐單</button>
+            {saveMessage && <p style={{ textAlign: 'center', marginBottom: '12px', color: saveMessage.includes('✅') ? '#16a34a' : '#dc2626' }}>{saveMessage}</p>}
+            <button onClick={saveMenu} disabled={saving || weeklyMenu.length === 0} style={{ width: '100%', padding: '14px', fontSize: '16px', fontWeight: 600, background: saving || weeklyMenu.length === 0 ? '#ccc' : colors.brown, color: 'white', border: 'none', borderRadius: '8px', cursor: saving ? 'not-allowed' : 'pointer' }}>{saving ? '儲存中...' : '💾 儲存餐單'}</button>
           </div>
         </div>
 
