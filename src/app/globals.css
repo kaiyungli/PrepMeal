@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 :root {
+  /* From Figma design */
+  --bg: #F8F3E8;
+  --sage: #C8D49A;
+  --primary: #9B6035;
+  --accent: #F0A060;
+  --footer: #2A1A08;
+  
+  /* Legacy colors */
   --background: #ffffff;
   --foreground: #171717;
 }
