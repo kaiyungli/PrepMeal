@@ -18,10 +18,38 @@ export default function Home() {
       <Head><title>今晚食乜 🥘</title></Head>
       
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(135deg, #264653 0%, #E76F51 100%)', padding: '80px 40px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '48px', fontWeight: '800', color: 'white', marginBottom: '16px' }}>今晚食乜？</h1>
-        <p style={{ fontSize: '20px', color: 'white', marginBottom: '32px' }}>每日晚餐話你知，一click生成一週餐單</p>
-        <Button size="lg" onClick={() => window.location.href = '/generate'}>開始整 🍳</Button>
+      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: '#F8F3E8' }}>
+        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
+        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full" style={{ backgroundColor: '#E8C87A', opacity: 0.4 }} />
+        
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: '#3A2010', lineHeight: 1.1 }}>
+                今晚<br/>食乜?
+              </h1>
+              <p style={{ fontSize: '1.25rem', color: '#6B5B4F', marginTop: '1rem', marginBottom: '2rem' }}>
+                每日晚餐話你知，一click生成一週餐單
+              </p>
+              <button 
+                onClick={() => window.location.href = '/generate'}
+                className="px-12 py-4 rounded-full text-white font-semibold text-lg hover:scale-105 transition-transform"
+                style={{ backgroundColor: '#9B6035' }}
+              >
+                生成食譜
+              </button>
+            </div>
+            <div className="hidden md:block">
+              <div className="relative">
+                <div className="w-72 h-72 mx-auto rounded-3xl overflow-hidden shadow-xl" style={{ backgroundColor: '#C8D49A' }}>
+                  <div className="w-full h-full flex items-center justify-center text-8xl">
+                    🍜
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Featured Recipes */}
