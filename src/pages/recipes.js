@@ -1,31 +1,72 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Card, Modal, Button } from '@/components';
-import { Header, Footer, Layout } from '@/components';
+import { Layout, Card, Modal } from '@/components';
+import supabase from '@/lib/supabase';
 
-// Static data - same as API
-const recipes = [
-  { id: 4, name: "番茄炒蛋", cooking_time: 5, difficulty: "易", cuisine: "中式", calories: 180, description: "經典廣東小菜，酸甜開胃，簡單易整，新手必學", tags: ["簡易", "送飯"], image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
-  { id: 5, name: "麻婆豆腐", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 280, description: "四川經典麻辣豆腐，麻辣鮮香，豆腐嫩滑，送飯一流", tags: ["辣", "送飯"], image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
-  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 120, description: "滑嫩蒸蛋，香蔥提味，營養健康，老少皆宜", tags: ["健康", "簡易"], image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
-  { id: 7, name: "魚香茄子", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 180, description: "四川經典小菜，茄子軟糯，魚香浓郁", tags: ["送飯", "簡易"], image_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" },
-  { id: 8, name: "鼓汁蒸排骨", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 320, description: "廣東經典，豉香浓郁，排骨嫩滑", tags: ["送飯", "簡易"], image_url: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400" },
-  { id: 9, name: "韭菜炒蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 150, description: "簡單家常，韭菜香嫩，雞蛋軟滑", tags: ["健康", "簡易"], image_url: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400" },
-  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, difficulty: "中", cuisine: "中式", calories: 380, description: "咖喱香濃，雞翼入味，薯仔軟糯", tags: ["送飯", "咖喱"], image_url: "https://images.unsplash.com/photo-1606152426935-3381f2f6520c?w=400" },
-  { id: 11, name: "糖醋排骨", cooking_time: 25, difficulty: "中", cuisine: "中式", calories: 420, description: "酸甜可口，外酥內嫩", tags: ["酸甜", "送飯"], image_url: "https://images.unsplash.com/photo-1544025162-d76694265947?w=400" },
-  { id: 12, name: "蒜蓉炒菜心", cooking_time: 8, difficulty: "易", cuisine: "中式", calories: 80, description: "簡單健康，蒜香四溢", tags: ["健康", "簡易"], image_url: "https://images.unsplash.com/photo-1518164147695-36c13dd568f4?w=400" },
-  { id: 13, name: "冬菇蒸雞", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 280, description: "廣東經典，菇香雞嫩", tags: ["健康", "送飯"], image_url: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400" },
-  { id: 14, name: "紅燒肉", cooking_time: 60, difficulty: "難", cuisine: "中式", calories: 550, description: "上海經典，肥而不膩", tags: ["送飯", "肉類"], image_url: "https://images.unsplash.com/photo-1623689046286-d4ca3f6a9ad4?w=400" },
-  { id: 18, name: "滑蛋蝦仁", cooking_time: 12, difficulty: "易", cuisine: "中式", calories: 220, description: "蛋香嫩滑，蝦仁鮮甜", tags: ["健康", "海鮮"], image_url: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400" },
-  { id: 19, name: "蒜香雞翼", cooking_time: 25, difficulty: "易", cuisine: "中式", calories: 350, description: "蒜香濃郁，雞翼嫩滑", tags: ["小食", "肉類"], image_url: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400" },
-  { id: 20, name: "蠔油芥蘭", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 90, description: "簡單健康，蠔油香濃", tags: ["健康", "蔬菜"], image_url: "https://images.unsplash.com/photo-1518164147695-36c13dd568f4?w=400" },
-  { id: 21, name: "西蘭花炒帶子", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 180, description: "海鮮配蔬菜，健康美味", tags: ["健康", "海鮮"], image_url: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400" },
-  { id: 23, name: "腐乳通菜", cooking_time: 8, difficulty: "易", cuisine: "中式", calories: 100, description: "簡單惹味，送飯一流", tags: ["送飯", "簡易"], image_url: "https://images.unsplash.com/photo-1518164147695-36c13dd568f4?w=400" }
+// Static recipes data
+const recipesData = [
+  { id: 4, name: "番茄炒蛋", cooking_time: 5, difficulty: "易", cuisine: "中式", calories: 180, description: "經典廣東小菜，酸甜開胃", tags: ["簡易", "送飯"], image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
+  { id: 5, name: "麻婆豆腐", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 280, description: "四川經典麻辣豆腐", tags: ["辣", "送飯"], image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
+  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 120, description: "滑嫩蒸蛋，香蔥提味", tags: ["健康", "簡易"], image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
+  { id: 7, name: "魚香茄子", cooking_time: 15, difficulty: "中", cuisine: "中式", calories: 180, description: "魚香味道濃郁", tags: ["送飯", "中式"], image_url: "" },
+  { id: 8, name: "鼓汁蒸排骨", cooking_time: 20, difficulty: "易", cuisine: "中式", calories: 320, description: "嫩滑排骨，豉香濃郁", tags: ["蒸", "送飯"], image_url: "" },
+  { id: 9, name: "韭菜炒蛋", cooking_time: 10, difficulty: "易", cuisine: "中式", calories: 150, description: "簡單快手小炒", tags: ["簡易", "健康"], image_url: "" },
+  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, difficulty: "中", cuisine: "中式", calories: 380, description: "咖喱香濃，雞翼入味", tags: ["送飯", "咖喱"], image_url: "" }
 ];
 
 export default function RecipesPage() {
+  const [recipes] = useState(recipesData);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [user, setUser] = useState(null);
+  const [favoriteIds, setFavoriteIds] = useState([]);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase?.auth.getUser();
+      setUser(user);
+      if (user) {
+        loadFavorites(user.id);
+      }
+    };
+    checkUser();
+  }, []);
+
+  const loadFavorites = async (userId) => {
+    const { data } = await supabase
+      .from('favorites')
+      .select('recipe_id')
+      .eq('user_id', userId);
+    
+    if (data) {
+      setFavoriteIds(data.map(f => f.recipe_id));
+    }
+  };
+
+  const toggleFavorite = async (recipeId) => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    const isFavorited = favoriteIds.includes(recipeId);
+    
+    if (isFavorited) {
+      await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('recipe_id', recipeId);
+      
+      setFavoriteIds(prev => prev.filter(id => id !== recipeId));
+    } else {
+      await supabase
+        .from('favorites')
+        .insert({ user_id: user.id, recipe_id: recipeId });
+      
+      setFavoriteIds(prev => [...prev, recipeId]);
+    }
+  };
 
   return (
     <Layout>
@@ -43,6 +84,8 @@ export default function RecipesPage() {
               description={`${recipe.cooking_time}分鐘 · ${recipe.cuisine} · ${recipe.calories} kcal`}
               image={recipe.image_url}
               tags={recipe.tags}
+              favorite={favoriteIds.includes(recipe.id)}
+              onFavorite={() => toggleFavorite(recipe.id)}
               onClick={() => setSelectedRecipe(recipe)}
             />
           ))}

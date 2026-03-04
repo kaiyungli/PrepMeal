@@ -5,6 +5,8 @@ interface CardProps {
   tags?: string[];
   children?: React.ReactNode;
   onClick?: () => void;
+  favorite?: boolean;
+  onFavorite?: () => void;
   style?: React.CSSProperties;
 }
 
@@ -21,6 +23,8 @@ export default function Card({
   tags, 
   children,
   onClick,
+  favorite,
+  onFavorite,
   style = {} 
 }: CardProps) {
   return (
@@ -36,25 +40,41 @@ export default function Card({
         ...style
       }}
     >
-      {image && (
-        <div style={{ 
-          height: '160px', 
-          background: `url(${image})`, 
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center' 
-        }} />
-      )}
-      {!image && (
-        <div style={{ 
-          height: '160px', 
-          background: '#f5f5f5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <span style={{ fontSize: '48px' }}>🍳</span>
-        </div>
-      )}
+      <div style={{ 
+        height: '160px', 
+        background: image ? `url(${image})` : '#f5f5f5', 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center',
+        position: 'relative'
+      }}>
+        {!image && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <span style={{ fontSize: '48px' }}>🍳</span>
+          </div>
+        )}
+        {onFavorite && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onFavorite(); }}
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              background: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>{favorite ? '❤️' : '🤍'}</span>
+          </button>
+        )}
+      </div>
       <div style={{ padding: '16px' }}>
         <h3 style={{ 
           fontSize: '16px', 
