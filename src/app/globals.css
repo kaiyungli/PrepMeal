@@ -1,16 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
+@theme {
   /* From Figma design */
-  --bg: #F8F3E8;
-  --sage: #C8D49A;
-  --primary: #9B6035;
-  --accent: #F0A060;
-  --footer: #2A1A08;
+  --color-bg: #F8F3E8;
+  --color-sage: #C8D49A;
+  --color-primary: #9B6035;
+  --color-accent: #F0A060;
+  --color-footer: #2A1A08;
   
   /* Legacy colors */
+  --color-cream: #fefefe;
+  --color-brown: #264653;
+  --color-yellow: #E76F51;
+  --color-light-bg: #faf8f5;
+}
+
+:root {
   --background: #ffffff;
   --foreground: #171717;
 }
