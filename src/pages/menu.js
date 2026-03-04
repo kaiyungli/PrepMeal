@@ -147,6 +147,16 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
   }
 
   // Group menu by day
+  // Calculate daily nutrition
+  const dailyNutrition = weeklyMenu.reduce((acc, meal) => {
+    if (!acc[meal.day]) acc[meal.day] = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    acc[meal.day].calories += meal.calories || 0;
+    acc[meal.day].protein += meal.protein || 0;
+    acc[meal.day].carbs += meal.carbs || 0;
+    acc[meal.day].fat += meal.fat || 0;
+    return acc;
+  }, {});
+
   const groupedMenu = weeklyMenu.reduce((acc, meal) => {
     if (!acc[meal.day]) acc[meal.day] = [];
     acc[meal.day].push(meal);
@@ -229,7 +239,14 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
                   {idx < Object.keys(groupedMenu).length - 1 && <div style={{ width: '2px', flex: 1, background: '#e5e5e5', marginTop: '4px' }} />}
                 </div>
                 <div style={{ flex: 1, marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown, marginBottom: '12px' }}>{day}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.brown }}>{day}</h3>
+                <div style={{ fontSize: '11px', color: colors.textLight }}>
+                  <span>{dailyNutrition[day]?.calories || 0}kcal</span>
+                  <span style={{ marginLeft: '8px' }}>蛋白{dailyNutrition[day]?.protein || 0}g</span>
+                  <span style={{ marginLeft: '8px' }}>碳水{dailyNutrition[day]?.carbs || 0}g</span>
+                </div>
+              </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px' }}>
                     {meals.map((meal, midx) => (
                       <div key={midx} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
