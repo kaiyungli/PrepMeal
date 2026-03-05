@@ -207,6 +207,28 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
     fat_g: recipe?.fat_g || '',
     image_url: recipe?.image_url || '',
   });
+  
+  // Ingredients state
+  const [ingredients, setIngredients] = useState(recipe?.ingredients || [{ ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
+  
+  // Steps state  
+  const [steps, setSteps] = useState(recipe?.steps || [{ step_no: 1, text: '', time_seconds: 0 }]);
+  
+  const addIngredient = () => setIngredients([...ingredients, { ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
+  const removeIngredient = (i) => setIngredients(ingredients.filter((_, idx) => idx !== i));
+  const updateIngredient = (i, field, value) => {
+    const newIngredients = [...ingredients];
+    newIngredients[i][field] = value;
+    setIngredients(newIngredients);
+  };
+  
+  const addStep = () => setSteps([...steps, { step_no: steps.length + 1, text: '', time_seconds: 0 }]);
+  const removeStep = (i) => setSteps(steps.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, step_no: idx + 1 })));
+  const updateStep = (i, field, value) => {
+    const newSteps = [...steps];
+    newSteps[i][field] = value;
+    setSteps(newSteps);
+  };
   const [saving, setSaving] = useState(false);
 
   const generateSlug = (name) => {
@@ -224,7 +246,7 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
       const res = await fetch('/api/admin/recipes', {
         method: recipe?.id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ingredients, steps }),
       });
       if (res.ok) {
         onSave();
@@ -426,7 +448,11 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
               <div style={{ marginTop: '8px', width: '100px', height: '100px', borderRadius: '8px', background: `url(${form.image_url}) center/cover`, backgroundSize: 'cover' }} />
             )}
           </div>
-
+          
+          {ing_editor}
+          
+          {steps_editor}
+          
           {/* Public Toggle */}
           <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <input
