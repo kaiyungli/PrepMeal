@@ -15,7 +15,12 @@ export default function Home() {
     fetch('/api/recipes')
       .then(res => res.json())
       .then(data => {
-        setAllRecipes(data.recipes || data || []);
+        const recipes = data.recipes || data || [];
+        setAllRecipes(recipes);
+        // Auto-load first batch if we have data
+        if (recipes.length > 0 && recipes.length <= 8) {
+          setVisibleCount(recipes.length);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
