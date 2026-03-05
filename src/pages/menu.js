@@ -7,12 +7,18 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
-  cream: '#fefefe',
-  brown: '#264653',
-  yellow: '#E76F51',
-  lightBg: '#faf8f5',
-  text: '#264653',
-  textLight: '#6b7280',
+  background: '#F8F3E8',
+  primary: '#9B6035',
+  secondary: '#C8D49A',
+  accent: '#F0A060',
+  text: '#3A2010',
+  textLight: '#AA7A50',
+  cream: '#F8F3E8',
+  lightBg: '#F8F3E8',
+  white: '#FFFFFF',
+  sage: '#C8D49A',
+  brown: '#9B6035',
+  yellow: '#F0A060',
 };
 
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
