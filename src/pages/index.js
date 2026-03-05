@@ -139,6 +139,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How It Works */}
+      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { num: '01', title: '設定偏好', desc: '選擇人數、烹飪時間、菜系和飲食限制。' },
+              { num: '02', title: '生成餐單', desc: '系統即時為你生成均衡健康的7日晚餐安排。' },
+              { num: '03', title: '開始買餸', desc: '自動生成購物清單，超市直接按清單採購。' },
+            ].map((step, i) => (
+              <div key={step.num} className="relative text-center">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg" style={{ backgroundColor: '#14B8A6', fontWeight: 800, fontSize: '1.125rem' }}>
+                  {step.num}
+                </div>
+                <h3 className="text-gray-900 mb-2" style={{ fontWeight: 600 }}>{step.title}</h3>
+                <p className="text-gray-500 text-sm">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20" style={{ backgroundColor: '#fff' }}>
         <div className="max-w-[1200px] mx-auto px-4">
