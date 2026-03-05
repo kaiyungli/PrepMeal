@@ -74,7 +74,7 @@ export default function GeneratePage() {
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}><div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '9px', fontWeight: '700', color: colors.textLight, marginBottom: '2px' }}>🥢 邊種菜式</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
