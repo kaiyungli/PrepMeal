@@ -93,8 +93,8 @@ export default function Home() {
               <div className="relative w-full rounded-2xl p-6 border-2 bg-white" style={{ borderColor: '#DDD0B0', boxShadow: '0 20px 60px rgba(155,96,53,0.14)', maxWidth: '520px' }}>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C0A080' }}>本週計劃</p>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#9B6035' }}>WEEKLY PLAN</h3>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C0A080' }}>今週餐單</p>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#9B6035' }}></h3>
                   </div>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#9B6035' }}>
                     <span style={{ fontSize: '1rem' }}>🍜</span>
@@ -103,7 +103,7 @@ export default function Home() {
                 <div className="flex gap-4">
                   {/* 本週餐單 */}
                   <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#9B6035', marginBottom: '0.5rem' }}>📅 本週餐單</p>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#9B6035', marginBottom: '0.5rem' }}>餐單</p>
                     <div className="space-y-2">
                       {[
                         { day: '星期一', dish: '番茄炒蛋', done: true },
@@ -135,8 +135,8 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="absolute -top-4 -right-4 text-white rounded-xl px-4 py-2 shadow-lg" style={{ backgroundColor: '#F0A060' }}>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 800 }}>✓ 已生成</p>
+                <div className="absolute -top-4 -right-4 text-white rounded-xl px-4 py-2 shadow-lg" style={{ backgroundColor: '#F59E0B' }}>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 800 }}></p>
                 </div>
               </div>
             </div>
