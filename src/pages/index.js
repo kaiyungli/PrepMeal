@@ -9,7 +9,7 @@ import { Layout } from '@/components';
 export default function Home() {
   const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(12);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
     fetch('/api/recipes')
@@ -134,11 +134,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {loading ? (
-              <p style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px' }}>載入食譜中...</p>
-            ) : visibleRecipes.length === 0 ? (
-              <p style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px' }}>暫時沒有食譜</p>
-            ) : visibleRecipes.map((recipe) => (
+            {visibleRecipes.map((recipe) => (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
                 <div className="h-48 bg-cover bg-center" style={{ backgroundImage: recipe.image_url ? `url(${recipe.image_url})` : 'none', backgroundColor: '#DDD' }} />
                 <div className="p-4">
