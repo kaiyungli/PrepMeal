@@ -8,7 +8,7 @@ import { Layout } from '@/components';
 
 export default function Home() {
   const [allRecipes, setAllRecipes] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -136,12 +136,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {visibleRecipes.map((recipe) => (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
-                <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(${recipe.image_url})` }} />
+                <div className="h-48 bg-cover bg-center" style={{ backgroundImage: recipe.image_url ? `url(${recipe.image_url})` : 'none', backgroundColor: '#DDD' }} />
                 <div className="p-4">
                   <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
                   <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                    <span>⏱️ {recipe.difficulty}分鐘</span>
-                    <span>🔥 {recipe.calories} kcal</span>
+                    <span>⏱️ {recipe.difficulty || '-'}</span>
+                    <span>🔥 {recipe.calories_per_serving || '-'} kcal</span>
                   </div>
                   <div className="flex gap-2 mt-3">
                     {(Array.isArray(recipe.cuisine) ? recipe.cuisine : [recipe.cuisine]).slice(0, 2).map((tag, i) => (
