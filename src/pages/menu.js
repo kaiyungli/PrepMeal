@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import supabase from '@/lib/supabase';
 import Head from 'next/head';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 const colors = {
   cream: '#fefefe',
@@ -165,6 +167,7 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
 
   return (
     <>
+      <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Head from 'next/head';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 const colors = {
   cream: '#fefefe',
@@ -60,6 +62,7 @@ export default function GeneratePage() {
 
   return (
     <>
+      <Header />
       <Head><title>今晚食乜 - 生成餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
