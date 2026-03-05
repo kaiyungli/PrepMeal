@@ -4,24 +4,22 @@ import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
 
-// All recipes for homepage
-const allRecipes = [
-  { id: 4, name: "番茄炒蛋", cooking_time: 5, calories: 180, tags: ["簡易", "送飯"], image_url: "https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg" },
-  { id: 5, name: "麻婆豆腐", cooking_time: 15, calories: 280, tags: ["辣", "送飯"], image_url: "https://www.christinesrecipes.com/wp-content/uploads/2010/01/Mapo-Tofu.jpg" },
-  { id: 6, name: "蔥花蒸水蛋", cooking_time: 10, calories: 120, tags: ["健康", "簡易"], image_url: "https://kikkomanusa.com/chinese/wp-content/uploads/sites5/2022/01/31040_Chinese-Steamed-Eggs.jpg" },
-  { id: 10, name: "咖喱薯仔炆雞翼", cooking_time: 30, calories: 380, tags: ["送飯", "咖喱"], image_url: "https://images.unsplash.com/photo-1606152426935-3381f2f6520c?w=400" },
-  { id: 7, name: "魚香茄子", cooking_time: 15, calories: 180, tags: ["送飯", "中式"], image_url: "" },
-  { id: 8, name: "鼓汁蒸排骨", cooking_time: 20, calories: 320, tags: ["蒸", "送飯"], image_url: "" },
-  { id: 9, name: "韭菜炒蛋", cooking_time: 10, calories: 150, tags: ["簡易", "健康"], image_url: "" },
-  { id: 11, name: "蒜蓉炒菜心", cooking_time: 8, calories: 80, tags: ["健康", "簡易"], image_url: "" },
-  { id: 12, name: "西蘭花炒牛肉", cooking_time: 15, calories: 250, tags: ["送飯", "健康"], image_url: "" },
-  { id: 13, name: "乾炒牛河", cooking_time: 12, calories: 380, tags: ["主食", "經典"], image_url: "" },
-  { id: 14, name: "揚州炒飯", cooking_time: 15, calories: 420, tags: ["主食", "經典"], image_url: "" },
-  { id: 15, name: "雲吞麵", cooking_time: 12, calories: 320, tags: ["主食", "簡易"], image_url: "" }
-];
+
 
 export default function Home() {
+  const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    fetch('/api/recipes')
+      .then(res => res.json())
+      .then(data => {
+        setAllRecipes(data.recipes || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
   const loaderRef = useRef(null);
   
   useEffect(() => {
@@ -142,11 +140,11 @@ export default function Home() {
                 <div className="p-4">
                   <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
                   <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                    <span>⏱️ {recipe.cooking_time}分鐘</span>
+                    <span>⏱️ {recipe.difficulty}分鐘</span>
                     <span>🔥 {recipe.calories} kcal</span>
                   </div>
                   <div className="flex gap-2 mt-3">
-                    {recipe.tags.slice(0, 2).map((tag, i) => (
+                    {recipe.cuisine.slice(0, 2).map((tag, i) => (
                       <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}>{tag}</span>
                     ))}
                   </div>
