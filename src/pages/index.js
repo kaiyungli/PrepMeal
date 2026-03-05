@@ -12,18 +12,26 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
+    console.log('Fetching recipes...');
     fetch('/api/recipes')
-      .then(res => res.json())
+      .then(res => {
+        console.log('Response status:', res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log('Data received:', data);
         const recipes = data.recipes || data || [];
+        console.log('Recipes:', recipes.length);
         setAllRecipes(recipes);
-        // Auto-load first batch if we have data
-        if (recipes.length > 0 && recipes.length <= 8) {
-          setVisibleCount(recipes.length);
+        if (recipes.length > 0) {
+          setVisibleCount(Math.min(8, recipes.length));
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
   }, []);
   const loaderRef = useRef(null);
   
