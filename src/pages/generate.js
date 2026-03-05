@@ -73,9 +73,9 @@ export default function GeneratePage() {
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}><div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.text, marginBottom: '16px' }}>🔍 搜尋條件</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: { base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🥢 邊種菜式</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.textLight, marginBottom: '4px' }}>🥢 邊種菜式</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {cuisineOptions.map((opt) => (
                     <button key={opt} onClick={() => setCuisine(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: cuisine === opt ? colors.brown : '#f0f0f0', color: cuisine === opt ? 'white' : colors.text }}>{opt}</button>
@@ -83,7 +83,7 @@ export default function GeneratePage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>⏱️ 煮食時間</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.textLight, marginBottom: '4px' }}>⏱️ 煮食時間</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {timeOptions.map((opt) => (
                     <button key={opt} onClick={() => setTime(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: time === opt ? colors.yellow : '#f0f0f0', color: time === opt ? 'white' : colors.text }}>{opt}</button>
@@ -91,7 +91,7 @@ export default function GeneratePage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>💪 難度</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.textLight, marginBottom: '4px' }}>💪 難度</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {difficultyOptions.map((opt) => (
                     <button key={opt} onClick={() => setDifficulty(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: difficulty === opt ? colors.yellow : '#f0f0f0', color: difficulty === opt ? 'white' : colors.text }}>{opt}</button>
@@ -99,7 +99,7 @@ export default function GeneratePage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>👥 幾多人</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.textLight, marginBottom: '4px' }}>👥 幾多人</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {servingOptions.map((opt) => (
                     <button key={opt} onClick={() => setServings(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: servings === opt ? colors.brown : '#f0f0f0', color: servings === opt ? 'white' : colors.text }}>{opt}人</button>
@@ -107,7 +107,7 @@ export default function GeneratePage() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: colors.textLight, marginBottom: '8px' }}>🍱 一日幾多個菜</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.textLight, marginBottom: '4px' }}>🍱 一日幾多個菜</label>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                   {mealsPerDayOptions.map((opt) => (
                     <button key={opt} onClick={() => setMealsPerDay(opt)} style={{ padding: '6px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '500', background: mealsPerDay === opt ? colors.yellow : '#f0f0f0', color: mealsPerDay === opt ? 'white' : colors.text }}>{opt}個菜</button>
