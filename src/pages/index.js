@@ -163,30 +163,7 @@ export default function Home() {
       
 
       {/* Featured Recipes */}
-      {/* Testimonials */}
-      <section className="py-20" style={{ backgroundColor: '#fff' }}>
-        <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>用家分享</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: 'Mandy Chan', role: '三口之家媽媽', comment: '每天最頭痛就係諗今晚食乜，用咗呢個app之後，規劃晚餐輕鬆好多！', stars: 5 },
-              { name: 'Kevin Lam', role: '上班族', comment: '個購物清單功能真係超實用，唔使再重複買同一樣嘢，減少好多浪費。', stars: 5 },
-              { name: 'Winnie Ho', role: '新手煮婦', comment: '食譜簡單易明，步驟清晰，連我呢種廚藝麻麻既人都可以跟住做！', stars: 5 },
-            ].map((t, i) => (
-              <div key={i} className="p-6 rounded-2xl" style={{ backgroundColor: '#F8F3E8' }}>
-                <div className="flex gap-1 mb-4">{'⭐⭐⭐⭐⭐'}</div>
-                <p className="text-sm mb-4" style={{ color: '#6B5B4F' }}>"{t.comment}"</p>
-                <div>
-                  <p className="font-bold text-sm" style={{ color: '#3A2010' }}>{t.name}</p>
-                  <p className="text-xs" style={{ color: '#9B6035' }}>{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
+            <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-[1200px] mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
           
