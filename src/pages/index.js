@@ -153,10 +153,9 @@ export default function Home() {
             ))}
           </div>
 
-          {hasMore && (
+          {hasMore && allRecipes.length > visibleCount && (
             <div ref={loaderRef} className="text-center py-8">
-              <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#9B6035', borderTopColor: 'transparent' }}></div>
-              <p className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>載入中...</p>
+              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>載入更多...</p>
             </div>
           )}
         </div>
