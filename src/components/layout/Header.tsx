@@ -10,10 +10,8 @@ const navLinks = [
   { href: '/', label: '首頁' },
   { href: '/generate', label: '生成餐單' },
   { href: '/recipes', label: '食譜' },
-  { href: '/about', label: '關於' },
-  { href: '/favorites', label: '收藏' },
-  { href: '/my-menus', label: '我既餐單' },
-  { href: '/profile', label: '個人資料' },
+  { href: '/', label: '價格' },
+  { href: '/login', label: '登入' },
 ];
 
 export default function Header({ showNav = true }: HeaderProps) {
@@ -88,12 +86,16 @@ export default function Header({ showNav = true }: HeaderProps) {
             </div>
             
             <div className="p-4">
+              <div className="text-center py-4 mb-2">
+                <span className="text-3xl">🍜</span>
+                <p className="font-bold mt-2" style={{ color: '#9B6035' }}>今晚食乜</p>
+              </div>
               {navLinks.map((link) => (
                 <Link 
                   key={link.href} 
                   href={link.href}
                   className="block py-3 border-b font-medium"
-                  style={{ color: '#3A2010', borderColor: '#eee' }}
+                  style={{ color: '#AA7A50', borderColor: '#DDD0B0' }}
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
