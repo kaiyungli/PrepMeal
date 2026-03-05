@@ -23,10 +23,14 @@ const colors = {
 
 // Recipes fetched from API
 
-const cuisineOptions = ['全部', '中式', '西式', '日式', '韓式', '素食'];
+const cuisineOptions = ['全部', 'chinese', 'japanese', 'korean', 'western', 'vegetarian'];
 const timeOptions = ['全部', '15分鐘', '30分鐘'];
-const difficultyOptions = ['全部', '易', '中', '難'];
+const difficultyOptions = ['全部', 'easy', 'medium', 'hard'];
 const servingOptions = [1, 2, 3, 4];
+const dishTypeOptions = ['全部', 'main', 'side'];
+const dishTypeLabels = { '全部': '全部', 'main': '主菜', 'side': '小食' };
+const speedOptions = ['全部', 'quick', 'normal'];
+const speedLabels = { '全部': '全部', 'quick': '快', 'normal': ' normal' };
 const mealsPerDayOptions = [1, 2, 3];
 
 export default function GeneratePage() {
@@ -44,6 +48,8 @@ export default function GeneratePage() {
   const [cuisine, setCuisine] = useState('全部');
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
+  const [dishType, setDishType] = useState('全部');
+  const [speed, setSpeed] = useState('全部');
   const [servings, setServings] = useState(2);
   const [mealsPerDay, setMealsPerDay] = useState(1);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
@@ -54,6 +60,8 @@ export default function GeneratePage() {
     if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
     if (time !== '全部') filtered = filtered.filter(r => r.cooking_time <= (time === '15分鐘' ? 15 : 30));
     if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
+    if (dishType !== '全部') filtered = filtered.filter(r => r.dish_type === dishType);
+    if (speed !== '全部') filtered = filtered.filter(r => r.speed === speed);
     setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
   }
 
