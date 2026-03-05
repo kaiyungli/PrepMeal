@@ -7,7 +7,7 @@ interface LayoutProps {
 }
 
 const colors = {
-  cream: '#fefefe',
+  cream: '#F8F3E8',
 };
 
 export default function Layout({ children, showNav = true }: LayoutProps) {
