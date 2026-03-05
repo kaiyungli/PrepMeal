@@ -45,34 +45,34 @@ export default function Home() {
       <Head><title>今晚食乜 🥘</title></Head>
       
       {/* Hero */}
-      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: '#F8F3E8' }}>
+      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: 'var(--background)' }}>
         {/* Decorative circles */}
-        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
-        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full" style={{ backgroundColor: '#E8C87A', opacity: 0.4 }} />
-        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full" style={{ backgroundColor: '#F0A060', opacity: 0.3 }} />
-        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full" style={{ backgroundColor: '#9B6035', opacity: 0.2 }} />
-        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full" style={{ backgroundColor: '#C8D49A', opacity: 0.4 }} />
+        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full" style={{ backgroundColor: 'var(--secondary)', opacity: 0.6 }} />
+        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full" style={{ backgroundColor: 'var(--accent)', opacity: 0.4 }} />
+        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full" style={{ backgroundColor: 'var(--accent)', opacity: 0.3 }} />
+        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full" style={{ backgroundColor: 'var(--primary)', opacity: 0.2 }} />
+        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full" style={{ backgroundColor: 'var(--secondary)', opacity: 0.4 }} />
         
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: '#3A2010', lineHeight: 1.1 }}>
+              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: 'var(--foreground)', lineHeight: 1.1 }}>
                 今晚<br/>食乜?
               </h1>
-              <p style={{ fontSize: '1.25rem', color: '#6B5B4F', marginTop: '1rem', marginBottom: '2rem' }}>
+              <p style={{ fontSize: '1.25rem', color: 'var(--muted-foreground)', marginTop: '1rem', marginBottom: '2rem' }}>
                 每日晚餐話你知，一click生成一週餐單
               </p>
               <button 
                 onClick={() => window.location.href = '/generate'}
                 className="px-12 py-4 rounded-full text-white font-semibold text-lg hover:scale-105 transition-transform"
-                style={{ backgroundColor: '#9B6035' }}
+                style={{ backgroundColor: 'var(--primary)' }}
               >
                 生成食譜
               </button>
             </div>
             <div className="hidden md:block">
               <div className="relative">
-                <div className="w-72 h-72 mx-auto rounded-3xl overflow-hidden shadow-xl" style={{ backgroundColor: '#C8D49A' }}>
+                <div className="w-72 h-72 mx-auto rounded-3xl overflow-hidden shadow-xl" style={{ backgroundColor: 'var(--secondary)' }}>
                   <div className="w-full h-full flex items-center justify-center text-8xl">
                     🍜
                   </div>
@@ -84,10 +84,10 @@ export default function Home() {
       </section>
 
       {/* Weekly Plan Card */}
-      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+      <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-lg mx-auto">
-            <div className="p-6" style={{ backgroundColor: '#9B6035' }}>
+            <div className="p-6" style={{ backgroundColor: 'var(--primary)' }}>
               <h2 className="text-2xl font-bold text-white">本週計劃</h2>
             </div>
             <div className="p-6">
@@ -104,16 +104,16 @@ export default function Home() {
                       <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${item.done ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
                         {item.done ? '✓' : ''}
                       </span>
-                      <span className="font-medium" style={{ color: '#3A2010' }}>{item.day}</span>
+                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>{item.day}</span>
                     </div>
-                    <span className="text-sm" style={{ color: '#6B5B4F' }}>{item.dish}</span>
+                    <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{item.dish}</span>
                   </div>
                 ))}
               </div>
               <button 
                 onClick={() => window.location.href = '/generate'}
                 className="w-full mt-6 py-3 rounded-full font-semibold"
-                style={{ backgroundColor: '#9B6035', color: 'white' }}
+                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
               >
                 生成餐單 →
               </button>
@@ -123,10 +123,10 @@ export default function Home() {
       </section>
 
       {/* Shopping List Preview */}
-      <section className="py-16" style={{ backgroundColor: '#C8D49A' }}>
+      <section className="py-16" style={{ backgroundColor: 'var(--secondary)' }}>
         <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8" style={{ color: '#3A2010' }}>準備好未？</h2>
-          <p className="text-center mb-8" style={{ color: '#6B5B4F' }}>一click生成你既一週餐單</p>
+          <h2 className="text-3xl font-bold text-center mb-8" style={{ color: 'var(--foreground)' }}>準備好未？</h2>
+          <p className="text-center mb-8" style={{ color: 'var(--muted-foreground)' }}>一click生成你既一週餐單</p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
             {[
@@ -136,8 +136,8 @@ export default function Home() {
               { name: '豆腐', qty: '1磚' },
             ].map((item, i) => (
               <div key={i} className="bg-white rounded-xl p-4 text-center shadow-md">
-                <p className="font-bold text-lg" style={{ color: '#3A2010' }}>{item.qty}</p>
-                <p className="text-sm" style={{ color: '#6B5B4F' }}>{item.name}</p>
+                <p className="font-bold text-lg" style={{ color: 'var(--foreground)' }}>{item.qty}</p>
+                <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{item.name}</p>
               </div>
             ))}
           </div>
@@ -146,7 +146,7 @@ export default function Home() {
             <button 
               onClick={() => window.location.href = '/generate'}
               className="px-10 py-4 rounded-full font-bold text-lg"
-              style={{ backgroundColor: '#9B6035', color: 'white' }}
+              style={{ backgroundColor: 'var(--primary)', color: 'white' }}
             >
               開始計劃 →
             </button>
@@ -155,23 +155,23 @@ export default function Home() {
       </section>
 
       {/* Featured Recipes */}
-      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+      <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>精選食譜</h2>
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {visibleRecipes.map((recipe) => (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes'}>
                 <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(${recipe.image_url})` }} />
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#3A2010' }}>{recipe.name}</h3>
-                  <div className="flex items-center gap-4 text-sm" style={{ color: '#6B5B4F' }}>
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
+                  <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
                     <span>⏱️ {recipe.cooking_time}分鐘</span>
                     <span>🔥 {recipe.calories} kcal</span>
                   </div>
                   <div className="flex gap-2 mt-3">
                     {recipe.tags.slice(0, 2).map((tag, i) => (
-                      <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}>{tag}</span>
+                      <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}>{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function Home() {
           {hasMore && (
             <div ref={loaderRef} className="text-center py-8">
               <div className="inline-block w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#9B6035', borderTopColor: 'transparent' }}></div>
-              <p className="mt-2 text-sm" style={{ color: '#6B5B4F' }}>載入中...</p>
+              <p className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>載入中...</p>
             </div>
           )}
           {!hasMore && (
@@ -190,7 +190,7 @@ export default function Home() {
               <button 
                 onClick={() => window.location.href = '/recipes'}
                 className="px-8 py-3 rounded-full font-semibold"
-                style={{ backgroundColor: '#9B6035', color: 'white' }}
+                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
               >
                 睇更多食譜 →
               </button>
