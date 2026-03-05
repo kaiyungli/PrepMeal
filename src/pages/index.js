@@ -7,7 +7,14 @@ import { Layout } from '@/components';
 
 
 export default function Home() {
-  const [allRecipes, setAllRecipes] = useState([]);
+  const [allRecipes, setAllRecipes] = useState([
+    { id: '1', name: '番茄炒蛋', difficulty: 'easy', calories_per_serving: 180, cuisine: 'chinese', image_url: '' },
+    { id: '2', name: '麻婆豆腐', difficulty: 'medium', calories_per_serving: 280, cuisine: 'chinese', image_url: '' },
+    { id: '3', name: '咖哩雞', difficulty: 'easy', calories_per_serving: 350, cuisine: 'japanese', image_url: '' },
+    { id: '4', name: '蒸水蛋', difficulty: 'easy', calories_per_serving: 120, cuisine: 'chinese', image_url: '' },
+    { id: '5', name: '蝦仁炒蛋', difficulty: 'easy', calories_per_serving: 200, cuisine: 'chinese', image_url: '' },
+    { id: '6', name: '苦瓜炒蛋', difficulty: 'easy', calories_per_serving: 150, cuisine: 'chinese', image_url: '' },
+  ]);
   const [visibleCount, setVisibleCount] = useState(6);
   const [loading, setLoading] = useState(false);
   
