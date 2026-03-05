@@ -57,6 +57,8 @@ export default function Home() {
   }, [visibleCount]);
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
+  const weeklyMenu = (allRecipes || []).slice(0, 7);
+  const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   const hasMore = visibleCount < allRecipes.length;
   return (
     <Layout>
@@ -107,10 +109,10 @@ export default function Home() {
                     { day: '星期一', dish: '番茄炒蛋', done: true },
                     { day: '星期二', dish: '咖哩雞', done: true },
                     { day: '星期三', dish: '西蘭花牛肉', done: false },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: item.done ? '#F8F3E8' : '#F8F3E8' }}>
-                      <span className="text-xs font-medium" style={{ color: '#374151' }}>{item.day}</span>
-                      <span className="text-xs" style={{ color: item.done ? '#9B6035' : '#9CA3AF' }}>{item.done ? '✓ ' + item.dish : '未選擇'}</span>
+                  ].map((recipe, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#F8F3E8' }}>
+                      <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
+                      <span className="text-xs" style={{ color: '#9B6035' }}>{recipe ? '✓ ' + recipe.name : '未選擇'}</span>
                     </div>
                   ))}
                 </div>
