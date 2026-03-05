@@ -70,7 +70,7 @@ export default function Home() {
                 生成食譜
               </button>
             </div>
-            <div className="hidden md:block">
+            <div className="block">
               {/* Weekly Plan Card - Exact Figma Code */}
               <div className="relative w-full rounded-2xl p-6 border-2 bg-white" style={{ borderColor: '#DDD0B0', boxShadow: '0 20px 60px rgba(155,96,53,0.14)', maxWidth: '520px' }}>
                 <div className="flex items-center justify-between mb-5">
