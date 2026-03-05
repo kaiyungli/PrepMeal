@@ -30,7 +30,11 @@ const servingOptions = [1, 2, 3, 4];
 const dishTypeOptions = ['全部', 'main', 'side'];
 const dishTypeLabels = { '全部': '全部', 'main': '主菜', 'side': '小食' };
 const speedOptions = ['全部', 'quick', 'normal'];
-const speedLabels = { '全部': '全部', 'quick': '快', 'normal': ' normal' };
+const speedLabels = { '全部': '全部', 'quick': '快', 'normal': '正常' };
+const dietOptions = ['全部', 'none', 'vegetarian', 'vegan', 'gluten_free'];
+const dietLabels = { '全部': '全部', 'none': '無', 'vegetarian': '素食', 'vegan': '全素', 'gluten_free': '無麩質' };
+const flavorOptions = ['全部', 'sweet', 'savory', 'spicy', 'sour'];
+const flavorLabels = { '全部': '全部', 'sweet': '甜', 'savory': '鹹', 'spicy': '辣', 'sour': '酸' };
 const mealsPerDayOptions = [1, 2, 3];
 
 export default function GeneratePage() {
@@ -50,6 +54,8 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [dishType, setDishType] = useState('全部');
   const [speed, setSpeed] = useState('全部');
+  const [diet, setDiet] = useState('全部');
+  const [flavor, setFlavor] = useState('全部');
   const [servings, setServings] = useState(2);
   const [mealsPerDay, setMealsPerDay] = useState(1);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
@@ -62,6 +68,8 @@ export default function GeneratePage() {
     if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
     if (dishType !== '全部') filtered = filtered.filter(r => r.dish_type === dishType);
     if (speed !== '全部') filtered = filtered.filter(r => r.speed === speed);
+    if (diet !== '全部') filtered = filtered.filter(r => !r.diet || r.diet.includes(diet));
+    if (flavor !== '全部') filtered = filtered.filter(r => !r.flavor || r.flavor.includes(flavor));
     setFilteredRecipes(filtered.length > 0 ? filtered : recipes);
   }
 
