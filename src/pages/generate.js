@@ -47,6 +47,7 @@ export default function GeneratePage() {
   const [servings, setServings] = useState(2);
   const [mealsPerDay, setMealsPerDay] = useState(1);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
 
   const filterRecipes = () => {
     let filtered = [...recipes];
