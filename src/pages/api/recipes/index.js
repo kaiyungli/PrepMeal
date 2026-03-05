@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   try {
     const { data, error } = await supabase
       .from('recipes')
-      .select('id, name, cooking_time, difficulty, cuisine, calories, description, tags, image_url, instructions')
+      .select('id, name, description, image_url, cuisine, dish_type, method, speed, difficulty, protein, diet, flavor, base_servings, calories_per_serving, protein_g, carbs_g, fat_g, slug, is_public')
       .limit(100)
     
     if (error) throw error
