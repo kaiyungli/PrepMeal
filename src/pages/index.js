@@ -144,7 +144,7 @@ export default function Home() {
                     <span>🔥 {recipe.calories} kcal</span>
                   </div>
                   <div className="flex gap-2 mt-3">
-                    {recipe.cuisine.slice(0, 2).map((tag, i) => (
+                    {(Array.isArray(recipe.cuisine) ? recipe.cuisine : [recipe.cuisine]).slice(0, 2).map((tag, i) => (
                       <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}>{tag}</span>
                     ))}
                   </div>
