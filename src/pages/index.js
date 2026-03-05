@@ -122,7 +122,7 @@ export default function Home() {
                   ].map((recipe, i) => (
                     <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#F8F3E8' }}>
                       <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
-                      <span className="text-xs" style={{ color: '#9B6035' }}>{recipe ? '✓ ' + recipe.name : '未選擇'}</span>
+                      <span className="text-xs" style={{ color: '#9B6035' }}>{recipe ? '✓ ' + recipe.dish : '未選擇'}</span>
                     </div>
                   ))}
                 </div>
@@ -149,7 +149,7 @@ export default function Home() {
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
                 <div className="h-48 bg-cover bg-center" style={{ backgroundImage: recipe.image_url ? `url(${recipe.image_url})` : 'none', backgroundColor: '#DDD' }} />
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.dish}</h3>
                   <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
                     <span>⏱️ {recipe.difficulty || '-'}</span>
                     <span>🔥 {recipe.calories_per_serving || '-'} kcal</span>
