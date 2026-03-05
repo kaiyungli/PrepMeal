@@ -93,12 +93,12 @@ export default function Home() {
               <div className="bg-white rounded-2xl shadow-xl p-5 border border-gray-100 w-full max-w-sm mx-auto">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#14B8A6' }}>
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#9B6035' }}>
                       <span>📅</span>
                     </div>
                     <span className="text-sm text-gray-700" style={{ fontWeight: 600 }}>今週餐單</span>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#14B8A6' }}>
+                  <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#9B6035' }}>
                     7天
                   </span>
                 </div>
@@ -108,13 +108,13 @@ export default function Home() {
                     { day: '星期二', dish: '咖哩雞', done: true },
                     { day: '星期三', dish: '西蘭花牛肉', done: false },
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: item.done ? '#F0FDF4' : '#F9FAFB' }}>
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: item.done ? '#F8F3E8' : '#F8F3E8' }}>
                       <span className="text-xs font-medium" style={{ color: '#374151' }}>{item.day}</span>
-                      <span className="text-xs" style={{ color: item.done ? '#14B8A6' : '#9CA3AF' }}>{item.done ? '✓ ' + item.dish : '未選擇'}</span>
+                      <span className="text-xs" style={{ color: item.done ? '#9B6035' : '#9CA3AF' }}>{item.done ? '✓ ' + item.dish : '未選擇'}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" style={{ backgroundColor: '#F59E0B' }}>
+                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" style={{ backgroundColor: '#9B6035' }}>
                   生成購物清單 →
                 </div>
               </div>
