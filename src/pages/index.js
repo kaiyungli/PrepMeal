@@ -122,6 +122,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Shopping List Preview */}
+      <section className="py-16" style={{ backgroundColor: '#C8D49A' }}>
+        <div className="max-w-[1200px] mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8" style={{ color: '#3A2010' }}>準備好未？</h2>
+          <p className="text-center mb-8" style={{ color: '#6B5B4F' }}>一click生成你既一週餐單</p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
+            {[
+              { name: '雞蛋', qty: 'x6' },
+              { name: '番茄', qty: 'x4' },
+              { name: '牛肉', qty: '300g' },
+              { name: '豆腐', qty: '1磚' },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-xl p-4 text-center shadow-md">
+                <p className="font-bold text-lg" style={{ color: '#3A2010' }}>{item.qty}</p>
+                <p className="text-sm" style={{ color: '#6B5B4F' }}>{item.name}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-center">
+            <button 
+              onClick={() => window.location.href = '/generate'}
+              className="px-10 py-4 rounded-full font-bold text-lg"
+              style={{ backgroundColor: '#9B6035', color: 'white' }}
+            >
+              開始計劃 →
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Recipes */}
       <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
         <div className="max-w-[1200px] mx-auto px-4">
