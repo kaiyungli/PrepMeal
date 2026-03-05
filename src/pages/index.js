@@ -1,25 +1,25 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
 
 
 
-export default function Home({ initialRecipes }) {
-  const [allRecipes, setAllRecipes] = useState(initialRecipes || []);
+export default function Home() {
+  const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    if (!initialRecipes || initialRecipes.length === 0) {
-      fetch('/api/recipes')
-        .then(res => res.json())
-        .then(data => setAllRecipes(data.recipes || []))
-        .catch(() => {});
-    }
-  }, [initialRecipes]);
+    fetch('/api/recipes')
+      .then(res => res.json())
+      .then(data => {
+        setAllRecipes(data.recipes || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
   const loaderRef = useRef(null);
   
   useEffect(() => {
@@ -163,28 +163,4 @@ export default function Home({ initialRecipes }) {
       </section>
     </Layout>
   );
-}
-
-
-export async function getServerSideProps() {
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpdm5hamhxcXZhb2t0aHp1Z3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3MjQzMDM4OCwiZXhwIjoyMDg4MDA2Mzg4fQ.Y7V8xM0vP0K7r5X2t4dN9qG3jH6vL8cB1pS2wE5rT0'
-    );
-    
-    const { data: recipes } = await supabase
-      .from('recipes')
-      .select('id, name, description, image_url, cuisine, dish_type, speed, difficulty, calories_per_serving')
-      .limit(12);
-    
-    return {
-      props: {
-        initialRecipes: recipes || []
-      },
-      revalidate: 60
-    };
-  } catch (e) {
-    return { props: { initialRecipes: [] } };
-  }
 }
