@@ -161,17 +161,6 @@ export default function Home() {
               <p className="mt-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>載入中...</p>
             </div>
           )}
-          {!hasMore && (
-            <div className="text-center">
-              <button 
-                onClick={() => window.location.href = '/recipes'}
-                className="px-8 py-3 rounded-full font-semibold"
-                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
-              >
-                睇更多食譜 →
-              </button>
-            </div>
-          )}
         </div>
       </section>
     </Layout>
