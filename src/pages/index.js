@@ -15,7 +15,7 @@ export default function Home() {
     { id: '5', name: '蝦仁炒蛋', difficulty: 'easy', calories_per_serving: 200, cuisine: 'chinese', image_url: '' },
     { id: '6', name: '苦瓜炒蛋', difficulty: 'easy', calories_per_serving: 150, cuisine: 'chinese', image_url: '' },
   ]);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(4);
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
