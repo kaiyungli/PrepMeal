@@ -83,6 +83,45 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Weekly Plan Card */}
+      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden max-w-lg mx-auto">
+            <div className="p-6" style={{ backgroundColor: '#9B6035' }}>
+              <h2 className="text-2xl font-bold text-white">本週計劃</h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {[
+                  { day: '星期一', dish: '番茄炒蛋', done: true },
+                  { day: '星期二', dish: '麻婆豆腐', done: true },
+                  { day: '星期三', dish: '蔥花蒸水蛋', done: false },
+                  { day: '星期四', dish: '魚香茄子', done: false },
+                  { day: '星期五', dish: '鼓汁蒸排骨', done: false },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${item.done ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                        {item.done ? '✓' : ''}
+                      </span>
+                      <span className="font-medium" style={{ color: '#3A2010' }}>{item.day}</span>
+                    </div>
+                    <span className="text-sm" style={{ color: '#6B5B4F' }}>{item.dish}</span>
+                  </div>
+                ))}
+              </div>
+              <button 
+                onClick={() => window.location.href = '/generate'}
+                className="w-full mt-6 py-3 rounded-full font-semibold"
+                style={{ backgroundColor: '#9B6035', color: 'white' }}
+              >
+                生成餐單 →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Recipes */}
       <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
         <div className="max-w-[1200px] mx-auto px-4">
