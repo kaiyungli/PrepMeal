@@ -159,30 +159,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
-      <section className="py-20" style={{ backgroundColor: '#fff' }}>
-        <div className="max-w-[1200px] mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: '✨', title: '一鍵生成七日餐單', desc: '根據你的人數、烹飪時間和口味偏好，即時生成均衡餐單。' },
-              { icon: '🛒', title: '自動整理購物清單', desc: '所有食材自動合併計算，一張清單搞掂一週買餸。' },
-              { icon: '⏰', title: '省時省力', desc: '再唔使每日問「今晚食乜？」，30秒完成一週規劃。' },
-            ].map((feature, i) => (
-              <div key={i} className="text-center p-6">
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: '#3A2010' }}>{feature.title}</h3>
-                <p className="text-sm" style={{ color: '#6B5B4F' }}>{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      
-
-      
-
       {/* Featured Recipes */}
             <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-[1200px] mx-auto px-4">
