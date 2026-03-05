@@ -2,62 +2,90 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpdm5hamhxcXZhb2t0aHpodWd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MzAzODgsImV4cCI6MjA4ODAwNjM4OH0.Y7V8xM0vP0K7r5X2t4dN9qG3jH6vL8cB1pS2wE5rT0'
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpdm5hamhxcXZhb2t0aHp1Z3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3MjQzMDM4OCwiZXhwIjoyMDg4MDA2Mzg4fQ.Y7V8xM0vP0K7r5X2t4dN9qG3jH6vL8cB1pS2wE5rT0'
 )
 
 export default async function handler(req, res) {
-  res.setHeader('Cache-Control', 's-maxage=0, stale-while-revalidate=0')
-  
-  const { method } = req
+  const { method, query, body } = req;
   
   try {
     if (method === 'GET') {
+      // List all recipes
       const { data, error } = await supabase
         .from('recipes')
         .select('*')
-        .order('id', { ascending: false })
+        .order('created_at', { ascending: false });
       
-      if (error) throw error
-      return res.status(200).json({ recipes: data || [] })
+      if (error) throw error;
+      return res.status(200).json({ recipes: data || [] });
     }
     
-    if (method === 'POST') {
-      const recipe = req.body
-      const { data, error } = await supabase
-        .from('recipes')
-        .insert([recipe])
-        .select()
+    if (method === 'POST' || method === 'PUT') {
+      const recipeData = {
+        name: body.name,
+        slug: body.slug || body.name?.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        description: body.description || null,
+        cuisine: body.cuisine || 'chinese',
+        dish_type: body.dish_type || 'main',
+        method: body.method || 'stir_fry',
+        speed: body.speed || 'quick',
+        difficulty: body.difficulty || 'easy',
+        flavor: body.flavor || [],
+        is_public: body.is_public ?? true,
+        prep_time_minutes: body.prep_time_minutes || 10,
+        cook_time_minutes: body.cook_time_minutes || 10,
+        base_servings: body.base_servings || 1,
+        calories_per_serving: body.calories_per_serving || null,
+        protein_g: body.protein_g || null,
+        carbs_g: body.carbs_g || null,
+        fat_g: body.fat_g || null,
+        image_url: body.image_url || null,
+      };
       
-      if (error) throw error
-      return res.status(201).json({ recipe: data[0] })
-    }
-    
-    if (method === 'PUT') {
-      const { id, ...updates } = req.body
-      const { data, error } = await supabase
-        .from('recipes')
-        .update(updates)
-        .eq('id', id)
-        .select()
-      
-      if (error) throw error
-      return res.status(200).json({ recipe: data[0] })
+      if (body.id) {
+        // Update
+        const { data, error } = await supabase
+          .from('recipes')
+          .update(recipeData)
+          .eq('id', body.id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return res.status(200).json({ recipe: data });
+      } else {
+        // Create
+        const { data, error } = await supabase
+          .from('recipes')
+          .insert(recipeData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        return res.status(201).json({ recipe: data });
+      }
     }
     
     if (method === 'DELETE') {
-      const { id } = req.query
+      const { id } = query;
+      
+      // Delete related records first
+      await supabase.from('recipe_ingredients').delete().eq('recipe_id', id).catch(() => {});
+      await supabase.from('recipe_steps').delete().eq('recipe_id', id).catch(() => {});
+      
+      // Delete recipe
       const { error } = await supabase
         .from('recipes')
         .delete()
-        .eq('id', id)
+        .eq('id', id);
       
-      if (error) throw error
-      return res.status(200).json({ success: true })
+      if (error) throw error;
+      return res.status(200).json({ success: true });
     }
     
-    return res.status(405).json({ error: 'Method not allowed' })
+    return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
-    console.error('API error:', err.message)
-    return res.status(500).json({ error: err.message })
+    console.error('API error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 }

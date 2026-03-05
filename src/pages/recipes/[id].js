@@ -93,8 +93,8 @@ export default function RecipeDetail() {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
             {recipe.cuisine && <span style={{ background: colors.primary, color: 'white', padding: '4px 12px', borderRadius: '16px', fontSize: '12px' }}>{recipe.cuisine}</span>}
             {recipe.difficulty && <span style={{ background: colors.accent, color: 'white', padding: '4px 12px', borderRadius: '16px', fontSize: '12px' }}>{recipe.difficulty}</span>}
-            <span style={{ background: colors.secondary, color: colors.text, padding: '4px 12px', borderRadius: '16px', fontSize: '12px' }}>quick</span>
-            {recipe.speed &{recipe.speed && <span style={{ background: colors.sage, color: colors.text, padding: '4px 12px', borderRadius: '16px', fontSize: '12px' }}>{recipe.speed}</span>}
+            
+            {recipe.speed && recipe.speed && <span style={{ background: colors.sage, color: colors.text, padding: '4px 12px', borderRadius: '16px', fontSize: '12px' }}>{recipe.speed}</span>}
           </div>
 
           {/* Nutrition */}
