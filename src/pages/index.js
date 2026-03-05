@@ -165,23 +165,31 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {visibleRecipes.map((recipe) => (
+            {visibleRecipes.map((recipe) => {
+              const cuisineLabels = { chinese: '中式', japanese: '日式', korean: '韓式', western: '西式', vegetarian: '素食' };
+              const methodLabels = { stir_fry: '炒', steamed: '蒸', braised: '炆', boiled: '煮', fried: '炸', grilled: '燒' };
+              const difficultyLabels = { easy: '易', medium: '中', hard: '難' };
+              const proteinLabels = { egg: '蛋', chicken: '雞', beef: '牛', pork: '豬', tofu: '豆腐', seafood: '海鮮', fish: '魚', vegetarian: '素' };
+              const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
+              return (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
                 <div className="h-48 bg-cover bg-center" style={{ backgroundImage: recipe.image_url ? `url(${recipe.image_url})` : 'none', backgroundColor: '#DDD' }} />
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.dish}</h3>
-                  <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                    <span>⏱️ {recipe.difficulty || '-'}</span>
-                    <span>🔥 {recipe.calories_per_serving || '-'} kcal</span>
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
+                  <div className="flex items-center gap-4 text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
+                    <span>⏱️ {methodLabels[recipe.method] || recipe.speed || '-'}</span>
+                    <span>💪 {difficultyLabels[recipe.difficulty] || '-'}</span>
+                    <span>🔥 {recipe.calories_per_serving || '-'} 卡</span>
                   </div>
-                  <div className="flex gap-2 mt-3">
-                    {[recipe.difficulty || recipe.cuisine || 'easy'].slice(0, 2).map((tag, i) => (
-                      <span key={i} className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}>{tag}</span>
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#14B8A6', color: 'white' }}>{cuisineLabels[recipe.cuisine] || recipe.cuisine || '-'}</span>
+                    {tags.map((tag, i) => (
+                      <span key={i} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}>{proteinLabels[tag] || tag}</span>
                     ))}
                   </div>
                 </div>
               </div>
-            ))}
+            );})}
           </div>
 
           {hasMore && (
