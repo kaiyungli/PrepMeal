@@ -15,7 +15,7 @@ export default function Home() {
     fetch('/api/recipes')
       .then(res => res.json())
       .then(data => {
-        setAllRecipes(data.recipes || []);
+        setAllRecipes(data.recipes || data || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -36,7 +36,7 @@ export default function Home() {
     return () => observer.disconnect();
   }, [visibleCount]);
   
-  const visibleRecipes = allRecipes.slice(0, visibleCount);
+  const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
   const hasMore = visibleCount < allRecipes.length;
   return (
     <Layout>
