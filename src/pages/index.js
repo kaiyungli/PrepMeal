@@ -124,7 +124,7 @@ export default function Home() {
                     { dish: '豉油雞翼' },
                     { dish: '薑蔥蒸雞' },
                   ].map((recipe, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#F8F3E8' }}>
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#fff' }}>
                       <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
                       <span className="text-xs" style={{ color: '#9B6035' }}>{'✓ ' + (recipe?.dish || recipe?.name || '未選擇')}</span>
                     </div>
@@ -140,7 +140,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+      <section className="py-16" style={{ backgroundColor: '#fff' }}>
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             {[
