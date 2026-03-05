@@ -116,9 +116,13 @@ export default function Home() {
                 </div>
                 <div className="space-y-2">
                   {[
-                    { day: '星期一', dish: '番茄炒蛋', done: true },
-                    { day: '星期二', dish: '咖哩雞', done: true },
-                    { day: '星期三', dish: '蝦仁炒蛋' },
+                    { dish: '番茄炒蛋' },
+                    { dish: '蒸水蛋' },
+                    { dish: '蝦仁炒蛋' },
+                    { dish: '苦瓜炒蛋' },
+                    { dish: '咖哩雞' },
+                    { dish: '豉油雞翼' },
+                    { dish: '薑蔥蒸雞' },
                   ].map((recipe, i) => (
                     <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#F8F3E8' }}>
                       <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
