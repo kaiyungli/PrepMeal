@@ -7,7 +7,30 @@ import { Layout } from '@/components';
 
 
 export default function Home() {
-  const [allRecipes, setAllRecipes] = useState([]);
+  const fallbackRecipes = [
+    { id: '1', name: '番茄炒蛋', difficulty: 'easy', calories_per_serving: 180, cuisine: ['chinese'] },
+    { id: '2', name: '麻婆豆腐', difficulty: 'medium', calories_per_serving: 280, cuisine: ['chinese'] },
+    { id: '3', name: '咖哩雞', difficulty: 'easy', calories_per_serving: 350, cuisine: ['japanese'] },
+    { id: '4', name: '蒸水蛋', difficulty: 'easy', calories_per_serving: 120, cuisine: ['chinese'] },
+    { id: '5', name: '蝦仁炒蛋', difficulty: 'easy', calories_per_serving: 200, cuisine: ['chinese'] },
+    { id: '6', name: '苦瓜炒蛋', difficulty: 'easy', calories_per_serving: 150, cuisine: ['chinese'] },
+    { id: '7', name: '豉油雞翼', difficulty: 'easy', calories_per_serving: 280, cuisine: ['chinese'] },
+    { id: '8', name: '薑蔥蒸雞', difficulty: 'easy', calories_per_serving: 250, cuisine: ['chinese'] },
+    { id: '9', name: '三杯雞', difficulty: 'medium', calories_per_serving: 320, cuisine: ['chinese'] },
+    { id: '10', name: '西蘭花牛肉', difficulty: 'easy', calories_per_serving: 250, cuisine: ['chinese'] },
+    { id: '11', name: '咕嚕肉', difficulty: 'medium', calories_per_serving: 380, cuisine: ['chinese'] },
+    { id: '12', name: '肉碎豆腐', difficulty: 'easy', calories_per_serving: 200, cuisine: ['chinese'] },
+    { id: '13', name: '黑椒豬柳', difficulty: 'easy', calories_per_serving: 220, cuisine: ['chinese'] },
+    { id: '14', name: '蒜蓉炒菜心', difficulty: 'easy', calories_per_serving: 80, cuisine: ['chinese'] },
+    { id: '15', name: '蒜蓉茄子', difficulty: 'easy', calories_per_serving: 100, cuisine: ['chinese'] },
+    { id: '16', name: '清炒椰菜', difficulty: 'easy', calories_per_serving: 60, cuisine: ['chinese'] },
+    { id: '17', name: '椒鹽蝦', difficulty: 'medium', calories_per_serving: 280, cuisine: ['chinese'] },
+    { id: '18', name: '蒜蓉蒸蝦', difficulty: 'easy', calories_per_serving: 150, cuisine: ['chinese'] },
+    { id: '19', name: '蔥薑蒸魚', difficulty: 'medium', calories_per_serving: 200, cuisine: ['chinese'] },
+    { id: '20', name: '豉椒炒蜆', difficulty: 'easy', calories_per_serving: 180, cuisine: ['chinese'] },
+  ];
+  
+  const [allRecipes, setAllRecipes] = useState(fallbackRecipes);
   const [visibleCount, setVisibleCount] = useState(20);
   const [loading, setLoading] = useState(false);
   
