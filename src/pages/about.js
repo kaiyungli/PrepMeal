@@ -1,6 +1,8 @@
 'use client';
 import Link from 'next/link';
 import Head from 'next/head';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 const colors = {
   cream: '#fefefe',
@@ -14,23 +16,10 @@ const colors = {
 export default function AboutPage() {
   return (
     <>
+      <Header />
       <Head><title>今晚食乜 - 關於我們</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}
-        <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-            <span style={{ fontSize: '24px' }}>🥘</span>
-            <span style={{ fontSize: '20px', fontWeight: 700, color: colors.brown }}>今晚食乜</span>
-          </Link>
-          <nav style={{ display: 'flex', gap: '24px' }}>
-            <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>首頁</Link>
-            <Link href="/recipes" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>食譜</Link>
-            <Link href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>生成餐單</Link>
-            <Link href="/admin" style={{ color: colors.text, textDecoration: 'none', fontWeight: 600 }}>關於</Link>
-          </nav>
-        </header>
-
-        {/* Hero */}
+        {/* Header */}{/* Hero */}
         <div style={{ background: colors.brown, padding: '60px 20px', textAlign: 'center' }}>
           <h1 style={{ fontSize: '36px', fontWeight: 700, color: 'white', marginBottom: '16px' }}>關於「今晚食乜」</h1>
           <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.8)', maxWidth: '600px', margin: '0 auto' }}>每日決策「今晚食乜」？比我哋幫你諗!</p>

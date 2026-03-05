@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import supabase from '@/lib/supabase';
 import { Button } from '@/components';
 
@@ -98,24 +100,10 @@ export default function FavoritesPage() {
 
   return (
     <>
+      <Header />
       <Head><title>收藏食譜 - 今晚食乜</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}
-        <header style={{ background: colors.cream, padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e5e5' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-            <span style={{ fontSize: '24px' }}>🥘</span>
-            <span style={{ fontSize: '20px', fontWeight: 700, color: colors.brown }}>今晚食乜</span>
-          </Link>
-          <nav style={{ display: 'flex', gap: '24px' }}>
-            <Link href="/" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>首頁</Link>
-            <Link href="/generate" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>生成餐單</Link>
-            <Link href="/recipes" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>食譜</Link>
-            <Link href="/about" style={{ color: colors.text, textDecoration: 'none', fontWeight: 500 }}>關於</Link>
-            <Link href="/profile" style={{ color: colors.yellow, textDecoration: 'none', fontWeight: 600 }}>個人</Link>
-          </nav>
-        </header>
-
-        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
+        {/* Header */}<div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.brown, marginBottom: '8px' }}>❤️ 收藏食譜</h1>
           <p style={{ color: colors.textLight, marginBottom: '32px' }}>你收藏既食譜</p>
 
