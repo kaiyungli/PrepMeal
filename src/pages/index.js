@@ -94,7 +94,7 @@ export default function Home() {
                       ].map((item, i) => (
                         <div key={i} className="flex items-center justify-between p-2 rounded-xl border" style={item.done ? { backgroundColor: 'rgba(200,212,154,0.30)', borderColor: 'rgba(155,96,53,0.22)' } : { backgroundColor: '#faf7f0', borderColor: '#DDD0B0' }}>
                           <span className="text-xs font-medium" style={{ color: '#3A2010' }}>{item.day}</span>
-                          <span className="text-xs" style={{ color: '#6B5B4F' }}>{item.dish}</span>
+                          <span className="text-xs" style={{ color: '#AA7A50' }}>{item.dish}</span>
                         </div>
                       ))}
                     </div>
@@ -111,7 +111,7 @@ export default function Home() {
                       ].map((item, i) => (
                         <div key={i} className="flex items-center justify-between p-2 rounded-xl border" style={{ backgroundColor: '#faf7f0', borderColor: '#DDD0B0' }}>
                           <span className="text-xs font-medium" style={{ color: '#3A2010' }}>{item.name}</span>
-                          <span className="text-xs" style={{ color: '#6B5B4F' }}>{item.qty}</span>
+                          <span className="text-xs" style={{ color: '#AA7A50' }}>{item.qty}</span>
                         </div>
                       ))}
                     </div>
