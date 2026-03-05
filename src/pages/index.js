@@ -122,7 +122,7 @@ export default function Home() {
                   ].map((recipe, i) => (
                     <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#F8F3E8' }}>
                       <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
-                      <span className="text-xs" style={{ color: '#9B6035' }}>{recipe ? '✓ ' + recipe.dish : '未選擇'}</span>
+                      <span className="text-xs" style={{ color: '#9B6035' }}>{'✓ ' + (recipe?.dish || recipe?.name || '未選擇')}</span>
                     </div>
                   ))}
                 </div>
