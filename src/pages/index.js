@@ -89,54 +89,33 @@ export default function Home() {
               </button>
             </div>
             <div className="block">
-              {/* Weekly Plan Card - Exact Figma Code */}
-              <div className="relative w-full rounded-2xl p-6 border-2 bg-white" style={{ borderColor: '#DDD0B0', boxShadow: '0 20px 60px rgba(155,96,53,0.14)', maxWidth: '520px' }}>
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C0A080' }}>今週餐單</p>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#9B6035' }}></h3>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md" style={{ backgroundColor: '#9B6035' }}>
-                    <span style={{ fontSize: '1rem' }}>🍜</span>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  {/* 本週餐單 */}
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#9B6035', marginBottom: '0.5rem' }}>餐單</p>
-                    <div className="space-y-2">
-                      {[
-                        { day: '星期一', dish: '番茄炒蛋', done: true },
-                        { day: '星期二', dish: '咖哩雞', done: true },
-                        { day: '星期三', dish: '西蘭花牛肉', done: false },
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 rounded-xl border" style={item.done ? { backgroundColor: 'rgba(200,212,154,0.30)', borderColor: 'rgba(155,96,53,0.22)' } : { backgroundColor: '#faf7f0', borderColor: '#DDD0B0' }}>
-                          <span className="text-xs font-medium" style={{ color: '#3A2010' }}>{item.day}</span>
-                          <span className="text-xs" style={{ color: '#AA7A50' }}>{item.dish}</span>
-                        </div>
-                      ))}
+              {/* Weekly Plan Card - New Style */}
+              <div className="bg-white rounded-2xl shadow-xl p-5 border border-gray-100 w-full max-w-sm mx-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#14B8A6' }}>
+                      <span>📅</span>
                     </div>
+                    <span className="text-sm text-gray-700" style={{ fontWeight: 600 }}>今週餐單</span>
                   </div>
-                  <div className="w-px self-stretch" style={{ backgroundColor: '#DDD0B0' }} />
-                  {/* 購物清單 */}
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: '0.75rem', fontWeight: 800, color: '#9B6035', marginBottom: '0.5rem' }}>🛒 購物清單</p>
-                    <div className="space-y-2">
-                      {[
-                        { name: '雞蛋', qty: 'x6' },
-                        { name: '番茄', qty: 'x4' },
-                        { name: '牛肉', qty: '300g' },
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 rounded-xl border" style={{ backgroundColor: '#faf7f0', borderColor: '#DDD0B0' }}>
-                          <span className="text-xs font-medium" style={{ color: '#3A2010' }}>{item.name}</span>
-                          <span className="text-xs" style={{ color: '#AA7A50' }}>{item.qty}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#14B8A6' }}>
+                    7天
+                  </span>
                 </div>
-                <div className="absolute -top-4 -right-4 text-white rounded-xl px-4 py-2 shadow-lg" style={{ backgroundColor: '#F59E0B' }}>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 800 }}></p>
+                <div className="space-y-2">
+                  {[
+                    { day: '星期一', dish: '番茄炒蛋', done: true },
+                    { day: '星期二', dish: '咖哩雞', done: true },
+                    { day: '星期三', dish: '西蘭花牛肉', done: false },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: item.done ? '#F0FDF4' : '#F9FAFB' }}>
+                      <span className="text-xs font-medium" style={{ color: '#374151' }}>{item.day}</span>
+                      <span className="text-xs" style={{ color: item.done ? '#14B8A6' : '#9CA3AF' }}>{item.done ? '✓ ' + item.dish : '未選擇'}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" style={{ backgroundColor: '#F59E0B' }}>
+                  生成購物清單 →
                 </div>
               </div>
             </div>
