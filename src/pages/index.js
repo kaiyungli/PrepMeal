@@ -168,3 +168,6 @@ export default function Home() {
     </Layout>
   );
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
