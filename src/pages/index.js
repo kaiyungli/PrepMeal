@@ -14,7 +14,7 @@ export default function Home() {
   
   useEffect(() => {
     // Fetch recipes
-    fetch('/api/recipes?limit=20')
+    fetch('/api/recipes?limit=8&offset=0')
       .then(res => {
         // Response
         return res.json();
