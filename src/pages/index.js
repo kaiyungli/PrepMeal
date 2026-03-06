@@ -30,7 +30,6 @@ export default function Home() {
         if (recipes.length > 0) {
           setVisibleCount(Math.min(8, recipes.length));
         }
-        setLoading(false);
       })
       .catch(err => {
         console.error('Fetch error:', err);
