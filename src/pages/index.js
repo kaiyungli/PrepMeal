@@ -14,7 +14,7 @@ export default function Home() {
   
   useEffect(() => {
     // Fetch recipes
-    fetch('/api/recipes')
+    fetch('/api/recipes?limit=20')
       .then(res => {
         // Response
         return res.json();
@@ -39,7 +39,13 @@ export default function Home() {
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && visibleCount < allRecipes.length) {
-        setVisibleCount(prev => Math.min(prev + 4, allRecipes.length));
+        // Fetch more with pagination
+      fetch(`/api/recipes?limit=8&offset=${allRecipes.length}`)
+        .then(r => r.json())
+        .then(data => {
+          setAllRecipes(prev => [...prev, ...(data.recipes || [])]);
+          setVisibleCount(prev => prev + 8);
+        });
       }
     }, { threshold: 0.1 });
     
