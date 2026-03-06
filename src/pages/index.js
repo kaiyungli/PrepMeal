@@ -25,14 +25,14 @@ export default function Home() {
         const recipes = data.recipes || data || [];
         // Recipes
         setAllRecipes(recipes);
-        setLoading(false);
+        // setLoading removed
         if (recipes.length > 0) {
           setVisibleCount(Math.min(8, recipes.length));
         }
       })
       .catch(err => {
         console.error('Fetch error:', err);
-        setLoading(false);
+        // setLoading removed
       });
   }, []);
   const loaderRef = useRef(null);
