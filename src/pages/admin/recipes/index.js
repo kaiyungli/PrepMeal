@@ -156,7 +156,9 @@ export default function AdminRecipes() {
       try {
         const res = await fetch('/api/admin/recipes?slug=' + recipe.slug);
         const data = await res.json();
-        setEditRecipe(data.recipe || recipe);
+        // Handle both { recipe } and { recipes: [] } formats
+        const fullRecipe = data.recipe || (data.recipes && data.recipes[0]) || recipe;
+        setEditRecipe(fullRecipe);
       } catch (e) {
         setEditRecipe(recipe);
       }
