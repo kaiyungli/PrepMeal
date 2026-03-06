@@ -21,11 +21,22 @@ export default async function handler(req, res) {
       query = query.limit(100);
     }
     
-    const { data, error } = await query
+    const { data: recipes, error } = await query
     
     if (error) throw error
     
-    res.status(200).json({ recipes: data || [] })
+    // Get all ingredients and steps
+    const { data: allIngredients } = await supabase.from('recipe_ingredients').select('*');
+    const { data: allSteps } = await supabase.from('recipe_steps').select('*').order('step_no');
+    
+    // Attach ingredients and steps to each recipe
+    const recipesWithData = (recipes || []).map(r => ({
+      ...r,
+      ingredients: (allIngredients || []).filter(i => i.recipe_id === r.id),
+      steps: (allSteps || []).filter(s => s.recipe_id === r.id)
+    }));
+    
+    res.status(200).json({ recipes: recipesWithData })
   } catch (err) {
     console.error('Supabase error:', err.message)
     res.status(200).json({ recipes: [], error: err.message })
