@@ -150,16 +150,9 @@ export default function AdminRecipes() {
                       </td>
                       <td style={{ padding: '12px', textAlign: 'center' }}>
                         <button 
-                          onClick={async () => { 
+                          onClick={() => { 
+      setEditRecipe(recipe);
       setShowForm(true);
-      // Fetch full recipe with ingredients and steps
-      try {
-        const res = await fetch('/api/admin/recipes?id=' + recipe.id);
-        const data = await res.json();
-        setEditRecipe(data.recipe || recipe);
-      } catch (e) {
-        setEditRecipe(recipe);
-      }
     }}
                           style={{ marginRight: '8px', padding: '6px 12px', borderRadius: '6px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '12px' }}
                         >
