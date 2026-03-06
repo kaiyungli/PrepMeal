@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import Image from 'next/image';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co',
@@ -50,7 +51,7 @@ export async function getServerSideProps({ params }) {
     
     const { data: recipe, error } = await supabase
       .from('recipes')
-      .select('*')
+      .select('id,name,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein_g,carbs_g,fat_g,slug,is_public')
       .eq('id', id)
       .single();
     
@@ -60,7 +61,7 @@ export async function getServerSideProps({ params }) {
     
     const { data: steps } = await supabase
       .from('recipe_steps')
-      .select('*')
+      .select('id,name,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein_g,carbs_g,fat_g,slug,is_public')
       .eq('recipe_id', id)
       .order('step_no');
     
