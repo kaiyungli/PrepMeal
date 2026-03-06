@@ -100,14 +100,21 @@ export default function RecipesPage({ initialRecipes }) {
 
 export async function getServerSideProps() {
   try {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL 
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/recipes?limit=50`
-      : '/api/recipes?limit=50');
-    const data = await res.json();
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      'https://hivnajhqqvaokthzhugx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhpdm5hamhxcXZhb2t0aHp1Z3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc3MjQzMDM4OCwiZXhwIjoyMDg4MDA2Mzg4fQ.Y7V8xM0vP0K7r5X2t4dN9qG3jH6vL8cB1pS2wE5rT0'
+    );
+    
+    const { data: recipes } = await supabase
+      .from('recipes')
+      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving')
+      .eq('is_public', true)
+      .limit(50);
     
     return {
       props: {
-        initialRecipes: data.recipes || [],
+        initialRecipes: recipes || [],
       },
     };
   } catch (e) {
