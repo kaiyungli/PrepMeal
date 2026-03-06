@@ -146,6 +146,7 @@ export default function AdminRecipes() {
                       <td style={{ padding: '12px', textAlign: 'center' }}>
                         <button 
                           onClick={async () => { 
+      setShowForm(true);
       // Fetch full recipe with ingredients and steps
       try {
         const res = await fetch('/api/admin/recipes?id=' + recipe.id);
@@ -154,7 +155,6 @@ export default function AdminRecipes() {
       } catch (e) {
         setEditRecipe(recipe);
       }
-      setShowForm(true);
     }}
                           style={{ marginRight: '8px', padding: '6px 12px', borderRadius: '6px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '12px' }}
                         >
@@ -231,7 +231,7 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
   const [ingredients, setIngredients] = useState(recipe?.ingredients || [{ ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
   
   // Steps state  
-  const [steps, setSteps] = useState([]);
+  const [steps, setSteps] = useState([]); // TODO: load from recipe
   
   const addIngredient = () => setIngredients([...ingredients, { ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
   const removeIngredient = (i) => setIngredients(ingredients.filter((_, idx) => idx !== i));
