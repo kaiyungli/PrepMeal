@@ -67,6 +67,22 @@ export default function Home() {
           <div className="text-center">
             <div className="text-4xl mb-4">🍽️</div>
             <p className="text-lg text-gray-500">載入中...</p>
+            <p className="text-sm text-gray-400 mt-2">Loading recipes...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Empty state
+  if (allRecipes && allRecipes.length === 0) {
+    return (
+      <Layout>
+        <Head><title>今晚食乜 🥘</title></Head>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl mb-4">🍽️</div>
+            <p className="text-lg text-gray-500">暫時未有食譜</p>
           </div>
         </div>
       </Layout>
