@@ -25,8 +25,7 @@ export default function RecipeDetail() {
   
   // Get ID from URL
   const id = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : '';
-  const [recipe, setRecipe] = useState({ name: '', steps: [] });
-  const [loading, setLoading] = useState(true);
+  const [recipe, setRecipe] = useState(null);
 
   // Get ID from URL
   const recipeId = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : '';
@@ -39,11 +38,9 @@ export default function RecipeDetail() {
         if (data.recipes && data.recipes[0]) {
           setRecipe(data.recipes[0]);
         }
-        setLoading(false);
       })
       .catch((e) => {
         console.error('Failed to fetch recipe:', e);
-        setLoading(false);
       });
   }, [id]);
 
