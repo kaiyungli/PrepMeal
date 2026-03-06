@@ -1,18 +1,10 @@
-'use client';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout, Card, Modal } from '@/components';
 import supabase from '@/lib/supabase';
 
-export default function RecipesPage() {
-  const [recipes, setRecipes] = useState([]);
-  
-  useEffect(() => {
-    fetch('/api/recipes')
-      .then(res => res.json())
-      .then(data => setRecipes(data.recipes || []))
-      .catch(console.error);
-  }, []);
+export default function RecipesPage({ initialRecipes }) {
+  const [recipes, setRecipes] = useState(initialRecipes || []);
   
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [user, setUser] = useState(null);
@@ -103,4 +95,26 @@ export default function RecipesPage() {
       </Modal>
     </Layout>
   );
+}
+
+
+export async function getServerSideProps() {
+  try {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_URL 
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/recipes?limit=50`
+      : '/api/recipes?limit=50');
+    const data = await res.json();
+    
+    return {
+      props: {
+        initialRecipes: data.recipes || [],
+      },
+    };
+  } catch (e) {
+    return {
+      props: {
+        initialRecipes: [],
+      },
+    };
+  }
 }
