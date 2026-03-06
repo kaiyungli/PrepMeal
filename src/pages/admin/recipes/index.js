@@ -197,6 +197,15 @@ export default function AdminRecipes() {
 }
 
 function RecipeFormModal({ recipe, onClose, onSave }) {
+  useEffect(() => {
+    if (recipe && recipe.ingredients) {
+      setIngredients(recipe.ingredients.map(i => ({ ingredient: i.ingredient_id || '', quantity: i.quantity || 1, unit: i.unit_id || 'g', is_optional: i.is_optional || false })));
+    }
+    if (recipe && recipe.steps) {
+      setSteps(recipe.steps.map(s => ({ step_no: s.step_no, text: s.text, time_seconds: s.time_seconds || 0 })));
+    }
+  }, [recipe]);
+
   const [form, setForm] = useState({
     name: recipe?.name || '',
     slug: recipe?.slug || '',
@@ -222,7 +231,7 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
   const [ingredients, setIngredients] = useState(recipe?.ingredients || [{ ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
   
   // Steps state  
-  const [steps, setSteps] = useState(recipe?.steps || [{ step_no: 1, text: '', time_seconds: 0 }]);
+  const [steps, setSteps] = useState([]);
   
   const addIngredient = () => setIngredients([...ingredients, { ingredient: '', quantity: 1, unit: 'g', is_optional: false }]);
   const removeIngredient = (i) => setIngredients(ingredients.filter((_, idx) => idx !== i));
