@@ -30,9 +30,11 @@ export default function Card({
         onClick ? 'pointer' : 'default'
       } ${className}`}
     >
-      <div className="h-40 relative" style={{ background: image ? `url(${image})` : '#f5f5f5', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {!image && (
-          <div className="flex items-center justify-center h-full">
+      <div className="h-40 relative">
+        {image ? (
+          <Image src={image} alt={title || 'recipe'} fill className="object-cover" />
+        ) : (
+          <div className="flex items-center justify-center h-full bg-gray-100">
             <span className="text-5xl">🍳</span>
           </div>
         )}
