@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   
   try {
     if (method === 'GET') {
-      const { id } = query;
+      const { id, slug } = query;
       
       if (id) {
         const { data: recipe, error: recipeError } = await supabase

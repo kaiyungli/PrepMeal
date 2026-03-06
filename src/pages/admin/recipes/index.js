@@ -154,7 +154,7 @@ export default function AdminRecipes() {
       setShowForm(true);
       // Fetch full recipe with ingredients and steps from API
       try {
-        const res = await fetch('/api/admin/recipes?id=' + recipe.id);
+        const res = await fetch('/api/admin/recipes?slug=' + recipe.slug);
         const data = await res.json();
         setEditRecipe(data.recipe || recipe);
       } catch (e) {
