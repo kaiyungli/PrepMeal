@@ -51,19 +51,9 @@ export default function RecipeDetail() {
   // Also watch for router ready
   
 
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div style={{ minHeight: '100vh', background: colors.background, padding: '40px', textAlign: 'center' }}>
-          <p>載入中...</p>
-        </div>
-        <Footer />
-      </>
-    );
-  }
+  // Skip loading check - show data directly
 
-  if (!recipe) {
+  if (!recipe || recipe.name === '載入中...') {
     return (
       <>
         <Header />
