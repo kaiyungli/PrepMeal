@@ -77,7 +77,8 @@ export default function AdminRecipes() {
       <div style={{ minHeight: '100vh', background: colors.background, padding: '20px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: '800', color: colors.text }}>食譜管理</h1>
+            <div style={{marginBottom:10,color:'red'}}>DEBUG: Page loaded - recipes: {recipes.length}</div>
+          <h1 style={{ fontSize: '24px', fontWeight: '800', color: colors.text }}>食譜管理</h1>
             <button 
               onClick={() => { setEditRecipe(null); alert('Opening form for: ' + recipe.slug); setShowForm(true); }}
               style={{ background: colors.primary, color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
