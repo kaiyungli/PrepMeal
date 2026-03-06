@@ -149,19 +149,7 @@ export default function AdminRecipes() {
                       </td>
                       <td style={{ padding: '12px', textAlign: 'center' }}>
                         <button 
-                          onClick={async () => { 
-      alert('Opening form for: ' + recipe.slug); setShowForm(true);
-      // Fetch full recipe with ingredients and steps from API
-      try {
-        const res = await fetch('/api/admin/recipes?slug=' + recipe.slug);
-        const data = await res.json();
-        // Handle both { recipe } and { recipes: [] } formats
-        const fullRecipe = data.recipe || (data.recipes && data.recipes[0]) || recipe;
-        setEditRecipe(fullRecipe);
-      } catch (e) {
-        setEditRecipe(recipe);
-      }
-    }}
+                          onClick={() => alert('Clicked: ' + recipe.name)}
                           style={{ marginRight: '8px', padding: '6px 12px', borderRadius: '6px', border: '1px solid #ddd', background: 'white', cursor: 'pointer', fontSize: '12px' }}
                         >
                           編輯
