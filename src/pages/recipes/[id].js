@@ -61,7 +61,7 @@ export async function getServerSideProps({ params }) {
     
     const { data: steps } = await supabase
       .from('recipe_steps')
-      .select('id,name,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein_g,carbs_g,fat_g,slug,is_public')
+      .select('step_no,text,time_seconds')
       .eq('recipe_id', id)
       .order('step_no');
     
