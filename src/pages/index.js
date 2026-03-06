@@ -10,7 +10,6 @@ import { Layout } from '@/components';
 export default function Home() {
   const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
-  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
@@ -61,20 +60,6 @@ export default function Home() {
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
   
-  // Loading state - show skeleton while fetching
-  if (loading) {
-    return (
-      <Layout>
-        <Head><title>今晚食乜 🥘</title></Head>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-xl"></div>
-          ))}
-        </div>
-      </Layout>
-    );
-  }
-
   // Empty state
   if (allRecipes && allRecipes.length === 0) {
     return (
