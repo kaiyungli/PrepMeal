@@ -134,8 +134,7 @@ export default function RecipeDetail() {
               <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.primary, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>{s.step}</div>
                 <div>
-                  <p style={{ fontWeight: '600', color: colors.text, marginBottom: '4px' }}>{s.title}</p>
-                  <p style={{ fontSize: '14px', color: colors.textLight }}>{s.description}</p>
+                  <p style={{ fontWeight: '600', color: colors.text, marginBottom: '4px' }}>{s.step_no}. {s.text}</p>
                 </div>
               </div>
             ))}
