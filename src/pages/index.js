@@ -7,14 +7,7 @@ import { Layout } from '@/components';
 
 
 export default function Home() {
-  const [allRecipes, setAllRecipes] = useState([
-    { id: '1', name: '蕃茄炒蛋', slug: 'tomato-scrambled-eggs', description: '經典中式家常菜，酸甜蕃茄配嫩滑炒蛋，10分鐘完成。', cuisine: 'chinese', dish_type: 'main', method: 'stir_fry', speed: 'quick', difficulty: 'easy', calories_per_serving: 180, protein_g: 12, carbs_g: 6, fat_g: 12, protein: ['egg'], diet: ['none'], flavor: ['sweet', 'savory'], image_url: 'https://img.cook1cook.com/upload/cover/15/91/9779914994051761591.jpg' },
-    { id: '2', name: '蒸水蛋', difficulty: 'easy', calories_per_serving: 120, cuisine: 'chinese', method: 'steamed', speed: 'quick', image_url: '' },
-    { id: '3', name: '蝦仁炒蛋', difficulty: 'easy', calories_per_serving: 200, cuisine: 'chinese', method: 'stir_fry', speed: 'quick', protein: ['egg', 'seafood'], image_url: '' },
-    { id: '4', name: '苦瓜炒蛋', difficulty: 'easy', calories_per_serving: 150, cuisine: 'chinese', method: 'stir_fry', speed: 'quick', protein: ['egg'], image_url: '' },
-    { id: '5', name: '咖哩雞', difficulty: 'easy', calories_per_serving: 350, cuisine: 'japanese', method: 'braised', speed: 'normal', protein: ['chicken'], image_url: '' },
-    { id: '6', name: '豉油雞翼', difficulty: 'easy', calories_per_serving: 280, cuisine: 'chinese', method: 'braised', speed: 'normal', protein: ['chicken'], image_url: '' },
-  ]);
+  const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
   const [loading, setLoading] = useState(false);
   
