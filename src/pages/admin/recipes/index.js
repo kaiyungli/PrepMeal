@@ -126,6 +126,7 @@ export default function AdminRecipes() {
                     <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>類型</th>
                     <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>難度</th>
                     <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>卡路里</th>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>步驟</th>
                     <th style={{ padding: '12px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>公開</th>
                     <th style={{ padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: colors.textLight }}>操作</th>
                   </tr>
