@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+
+export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import Head from 'next/head';
 import { Button } from '@/components';
@@ -8,7 +10,7 @@ import { Layout } from '@/components';
 
 
 export default function Home() {
-  const [allRecipes, setAllRecipes] = useState([]);
+  const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
   const [visibleCount, setVisibleCount] = useState(4);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -202,3 +204,18 @@ export default function Home() {
 }
 
 // Force dynamic rendering
+
+
+export async function getServerSideProps() {
+  try {
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    const { data: recipes } = await supabase.from('recipes').select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving').limit(20);
+    return { props: { initialRecipes: recipes || [] } };
+  } catch (e) {
+    return { props: { initialRecipes: [] } };
+  }
+}
