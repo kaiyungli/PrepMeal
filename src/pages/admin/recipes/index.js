@@ -80,7 +80,7 @@ export default function AdminRecipes() {
             <div style={{marginBottom:10,color:'red'}}>DEBUG: Page loaded - recipes: {recipes.length}</div>
           <h1 style={{ fontSize: '24px', fontWeight: '800', color: colors.text }}>食譜管理</h1>
             <button 
-              onClick={() => { setEditRecipe(null); alert('Opening form for: ' + recipe.slug); setShowForm(true); }}
+              onClick={() => { setShowForm(true); setEditRecipe(recipe); }}
               style={{ background: colors.primary, color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             >
               + 新增食譜
