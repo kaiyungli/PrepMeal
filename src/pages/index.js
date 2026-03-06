@@ -10,7 +10,7 @@ import { Layout } from '@/components';
 export default function Home() {
   const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
@@ -26,6 +26,7 @@ export default function Home() {
         const recipes = data.recipes || data || [];
         // Recipes
         setAllRecipes(recipes);
+        setLoading(false);
         if (recipes.length > 0) {
           setVisibleCount(Math.min(8, recipes.length));
         }
@@ -61,8 +62,8 @@ export default function Home() {
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
   
-  // Loading state
-  if (!allRecipes || allRecipes.length === 0) {
+  // Loading state - show skeleton while fetching
+  if (loading) {
     return (
       <Layout>
         <Head><title>今晚食乜 🥘</title></Head>
