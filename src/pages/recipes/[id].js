@@ -23,7 +23,11 @@ const colors = {
 export default function RecipeDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [recipe, setRecipe] = useState(null);
+  const [recipe, setRecipe] = useState({
+    name: '載入中...',
+    steps: [],
+    ingredients: []
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,7 +39,10 @@ export default function RecipeDetail() {
         setRecipe(data.recipes?.[0] || null);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((e) => {
+      console.error('Failed to fetch recipe:', e);
+      setLoading(false);
+    });
   }, [id]);
 
   if (loading) {
