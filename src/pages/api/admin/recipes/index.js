@@ -12,24 +12,22 @@ export default async function handler(req, res) {
     if (method === 'GET') {
       const { id, slug } = query;
       
-      if (id) {
-        const { data: recipe, error: recipeError } = await supabase
-          .from('recipes')
-          .select('*')
-          .eq('id', id)
-          .single();
-        
+      if (id || slug) {
+        let q = supabase.from('recipes').select('*');
+        if (id) q = q.eq('id', id);
+        else if (slug) q = q.eq('slug', slug);
+        const { data: recipe, error: recipeError } = await q.single();
         if (recipeError) throw recipeError;
-        
+        const rid = recipe.id;
         const { data: ingredients } = await supabase
           .from('recipe_ingredients')
           .select('*')
-          .eq('recipe_id', id);
+          .eq('recipe_id', rid);
         
         const { data: steps } = await supabase
           .from('recipe_steps')
           .select('*')
-          .eq('recipe_id', id)
+          .eq('recipe_id', rid)
           .order('step_no');
         
         return res.status(200).json({ 
