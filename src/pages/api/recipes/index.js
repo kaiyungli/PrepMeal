@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ recipes: [recipe] });
     }
     
-    res.status(200).json({ recipes: recipes || [] })
+    res.status(200).json({ recipes: recipes || [], hasMore: (recipes || []).length >= limit })
   } catch (err) {
     console.error('Supabase error:', err.message)
     res.status(200).json({ recipes: [], error: err.message })
