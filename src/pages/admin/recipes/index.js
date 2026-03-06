@@ -139,6 +139,7 @@ export default function AdminRecipes() {
                       <td style={{ padding: '12px', fontWeight: '500', color: colors.text }}>{recipe.name}</td>
                       <td style={{ padding: '12px', color: colors.textLight }}>{cuisineLabels[recipe.cuisine] || '-'}</td>
                       <td style={{ padding: '12px', color: colors.textLight }}>{dishTypeLabels[recipe.dish_type] || '-'}</td>
+                      <td style={{ padding: '12px', fontSize: '12px', color: 'red' }}>steps: {(recipe.steps || []).length}</td>
                       <td style={{ padding: '12px' }}>
                         <span style={{ padding: '4px 8px', borderRadius: '4px', background: recipe.difficulty === 'easy' ? colors.secondary : recipe.difficulty === 'medium' ? colors.accent : '#eee', fontSize: '12px' }}>
                           {difficultyLabels[recipe.difficulty] || '-'}
