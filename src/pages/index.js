@@ -57,17 +57,6 @@ export default function Home() {
   }, [visibleCount]);
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
-  // Use fallback recipes if allRecipes is empty
-  const displayRecipes = (allRecipes && allRecipes.length > 0) ? allRecipes : [
-    { id: '1', name: '番茄炒蛋', difficulty: 'easy', calories_per_serving: 180, cuisine: 'chinese', image_url: '' },
-    { id: '2', name: '蒸水蛋', difficulty: 'easy', calories_per_serving: 120, cuisine: 'chinese', image_url: '' },
-    { id: '3', name: '蝦仁炒蛋', difficulty: 'easy', calories_per_serving: 200, cuisine: 'chinese', image_url: '' },
-    { id: '4', name: '苦瓜炒蛋', difficulty: 'easy', calories_per_serving: 150, cuisine: 'chinese', image_url: '' },
-    { id: '5', name: '咖哩雞', difficulty: 'easy', calories_per_serving: 350, cuisine: 'japanese', image_url: '' },
-    { id: '6', name: '豉油雞翼', difficulty: 'easy', calories_per_serving: 280, cuisine: 'chinese', image_url: '' },
-    { id: '7', name: '薑蔥蒸雞', difficulty: 'easy', calories_per_serving: 250, cuisine: 'chinese', image_url: '' },
-  ];
-  const weeklyMenu = displayRecipes.slice(0, 7);
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   const hasMore = visibleCount < allRecipes.length;
   return (
