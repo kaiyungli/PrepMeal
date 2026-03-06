@@ -39,6 +39,7 @@ export default function AdminRecipes() {
     try {
       const res = await fetch('/api/admin/recipes');
       const data = await res.json();
+      console.log('API返回:', data.recipes?.length, '個食譜');
       setRecipes(data.recipes || []);
     } catch (e) {
       console.error(e);
