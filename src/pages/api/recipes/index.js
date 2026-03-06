@@ -18,25 +18,26 @@ export default async function handler(req, res) {
     if (id) {
       query = query.eq('id', id).limit(1);
     } else {
-      query = query.limit(100);
+      const limit = parseInt(req.query.limit) || 20;
+      const offset = parseInt(req.query.offset) || 0;
+      query = query.range(offset, offset + limit - 1);
     }
     
     const { data: recipes, error } = await query
     
     if (error) throw error
     
-    // Get all ingredients and steps
-    const { data: allIngredients } = await supabase.from('recipe_ingredients').select('*');
-    const { data: allSteps } = await supabase.from('recipe_steps').select('*').order('step_no');
+    // Only fetch ingredients and steps when fetching a single recipe
+    if (id && recipes && recipes.length > 0) {
+      const recipe = recipes[0];
+      const { data: ingredients } = await supabase.from('recipe_ingredients').select('*').eq('recipe_id', id);
+      const { data: steps } = await supabase.from('recipe_steps').select('*').eq('recipe_id', id).order('step_no');
+      recipe.ingredients = ingredients || [];
+      recipe.steps = steps || [];
+      return res.status(200).json({ recipes: [recipe] });
+    }
     
-    // Attach ingredients and steps to each recipe
-    const recipesWithData = (recipes || []).map(r => ({
-      ...r,
-      ingredients: (allIngredients || []).filter(i => i.recipe_id === r.id),
-      steps: (allSteps || []).filter(s => s.recipe_id === r.id)
-    }));
-    
-    res.status(200).json({ recipes: recipesWithData })
+    res.status(200).json({ recipes: recipes || [] })
   } catch (err) {
     console.error('Supabase error:', err.message)
     res.status(200).json({ recipes: [], error: err.message })
