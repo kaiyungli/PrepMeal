@@ -41,7 +41,7 @@ export default function GeneratePage() {
   const [allRecipes, setAllRecipes] = useState([]);
   
   useEffect(() => {
-    fetch('/api/recipes')
+    fetch('/api/recipes?limit=100')
       .then(res => res.json())
       .then(data => setAllRecipes(data.recipes || []))
       .catch(() => {});
