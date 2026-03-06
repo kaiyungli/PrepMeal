@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     } else {
       const limit = parseInt(req.query.limit) || 20;
       const offset = parseInt(req.query.offset) || 0;
-      query = query.range(offset, offset + limit - 1);
+      query = query.limit(limit).range(offset, offset + limit - 1);
     }
     
     const { data: recipes, error } = await query
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ recipes: [recipe] });
     }
     
-    res.status(200).json({ recipes: recipes || [], hasMore: (recipes || []).length >= limit })
+    res.status(200).json({ recipes: recipes || [], hasMore: (recipes || []).length >= (parseInt(req.query.limit) || 20) })
   } catch (err) {
     console.error('Supabase error:', err.message)
     res.status(200).json({ recipes: [], error: err.message })
