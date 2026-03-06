@@ -208,10 +208,7 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
       setIngredients(recipe.ingredients.map(i => ({ ingredient: i.ingredient_id || '', quantity: i.quantity || 1, unit: i.unit_id || 'g', is_optional: i.is_optional || false })));
     }
     if (recipe && recipe.steps) {
-      console.log('Loading steps:', recipe.steps);
       setSteps(recipe.steps.map(s => ({ step_no: s.step_no, text: s.text, time_seconds: s.time_seconds || 0 })));
-    } else {
-      console.log('No steps in recipe, steps is:', recipe?.steps);
     }
   }, [recipe]);
 
@@ -312,7 +309,7 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
 
   const steps_editor = (
     <div style={{ marginBottom: '20px' }}>
-      <h3 style={{ fontSize: '14px', fontWeight: '600', color: colors.text, marginBottom: '12px' }}>步驟</h3>
+      <h3 style={{ fontSize: '14px', fontWeight: '600', color: colors.text, marginBottom: '12px' }}>步驟 (steps count: {steps.length})</h3>
       {steps.map((step, i) => (
         <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
           <span style={{ padding: '8px', color: colors.textLight }}>{i+1}.</span>
