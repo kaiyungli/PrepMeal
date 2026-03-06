@@ -24,7 +24,7 @@ const colors = {
 export default function RecipeDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [recipe, setRecipe] = useState(null);
+  const [recipe, setRecipe] = useState({ name: '', steps: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,7 +47,8 @@ export default function RecipeDetail() {
   // Also watch for router ready
   
 
-  if (!recipe) {
+  // Show loading if no name yet
+  if (!recipe || !recipe.name) {
     return (
       <>
         <Header />
@@ -59,7 +60,7 @@ export default function RecipeDetail() {
     );
   }
 
-  if (!recipe || !recipe.name) {
+  if (!recipe || recipe.name === '') {
     return (
       <>
         <Header />
