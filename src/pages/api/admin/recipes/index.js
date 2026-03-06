@@ -13,7 +13,6 @@ export default async function handler(req, res) {
       const { id } = query;
       
       if (id) {
-        // Get single recipe with ingredients and steps
         const { data: recipe, error: recipeError } = await supabase
           .from('recipes')
           .select('*')
@@ -22,23 +21,21 @@ export default async function handler(req, res) {
         
         if (recipeError) throw recipeError;
         
-        // Get ingredients
         const { data: ingredients } = await supabase
           .from('recipe_ingredients')
           .select('*')
-          .eq('recipe_id', id)
-          .order('id');
+          .eq('recipe_id', id);
         
-        // Get steps
         const { data: steps } = await supabase
           .from('recipe_steps')
           .select('*')
           .eq('recipe_id', id)
           .order('step_no');
         
-        return res.status(200).json({ recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } });
+        return res.status(200).json({ 
+          recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } 
+        });
       } else {
-        // List all recipes
         const { data, error } = await supabase
           .from('recipes')
           .select('*')
@@ -72,37 +69,86 @@ export default async function handler(req, res) {
       };
       
       if (body.id) {
-        // Update
-        const { data, error } = await supabase
+        const { data: recipe, error: recipeError } = await supabase
           .from('recipes')
           .update(recipeData)
           .eq('id', body.id)
           .select()
           .single();
         
-        if (error) throw error;
-        return res.status(200).json({ recipe: data });
+        if (recipeError) throw recipeError;
+        
+        await supabase.from('recipe_ingredients').delete().eq('recipe_id', body.id);
+        await supabase.from('recipe_steps').delete().eq('recipe_id', body.id);
+        
+        if (body.ingredients && body.ingredients.length > 0) {
+          const ingData = body.ingredients.filter(i => i.ingredient).map(i => ({
+            recipe_id: body.id,
+            quantity: i.quantity,
+            unit: i.unit,
+            is_optional: i.is_optional || false,
+          }));
+          if (ingData.length > 0) {
+            await supabase.from('recipe_ingredients').insert(ingData);
+          }
+        }
+        
+        if (body.steps && body.steps.length > 0) {
+          const stepData = body.steps.filter(s => s.text).map((s, idx) => ({
+            recipe_id: body.id,
+            step_no: idx + 1,
+            text: s.text,
+            time_seconds: s.time_seconds || 0,
+          }));
+          if (stepData.length > 0) {
+            await supabase.from('recipe_steps').insert(stepData);
+          }
+        }
+        
+        return res.status(200).json({ recipe });
       } else {
-        // Create
-        const { data, error } = await supabase
+        const { data: recipe, error: recipeError } = await supabase
           .from('recipes')
           .insert(recipeData)
           .select()
           .single();
         
-        if (error) throw error;
-        return res.status(201).json({ recipe: data });
+        if (recipeError) throw recipeError;
+        
+        if (body.ingredients && body.ingredients.length > 0 && recipe) {
+          const ingData = body.ingredients.filter(i => i.ingredient).map(i => ({
+            recipe_id: recipe.id,
+            quantity: i.quantity,
+            unit: i.unit,
+            is_optional: i.is_optional || false,
+          }));
+          if (ingData.length > 0) {
+            await supabase.from('recipe_ingredients').insert(ingData);
+          }
+        }
+        
+        if (body.steps && body.steps.length > 0 && recipe) {
+          const stepData = body.steps.filter(s => s.text).map((s, idx) => ({
+            recipe_id: recipe.id,
+            step_no: idx + 1,
+            text: s.text,
+            time_seconds: s.time_seconds || 0,
+          }));
+          if (stepData.length > 0) {
+            await supabase.from('recipe_steps').insert(stepData);
+          }
+        }
+        
+        return res.status(201).json({ recipe });
       }
     }
     
     if (method === 'DELETE') {
       const { id } = query;
       
-      // Delete related records first
-      await supabase.from('recipe_ingredients').delete().eq('recipe_id', id).catch(() => {});
-      await supabase.from('recipe_steps').delete().eq('recipe_id', id).catch(() => {});
+      await supabase.from('recipe_ingredients').delete().eq('recipe_id', id);
+      await supabase.from('recipe_steps').delete().eq('recipe_id', id);
       
-      // Delete recipe
       const { error } = await supabase
         .from('recipes')
         .delete()
