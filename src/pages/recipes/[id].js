@@ -31,19 +31,26 @@ export default function RecipeDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Wait for router to be ready before fetching
+    if (!router.isReady) return;
     if (!id) return;
 
     fetch(`/api/recipes?id=${id}`)
       .then(res => res.json())
       .then(data => {
-        setRecipe(data.recipes?.[0] || null);
+        if (data.recipes && data.recipes[0]) {
+          setRecipe(data.recipes[0]);
+        }
         setLoading(false);
       })
       .catch((e) => {
-      console.error('Failed to fetch recipe:', e);
-      setLoading(false);
-    });
+        console.error('Failed to fetch recipe:', e);
+        setLoading(false);
+      });
   }, [id]);
+
+  // Also watch for router ready
+  
 
   if (loading) {
     return (
