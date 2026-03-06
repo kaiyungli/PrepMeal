@@ -289,6 +289,38 @@ function RecipeFormModal({ recipe, onClose, onSave }) {
   const speedLabels = { quick: '快', normal: '正常', slow: '慢' };
   const difficultyLabels = { easy: '易', medium: '中', hard: '難' };
 
+  const ing_editor = (
+    <div style={{ marginBottom: '20px' }}>
+      <h3 style={{ fontSize: '14px', fontWeight: '600', color: colors.text, marginBottom: '12px' }}>食材</h3>
+      {ingredients.map((ing, i) => (
+        <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <input type="text" value={ing.ingredient} onChange={e => updateIngredient(i, 'ingredient', e.target.value)} placeholder="食材" style={{ flex: 2, padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }} />
+          <input type="number" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', parseFloat(e.target.value) || 0)} placeholder="數量" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }} />
+          <select value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }}>
+            <option value="g">g</option><option value="ml">ml</option><option value="件">件</option><option value="隻">隻</option>
+          </select>
+          <button type="button" onClick={() => removeIngredient(i)} style={{ padding: '8px' }}>×</button>
+        </div>
+      ))}
+      <button type="button" onClick={addIngredient} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ddd', background: 'white' }}>+ 食材</button>
+    </div>
+  );
+
+  const steps_editor = (
+    <div style={{ marginBottom: '20px' }}>
+      <h3 style={{ fontSize: '14px', fontWeight: '600', color: colors.text, marginBottom: '12px' }}>步驟</h3>
+      {steps.map((step, i) => (
+        <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <span style={{ padding: '8px', color: colors.textLight }}>{i+1}.</span>
+          <textarea value={step.text} onChange={e => updateStep(i, 'text', e.target.value)} rows={2} style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }} />
+          <input type="number" value={step.time_seconds || ''} onChange={e => updateStep(i, 'time_seconds', parseInt(e.target.value) || 0)} placeholder="秒" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid #ddd' }} />
+          <button type="button" onClick={() => removeStep(i)} style={{ padding: '8px' }}>×</button>
+        </div>
+      ))}
+      <button type="button" onClick={addStep} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ddd', background: 'white' }}>+ 步驟</button>
+    </div>
+  );
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
       <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto' }}>
