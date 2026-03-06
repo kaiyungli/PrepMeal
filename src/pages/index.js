@@ -57,6 +57,22 @@ export default function Home() {
   }, [visibleCount]);
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
+  
+  // Loading state
+  if (!allRecipes || allRecipes.length === 0) {
+    return (
+      <Layout>
+        <Head><title>今晚食乜 🥘</title></Head>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl mb-4">🍽️</div>
+            <p className="text-lg text-gray-500">載入中...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+  
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   const hasMore = visibleCount < allRecipes.length;
   return (
