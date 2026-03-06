@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import Head from 'next/head';
 import Image from 'next/image';
 
 const supabase = createClient(
@@ -28,6 +29,10 @@ export default function RecipeDetail({ recipe, error }) {
 
   return (
     <>
+      <Head>
+        <title>{recipe.name} - 今晚食乜</title>
+        <meta name="description" content={recipe.description || recipe.name} />
+      </Head>
       <div style={{ minHeight: '100vh', background: colors.background, padding: '20px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h1 style={{ fontSize: '28px', fontWeight: '800', color: colors.text }}>{recipe.name}</h1>
