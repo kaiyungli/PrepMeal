@@ -11,6 +11,7 @@ export default function Home() {
   const [allRecipes, setAllRecipes] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
   useEffect(() => {
@@ -39,13 +40,14 @@ export default function Home() {
   
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore) {
+      if (entries[0].isIntersecting && hasMore && !loadingMore) {
         // Fetch more with pagination
       fetch(`/api/recipes?limit=8&offset=${allRecipes.length}`)
         .then(r => r.json())
         .then(data => {
           setAllRecipes(prev => [...prev, ...(data.recipes || [])]);
-          setVisibleCount(prev => prev + 8);
+          setLoadingMore(true);
+        setVisibleCount(prev => prev + 8);
         });
       }
     }, { threshold: 0.1 });
