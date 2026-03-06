@@ -22,21 +22,15 @@ const colors = {
 };
 
 export default function RecipeDetail() {
-  const router = useRouter();
-  let { id } = router.query;
-  // If no id from router, try to get from URL
-  if (!id && typeof window !== 'undefined') {
-    const parts = window.location.pathname.split('/');
-    id = parts[parts.length - 1];
-  }
+  
+  // Get ID from URL
+  const id = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : '';
   const [recipe, setRecipe] = useState({ name: '', steps: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const recipeId = id || window?.location?.pathname?.split('/').pop();
-    if (!recipeId) return;
-
-    fetch(`/api/recipes?id=${recipeId}`)
+    if (!id) return;
+    fetch(`/api/recipes?id=${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.recipes && data.recipes[0]) {
