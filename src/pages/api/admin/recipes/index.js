@@ -10,14 +10,43 @@ export default async function handler(req, res) {
   
   try {
     if (method === 'GET') {
-      // List all recipes
-      const { data, error } = await supabase
-        .from('recipes')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { id } = query;
       
-      if (error) throw error;
-      return res.status(200).json({ recipes: data || [] });
+      if (id) {
+        // Get single recipe with ingredients and steps
+        const { data: recipe, error: recipeError } = await supabase
+          .from('recipes')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (recipeError) throw recipeError;
+        
+        // Get ingredients
+        const { data: ingredients } = await supabase
+          .from('recipe_ingredients')
+          .select('*')
+          .eq('recipe_id', id)
+          .order('id');
+        
+        // Get steps
+        const { data: steps } = await supabase
+          .from('recipe_steps')
+          .select('*')
+          .eq('recipe_id', id)
+          .order('step_no');
+        
+        return res.status(200).json({ recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } });
+      } else {
+        // List all recipes
+        const { data, error } = await supabase
+          .from('recipes')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        return res.status(200).json({ recipes: data || [] });
+      }
     }
     
     if (method === 'POST' || method === 'PUT') {
