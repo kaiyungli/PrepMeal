@@ -36,13 +36,25 @@ export default async function handler(req, res) {
           recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } 
         });
       } else {
-        const { data, error } = await supabase
+        const { data: recipes, error } = await supabase
           .from('recipes')
           .select('*')
           .order('created_at', { ascending: false });
         
         if (error) throw error;
-        return res.status(200).json({ recipes: data || [] });
+        
+        // Get all ingredients and steps
+        const { data: allIngredients } = await supabase.from('recipe_ingredients').select('*');
+        const { data: allSteps } = await supabase.from('recipe_steps').select('*');
+        
+        // Attach to each recipe
+        const recipesWithData = (recipes || []).map(r => ({
+          ...r,
+          ingredients: (allIngredients || []).filter(i => i.recipe_id === r.id),
+          steps: (allSteps || []).filter(s => s.recipe_id === r.id).sort((a, b) => a.step_no - b.step_no)
+        }));
+        
+        return res.status(200).json({ recipes: recipesWithData });
       }
     }
     
