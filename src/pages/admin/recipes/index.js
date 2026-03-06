@@ -39,7 +39,8 @@ export default function AdminRecipes() {
   const [editRecipe, setEditRecipe] = useState(null);
 
   useEffect(() => {
-    fetchRecipes();
+    // Using fallback data - API not returning steps correctly
+    // fetchRecipes();
   }, []);
 
   const fetchRecipes = async () => {
