@@ -132,19 +132,14 @@ export default function RecipeDetail() {
           {/* Cooking Steps */}
           <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', color: colors.text, marginBottom: '16px' }}>烹飪步驟</h3>
-            {[
-              { step: 1, title: '準備材料', description: '蕃茄洗淨切件。雞蛋打入碗中加入鹽和水，攪拌均勻。' },
-              { step: 2, title: '炒蛋', description: '中火熱鍋加入1茶匙油，倒入蛋液輕輕翻炒至約七成熟，盛起備用。' },
-              { step: 3, title: '炒蕃茄', description: '再加入1茶匙油，放入蕃茄翻炒，加入糖及少量鹽，炒至蕃茄變軟並開始出汁。' },
-              { step: 4, title: '完成', description: '將雞蛋回鍋與蕃茄混合翻炒約30秒即可，可撒上蔥花增加香味。' },
-            ].map((s, i) => (
+            {(recipe.steps && recipe.steps.length > 0) ? recipe.steps.map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.primary, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>{s.step}</div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.primary, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 }}>{s.step_no}</div>
                 <div>
-                  <p style={{ fontWeight: '600', color: colors.text, marginBottom: '4px' }}>{s.step_no}. {s.text}</p>
+                  <p style={{ fontSize: '14px', color: colors.textLight }}>{s.text}</p>
                 </div>
               </div>
-            ))}
+            )) : <p style={{ color: colors.textLight }}>暂无步驟資料</p>}
           </div>
         </div>
       </div>
