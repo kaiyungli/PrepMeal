@@ -79,7 +79,7 @@ export default function AdminRecipes() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: '800', color: colors.text }}>食譜管理</h1>
             <button 
-              onClick={() => { setEditRecipe(null); setShowForm(true); }}
+              onClick={() => { setEditRecipe(null); alert('Opening form for: ' + recipe.slug); setShowForm(true); }}
               style={{ background: colors.primary, color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
             >
               + 新增食譜
@@ -150,7 +150,7 @@ export default function AdminRecipes() {
                       <td style={{ padding: '12px', textAlign: 'center' }}>
                         <button 
                           onClick={async () => { 
-      setShowForm(true);
+      alert('Opening form for: ' + recipe.slug); setShowForm(true);
       // Fetch full recipe with ingredients and steps from API
       try {
         const res = await fetch('/api/admin/recipes?slug=' + recipe.slug);
