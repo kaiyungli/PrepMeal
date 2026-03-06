@@ -63,12 +63,10 @@ export default function Home() {
     return (
       <Layout>
         <Head><title>今晚食乜 🥘</title></Head>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🍽️</div>
-            <p className="text-lg text-gray-500">載入中...</p>
-            <p className="text-sm text-gray-400 mt-2">Loading recipes...</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-gray-200 animate-pulse h-64 rounded-xl"></div>
+          ))}
         </div>
       </Layout>
     );
