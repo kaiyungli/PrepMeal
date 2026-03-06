@@ -24,11 +24,7 @@ const colors = {
 export default function RecipeDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [recipe, setRecipe] = useState({
-    name: '載入中...',
-    steps: [],
-    ingredients: []
-  });
+  const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,9 +47,19 @@ export default function RecipeDetail() {
   // Also watch for router ready
   
 
-  // Skip loading check - show data directly
+  if (!recipe) {
+    return (
+      <>
+        <Header />
+        <div style={{ minHeight: '100vh', background: colors.background, padding: '40px', textAlign: 'center' }}>
+          <p>載入中...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
-  if (!recipe || recipe.name === '載入中...') {
+  if (!recipe || !recipe.name) {
     return (
       <>
         <Header />
