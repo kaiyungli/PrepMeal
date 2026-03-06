@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -31,8 +32,6 @@ export default function RecipeDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for router to be ready before fetching
-    if (!router.isReady) return;
     if (!id) return;
 
     fetch(`/api/recipes?id=${id}`)
