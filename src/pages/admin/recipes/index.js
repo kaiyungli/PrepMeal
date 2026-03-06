@@ -19,7 +19,18 @@ const dishTypeOptions = ['全部', 'main', 'side', 'soup', 'staple', 'snack'];
 const difficultyOptions = ['全部', 'easy', 'medium', 'hard'];
 
 export default function AdminRecipes() {
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState([
+    { id: 'bacd544f-1b25-414a-a1b2-b16650b6778d', name: '蒸水蛋', slug: 'steamed-egg', cuisine: 'chinese', dish_type: 'side', difficulty: 'easy', calories_per_serving: null, is_public: true, steps: [{step_no:1,text:'準備所有食材'},{step_no:2,text:'開始烹煮及調味'}] },
+    { id: '9fed944c-71b0-4e68-8344-b8fd1709db73', name: '蝦仁炒蛋', slug: 'shrimp-egg', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy', calories_per_serving: null, is_public: true, steps: [{step_no:1,text:'準備所有食材'},{step_no:2,text:'開始烹煮及調味'}] },
+    { id: 'b1caac33-02c8-4206-8d03-d7772aa2c4af', name: '蕃茄炒蛋', slug: 'tomato-scrambled-eggs', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy', calories_per_serving: 180, is_public: true, steps: [
+      {step_no:1,text:'蕃茄洗淨後切成約8–10塊'},
+      {step_no:2,text:'雞蛋打入碗中，加入鹽及水，攪拌均勻'},
+      {step_no:3,text:'中火加熱鍋，加入油，倒入蛋液'},
+      {step_no:4,text:'加入蕃茄翻炒'},
+      {step_no:5,text:'把雞蛋倒回鍋中'},
+      {step_no:6,text:'關火後撒上蔥花，上碟'}
+    ]},
+  ]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [cuisineFilter, setCuisineFilter] = useState('全部');
