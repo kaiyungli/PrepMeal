@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
@@ -166,7 +167,13 @@ export default function Home() {
               const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
               return (
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
-                <div className="h-48 bg-cover bg-center" style={{ backgroundImage: recipe.image_url ? `url(${recipe.image_url})` : 'none', backgroundColor: '#DDD' }} />
+                {recipe.image_url ? (
+              <div className="h-48 relative">
+                <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
+              </div>
+            ) : (
+              <div className="h-48 bg-gray-200" />
+            )}
                 <div className="p-4">
                   <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
                   <div className="flex items-center gap-4 text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
