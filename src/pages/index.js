@@ -60,21 +60,7 @@ export default function Home() {
   
   const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
   
-  // Empty state
-  if (allRecipes && allRecipes.length === 0) {
-    return (
-      <Layout>
-        <Head><title>今晚食乜 🥘</title></Head>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🍽️</div>
-            <p className="text-lg text-gray-500">暫時未有食譜</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-  
+  // Show grid - data loads via useEffect
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   return (
     <Layout>
