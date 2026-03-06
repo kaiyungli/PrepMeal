@@ -28,9 +28,12 @@ export default function RecipeDetail() {
   const [recipe, setRecipe] = useState({ name: '', steps: [] });
   const [loading, setLoading] = useState(true);
 
+  // Get ID from URL
+  const recipeId = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : '';
+
   useEffect(() => {
-    if (!id) return;
-    fetch(`/api/recipes?id=${id}`)
+    if (!recipeId) return;
+    fetch(`/api/recipes?id=${recipeId}`)
       .then(res => res.json())
       .then(data => {
         if (data.recipes && data.recipes[0]) {
