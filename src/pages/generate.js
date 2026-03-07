@@ -29,6 +29,8 @@ const dishTypeLabels = { main: '主菜', side: '小食' };
 const speedLabels = { quick: '快', normal: '中' };
 const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
 
+export const dynamic = 'force-dynamic';
+
 export default function GeneratePage() {
   const router = useRouter();
   const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
@@ -440,7 +442,7 @@ export default function GeneratePage() {
   );
 }
 
-export const dynamic = 'force-dynamic';
+
 
 
 export async function getServerSideProps() {
