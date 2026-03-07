@@ -47,8 +47,9 @@ export default function Home() {
         .then(r => r.json())
         .then(data => {
           setAllRecipes(prev => [...prev, ...(data.recipes || [])]);
-          setLoadingMore(true);
-        setVisibleCount(prev => prev + 8);
+          setLoadingMore(false);
+          setVisibleCount(prev => prev + 8);
+          setHasMore(data.hasMore !== false);
         });
       }
     }, { threshold: 0.1 });
