@@ -31,7 +31,7 @@ const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '
 
 export default function GeneratePage() {
   const router = useRouter();
-  const [allRecipes, setAllRecipes] = useState([]);
+  const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [cuisine, setCuisine] = useState('全部');
   const [time, setTime] = useState('全部');
@@ -441,3 +441,18 @@ export default function GeneratePage() {
 }
 
 export const dynamic = 'force-dynamic';
+
+
+export async function getServerSideProps() {
+  try {
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    const { data: recipes } = await supabase.from('recipes').select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving').limit(50);
+    return { props: { initialRecipes: recipes || [] } };
+  } catch (e) {
+    return { props: { initialRecipes: [] } };
+  }
+}
