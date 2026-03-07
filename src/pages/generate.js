@@ -22,24 +22,37 @@ const colors = {
   border: '#DDD0B0',
 };
 
-const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '素食'];
-const timeOptions = ['全部', '15分鐘', '30分鐘', '45分鐘'];
-const difficultyOptions = ['全部', '易', '中', '難'];
-const dishTypeLabels = { main: '主菜', side: '小食' };
-const speedLabels = { quick: '快', normal: '中' };
-const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+// Days of the week with dates
+const DAYS = [
+  { key: 'mon', label: '星期一', short: '一', date: '3月2日' },
+  { key: 'tue', label: '星期二', short: '二', date: '3月3日' },
+  { key: 'wed', label: '星期三', short: '三', date: '3月4日' },
+  { key: 'thu', label: '星期四', short: '四', date: '3月5日' },
+  { key: 'fri', label: '星期五', short: '五', date: '3月6日' },
+  { key: 'sat', label: '星期六', short: '六', date: '3月7日' },
+  { key: 'sun', label: '星期日', short: '日', date: '3月8日' },
+];
 
-export const dynamic = 'force-dynamic';
+const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '素食'];
+const timeOptions = ['全部', '15分鐘', '30分鐘'];
+const difficultyOptions = ['全部', '易', '中', '難'];
 
 export default function GeneratePage() {
   const router = useRouter();
-  const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
+  const [allRecipes, setAllRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [cuisine, setCuisine] = useState('全部');
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
-  const [servings, setServings] = useState(2);
-  const [selectedRecipes, setSelectedRecipes] = useState({});
+  const [showRecipePicker, setShowRecipePicker] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+  
+  // Weekly meal plan - each day has optional recipe
+  const [weeklyPlan, setWeeklyPlan] = useState(
+    DAYS.reduce((acc, day) => ({ ...acc, [day.key]: null }), {})
+  );
+
+  // Shopping list
   const [shoppingList, setShoppingList] = useState([]);
   const [showShoppingList, setShowShoppingList] = useState(false);
 
@@ -58,7 +71,6 @@ export default function GeneratePage() {
     let filtered = [...allRecipes];
     if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
     if (time !== '全部') {
-      // Filter by speed - quick = <20min, normal = 20-40min
       const isQuick = time === '15分鐘';
       filtered = filtered.filter(r => r.speed === (isQuick ? 'quick' : 'normal'));
     }
@@ -66,23 +78,24 @@ export default function GeneratePage() {
     setFilteredRecipes(filtered.length > 0 ? filtered : allRecipes);
   }, [cuisine, time, difficulty, allRecipes]);
 
-  const toggleRecipeSelection = (recipe) => {
-    setSelectedRecipes(prev => {
-      const newSelected = { ...prev };
-      if (newSelected[recipe.id]) {
-        delete newSelected[recipe.id];
-      } else {
-        newSelected[recipe.id] = recipe;
-      }
-      return newSelected;
-    });
+  const addRecipeToDay = (dayKey, recipe) => {
+    setWeeklyPlan(prev => ({ ...prev, [dayKey]: recipe }));
+    setShowRecipePicker(false);
+    setSelectedDay(null);
+  };
+
+  const removeRecipeFromDay = (dayKey) => {
+    setWeeklyPlan(prev => ({ ...prev, [dayKey]: null }));
+  };
+
+  const clearAll = () => {
+    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: null }), {}));
   };
 
   const generateShoppingList = () => {
     const ingredients = {};
-    Object.values(selectedRecipes).forEach(recipe => {
-      // Mock ingredient data - in real app would fetch from recipe_ingredients
-      if (recipe.ingredients) {
+    Object.values(weeklyPlan).forEach(recipe => {
+      if (recipe && recipe.ingredients) {
         recipe.ingredients.forEach(ing => {
           const name = ing.name || ing.ingredient_id;
           ingredients[name] = (ingredients[name] || 0) + (ing.quantity || 1);
@@ -93,283 +106,406 @@ export default function GeneratePage() {
     setShowShoppingList(true);
   };
 
-  const handleGenerate = () => {
-    router.push(`/menu?servings=${servings}`);
-  };
-
   const getDifficultyLabel = (d) => ({ easy: '易', medium: '中', hard: '難' }[d] || '中');
-  const getSpeedLabel = (s) => ({ quick: '快', normal: '中' }[s] || '中');
+  const getSpeedLabel = (s) => ({ quick: '15分鐘', normal: '30分鐘' }[s] || '20分鐘');
+
+  const hasRecipes = Object.values(weeklyPlan).some(r => r !== null);
+  const selectedCount = Object.values(weeklyPlan).filter(r => r !== null).length;
 
   return (
     <>
       <Header />
-      <Head><title>今晚食乜 - 生成餐單</title></Head>
+      <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.background, fontFamily: 'Inter, sans-serif' }}>
         
-        {/* Hero Section */}
-        <section style={{ background: colors.primary, padding: '48px 24px', textAlign: 'center' }}>
-          <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
-            生成你既一週餐單
+        {/* Hero Header */}
+        <section style={{ background: colors.primary, padding: '32px 24px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
+            🍽️ 一週餐單
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem' }}>
-            選擇你既喜好，我哋幫你安排埋shopping list
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem' }}>
+            為你安排每日晚餐，簡單方便
           </p>
         </section>
 
-        {/* Filters */}
-        <div style={{ background: colors.white, padding: '20px', borderBottom: `1px solid ${colors.border}` }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'center' }}>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>🥢 菜系</span>
-              {cuisineOptions.map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setCuisine(opt)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    background: cuisine === opt ? colors.primary : colors.background,
-                    color: cuisine === opt ? colors.white : colors.text,
-                  }}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>⏱️ 時間</span>
-              {timeOptions.map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setTime(opt)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    background: time === opt ? colors.accent : colors.background,
-                    color: time === opt ? colors.white : colors.text,
-                  }}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>💪 難度</span>
-              {difficultyOptions.map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setDifficulty(opt)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    background: difficulty === opt ? colors.sage : colors.background,
-                    color: difficulty === opt ? colors.text : colors.text,
-                  }}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>👥 人數</span>
-              {[1, 2, 3, 4].map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setServings(opt)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    background: servings === opt ? colors.primary : colors.background,
-                    color: servings === opt ? colors.white : colors.text,
-                  }}
-                >
-                  {opt}人
-                </button>
-              ))}
-            </div>
-
+        {/* Action Bar */}
+        <div style={{ 
+          background: colors.white, 
+          padding: '16px 24px', 
+          borderBottom: `1px solid ${colors.border}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>
+              已選擇 {selectedCount} 日
+            </span>
+            {hasRecipes && (
+              <button
+                onClick={clearAll}
+                style={{
+                  padding: '6px 12px',
+                  background: 'transparent',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: colors.textLight,
+                  cursor: 'pointer',
+                }}
+              >
+                🗑️ 清空
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={generateShoppingList}
+              disabled={!hasRecipes}
+              style={{
+                padding: '10px 20px',
+                background: hasRecipes ? colors.sage : '#e0e0e0',
+                color: colors.text,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: hasRecipes ? 'pointer' : 'not-allowed',
+              }}
+            >
+              🛒 購物清單
+            </button>
+            <button
+              onClick={() => router.push('/menu')}
+              disabled={!hasRecipes}
+              style={{
+                padding: '10px 20px',
+                background: hasRecipes ? colors.accent : '#e0e0e0',
+                color: colors.white,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: hasRecipes ? 'pointer' : 'not-allowed',
+              }}
+            >
+              ✨ 一鍵生成
+            </button>
           </div>
         </div>
 
-        {/* Recipe Grid */}
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: colors.primary, display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              搵到 {filteredRecipes.length} 款食譜
-            </h2>
-            <button
-              onClick={handleGenerate}
-              style={{
-                padding: '12px 32px',
-                background: colors.accent,
-                color: colors.white,
-                border: 'none',
-                borderRadius: '30px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(240, 160, 96, 0.4)',
-              }}
-            >
-              🍳 生成餐單
-            </button>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
-            {filteredRecipes.map(recipe => (
-              <div
-                key={recipe.id}
-                onClick={() => toggleRecipeSelection(recipe)}
+        {/* Weekly Meal Plan Grid */}
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+            gap: '16px' 
+          }}>
+            {DAYS.map(day => (
+              <div 
+                key={day.key}
                 style={{
                   background: colors.white,
                   borderRadius: '16px',
                   overflow: 'hidden',
-                  cursor: 'pointer',
-                  boxShadow: selectedRecipes[recipe.id] ? `0 0 0 3px ${colors.primary}` : '0 2px 12px rgba(0,0,0,0.08)',
-                  transition: 'all 0.2s ease',
-                  position: 'relative',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 }}
               >
-                {/* Selection indicator */}
-                {selectedRecipes[recipe.id] && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    width: '28px',
-                    height: '28px',
-                    background: colors.primary,
+                {/* Day Header */}
+                <div style={{ 
+                  background: day.key === 'sat' || day.key === 'sun' ? colors.sage : colors.primary,
+                  padding: '12px 16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                  <div>
+                    <div style={{ color: colors.white, fontWeight: '700', fontSize: '15px' }}>
+                      {day.label}
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                      {day.date}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    width: '32px', 
+                    height: '32px', 
+                    background: 'rgba(255,255,255,0.2)', 
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: colors.white,
-                    zIndex: 10,
+                    fontWeight: '700',
+                    fontSize: '14px',
                   }}>
-                    ✓
+                    {day.short}
                   </div>
-                )}
-
-                <div style={{ height: '180px', position: 'relative', background: colors.background }}>
-                  {recipe.image_url ? (
-                    <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>
-                      🍳
-                    </div>
-                  )}
                 </div>
 
-                <div style={{ padding: '16px' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: colors.text, marginBottom: '4px' }}>
-                    {recipe.name}
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: colors.textLight, marginBottom: '12px' }}>
-                    {recipe.description}
-                  </p>
-
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ 
-                      padding: '4px 10px', 
-                      background: colors.background, 
-                      borderRadius: '12px', 
-                      fontSize: '12px', 
-                      color: colors.textLight 
-                    }}>
-                      ⏱️ {recipe.speed === 'quick' ? '15分鐘' : recipe.speed === 'normal' ? '30分鐘' : '20分鐘'}
-                    </span>
-                    <span style={{ 
-                      padding: '4px 10px', 
-                      background: colors.sage, 
-                      borderRadius: '12px', 
-                      fontSize: '12px', 
-                      color: colors.text 
-                    }}>
-                      {getDifficultyLabel(recipe.difficulty)}
-                    </span>
-                    <span style={{ 
-                      padding: '4px 10px', 
-                      background: colors.background, 
-                      borderRadius: '12px', 
-                      fontSize: '12px', 
-                      color: colors.textLight 
-                    }}>
-                      {getSpeedLabel(recipe.speed)}
-                    </span>
-                  </div>
+                {/* Recipe Slot */}
+                <div style={{ padding: '16px', minHeight: '120px' }}>
+                  {weeklyPlan[day.key] ? (
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ 
+                        background: colors.background, 
+                        borderRadius: '12px', 
+                        overflow: 'hidden',
+                        marginBottom: '8px'
+                      }}>
+                        <div style={{ 
+                          height: '80px', 
+                          position: 'relative',
+                          background: colors.sage + '30'
+                        }}>
+                          {weeklyPlan[day.key].image_url ? (
+                            <Image 
+                              src={weeklyPlan[day.key].image_url} 
+                              alt={weeklyPlan[day.key].name} 
+                              fill 
+                              style={{ objectFit: 'cover' }} 
+                            />
+                          ) : (
+                            <div style={{ 
+                              width: '100%', 
+                              height: '100%', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              fontSize: '32px'
+                            }}>
+                              🍳
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ padding: '10px' }}>
+                          <div style={{ fontWeight: '600', fontSize: '14px', color: colors.text, marginBottom: '4px' }}>
+                            {weeklyPlan[day.key].name}
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <span style={{ fontSize: '11px', color: colors.textLight }}>
+                              ⏱️ {getSpeedLabel(weeklyPlan[day.key].speed)}
+                            </span>
+                            <span style={{ fontSize: '11px', color: colors.textLight }}>
+                              {getDifficultyLabel(weeklyPlan[day.key].difficulty)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeRecipeFromDay(day.key)}
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          width: '28px',
+                          height: '28px',
+                          background: 'rgba(255,255,255,0.9)',
+                          border: 'none',
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setSelectedDay(day.key);
+                        setShowRecipePicker(true);
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '20px',
+                        background: colors.background,
+                        border: `2px dashed ${colors.border}`,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        color: colors.textLight,
+                        fontSize: '13px',
+                      }}
+                    >
+                      <span style={{ fontSize: '24px' }}>+</span>
+                      <span>加入食譜</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Selected Recipes Section */}
-        {Object.keys(selectedRecipes).length > 0 && (
-          <div style={{ 
-            position: 'fixed', 
-            bottom: '24px', 
-            left: '50%', 
-            transform: 'translateX(-50%)',
-            background: colors.primary,
-            padding: '16px 32px',
-            borderRadius: '16px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+        {/* Recipe Picker Modal */}
+        {showRecipePicker && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
             display: 'flex',
             alignItems: 'center',
-            gap: '24px',
-            zIndex: 100,
-          }}>
-            <span style={{ color: colors.white, fontWeight: '600' }}>
-              已選擇 {Object.keys(selectedRecipes).length} 款食譜
-            </span>
-            <button
-              onClick={generateShoppingList}
-              style={{
-                padding: '10px 20px',
-                background: colors.accent,
-                color: colors.white,
-                border: 'none',
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              📝 生成購物清單
-            </button>
-            <button
-              onClick={() => setSelectedRecipes({})}
-              style={{
-                padding: '10px 20px',
-                background: 'transparent',
-                color: colors.white,
-                border: `1px solid ${colors.white}`,
-                borderRadius: '8px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              清除
-            </button>
+            justifyContent: 'center',
+            zIndex: 200,
+            padding: '20px',
+          }} onClick={() => setShowRecipePicker(false)}>
+            <div style={{
+              background: colors.white,
+              borderRadius: '20px',
+              maxWidth: '900px',
+              width: '100%',
+              maxHeight: '85vh',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }} onClick={e => e.stopPropagation()}>
+              
+              {/* Modal Header */}
+              <div style={{ 
+                padding: '20px 24px', 
+                borderBottom: `1px solid ${colors.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: colors.primary }}>
+                  選擇食譜 - {DAYS.find(d => d.key === selectedDay)?.label}
+                </h2>
+                <button
+                  onClick={() => setShowRecipePicker(false)}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    background: colors.background,
+                    border: 'none',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Filters */}
+              <div style={{ 
+                padding: '16px 24px', 
+                borderBottom: `1px solid ${colors.border}`,
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}>
+                <select 
+                  value={cuisine}
+                  onChange={e => setCuisine(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
+                    color: colors.text,
+                  }}
+                >
+                  {cuisineOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt === '全部' ? '🥢 全部菜系' : opt}</option>
+                  ))}
+                </select>
+                <select 
+                  value={time}
+                  onChange={e => setTime(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
+                    color: colors.text,
+                  }}
+                >
+                  {timeOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt === '全部' ? '⏱️ 全部時間' : opt}</option>
+                  ))}
+                </select>
+                <select 
+                  value={difficulty}
+                  onChange={e => setDifficulty(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
+                    color: colors.text,
+                  }}
+                >
+                  {difficultyOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt === '全部' ? '💪 全部難度' : opt}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Recipe List */}
+              <div style={{ 
+                padding: '20px', 
+                overflow: 'auto',
+                flex: 1,
+              }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+                  gap: '12px' 
+                }}>
+                  {filteredRecipes.map(recipe => (
+                    <div
+                      key={recipe.id}
+                      onClick={() => addRecipeToDay(selectedDay, recipe)}
+                      style={{
+                        background: colors.background,
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                      }}
+                    >
+                      <div style={{ height: '100px', position: 'relative', background: colors.sage + '30' }}>
+                        {recipe.image_url ? (
+                          <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
+                            🍳
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ padding: '10px' }}>
+                        <div style={{ fontWeight: '600', fontSize: '13px', color: colors.text, marginBottom: '4px' }}>
+                          {recipe.name}
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: colors.textLight }}>
+                          <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
+                          <span>{getDifficultyLabel(recipe.difficulty)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
           </div>
         )}
 
@@ -442,19 +578,4 @@ export default function GeneratePage() {
   );
 }
 
-
-
-
-export async function getServerSideProps() {
-  try {
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
-    const { data: recipes } = await supabase.from('recipes').select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving').limit(50);
-    return { props: { initialRecipes: recipes || [] } };
-  } catch (e) {
-    return { props: { initialRecipes: [] } };
-  }
-}
+export const dynamic = 'force-dynamic';
