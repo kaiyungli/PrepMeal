@@ -32,7 +32,7 @@ export default function Card({
     >
       <div className="h-40 relative">
         {image ? (
-          <Image src={image} alt={title || 'recipe'} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+          <Image src={image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'} alt={title || 'recipe'} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-100">
             <span className="text-5xl">🍳</span>
