@@ -56,8 +56,9 @@ export default function GeneratePage() {
     let filtered = [...allRecipes];
     if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
     if (time !== '全部') {
-      const maxTime = time === '15分鐘' ? 15 : time === '30分鐘' ? 30 : 45;
-      filtered = filtered.filter(r => r.cooking_time <= maxTime);
+      // Filter by speed - quick = <20min, normal = 20-40min
+      const isQuick = time === '15分鐘';
+      filtered = filtered.filter(r => r.speed === (isQuick ? 'quick' : 'normal'));
     }
     if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
     setFilteredRecipes(filtered.length > 0 ? filtered : allRecipes);
@@ -293,7 +294,7 @@ export default function GeneratePage() {
                       fontSize: '12px', 
                       color: colors.textLight 
                     }}>
-                      ⏱️ {recipe.cooking_time || 20}分鐘
+                      ⏱️ {recipe.speed === 'quick' ? '15分鐘' : recipe.speed === 'normal' ? '30分鐘' : '20分鐘'}
                     </span>
                     <span style={{ 
                       padding: '4px 10px', 
