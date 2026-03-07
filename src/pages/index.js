@@ -170,7 +170,7 @@ export default function Home() {
               <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
                 {recipe.image_url ? (
               <div className="h-48 relative">
-                <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
+                <Image src={recipe.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'} alt={recipe.name} fill className="object-cover" />
               </div>
             ) : (
               <div className="h-48 bg-gray-200" />
