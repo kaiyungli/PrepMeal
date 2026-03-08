@@ -92,6 +92,31 @@ export default function GeneratePage() {
     setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: null }), {}));
   };
 
+  // Generate random meal plan for the week
+  const handleGenerate = () => {
+    const newPlan = {};
+    DAYS.forEach(day => {
+      // Filter available recipes
+      let available = [...allRecipes];
+      if (cuisine !== '全部') {
+        available = available.filter(r => r.cuisine === cuisine);
+      }
+      if (time !== '全部') {
+        const isQuick = time === '15分鐘';
+        available = available.filter(r => r.speed === (isQuick ? 'quick' : 'normal'));
+      }
+      if (difficulty !== '全部') {
+        available = available.filter(r => r.difficulty === difficulty);
+      }
+      // Random pick
+      if (available.length > 0) {
+        const randomRecipe = available[Math.floor(Math.random() * available.length)];
+        newPlan[day.key] = randomRecipe;
+      }
+    });
+    setWeeklyPlan(newPlan);
+  };
+
   const generateShoppingList = () => {
     const ingredients = {};
     Object.values(weeklyPlan).forEach(recipe => {
@@ -178,7 +203,7 @@ export default function GeneratePage() {
               🛒 購物清單
             </button>
             <button
-              onClick={() => router.push('/menu')}
+              onClick={handleGenerate}
               disabled={!hasRecipes}
               style={{
                 padding: '10px 20px',
