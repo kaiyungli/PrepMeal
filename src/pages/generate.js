@@ -80,13 +80,13 @@ export default function GeneratePage() {
   }, [cuisine, time, difficulty, allRecipes]);
 
   const addRecipeToDay = (dayKey, recipe) => {
-    setWeeklyPlan(prev => ({ ...prev, [dayKey]: recipe }));
+    setWeeklyPlan(prev => ({ ...prev, [dayKey]: [...(prev[dayKey] || []), recipe] }));
     setShowRecipePicker(false);
     setSelectedDay(null);
   };
 
   const removeRecipeFromDay = (dayKey) => {
-    setWeeklyPlan(prev => ({ ...prev, [dayKey]: null }));
+    setWeeklyPlan(prev => ({ ...prev, [dayKey]: prev[dayKey]?.filter((_, idx) => idx !== recipeIndex) || [] }));
   };
 
   const clearAll = () => {
