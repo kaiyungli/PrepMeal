@@ -192,13 +192,13 @@ export default function GeneratePage() {
               disabled={!hasRecipes}
               style={{
                 padding: '10px 20px',
-                background: hasRecipes ? colors.sage : '#e0e0e0',
+                background: colors.sage,
                 color: colors.text,
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: hasRecipes ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
               }}
             >
               🛒 購物清單
@@ -208,13 +208,13 @@ export default function GeneratePage() {
               disabled={!hasRecipes}
               style={{
                 padding: '10px 20px',
-                background: hasRecipes ? colors.accent : '#e0e0e0',
+                background: colors.accent,
                 color: colors.white,
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: hasRecipes ? 'pointer' : 'not-allowed',
+                cursor: 'pointer',
               }}
             >
               ✨ 一鍵生成
