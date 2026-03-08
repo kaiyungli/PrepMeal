@@ -44,6 +44,7 @@ export default function GeneratePage() {
   const [cuisine, setCuisine] = useState('全部');
   const [time, setTime] = useState('全部');
   const [difficulty, setDifficulty] = useState('全部');
+  const [servings, setServings] = useState(2);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   
@@ -275,6 +276,19 @@ export default function GeneratePage() {
                   style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  👥 人數
+                </label>
+                <select 
+                  value={servings}
+                  onChange={(e) => setServings(Number(e.target.value))}
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                >
+                  {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}人</option>)}
                 </select>
               </div>
             </div>
