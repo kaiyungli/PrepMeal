@@ -150,7 +150,7 @@ export default function GeneratePage() {
         {/* Hero Header */}
         <section style={{ background: colors.primary, padding: '32px 24px', textAlign: 'center' }}>
           <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
-            🍽️ 一週餐單
+             一週餐單
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem' }}>
             為你安排每日晚餐，簡單方便
@@ -171,13 +171,13 @@ export default function GeneratePage() {
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}>
             <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
-              🔍 選擇要求生成餐單
+               選擇要求生成餐單
             </h3>
             
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                  🥢 菜系
+                   菜系
                 </label>
                 <select 
                   value={cuisine} 
@@ -190,7 +190,7 @@ export default function GeneratePage() {
 
               <div>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                  ⏱️ 時間
+                   時間
                 </label>
                 <select 
                   value={time} 
@@ -203,7 +203,7 @@ export default function GeneratePage() {
 
               <div>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                  💪 難度
+                   難度
                 </label>
                 <select 
                   value={difficulty} 
@@ -216,7 +216,7 @@ export default function GeneratePage() {
 
               <div>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                  👥 人數
+                   人數
                 </label>
                 <select 
                   value={servings}
@@ -253,7 +253,7 @@ export default function GeneratePage() {
               boxShadow: '0 4px 12px rgba(240, 160, 96, 0.3)',
             }}
           >
-            ✨ 一鍵生成餐單
+             一鍵生成餐單
           </button>
           <button
             onClick={generateShoppingList}
@@ -268,7 +268,7 @@ export default function GeneratePage() {
               cursor: 'pointer',
             }}
           >
-            🛒 購物清單
+             購物清單
           </button>
         </div>
 
@@ -352,7 +352,7 @@ export default function GeneratePage() {
                               justifyContent: 'center',
                               fontSize: '32px'
                             }}>
-                              🍳
+                              
                             </div>
                           )}
                         </div>
@@ -362,7 +362,7 @@ export default function GeneratePage() {
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
-                              ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
+                               {getSpeedLabel(weeklyPlan[day.key][0].speed)}
                             </span>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
                               {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
@@ -498,7 +498,7 @@ export default function GeneratePage() {
                   }}
                 >
                   {cuisineOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '🥢 全部菜系' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部菜系' : opt}</option>
                   ))}
                 </select>
                 <select 
@@ -514,7 +514,7 @@ export default function GeneratePage() {
                   }}
                 >
                   {timeOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '⏱️ 全部時間' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部時間' : opt}</option>
                   ))}
                 </select>
                 <select 
@@ -530,7 +530,7 @@ export default function GeneratePage() {
                   }}
                 >
                   {difficultyOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '💪 全部難度' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部難度' : opt}</option>
                   ))}
                 </select>
               </div>
@@ -563,7 +563,7 @@ export default function GeneratePage() {
                           <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
-                            🍳
+                            
                           </div>
                         )}
                       </div>
@@ -572,7 +572,7 @@ export default function GeneratePage() {
                           {recipe.name}
                         </div>
                         <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: colors.textLight }}>
-                          <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
+                          <span> {getSpeedLabel(recipe.speed)}</span>
                           <span>{getDifficultyLabel(recipe.difficulty)}</span>
                         </div>
                       </div>
@@ -606,7 +606,7 @@ export default function GeneratePage() {
               overflow: 'auto',
             }} onClick={e => e.stopPropagation()}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: colors.primary, marginBottom: '20px' }}>
-                🛒 購物清單
+                 購物清單
               </h2>
               {shoppingList.length > 0 ? (
                 <ul style={{ listStyle: 'none', padding: 0 }}>
