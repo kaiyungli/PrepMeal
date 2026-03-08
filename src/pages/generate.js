@@ -358,7 +358,7 @@ export default function GeneratePage() {
                         </div>
                         <div style={{ padding: '10px' }}>
                           <div style={{ fontWeight: '600', fontSize: '14px', color: colors.text, marginBottom: '4px' }}>
-                            {weeklyPlan[day.key].name}
+                            {weeklyPlan[day.key][0].name}
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
