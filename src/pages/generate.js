@@ -298,6 +298,48 @@ export default function GeneratePage() {
           </div>
         </div>
 
+        {/* Action Buttons */}
+        <div style={{ 
+          maxWidth: '1400px', 
+          margin: '0 auto', 
+          padding: '0 24px 24px',
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'center'
+        }}>
+          <button
+            onClick={handleGenerate}
+            style={{
+              padding: '14px 32px',
+              background: colors.accent,
+              color: colors.white,
+              border: 'none',
+              borderRadius: '30px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(240, 160, 96, 0.3)',
+            }}
+          >
+            ✨ 一鍵生成餐單
+          </button>
+          <button
+            onClick={generateShoppingList}
+            style={{
+              padding: '14px 32px',
+              background: colors.sage,
+              color: colors.text,
+              border: 'none',
+              borderRadius: '30px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+            }}
+          >
+            🛒 購物清單
+          </button>
+        </div>
+
         {/* Weekly Meal Plan Grid */}
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
           <div style={{ 
