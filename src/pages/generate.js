@@ -112,7 +112,7 @@ export default function GeneratePage() {
       // Random pick
       if (available.length > 0) {
         const randomRecipe = available[Math.floor(Math.random() * available.length)];
-        newPlan[day.key] = randomRecipe;
+        newPlan[day.key] = [randomRecipe];
       }
     });
     setWeeklyPlan(newPlan);
@@ -120,13 +120,16 @@ export default function GeneratePage() {
 
   const generateShoppingList = () => {
     const ingredients = {};
-    Object.values(weeklyPlan).forEach(recipe => {
-      if (recipe && recipe.ingredients) {
-        recipe.ingredients.forEach(ing => {
-          const name = ing.name || ing.ingredient_id;
-          ingredients[name] = (ingredients[name] || 0) + (ing.quantity || 1);
-        });
-      }
+    Object.values(weeklyPlan).forEach(recipeOrArray => {
+      const recipes = Array.isArray(recipeOrArray) ? recipeOrArray : [recipeOrArray];
+      recipes.forEach(recipe => {
+        if (recipe && recipe.ingredients) {
+          recipe.ingredients.forEach(ing => {
+            const name = ing.name || ing.ingredient_id;
+            ingredients[name] = (ingredients[name] || 0) + (ing.quantity || 1);
+          });
+        }
+      });
     });
     setShoppingList(Object.entries(ingredients).map(([name, qty]) => ({ name, quantity: qty })));
     setShowShoppingList(true);
