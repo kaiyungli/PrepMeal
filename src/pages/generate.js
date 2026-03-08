@@ -346,7 +346,7 @@ export default function GeneratePage() {
 
                 {/* Recipe Slot */}
                 <div style={{ padding: '16px', minHeight: '120px' }}>
-                  {weeklyPlan[day.key] ? (
+                  {weeklyPlan[day.key]?.length > 0 ? (
                     <div style={{ position: 'relative' }}>
                       <div style={{ 
                         background: colors.background, 
@@ -359,10 +359,10 @@ export default function GeneratePage() {
                           position: 'relative',
                           background: colors.sage + '30'
                         }}>
-                          {weeklyPlan[day.key].image_url ? (
+                          {weeklyPlan[day.key][0].image_url ? (
                             <Image 
-                              src={weeklyPlan[day.key].image_url} 
-                              alt={weeklyPlan[day.key].name} 
+                              src={weeklyPlan[day.key][0].image_url} 
+                              alt={weeklyPlan[day.key][0].name} 
                               fill 
                               style={{ objectFit: 'cover' }} 
                             />
@@ -385,16 +385,16 @@ export default function GeneratePage() {
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
-                              ⏱️ {getSpeedLabel(weeklyPlan[day.key].speed)}
+                              ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
                             </span>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
-                              {getDifficultyLabel(weeklyPlan[day.key].difficulty)}
+                              {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
                             </span>
                           </div>
                         </div>
                       </div>
                       <button
-                        onClick={() => removeRecipeFromDay(day.key)}
+                        onClick={() => removeRecipeFromDay(day.key, 0)}
                         style={{
                           position: 'absolute',
                           top: '8px',
