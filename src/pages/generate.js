@@ -192,7 +192,7 @@ export default function GeneratePage() {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={generateShoppingList}
-              disabled={!hasRecipes}
+              
               style={{
                 padding: '10px 20px',
                 background: colors.sage,
@@ -208,7 +208,7 @@ export default function GeneratePage() {
             </button>
             <button
               onClick={handleGenerate}
-              disabled={!hasRecipes}
+              
               style={{
                 padding: '10px 20px',
                 background: colors.accent,
