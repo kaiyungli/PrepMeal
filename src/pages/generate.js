@@ -135,7 +135,7 @@ export default function GeneratePage() {
   const getDifficultyLabel = (d) => ({ easy: '易', medium: '中', hard: '難' }[d] || '中');
   const getSpeedLabel = (s) => ({ quick: '15分鐘', normal: '30分鐘' }[s] || '20分鐘');
 
-  const hasRecipes = Object.values(weeklyPlan).some(r => r !== null);
+  const hasRecipes = filteredRecipes.length > 0;
   const selectedCount = Object.values(weeklyPlan).filter(r => r !== null).length;
 
   return (
