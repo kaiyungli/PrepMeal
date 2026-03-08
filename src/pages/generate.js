@@ -221,6 +221,66 @@ export default function GeneratePage() {
           </div>
         </div>
 
+        {/* Filter Section */}
+        <div style={{ 
+          maxWidth: '1400px', 
+          margin: '0 auto', 
+          padding: '0 24px' 
+        }}>
+          <div style={{ 
+            background: colors.white, 
+            borderRadius: '16px', 
+            padding: '20px',
+            marginBottom: '24px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+          }}>
+            <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
+              🔍 選擇要求生成餐單
+            </h3>
+            
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  🥢 菜系
+                </label>
+                <select 
+                  value={cuisine} 
+                  onChange={(e) => setCuisine(e.target.value)}
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                >
+                  {cuisineOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  ⏱️ 時間
+                </label>
+                <select 
+                  value={time} 
+                  onChange={(e) => setTime(e.target.value)}
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                >
+                  {timeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  💪 難度
+                </label>
+                <select 
+                  value={difficulty} 
+                  onChange={(e) => setDifficulty(e.target.value)}
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                >
+                  {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Weekly Meal Plan Grid */}
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
           <div style={{ 
