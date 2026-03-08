@@ -85,12 +85,12 @@ export default function GeneratePage() {
     setSelectedDay(null);
   };
 
-  const removeRecipeFromDay = (dayKey) => {
+  const removeRecipeFromDay = (dayKey, recipeIndex) => {
     setWeeklyPlan(prev => ({ ...prev, [dayKey]: prev[dayKey]?.filter((_, idx) => idx !== recipeIndex) || [] }));
   };
 
   const clearAll = () => {
-    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: null }), {}));
+    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
   };
 
   // Generate random meal plan for the week
