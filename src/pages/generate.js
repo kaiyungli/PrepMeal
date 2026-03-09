@@ -179,7 +179,7 @@ export default function GeneratePage({ initialRecipes }) {
         }}>
           <div style={{ 
             background: colors.white, 
-            rounded-xl, 
+             
             padding: '20px',
             marginBottom: '24px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -196,7 +196,7 @@ export default function GeneratePage({ initialRecipes }) {
                 <select 
                   value={cuisine} 
                   onChange={(e) => setCuisine(e.target.value)}
-                  style={{ padding: '8px 12px', rounded-md, border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  style={{ padding: '8px 12px',  border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {cuisineOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -209,7 +209,7 @@ export default function GeneratePage({ initialRecipes }) {
                 <select 
                   value={time} 
                   onChange={(e) => setTime(e.target.value)}
-                  style={{ padding: '8px 12px', rounded-md, border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  style={{ padding: '8px 12px',  border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {timeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -222,7 +222,7 @@ export default function GeneratePage({ initialRecipes }) {
                 <select 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
-                  style={{ padding: '8px 12px', rounded-md, border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  style={{ padding: '8px 12px',  border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -235,7 +235,7 @@ export default function GeneratePage({ initialRecipes }) {
                 <select 
                   value={servings}
                   onChange={(e) => setServings(Number(e.target.value))}
-                  style={{ padding: '8px 12px', rounded-md, border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  style={{ padding: '8px 12px',  border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}人</option>)}
                 </select>
@@ -298,7 +298,7 @@ export default function GeneratePage({ initialRecipes }) {
                 key={day.key}
                 style={{
                   background: colors.white,
-                  rounded-xl,
+                  
                   overflow: 'hidden',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 }}
@@ -341,7 +341,7 @@ export default function GeneratePage({ initialRecipes }) {
                     <div style={{ position: 'relative' }}>
                       <div style={{ 
                         background: colors.background, 
-                        rounded-lg, 
+                         
                         overflow: 'hidden',
                         marginBottom: '8px'
                       }}>
@@ -417,7 +417,7 @@ export default function GeneratePage({ initialRecipes }) {
                         padding: '20px',
                         background: colors.background,
                         border: `2px dashed ${colors.border}`,
-                        rounded-lg,
+                        
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
@@ -505,7 +505,7 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    rounded-md,
+                    
                     fontSize: '13px',
                     background: colors.white,
                     color: colors.text,
@@ -521,7 +521,7 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    rounded-md,
+                    
                     fontSize: '13px',
                     background: colors.white,
                     color: colors.text,
@@ -537,7 +537,7 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    rounded-md,
+                    
                     fontSize: '13px',
                     background: colors.white,
                     color: colors.text,
@@ -566,7 +566,7 @@ export default function GeneratePage({ initialRecipes }) {
                       onClick={() => addRecipeToDay(selectedDay, recipe)}
                       style={{
                         background: colors.background,
-                        rounded-lg,
+                        
                         overflow: 'hidden',
                         cursor: 'pointer',
                         transition: 'transform 0.2s',
@@ -650,7 +650,7 @@ export default function GeneratePage({ initialRecipes }) {
                   background: colors.primary,
                   color: colors.white,
                   border: 'none',
-                  rounded-lg,
+                  
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: 'pointer',
