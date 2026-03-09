@@ -529,11 +529,7 @@ export default function GeneratePage() {
               </div>
 
               {/* Recipe List */}
-              <div style={{ 
-                padding: '20px', 
-                overflow: 'auto',
-                flex: 1,
-              }}>
+              <div className="p-5 overflow-auto flex-1">
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
