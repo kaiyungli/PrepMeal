@@ -389,14 +389,14 @@ export default function GeneratePage() {
                           )}
                         </div>
                         <div className='p-2.5'>
-                          <div style={{ fontWeight: '600', fontSize: '14px', color: '#3A2010', marginBottom: '4px' }}>
+                          <div className='font-semibold text-sm text-[#3A2010] mb-1'>
                             {weeklyPlan[day.key].name}
                           </div>
-                          <div style={{ display: 'flex', gap: '6px' }}>
-                            <span style={{ fontSize: '11px', color: '#AA7A50' }}>
+                          <div className='flex gap-1.5'>
+                            <span className='text-[11px] text-[#AA7A50]'>
                               ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
                             </span>
-                            <span style={{ fontSize: '11px', color: '#AA7A50' }}>
+                            <span className='text-[11px] text-[#AA7A50]'>
                               {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
                             </span>
                           </div>
