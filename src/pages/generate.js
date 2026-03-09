@@ -422,7 +422,6 @@ export default function GeneratePage() {
                         }}
                       >
                         ✕
-                      <button onClick={() => randomizeRecipe(day.key)} title="Random" style={{position:"absolute",top:"8px",right:"42px",width:"28px",height:"28px",background:"#F0A060",border:"none",borderRadius:"50%",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",zIndex:10}}>🎲</button>
                       </button>
                     </div>
                   ) : (
