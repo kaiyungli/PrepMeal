@@ -464,18 +464,7 @@ export default function GeneratePage() {
                 </h2>
                 <button
                   onClick={() => setShowRecipePicker(false)}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    background: '#F8F3E8',
-                    border: 'none',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    fontSize: '18px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
+                  className="w-9 h-9 bg-[#F8F3E8] border-none rounded-full cursor-pointer text-lg flex items-center justify-center"
                 >
                   ✕
                 </button>
