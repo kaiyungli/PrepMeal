@@ -151,7 +151,7 @@ export default function GeneratePage() {
     <>
       <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div style={{ minHeight: '100vh', background: '#F8F3E8', fontFamily: 'Inter, sans-serif' }}>
+      <div className="min-h-screen bg-[#F8F3E8] font-['Inter,sans-serif']">
         
         {/* Hero Header */}
         <section className='bg-[#9B6035] px-6 py-8 text-center'>
