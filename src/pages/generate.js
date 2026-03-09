@@ -172,17 +172,8 @@ export default function GeneratePage({ initialRecipes }) {
         </section>
 
         {/* Filter Section */}
-        <div style={{ 
-          maxWidth: '1400px', 
-          margin: '0 auto', 
-          padding: '0 24px' 
-        }}>
-          <div style={{ 
-            background: colors.white, 
-             
-            padding: '20px',
-            marginBottom: '24px',
-            className: 'shadow-sm'
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="bg-white p-5 mb-6 shadow-sm" style={{ 
           }}>
             <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
                選擇要求生成餐單
