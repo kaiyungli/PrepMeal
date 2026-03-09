@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
-  className='bg-[#F8F3E8]',
+  background: '#F8F3E8',
   primary: '#9B6035',
   secondary: '#C8D49A',
   accent: '#F0A060',
@@ -37,23 +37,9 @@ const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '素�
 const timeOptions = ['全部', '15分鐘', '30分鐘'];
 const difficultyOptions = ['全部', '易', '中', '難'];
 
-export async function getServerSideProps() {
-  try {
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
-    const { data: recipes } = await supabase.from('recipes').select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving').limit(50);
-    return { props: { initialRecipes: recipes || [] } };
-  } catch (e) {
-    return { props: { initialRecipes: [] } };
-  }
-}
-
-export default function GeneratePage({ initialRecipes }) {
+export default function GeneratePage() {
   const router = useRouter();
-  const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
+  const [allRecipes, setAllRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [cuisine, setCuisine] = useState('全部');
   const [time, setTime] = useState('全部');
@@ -159,74 +145,151 @@ export default function GeneratePage({ initialRecipes }) {
     <>
       <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div className="min-h-screen bg-[#F8F3E8] font-sans" >
+      <div style={{ minHeight: '100vh', background: colors.background, fontFamily: 'Inter, sans-serif' }}>
         
         {/* Hero Header */}
-        <section className="bg-[#9B6035] p-8 text-center" >
+        <section style={{ background: colors.primary, padding: '32px 24px', textAlign: 'center' }}>
           <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
-             一週餐單
+            🍽️ 一週餐單
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.8)', className: 'text-base' }}>
+          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem' }}>
             為你安排每日晚餐，簡單方便
           </p>
         </section>
 
+        {/* Action Bar */}
+        <div style={{ 
+          background: colors.white, 
+          padding: '16px 24px', 
+          borderBottom: `1px solid ${colors.border}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>
+              已選擇 {selectedCount} 日
+            </span>
+            {hasRecipes && (
+              <button
+                onClick={clearAll}
+                style={{
+                  padding: '6px 12px',
+                  background: 'transparent',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: colors.textLight,
+                  cursor: 'pointer',
+                }}
+              >
+                🗑️ 清空
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={generateShoppingList}
+              disabled={!hasRecipes}
+              style={{
+                padding: '10px 20px',
+                background: colors.sage,
+                color: colors.text,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              🛒 購物清單
+            </button>
+            <button
+              onClick={handleGenerate}
+              disabled={!hasRecipes}
+              style={{
+                padding: '10px 20px',
+                background: colors.accent,
+                color: colors.white,
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              ✨ 一鍵生成
+            </button>
+          </div>
+        </div>
+
         {/* Filter Section */}
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="bg-white p-5 mb-6 shadow-sm" style={{ 
+        <div style={{ 
+          maxWidth: '1400px', 
+          margin: '0 auto', 
+          padding: '0 24px' 
+        }}>
+          <div style={{ 
+            background: colors.white, 
+            borderRadius: '16px', 
+            padding: '20px',
+            marginBottom: '24px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}>
             <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
-               選擇要求生成餐單
+              🔍 選擇要求生成餐單
             </h3>
             
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div>
-                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                   菜系
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  🥢 菜系
                 </label>
                 <select 
                   value={cuisine} 
                   onChange={(e) => setCuisine(e.target.value)}
-                  className='px-3 py-2 border border-gray-300 text-sm min-w-[120px]'
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {cuisineOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
 
               <div>
-                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                   時間
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  ⏱️ 時間
                 </label>
                 <select 
                   value={time} 
                   onChange={(e) => setTime(e.target.value)}
-                  className='px-3 py-2 border border-gray-300 text-sm min-w-[120px]'
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {timeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
 
               <div>
-                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                   難度
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  💪 難度
                 </label>
                 <select 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className='px-3 py-2 border border-gray-300 text-sm min-w-[120px]'
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
 
               <div>
-                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
-                   人數
+                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                  👥 人數
                 </label>
                 <select 
                   value={servings}
                   onChange={(e) => setServings(Number(e.target.value))}
-                  className='px-3 py-2 border border-gray-300 text-sm min-w-[120px]'
+                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
                 >
                   {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}人</option>)}
                 </select>
@@ -235,75 +298,33 @@ export default function GeneratePage({ initialRecipes }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div style={{ 
-          maxWidth: '1400px', 
-          margin: '0 auto', 
-          padding: '0 24px 24px',
-          display: 'flex',
-          gap: '12px',
-          justifyContent: 'center'
-        }}>
-          <button
-            onClick={handleGenerate}
-            style={{
-              padding: '14px 32px',
-              background: colors.accent,
-              color: colors.white,
-              border: 'none',
-              className: 'rounded-full',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              className: 'shadow-lg',
-            }}
-          >
-             一鍵生成餐單
-          </button>
-          <button
-            onClick={generateShoppingList}
-            style={{
-              padding: '14px 32px',
-              background: colors.sage,
-              color: colors.text,
-              border: 'none',
-              className: 'rounded-full',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
-          >
-             購物清單
-          </button>
-        </div>
-
         {/* Weekly Meal Plan Grid */}
-        <div style={{ className: 'max-w-[1400px] mx-auto p-6' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
           <div style={{ 
             display: 'grid', 
-            className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
             gap: '16px' 
           }}>
             {DAYS.map(day => (
               <div 
                 key={day.key}
                 style={{
-                  backgroundColor: '#FFFFFF',
-                  
+                  background: colors.white,
+                  borderRadius: '16px',
                   overflow: 'hidden',
-                  className: 'shadow-sm',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 }}
               >
                 {/* Day Header */}
                 <div style={{ 
-                  className='bg-[#FFF8E7]',
+                  background: day.key === 'sat' || day.key === 'sun' ? colors.sage : colors.primary,
                   padding: '12px 16px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
                   <div>
-                    <div style={{ color: colors.white, fontWeight: '700', className='text-base' }}>
+                    <div style={{ color: colors.white, fontWeight: '700', fontSize: '15px' }}>
                       {day.label}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
@@ -332,7 +353,7 @@ export default function GeneratePage({ initialRecipes }) {
                     <div style={{ position: 'relative' }}>
                       <div style={{ 
                         background: colors.background, 
-                         
+                        borderRadius: '12px', 
                         overflow: 'hidden',
                         marginBottom: '8px'
                       }}>
@@ -357,17 +378,17 @@ export default function GeneratePage({ initialRecipes }) {
                               justifyContent: 'center',
                               fontSize: '32px'
                             }}>
-                              
+                              🍳
                             </div>
                           )}
                         </div>
                         <div style={{ padding: '10px' }}>
                           <div style={{ fontWeight: '600', fontSize: '14px', color: colors.text, marginBottom: '4px' }}>
-                            {weeklyPlan[day.key][0].name}
+                            {weeklyPlan[day.key].name}
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
-                               {getSpeedLabel(weeklyPlan[day.key][0].speed)}
+                              ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
                             </span>
                             <span style={{ fontSize: '11px', color: colors.textLight }}>
                               {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
@@ -408,7 +429,7 @@ export default function GeneratePage({ initialRecipes }) {
                         padding: '20px',
                         background: colors.background,
                         border: `2px dashed ${colors.border}`,
-                        
+                        borderRadius: '12px',
                         cursor: 'pointer',
                         display: 'flex',
                         flexDirection: 'column',
@@ -416,7 +437,7 @@ export default function GeneratePage({ initialRecipes }) {
                         justifyContent: 'center',
                         gap: '8px',
                         color: colors.textLight,
-                        className='text-sm',
+                        fontSize: '13px',
                       }}
                     >
                       <span style={{ fontSize: '24px' }}>+</span>
@@ -442,7 +463,7 @@ export default function GeneratePage({ initialRecipes }) {
             padding: '20px',
           }} onClick={() => setShowRecipePicker(false)}>
             <div style={{
-              backgroundColor: '#FFFFFF',
+              background: colors.white,
               borderRadius: '20px',
               maxWidth: '900px',
               width: '100%',
@@ -496,14 +517,14 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    
-                    className='text-sm',
-                    backgroundColor: '#FFFFFF',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
                     color: colors.text,
                   }}
                 >
                   {cuisineOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部菜系' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? '🥢 全部菜系' : opt}</option>
                   ))}
                 </select>
                 <select 
@@ -512,14 +533,14 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    
-                    className='text-sm',
-                    backgroundColor: '#FFFFFF',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
                     color: colors.text,
                   }}
                 >
                   {timeOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部時間' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? '⏱️ 全部時間' : opt}</option>
                   ))}
                 </select>
                 <select 
@@ -528,14 +549,14 @@ export default function GeneratePage({ initialRecipes }) {
                   style={{
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
-                    
-                    className='text-sm',
-                    backgroundColor: '#FFFFFF',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    background: colors.white,
                     color: colors.text,
                   }}
                 >
                   {difficultyOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? ' 全部難度' : opt}</option>
+                    <option key={opt} value={opt}>{opt === '全部' ? '💪 全部難度' : opt}</option>
                   ))}
                 </select>
               </div>
@@ -557,7 +578,7 @@ export default function GeneratePage({ initialRecipes }) {
                       onClick={() => addRecipeToDay(selectedDay, recipe)}
                       style={{
                         background: colors.background,
-                        
+                        borderRadius: '12px',
                         overflow: 'hidden',
                         cursor: 'pointer',
                         transition: 'transform 0.2s',
@@ -568,16 +589,16 @@ export default function GeneratePage({ initialRecipes }) {
                           <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
-                            
+                            🍳
                           </div>
                         )}
                       </div>
                       <div style={{ padding: '10px' }}>
-                        <div style={{ fontWeight: '600', className='text-sm', color: colors.text, marginBottom: '4px' }}>
+                        <div style={{ fontWeight: '600', fontSize: '13px', color: colors.text, marginBottom: '4px' }}>
                           {recipe.name}
                         </div>
                         <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: colors.textLight }}>
-                          <span> {getSpeedLabel(recipe.speed)}</span>
+                          <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
                           <span>{getDifficultyLabel(recipe.difficulty)}</span>
                         </div>
                       </div>
@@ -602,7 +623,7 @@ export default function GeneratePage({ initialRecipes }) {
             zIndex: 200,
           }} onClick={() => setShowShoppingList(false)}>
             <div style={{
-              backgroundColor: '#FFFFFF',
+              background: colors.white,
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '500px',
@@ -611,7 +632,7 @@ export default function GeneratePage({ initialRecipes }) {
               overflow: 'auto',
             }} onClick={e => e.stopPropagation()}>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: colors.primary, marginBottom: '20px' }}>
-                 購物清單
+                🛒 購物清單
               </h2>
               {shoppingList.length > 0 ? (
                 <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -641,7 +662,7 @@ export default function GeneratePage({ initialRecipes }) {
                   background: colors.primary,
                   color: colors.white,
                   border: 'none',
-                  
+                  borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: 'pointer',
