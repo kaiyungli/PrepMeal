@@ -181,7 +181,7 @@ export default function GeneratePage({ initialRecipes }) {
             
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
                    菜系
                 </label>
                 <select 
@@ -194,7 +194,7 @@ export default function GeneratePage({ initialRecipes }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
                    時間
                 </label>
                 <select 
@@ -207,7 +207,7 @@ export default function GeneratePage({ initialRecipes }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
                    難度
                 </label>
                 <select 
@@ -220,7 +220,7 @@ export default function GeneratePage({ initialRecipes }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ className='text-sm', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
                    人數
                 </label>
                 <select 
@@ -303,7 +303,7 @@ export default function GeneratePage({ initialRecipes }) {
                   alignItems: 'center',
                 }}>
                   <div>
-                    <div style={{ color: colors.white, fontWeight: '700', fontSize: '15px' }}>
+                    <div style={{ color: colors.white, fontWeight: '700', className='text-base' }}>
                       {day.label}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
@@ -416,7 +416,7 @@ export default function GeneratePage({ initialRecipes }) {
                         justifyContent: 'center',
                         gap: '8px',
                         color: colors.textLight,
-                        fontSize: '13px',
+                        className='text-sm',
                       }}
                     >
                       <span style={{ fontSize: '24px' }}>+</span>
@@ -497,7 +497,7 @@ export default function GeneratePage({ initialRecipes }) {
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
                     
-                    fontSize: '13px',
+                    className='text-sm',
                     backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
@@ -513,7 +513,7 @@ export default function GeneratePage({ initialRecipes }) {
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
                     
-                    fontSize: '13px',
+                    className='text-sm',
                     backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
@@ -529,7 +529,7 @@ export default function GeneratePage({ initialRecipes }) {
                     padding: '8px 12px',
                     border: `1px solid ${colors.border}`,
                     
-                    fontSize: '13px',
+                    className='text-sm',
                     backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
@@ -573,7 +573,7 @@ export default function GeneratePage({ initialRecipes }) {
                         )}
                       </div>
                       <div style={{ padding: '10px' }}>
-                        <div style={{ fontWeight: '600', fontSize: '13px', color: colors.text, marginBottom: '4px' }}>
+                        <div style={{ fontWeight: '600', className='text-sm', color: colors.text, marginBottom: '4px' }}>
                           {recipe.name}
                         </div>
                         <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: colors.textLight }}>
