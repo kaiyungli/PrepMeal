@@ -356,7 +356,7 @@ export default function GeneratePage() {
                 {/* Recipe Slot */}
                 <div className='p-4 min-h-[120px]'>
                   {weeklyPlan[day.key]?.length > 0 ? (
-                    <div style={{ position: 'relative' }}>
+                    <div className='relative'>
                       <div style={{ 
                         background: '#F8F3E8', 
                         borderRadius: '12px', 
@@ -649,8 +649,8 @@ export default function GeneratePage() {
                       display: 'flex',
                       justifyContent: 'space-between',
                     }}>
-                      <span style={{ color: '#3A2010' }}>{item.name}</span>
-                      <span style={{ color: '#AA7A50' }}>x{item.quantity}</span>
+                      <span className='text-[#3A2010]'>{item.name}</span>
+                      <span className='text-[#AA7A50]'>x{item.quantity}</span>
                     </li>
                   ))}
                 </ul>
