@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
-  background: '#F8F3E8',
+  className='bg-[#F8F3E8]',
   primary: '#9B6035',
   secondary: '#C8D49A',
   accent: '#F0A060',
@@ -296,7 +296,7 @@ export default function GeneratePage({ initialRecipes }) {
               >
                 {/* Day Header */}
                 <div style={{ 
-                  backgroundColor: '#FFF8E7',
+                  className='bg-[#FFF8E7]',
                   padding: '12px 16px',
                   display: 'flex',
                   justifyContent: 'space-between',
