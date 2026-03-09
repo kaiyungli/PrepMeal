@@ -581,7 +581,7 @@ export default function GeneratePage() {
                         transition: 'transform 0.2s',
                       }}
                     >
-                      <div style={{ height: '100px', position: 'relative', background: '#C8D49A' + '30' }}>
+                      <div className="h-[100px] relative" style={{ background: "rgba(200,212,154,0.3)" }}>
                         {recipe.image_url ? (
                           <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' />
                         ) : (
