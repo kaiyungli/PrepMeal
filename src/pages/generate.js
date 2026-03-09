@@ -569,15 +569,7 @@ export default function GeneratePage() {
         {/* Shopping List Modal */}
         {showShoppingList && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => setShowShoppingList(false)}>
-            <div style={{
-              background: '#FFFFFF',
-              borderRadius: '20px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '90%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-            }} onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl p-8 max-w-[500px] w-[90%] max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
               <h2 className='text-xl font-bold text-[#9B6035] mb-5'>
                 🛒 購物清單
               </h2>
