@@ -288,7 +288,7 @@ export default function GeneratePage({ initialRecipes }) {
               <div 
                 key={day.key}
                 style={{
-                  background: colors.white,
+                  backgroundColor: '#FFFFFF',
                   
                   overflow: 'hidden',
                   className: 'shadow-sm',
@@ -442,7 +442,7 @@ export default function GeneratePage({ initialRecipes }) {
             padding: '20px',
           }} onClick={() => setShowRecipePicker(false)}>
             <div style={{
-              background: colors.white,
+              backgroundColor: '#FFFFFF',
               borderRadius: '20px',
               maxWidth: '900px',
               width: '100%',
@@ -498,7 +498,7 @@ export default function GeneratePage({ initialRecipes }) {
                     border: `1px solid ${colors.border}`,
                     
                     fontSize: '13px',
-                    background: colors.white,
+                    backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
                 >
@@ -514,7 +514,7 @@ export default function GeneratePage({ initialRecipes }) {
                     border: `1px solid ${colors.border}`,
                     
                     fontSize: '13px',
-                    background: colors.white,
+                    backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
                 >
@@ -530,7 +530,7 @@ export default function GeneratePage({ initialRecipes }) {
                     border: `1px solid ${colors.border}`,
                     
                     fontSize: '13px',
-                    background: colors.white,
+                    backgroundColor: '#FFFFFF',
                     color: colors.text,
                   }}
                 >
@@ -602,7 +602,7 @@ export default function GeneratePage({ initialRecipes }) {
             zIndex: 200,
           }} onClick={() => setShowShoppingList(false)}>
             <div style={{
-              background: colors.white,
+              backgroundColor: '#FFFFFF',
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '500px',
