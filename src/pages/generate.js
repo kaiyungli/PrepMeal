@@ -655,7 +655,7 @@ export default function GeneratePage() {
                   ))}
                 </ul>
               ) : (
-                <p style={{ color: '#AA7A50', textAlign: 'center', padding: '20px' }}>
+                <p className='text-[#AA7A50] text-center p-5'>
                   選擇食譜以生成購物清單
                 </p>
               )}
