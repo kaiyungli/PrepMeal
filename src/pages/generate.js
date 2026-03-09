@@ -174,7 +174,7 @@ export default function GeneratePage() {
           flexWrap: 'wrap',
           gap: '12px'
         }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div className='flex gap-2 items-center'>
             <span style={{ fontSize: '14px', fontWeight: '600', color: '#3A2010' }}>
               已選擇 {selectedCount} 日
             </span>
@@ -195,7 +195,7 @@ export default function GeneratePage() {
               </button>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className='flex gap-2'>
             <button
               onClick={generateShoppingList}
               disabled={!hasRecipes}
@@ -305,7 +305,7 @@ export default function GeneratePage() {
         </div>
 
         {/* Weekly Meal Plan Grid */}
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
+        <div className='max-w-[1400px] mx-auto p-6'>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
