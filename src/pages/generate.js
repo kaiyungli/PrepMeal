@@ -232,11 +232,7 @@ export default function GeneratePage() {
         </div>
 
         {/* Filter Section */}
-        <div style={{ 
-          maxWidth: '1400px', 
-          margin: '0 auto', 
-          padding: '0 24px' 
-        }}>
+        <div className="max-w-[1400px] mx-auto px-6">
           <div style={{ 
             background: '#FFFFFF', 
             borderRadius: '16px', 
