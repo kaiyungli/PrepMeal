@@ -287,11 +287,7 @@ export default function GeneratePage() {
 
         {/* Weekly Meal Plan Grid */}
         <div className='max-w-[1400px] mx-auto p-6'>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-            gap: '16px' 
-          }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
             {DAYS.map(day => (
               <div 
                 key={day.key}
