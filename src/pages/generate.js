@@ -305,7 +305,7 @@ export default function GeneratePage({ initialRecipes }) {
               >
                 {/* Day Header */}
                 <div style={{ 
-                  background: day.key === 'sat' || day.key === 'sun' ? colors.sage : colors.primary,
+                  backgroundColor: '#FFF8E7',
                   padding: '12px 16px',
                   display: 'flex',
                   justifyContent: 'space-between',
