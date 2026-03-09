@@ -89,6 +89,12 @@ export default function GeneratePage() {
     setWeeklyPlan(prev => ({ ...prev, [dayKey]: prev[dayKey]?.filter((_, idx) => idx !== recipeIndex) || [] }));
   };
 
+  const randomizeRecipe = (dayKey) => {
+    if (filteredRecipes.length === 0) return;
+    const random = filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
+    setWeeklyPlan(prev => ({ ...prev, [dayKey]: [random] }));
+  };
+
   const clearAll = () => {
     setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
   };
