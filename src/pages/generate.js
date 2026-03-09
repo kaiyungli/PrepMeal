@@ -458,16 +458,7 @@ export default function GeneratePage() {
 
         {/* Recipe Picker Modal */}
         {showRecipePicker && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-            padding: '20px',
-          }} onClick={() => setShowRecipePicker(false)}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-5" onClick={() => setShowRecipePicker(false)}>
             <div style={{
               background: '#FFFFFF',
               borderRadius: '20px',
