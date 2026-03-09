@@ -250,7 +250,7 @@ export default function GeneratePage() {
             
             <div className='flex gap-4 flex-wrap'>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
+                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
                   🥢 菜系
                 </label>
                 <select 
@@ -263,7 +263,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
+                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
                   ⏱️ 時間
                 </label>
                 <select 
@@ -276,7 +276,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
+                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
                   💪 難度
                 </label>
                 <select 
@@ -289,7 +289,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
+                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
                   👥 人數
                 </label>
                 <select 
@@ -354,7 +354,7 @@ export default function GeneratePage() {
                 </div>
 
                 {/* Recipe Slot */}
-                <div style={{ padding: '16px', minHeight: '120px' }}>
+                <div className='p-4 min-h-[120px]'>
                   {weeklyPlan[day.key]?.length > 0 ? (
                     <div style={{ position: 'relative' }}>
                       <div style={{ 
@@ -388,7 +388,7 @@ export default function GeneratePage() {
                             </div>
                           )}
                         </div>
-                        <div style={{ padding: '10px' }}>
+                        <div className='p-2.5'>
                           <div style={{ fontWeight: '600', fontSize: '14px', color: '#3A2010', marginBottom: '4px' }}>
                             {weeklyPlan[day.key].name}
                           </div>
@@ -599,7 +599,7 @@ export default function GeneratePage() {
                           </div>
                         )}
                       </div>
-                      <div style={{ padding: '10px' }}>
+                      <div className='p-2.5'>
                         <div style={{ fontWeight: '600', fontSize: '13px', color: '#3A2010', marginBottom: '4px' }}>
                           {recipe.name}
                         </div>
