@@ -162,7 +162,7 @@ export default function GeneratePage({ initialRecipes }) {
       <div style={{ minHeight: '100vh', background: colors.background, fontFamily: 'Inter, sans-serif' }}>
         
         {/* Hero Header */}
-        <section style={{ background: colors.primary, padding: '32px 24px', textAlign: 'center' }}>
+        <section className="bg-[#9B6035] p-8 text-center" >
           <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
              一週餐單
           </h1>
@@ -287,10 +287,10 @@ export default function GeneratePage({ initialRecipes }) {
         </div>
 
         {/* Weekly Meal Plan Grid */}
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ className: 'max-w-[1400px] mx-auto p-6' }}>
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+            className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6', 
             gap: '16px' 
           }}>
             {DAYS.map(day => (
