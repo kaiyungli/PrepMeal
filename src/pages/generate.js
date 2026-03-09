@@ -487,7 +487,7 @@ export default function GeneratePage() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#9B6035' }}>
+                <h2 className='text-lg font-bold text-[#9B6035]'>
                   選擇食譜 - {DAYS.find(d => d.key === selectedDay)?.label}
                 </h2>
                 <button
@@ -637,11 +637,11 @@ export default function GeneratePage() {
               maxHeight: '80vh',
               overflow: 'auto',
             }} onClick={e => e.stopPropagation()}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#9B6035', marginBottom: '20px' }}>
+              <h2 className='text-xl font-bold text-[#9B6035] mb-5'>
                 🛒 購物清單
               </h2>
               {shoppingList.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <ul className='list-none p-0'>
                   {shoppingList.map((item, i) => (
                     <li key={i} style={{ 
                       padding: '12px 0', 
