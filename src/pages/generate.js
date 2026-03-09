@@ -164,16 +164,7 @@ export default function GeneratePage() {
         </section>
 
         {/* Action Bar */}
-        <div style={{ 
-          background: '#FFFFFF', 
-          padding: '16px 24px', 
-          borderBottom: `1px solid ${'#DDD0B0'}`,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
+        <div className="bg-white px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap justify-between items-center gap-3">
           <div className='flex gap-2 items-center'>
             <span className='text-sm font-semibold text-[#3A2010]'>
               已選擇 {selectedCount} 日
