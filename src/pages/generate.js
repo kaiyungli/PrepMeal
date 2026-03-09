@@ -233,13 +233,7 @@ export default function GeneratePage() {
 
         {/* Filter Section */}
         <div className="max-w-[1400px] mx-auto px-6">
-          <div style={{ 
-            background: '#FFFFFF', 
-            borderRadius: '16px', 
-            padding: '20px',
-            marginBottom: '24px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-          }}>
+          <div className="bg-white rounded-xl p-5 mb-6 shadow-sm">
             <h3 className='font-bold mb-4 text-[#3A2010] text-base'>
               🔍 選擇要求生成餐單
             </h3>
