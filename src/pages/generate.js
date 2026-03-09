@@ -610,15 +610,7 @@ export default function GeneratePage() {
 
         {/* Shopping List Modal */}
         {showShoppingList && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
-          }} onClick={() => setShowShoppingList(false)}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => setShowShoppingList(false)}>
             <div style={{
               background: '#FFFFFF',
               borderRadius: '20px',
