@@ -373,7 +373,7 @@ export default function GeneratePage() {
                               src={weeklyPlan[day.key][0].image_url} 
                               alt={weeklyPlan[day.key][0].name} 
                               fill 
-                              style={{ objectFit: 'cover' }} 
+                              className='object-cover' 
                             />
                           ) : (
                             <div style={{ 
@@ -592,9 +592,9 @@ export default function GeneratePage() {
                     >
                       <div style={{ height: '100px', position: 'relative', background: '#C8D49A' + '30' }}>
                         {recipe.image_url ? (
-                          <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
+                          <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>
+                          <div className='w-full h-full flex items-center justify-center text-3xl'>
                             🍳
                           </div>
                         )}
