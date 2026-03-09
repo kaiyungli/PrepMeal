@@ -159,14 +159,14 @@ export default function GeneratePage({ initialRecipes }) {
     <>
       <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div style={{ minHeight: '100vh', background: colors.background, fontFamily: 'Inter, sans-serif' }}>
+      <div className="min-h-screen bg-[#F8F3E8] font-sans" >
         
         {/* Hero Header */}
         <section className="bg-[#9B6035] p-8 text-center" >
           <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: '900', color: colors.white, marginBottom: '8px' }}>
              一週餐單
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.8)', className: 'text-base' }}>
             為你安排每日晚餐，簡單方便
           </p>
         </section>
