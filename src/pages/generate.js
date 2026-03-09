@@ -530,11 +530,7 @@ export default function GeneratePage() {
 
               {/* Recipe List */}
               <div className="p-5 overflow-auto flex-1">
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-                  gap: '12px' 
-                }}>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
                   {filteredRecipes.map(recipe => (
                     <div
                       key={recipe.id}
