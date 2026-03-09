@@ -600,10 +600,10 @@ export default function GeneratePage() {
                         )}
                       </div>
                       <div className='p-2.5'>
-                        <div style={{ fontWeight: '600', fontSize: '13px', color: '#3A2010', marginBottom: '4px' }}>
+                        <div className='font-semibold text-[13px] text-[#3A2010] mb-1'>
                           {recipe.name}
                         </div>
-                        <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: '#AA7A50' }}>
+                        <div className='flex gap-1.5 text-[11px] text-[#AA7A50]'>
                           <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
                           <span>{getDifficultyLabel(recipe.difficulty)}</span>
                         </div>
