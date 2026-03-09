@@ -256,7 +256,7 @@ export default function GeneratePage() {
                 <select 
                   value={cuisine} 
                   onChange={(e) => setCuisine(e.target.value)}
-                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
                 >
                   {cuisineOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -269,7 +269,7 @@ export default function GeneratePage() {
                 <select 
                   value={time} 
                   onChange={(e) => setTime(e.target.value)}
-                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
                 >
                   {timeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -282,7 +282,7 @@ export default function GeneratePage() {
                 <select 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
-                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
                 >
                   {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -295,7 +295,7 @@ export default function GeneratePage() {
                 <select 
                   value={servings}
                   onChange={(e) => setServings(Number(e.target.value))}
-                  style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #DDD', fontSize: '14px', minWidth: '120px' }}
+                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
                 >
                   {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}人</option>)}
                 </select>
@@ -446,7 +446,7 @@ export default function GeneratePage() {
                         fontSize: '13px',
                       }}
                     >
-                      <span style={{ fontSize: '24px' }}>+</span>
+                      <span className='text-2xl'>+</span>
                       <span>加入食譜</span>
                     </button>
                   )}
