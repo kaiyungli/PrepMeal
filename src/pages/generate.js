@@ -182,7 +182,7 @@ export default function GeneratePage({ initialRecipes }) {
              
             padding: '20px',
             marginBottom: '24px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            className: 'shadow-sm'
           }}>
             <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
                選擇要求生成餐單
@@ -260,11 +260,11 @@ export default function GeneratePage({ initialRecipes }) {
               background: colors.accent,
               color: colors.white,
               border: 'none',
-              borderRadius: '30px',
+              className: 'rounded-full',
               fontSize: '16px',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(240, 160, 96, 0.3)',
+              className: 'shadow-lg',
             }}
           >
              一鍵生成餐單
@@ -276,7 +276,7 @@ export default function GeneratePage({ initialRecipes }) {
               background: colors.sage,
               color: colors.text,
               border: 'none',
-              borderRadius: '30px',
+              className: 'rounded-full',
               fontSize: '16px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -300,7 +300,7 @@ export default function GeneratePage({ initialRecipes }) {
                   background: colors.white,
                   
                   overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  className: 'shadow-sm',
                 }}
               >
                 {/* Day Header */}
