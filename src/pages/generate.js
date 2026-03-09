@@ -175,7 +175,7 @@ export default function GeneratePage() {
           gap: '12px'
         }}>
           <div className='flex gap-2 items-center'>
-            <span style={{ fontSize: '14px', fontWeight: '600', color: '#3A2010' }}>
+            <span className='text-sm font-semibold text-[#3A2010]'>
               已選擇 {selectedCount} 日
             </span>
             {hasRecipes && (
@@ -244,11 +244,11 @@ export default function GeneratePage() {
             marginBottom: '24px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontWeight: '700', marginBottom: '16px', color: '#3A2010', fontSize: '16px' }}>
+            <h3 className='font-bold mb-4 text-[#3A2010] text-base'>
               🔍 選擇要求生成餐單
             </h3>
             
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <div className='flex gap-4 flex-wrap'>
               <div>
                 <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
                   🥢 菜系
