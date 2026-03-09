@@ -151,7 +151,7 @@ export default function GeneratePage() {
     <>
       <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div style={{ minHeight: '100vh', background: colors.background, fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: '#F8F3E8', fontFamily: 'Inter, sans-serif' }}>
         
         {/* Hero Header */}
         <section className='bg-[#9B6035] px-6 py-8 text-center'>
@@ -165,9 +165,9 @@ export default function GeneratePage() {
 
         {/* Action Bar */}
         <div style={{ 
-          background: colors.white, 
+          background: '#FFFFFF', 
           padding: '16px 24px', 
-          borderBottom: `1px solid ${colors.border}`,
+          borderBottom: `1px solid ${'#DDD0B0'}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -175,7 +175,7 @@ export default function GeneratePage() {
           gap: '12px'
         }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '14px', fontWeight: '600', color: colors.text }}>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: '#3A2010' }}>
               已選擇 {selectedCount} 日
             </span>
             {hasRecipes && (
@@ -184,10 +184,10 @@ export default function GeneratePage() {
                 style={{
                   padding: '6px 12px',
                   background: 'transparent',
-                  border: `1px solid ${colors.border}`,
+                  border: `1px solid ${'#DDD0B0'}`,
                   borderRadius: '6px',
                   fontSize: '12px',
-                  color: colors.textLight,
+                  color: '#AA7A50',
                   cursor: 'pointer',
                 }}
               >
@@ -201,8 +201,8 @@ export default function GeneratePage() {
               disabled={!hasRecipes}
               style={{
                 padding: '10px 20px',
-                background: colors.sage,
-                color: colors.text,
+                background: '#C8D49A',
+                color: '#3A2010',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '14px',
@@ -217,8 +217,8 @@ export default function GeneratePage() {
               disabled={!hasRecipes}
               style={{
                 padding: '10px 20px',
-                background: colors.accent,
-                color: colors.white,
+                background: '#F0A060',
+                color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '14px',
@@ -238,19 +238,19 @@ export default function GeneratePage() {
           padding: '0 24px' 
         }}>
           <div style={{ 
-            background: colors.white, 
+            background: '#FFFFFF', 
             borderRadius: '16px', 
             padding: '20px',
             marginBottom: '24px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontWeight: '700', marginBottom: '16px', color: colors.text, fontSize: '16px' }}>
+            <h3 style={{ fontWeight: '700', marginBottom: '16px', color: '#3A2010', fontSize: '16px' }}>
               🔍 選擇要求生成餐單
             </h3>
             
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
                   🥢 菜系
                 </label>
                 <select 
@@ -263,7 +263,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
                   ⏱️ 時間
                 </label>
                 <select 
@@ -276,7 +276,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
                   💪 難度
                 </label>
                 <select 
@@ -289,7 +289,7 @@ export default function GeneratePage() {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: colors.textLight, marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#AA7A50', marginBottom: '6px', display: 'block' }}>
                   👥 人數
                 </label>
                 <select 
@@ -315,7 +315,7 @@ export default function GeneratePage() {
               <div 
                 key={day.key}
                 style={{
-                  background: colors.white,
+                  background: '#FFFFFF',
                   borderRadius: '16px',
                   overflow: 'hidden',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
@@ -323,14 +323,14 @@ export default function GeneratePage() {
               >
                 {/* Day Header */}
                 <div style={{ 
-                  background: day.key === 'sat' || day.key === 'sun' ? colors.sage : colors.primary,
+                  background: day.key === 'sat' || day.key === 'sun' ? '#C8D49A' : '#9B6035',
                   padding: '12px 16px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}>
                   <div>
-                    <div style={{ color: colors.white, fontWeight: '700', fontSize: '15px' }}>
+                    <div style={{ color: '#FFFFFF', fontWeight: '700', fontSize: '15px' }}>
                       {day.label}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
@@ -345,7 +345,7 @@ export default function GeneratePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: colors.white,
+                    color: '#FFFFFF',
                     fontWeight: '700',
                     fontSize: '14px',
                   }}>
@@ -358,7 +358,7 @@ export default function GeneratePage() {
                   {weeklyPlan[day.key]?.length > 0 ? (
                     <div style={{ position: 'relative' }}>
                       <div style={{ 
-                        background: colors.background, 
+                        background: '#F8F3E8', 
                         borderRadius: '12px', 
                         overflow: 'hidden',
                         marginBottom: '8px'
@@ -366,7 +366,7 @@ export default function GeneratePage() {
                         <div style={{ 
                           height: '80px', 
                           position: 'relative',
-                          background: colors.sage + '30'
+                          background: '#C8D49A' + '30'
                         }}>
                           {weeklyPlan[day.key][0].image_url ? (
                             <Image 
@@ -389,14 +389,14 @@ export default function GeneratePage() {
                           )}
                         </div>
                         <div style={{ padding: '10px' }}>
-                          <div style={{ fontWeight: '600', fontSize: '14px', color: colors.text, marginBottom: '4px' }}>
+                          <div style={{ fontWeight: '600', fontSize: '14px', color: '#3A2010', marginBottom: '4px' }}>
                             {weeklyPlan[day.key].name}
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <span style={{ fontSize: '11px', color: colors.textLight }}>
+                            <span style={{ fontSize: '11px', color: '#AA7A50' }}>
                               ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
                             </span>
-                            <span style={{ fontSize: '11px', color: colors.textLight }}>
+                            <span style={{ fontSize: '11px', color: '#AA7A50' }}>
                               {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
                             </span>
                           </div>
@@ -433,8 +433,8 @@ export default function GeneratePage() {
                       style={{
                         width: '100%',
                         padding: '20px',
-                        background: colors.background,
-                        border: `2px dashed ${colors.border}`,
+                        background: '#F8F3E8',
+                        border: `2px dashed ${'#DDD0B0'}`,
                         borderRadius: '12px',
                         cursor: 'pointer',
                         display: 'flex',
@@ -442,7 +442,7 @@ export default function GeneratePage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        color: colors.textLight,
+                        color: '#AA7A50',
                         fontSize: '13px',
                       }}
                     >
@@ -469,7 +469,7 @@ export default function GeneratePage() {
             padding: '20px',
           }} onClick={() => setShowRecipePicker(false)}>
             <div style={{
-              background: colors.white,
+              background: '#FFFFFF',
               borderRadius: '20px',
               maxWidth: '900px',
               width: '100%',
@@ -482,12 +482,12 @@ export default function GeneratePage() {
               {/* Modal Header */}
               <div style={{ 
                 padding: '20px 24px', 
-                borderBottom: `1px solid ${colors.border}`,
+                borderBottom: `1px solid ${'#DDD0B0'}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: colors.primary }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#9B6035' }}>
                   選擇食譜 - {DAYS.find(d => d.key === selectedDay)?.label}
                 </h2>
                 <button
@@ -495,7 +495,7 @@ export default function GeneratePage() {
                   style={{
                     width: '36px',
                     height: '36px',
-                    background: colors.background,
+                    background: '#F8F3E8',
                     border: 'none',
                     borderRadius: '50%',
                     cursor: 'pointer',
@@ -512,7 +512,7 @@ export default function GeneratePage() {
               {/* Filters */}
               <div style={{ 
                 padding: '16px 24px', 
-                borderBottom: `1px solid ${colors.border}`,
+                borderBottom: `1px solid ${'#DDD0B0'}`,
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: '12px',
@@ -522,11 +522,11 @@ export default function GeneratePage() {
                   onChange={e => setCuisine(e.target.value)}
                   style={{
                     padding: '8px 12px',
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${'#DDD0B0'}`,
                     borderRadius: '8px',
                     fontSize: '13px',
-                    background: colors.white,
-                    color: colors.text,
+                    background: '#FFFFFF',
+                    color: '#3A2010',
                   }}
                 >
                   {cuisineOptions.map(opt => (
@@ -538,11 +538,11 @@ export default function GeneratePage() {
                   onChange={e => setTime(e.target.value)}
                   style={{
                     padding: '8px 12px',
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${'#DDD0B0'}`,
                     borderRadius: '8px',
                     fontSize: '13px',
-                    background: colors.white,
-                    color: colors.text,
+                    background: '#FFFFFF',
+                    color: '#3A2010',
                   }}
                 >
                   {timeOptions.map(opt => (
@@ -554,11 +554,11 @@ export default function GeneratePage() {
                   onChange={e => setDifficulty(e.target.value)}
                   style={{
                     padding: '8px 12px',
-                    border: `1px solid ${colors.border}`,
+                    border: `1px solid ${'#DDD0B0'}`,
                     borderRadius: '8px',
                     fontSize: '13px',
-                    background: colors.white,
-                    color: colors.text,
+                    background: '#FFFFFF',
+                    color: '#3A2010',
                   }}
                 >
                   {difficultyOptions.map(opt => (
@@ -583,14 +583,14 @@ export default function GeneratePage() {
                       key={recipe.id}
                       onClick={() => addRecipeToDay(selectedDay, recipe)}
                       style={{
-                        background: colors.background,
+                        background: '#F8F3E8',
                         borderRadius: '12px',
                         overflow: 'hidden',
                         cursor: 'pointer',
                         transition: 'transform 0.2s',
                       }}
                     >
-                      <div style={{ height: '100px', position: 'relative', background: colors.sage + '30' }}>
+                      <div style={{ height: '100px', position: 'relative', background: '#C8D49A' + '30' }}>
                         {recipe.image_url ? (
                           <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} />
                         ) : (
@@ -600,10 +600,10 @@ export default function GeneratePage() {
                         )}
                       </div>
                       <div style={{ padding: '10px' }}>
-                        <div style={{ fontWeight: '600', fontSize: '13px', color: colors.text, marginBottom: '4px' }}>
+                        <div style={{ fontWeight: '600', fontSize: '13px', color: '#3A2010', marginBottom: '4px' }}>
                           {recipe.name}
                         </div>
-                        <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: colors.textLight }}>
+                        <div style={{ display: 'flex', gap: '6px', fontSize: '11px', color: '#AA7A50' }}>
                           <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
                           <span>{getDifficultyLabel(recipe.difficulty)}</span>
                         </div>
@@ -629,7 +629,7 @@ export default function GeneratePage() {
             zIndex: 200,
           }} onClick={() => setShowShoppingList(false)}>
             <div style={{
-              background: colors.white,
+              background: '#FFFFFF',
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '500px',
@@ -637,7 +637,7 @@ export default function GeneratePage() {
               maxHeight: '80vh',
               overflow: 'auto',
             }} onClick={e => e.stopPropagation()}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: colors.primary, marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#9B6035', marginBottom: '20px' }}>
                 🛒 購物清單
               </h2>
               {shoppingList.length > 0 ? (
@@ -645,17 +645,17 @@ export default function GeneratePage() {
                   {shoppingList.map((item, i) => (
                     <li key={i} style={{ 
                       padding: '12px 0', 
-                      borderBottom: `1px solid ${colors.border}`,
+                      borderBottom: `1px solid ${'#DDD0B0'}`,
                       display: 'flex',
                       justifyContent: 'space-between',
                     }}>
-                      <span style={{ color: colors.text }}>{item.name}</span>
-                      <span style={{ color: colors.textLight }}>x{item.quantity}</span>
+                      <span style={{ color: '#3A2010' }}>{item.name}</span>
+                      <span style={{ color: '#AA7A50' }}>x{item.quantity}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p style={{ color: colors.textLight, textAlign: 'center', padding: '20px' }}>
+                <p style={{ color: '#AA7A50', textAlign: 'center', padding: '20px' }}>
                   選擇食譜以生成購物清單
                 </p>
               )}
@@ -665,8 +665,8 @@ export default function GeneratePage() {
                   width: '100%',
                   marginTop: '20px',
                   padding: '14px',
-                  background: colors.primary,
-                  color: colors.white,
+                  background: '#9B6035',
+                  color: '#FFFFFF',
                   border: 'none',
                   borderRadius: '12px',
                   fontSize: '16px',
