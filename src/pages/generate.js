@@ -330,10 +330,10 @@ export default function GeneratePage() {
                   alignItems: 'center',
                 }}>
                   <div>
-                    <div style={{ color: '#FFFFFF', fontWeight: '700', fontSize: '15px' }}>
+                    <div className='text-white font-bold text-[15px]'>
                       {day.label}
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                    <div className='text-white/80 text-xs'>
                       {day.date}
                     </div>
                   </div>
