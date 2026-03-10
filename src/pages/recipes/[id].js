@@ -23,8 +23,8 @@ const colors = {
 export default function RecipeDetail({ recipe, error }) {
   if (error || !recipe) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F8F3E8', padding: '40px', textAlign: 'center' }}>
-        <p style={{ color: '#3A2010' }}>找不到食譜</p>
+      <div className='min-h-screen bg-[#F8F3E8] py-10 text-center'>
+        <p className='text-[#3A2010]'>找不到食譜</p>
       </div>
     );
   }
@@ -42,37 +42,37 @@ export default function RecipeDetail({ recipe, error }) {
       
       {/* Header */}
       <header style={{ position: 'sticky', top: 0, background: '#F8F3E8', borderBottom: `1px solid ${'#DDD0B0'}`, zIndex: 100, padding: '12px 20px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#9B6035' }}>
-            <span style={{ fontSize: '20px' }}>←</span>
-            <span style={{ fontSize: '18px', fontWeight: '700' }}>今晚食乜</span>
+        <div className='max-w-[1200px] mx-auto flex items-center justify-between'>
+          <Link href="/" className='flex items-center gap-2 no-underline text-[#9B6035]'>
+            <span className='text-xl'>←</span>
+            <span className='text-lg font-bold'>今晚食乜</span>
           </Link>
         </div>
       </header>
 
       {/* Hero Image */}
-      <div style={{ position: 'relative', height: '300px', background: colors.secondary }}>
+      <div style={{ position: 'relative', height: '300px', background: '#C8D49A' }}>
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.name} fill style={{ objectFit: 'cover' }} priority />
+          <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' priority />
         ) : (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>🍳</div>
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
         <div style={{ position: 'absolute', bottom: '24px', left: '20px', right: '20px', color: 'white' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '8px' }}>{recipe.name}</h1>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <h1 className='text-3xl font-extrabold mb-2'>{recipe.name}</h1>
+          <div className='flex gap-2 flex-wrap'>
             {recipe.difficulty && (
-              <span style={{ background: '#9B6035', padding: '4px 12px', borderRadius: '16px', fontSize: '14px' }}>
+              <span className='bg-[#9B6035] px-3 py-1 rounded-xl text-sm'>
                 {difficultyLabels[recipe.difficulty] || recipe.difficulty}
               </span>
             )}
             {recipe.speed && (
-              <span style={{ background: '#F0A060', padding: '4px 12px', borderRadius: '16px', fontSize: '14px' }}>
+              <span className='bg-[#F0A060] px-3 py-1 rounded-xl text-sm'>
                 {speedLabels[recipe.speed] || recipe.speed}
               </span>
             )}
             {recipe.method && (
-              <span style={{ background: colors.secondary, padding: '4px 12px', borderRadius: '16px', fontSize: '14px', color: '#3A2010' }}>
+              <span style={{ background: '#C8D49A', padding: '4px 12px', borderRadius: '16px', fontSize: '14px', color: '#3A2010' }}>
                 {methodLabels[recipe.method] || recipe.method}
               </span>
             )}
@@ -93,20 +93,20 @@ export default function RecipeDetail({ recipe, error }) {
           
           {/* Description Card */}
           {recipe.description && (
-            <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: `1px solid ${'#DDD0B0'}` }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '12px' }}>簡介</h3>
+            <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
+              <h3 className='text-base font-bold text-[#3A2010] mb-3'>簡介</h3>
               <p style={{ color: '#AA7A50', lineHeight: '1.6' }}>{recipe.description}</p>
             </div>
           )}
 
           {/* Ingredients Card */}
-          <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: `1px solid ${'#DDD0B0'}` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '16px' }}>🥬 食材</h3>
+          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
+            <h3 className='text-base font-bold text-[#3A2010] mb-4'>🥬 食材</h3>
             {(recipe.ingredients && recipe.ingredients.length > 0) ? (
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {recipe.ingredients.map((ing, i) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < recipe.ingredients.length - 1 ? `1px solid ${'#DDD0B0'}` : 'none' }}>
-                    <span style={{ color: '#3A2010' }}>{ing.ingredient_id || ing.ingredient}</span>
+                    <span className='text-[#3A2010]'>{ing.ingredient_id || ing.ingredient}</span>
                     <span style={{ color: '#AA7A50' }}>{ing.quantity} {ing.unit}</span>
                   </li>
                 ))}
@@ -117,8 +117,8 @@ export default function RecipeDetail({ recipe, error }) {
           </div>
 
           {/* Cooking Steps Card */}
-          <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: `1px solid ${'#DDD0B0'}` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '16px' }}>👨‍🍳 烹飪步驟</h3>
+          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
+            <h3 className='text-base font-bold text-[#3A2010] mb-4'>👨‍🍳 烹飪步驟</h3>
             {(recipe.steps && recipe.steps.length > 0) ? (
               <ol style={{ listStyle: 'none', padding: 0, margin: 0, counterReset: 'step' }}>
                 {recipe.steps.map((step, i) => (
@@ -147,7 +147,7 @@ export default function RecipeDetail({ recipe, error }) {
 
           {/* Tips Card */}
           <div style={{ background: colors.tipsBg, borderRadius: '16px', padding: '20px', border: `1px solid ${'#F0A060'}` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '12px' }}>💡 小貼士</h3>
+            <h3 className='text-base font-bold text-[#3A2010] mb-3'>💡 小貼士</h3>
             <p style={{ color: '#AA7A50', lineHeight: '1.6' }}>
               蕃茄炒蛋關鍵在於控制火候，雞蛋不宜過熟，保持嫩滑口感。蕃茄選擇較熟的會更甜更多汁。
             </p>
@@ -159,7 +159,7 @@ export default function RecipeDetail({ recipe, error }) {
         <div style={{ gridColumn: 'span 4' }}>
           
           {/* Action Buttons */}
-          <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: `1px solid ${'#DDD0B0'}` }}>
+          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <button style={{ 
               width: '100%', padding: '14px', background: '#9B6035', color: 'white', border: 'none', 
               borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '12px' 
@@ -175,8 +175,8 @@ export default function RecipeDetail({ recipe, error }) {
           </div>
 
           {/* Nutrition Card */}
-          <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', marginBottom: '24px', border: `1px solid ${'#DDD0B0'}` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '16px' }}>📊 營養資料</h3>
+          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
+            <h3 className='text-base font-bold text-[#3A2010] mb-4'>📊 營養資料</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
               <div style={{ textAlign: 'center', padding: '12px', background: '#F8F3E8', borderRadius: '8px' }}>
                 <div style={{ fontSize: '20px', fontWeight: '700', color: '#9B6035' }}>{recipe.calories_per_serving || '-'}</div>
@@ -199,7 +199,7 @@ export default function RecipeDetail({ recipe, error }) {
 
           {/* Related Recipes */}
           <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', border: `1px solid ${'#DDD0B0'}` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#3A2010', marginBottom: '16px' }}>相關食譜</h3>
+            <h3 className='text-base font-bold text-[#3A2010] mb-4'>相關食譜</h3>
             <p style={{ color: '#AA7A50', fontSize: '14px' }}>暫無相關食譜</p>
           </div>
 
