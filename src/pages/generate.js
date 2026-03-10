@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
-import Modal from '@/components/ui/Modal';
+//
 import Footer from '@/components/layout/Footer';
 
 const colors = {
@@ -47,7 +48,7 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  // removed selectedRecipe
   const [selectedDay, setSelectedDay] = useState(null);
   
   // Weekly meal plan - each day has optional recipe
@@ -290,7 +291,7 @@ export default function GeneratePage() {
                     <div className='relative'>
                       <div 
                         className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2 cursor-pointer"
-                        onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
+                        onClick={() => router.push(`/recipes/${weeklyPlan[day.key][0].id}`)}
                       >
                         <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
                           {weeklyPlan[day.key][0].image_url ? (
@@ -460,34 +461,6 @@ export default function GeneratePage() {
             </div>
           </div>
         )}
-
-        {/* Recipe Detail Modal */}
-        <Modal
-          isOpen={!!selectedRecipe}
-          title={selectedRecipe?.name}
-          onClose={() => setSelectedRecipe(null)}
-          maxWidth="600px"
-        >
-          {selectedRecipe && (
-            <>
-              {selectedRecipe.image_url && (
-                <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
-                  <Image src={selectedRecipe.image_url} alt={selectedRecipe.name} fill className="object-cover" />
-                </div>
-              )}
-              
-              <div className="flex gap-4 mb-4">
-                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">⏱️ {getSpeedLabel(selectedRecipe.speed)}</span>
-                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">{getDifficultyLabel(selectedRecipe.difficulty)}</span>
-                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">{selectedRecipe.cuisine}</span>
-              </div>
-              
-              {selectedRecipe.description && (
-                <p className="text-gray-600 mb-4">{selectedRecipe.description}</p>
-              )}
-            </>
-          )}
-        </Modal>
 
         <Footer />
       </div>
