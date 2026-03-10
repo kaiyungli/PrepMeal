@@ -46,6 +46,7 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   
   // Weekly meal plan - each day has optional recipe
@@ -286,7 +287,10 @@ export default function GeneratePage() {
                 <div className='p-4 min-h-[120px]'>
                   {weeklyPlan[day.key]?.length > 0 ? (
                     <div className='relative'>
-                      <div className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2">
+                      <div 
+                        className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2 cursor-pointer"
+                        onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
+                      >
                         <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
                           {weeklyPlan[day.key][0].image_url ? (
                             <Image 
@@ -452,6 +456,39 @@ export default function GeneratePage() {
               >
                 關閉
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Recipe Detail Modal */}
+        {selectedRecipe && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-5" onClick={() => setSelectedRecipe(null)}>
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-auto p-6" onClick={e => e.stopPropagation()}>
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-[#9B6035]">{selectedRecipe.name}</h2>
+                <button onClick={() => setSelectedRecipe(null)} className="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+              </div>
+              
+              {selectedRecipe.image_url && (
+                <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
+                  <Image src={selectedRecipe.image_url} alt={selectedRecipe.name} fill className="object-cover" />
+                </div>
+              )}
+              
+              <div className="flex gap-4 mb-4">
+                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">⏱️ {getSpeedLabel(selectedRecipe.speed)}</span>
+                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">{getDifficultyLabel(selectedRecipe.difficulty)}</span>
+                <span className="bg-[#F8F3E8] px-3 py-1 rounded-full text-sm">{selectedRecipe.cuisine}</span>
+              </div>
+              
+              {selectedRecipe.description && (
+                <p className="text-gray-600 mb-4">{selectedRecipe.description}</p>
+              )}
+              
+              <h3 className="font-bold text-lg mb-2">Ingredients</h3>
+              <ul className="list-disc pl-5 mb-4">
+                <li>Ingredients list from recipe</li>
+              </ul>
             </div>
           </div>
         )}
