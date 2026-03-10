@@ -193,28 +193,106 @@ export default function GeneratePage() {
     );
   };
 
-  // Generate meal plan based on settings
+// Generate meal plan based on settings with balancing rules
   const handleGenerate = () => {
     const newPlan = {};
     const daysToGenerate = DAYS.slice(0, daysPerWeek);
+    const usedRecipeIds = new Set();
+    const recentProteins = [];
+    
+    // Categorize recipes
+    const completeMeals = filteredRecipes.filter(r => r.dish_type === 'main' || r.dish_type === 'complete');
+    const sideDishes = filteredRecipes.filter(r => r.dish_type === 'side');
+    
+    // Helper: check if recipe uses excluded protein
+    const hasExcludedProtein = (recipe) => {
+      const protein = recipe.protein || [];
+      return exclusions.some(ex => protein.includes(ex));
+    };
+    
+    // Helper: check for dietary match
+    const matchesDiet = (recipe) => {
+      if (dietMode === 'general') return true;
+      const diet = recipe.diet || [];
+      if (dietMode === 'vegetarian') return diet.includes('vegetarian') || diet.includes('tofu');
+      if (dietMode === 'egg_lacto') return diet.includes('vegetarian') || diet.includes('egg') || diet.includes('dairy');
+      return true;
+    };
     
     daysToGenerate.forEach(day => {
       const dayRecipes = [];
-      const availableRecipes = [...filteredRecipes];
-      
-      // Shuffle for variety
-      for (let i = availableRecipes.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [availableRecipes[i], availableRecipes[j]] = [availableRecipes[j], availableRecipes[i]];
-      }
       
       for (let dish = 0; dish < dishesPerDay; dish++) {
         const slotKey = `${day.key}-${dish}`;
-        if (lockedSlots[slotKey]) continue; // Skip locked slots
+        if (lockedSlots[slotKey]) continue;
         
-        if (availableRecipes.length > 0) {
-          const recipe = availableRecipes.shift();
+        let candidates;
+        
+        if (dishesPerDay === 1) {
+          // 1 dish: use complete meals only
+          candidates = completeMeals.filter(r => 
+            !usedRecipeIds.has(r.id) && 
+            !hasExcludedProtein(r) &&
+            matchesDiet(r)
+          );
+        } else if (dishesPerDay === 2) {
+          // 2 dishes: 1 main + 1 side
+          if (dish === 0) {
+            candidates = completeMeals.filter(r => 
+              !usedRecipeIds.has(r.id) && 
+              !hasExcludedProtein(r) &&
+              matchesDiet(r)
+            );
+          } else {
+            candidates = sideDishes.filter(r => 
+              !usedRecipeIds.has(r.id) && 
+              !hasExcludedProtein(r)
+            );
+          }
+        } else {
+          // 3 dishes: main + side + flexible
+          if (dish === 0) {
+            candidates = completeMeals.filter(r => 
+              !usedRecipeIds.has(r.id) && 
+              !hasExcludedProtein(r) &&
+              matchesDiet(r)
+            );
+          } else if (dish === 1) {
+            candidates = sideDishes.filter(r => 
+              !usedRecipeIds.has(r.id) && 
+              !hasExcludedProtein(r)
+            );
+          } else {
+            candidates = filteredRecipes.filter(r => 
+              !usedRecipeIds.has(r.id) && 
+              !hasExcludedProtein(r)
+            );
+          }
+        }
+        
+        // Balance: avoid same protein within 2 days
+        if (recentProteins.length > 0) {
+          candidates = candidates.filter(r => {
+            const protein = r.protein?.[0];
+            if (!protein) return true;
+            return !recentProteins.slice(-2).includes(protein);
+          });
+        }
+        
+        // Shuffle for variety
+        for (let i = candidates.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        }
+        
+        if (candidates.length > 0) {
+          const recipe = candidates[0];
           dayRecipes.push(recipe);
+          usedRecipeIds.add(recipe.id);
+          
+          if (recipe.protein?.[0]) {
+            recentProteins.push(recipe.protein[0]);
+          }
         }
       }
       
