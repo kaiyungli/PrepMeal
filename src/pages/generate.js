@@ -305,14 +305,7 @@ export default function GeneratePage() {
                               className='object-cover' 
                             />
                           ) : (
-                            <div style={{ 
-                              width: '100%', 
-                              height: '100%', 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'center',
-                              fontSize: '32px'
-                            }}>
+                            <div className="w-full h-full flex items-center justify-center text-3xl">
                               🍳
                             </div>
                           )}
