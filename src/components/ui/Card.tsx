@@ -26,7 +26,7 @@ export default function Card({
   return (
     <div 
       onClick={onClick}
-      className={`bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-${
+      className={`bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-100 hover:shadow-2xl transition-all cursor-${
         onClick ? 'pointer' : 'default'
       } ${className}`}
     >
@@ -47,7 +47,7 @@ export default function Card({
           </button>
         )}
       </div>
-      <div className="p-4">
+      <div className="p-5">
         <h3 className="font-semibold text-lg mb-2 text-[#3A2010]">{title}</h3>
         {description && (
           <p className="text-sm mb-3 text-[#AA7A50]">{description}</p>
