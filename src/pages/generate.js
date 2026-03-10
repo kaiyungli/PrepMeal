@@ -604,6 +604,36 @@ export default function GeneratePage() {
             >
               ✨ 一鍵生成
             </button>
+            <button
+              onClick={async () => {
+                const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
+                if (!name) return;
+                
+                try {
+                  await fetch('/api/menus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      name,
+                      menu_data: {
+                        daysPerWeek,
+                        dishesPerDay,
+                        servings,
+                        weeklyPlan,
+                        settings: { dietMode, exclusions, cuisines, cookingConstraints, budget, ingredientReuse }
+                      }
+                    })
+                  });
+                  alert('已保存餐單！');
+                } catch (e) {
+                  alert('保存失敗: ' + e.message);
+                }
+              }}
+              disabled={!hasRecipes}
+              className="px-5 py-2.5 bg-[#9B6035] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
+            >
+              💾 保存
+            </button>
           </div>
         </div>
 
