@@ -72,12 +72,12 @@ export default function RecipeDetail({ recipe, error }) {
               </span>
             )}
             {recipe.method && (
-              <span style={{ background: '#C8D49A', padding: '4px 12px', borderRadius: '16px', fontSize: '14px', color: '#3A2010' }}>
+              <span className='bg-[#C8D49A] px-3 py-1 rounded-xl text-sm text-[#3A2010]'>
                 {methodLabels[recipe.method] || recipe.method}
               </span>
             )}
             {recipe.calories_per_serving && (
-              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '16px', fontSize: '14px' }}>
+              <span className='bg-white/20 px-3 py-1 rounded-xl text-sm'>
                 {recipe.calories_per_serving} 卡
               </span>
             )}
@@ -95,7 +95,7 @@ export default function RecipeDetail({ recipe, error }) {
           {recipe.description && (
             <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
               <h3 className='text-base font-bold text-[#3A2010] mb-3'>簡介</h3>
-              <p style={{ color: '#AA7A50', lineHeight: '1.6' }}>{recipe.description}</p>
+              <p className='text-[#AA7A50] leading-relaxed'>{recipe.description}</p>
             </div>
           )}
 
@@ -103,7 +103,7 @@ export default function RecipeDetail({ recipe, error }) {
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>🥬 食材</h3>
             {(recipe.ingredients && recipe.ingredients.length > 0) ? (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <ul className='list-none p-0 m-0'>
                 {recipe.ingredients.map((ing, i) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < recipe.ingredients.length - 1 ? `1px solid ${'#DDD0B0'}` : 'none' }}>
                     <span className='text-[#3A2010]'>{ing.ingredient_id || ing.ingredient}</span>
@@ -148,7 +148,7 @@ export default function RecipeDetail({ recipe, error }) {
           {/* Tips Card */}
           <div style={{ background: colors.tipsBg, borderRadius: '16px', padding: '20px', border: `1px solid ${'#F0A060'}` }}>
             <h3 className='text-base font-bold text-[#3A2010] mb-3'>💡 小貼士</h3>
-            <p style={{ color: '#AA7A50', lineHeight: '1.6' }}>
+            <p className='text-[#AA7A50] leading-relaxed'>
               蕃茄炒蛋關鍵在於控制火候，雞蛋不宜過熟，保持嫩滑口感。蕃茄選擇較熟的會更甜更多汁。
             </p>
           </div>
