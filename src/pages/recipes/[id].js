@@ -189,7 +189,7 @@ export default function RecipeDetail({ recipe, error }) {
           </div>
 
           {/* Related Recipes */}
-          <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', border: `1px solid ${'#DDD0B0'}` }}>
+          <div className='bg-[#FEFCF8] rounded-xl p-5 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>相關食譜</h3>
             <p className='text-[#AA7A50] text-sm'>暫無相關食譜</p>
           </div>
