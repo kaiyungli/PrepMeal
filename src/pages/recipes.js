@@ -61,11 +61,11 @@ export default function RecipesPage({ initialRecipes }) {
     <Layout>
       <Head><title>今晚食乜 - 食譜</title></Head>
       
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#264653', marginBottom: '8px' }}>全部食譜</h1>
-        <p style={{ color: '#6b7280', marginBottom: '32px' }}>共 {recipes.length} 款食譜</p>
+      <div className="max-w-[1000px] mx-auto px-5 py-10">
+        <h1 className="text-[28px] font-bold text-[#264653] mb-2">全部食譜</h1>
+        <p className="text-gray-500 mb-8">共 {recipes.length} 款食譜</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
           {recipes.map((recipe) => (
             <Card
               key={recipe.id}
@@ -84,10 +84,10 @@ export default function RecipesPage({ initialRecipes }) {
       <Modal isOpen={!!selectedRecipe} title={selectedRecipe?.name} onClose={() => setSelectedRecipe(null)}>
         {selectedRecipe && (
           <div>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
+          <p className="text-sm text-gray-500 mb-4">
               {selectedRecipe.cooking_time}分鐘 · {selectedRecipe.difficulty} · {selectedRecipe.calories} kcal
             </p>
-            <p style={{ fontSize: '14px', color: '#264653', marginBottom: '16px' }}>
+            <p className="text-sm text-[#264653] mb-4">
               {selectedRecipe.description}
             </p>
           </div>
