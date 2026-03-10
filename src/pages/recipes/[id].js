@@ -41,7 +41,7 @@ export default function RecipeDetail({ recipe, error }) {
       </Head>
       
       {/* Header */}
-      <header style={{ position: 'sticky', top: 0, background: '#F8F3E8', borderBottom: `1px solid ${'#DDD0B0'}`, zIndex: 100, padding: '12px 20px' }}>
+      <header className='sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3'>
         <div className='max-w-[1200px] mx-auto flex items-center justify-between'>
           <Link href="/" className='flex items-center gap-2 no-underline text-[#9B6035]'>
             <span className='text-xl'>←</span>
@@ -146,7 +146,7 @@ export default function RecipeDetail({ recipe, error }) {
           </div>
 
           {/* Tips Card */}
-          <div style={{ background: colors.tipsBg, borderRadius: '16px', padding: '20px', border: `1px solid ${'#F0A060'}` }}>
+          <div className='bg-[#FFF9E6] rounded-xl p-5 border border-[#F0A060]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-3'>💡 小貼士</h3>
             <p className='text-[#AA7A50] leading-relaxed'>
               蕃茄炒蛋關鍵在於控制火候，雞蛋不宜過熟，保持嫩滑口感。蕃茄選擇較熟的會更甜更多汁。
