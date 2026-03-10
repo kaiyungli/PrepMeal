@@ -456,14 +456,7 @@ export default function GeneratePage() {
                 <select 
                   value={time}
                   onChange={e => setTime(e.target.value)}
-                  style={{
-                    padding: '8px 12px',
-                    border: `1px solid ${'#DDD0B0'}`,
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    background: '#FFFFFF',
-                    color: '#3A2010',
-                  }}
+                  className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-sm bg-white text-[#3A2010]"
                 >
                   {timeOptions.map(opt => (
                     <option key={opt} value={opt}>{opt === '全部' ? '⏱️ 全部時間' : opt}</option>
