@@ -123,10 +123,7 @@ export default function RecipeDetail({ recipe, error }) {
               <ol className='list-none p-0 m-0'>
                 {recipe.steps.map((step, i) => (
                   <li key={i} className='flex gap-4 mb-5 relative'>
-                    <div style={{ 
-                      width: '32px', height: '32px', borderRadius: '50%', background: '#9B6035', color: 'white', 
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 
-                    }}>
+                    <div className='w-8 h-8 rounded-full bg-[#9B6035] text-white flex items-center justify-center font-bold flex-shrink-0'>
                       {step.step_no}
                     </div>
                     <div className='flex-1 pt-1'>
