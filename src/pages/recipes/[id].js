@@ -107,12 +107,12 @@ export default function RecipeDetail({ recipe, error }) {
                 {recipe.ingredients.map((ing, i) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < recipe.ingredients.length - 1 ? `1px solid ${'#DDD0B0'}` : 'none' }}>
                     <span className='text-[#3A2010]'>{ing.ingredient_id || ing.ingredient}</span>
-                    <span style={{ color: '#AA7A50' }}>{ing.quantity} {ing.unit}</span>
+                    <span className='text-[#AA7A50]'>{ing.quantity} {ing.unit}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p style={{ color: '#AA7A50' }}>暫無食材資料</p>
+              <p className='text-[#AA7A50]'>暫無食材資料</p>
             )}
           </div>
 
@@ -120,17 +120,17 @@ export default function RecipeDetail({ recipe, error }) {
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>👨‍🍳 烹飪步驟</h3>
             {(recipe.steps && recipe.steps.length > 0) ? (
-              <ol style={{ listStyle: 'none', padding: 0, margin: 0, counterReset: 'step' }}>
+              <ol className='list-none p-0 m-0'>
                 {recipe.steps.map((step, i) => (
-                  <li key={i} style={{ display: 'flex', gap: '16px', marginBottom: '20px', position: 'relative' }}>
+                  <li key={i} className='flex gap-4 mb-5 relative'>
                     <div style={{ 
                       width: '32px', height: '32px', borderRadius: '50%', background: '#9B6035', color: 'white', 
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', flexShrink: 0 
                     }}>
                       {step.step_no}
                     </div>
-                    <div style={{ flex: 1, paddingTop: '4px' }}>
-                      <p style={{ color: '#3A2010', lineHeight: '1.5' }}>{step.text}</p>
+                    <div className='flex-1 pt-1'>
+                      <p className='text-[#3A2010] leading-relaxed'>{step.text}</p>
                       {step.time_seconds > 0 && (
                         <span style={{ fontSize: '12px', color: '#AA7A50', marginTop: '4px', display: 'block' }}>
                         ⏱ {Math.floor(step.time_seconds / 60)}分鐘
@@ -141,7 +141,7 @@ export default function RecipeDetail({ recipe, error }) {
                 ))}
               </ol>
             ) : (
-              <p style={{ color: '#AA7A50' }}>暫無步驟資料</p>
+              <p className='text-[#AA7A50]'>暫無步驟資料</p>
             )}
           </div>
 
