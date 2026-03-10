@@ -544,18 +544,7 @@ export default function GeneratePage() {
               )}
               <button
                 onClick={() => setShowShoppingList(false)}
-                style={{
-                  width: '100%',
-                  marginTop: '20px',
-                  padding: '14px',
-                  background: '#9B6035',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
+                className="w-full mt-5 py-3.5 bg-[#9B6035] text-white border-none rounded-xl text-base font-semibold cursor-pointer"
               >
                 關閉
               </button>
