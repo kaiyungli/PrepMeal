@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Head from 'next/head';
 import { Button } from '@/components';
 import { Layout } from '@/components';
+import RecipeCard from '@/components/RecipeCard';
 
 
 
@@ -167,29 +168,7 @@ export default function Home() {
               const proteinLabels = { egg: '蛋', chicken: '雞', beef: '牛', pork: '豬', tofu: '豆腐', seafood: '海鮮', fish: '魚', vegetarian: '素' };
               const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
               return (
-              <div key={recipe.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => window.location.href = '/recipes/' + recipe.id}>
-                {recipe.image_url ? (
-              <div className="h-48 relative">
-                <Image src={recipe.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'} alt={recipe.name} fill className="object-cover" />
-              </div>
-            ) : (
-              <div className="h-48 bg-gray-200" />
-            )}
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
-                  <div className="flex items-center gap-4 text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
-                    <span>⏱️ {methodLabels[recipe.method] || recipe.speed || '-'}</span>
-                    <span>💪 {difficultyLabels[recipe.difficulty] || '-'}</span>
-                    <span>🔥 {recipe.calories_per_serving || '-'} 卡</span>
-                  </div>
-                  <div className="flex gap-2 mt-2 flex-wrap">
-                    <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#14B8A6', color: 'white' }}>{cuisineLabels[recipe.cuisine] || recipe.cuisine || '-'}</span>
-                    {tags.map((tag, i) => (
-                      <span key={i} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}>{proteinLabels[tag] || tag}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => window.location.href = '/recipes/' + recipe.id} />
             );})}
           </div>
 

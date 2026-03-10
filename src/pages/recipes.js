@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Layout, Card, Modal } from '@/components';
+import { Layout, Modal } from '@/components';
+import RecipeCard from '@/components/RecipeCard';
 import supabase from '@/lib/supabase';
 
 export default function RecipesPage({ initialRecipes }) {
@@ -67,15 +68,11 @@ export default function RecipesPage({ initialRecipes }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
           {recipes.map((recipe) => (
-            <Card
+            <RecipeCard
               key={recipe.id}
-              title={recipe.name}
-              description={`${recipe.cooking_time}分鐘 · ${recipe.calories}kcal · 蛋白${recipe.protein}g · 碳水${recipe.carbs}g`}
-              image={recipe.image_url}
-              tags={recipe.tags}
-              favorite={favoriteIds.includes(recipe.id)}
-              onFavorite={() => toggleFavorite(recipe.id)}
+              recipe={recipe}
               onClick={() => setSelectedRecipe(recipe)}
+              onFavorite={() => toggleFavorite(recipe.id)}
             />
           ))}
         </div>
