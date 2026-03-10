@@ -51,14 +51,14 @@ export default function RecipeDetail({ recipe, error }) {
       </header>
 
       {/* Hero Image */}
-      <div style={{ position: 'relative', height: '300px', background: '#C8D49A' }}>
+      <div className='relative h-[300px] bg-[#C8D49A]'>
         {recipe.image_url ? (
           <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' priority />
         ) : (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>🍳</div>
+          <div className='h-full flex items-center justify-center text-6xl'>🍳</div>
         )}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
-        <div style={{ position: 'absolute', bottom: '24px', left: '20px', right: '20px', color: 'white' }}>
+        <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+        <div className='absolute bottom-6 left-5 right-5 text-white'>
           <h1 className='text-3xl font-extrabold mb-2'>{recipe.name}</h1>
           <div className='flex gap-2 flex-wrap'>
             {recipe.difficulty && (
