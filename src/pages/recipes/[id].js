@@ -178,20 +178,20 @@ export default function RecipeDetail({ recipe, error }) {
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>📊 營養資料</h3>
             <div className='grid grid-cols-2 gap-3'>
-              <div style={{ textAlign: 'center', padding: '12px', background: '#F8F3E8', borderRadius: '8px' }}>
-                <div style={{ fontSize: '20px', fontWeight: '700', color: '#9B6035' }}>{recipe.calories_per_serving || '-'}</div>
+              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
+                <div className='text-xl font-bold text-[#9B6035]'>{recipe.calories_per_serving || '-'}</div>
                 <div className='text-xs text-[#AA7A50]'>卡路里</div>
               </div>
-              <div style={{ textAlign: 'center', padding: '12px', background: '#F8F3E8', borderRadius: '8px' }}>
-                <div style={{ fontSize: '20px', fontWeight: '700', color: '#9B6035' }}>{recipe.protein_g || '-'}</div>
+              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
+                <div className='text-xl font-bold text-[#9B6035]'>{recipe.protein_g || '-'}</div>
                 <div className='text-xs text-[#AA7A50]'>蛋白質(g)</div>
               </div>
-              <div style={{ textAlign: 'center', padding: '12px', background: '#F8F3E8', borderRadius: '8px' }}>
-                <div style={{ fontSize: '20px', fontWeight: '700', color: '#9B6035' }}>{recipe.carbs_g || '-'}</div>
+              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
+                <div className='text-xl font-bold text-[#9B6035]'>{recipe.carbs_g || '-'}</div>
                 <div className='text-xs text-[#AA7A50]'>碳水(g)</div>
               </div>
-              <div style={{ textAlign: 'center', padding: '12px', background: '#F8F3E8', borderRadius: '8px' }}>
-                <div style={{ fontSize: '20px', fontWeight: '700', color: '#9B6035' }}>{recipe.fat_g || '-'}</div>
+              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
+                <div className='text-xl font-bold text-[#9B6035]'>{recipe.fat_g || '-'}</div>
                 <div className='text-xs text-[#AA7A50]'>脂肪(g)</div>
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function RecipeDetail({ recipe, error }) {
           {/* Related Recipes */}
           <div style={{ background: '#FEFCF8', borderRadius: '16px', padding: '20px', border: `1px solid ${'#DDD0B0'}` }}>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>相關食譜</h3>
-            <p style={{ color: '#AA7A50', fontSize: '14px' }}>暫無相關食譜</p>
+            <p className='text-[#AA7A50] text-sm'>暫無相關食譜</p>
           </div>
 
         </div>
