@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout, Modal } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 import supabase from '@/lib/supabase';
 
 export default function RecipesPage({ initialRecipes }) {
@@ -78,18 +79,11 @@ export default function RecipesPage({ initialRecipes }) {
         </div>
       </div>
 
-      <Modal isOpen={!!selectedRecipe} title={selectedRecipe?.name} onClose={() => setSelectedRecipe(null)}>
-        {selectedRecipe && (
-          <div>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
-              {selectedRecipe.cooking_time}分鐘 · {selectedRecipe.difficulty} · {selectedRecipe.calories} kcal
-            </p>
-            <p style={{ fontSize: '14px', color: '#264653', marginBottom: '16px' }}>
-              {selectedRecipe.description}
-            </p>
-          </div>
-        )}
-      </Modal>
+      <RecipeDetailModal 
+        isOpen={!!selectedRecipe} 
+        onClose={() => setSelectedRecipe(null)} 
+        recipe={selectedRecipe} 
+      />
     </Layout>
   );
 }

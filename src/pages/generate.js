@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Header from '@/components/layout/Header';
 import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRouter } from 'next/router';
 //
 import Footer from '@/components/layout/Footer';
@@ -50,6 +51,7 @@ export default function GeneratePage() {
   const [difficulty, setDifficulty] = useState('全部');
   const [servings, setServings] = useState(2);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   
   // Weekly meal plan - each day has optional recipe
@@ -292,7 +294,7 @@ export default function GeneratePage() {
                     <div className='relative'>
                       <RecipeCard 
                         recipe={weeklyPlan[day.key][0]} 
-                        onClick={() => router.push('/recipes/' + weeklyPlan[day.key][0].id)}
+                        onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
                         imageHeightClass="h-20"
                       />
                       <button
@@ -436,6 +438,11 @@ export default function GeneratePage() {
           </div>
         )}
 
+        <RecipeDetailModal 
+          isOpen={!!selectedRecipe} 
+          onClose={() => setSelectedRecipe(null)} 
+          recipe={selectedRecipe} 
+        />
         <Footer />
       </div>
     </>
