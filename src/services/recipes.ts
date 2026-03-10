@@ -92,7 +92,7 @@ export function filterRecipes(recipes: any[], filters: {
 }
 
 // Fetch full recipe with ingredients and steps
-export async function getRecipeDetail(id: number) {
+export async function getRecipeDetail(id: number | string) {
   // Fetch recipe
   const recipeRes = await fetch(`${SUPABASE_URL}/rest/v1/recipes?id=eq.${id}&select=*`, {
     headers: {
