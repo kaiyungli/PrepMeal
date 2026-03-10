@@ -326,22 +326,7 @@ export default function GeneratePage() {
                       </div>
                       <button
                         onClick={() => removeRecipeFromDay(day.key, 0)}
-                        style={{
-                          position: 'absolute',
-                          top: '8px',
-                          right: '8px',
-                          width: '28px',
-                          height: '28px',
-                          background: 'rgba(255,255,255,0.9)',
-                          border: 'none',
-                          borderRadius: '50%',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '14px',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        }}
+                        className="absolute top-2 right-2 w-7 h-7 bg-white/90 border-none rounded-full cursor-pointer flex items-center justify-center text-sm shadow-sm"
                       >
                         ✕
                       </button>
