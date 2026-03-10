@@ -105,7 +105,7 @@ export default function RecipeDetail({ recipe, error }) {
             {(recipe.ingredients && recipe.ingredients.length > 0) ? (
               <ul className='list-none p-0 m-0'>
                 {recipe.ingredients.map((ing, i) => (
-                  <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < recipe.ingredients.length - 1 ? `1px solid ${'#DDD0B0'}` : 'none' }}>
+                  <li key={i} className='flex justify-between py-2.5 border-b border-[#DDD0B0]'>
                     <span className='text-[#3A2010]'>{ing.ingredient_id || ing.ingredient}</span>
                     <span className='text-[#AA7A50]'>{ing.quantity} {ing.unit}</span>
                   </li>
