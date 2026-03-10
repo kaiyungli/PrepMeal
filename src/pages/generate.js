@@ -172,16 +172,8 @@ export default function GeneratePage() {
             {hasRecipes && (
               <button
                 onClick={clearAll}
-                style={{
-                  padding: '6px 12px',
-                  background: 'transparent',
-                  border: `1px solid ${'#DDD0B0'}`,
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  color: '#AA7A50',
-                  cursor: 'pointer',
-                }}
-              >
+                className="px-3 py-1.5 bg-transparent border border-[#DDD0B0] rounded-md text-xs text-[#AA7A50] cursor-pointer"
+                >
                 🗑️ 清空
               </button>
             )}
