@@ -286,12 +286,7 @@ export default function GeneratePage() {
                 <div className='p-4 min-h-[120px]'>
                   {weeklyPlan[day.key]?.length > 0 ? (
                     <div className='relative'>
-                      <div style={{ 
-                        background: '#F8F3E8', 
-                        borderRadius: '12px', 
-                        overflow: 'hidden',
-                        marginBottom: '8px'
-                      }}>
+                      <div className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2">
                         <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
                           {weeklyPlan[day.key][0].image_url ? (
                             <Image 
