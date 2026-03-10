@@ -436,13 +436,7 @@ export default function GeneratePage() {
               </div>
 
               {/* Filters */}
-              <div style={{ 
-                padding: '16px 24px', 
-                borderBottom: `1px solid ${'#DDD0B0'}`,
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '12px',
-              }}>
+              <div className="px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap gap-3">
                 <select 
                   value={cuisine}
                   onChange={e => setCuisine(e.target.value)}
