@@ -40,7 +40,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite }: RecipeCardPr
       <div className="p-5">
         <h3 className="font-semibold text-lg mb-2 text-[#3A2010]">{recipe.name}</h3>
         <p className="text-sm text-[#AA7A50]">
-          {recipe.cooking_time || recipe.calories_per_serving ? `${recipe.cooking_time || '30'}分鐘 · ${recipe.calories_per_serving || '0'}卡路里` : '30分鐘 · 0卡路里'}
+          {recipe.cooking_time || '30'}分鐘 · {recipe.calories_per_serving || '0'}卡路里 · 蛋白{recipe.protein || '0'}g
         </p>
         {/* Tags */}
         <div className="flex gap-2 mt-3 flex-wrap">
