@@ -458,12 +458,7 @@ export default function GeneratePage() {
               {shoppingList.length > 0 ? (
                 <ul className='list-none p-0'>
                   {shoppingList.map((item, i) => (
-                    <li key={i} style={{ 
-                      padding: '12px 0', 
-                      borderBottom: `1px solid ${'#DDD0B0'}`,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                    }}>
+                    <li key={i} className="py-3 border-b border-[#DDD0B0] flex justify-between">
                       <span className='text-[#3A2010]'>{item.name}</span>
                       <span className='text-[#AA7A50]'>x{item.quantity}</span>
                     </li>
