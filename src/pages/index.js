@@ -70,7 +70,7 @@ export default function Home() {
       <Head><title>今晚食乜 🥘</title></Head>
       
       {/* Hero */}
-      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: '#F8F3E8' }}>
+      <section className="pt-12 pb-20 overflow-hidden relative" className="bg-[#F8F3E8]">
         {/* Decorative circles */}
         <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full -z10" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
         <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full -z10" style={{ backgroundColor: '#F0A060', opacity: 0.4 }} />
@@ -81,16 +81,16 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
             <div>
-              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: '#3A2010', lineHeight: 1.1 }}>
+              <h1 className="text-[clamp(3rem,10vw,6rem)] font-black text-[#3A2010] leading-[1.1]">
                 今晚<br/>食乜?
               </h1>
-              <p style={{ fontSize: '1.25rem', color: '#AA7A50', marginTop: '1rem', marginBottom: '2rem' }}>
+              <p className="text-xl text-[#AA7A50] mt-4 mb-8">
                 每日晚餐話你知，一click生成一週餐單
               </p>
               <button 
                 onClick={() => window.location.href = '/generate'}
                 className="px-12 py-4 rounded-full text-white font-semibold text-lg hover:scale-105 transition-transform"
-                style={{ backgroundColor: '#9B6035' }}
+                className="bg-[#9B6035]"
               >
                 生成食譜
               </button>
@@ -100,12 +100,12 @@ export default function Home() {
               <div className="bg-white rounded-2xl shadow-xl p-5 border border-gray-100 w-full max-w-sm mx-auto">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#9B6035' }}>
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" className="bg-[#9B6035]">
                       <span>📅</span>
                     </div>
-                    <span className="text-sm text-gray-700" style={{ fontWeight: 600 }}>今週餐單</span>
+                    <span className="text-sm text-gray-700" className="font-semibold">今週餐單</span>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#9B6035' }}>
+                  <span className="text-xs px-2 py-0.5 rounded-full text-white" className="bg-[#9B6035]">
                     7天
                   </span>
                 </div>
@@ -119,13 +119,13 @@ export default function Home() {
                     { dish: '豉油雞翼' },
                     { dish: '薑蔥蒸雞' },
                   ].map((recipe, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#fff' }}>
-                      <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
-                      <span className="text-xs" style={{ color: '#9B6035' }}>{'✓ ' + (recipe?.dish || recipe?.name || '未選擇')}</span>
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" className="bg-white">
+                      <span className="text-xs font-medium text-gray-700">{days[i]}</span>
+                      <span className="text-xs text-[#9B6035]">{'✓ ' + (recipe?.dish || recipe?.name || '未選擇')}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" style={{ backgroundColor: '#9B6035' }}>
+                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" className="bg-[#9B6035]">
                   生成購物清單 →
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16" style={{ backgroundColor: '#fff' }}>
+      <section className="py-16" className="bg-white">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -144,10 +144,10 @@ export default function Home() {
               { num: '03', title: '開始買餸', desc: '自動生成購物清單，超市直接按清單採購。' },
             ].map((step, i) => (
               <div key={step.num} className="relative text-center">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg" style={{ backgroundColor: '#14B8A6', fontWeight: 800, fontSize: '1.125rem' }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg" className="bg-teal-500 font-extrabold text-lg">
                   {step.num}
                 </div>
-                <h3 className="text-gray-900 mb-2" style={{ fontWeight: 600 }}>{step.title}</h3>
+                <h3 className="text-gray-900 mb-2" className="font-semibold">{step.title}</h3>
                 <p className="text-gray-500 text-sm">{step.desc}</p>
               </div>
             ))}
@@ -155,7 +155,7 @@ export default function Home() {
         </div>
       </section>
       {/* Featured Recipes */}
-            <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
+            <section className="py-16" className="bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12" className="text-[#3A2010]">精選食譜</h2>
           
