@@ -277,18 +277,7 @@ export default function GeneratePage() {
                       {day.date}
                     </div>
                   </div>
-                  <div style={{ 
-                    width: '32px', 
-                    height: '32px', 
-                    background: 'rgba(255,255,255,0.2)', 
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#FFFFFF',
-                    fontWeight: '700',
-                    fontSize: '14px',
-                  }}>
+                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">
                     {day.short}
                   </div>
                 </div>
