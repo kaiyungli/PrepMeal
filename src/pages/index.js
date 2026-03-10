@@ -8,6 +8,7 @@ import { Button } from '@/components';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { getRecipeDetail } from '@/services/recipes';
 
 
 
@@ -16,6 +17,7 @@ export default function Home() {
   const [visibleCount, setVisibleCount] = useState(4);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
   useEffect(() => {
@@ -170,7 +172,12 @@ export default function Home() {
               const proteinLabels = { egg: '蛋', chicken: '雞', beef: '牛', pork: '豬', tofu: '豆腐', seafood: '海鮮', fish: '魚', vegetarian: '素' };
               const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
               return (
-              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => setSelectedRecipe(recipe)} />
+              <RecipeCard key={recipe.id} recipe={recipe} onClick={async () => {
+                setModalLoading(true);
+                const fullRecipe = await getRecipeDetail(recipe.id);
+                setSelectedRecipe(fullRecipe);
+                setModalLoading(false);
+              }} />
             );})}
           </div>
 
@@ -185,7 +192,8 @@ export default function Home() {
       <RecipeDetailModal 
         isOpen={!!selectedRecipe} 
         onClose={() => setSelectedRecipe(null)} 
-        recipe={selectedRecipe} 
+        recipe={selectedRecipe}
+        loading={modalLoading}
       />
     </Layout>
   );

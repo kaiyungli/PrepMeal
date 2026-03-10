@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { getRecipeDetail } from '@/services/recipes';
 import { useRouter } from 'next/router';
 //
 import Footer from '@/components/layout/Footer';
@@ -52,6 +53,7 @@ export default function GeneratePage() {
   const [servings, setServings] = useState(2);
   const [showRecipePicker, setShowRecipePicker] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   
   // Weekly meal plan - each day has optional recipe
@@ -294,7 +296,12 @@ export default function GeneratePage() {
                     <div className='relative'>
                       <RecipeCard 
                         recipe={weeklyPlan[day.key][0]} 
-                        onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
+                        onClick={async () => {
+                          setModalLoading(true);
+                          const fullRecipe = await getRecipeDetail(weeklyPlan[day.key][0].id);
+                          setSelectedRecipe(fullRecipe);
+                          setModalLoading(false);
+                        }}
                         imageHeightClass="h-20"
                       />
                       <button
@@ -441,7 +448,8 @@ export default function GeneratePage() {
         <RecipeDetailModal 
           isOpen={!!selectedRecipe} 
           onClose={() => setSelectedRecipe(null)} 
-          recipe={selectedRecipe} 
+          recipe={selectedRecipe}
+          loading={modalLoading}
         />
         <Footer />
       </div>

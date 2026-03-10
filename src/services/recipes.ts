@@ -90,3 +90,49 @@ export function filterRecipes(recipes: any[], filters: {
   
   return filtered;
 }
+
+// Fetch full recipe with ingredients and steps
+export async function getRecipeDetail(id: number) {
+  // Fetch recipe
+  const recipeRes = await fetch(`${SUPABASE_URL}/rest/v1/recipes?id=eq.${id}&select=*`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  const recipes = await recipeRes.json();
+  const recipe = recipes[0];
+  
+  if (!recipe) return null;
+  
+  // Fetch ingredients
+  const ingRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/recipe_ingredients?recipe_id=eq.${id}&select=quantity,unit,ingredients(name)`,
+    {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    }
+  );
+  const recipeIngredients = await ingRes.json();
+  const ingredients = recipeIngredients.map((ri: any) => ({
+    name: ri.ingredients?.name || '',
+    quantity: ri.quantity,
+    unit: ri.unit
+  }));
+  
+  // Fetch steps
+  const stepsRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/recipe_steps?recipe_id=eq.${id}&select=step_no,text,time_seconds&order=step_no`,
+    {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    }
+  );
+  const steps = await stepsRes.json();
+  
+  return { ...recipe, ingredients, steps };
+}

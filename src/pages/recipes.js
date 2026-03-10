@@ -3,12 +3,14 @@ import Head from 'next/head';
 import { Layout, Modal } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { getRecipeDetail } from '@/services/recipes';
 import supabase from '@/lib/supabase';
 
 export default function RecipesPage({ initialRecipes }) {
   const [recipes, setRecipes] = useState(initialRecipes || []);
   
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [favoriteIds, setFavoriteIds] = useState([]);
 
@@ -72,7 +74,12 @@ export default function RecipesPage({ initialRecipes }) {
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
-              onClick={() => setSelectedRecipe(recipe)}
+              onClick={async () => {
+                setModalLoading(true);
+                const fullRecipe = await getRecipeDetail(recipe.id);
+                setSelectedRecipe(fullRecipe);
+                setModalLoading(false);
+              }}
               onFavorite={() => toggleFavorite(recipe.id)}
             />
           ))}
@@ -82,7 +89,8 @@ export default function RecipesPage({ initialRecipes }) {
       <RecipeDetailModal 
         isOpen={!!selectedRecipe} 
         onClose={() => setSelectedRecipe(null)} 
-        recipe={selectedRecipe} 
+        recipe={selectedRecipe}
+        loading={modalLoading}
       />
     </Layout>
   );
