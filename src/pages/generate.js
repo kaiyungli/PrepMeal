@@ -198,16 +198,7 @@ export default function GeneratePage() {
             <button
               onClick={handleGenerate}
               disabled={!hasRecipes}
-              style={{
-                padding: '10px 20px',
-                background: '#F0A060',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
+              className="px-5 py-2.5 bg-[#F0A060] text-white border-none rounded-lg text-sm font-semibold cursor-pointer"
             >
               ✨ 一鍵生成
             </button>
