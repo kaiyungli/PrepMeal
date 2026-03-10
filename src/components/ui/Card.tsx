@@ -26,7 +26,7 @@ export default function Card({
   return (
     <div 
       onClick={onClick}
-      className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all cursor-${
+      className={`bg-[#FEFCF8] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-[#DDD0B0] cursor-${
         onClick ? 'pointer' : 'default'
       } ${className}`}
     >
@@ -47,10 +47,10 @@ export default function Card({
           </button>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="text-base font-semibold text-brown mb-2">{title}</h3>
+      <div className="p-5">
+        <h3 className="text-base font-bold text-[#3A2010] mb-2">{title}</h3>
         {description && (
-          <p className="text-sm text-gray-500 mb-3">{description}</p>
+          <p className="text-sm text-[#AA7A50] mb-3">{description}</p>
         )}
         {tags && tags.length > 0 && (
           <div className="flex gap-1.5 flex-wrap">
