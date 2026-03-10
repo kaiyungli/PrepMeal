@@ -268,13 +268,7 @@ export default function GeneratePage() {
                 className="bg-white rounded-xl overflow-hidden shadow-sm"
               >
                 {/* Day Header */}
-                <div style={{ 
-                  background: day.key === 'sat' || day.key === 'sun' ? '#C8D49A' : '#9B6035',
-                  padding: '12px 16px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
+                <div className="px-4 py-3 flex justify-between items-center" style={{ background: day.key === 'sat' || day.key === 'sun' ? '#C8D49A' : '#9B6035' }}>
                   <div>
                     <div className='text-white font-bold text-[15px]'>
                       {day.label}
