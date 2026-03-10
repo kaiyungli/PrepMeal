@@ -26,15 +26,15 @@ export default function Card({
   return (
     <div 
       onClick={onClick}
-      className={`bg-white rounded-2xl overflow-hidden shadow-xl border border-gray-100 hover:shadow-2xl transition-all cursor-${
+      className={`bg-[#FEFCF8] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-[#DDD0B0] cursor-${
         onClick ? 'pointer' : 'default'
       } ${className}`}
     >
-      <div className="h-48 relative">
+      <div className="h-40 relative">
         {image ? (
           <Image src={image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'} alt={title || 'recipe'} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
         ) : (
-          <div className="flex items-center justify-center h-full bg-gray-200">
+          <div className="flex items-center justify-center h-full bg-gray-100">
             <span className="text-5xl">🍳</span>
           </div>
         )}
@@ -48,14 +48,14 @@ export default function Card({
         )}
       </div>
       <div className="p-5">
-        <h3 className="font-semibold text-lg mb-2 text-[#3A2010]">{title}</h3>
+        <h3 className="text-base font-bold text-[#3A2010] mb-2">{title}</h3>
         {description && (
-          <p className="text-sm mb-3 text-[#AA7A50]">{description}</p>
+          <p className="text-sm text-[#AA7A50] mb-3">{description}</p>
         )}
         {tags && tags.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {tags.map((tag, i) => (
-              <span key={i} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#14B8A6', color: 'white' }}>
+              <span key={i} className="bg-yellow text-white px-2 py-0.5 rounded text-xs">
                 {tag}
               </span>
             ))}
