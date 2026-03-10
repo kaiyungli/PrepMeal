@@ -157,7 +157,7 @@ export default function Home() {
       {/* Featured Recipes */}
             <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
         <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>精選食譜</h2>
+          <h2 className="text-3xl font-bold text-center mb-12" className="text-[#3A2010]">精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {visibleRecipes.map((recipe) => {
@@ -176,16 +176,16 @@ export default function Home() {
               <div className="h-48 bg-gray-200" />
             )}
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#3A2010' }}>{recipe.name}</h3>
-                  <div className="flex items-center gap-4 text-sm mb-2" style={{ color: '#AA7A50' }}>
+                  <h3 className="font-semibold text-lg mb-2" className="text-[#3A2010]">{recipe.name}</h3>
+                  <div className="flex items-center gap-4 text-sm mb-2" className="text-[#AA7A50]">
                     <span>⏱️ {methodLabels[recipe.method] || recipe.speed || '-'}</span>
                     <span>💪 {difficultyLabels[recipe.difficulty] || '-'}</span>
                     <span>🔥 {recipe.calories_per_serving || '-'} 卡</span>
                   </div>
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    <span className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#14B8A6', color: 'white' }}>{cuisineLabels[recipe.cuisine] || recipe.cuisine || '-'}</span>
+                    <span className="px-2 py-1 rounded text-xs" className="bg-teal-500 text-white">{cuisineLabels[recipe.cuisine] || recipe.cuisine || '-'}</span>
                     {tags.map((tag, i) => (
-                      <span key={i} className="px-2 py-1 rounded text-xs" style={{ backgroundColor: '#C8D49A', color: '#3A2010' }}>{proteinLabels[tag] || tag}</span>
+                      <span key={i} className="px-2 py-1 rounded text-xs" className="bg-[#C8D49A] text-[#3A2010]">{proteinLabels[tag] || tag}</span>
                     ))}
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export default function Home() {
 
           {hasMore && (
             <div ref={loaderRef} className="text-center py-8">
-              <p className="text-sm" style={{ color: '#AA7A50' }}>載入更多...</p>
+              <p className="text-sm" className="text-[#AA7A50]">載入更多...</p>
             </div>
           )}
         </div>
