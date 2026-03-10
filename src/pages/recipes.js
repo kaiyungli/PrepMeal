@@ -106,7 +106,7 @@ export async function getServerSideProps() {
     
     const { data: recipes } = await supabase
       .from('recipes')
-      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving')
+      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein')
       .eq('is_public', true)
       .limit(50);
     
