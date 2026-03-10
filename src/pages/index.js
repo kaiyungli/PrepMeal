@@ -70,27 +70,27 @@ export default function Home() {
       <Head><title>今晚食乜 🥘</title></Head>
       
       {/* Hero */}
-      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: 'var(--background)' }}>
+      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: '#F8F3E8' }}>
         {/* Decorative circles */}
-        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full -z10" style={{ backgroundColor: 'var(--secondary)', opacity: 0.6 }} />
-        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full -z10" style={{ backgroundColor: 'var(--accent)', opacity: 0.4 }} />
-        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full -z10" style={{ backgroundColor: 'var(--accent)', opacity: 0.3 }} />
-        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full -z10" style={{ backgroundColor: 'var(--primary)', opacity: 0.2 }} />
-        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full -z10" style={{ backgroundColor: 'var(--secondary)', opacity: 0.4 }} />
+        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full -z10" style={{ backgroundColor: '#C8D49A', opacity: 0.6 }} />
+        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full -z10" style={{ backgroundColor: '#F0A060', opacity: 0.4 }} />
+        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full -z10" style={{ backgroundColor: '#F0A060', opacity: 0.3 }} />
+        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full -z10" style={{ backgroundColor: '#9B6035', opacity: 0.2 }} />
+        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full -z10" style={{ backgroundColor: '#C8D49A', opacity: 0.4 }} />
         
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
             <div>
-              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: 'var(--foreground)', lineHeight: 1.1 }}>
+              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: '#3A2010', lineHeight: 1.1 }}>
                 今晚<br/>食乜?
               </h1>
-              <p style={{ fontSize: '1.25rem', color: 'var(--muted-foreground)', marginTop: '1rem', marginBottom: '2rem' }}>
+              <p style={{ fontSize: '1.25rem', color: '#AA7A50', marginTop: '1rem', marginBottom: '2rem' }}>
                 每日晚餐話你知，一click生成一週餐單
               </p>
               <button 
                 onClick={() => window.location.href = '/generate'}
                 className="px-12 py-4 rounded-full text-white font-semibold text-lg hover:scale-105 transition-transform"
-                style={{ backgroundColor: 'var(--primary)' }}
+                style={{ backgroundColor: '#9B6035' }}
               >
                 生成食譜
               </button>
@@ -155,9 +155,9 @@ export default function Home() {
         </div>
       </section>
       {/* Featured Recipes */}
-            <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
+            <section className="py-16" style={{ backgroundColor: '#F8F3E8' }}>
         <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: '#3A2010' }}>精選食譜</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {visibleRecipes.map((recipe) => {
@@ -176,8 +176,8 @@ export default function Home() {
               <div className="h-48 bg-gray-200" />
             )}
                 <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{recipe.name}</h3>
-                  <div className="flex items-center gap-4 text-sm mb-2" style={{ color: 'var(--muted-foreground)' }}>
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#3A2010' }}>{recipe.name}</h3>
+                  <div className="flex items-center gap-4 text-sm mb-2" style={{ color: '#AA7A50' }}>
                     <span>⏱️ {methodLabels[recipe.method] || recipe.speed || '-'}</span>
                     <span>💪 {difficultyLabels[recipe.difficulty] || '-'}</span>
                     <span>🔥 {recipe.calories_per_serving || '-'} 卡</span>
@@ -195,7 +195,7 @@ export default function Home() {
 
           {hasMore && (
             <div ref={loaderRef} className="text-center py-8">
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>載入更多...</p>
+              <p className="text-sm" style={{ color: '#AA7A50' }}>載入更多...</p>
             </div>
           )}
         </div>
