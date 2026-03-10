@@ -328,21 +328,7 @@ export default function GeneratePage() {
                         setSelectedDay(day.key);
                         setShowRecipePicker(true);
                       }}
-                      style={{
-                        width: '100%',
-                        padding: '20px',
-                        background: '#F8F3E8',
-                        border: `2px dashed ${'#DDD0B0'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        color: '#AA7A50',
-                        fontSize: '13px',
-                      }}
+                      className="w-full p-5 bg-[#F8F3E8] border-2 border-dashed border-[#DDD0B0] rounded-lg cursor-pointer flex flex-col items-center justify-center gap-2 text-[#AA7A50] text-sm"
                     >
                       <span className='text-2xl'>+</span>
                       <span>加入食譜</span>
