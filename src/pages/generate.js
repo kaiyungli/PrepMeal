@@ -188,7 +188,7 @@ export default function GeneratePage() {
             </button>
             <button
               onClick={handleGenerate}
-              disabled={!hasRecipes}
+              disabled={!allRecipes || allRecipes.length === 0}
               className="px-5 py-2.5 bg-[#F0A060] text-white border-none rounded-lg text-sm font-semibold cursor-pointer"
             >
               ✨ 一鍵生成
@@ -343,16 +343,7 @@ export default function GeneratePage() {
         {/* Recipe Picker Modal */}
         {showRecipePicker && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-5" onClick={() => setShowRecipePicker(false)}>
-            <div style={{
-              background: '#FFFFFF',
-              borderRadius: '20px',
-              maxWidth: '900px',
-              width: '100%',
-              maxHeight: '85vh',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-            }} onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl max-w-[900px] w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
               
               {/* Modal Header */}
               <div className="px-6 py-5 border-b border-[#DDD0B0] flex justify-between items-center">
