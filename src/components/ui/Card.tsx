@@ -48,9 +48,9 @@ export default function Card({
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--foreground)' }}>{title}</h3>
+        <h3 className="font-semibold text-lg mb-2 text-[#3A2010]">{title}</h3>
         {description && (
-          <p className="text-sm mb-3" style={{ color: 'var(--muted-foreground)' }}>{description}</p>
+          <p className="text-sm mb-3 text-[#AA7A50]">{description}</p>
         )}
         {tags && tags.length > 0 && (
           <div className="flex gap-2 flex-wrap">
