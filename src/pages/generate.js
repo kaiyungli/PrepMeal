@@ -473,7 +473,7 @@ export default function GeneratePage() {
           maxWidth="600px"
         >
           {selectedRecipe && (
-            <RecipeDetail recipe={selectedRecipe} />
+            <RecipeDetail recipe={selectedRecipe} compact />
           )}
         </Modal>
 
