@@ -487,15 +487,9 @@ export default function GeneratePage() {
                     <div
                       key={recipe.id}
                       onClick={() => addRecipeToDay(selectedDay, recipe)}
-                      style={{
-                        background: '#F8F3E8',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s',
-                      }}
+                      className="bg-[#F8F3E8] rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
                     >
-                      <div className="h-[100px] relative" style={{ background: "rgba(200,212,154,0.3)" }}>
+                      <div className="h-[100px] relative bg-[#C8D49A]/30">
                         {recipe.image_url ? (
                           <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' />
                         ) : (
