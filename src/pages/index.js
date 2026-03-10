@@ -12,8 +12,8 @@ import { getRecipeDetail } from '@/services/recipes';
 
 
 
-export default function Home() {
-  const [allRecipes, setAllRecipes] = useState(typeof window !== 'undefined' ? [] : (typeof initialRecipes !== 'undefined' ? initialRecipes : []));
+export default function Home({ initialRecipes }) {
+  const [allRecipes, setAllRecipes] = useState(initialRecipes || []);
   const [visibleCount, setVisibleCount] = useState(4);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
