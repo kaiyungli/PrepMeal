@@ -78,10 +78,14 @@ export default function RecipesPage({ initialRecipes }) {
                 setModalLoading(true);
                 fetch('/api/recipes/' + recipe.id).then(res => res.json()).then(fullRecipe => {
                   console.log('Full recipe:', fullRecipe);
+                  if (fullRecipe.error) {
+                    alert('Error: ' + fullRecipe.error);
+                  }
                   setSelectedRecipe(fullRecipe);
                   setModalLoading(false);
                 }).catch(err => {
                   console.error('Error:', err);
+                  alert('Error loading recipe');
                   setModalLoading(false);
                 });
               }}

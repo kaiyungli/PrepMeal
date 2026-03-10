@@ -173,14 +173,17 @@ export default function Home({ initialRecipes }) {
               const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
               return (
               <RecipeCard key={recipe.id} recipe={recipe} onClick={() => {
-                console.log('RecipeCard clicked:', recipe.id);
                 setModalLoading(true);
                 fetch('/api/recipes/' + recipe.id).then(res => res.json()).then(fullRecipe => {
                   console.log('Full recipe:', fullRecipe);
+                  if (fullRecipe.error) {
+                    alert('Error: ' + fullRecipe.error);
+                  }
                   setSelectedRecipe(fullRecipe);
                   setModalLoading(false);
                 }).catch(err => {
                   console.error('Error:', err);
+                  alert('Error loading recipe');
                   setModalLoading(false);
                 });
               }} />
