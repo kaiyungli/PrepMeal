@@ -86,10 +86,10 @@ export default function RecipeDetail({ recipe, error }) {
       </div>
 
       {/* Content Grid */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 20px', display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
+      <div className='max-w-[1200px] mx-auto p-6 grid grid-cols-12 gap-6'>
         
         {/* Main Content - 8 cols */}
-        <div style={{ gridColumn: 'span 8' }}>
+        <div className='col-span-8'>
           
           {/* Description Card */}
           {recipe.description && (
