@@ -292,11 +292,7 @@ export default function GeneratePage() {
                         overflow: 'hidden',
                         marginBottom: '8px'
                       }}>
-                        <div style={{ 
-                          height: '80px', 
-                          position: 'relative',
-                          background: '#C8D49A' + '30'
-                        }}>
+                        <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
                           {weeklyPlan[day.key][0].image_url ? (
                             <Image 
                               src={weeklyPlan[day.key][0].image_url} 
