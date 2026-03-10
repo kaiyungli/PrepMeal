@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { Layout, Modal } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { getRecipeDetail } from '@/services/recipes';
+
 import supabase from '@/lib/supabase';
 
 export default function RecipesPage({ initialRecipes }) {
@@ -75,9 +75,8 @@ export default function RecipesPage({ initialRecipes }) {
               key={recipe.id}
               recipe={recipe}
               onClick={() => {
-                console.log('RecipeCard clicked:', recipe.id);
                 setModalLoading(true);
-                getRecipeDetail(recipe.id).then(fullRecipe => {
+                fetch('/api/recipes/' + recipe.id).then(res => res.json()).then(fullRecipe => {
                   console.log('Full recipe:', fullRecipe);
                   setSelectedRecipe(fullRecipe);
                   setModalLoading(false);

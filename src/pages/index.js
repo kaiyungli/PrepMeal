@@ -8,7 +8,7 @@ import { Button } from '@/components';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { getRecipeDetail } from '@/services/recipes';
+
 
 
 
@@ -175,9 +175,12 @@ export default function Home({ initialRecipes }) {
               <RecipeCard key={recipe.id} recipe={recipe} onClick={() => {
                 console.log('RecipeCard clicked:', recipe.id);
                 setModalLoading(true);
-                getRecipeDetail(recipe.id).then(fullRecipe => {
+                fetch('/api/recipes/' + recipe.id).then(res => res.json()).then(fullRecipe => {
                   console.log('Full recipe:', fullRecipe);
                   setSelectedRecipe(fullRecipe);
+                  setModalLoading(false);
+                }).catch(err => {
+                  console.error('Error:', err);
                   setModalLoading(false);
                 });
               }} />
