@@ -291,12 +291,7 @@ export default function GeneratePage() {
             {DAYS.map(day => (
               <div 
                 key={day.key}
-                style={{
-                  background: '#FFFFFF',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                }}
+                className="bg-white rounded-xl overflow-hidden shadow-sm"
               >
                 {/* Day Header */}
                 <div style={{ 
