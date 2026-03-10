@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
+import Modal from '@/components/ui/Modal';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
@@ -461,14 +462,14 @@ export default function GeneratePage() {
         )}
 
         {/* Recipe Detail Modal */}
-        {selectedRecipe && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-5" onClick={() => setSelectedRecipe(null)}>
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-auto p-6" onClick={e => e.stopPropagation()}>
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-[#9B6035]">{selectedRecipe.name}</h2>
-                <button onClick={() => setSelectedRecipe(null)} className="text-gray-500 hover:text-gray-700 text-xl">✕</button>
-              </div>
-              
+        <Modal
+          isOpen={!!selectedRecipe}
+          title={selectedRecipe?.name}
+          onClose={() => setSelectedRecipe(null)}
+          maxWidth="600px"
+        >
+          {selectedRecipe && (
+            <>
               {selectedRecipe.image_url && (
                 <div className="relative h-48 w-full mb-4 rounded-lg overflow-hidden">
                   <Image src={selectedRecipe.image_url} alt={selectedRecipe.name} fill className="object-cover" />
@@ -484,14 +485,9 @@ export default function GeneratePage() {
               {selectedRecipe.description && (
                 <p className="text-gray-600 mb-4">{selectedRecipe.description}</p>
               )}
-              
-              <h3 className="font-bold text-lg mb-2">Ingredients</h3>
-              <ul className="list-disc pl-5 mb-4">
-                <li>Ingredients list from recipe</li>
-              </ul>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </Modal>
 
         <Footer />
       </div>
