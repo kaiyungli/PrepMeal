@@ -157,16 +157,10 @@ export default function RecipeDetail({ recipe, error }) {
           
           {/* Action Buttons */}
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-            <button style={{ 
-              width: '100%', padding: '14px', background: '#9B6035', color: 'white', border: 'none', 
-              borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', marginBottom: '12px' 
-            }}>
+            <button className='w-full py-3.5 bg-[#9B6035] text-white border-none rounded-xl text-base font-semibold cursor-pointer mb-3'>
               + 加入本週餐單
             </button>
-            <button style={{ 
-              width: '100%', padding: '14px', background: 'white', color: '#9B6035', border: `2px solid ${'#9B6035'}`, 
-              borderRadius: '12px', fontSize: '16px', fontWeight: '600', cursor: 'pointer' 
-            }}>
+            <button className='w-full py-3.5 bg-white text-[#9B6035] border-2 border-[#9B6035] rounded-xl text-base font-semibold cursor-pointer'>
               + 加入購物清單
             </button>
           </div>
