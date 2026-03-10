@@ -182,16 +182,7 @@ export default function GeneratePage() {
             <button
               onClick={generateShoppingList}
               disabled={!hasRecipes}
-              style={{
-                padding: '10px 20px',
-                background: '#C8D49A',
-                color: '#3A2010',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
+              className="px-5 py-2.5 bg-[#C8D49A] text-[#3A2010] border-none rounded-lg text-sm font-semibold cursor-pointer"
             >
               🛒 購物清單
             </button>
