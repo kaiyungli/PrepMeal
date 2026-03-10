@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/layout/Header';
 import Modal from '@/components/ui/Modal';
+import RecipeCard from '@/components/RecipeCard';
 import { useRouter } from 'next/router';
 //
 import Footer from '@/components/layout/Footer';
@@ -291,38 +292,11 @@ export default function GeneratePage() {
                 <div className='p-4 min-h-[120px]'>
                   {weeklyPlan[day.key]?.length > 0 ? (
                     <div className='relative'>
-                      <div 
-                        className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2 cursor-pointer"
-                        onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
-                      >
-                        <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
-                          {weeklyPlan[day.key][0].image_url ? (
-                            <Image 
-                              src={weeklyPlan[day.key][0].image_url} 
-                              alt={weeklyPlan[day.key][0].name} 
-                              fill 
-                              className='object-cover' 
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-3xl">
-                              🍳
-                            </div>
-                          )}
-                        </div>
-                        <div className='p-2.5'>
-                          <div className='font-semibold text-sm text-[#3A2010] mb-1'>
-                            {weeklyPlan[day.key]?.[0]?.name}
-                          </div>
-                          <div className='flex gap-1.5'>
-                            <span className='text-[11px] text-[#AA7A50]'>
-                              ⏱️ {getSpeedLabel(weeklyPlan[day.key][0].speed)}
-                            </span>
-                            <span className='text-[11px] text-[#AA7A50]'>
-                              {getDifficultyLabel(weeklyPlan[day.key][0].difficulty)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <RecipeCard 
+                        recipe={weeklyPlan[day.key][0]} 
+                        onClick={() => router.push('/recipes/' + weeklyPlan[day.key][0].id)}
+                        imageHeightClass="h-20"
+                      />
                       <button
                         onClick={() => removeRecipeFromDay(day.key, 0)}
                         className="absolute top-2 right-2 w-7 h-7 bg-white/90 border-none rounded-full cursor-pointer flex items-center justify-center text-sm shadow-sm"
