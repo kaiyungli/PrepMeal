@@ -369,13 +369,7 @@ export default function GeneratePage() {
             }} onClick={e => e.stopPropagation()}>
               
               {/* Modal Header */}
-              <div style={{ 
-                padding: '20px 24px', 
-                borderBottom: `1px solid ${'#DDD0B0'}`,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
+              <div className="px-6 py-5 border-b border-[#DDD0B0] flex justify-between items-center">
                 <h2 className='text-lg font-bold text-[#9B6035]'>
                   選擇食譜 - {DAYS.find(d => d.key === selectedDay)?.label}
                 </h2>
