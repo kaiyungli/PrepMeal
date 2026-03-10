@@ -172,11 +172,14 @@ export default function Home({ initialRecipes }) {
               const proteinLabels = { egg: '蛋', chicken: '雞', beef: '牛', pork: '豬', tofu: '豆腐', seafood: '海鮮', fish: '魚', vegetarian: '素' };
               const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
               return (
-              <RecipeCard key={recipe.id} recipe={recipe} onClick={async () => {
+              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => {
+                console.log('RecipeCard clicked:', recipe.id);
                 setModalLoading(true);
-                const fullRecipe = await getRecipeDetail(recipe.id);
-                setSelectedRecipe(fullRecipe);
-                setModalLoading(false);
+                getRecipeDetail(recipe.id).then(fullRecipe => {
+                  console.log('Full recipe:', fullRecipe);
+                  setSelectedRecipe(fullRecipe);
+                  setModalLoading(false);
+                });
               }} />
             );})}
           </div>

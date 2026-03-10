@@ -74,11 +74,17 @@ export default function RecipesPage({ initialRecipes }) {
             <RecipeCard
               key={recipe.id}
               recipe={recipe}
-              onClick={async () => {
+              onClick={() => {
+                console.log('RecipeCard clicked:', recipe.id);
                 setModalLoading(true);
-                const fullRecipe = await getRecipeDetail(recipe.id);
-                setSelectedRecipe(fullRecipe);
-                setModalLoading(false);
+                getRecipeDetail(recipe.id).then(fullRecipe => {
+                  console.log('Full recipe:', fullRecipe);
+                  setSelectedRecipe(fullRecipe);
+                  setModalLoading(false);
+                }).catch(err => {
+                  console.error('Error:', err);
+                  setModalLoading(false);
+                });
               }}
               onFavorite={() => toggleFavorite(recipe.id)}
             />
