@@ -303,7 +303,7 @@ export default function GeneratePage() {
                         </div>
                         <div className='p-2.5'>
                           <div className='font-semibold text-sm text-[#3A2010] mb-1'>
-                            {weeklyPlan[day.key].name}
+                            {weeklyPlan[day.key]?.[0]?.name}
                           </div>
                           <div className='flex gap-1.5'>
                             <span className='text-[11px] text-[#AA7A50]'>
