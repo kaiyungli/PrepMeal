@@ -98,7 +98,7 @@ export default function FavoritesPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: colors.cream, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
         <p>載入中...</p>
       </div>
     );
@@ -108,36 +108,36 @@ export default function FavoritesPage() {
     <>
       <Header />
       <Head><title>收藏食譜 - 今晚食乜</title></Head>
-      <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}<div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.brown, marginBottom: '8px' }}>❤️ 收藏食譜</h1>
-          <p style={{ color: colors.textLight, marginBottom: '32px' }}>你收藏既食譜</p>
+      <div className="min-h-screen bg-[#F8F3E8]">
+        {/* Header */}<div className="max-w-[1000px] mx-auto px-5 py-10">
+          <h1 className="text-[28px] font-bold text-[#9B6035] mb-2">❤️ 收藏食譜</h1>
+          <p className="text-[#AA7A50] mb-8">你收藏既食譜</p>
 
           {favorites.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-              <p style={{ fontSize: '48px', marginBottom: '16px' }}>❤️</p>
-              <p style={{ color: colors.textLight, marginBottom: '24px' }}>暫時未有收藏既食譜</p>
+            <div className="text-center py-[60px] px-5 bg-white rounded-xl shadow/10">
+              <p className="text-[48px] mb-4">❤️</p>
+              <p className="text-[#AA7A50] mb-6">暫時未有收藏既食譜</p>
               <Link href="/recipes">
                 <Button>去睇食譜</Button>
               </Link>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-5">
               {favorites.map((recipe) => (
-                <div key={recipe.id} style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', position: 'relative' }}>
+                <div key={recipe.id} className="bg-white rounded-xl overflow-hidden shadow-md relative">
                   <button
                     onClick={() => toggleFavorite(recipe.id)}
-                    style={{ position: 'absolute', top: '12px', right: '12px', background: 'white', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                    className="absolute top-3 right-3 bg-white border-none rounded-full w-9 h-9 cursor-pointer flex items-center justify-center shadow-md"
                   >
-                    <span style={{ fontSize: '18px' }}>❤️</span>
+                    <span className="text-lg">❤️</span>
                   </button>
                   <div style={{ height: '140px', background: recipe.image_url ? `url(${recipe.image_url})` : '#f0f0f0', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-                  <div style={{ padding: '16px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: colors.brown, marginBottom: '8px' }}>{recipe.name}</h3>
-                    <p style={{ fontSize: '13px', color: colors.textLight, marginBottom: '12px' }}>{recipe.cooking_time}分鐘 · {recipe.calories} kcal</p>
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                  <div className="p-4">
+                    <h3 className="text-base font-semibold text-[#9B6035] mb-2">{recipe.name}</h3>
+                    <p className="text-sm text-[#AA7A50] mb-3">{recipe.cooking_time}分鐘 · {recipe.calories} kcal</p>
+                    <div className="flex gap-1.5">
                       {recipe.tags.slice(0, 2).map((tag, i) => (
-                        <span key={i} style={{ background: colors.yellow, color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' }}>{tag}</span>
+                        <span key={i} className="bg-[#F0A060] text-white px-2 py-0.5 rounded text-xs">{tag}</span>
                       ))}
                     </div>
                   </div>
@@ -147,7 +147,7 @@ export default function FavoritesPage() {
           )}
         </div>
 
-        <footer style={{ textAlign: 'center', padding: '40px', color: colors.textLight, borderTop: '1px solid #e5e5e5', background: colors.lightBg }}>
+        <footer className="text-center py-10 text-[#AA7A50] border-t border-gray-200 bg-[#F8F3E8]">
           <p>© 2026 今晚食乜 Made with ❤️</p>
         </footer>
       </div>

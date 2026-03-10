@@ -274,7 +274,7 @@ export default function GeneratePage() {
                 className="bg-white rounded-xl overflow-hidden shadow-sm"
               >
                 {/* Day Header */}
-                <div className="px-4 py-3 flex justify-between items-center" style={{ background: day.key === 'sat' || day.key === 'sun' ? '#C8D49A' : '#9B6035' }}>
+                <div className={`px-4 py-3 flex justify-between items-center ${day.key === 'sat' || day.key === 'sun' ? 'bg-[#C8D49A]' : 'bg-[#9B6035]'}`}>
                   <div>
                     <div className='text-white font-bold text-[15px]'>
                       {day.label}
@@ -296,7 +296,7 @@ export default function GeneratePage() {
                         className="bg-[#F8F3E8] rounded-lg overflow-hidden mb-2 cursor-pointer"
                         onClick={() => setSelectedRecipe(weeklyPlan[day.key][0])}
                       >
-                        <div className="h-20 relative" style={{ background: 'rgba(200,212,154,0.3)' }}>
+                        <div className="h-20 relative bg-[#C8D49A]/30">
                           {weeklyPlan[day.key][0].image_url ? (
                             <Image 
                               src={weeklyPlan[day.key][0].image_url} 
