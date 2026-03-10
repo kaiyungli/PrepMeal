@@ -7,66 +7,123 @@ import Header from '@/components/layout/Header';
 import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { getRecipeDetail } from '@/services/recipes';
-import { useRouter } from 'next/router';
-//
 import Footer from '@/components/layout/Footer';
+import { useRouter } from 'next/router';
 
-const colors = {
-  background: '#F8F3E8',
-  primary: '#9B6035',
-  secondary: '#C8D49A',
-  accent: '#F0A060',
-  text: '#3A2010',
-  textLight: '#AA7A50',
-  cream: '#F8F3E8',
-  sage: '#C8D49A',
-  brown: '#9B6035',
-  yellow: '#F0A060',
-  footer: '#2A1A08',
-  white: '#FFFFFF',
-  border: '#DDD0B0',
-};
+// Settings Options from Spec
+const DAYS_PER_WEEK = [3, 5, 7];
+const DISHES_PER_DAY = [1, 2, 3];
+const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
-// Days of the week with dates
-const DAYS = [
-  { key: 'mon', label: '星期一', short: '一', date: '3月2日' },
-  { key: 'tue', label: '星期二', short: '二', date: '3月3日' },
-  { key: 'wed', label: '星期三', short: '三', date: '3月4日' },
-  { key: 'thu', label: '星期四', short: '四', date: '3月5日' },
-  { key: 'fri', label: '星期五', short: '五', date: '3月6日' },
-  { key: 'sat', label: '星期六', short: '六', date: '3月7日' },
-  { key: 'sun', label: '星期日', short: '日', date: '3月8日' },
+const DIET_MODES = [
+  { value: 'general', label: 'General' },
+  { value: 'vegetarian', label: 'Vegetarian' },
+  { value: 'egg_lacto', label: 'Egg/Lacto Vegetarian' },
+  { value: 'high_protein', label: 'High Protein' },
+  { value: 'low_fat', label: 'Low Fat' },
+  { value: 'light', label: 'Light' },
 ];
 
-const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '素食'];
-const timeOptions = ['全部', '15分鐘', '30分鐘'];
-const difficultyOptions = ['全部', '易', '中', '難'];
+const EXCLUSIONS = [
+  { value: 'beef', label: 'No Beef' },
+  { value: 'pork', label: 'No Pork' },
+  { value: 'chicken', label: 'No Chicken' },
+  { value: 'seafood', label: 'No Seafood' },
+  { value: 'eggs', label: 'No Eggs' },
+  { value: 'dairy', label: 'No Dairy' },
+  { value: 'spicy', label: 'No Spicy' },
+];
+
+const CUISINES = [
+  { value: 'chinese', label: 'Chinese' },
+  { value: 'japanese', label: 'Japanese' },
+  { value: 'korean', label: 'Korean' },
+  { value: 'western', label: 'Western' },
+  { value: 'taiwanese', label: 'Taiwanese' },
+  { value: 'se_asian', label: 'Southeast Asian' },
+];
+
+const COOKING_CONSTRAINTS = [
+  { value: 'under_15', label: 'Under 15 min' },
+  { value: 'under_30', label: 'Under 30 min' },
+  { value: 'under_45', label: 'Under 45 min' },
+  { value: 'easy', label: 'Easy' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'hard', label: 'Hard' },
+  { value: 'one_pot', label: 'One-pot' },
+  { value: 'air_fryer', label: 'Air fryer' },
+];
+
+const BUDGET_OPTIONS = [
+  { value: 'budget', label: 'Budget' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'premium', label: 'Premium' },
+];
+
+const INGREDIENT_REUSE = [
+  { value: 'normal', label: 'Normal' },
+  { value: 'smart', label: 'Smart Reuse' },
+];
+
+// Generate dynamic week dates
+const getWeekDates = () => {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    days.push({
+      key: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'][i],
+      label: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][i],
+      short: ['一', '二', '三', '四', '五', '六', '日'][i],
+      date: `${month}月${day}日`,
+      isWeekend: i >= 5,
+    });
+  }
+  return days;
+};
+
+const DAYS = getWeekDates();
 
 export default function GeneratePage() {
   const router = useRouter();
+  
+  // Settings State
+  const [daysPerWeek, setDaysPerWeek] = useState(7);
+  const [dishesPerDay, setDishesPerDay] = useState(1);
+  const [servings, setServings] = useState(2);
+  const [dietMode, setDietMode] = useState('general');
+  const [exclusions, setExclusions] = useState([]);
+  const [cuisines, setCuisines] = useState([]);
+  const [cookingConstraints, setCookingConstraints] = useState([]);
+  const [budget, setBudget] = useState('normal');
+  const [ingredientReuse, setIngredientReuse] = useState('normal');
+  
+  // Recipe State
   const [allRecipes, setAllRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
-  const [cuisine, setCuisine] = useState('全部');
-  const [time, setTime] = useState('全部');
-  const [difficulty, setDifficulty] = useState('全部');
-  const [servings, setServings] = useState(2);
-  const [showRecipePicker, setShowRecipePicker] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   
-  // Weekly meal plan - each day has optional recipe
+  // Weekly Plan
   const [weeklyPlan, setWeeklyPlan] = useState(
-    DAYS.reduce((acc, day) => ({ ...acc, [day.key]: null }), {})
+    DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {})
   );
-
-  // Shopping list
+  const [lockedSlots, setLockedSlots] = useState({}); // { 'mon-0': true }
+  
+  // Shopping List
   const [shoppingList, setShoppingList] = useState([]);
   const [showShoppingList, setShowShoppingList] = useState(false);
 
   useEffect(() => {
-    fetch('/api/recipes?limit=50')
+    fetch('/api/recipes?limit=100')
       .then(res => res.json())
       .then(data => {
         const recipes = data.recipes || [];
@@ -76,81 +133,150 @@ export default function GeneratePage() {
       .catch(() => {});
   }, []);
 
+  // Filter recipes based on settings
   useEffect(() => {
     let filtered = [...allRecipes];
-    if (cuisine !== '全部') filtered = filtered.filter(r => r.cuisine === cuisine);
-    if (time !== '全部') {
-      const isQuick = time === '15分鐘';
-      filtered = filtered.filter(r => r.speed === (isQuick ? 'quick' : 'normal'));
+    
+    // Filter by cuisine
+    if (cuisines.length > 0) {
+      filtered = filtered.filter(r => cuisines.includes(r.cuisine));
     }
-    if (difficulty !== '全部') filtered = filtered.filter(r => r.difficulty === difficulty);
-    setFilteredRecipes(filtered.length > 0 ? filtered : allRecipes);
-  }, [cuisine, time, difficulty, allRecipes]);
+    
+    // Filter by cooking time
+    const timeConstraint = cookingConstraints.find(c => c.startsWith('under_'));
+    if (timeConstraint) {
+      const maxMinutes = parseInt(timeConstraint.split('_')[1]);
+      filtered = filtered.filter(r => {
+        const time = r.prep_time_minutes || r.cook_time_minutes || 30;
+        return time <= maxMinutes;
+      });
+    }
+    
+    // Filter by difficulty
+    const difficulty = cookingConstraints.find(c => ['easy', 'medium', 'hard'].includes(c));
+    if (difficulty) {
+      filtered = filtered.filter(r => r.difficulty === difficulty);
+    }
+    
+    // Filter by exclusions
+    if (exclusions.length > 0) {
+      filtered = filtered.filter(r => {
+        const protein = r.protein || [];
+        return !exclusions.some(ex => protein.includes(ex));
+      });
+    }
+    
+    setFilteredRecipes(filtered);
+  }, [allRecipes, cuisines, cookingConstraints, exclusions]);
 
-  const addRecipeToDay = (dayKey, recipe) => {
-    setWeeklyPlan(prev => ({ ...prev, [dayKey]: [...(prev[dayKey] || []), recipe] }));
-    setShowRecipePicker(false);
-    setSelectedDay(null);
+  const toggleExclusion = (value) => {
+    setExclusions(prev => 
+      prev.includes(value) 
+        ? prev.filter(e => e !== value)
+        : [...prev, value]
+    );
   };
 
-  const removeRecipeFromDay = (dayKey, recipeIndex) => {
-    setWeeklyPlan(prev => ({ ...prev, [dayKey]: prev[dayKey]?.filter((_, idx) => idx !== recipeIndex) || [] }));
+  const toggleCuisine = (value) => {
+    setCuisines(prev => 
+      prev.includes(value) 
+        ? prev.filter(c => c !== value)
+        : [...prev, value]
+    );
   };
 
-  const randomizeRecipe = (dayKey) => {
-    if (filteredRecipes.length === 0) return;
-    const random = filteredRecipes[Math.floor(Math.random() * filteredRecipes.length)];
-    setWeeklyPlan(prev => ({ ...prev, [dayKey]: [random] }));
+  const toggleConstraint = (value) => {
+    setCookingConstraints(prev => 
+      prev.includes(value) 
+        ? prev.filter(c => c !== value)
+        : [...prev, value]
+    );
   };
 
-  const clearAll = () => {
-    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
-  };
-
-  // Generate random meal plan for the week
+  // Generate meal plan based on settings
   const handleGenerate = () => {
     const newPlan = {};
-    DAYS.forEach(day => {
-      // Filter available recipes
-      let available = [...allRecipes];
-      if (cuisine !== '全部') {
-        available = available.filter(r => r.cuisine === cuisine);
+    const daysToGenerate = DAYS.slice(0, daysPerWeek);
+    
+    daysToGenerate.forEach(day => {
+      const dayRecipes = [];
+      const availableRecipes = [...filteredRecipes];
+      
+      // Shuffle for variety
+      for (let i = availableRecipes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availableRecipes[i], availableRecipes[j]] = [availableRecipes[j], availableRecipes[i]];
       }
-      if (time !== '全部') {
-        const isQuick = time === '15分鐘';
-        available = available.filter(r => r.speed === (isQuick ? 'quick' : 'normal'));
+      
+      for (let dish = 0; dish < dishesPerDay; dish++) {
+        const slotKey = `${day.key}-${dish}`;
+        if (lockedSlots[slotKey]) continue; // Skip locked slots
+        
+        if (availableRecipes.length > 0) {
+          const recipe = availableRecipes.shift();
+          dayRecipes.push(recipe);
+        }
       }
-      if (difficulty !== '全部') {
-        available = available.filter(r => r.difficulty === difficulty);
-      }
-      // Random pick
-      if (available.length > 0) {
-        const randomRecipe = available[Math.floor(Math.random() * available.length)];
-        newPlan[day.key] = [randomRecipe];
-      }
+      
+      newPlan[day.key] = dayRecipes;
     });
+    
     setWeeklyPlan(newPlan);
+  };
+
+  const lockSlot = (dayKey, index) => {
+    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: true }));
+  };
+
+  const unlockSlot = (dayKey, index) => {
+    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: false }));
+  };
+
+  const removeRecipe = (dayKey, index) => {
+    setWeeklyPlan(prev => {
+      const dayRecipes = [...(prev[dayKey] || [])];
+      dayRecipes.splice(index, 1);
+      return { ...prev, [dayKey]: dayRecipes };
+    });
+  };
+
+  const replaceRecipe = (dayKey, index) => {
+    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
+    if (available.length === 0) return;
+    
+    const random = available[Math.floor(Math.random() * available.length)];
+    setWeeklyPlan(prev => {
+      const dayRecipes = [...(prev[dayKey] || [])];
+      dayRecipes[index] = random;
+      return { ...prev, [dayKey]: dayRecipes };
+    });
   };
 
   const generateShoppingList = () => {
     const ingredients = {};
-    Object.values(weeklyPlan).forEach(recipeOrArray => {
-      const recipes = Array.isArray(recipeOrArray) ? recipeOrArray : [recipeOrArray];
-      recipes.forEach(recipe => {
-        if (recipe && recipe.ingredients) {
+    Object.entries(weeklyPlan).forEach(([dayKey, recipes]) => {
+      (recipes || []).forEach(recipe => {
+        if (recipe?.ingredients) {
           recipe.ingredients.forEach(ing => {
             const name = ing.name || ing.ingredient_id;
-            ingredients[name] = (ingredients[name] || 0) + (ing.quantity || 1);
+            const qty = (ing.quantity || 1) * servings;
+            ingredients[name] = (ingredients[name] || 0) + qty;
           });
         }
       });
     });
-    setShoppingList(Object.entries(ingredients).map(([name, qty]) => ({ name, quantity: qty })));
+    setShoppingList(Object.entries(ingredients).map(([name, quantity]) => ({ 
+      name, 
+      quantity,
+      category: 'other' // TODO: categorize properly
+    })));
     setShowShoppingList(true);
   };
 
-  const getDifficultyLabel = (d) => ({ easy: '易', medium: '中', hard: '難' }[d] || '中');
-  const getSpeedLabel = (s) => ({ quick: '15分鐘', normal: '30分鐘' }[s] || '20分鐘');
+  const clearAll = () => {
+    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
+    setLockedSlots({});
+  };
 
   const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0);
   const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
@@ -159,7 +285,7 @@ export default function GeneratePage() {
     <>
       <Header />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div className="min-h-screen bg-[#F8F3E8] font-['Inter,sans-serif']">
+      <div className="min-h-screen bg-[#F8F3E8]">
         
         {/* Hero Header */}
         <section className='bg-[#9B6035] px-6 py-8 text-center'>
@@ -171,17 +297,195 @@ export default function GeneratePage() {
           </p>
         </section>
 
+        {/* Settings Panel */}
+        <div className="bg-white border-b border-[#DDD0B0] p-4">
+          <div className="max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              
+              {/* Days per Week */}
+              <div>
+                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每週日數</label>
+                <div className="flex gap-1">
+                  {DAYS_PER_WEEK.map(days => (
+                    <button
+                      key={days}
+                      onClick={() => setDaysPerWeek(days)}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        daysPerWeek === days 
+                          ? 'bg-[#9B6035] text-white' 
+                          : 'bg-[#F8F3E8] text-[#3A2010]'
+                      }`}
+                    >
+                      {days}日
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dishes per Day */}
+              <div>
+                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每日碟數</label>
+                <div className="flex gap-1">
+                  {DISHES_PER_DAY.map(dishes => (
+                    <button
+                      key={dishes}
+                      onClick={() => setDishesPerDay(dishes)}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        dishesPerDay === dishes 
+                          ? 'bg-[#9B6035] text-white' 
+                          : 'bg-[#F8F3E8] text-[#3A2010]'
+                      }`}
+                    >
+                      {dishes}碟
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Servings */}
+              <div>
+                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">人數</label>
+                <select 
+                  value={servings}
+                  onChange={(e) => setServings(parseInt(e.target.value))}
+                  className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
+                >
+                  {SERVINGS_OPTIONS.map(s => (
+                    <option key={s} value={s}>{s}人</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Diet Mode */}
+              <div>
+                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">飲食模式</label>
+                <select 
+                  value={dietMode}
+                  onChange={(e) => setDietMode(e.target.value)}
+                  className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
+                >
+                  {DIET_MODES.map(d => (
+                    <option key={d.value} value={d.value}>{d.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Budget */}
+              <div>
+                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">預算</label>
+                <div className="flex gap-1">
+                  {BUDGET_OPTIONS.map(b => (
+                    <button
+                      key={b.value}
+                      onClick={() => setBudget(b.value)}
+                      className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        budget === b.value 
+                          ? 'bg-[#9B6035] text-white' 
+                          : 'bg-[#F8F3E8] text-[#3A2010]'
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Cuisines */}
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">菜系</label>
+              <div className="flex flex-wrap gap-2">
+                {CUISINES.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => toggleCuisine(c.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      cuisines.includes(c.value)
+                        ? 'bg-[#C8D49A] text-[#3A2010]'
+                        : 'bg-[#F8F3E8] text-[#AA7A50]'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Cooking Constraints */}
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">烹飪限制</label>
+              <div className="flex flex-wrap gap-2">
+                {COOKING_CONSTRAINTS.map(c => (
+                  <button
+                    key={c.value}
+                    onClick={() => toggleConstraint(c.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      cookingConstraints.includes(c.value)
+                        ? 'bg-[#F0A060] text-white'
+                        : 'bg-[#F8F3E8] text-[#AA7A50]'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Exclusions */}
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">排除</label>
+              <div className="flex flex-wrap gap-2">
+                {EXCLUSIONS.map(e => (
+                  <button
+                    key={e.value}
+                    onClick={() => toggleExclusion(e.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      exclusions.includes(e.value)
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-[#F8F3E8] text-[#AA7A50]'
+                    }`}
+                  >
+                    {e.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Ingredient Reuse */}
+            <div className="mt-4">
+              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">食材重用</label>
+              <div className="flex gap-2">
+                {INGREDIENT_REUSE.map(ir => (
+                  <button
+                    key={ir.value}
+                    onClick={() => setIngredientReuse(ir.value)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      ingredientReuse === ir.value 
+                        ? 'bg-[#9B6035] text-white' 
+                        : 'bg-[#F8F3E8] text-[#3A2010]'
+                    }`}
+                  >
+                    {ir.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* Action Bar */}
         <div className="bg-white px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap justify-between items-center gap-3">
           <div className='flex gap-2 items-center'>
             <span className='text-sm font-semibold text-[#3A2010]'>
-              已選擇 {selectedCount} 日
+              已選擇 {selectedCount} 餐
             </span>
             {hasRecipes && (
               <button
                 onClick={clearAll}
                 className="px-3 py-1.5 bg-transparent border border-[#DDD0B0] rounded-md text-xs text-[#AA7A50] cursor-pointer"
-                >
+              >
                 🗑️ 清空
               </button>
             )}
@@ -190,271 +494,150 @@ export default function GeneratePage() {
             <button
               onClick={generateShoppingList}
               disabled={!hasRecipes}
-              className="px-5 py-2.5 bg-[#C8D49A] text-[#3A2010] border-none rounded-lg text-sm font-semibold cursor-pointer"
+              className="px-5 py-2.5 bg-[#C8D49A] text-[#3A2010] border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
             >
               🛒 購物清單
             </button>
             <button
               onClick={handleGenerate}
-              disabled={!allRecipes || allRecipes.length === 0}
-              className="px-5 py-2.5 bg-[#F0A060] text-white border-none rounded-lg text-sm font-semibold cursor-pointer"
+              disabled={!filteredRecipes || filteredRecipes.length === 0}
+              className="px-5 py-2.5 bg-[#F0A060] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
             >
               ✨ 一鍵生成
             </button>
           </div>
         </div>
 
-        {/* Filter Section */}
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="bg-white rounded-xl p-5 mb-6 shadow-sm">
-            <h3 className='font-bold mb-4 text-[#3A2010] text-base'>
-              🔍 選擇要求生成餐單
-            </h3>
-            
-            <div className='flex gap-4 flex-wrap'>
-              <div>
-                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
-                  🥢 菜系
-                </label>
-                <select 
-                  value={cuisine} 
-                  onChange={(e) => setCuisine(e.target.value)}
-                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
-                >
-                  {cuisineOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
-                  ⏱️ 時間
-                </label>
-                <select 
-                  value={time} 
-                  onChange={(e) => setTime(e.target.value)}
-                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
-                >
-                  {timeOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
-                  💪 難度
-                </label>
-                <select 
-                  value={difficulty} 
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
-                >
-                  {difficultyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className='text-[13px] font-semibold text-[#AA7A50] mb-1.5 block'>
-                  👥 人數
-                </label>
-                <select 
-                  value={servings}
-                  onChange={(e) => setServings(Number(e.target.value))}
-                  className='px-3 py-2 rounded-lg border border-gray-200 text-sm min-w-[120px]'
-                >
-                  {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}人</option>)}
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Weekly Meal Plan Grid */}
-        <div className='max-w-[1400px] mx-auto p-6'>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
-            {DAYS.map(day => (
+        {/* Weekly Plan Grid */}
+        <div className="max-w-[1200px] mx-auto p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
+            {DAYS.slice(0, daysPerWeek).map(day => (
               <div 
                 key={day.key}
-                className="bg-white rounded-xl overflow-hidden shadow-sm"
+                className={`rounded-xl overflow-hidden ${
+                  day.isWeekend ? 'bg-[#C8D49A]/30' : 'bg-white'
+                } shadow-md`}
               >
                 {/* Day Header */}
-                <div className="px-4 py-3 flex justify-between items-center" style={{ background: day.key === 'sat' || day.key === 'sun' ? '#C8D49A' : '#9B6035' }}>
+                <div className={`px-3 py-2 flex justify-between items-center ${
+                  day.isWeekend ? 'bg-[#C8D49A]' : 'bg-[#9B6035]'
+                }`}>
                   <div>
-                    <div className='text-white font-bold text-[15px]'>
-                      {day.label}
-                    </div>
-                    <div className='text-white/80 text-xs'>
-                      {day.date}
-                    </div>
-                  </div>
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    {day.short}
+                    <span className="text-white font-bold text-sm">{day.label}</span>
+                    <span className="text-white/70 text-xs ml-1">{day.date}</span>
                   </div>
                 </div>
 
-                {/* Recipe Slot */}
-                <div className='p-4 min-h-[120px]'>
-                  {weeklyPlan[day.key]?.length > 0 ? (
-                    <div className='relative'>
-                      <RecipeCard 
-                        recipe={weeklyPlan[day.key][0]} 
-                        onClick={async () => {
-                          setModalLoading(true);
-                          const fullRecipe = await getRecipeDetail(weeklyPlan[day.key][0].id);
-                          setSelectedRecipe(fullRecipe);
-                          setModalLoading(false);
-                        }}
-                        imageHeightClass="h-20"
-                      />
-                      <button
-                        onClick={() => removeRecipeFromDay(day.key, 0)}
-                        className="absolute top-2 right-2 w-7 h-7 bg-white/90 border-none rounded-full cursor-pointer flex items-center justify-center text-sm shadow-sm"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        setSelectedDay(day.key);
-                        setShowRecipePicker(true);
-                      }}
-                      className="w-full p-5 bg-[#F8F3E8] border-2 border-dashed border-[#DDD0B0] rounded-lg cursor-pointer flex flex-col items-center justify-center gap-2 text-[#AA7A50] text-sm"
-                    >
-                      <span className='text-2xl'>+</span>
-                      <span>加入食譜</span>
-                    </button>
-                  )}
+                {/* Recipe Slots */}
+                <div className="p-2 space-y-2">
+                  {Array.from({ length: dishesPerDay }).map((_, index) => {
+                    const recipe = weeklyPlan[day.key]?.[index];
+                    const isLocked = lockedSlots[`${day.key}-${index}`];
+                    
+                    return (
+                      <div key={index} className="relative">
+                        {recipe ? (
+                          <div className="bg-[#F8F3E8] rounded-lg overflow-hidden">
+                            <div 
+                              className="h-20 relative cursor-pointer"
+                              onClick={() => {
+                                setModalLoading(true);
+                                fetch('/api/recipes/' + recipe.id)
+                                  .then(res => res.json())
+                                  .then(setSelectedRecipe)
+                                  .finally(() => setModalLoading(false));
+                              }}
+                            >
+                              {recipe.image_url ? (
+                                <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
+                              ) : (
+                                <div className="h-full flex items-center justify-center bg-gray-200">
+                                  <span className="text-2xl">🍳</span>
+                                </div>
+                              )}
+                              {isLocked && (
+                                <div className="absolute top-1 right-1 bg-yellow-400 text-xs px-1 rounded">
+                                  🔒
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-2">
+                              <div className="text-xs font-medium text-[#3A2010] truncate">{recipe.name}</div>
+                              <div className="flex gap-1 mt-1">
+                                <button
+                                  onClick={() => replaceRecipe(day.key, index)}
+                                  className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
+                                >
+                                  替換
+                                </button>
+                                <button
+                                  onClick={() => isLocked ? unlockSlot(day.key, index) : lockSlot(day.key, index)}
+                                  className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
+                                >
+                                  {isLocked ? '解鎖' : '鎖定'}
+                                </button>
+                                <button
+                                  onClick={() => removeRecipe(day.key, index)}
+                                  className="text-[10px] px-1 py-0.5 bg-red-100 rounded text-red-600"
+                                >
+                                  移除
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              const available = filteredRecipes.filter(r => 
+                                !weeklyPlan[day.key]?.some(pr => pr?.id === r.id)
+                              );
+                              if (available.length > 0) {
+                                const random = available[Math.floor(Math.random() * available.length)];
+                                setWeeklyPlan(prev => ({
+                                  ...prev,
+                                  [day.key]: [...(prev[day.key] || []), random]
+                                }));
+                              }
+                            }}
+                            className="w-full py-3 border-2 border-dashed border-[#DDD0B0] rounded-lg text-[#AA7A50] text-sm hover:border-[#9B6035] hover:text-[#9B6035] transition-colors"
+                          >
+                            + 添加
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recipe Picker Modal */}
-        {showRecipePicker && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-5" onClick={() => setShowRecipePicker(false)}>
-            <div className="bg-white rounded-2xl max-w-[900px] w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-              
-              {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-[#DDD0B0] flex justify-between items-center">
-                <h2 className='text-lg font-bold text-[#9B6035]'>
-                  選擇食譜 - {DAYS.find(d => d.key === selectedDay)?.label}
-                </h2>
-                <button
-                  onClick={() => setShowRecipePicker(false)}
-                  className="w-9 h-9 bg-[#F8F3E8] border-none rounded-full cursor-pointer text-lg flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Filters */}
-              <div className="px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap gap-3">
-                <select 
-                  value={cuisine}
-                  onChange={e => setCuisine(e.target.value)}
-                  className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-sm bg-white text-[#3A2010]"
-                >
-                  {cuisineOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '🥢 全部菜系' : opt}</option>
-                  ))}
-                </select>
-                <select 
-                  value={time}
-                  onChange={e => setTime(e.target.value)}
-                  className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-sm bg-white text-[#3A2010]"
-                >
-                  {timeOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '⏱️ 全部時間' : opt}</option>
-                  ))}
-                </select>
-                <select 
-                  value={difficulty}
-                  onChange={e => setDifficulty(e.target.value)}
-                  className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-sm bg-white text-[#3A2010]"
-                >
-                  {difficultyOptions.map(opt => (
-                    <option key={opt} value={opt}>{opt === '全部' ? '💪 全部難度' : opt}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Recipe List */}
-              <div className="p-5 overflow-auto flex-1">
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
-                  {filteredRecipes.map(recipe => (
-                    <div
-                      key={recipe.id}
-                      onClick={() => addRecipeToDay(selectedDay, recipe)}
-                      className="bg-[#F8F3E8] rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
-                    >
-                      <div className="h-[100px] relative bg-[#C8D49A]/30">
-                        {recipe.image_url ? (
-                          <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' />
-                        ) : (
-                          <div className='w-full h-full flex items-center justify-center text-3xl'>
-                            🍳
-                          </div>
-                        )}
-                      </div>
-                      <div className='p-2.5'>
-                        <div className='font-semibold text-[13px] text-[#3A2010] mb-1'>
-                          {recipe.name}
-                        </div>
-                        <div className='flex gap-1.5 text-[11px] text-[#AA7A50]'>
-                          <span>⏱️ {getSpeedLabel(recipe.speed)}</span>
-                          <span>{getDifficultyLabel(recipe.difficulty)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
         {/* Shopping List Modal */}
-        {showShoppingList && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200]" onClick={() => setShowShoppingList(false)}>
-            <div className="bg-white rounded-2xl p-8 max-w-[500px] w-[90%] max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
-              <h2 className='text-xl font-bold text-[#9B6035] mb-5'>
-                🛒 購物清單
-              </h2>
-              {shoppingList.length > 0 ? (
-                <ul className='list-none p-0'>
-                  {shoppingList.map((item, i) => (
-                    <li key={i} className="py-3 border-b border-[#DDD0B0] flex justify-between">
-                      <span className='text-[#3A2010]'>{item.name}</span>
-                      <span className='text-[#AA7A50]'>x{item.quantity}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className='text-[#AA7A50] text-center p-5'>
-                  選擇食譜以生成購物清單
-                </p>
-              )}
-              <button
-                onClick={() => setShowShoppingList(false)}
-                className="w-full mt-5 py-3.5 bg-[#9B6035] text-white border-none rounded-xl text-base font-semibold cursor-pointer"
-              >
-                關閉
-              </button>
-            </div>
+        <Modal isOpen={showShoppingList} title="購物清單" onClose={() => setShowShoppingList(false)} maxWidth="600px">
+          <div className="space-y-2">
+            {shoppingList.map((item, i) => (
+              <div key={i} className="flex justify-between py-2 border-b border-[#DDD0B0]">
+                <span className="text-[#3A2010]">{item.name}</span>
+                <span className="text-[#AA7A50]">{item.quantity} {item.unit || ''}</span>
+              </div>
+            ))}
+            {shoppingList.length === 0 && (
+              <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
+            )}
           </div>
-        )}
+        </Modal>
 
+        {/* Recipe Detail Modal */}
         <RecipeDetailModal 
           isOpen={!!selectedRecipe} 
           onClose={() => setSelectedRecipe(null)} 
           recipe={selectedRecipe}
           loading={modalLoading}
         />
+
         <Footer />
       </div>
     </>
   );
 }
-
-export const dynamic = 'force-dynamic';
