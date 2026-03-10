@@ -330,24 +330,45 @@ export default function GeneratePage() {
     });
   };
 
-  const generateShoppingList = () => {
-    const ingredients = {};
-    Object.entries(weeklyPlan).forEach(([dayKey, recipes]) => {
+  // Generate shopping list - fetch full recipe details with ingredients
+  const generateShoppingList = async () => {
+    const allIngredients = {};
+    const recipeIds = new Set();
+    
+    // Collect unique recipe IDs
+    Object.values(weeklyPlan).forEach(recipes => {
       (recipes || []).forEach(recipe => {
-        if (recipe?.ingredients) {
-          recipe.ingredients.forEach(ing => {
-            const name = ing.name || ing.ingredient_id;
-            const qty = (ing.quantity || 1) * servings;
-            ingredients[name] = (ingredients[name] || 0) + qty;
-          });
-        }
+        if (recipe?.id) recipeIds.add(recipe.id);
       });
     });
-    setShoppingList(Object.entries(ingredients).map(([name, quantity]) => ({ 
-      name, 
-      quantity,
-      category: 'other' // TODO: categorize properly
-    })));
+    
+    // Fetch full recipe details for each
+    const fetchPromises = Array.from(recipeIds).map(id => 
+      fetch('/api/recipes/' + id).then(res => res.json())
+    );
+    
+    const fullRecipes = await Promise.all(fetchPromises);
+    
+    // Process ingredients
+    fullRecipes.forEach(recipe => {
+      if (recipe?.ingredients) {
+        const scale = servings / (recipe.base_servings || 1);
+        recipe.ingredients.forEach(ing => {
+          const name = ing.name || 'Unknown';
+          const qty = (ing.quantity || 1) * scale;
+          const category = 'other'; // TODO: use ingredients.shopping_category
+          
+          const key = `${name}-${category}`;
+          if (allIngredients[key]) {
+            allIngredients[key].quantity += qty;
+          } else {
+            allIngredients[key] = { name, quantity: qty, category };
+          }
+        });
+      }
+    });
+    
+    setShoppingList(Object.values(allIngredients));
     setShowShoppingList(true);
   };
 
