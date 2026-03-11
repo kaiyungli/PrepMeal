@@ -8,6 +8,7 @@ import { Button } from '@/components';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import PantryHero from '@/components/home/PantryHero';
 
 
 
@@ -142,6 +143,9 @@ export default function Home({ initialRecipes }) {
           </div>
         </div>
       </section>
+
+      {/* Pantry Hero Search */}
+      <PantryHero />
 
       {/* How It Works */}
       <section className="py-16" style={{ backgroundColor: '#fff' }}>
