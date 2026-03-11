@@ -237,11 +237,15 @@ const CONFIG = {
     
     // Budget filtering
     const matchesBudget = (recipe) => {
-      if (!budget || budget === 'any') return true;
+      // UI sends: budget, normal, premium
+      // Map to: low, medium, high
+      if (!budget || budget === 'normal') return true; // normal = any
       const recipeBudget = recipe.budget_level || 'medium';
-      if (budget === 'low') return recipeBudget === 'low';
-      if (budget === 'medium') return recipeBudget === 'low' || recipeBudget === 'medium';
-      return true; // high budget allows all
+      // budget mode: prefer cheap
+      if (budget === 'budget') return recipeBudget === 'low' || recipeBudget === 'medium';
+      // premium: allow all
+      if (budget === 'premium') return true;
+      return true;
     };
     
     const categorized = {
@@ -271,18 +275,21 @@ const CONFIG = {
     
     // Helper: check cooking constraint (speed/difficulty)
     const matchesConstraint = (recipe) => {
-      // Check speed constraint (e.g., "Under 15 min")
-      if (cookingConstraints.includes('Under 15 min') && (recipe.cook_time > 15)) return false;
-      if (cookingConstraints.includes('Under 30 min') && (recipe.cook_time > 30)) return false;
-      if (cookingConstraints.includes('Under 45 min') && (recipe.cook_time > 45)) return false;
+      // Get cook time from available fields
+      const cookTime = recipe.cook_time_minutes || recipe.prep_time_minutes || recipe.cook_time || 30;
       
-      // Check difficulty constraint
-      if (cookingConstraints.includes('Easy') && recipe.difficulty !== 'easy') return false;
-      if (cookingConstraints.includes('Medium') && recipe.difficulty === 'hard') return false;
+      // Check speed constraint - UI sends under_15, under_30, etc.
+      if (cookingConstraints.includes('under_15') && cookTime > 15) return false;
+      if (cookingConstraints.includes('under_30') && cookTime > 30) return false;
+      if (cookingConstraints.includes('under_45') && cookTime > 45) return false;
       
-      // Check method constraints
-      if (cookingConstraints.includes('One-pot') && recipe.method !== 'one_pot') return false;
-      if (cookingConstraints.includes('Air fryer') && recipe.method !== 'air_fryer') return false;
+      // Check difficulty constraint - UI sends easy, medium, hard
+      if (cookingConstraints.includes('easy') && recipe.difficulty !== 'easy') return false;
+      if (cookingConstraints.includes('medium') && recipe.difficulty === 'hard') return false;
+      
+      // Check method constraints - UI sends one_pot, air_fryer
+      if (cookingConstraints.includes('one_pot') && recipe.method !== 'one_pot') return false;
+      if (cookingConstraints.includes('air_fryer') && recipe.method !== 'air_fryer') return false;
       
       return true;
     };
