@@ -197,6 +197,20 @@ export default function GeneratePage() {
     );
   };
 
+// ============================================
+// PLANNER CONFIGURATION CONSTANTS
+// ============================================
+const CONFIG = {
+  // How many days to look back for protein diversity
+  PROTEIN_LOOKBACK_DAYS: 2,
+  // How many days to look back for method diversity
+  METHOD_LOOKBACK_DAYS: 1,
+  // Whether to allow recipe repetition within the week
+  RECIPE_REPEAT_ALLOWED: false,
+  // Debug mode - logs selection reasoning
+  DEBUG_MODE: false,
+};
+
 // Generate meal plan based on settings with balancing rules
   const handleGenerate = () => {
     const newPlan = {};
@@ -275,21 +289,19 @@ export default function GeneratePage() {
     
     // Helper: filter candidates by all rules
     const filterCandidates = (candidates, isWeekend = false) => {
-      // Check if we have enough recipes for no repetition
-      const totalAvailable = filteredRecipes.length;
-      const canAvoidRepetition = totalAvailable >= daysPerWeek * dishesPerDay * 2;
-      
       return filterByCuisine(candidates).filter(r => {
-        // If we have enough recipes, avoid repetition entirely
-        if (canAvoidRepetition && usedRecipeIds.has(r.id)) {
-          return false;
-        }
-        
-        // If database is small, allow controlled repetition after day 3
-        if (!canAvoidRepetition && usedRecipeIds.has(r.id)) {
-          // Only allow if we've already assigned some recipes (day 3+)
+        // Check repetition based on CONFIG
+        if (!CONFIG.RECIPE_REPEAT_ALLOWED && usedRecipeIds.has(r.id)) {
+          // Check if we have enough recipes to avoid repetition
+          const totalAvailable = filteredRecipes.length;
+          const canAvoidRepetition = totalAvailable >= daysPerWeek * dishesPerDay * 2;
+          
+          if (canAvoidRepetition) {
+            return false; // Don't allow repetition
+          }
+          // If small DB, allow after some recipes assigned
           const assignedCount = Object.values(weeklyPlan).flat().length;
-          return assignedCount >= 3;
+          if (assignedCount < 3) return false;
         }
         
         return !hasExcludedProtein(r) &&
@@ -332,57 +344,102 @@ export default function GeneratePage() {
       
       const scored = candidates.map(r => {
         let score = 0;
+        const breakdown = {};
         
         // +2 if protein not recently used (protein diversity)
         const protein = r.primary_protein || r.protein?.[0];
         if (protein && recentProteins.length > 0) {
-          if (!recentProteins.slice(-2).includes(protein)) {
+          if (!recentProteins.slice(-CONFIG.PROTEIN_LOOKBACK_DAYS).includes(protein)) {
             score += 2;
+            breakdown.protein_diversity = '+2';
           } else {
-            score -= 1; // penalty for same protein yesterday
+            score -= 1;
+            breakdown.protein_same = '-1';
           }
         }
         
         // +1 if method adds variety, -1 penalty if same
         const method = r.method;
         if (method && recentMethods.length > 0) {
-          if (!recentMethods.slice(-1).includes(method)) {
+          if (!recentMethods.slice(-CONFIG.METHOD_LOOKBACK_DAYS).includes(method)) {
             score += 1;
+            breakdown.method_variety = '+1';
           } else {
-            score -= 1; // penalty for same method yesterday
+            score -= 1;
+            breakdown.method_same = '-1';
           }
         }
         
         // +1 if speed matches weekday preference
         const speed = r.speed || 'normal';
         if (!isWeekend) {
-          if (speed === 'quick') score += 1;
-          else if (speed === 'normal') score += 0.5;
-          else if (speed === 'slow') score -= 2; // penalty for slow on weekday
+          if (speed === 'quick') {
+            score += 1;
+            breakdown.speed_quick = '+1';
+          } else if (speed === 'normal') {
+            score += 0.5;
+            breakdown.speed_normal = '+0.5';
+          } else if (speed === 'slow') {
+            score -= 2;
+            breakdown.speed_slow = '-2';
+          }
         }
         
         // +1 if difficulty matches weekday preference
         const difficulty = r.difficulty || 'medium';
         if (!isWeekend) {
-          if (difficulty === 'easy') score += 1;
-          else if (difficulty === 'hard') score -= 0.5; // penalty for hard on weekday
+          if (difficulty === 'easy') {
+            score += 1;
+            breakdown.difficulty_easy = '+1';
+          } else if (difficulty === 'hard') {
+            score -= 0.5;
+            breakdown.difficulty_hard = '-0.5';
+          }
         }
         
         // Budget awareness: prefer budget recipes when in budget mode
         if (budget && budget !== 'any') {
           const recipeBudget = r.budget_level || 'medium';
-          if (budget === 'low' && recipeBudget === 'low') score += 1;
-          if (budget === 'medium' && (recipeBudget === 'low' || recipeBudget === 'medium')) score += 0.5;
-          if (budget === 'low' && recipeBudget !== 'low') score -= 0.5; // penalty for expensive
+          if (budget === 'low' && recipeBudget === 'low') {
+            score += 1;
+            breakdown.budget_match = '+1';
+          }
+          if (budget === 'medium' && (recipeBudget === 'low' || recipeBudget === 'medium')) {
+            score += 0.5;
+            breakdown.budget_ok = '+0.5';
+          }
+          if (budget === 'low' && recipeBudget !== 'low') {
+            score -= 0.5;
+            breakdown.budget_expensive = '-0.5';
+          }
         }
         
         // Variety bonus
         if (recentProteins.length > 3 && protein) {
           const uniqueProteins = new Set(recentProteins.slice(-4));
-          if (!uniqueProteins.has(protein)) score += 0.5;
+          if (!uniqueProteins.has(protein)) {
+            score += 0.5;
+            breakdown.variety_bonus = '+0.5';
+          }
         }
         
-        return { recipe: r, score };
+        // Store debug info on recipe
+        const debugInfo = {
+          recipe: r,
+          score,
+          breakdown,
+          protein,
+          method,
+          speed,
+          difficulty,
+          budget_level: r.budget_level,
+        };
+        
+        if (CONFIG.DEBUG_MODE) {
+          console.log(`[SCORING] ${r.name}: score=${score}`, breakdown);
+        }
+        
+        return debugInfo;
       });
       
       // Sort by score (highest first), then shuffle equal scores for variety
@@ -397,8 +454,8 @@ export default function GeneratePage() {
       }
       
       // Rebuild list with shuffled top, then rest
-      const rest = scored.filter(s => s.score < topScore).map(s => s.recipe);
-      return [...topCandidates.map(s => s.recipe), ...rest];
+      const rest = scored.filter(s => s.score < topScore);
+      return [...topCandidates, ...rest].map(s => s.recipe);
     };
     
     // Helper: speed/difficulty based on weekday vs weekend
