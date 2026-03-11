@@ -300,26 +300,72 @@ export default function GeneratePage() {
       return candidates;
     };
     
-    // Helper: balance protein rotation
-    const balanceProtein = (candidates) => {
-      if (recentProteins.length === 0) return candidates;
-      return candidates.filter(r => {
+    // Helper: score candidates instead of filtering
+    const scoreCandidates = (candidates, isWeekend = false) => {
+      if (candidates.length === 0) return candidates;
+      
+      const scored = candidates.map(r => {
+        let score = 0;
+        
+        // +1 if protein not recently used (protein diversity)
         const protein = r.primary_protein || r.protein?.[0];
-        if (!protein) return true;
-        // Avoid same protein in last 2 days
-        return !recentProteins.slice(-2).includes(protein);
-      });
-    };
-    
-    // Helper: balance cooking method rotation  
-    const balanceMethod = (candidates) => {
-      if (recentMethods.length === 0) return candidates;
-      return candidates.filter(r => {
+        if (protein && recentProteins.length > 0) {
+          if (!recentProteins.slice(-2).includes(protein)) {
+            score += 2; // Higher weight for protein diversity
+          }
+        }
+        
+        // +1 if method adds variety (method diversity)
         const method = r.method;
-        if (!method) return true;
-        // Avoid same method on consecutive days
-        return !recentMethods.slice(-1).includes(method);
+        if (method && recentMethods.length > 0) {
+          if (!recentMethods.slice(-1).includes(method)) {
+            score += 1;
+          }
+        }
+        
+        // +1 if speed matches weekday preference
+        const speed = r.speed || 'normal';
+        if (!isWeekend) {
+          if (speed === 'quick') score += 1;
+          else if (speed === 'normal') score += 0.5;
+        }
+        
+        // +1 if difficulty matches weekday preference
+        const difficulty = r.difficulty || 'medium';
+        if (!isWeekend) {
+          if (difficulty === 'easy') score += 1;
+        }
+        
+        // Budget awareness: prefer budget recipes when in budget mode
+        if (budget && budget !== 'any') {
+          const recipeBudget = r.budget_level || 'medium';
+          if (budget === 'low' && recipeBudget === 'low') score += 1;
+          if (budget === 'medium' && (recipeBudget === 'low' || recipeBudget === 'medium')) score += 0.5;
+        }
+        
+        // Variety bonus: prefer recipes with good variety in recent meals
+        if (recentProteins.length > 3 && protein) {
+          const uniqueProteins = new Set(recentProteins.slice(-4));
+          if (!uniqueProteins.has(protein)) score += 0.5;
+        }
+        
+        return { recipe: r, score };
       });
+      
+      // Sort by score (highest first), then shuffle equal scores for variety
+      scored.sort((a, b) => b.score - a.score);
+      
+      // Shuffle top candidates with same score
+      const topScore = scored[0]?.score || 0;
+      const topCandidates = scored.filter(s => s.score === topScore);
+      for (let i = topCandidates.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [topCandidates[i], topCandidates[j]] = [topCandidates[j], topCandidates[i]];
+      }
+      
+      // Rebuild list with shuffled top, then rest
+      const rest = scored.filter(s => s.score < topScore).map(s => s.recipe);
+      return [...topCandidates.map(s => s.recipe), ...rest];
     };
     
     // Helper: speed/difficulty based on weekday vs weekend
@@ -396,14 +442,8 @@ export default function GeneratePage() {
           }
         }
         
-        // Apply protein balancing
-        candidates = balanceProtein(candidates);
-        
-        // Apply method balancing (for variety)
-        candidates = balanceMethod(candidates);
-        
-        // Shuffle for randomness
-        candidates = shuffle(candidates);
+        // Apply scoring to rank candidates by diversity
+        candidates = scoreCandidates(candidates, isWeekend);
         
         // Select first valid candidate
         if (candidates.length > 0) {
