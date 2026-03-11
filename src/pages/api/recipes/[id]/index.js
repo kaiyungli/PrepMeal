@@ -4,6 +4,10 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
   
   try {
+    if (!supabase) {
+      throw new Error('Supabase is not configured')
+    }
+
     const { id } = req.query
     
     // Fetch recipe

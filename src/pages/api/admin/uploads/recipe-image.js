@@ -4,6 +4,10 @@ import { requireAdmin } from '@/lib/adminAuth'
 const supabase = supabaseServer
 
 export default async function handler(req, res) {
+  if (!supabase) {
+    return res.status(500).json({ error: 'Supabase is not configured' })
+  }
+
   if (!requireAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
