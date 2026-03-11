@@ -66,6 +66,7 @@ Open `http://localhost:3000`.
 - `npm run start` - run built app
 - `npm run lint` - lint codebase
 - `npm run smoke` - basic API smoke checks against a temporary local dev server
+- `npm run check:conflicts` - scan repository files for unresolved git conflict markers
 
 ## Notes
 
