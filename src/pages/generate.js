@@ -213,6 +213,7 @@ const CONFIG = {
 
 // Generate meal plan based on settings with balancing rules
   const handleGenerate = () => {
+    alert('Generate clicked!');
     console.log('[GENERATE] Button clicked');
     console.log('[GENERATE] Settings:', { daysPerWeek, dishesPerDay, cuisines, budget, exclusions, dietMode, cookingConstraints });
     console.log('[GENERATE] filteredRecipes count:', filteredRecipes?.length);
