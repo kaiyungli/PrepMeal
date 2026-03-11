@@ -74,6 +74,12 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
             <span key={i} className="text-xs px-2 py-1 bg-[#C8D49A] text-[#3A2010] rounded">{proteinLabels[tag] || tag}</span>
           ))}
         </div>
+        {/* Match Score */}
+        {recipe.matchScore !== undefined && recipe.matchScore > 0 && (
+          <div className="mt-3 text-sm font-medium text-green-600">
+            匹配度 {Math.round(recipe.matchScore * 100)}%
+          </div>
+        )}
       </div>
     </div>
   )

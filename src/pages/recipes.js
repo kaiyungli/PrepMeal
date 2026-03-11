@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Layout, Modal } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
@@ -7,6 +8,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import supabase from '@/lib/supabase';
 
 export default function RecipesPage({ initialRecipes }) {
+  const router = useRouter();
   const [recipes, setRecipes] = useState(initialRecipes || []);
   
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -24,6 +26,43 @@ export default function RecipesPage({ initialRecipes }) {
     };
     checkUser();
   }, []);
+
+  // Handle ingredient-based sorting
+  useEffect(() => {
+    const { ingredients } = router.query;
+    if (!ingredients || !initialRecipes?.length) return;
+
+    const userIngredients = ingredients.toString().split(',').map(i => i.trim().toLowerCase()).filter(Boolean);
+    if (userIngredients.length === 0) return;
+
+    // Score each recipe
+    const scored = initialRecipes.map(recipe => {
+      const searchText = [
+        recipe.name,
+        recipe.description,
+        recipe.cuisine,
+        recipe.method,
+        recipe.dish_type,
+        recipe.primary_protein
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      let matchCount = 0;
+      userIngredients.forEach(ing => {
+        if (searchText.includes(ing)) matchCount++;
+      });
+
+      const matchRatio = matchCount / Math.max(userIngredients.length, 1);
+      let score = matchRatio;
+      if (recipe.primary_protein && userIngredients.some(ing => recipe.primary_protein.toLowerCase().includes(ing))) score += 0.2;
+      if (recipe.speed === 'quick') score += 0.1;
+
+      return { ...recipe, matchScore: score, matchRatio };
+    });
+
+    // Filter >= 0.3 and sort
+    const filtered = scored.filter(r => r.matchScore >= 0.3).sort((a, b) => b.matchScore - a.matchScore);
+    setRecipes(filtered.length > 0 ? filtered : initialRecipes);
+  }, [router.query.ingredients]);
 
   const loadFavorites = async (userId) => {
     const { data } = await supabase
