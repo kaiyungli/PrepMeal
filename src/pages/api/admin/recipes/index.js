@@ -5,7 +5,18 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+// Simple admin check - in production use proper auth
+const isAdmin = (req) => {
+  // TODO: Implement proper admin authentication
+  // For now, check for admin header or allow all in development
+  return process.env.NODE_ENV === 'development' || req.headers['x-admin-key'] === process.env.ADMIN_SECRET_KEY
+}
+
 export default async function handler(req, res) {
+  if (!isAdmin(req)(req)) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+  
   const { method, query, body } = req;
   
   try {

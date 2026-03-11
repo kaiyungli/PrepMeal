@@ -72,7 +72,11 @@ export default function Home({ initialRecipes }) {
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   return (
     <Layout>
-      <Head><title>今晚食乜 🥘</title></Head>
+      <Head>
+        <title>今晚食乜 🥘 - 智能一週餐單生成器</title>
+        <meta name="description" content="自動生成一週晚餐餐單，支援購物清單，簡單方便" />
+        <meta name="keywords" content="食譜,餐單,晚餐,一週,買餸,教煮" />
+      </Head>
       
       {/* Hero */}
       <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: 'var(--background)' }}>

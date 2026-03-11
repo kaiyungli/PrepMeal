@@ -1,4 +1,6 @@
 'use client';
+import GenerateActions from '@/components/generate/GenerateActions';
+import GenerateSettings from '@/components/generate/GenerateSettings';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -397,245 +399,49 @@ export default function GeneratePage() {
         </section>
 
         {/* Settings Panel */}
-        <div className="bg-white border-b border-[#DDD0B0] p-4">
-          <div className="max-w-[1200px] mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              
-              {/* Days per Week */}
-              <div>
-                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每週日數</label>
-                <div className="flex gap-1">
-                  {DAYS_PER_WEEK.map(days => (
-                    <button
-                      key={days}
-                      onClick={() => setDaysPerWeek(days)}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        daysPerWeek === days 
-                          ? 'bg-[#9B6035] text-white' 
-                          : 'bg-[#F8F3E8] text-[#3A2010]'
-                      }`}
-                    >
-                      {days}日
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Dishes per Day */}
-              <div>
-                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每日碟數</label>
-                <div className="flex gap-1">
-                  {DISHES_PER_DAY.map(dishes => (
-                    <button
-                      key={dishes}
-                      onClick={() => setDishesPerDay(dishes)}
-                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        dishesPerDay === dishes 
-                          ? 'bg-[#9B6035] text-white' 
-                          : 'bg-[#F8F3E8] text-[#3A2010]'
-                      }`}
-                    >
-                      {dishes}碟
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Servings */}
-              <div>
-                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">人數</label>
-                <select 
-                  value={servings}
-                  onChange={(e) => setServings(parseInt(e.target.value))}
-                  className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
-                >
-                  {SERVINGS_OPTIONS.map(s => (
-                    <option key={s} value={s}>{s}人</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Diet Mode */}
-              <div>
-                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">飲食模式</label>
-                <select 
-                  value={dietMode}
-                  onChange={(e) => setDietMode(e.target.value)}
-                  className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
-                >
-                  {DIET_MODES.map(d => (
-                    <option key={d.value} value={d.value}>{d.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Budget */}
-              <div>
-                <label className="block text-xs font-semibold text-[#AA7A50] mb-2">預算</label>
-                <div className="flex gap-1">
-                  {BUDGET_OPTIONS.map(b => (
-                    <button
-                      key={b.value}
-                      onClick={() => setBudget(b.value)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
-                        budget === b.value 
-                          ? 'bg-[#9B6035] text-white' 
-                          : 'bg-[#F8F3E8] text-[#3A2010]'
-                      }`}
-                    >
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-            {/* Cuisines */}
-            <div className="mt-4">
-              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">菜系</label>
-              <div className="flex flex-wrap gap-2">
-                {CUISINES.map(c => (
-                  <button
-                    key={c.value}
-                    onClick={() => toggleCuisine(c.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      cuisines.includes(c.value)
-                        ? 'bg-[#C8D49A] text-[#3A2010]'
-                        : 'bg-[#F8F3E8] text-[#AA7A50]'
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Cooking Constraints */}
-            <div className="mt-4">
-              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">烹飪限制</label>
-              <div className="flex flex-wrap gap-2">
-                {COOKING_CONSTRAINTS.map(c => (
-                  <button
-                    key={c.value}
-                    onClick={() => toggleConstraint(c.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      cookingConstraints.includes(c.value)
-                        ? 'bg-[#F0A060] text-white'
-                        : 'bg-[#F8F3E8] text-[#AA7A50]'
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Exclusions */}
-            <div className="mt-4">
-              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">排除</label>
-              <div className="flex flex-wrap gap-2">
-                {EXCLUSIONS.map(e => (
-                  <button
-                    key={e.value}
-                    onClick={() => toggleExclusion(e.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      exclusions.includes(e.value)
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-[#F8F3E8] text-[#AA7A50]'
-                    }`}
-                  >
-                    {e.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Ingredient Reuse */}
-            <div className="mt-4">
-              <label className="block text-xs font-semibold text-[#AA7A50] mb-2">食材重用</label>
-              <div className="flex gap-2">
-                {INGREDIENT_REUSE.map(ir => (
-                  <button
-                    key={ir.value}
-                    onClick={() => setIngredientReuse(ir.value)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      ingredientReuse === ir.value 
-                        ? 'bg-[#9B6035] text-white' 
-                        : 'bg-[#F8F3E8] text-[#3A2010]'
-                    }`}
-                  >
-                    {ir.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <GenerateSettings 
+          daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
+          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay}
+          servings={servings} setServings={setServings}
+          dietMode={dietMode} setDietMode={setDietMode}
+          exclusions={exclusions} toggleExclusion={toggleExclusion}
+          cuisines={cuisines} toggleCuisine={toggleCuisine}
+          cookingConstraints={cookingConstraints} toggleConstraint={toggleConstraint}
+          budget={budget} setBudget={setBudget}
+          ingredientReuse={ingredientReuse} setIngredientReuse={setIngredientReuse}
+        />
 
         {/* Action Bar */}
-        <div className="bg-white px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap justify-between items-center gap-3">
-          <div className='flex gap-2 items-center'>
-            <span className='text-sm font-semibold text-[#3A2010]'>
-              已選擇 {selectedCount} 餐
-            </span>
-            {hasRecipes && (
-              <button
-                onClick={clearAll}
-                className="px-3 py-1.5 bg-transparent border border-[#DDD0B0] rounded-md text-xs text-[#AA7A50] cursor-pointer"
-              >
-                🗑️ 清空
-              </button>
-            )}
-          </div>
-          <div className='flex gap-2'>
-            <button
-              onClick={generateShoppingList}
-              disabled={!hasRecipes}
-              className="px-5 py-2.5 bg-[#C8D49A] text-[#3A2010] border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
-            >
-              🛒 購物清單
-            </button>
-            <button
-              onClick={handleGenerate}
-              disabled={!filteredRecipes || filteredRecipes.length === 0}
-              className="px-5 py-2.5 bg-[#F0A060] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
-            >
-              ✨ 一鍵生成
-            </button>
-            <button
-              onClick={async () => {
-                const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
-                if (!name) return;
-                
-                try {
-                  await fetch('/api/menus', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      name,
-                      menu_data: {
-                        daysPerWeek,
-                        dishesPerDay,
-                        servings,
-                        weeklyPlan,
-                        settings: { dietMode, exclusions, cuisines, cookingConstraints, budget, ingredientReuse }
-                      }
-                    })
-                  });
-                  alert('已保存餐單！');
-                } catch (e) {
-                  alert('保存失敗: ' + e.message);
-                }
-              }}
-              disabled={!hasRecipes}
-              className="px-5 py-2.5 bg-[#9B6035] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
-            >
-              💾 保存
-            </button>
-          </div>
-        </div>
+        <GenerateActions 
+          selectedCount={selectedCount}
+          hasRecipes={hasRecipes}
+          onClear={clearAll}
+          onShoppingList={generateShoppingList}
+          onGenerate={() => handleGenerate()}
+          onSave={async () => {
+            const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
+            if (!name) return;
+            try {
+              await fetch('/api/menus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name,
+                  menu_data: {
+                    daysPerWeek,
+                    dishesPerDay,
+                    servings,
+                    weeklyPlan,
+                    settings: { dietMode, exclusions, cuisines, cookingConstraints, budget, ingredientReuse }
+                  }
+                })
+              });
+              alert('已保存餐單！');
+            } catch (e) {
+              alert('保存失敗: ' + e.message);
+            }
+          }}
+        />
 
         {/* Weekly Plan Grid */}
         <div className="max-w-[1200px] mx-auto p-6">
