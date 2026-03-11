@@ -9,6 +9,7 @@ import Header from '@/components/layout/Header';
 import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 
@@ -549,19 +550,11 @@ export default function GeneratePage() {
         </div>
 
         {/* Shopping List Modal */}
-        <Modal isOpen={showShoppingList} title="購物清單" onClose={() => setShowShoppingList(false)} maxWidth="600px">
-          <div className="space-y-2">
-            {shoppingList.map((item, i) => (
-              <div key={i} className="flex justify-between py-2 border-b border-[#DDD0B0]">
-                <span className="text-[#3A2010]">{item.name}</span>
-                <span className="text-[#AA7A50]">{item.quantity} {item.unit || ''}</span>
-              </div>
-            ))}
-            {shoppingList.length === 0 && (
-              <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
-            )}
-          </div>
-        </Modal>
+        <ShoppingListModal 
+          isOpen={showShoppingList} 
+          onClose={() => setShowShoppingList(false)}
+          shoppingList={shoppingList}
+        />
 
         {/* Recipe Detail Modal */}
         <RecipeDetailModal 
