@@ -17,6 +17,37 @@ import { useRouter } from 'next/router';
 import { scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
 import { normalizeIngredients } from '@/lib/ingredientNormalizer';
 
+// Category mapping for shopping list
+const CATEGORY_MAP = {
+  meat: '肉類',
+  beef: '肉類',
+  pork: '肉類',
+  chicken: '肉類',
+  vegetable: '蔬菜',
+  vegetables: '蔬菜',
+  tofu: '豆腐',
+  egg: '蛋類',
+  eggs: '蛋類',
+  seafood: '海鮮',
+  shrimp: '海鮮',
+  fish: '海鮮',
+  other: '雜貨',
+};
+
+function getCategory(name, existingCategory) {
+  if (existingCategory && existingCategory !== 'other') {
+    return CATEGORY_MAP[existingCategory] || '雜貨';
+  }
+  // Try to infer from ingredient name
+  const lower = name.toLowerCase();
+  if (lower.includes('牛') || lower.includes('豬') || lower.includes('雞') || lower.includes('肉')) return '肉類';
+  if (lower.includes('菜') || lower.includes('茄') || lower.includes('蔥') || lower.includes('椒')) return '蔬菜';
+  if (lower.includes('蛋')) return '蛋類';
+  if (lower.includes('蝦') || lower.includes('魚')) return '海鮮';
+  if (lower.includes('豆腐')) return '豆腐';
+  return '雜貨';
+}
+
 // Settings Options from Spec
 const DAYS_PER_WEEK = [3, 5, 7];
 const DISHES_PER_DAY = [1, 2, 3];
@@ -680,18 +711,23 @@ const CONFIG = {
         const name = ing.name.trim();
         const unit = (ing.unit || '份').trim();
         const qty = (ing.quantity || 1) * scale;
-        const category = ing.category || 'other';
         
-        // Key includes unit to keep different units separate
-        const key = `${name}-${unit}`;
+        // Normalize name and get category
+        const normalized = normalizeIngredients([name]);
+        const canonicalName = normalized[0] || name;
+        const category = getCategory(name, ing.category);
+        
+        // Key includes canonical name + unit
+        const key = `${canonicalName}-${unit}`;
         
         if (ingredientMap.has(key)) {
           const existing = ingredientMap.get(key);
           existing.quantity += qty;
         } else {
           ingredientMap.set(key, { 
-            name, 
-            quantity: Math.round(qty * 100) / 100, // Round to 2 decimals
+            name, // Keep original name for display
+            canonicalName, // For potential future use
+            quantity: Math.round(qty * 100) / 100,
             unit, 
             category 
           });
