@@ -22,7 +22,7 @@ export default function PantryHero() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-6">
       {/* Headline */}
-      <h1 className="text-4xl font-bold tracking-tight text-[#3A2010]">
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#3A2010]">
         今晚食乜？
       </h1>
       
@@ -42,7 +42,7 @@ export default function PantryHero() {
       />
       
       {/* Buttons */}
-      <div className="flex justify-center gap-4 pt-4">
+      <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
         <button
           onClick={handleRecommend}
           className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition font-medium"
