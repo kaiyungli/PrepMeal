@@ -237,14 +237,8 @@ const CONFIG = {
     
     // Budget filtering
     const matchesBudget = (recipe) => {
-      // UI sends: budget, normal, premium
-      // Map to: low, medium, high
-      if (!budget || budget === 'normal') return true; // normal = any
-      const recipeBudget = recipe.budget_level || 'medium';
-      // budget mode: prefer cheap
-      if (budget === 'budget') return recipeBudget === 'low' || recipeBudget === 'medium';
-      // premium: allow all
-      if (budget === 'premium') return true;
+      // No budget field in API, so just return true (allow all)
+      // Budget filtering disabled until API adds budget_level field
       return true;
     };
     
@@ -275,19 +269,24 @@ const CONFIG = {
     
     // Helper: check cooking constraint (speed/difficulty)
     const matchesConstraint = (recipe) => {
-      // Get cook time from available fields
-      const cookTime = recipe.cook_time_minutes || recipe.prep_time_minutes || recipe.cook_time || 30;
+      // Get cook time - use prep_time as proxy, map from speed
+      const prepTime = recipe.prep_time_minutes || recipe.prep_time || 15;
+      // Map speed to estimated cook time: quick=15, normal=30, slow=45
+      let estimatedCook = 30;
+      if (recipe.speed === 'quick') estimatedCook = 15;
+      else if (recipe.speed === 'slow') estimatedCook = 45;
+      const totalTime = prepTime + estimatedCook;
       
-      // Check speed constraint - UI sends under_15, under_30, etc.
-      if (cookingConstraints.includes('under_15') && cookTime > 15) return false;
-      if (cookingConstraints.includes('under_30') && cookTime > 30) return false;
-      if (cookingConstraints.includes('under_45') && cookTime > 45) return false;
+      // Check speed constraint - UI sends under_15, under_30, under_45
+      if (cookingConstraints.includes('under_15') && totalTime > 15) return false;
+      if (cookingConstraints.includes('under_30') && totalTime > 30) return false;
+      if (cookingConstraints.includes('under_45') && totalTime > 45) return false;
       
-      // Check difficulty constraint - UI sends easy, medium, hard
+      // Difficulty constraint - UI sends easy, medium, hard
       if (cookingConstraints.includes('easy') && recipe.difficulty !== 'easy') return false;
       if (cookingConstraints.includes('medium') && recipe.difficulty === 'hard') return false;
       
-      // Check method constraints - UI sends one_pot, air_fryer
+      // Method constraint - UI sends one_pot, air_fryer
       if (cookingConstraints.includes('one_pot') && recipe.method !== 'one_pot') return false;
       if (cookingConstraints.includes('air_fryer') && recipe.method !== 'air_fryer') return false;
       
