@@ -567,9 +567,8 @@ function ImportModal({ onClose, onSuccess }) {
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
 
-  const handleImport = async () => {
+  const handlePreview = () => {
     setError('');
-    setResults(null);
     
     let parsed;
     try {
@@ -586,12 +585,19 @@ function ImportModal({ onClose, onSuccess }) {
       return;
     }
 
+    // Show preview count
+    setResults({ preview: true, total: recipes.length, recipes });
+  };
+
+  const handleImport = async () => {
+    if (!results?.recipes) return;
+    
     setLoading(true);
     try {
       const res = await fetch('/api/admin/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipes }),
+        body: JSON.stringify({ recipes: results.recipes }),
       });
       
       const data = await res.json();
@@ -643,22 +649,44 @@ function ImportModal({ onClose, onSuccess }) {
 
           {results ? (
             <div className="space-y-4">
-              <div className={`p-4 rounded-lg ${results.failed === 0 ? 'bg-green-50' : 'bg-yellow-50'}`}>
-                <p className="font-medium">
-                  匯入完成：成功 {results.success} 個，失敗 {results.failed} 個
-                </p>
-              </div>
-              <div className="max-h-60 overflow-y-auto space-y-2">
-                {results.results.map((r, i) => (
-                  <div key={i} className={`p-2 rounded ${r.success ? 'bg-green-100' : 'bg-red-100'}`}>
-                    <span className={r.success ? 'text-green-700' : 'text-red-700'}>
-                      {r.success ? '✅' : '❌'} {r.name}
-                    </span>
-                    {r.error && <span className="text-red-600 text-sm ml-2">- {r.error}</span>}
+              {results.preview ? (
+                <>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="font-medium text-blue-800">
+                      發現 {results.total} 個食譜，確認匯入？
+                    </p>
                   </div>
-                ))}
-              </div>
-              <button onClick={onClose} className="w-full bg-[#9B6035] text-white py-3 rounded-lg">關閉</button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={handleImport}
+                      disabled={loading}
+                      className="flex-1 bg-[#9B6035] text-white py-3 rounded-lg hover:bg-[#7a4a2a]"
+                    >
+                      {loading ? '匯入中...' : '確認匯入'}
+                    </button>
+                    <button onClick={() => setResults(null)} className="px-6 py-3 border border-[#DDD0B0] rounded-lg">返回</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={`p-4 rounded-lg ${results.failed === 0 ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                    <p className="font-medium">
+                      匯入完成：成功 {results.success} 個，失敗 {results.failed} 個
+                    </p>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {results.results.map((r, i) => (
+                      <div key={i} className={`p-2 rounded ${r.success ? 'bg-green-100' : 'bg-red-100'}`}>
+                        <span className={r.success ? 'text-green-700' : 'text-red-700'}>
+                          {r.success ? '✅' : '❌'} {r.name}
+                        </span>
+                        {r.error && <span className="text-red-600 text-sm ml-2">- {r.error}</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={onClose} className="w-full bg-[#9B6035] text-white py-3 rounded-lg">關閉</button>
+                </>
+              )}
             </div>
           ) : (
             <>
@@ -672,11 +700,11 @@ function ImportModal({ onClose, onSuccess }) {
               />
               <div className="flex gap-2 mt-4">
                 <button 
-                  onClick={handleImport}
-                  disabled={loading || !jsonInput.trim()}
+                  onClick={handlePreview}
+                  disabled={!jsonInput.trim()}
                   className="flex-1 bg-[#9B6035] text-white py-3 rounded-lg hover:bg-[#7a4a2a] disabled:opacity-50"
                 >
-                  {loading ? '匯入中...' : '開始匯入'}
+                  預覽
                 </button>
                 <button onClick={onClose} className="px-6 py-3 border border-[#DDD0B0] rounded-lg">取消</button>
               </div>
