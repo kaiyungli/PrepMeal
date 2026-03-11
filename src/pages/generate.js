@@ -274,22 +274,23 @@ export default function GeneratePage() {
     };
     
     // Helper: filter candidates by all rules
-    const filterCandidates = (candidates) => {
+    const filterCandidates = (candidates, isWeekend = false) => {
       return filterByCuisine(candidates).filter(r => 
         !usedRecipeIds.has(r.id) && 
         !hasExcludedProtein(r) &&
         matchesDiet(r) &&
         matchesConstraint(r) &&
-        matchesBudget(r)
+        matchesBudget(r) &&
+        matchesSpeedDifficulty(r, isWeekend)
       );
     };
     
     // Helper: get candidates with smart fallbacks
-    const getCandidatesWithFallback = (primary, fallbacks) => {
-      let candidates = filterCandidates(primary);
+    const getCandidatesWithFallback = (primary, fallbacks, isWeekend = false) => {
+      let candidates = filterCandidates(primary, isWeekend);
       for (const fallback of fallbacks) {
         if (candidates.length > 0) break;
-        candidates = filterCandidates(fallback);
+        candidates = filterCandidates(fallback, isWeekend);
       }
       // Shuffle for variety
       for (let i = candidates.length - 1; i > 0; i--) {
@@ -316,9 +317,30 @@ export default function GeneratePage() {
       return candidates.filter(r => {
         const method = r.method;
         if (!method) return true;
-        // Try to vary methods
+        // Avoid same method on consecutive days
         return !recentMethods.slice(-1).includes(method);
       });
+    };
+    
+    // Helper: speed/difficulty based on weekday vs weekend
+    const matchesSpeedDifficulty = (recipe, isWeekend) => {
+      const speed = recipe.speed || 'normal';
+      const difficulty = recipe.difficulty || 'medium';
+      
+      // Weekdays: prefer quick/normal, allow medium/hard only if needed
+      if (!isWeekend) {
+        // For weekdays, prefer quick recipes
+        if (speed === 'slow') {
+          // Only allow slow on Friday/Saturday nights (rare)
+          return false;
+        }
+        if (difficulty === 'hard') {
+          // Hard dishes on weekdays are okay if needed
+          return true;
+        }
+      }
+      // Weekends: allow everything
+      return true;
     };
     
     // Helper: shuffle array
@@ -333,6 +355,7 @@ export default function GeneratePage() {
     
     daysToGenerate.forEach(day => {
       const dayRecipes = [];
+      const isWeekend = day.isWeekend || false;
       
       for (let dish = 0; dish < dishesPerDay; dish++) {
         const slotKey = `${day.key}-${dish}`;
@@ -343,31 +366,33 @@ export default function GeneratePage() {
         // Rule-based selection with smart fallbacks
         if (dishesPerDay === 1) {
           // 1 dish: complete meal only
-          candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
+          candidates = getCandidatesWithFallback(categorized.complete, [categorized.other], isWeekend);
         } else if (dishesPerDay === 2) {
           // 2 dishes: main + side (or soup/staple)
           if (dish === 0) {
-            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
+            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other], isWeekend);
           } else {
             // Prefer sides, fallback to soup/staple/other
             candidates = getCandidatesWithFallback(
               [...categorized.side],
-              [...categorized.soup, ...categorized.staple, ...categorized.other]
+              [...categorized.soup, ...categorized.staple, ...categorized.other],
+              isWeekend
             );
           }
         } else {
           // 3 dishes: complete + side + flexible
           if (dish === 0) {
-            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
+            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other], isWeekend);
           } else if (dish === 1) {
             // Prefer veg_side, fallback to soup/staple
             candidates = getCandidatesWithFallback(
               [...categorized.side, ...categorized.soup],
-              [...categorized.staple, ...categorized.other]
+              [...categorized.staple, ...categorized.other],
+              isWeekend
             );
           } else {
             // Flexible: anything not used
-            candidates = getCandidatesWithFallback(filteredRecipes, []);
+            candidates = getCandidatesWithFallback(filteredRecipes, [], isWeekend);
           }
         }
         
