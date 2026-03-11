@@ -1,13 +1,13 @@
 import Image from 'next/image'
 
 const DAYS = [
-  { key: 'monday', label: '星期一', isWeekend: false },
-  { key: 'tuesday', label: '星期二', isWeekend: false },
-  { key: 'wednesday', label: '星期三', isWeekend: false },
-  { key: 'thursday', label: '星期四', isWeekend: false },
-  { key: 'friday', label: '星期五', isWeekend: false },
-  { key: 'saturday', label: '星期六', isWeekend: true },
-  { key: 'sunday', label: '星期日', isWeekend: true },
+  { key: 'mon', label: '星期一', isWeekend: false },
+  { key: 'tue', label: '星期二', isWeekend: false },
+  { key: 'wed', label: '星期三', isWeekend: false },
+  { key: 'thu', label: '星期四', isWeekend: false },
+  { key: 'fri', label: '星期五', isWeekend: false },
+  { key: 'sat', label: '星期六', isWeekend: true },
+  { key: 'sun', label: '星期日', isWeekend: true },
 ]
 
 // Generate dates for current week
