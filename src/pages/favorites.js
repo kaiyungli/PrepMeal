@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import supabase from '@/lib/supabase';
 import { Button } from '@/components';
 
@@ -41,25 +40,17 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState([]);
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase?.auth.getUser();
-      if (!user) {
-        router.push('/login');
-      } else {
-        setUser(user);
-        loadFavorites(user.id);
-      }
-    };
-    checkUser();
-  }, [router]);
-
   const loadFavorites = async (userId) => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('favorites')
       .select('recipe_id')
       .eq('user_id', userId);
-    
+
     if (!error && data) {
       const ids = data.map(f => f.recipe_id);
       setFavoriteIds(ids);
@@ -68,28 +59,49 @@ export default function FavoritesPage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    const checkUser = async () => {
+      if (!supabase) {
+        router.push('/login');
+        return;
+      }
+
+      const { data } = await supabase.auth.getUser();
+      const currentUser = data?.user;
+
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setUser(currentUser);
+        await loadFavorites(currentUser.id);
+      }
+    };
+
+    checkUser();
+  }, [router]);
+
   const toggleFavorite = async (recipeId) => {
-    if (!user) {
+    if (!user || !supabase) {
       router.push('/login');
       return;
     }
 
     const isFavorited = favoriteIds.includes(recipeId);
-    
+
     if (isFavorited) {
       await supabase
         .from('favorites')
         .delete()
         .eq('user_id', user.id)
         .eq('recipe_id', recipeId);
-      
+
       setFavoriteIds(prev => prev.filter(id => id !== recipeId));
       setFavorites(prev => prev.filter(r => r.id !== recipeId));
     } else {
       await supabase
         .from('favorites')
         .insert({ user_id: user.id, recipe_id: recipeId });
-      
+
       setFavoriteIds(prev => [...prev, recipeId]);
       const recipe = allRecipes.find(r => r.id === recipeId);
       if (recipe) setFavorites(prev => [...prev, recipe]);

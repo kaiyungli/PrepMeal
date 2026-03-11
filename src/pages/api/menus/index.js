@@ -3,6 +3,10 @@ import { supabase } from '@/lib/supabaseClient'
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
+      if (!supabase) {
+        throw new Error('Supabase is not configured')
+      }
+
       const { name, menu_data } = req.body
       
       const { data, error } = await supabase
@@ -18,6 +22,10 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'GET') {
     try {
+      if (!supabase) {
+        throw new Error('Supabase is not configured')
+      }
+
       const { data, error } = await supabase
         .from('menus')
         .select('*')

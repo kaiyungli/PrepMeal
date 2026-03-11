@@ -1,12 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
 
 const colors = {
   background: '#F8F3E8',
@@ -203,7 +197,16 @@ export default function RecipeDetail({ recipe, error }) {
 export async function getServerSideProps({ params }) {
   try {
     const { id } = params;
-    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return { props: { recipe: null, error: 'Missing Supabase configuration' } };
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const { data: recipe, error } = await supabase
       .from('recipes')
       .select('id,name,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein_g,carbs_g,fat_g,slug,is_public,prep_time_minutes,cook_time_minutes')
