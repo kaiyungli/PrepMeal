@@ -637,7 +637,7 @@ const CONFIG = {
 
   // Generate shopping list - fetch full recipe details with ingredients
   const generateShoppingList = async () => {
-    const allIngredients = {};
+    const ingredientMap = new Map(); // key: name+unit, value: {name, quantity, unit, category}
     const recipeIds = new Set();
     
     // Collect unique recipe IDs
@@ -647,33 +647,65 @@ const CONFIG = {
       });
     });
     
+    if (recipeIds.size === 0) {
+      alert('請先生成餐單!');
+      return;
+    }
+    
     // Fetch full recipe details for each
     const fetchPromises = Array.from(recipeIds).map(id => 
-      fetch('/api/recipes/' + id).then(res => res.json())
+      fetch('/api/recipes/' + id)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch');
+          return res.json();
+        })
+        .catch(err => {
+          console.error('Error fetching recipe:', id, err);
+          return null;
+        })
     );
     
     const fullRecipes = await Promise.all(fetchPromises);
     
-    // Process ingredients
+    // Process ingredients with proper merging
     fullRecipes.forEach(recipe => {
-      if (recipe?.ingredients) {
-        const scale = servings / (recipe.base_servings || 1);
-        recipe.ingredients.forEach(ing => {
-          const name = ing.name || 'Unknown';
-          const qty = (ing.quantity || 1) * scale;
-          const category = 'other'; // TODO: use ingredients.shopping_category
-          
-          const key = `${name}-${category}`;
-          if (allIngredients[key]) {
-            allIngredients[key].quantity += qty;
-          } else {
-            allIngredients[key] = { name, quantity: qty, category };
-          }
-        });
-      }
+      if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return;
+      
+      const scale = servings / (recipe.base_servings || 1);
+      
+      recipe.ingredients.forEach(ing => {
+        // Skip invalid rows
+        if (!ing || !ing.name || typeof ing.quantity !== 'number') return;
+        
+        const name = ing.name.trim();
+        const unit = (ing.unit || '份').trim();
+        const qty = (ing.quantity || 1) * scale;
+        const category = ing.category || 'other';
+        
+        // Key includes unit to keep different units separate
+        const key = `${name}-${unit}`;
+        
+        if (ingredientMap.has(key)) {
+          const existing = ingredientMap.get(key);
+          existing.quantity += qty;
+        } else {
+          ingredientMap.set(key, { 
+            name, 
+            quantity: Math.round(qty * 100) / 100, // Round to 2 decimals
+            unit, 
+            category 
+          });
+        }
+      });
     });
     
-    setShoppingList(Object.values(allIngredients));
+    // Convert to array and sort by category then name
+    const list = Array.from(ingredientMap.values()).sort((a, b) => {
+      if (a.category !== b.category) return a.category.localeCompare(b.category);
+      return a.name.localeCompare(b.name);
+    });
+    
+    setShoppingList(list);
     setShowShoppingList(true);
   };
 
