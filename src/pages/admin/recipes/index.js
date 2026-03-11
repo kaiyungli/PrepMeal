@@ -543,6 +543,21 @@ export default function AdminRecipes() {
                       >
                         編輯
                       </button>
+                      <button 
+                        onClick={() => { 
+                          const cloned = { 
+                            ...recipe, 
+                            id: undefined, // New ID
+                            name: `${recipe.name}（副本）`,
+                            slug: `${recipe.slug}-copy`,
+                          };
+                          setEditingRecipe(cloned); 
+                          setView('form'); 
+                        }}
+                        className="w-full mt-2 bg-[#C8D49A] text-[#3A2010] py-1.5 rounded text-sm hover:bg-[#b5c288]"
+                      >
+                        複製
+                      </button>
                     </div>
                   </div>
                 ))}
