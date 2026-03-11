@@ -1,15 +1,32 @@
 import { createClient } from '@supabase/supabase-js'
+import { parse } from 'cookie'
+import crypto from 'crypto'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// Simple admin check - in production use proper auth
+const ADMIN_SECRET = process.env.ADMIN_SECRET
+
+function verifyToken(token) {
+  try {
+    const [timestamp, signature] = token.split('.')
+    const expected = crypto
+      .createHmac('sha256', ADMIN_SECRET)
+      .update(timestamp)
+      .digest('hex')
+    return signature === expected
+  } catch {
+    return false
+  }
+}
+
+// HMAC-signed token verification
 const isAdmin = (req) => {
-  // TODO: Implement proper admin authentication
-  // For now, check for admin header or allow all in development
-  return process.env.NODE_ENV === 'development' || req.headers['x-admin-key'] === process.env.ADMIN_SECRET_KEY
+  const cookies = parse(req.headers.cookie || '')
+  const token = cookies.admin_session
+  return token && verifyToken(token)
 }
 
 export default async function handler(req, res) {
