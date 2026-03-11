@@ -39,6 +39,20 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [similarNames, setSimilarNames] = useState([]);
+
+  // Live similar name detection
+  useEffect(() => {
+    if (form.name && existingRecipes.length > 0) {
+      const similar = existingRecipes.filter(r => 
+        r.name && r.id !== recipe?.id &&
+        (r.name.includes(form.name) || form.name.includes(r.name))
+      ).map(r => r.name);
+      setSimilarNames(similar);
+    } else {
+      setSimilarNames([]);
+    }
+  }, [form.name, existingRecipes, recipe]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -167,12 +181,13 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
     if (existingSlug) return setError(`Slug "${form.slug}" 已被食譜「${existingSlug.name}」使用`);
 
     // Similar name warning (not blocking, just info)
-    const similarName = existingRecipes.find(r => 
+    const similarRecipes = existingRecipes.filter(r => 
       r.name && form.name && 
       r.id !== recipe?.id &&
       (r.name.includes(form.name) || form.name.includes(r.name))
     );
     // Note: We don't block on similar names, just continue
+    // Warning is shown separately via similarNames state
 
     setSaving(true);
     
@@ -209,6 +224,17 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
       {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">{error}</div>}
+      
+      {similarNames.length > 0 && (
+        <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm">
+          ⚠️ 可能已有相似食譜：
+          <ul className="list-disc list-inside mt-1">
+            {similarNames.map((name, i) => (
+              <li key={i}>{name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       
       {/* Basic Info */}
       <div>
