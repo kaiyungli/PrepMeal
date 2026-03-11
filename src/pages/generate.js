@@ -215,6 +215,21 @@ export default function GeneratePage() {
       return 'other';
     };
     
+    // Filter by cuisine preferences
+    const filterByCuisine = (recipes) => {
+      if (!cuisines || cuisines.length === 0) return recipes;
+      return recipes.filter(r => cuisines.includes(r.cuisine));
+    };
+    
+    // Budget filtering
+    const matchesBudget = (recipe) => {
+      if (!budget || budget === 'any') return true;
+      const recipeBudget = recipe.budget_level || 'medium';
+      if (budget === 'low') return recipeBudget === 'low';
+      if (budget === 'medium') return recipeBudget === 'low' || recipeBudget === 'medium';
+      return true; // high budget allows all
+    };
+    
     const categorized = {
       complete: filteredRecipes.filter(r => categorizeRecipe(r) === 'complete'),
       side: filteredRecipes.filter(r => categorizeRecipe(r) === 'side'),
@@ -260,12 +275,28 @@ export default function GeneratePage() {
     
     // Helper: filter candidates by all rules
     const filterCandidates = (candidates) => {
-      return candidates.filter(r => 
+      return filterByCuisine(candidates).filter(r => 
         !usedRecipeIds.has(r.id) && 
         !hasExcludedProtein(r) &&
         matchesDiet(r) &&
-        matchesConstraint(r)
+        matchesConstraint(r) &&
+        matchesBudget(r)
       );
+    };
+    
+    // Helper: get candidates with smart fallbacks
+    const getCandidatesWithFallback = (primary, fallbacks) => {
+      let candidates = filterCandidates(primary);
+      for (const fallback of fallbacks) {
+        if (candidates.length > 0) break;
+        candidates = filterCandidates(fallback);
+      }
+      // Shuffle for variety
+      for (let i = candidates.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      }
+      return candidates;
     };
     
     // Helper: balance protein rotation
@@ -309,27 +340,34 @@ export default function GeneratePage() {
         
         let candidates = [];
         
-        // Rule-based selection based on dishes_per_day
+        // Rule-based selection with smart fallbacks
         if (dishesPerDay === 1) {
           // 1 dish: complete meal only
-          candidates = filterCandidates(categorized.complete);
+          candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
         } else if (dishesPerDay === 2) {
           // 2 dishes: main + side (or soup/staple)
           if (dish === 0) {
-            candidates = filterCandidates(categorized.complete);
+            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
           } else {
-            // Prefer sides, but allow soup/staple for variety
-            candidates = filterCandidates([...categorized.side, ...categorized.soup, ...categorized.staple]);
+            // Prefer sides, fallback to soup/staple/other
+            candidates = getCandidatesWithFallback(
+              [...categorized.side],
+              [...categorized.soup, ...categorized.staple, ...categorized.other]
+            );
           }
         } else {
           // 3 dishes: complete + side + flexible
           if (dish === 0) {
-            candidates = filterCandidates(categorized.complete);
+            candidates = getCandidatesWithFallback(categorized.complete, [categorized.other]);
           } else if (dish === 1) {
-            candidates = filterCandidates([...categorized.side, ...categorized.soup]);
+            // Prefer veg_side, fallback to soup/staple
+            candidates = getCandidatesWithFallback(
+              [...categorized.side, ...categorized.soup],
+              [...categorized.staple, ...categorized.other]
+            );
           } else {
-            // Flexible slot: anything not used
-            candidates = filterCandidates(filteredRecipes);
+            // Flexible: anything not used
+            candidates = getCandidatesWithFallback(filteredRecipes, []);
           }
         }
         
