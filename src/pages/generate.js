@@ -203,14 +203,29 @@ export default function GeneratePage() {
     const daysToGenerate = DAYS.slice(0, daysPerWeek);
     const usedRecipeIds = new Set();
     const recentProteins = [];
+    const recentMethods = [];
     
-    // Categorize recipes
-    const completeMeals = filteredRecipes.filter(r => r.dish_type === 'main' || r.dish_type === 'complete');
-    const sideDishes = filteredRecipes.filter(r => r.dish_type === 'side');
+    // Categorize recipes by meal_role (fallback to dish_type)
+    const categorizeRecipe = (r) => {
+      const role = r.meal_role || r.dish_type;
+      if (role === 'main' || role === 'complete_meal' || role === 'complete') return 'complete';
+      if (role === 'side' || role === 'veg_side') return 'side';
+      if (role === 'soup') return 'soup';
+      if (role === 'staple') return 'staple';
+      return 'other';
+    };
+    
+    const categorized = {
+      complete: filteredRecipes.filter(r => categorizeRecipe(r) === 'complete'),
+      side: filteredRecipes.filter(r => categorizeRecipe(r) === 'side'),
+      soup: filteredRecipes.filter(r => categorizeRecipe(r) === 'soup'),
+      staple: filteredRecipes.filter(r => categorizeRecipe(r) === 'staple'),
+      other: filteredRecipes.filter(r => categorizeRecipe(r) === 'other'),
+    };
     
     // Helper: check if recipe uses excluded protein
     const hasExcludedProtein = (recipe) => {
-      const protein = recipe.protein || [];
+      const protein = recipe.primary_protein || recipe.protein || [];
       return exclusions.some(ex => protein.includes(ex));
     };
     
@@ -220,7 +235,69 @@ export default function GeneratePage() {
       const diet = recipe.diet || [];
       if (dietMode === 'vegetarian') return diet.includes('vegetarian') || diet.includes('tofu');
       if (dietMode === 'egg_lacto') return diet.includes('vegetarian') || diet.includes('egg') || diet.includes('dairy');
+      if (dietMode === 'high_protein') return diet.includes('high_protein') || diet.includes('protein');
+      if (dietMode === 'low_fat') return diet.includes('low_fat') || diet.includes('light');
       return true;
+    };
+    
+    // Helper: check cooking constraint (speed/difficulty)
+    const matchesConstraint = (recipe) => {
+      // Check speed constraint (e.g., "Under 15 min")
+      if (cookingConstraints.includes('Under 15 min') && (recipe.cook_time > 15)) return false;
+      if (cookingConstraints.includes('Under 30 min') && (recipe.cook_time > 30)) return false;
+      if (cookingConstraints.includes('Under 45 min') && (recipe.cook_time > 45)) return false;
+      
+      // Check difficulty constraint
+      if (cookingConstraints.includes('Easy') && recipe.difficulty !== 'easy') return false;
+      if (cookingConstraints.includes('Medium') && recipe.difficulty === 'hard') return false;
+      
+      // Check method constraints
+      if (cookingConstraints.includes('One-pot') && recipe.method !== 'one_pot') return false;
+      if (cookingConstraints.includes('Air fryer') && recipe.method !== 'air_fryer') return false;
+      
+      return true;
+    };
+    
+    // Helper: filter candidates by all rules
+    const filterCandidates = (candidates) => {
+      return candidates.filter(r => 
+        !usedRecipeIds.has(r.id) && 
+        !hasExcludedProtein(r) &&
+        matchesDiet(r) &&
+        matchesConstraint(r)
+      );
+    };
+    
+    // Helper: balance protein rotation
+    const balanceProtein = (candidates) => {
+      if (recentProteins.length === 0) return candidates;
+      return candidates.filter(r => {
+        const protein = r.primary_protein || r.protein?.[0];
+        if (!protein) return true;
+        // Avoid same protein in last 2 days
+        return !recentProteins.slice(-2).includes(protein);
+      });
+    };
+    
+    // Helper: balance cooking method rotation  
+    const balanceMethod = (candidates) => {
+      if (recentMethods.length === 0) return candidates;
+      return candidates.filter(r => {
+        const method = r.method;
+        if (!method) return true;
+        // Try to vary methods
+        return !recentMethods.slice(-1).includes(method);
+      });
+    };
+    
+    // Helper: shuffle array
+    const shuffle = (arr) => {
+      const shuffled = [...arr];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
     };
     
     daysToGenerate.forEach(day => {
@@ -230,73 +307,53 @@ export default function GeneratePage() {
         const slotKey = `${day.key}-${dish}`;
         if (lockedSlots[slotKey]) continue;
         
-        let candidates;
+        let candidates = [];
         
+        // Rule-based selection based on dishes_per_day
         if (dishesPerDay === 1) {
-          // 1 dish: use complete meals only
-          candidates = completeMeals.filter(r => 
-            !usedRecipeIds.has(r.id) && 
-            !hasExcludedProtein(r) &&
-            matchesDiet(r)
-          );
+          // 1 dish: complete meal only
+          candidates = filterCandidates(categorized.complete);
         } else if (dishesPerDay === 2) {
-          // 2 dishes: 1 main + 1 side
+          // 2 dishes: main + side (or soup/staple)
           if (dish === 0) {
-            candidates = completeMeals.filter(r => 
-              !usedRecipeIds.has(r.id) && 
-              !hasExcludedProtein(r) &&
-              matchesDiet(r)
-            );
+            candidates = filterCandidates(categorized.complete);
           } else {
-            candidates = sideDishes.filter(r => 
-              !usedRecipeIds.has(r.id) && 
-              !hasExcludedProtein(r)
-            );
+            // Prefer sides, but allow soup/staple for variety
+            candidates = filterCandidates([...categorized.side, ...categorized.soup, ...categorized.staple]);
           }
         } else {
-          // 3 dishes: main + side + flexible
+          // 3 dishes: complete + side + flexible
           if (dish === 0) {
-            candidates = completeMeals.filter(r => 
-              !usedRecipeIds.has(r.id) && 
-              !hasExcludedProtein(r) &&
-              matchesDiet(r)
-            );
+            candidates = filterCandidates(categorized.complete);
           } else if (dish === 1) {
-            candidates = sideDishes.filter(r => 
-              !usedRecipeIds.has(r.id) && 
-              !hasExcludedProtein(r)
-            );
+            candidates = filterCandidates([...categorized.side, ...categorized.soup]);
           } else {
-            candidates = filteredRecipes.filter(r => 
-              !usedRecipeIds.has(r.id) && 
-              !hasExcludedProtein(r)
-            );
+            // Flexible slot: anything not used
+            candidates = filterCandidates(filteredRecipes);
           }
         }
         
-        // Balance: avoid same protein within 2 days
-        if (recentProteins.length > 0) {
-          candidates = candidates.filter(r => {
-            const protein = r.protein?.[0];
-            if (!protein) return true;
-            return !recentProteins.slice(-2).includes(protein);
-          });
-        }
+        // Apply protein balancing
+        candidates = balanceProtein(candidates);
         
-        // Shuffle for variety
-        for (let i = candidates.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-        }
+        // Apply method balancing (for variety)
+        candidates = balanceMethod(candidates);
         
+        // Shuffle for randomness
+        candidates = shuffle(candidates);
+        
+        // Select first valid candidate
         if (candidates.length > 0) {
           const recipe = candidates[0];
           dayRecipes.push(recipe);
           usedRecipeIds.add(recipe.id);
           
-          if (recipe.protein?.[0]) {
-            recentProteins.push(recipe.protein[0]);
-          }
+          // Track for balancing
+          const protein = recipe.primary_protein || recipe.protein?.[0];
+          if (protein) recentProteins.push(protein);
+          
+          const method = recipe.method;
+          if (method) recentMethods.push(method);
         }
       }
       
