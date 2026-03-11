@@ -6,13 +6,9 @@ interface LayoutProps {
   showNav?: boolean;
 }
 
-const colors = {
-  cream: '#F8F3E8',
-};
-
 export default function Layout({ children, showNav = true }: LayoutProps) {
   return (
-    <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen bg-bg font-sans">
       <Header showNav={showNav} />
       {children}
       <Footer />

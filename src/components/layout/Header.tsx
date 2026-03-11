@@ -19,94 +19,83 @@ export default function Header({ showNav = true }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50" style={{ backgroundColor: '#F8F3E8' }}>
-        <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2" style={{ textDecoration: 'none' }}>
+      <header className="sticky top-0 z-50 bg-bg">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-2 no-underline">
             <span className="text-2xl">🍜</span>
-            <span style={{ fontSize: '1.125rem', fontWeight: 800, color: '#9B6035' }}>今晚食乜</span>
+            <span className="text-lg font-extrabold text-primary">今晚食乜</span>
           </Link>
-          
-          {/* Desktop Nav */}
+
           {showNav && (
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden items-center gap-8 md:flex">
               {navLinks.slice(0, 4).map((link) => (
-                <Link 
-                  key={link.href} 
+                <Link
+                  key={`${link.href}-${link.label}`}
                   href={link.href}
-                  className="font-medium hover:opacity-80"
-                  style={{ color: '#AA7A50', textDecoration: 'none' }}
+                  className="font-medium text-muted no-underline hover:opacity-80"
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link href="/login" className="font-medium hover:opacity-80" style={{ color: '#AA7A50', textDecoration: 'none' }}>
+              <Link href="/login" className="font-medium text-muted no-underline hover:opacity-80">
                 登入
               </Link>
-              <Link 
+              <Link
                 href="/generate"
-                className="text-white px-5 py-2 rounded-lg shadow-md hover:scale-105 transition-transform"
-                style={{ backgroundColor: '#9B6035', textDecoration: 'none', fontWeight: 500 }}
+                className="rounded-lg bg-primary px-5 py-2 font-medium text-white no-underline shadow-md transition-transform hover:scale-105"
               >
                 開始規劃
               </Link>
             </nav>
           )}
 
-          {/* Mobile Menu Button - Right Side */}
-          <button 
-            className="md:hidden p-2"
-            style={{ color: '#9B6035' }}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+          <button className="p-2 text-primary md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+              />
             </svg>
           </button>
         </div>
       </header>
 
-      {/* Mobile Drawer - Right Side */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/30"
-            onClick={() => setMenuOpen(false)}
-          />
-          
-          {/* Drawer - Right Side */}
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMenuOpen(false)} />
+
           <div className="absolute right-0 top-0 h-full w-72 bg-white shadow-xl">
-            <div className="p-4 flex justify-between items-center" style={{ backgroundColor: '#9B6035' }}>
-              <span className="text-white font-bold">選單</span>
+            <div className="flex items-center justify-between bg-primary p-4">
+              <span className="font-bold text-white">選單</span>
               <button onClick={() => setMenuOpen(false)} className="text-white">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-4">
-              <div className="text-center py-4 mb-2">
+              <div className="mb-2 py-4 text-center">
                 <span className="text-3xl">🍜</span>
-                <p className="font-bold mt-2" style={{ color: '#9B6035' }}>今晚食乜</p>
+                <p className="mt-2 font-bold text-primary">今晚食乜</p>
               </div>
               {navLinks.map((link) => (
-                <Link 
-                  key={link.href} 
+                <Link
+                  key={`${link.href}-${link.label}-mobile`}
                   href={link.href}
-                  className="block py-3 border-b font-medium"
-                  style={{ color: '#AA7A50', borderColor: '#DDD0B0' }}
+                  className="block border-b border-border py-3 font-medium text-muted"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
-              
+
               <div className="mt-6">
-                <Link 
+                <Link
                   href="/generate"
-                  className="block text-center py-3 rounded-lg text-white font-bold"
-                  style={{ backgroundColor: '#9B6035' }}
+                  className="block rounded-lg bg-primary py-3 text-center font-bold text-white"
                   onClick={() => setMenuOpen(false)}
                 >
                   開始規劃
