@@ -136,3 +136,21 @@ export function scoreRecipeForPlanner(
     missingIngredients: missing
   };
 }
+
+/**
+ * Simple score function for testing
+ * Returns a score between 0 and 1 based on ingredient match ratio
+ */
+export function scoreRecipe(pantryIngredients: string[], recipeIngredients: string[]): number {
+  if (!pantryIngredients?.length || !recipeIngredients?.length) return 0;
+  
+  const normalizedPantry = normalizeIngredients(pantryIngredients);
+  const normalizedRecipe = normalizeIngredients(recipeIngredients);
+  
+  let matchCount = 0;
+  normalizedPantry.forEach(ing => {
+    if (normalizedRecipe.includes(ing)) matchCount++;
+  });
+  
+  return matchCount / Math.max(normalizedRecipe.length, 1);
+}

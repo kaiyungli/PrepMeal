@@ -1,0 +1,1 @@
+export const CATEGORY_ORDER = ['肉類','海鮮','蛋類','豆腐','蔬菜','雜貨']
