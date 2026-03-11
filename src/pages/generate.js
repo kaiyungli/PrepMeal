@@ -14,6 +14,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
+import { scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
 
 // Settings Options from Spec
 const DAYS_PER_WEEK = [3, 5, 7];
@@ -117,6 +118,9 @@ export default function GeneratePage() {
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   
+  // Pantry ingredients from URL
+  const [pantryIngredients, setPantryIngredients] = useState([]);
+  
   // Weekly Plan
   const [weeklyPlan, setWeeklyPlan] = useState(
     DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {})
@@ -137,6 +141,15 @@ export default function GeneratePage() {
       })
       .catch(() => {});
   }, []);
+
+  // Read pantry ingredients from URL
+  useEffect(() => {
+    const { ingredients } = router.query;
+    if (ingredients) {
+      const parsed = ingredients.toString().split(',').map(i => i.trim()).filter(Boolean);
+      setPantryIngredients(parsed);
+    }
+  }, [router.query]);
 
   // Filter recipes based on settings
   useEffect(() => {
@@ -421,6 +434,15 @@ const CONFIG = {
           if (!uniqueProteins.has(protein)) {
             score += 0.5;
             breakdown.variety_bonus = '+0.5';
+          }
+        }
+        
+        // Pantry bonus: +1 per matched ingredient from URL
+        if (pantryIngredients.length > 0) {
+          const { score: pantryScore, matchedIngredients } = scoreRecipeForPlanner(pantryIngredients, r);
+          if (pantryScore > 0) {
+            score += pantryScore;
+            breakdown.pantry_match = `+${pantryScore} (${matchedIngredients.join(', ')})`;
           }
         }
         

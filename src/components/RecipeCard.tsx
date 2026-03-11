@@ -76,8 +76,15 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
         </div>
         {/* Match Score */}
         {recipe.matchScore !== undefined && recipe.matchScore > 0 && (
-          <div className="mt-3 text-sm font-medium text-green-600">
-            匹配度 {Math.round(recipe.matchScore * 100)}%
+          <div className="mt-3">
+            <div className="text-sm font-medium text-green-600">
+              匹配度 {Math.round(recipe.matchScore * 100)}%
+            </div>
+            {recipe.matchedIngredients && recipe.matchedIngredients.length > 0 && (
+              <div className="text-xs text-gray-500 mt-1">
+                匹配食材：{recipe.matchedIngredients.join('、')}
+              </div>
+            )}
           </div>
         )}
       </div>

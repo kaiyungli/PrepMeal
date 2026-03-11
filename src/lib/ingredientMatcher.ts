@@ -3,6 +3,8 @@
  * Matches user ingredients against recipe data in memory
  */
 
+import { normalizeIngredient, normalizeIngredients } from './ingredientNormalizer';
+
 export interface Recipe {
   id: string;
   name: string;
@@ -15,12 +17,14 @@ export interface Recipe {
   speed?: string;
   primary_protein?: string;
   prep_time_minutes?: number;
+  ingredients_list?: string[];
 }
 
 export interface Recommendation {
   recipe: Recipe;
   matchScore: number;
   matchedIngredients: string[];
+  matchRatio: number;
 }
 
 /**
@@ -39,11 +43,17 @@ export function recommendRecipes(
     return [];
   }
 
-  const ingredients = userIngredients.map(i => i.toLowerCase().trim()).filter(Boolean);
+  // Normalize user ingredients
+  const normalizedUser = normalizeIngredients(userIngredients);
   
   const scored = recipes.map(recipe => {
+    // Use ingredients_list from API if available, otherwise build from text
+    const recipeIngredients = recipe.ingredients_list || [];
+    const normalizedRecipe = normalizeIngredients(recipeIngredients);
+    
     // Build searchable text
     const searchText = [
+      ...normalizedRecipe,
       recipe.name,
       recipe.description,
       recipe.cuisine,
@@ -56,26 +66,32 @@ export function recommendRecipes(
     let proteinMatch = false;
     const matchedIngredients: string[] = [];
     
-    ingredients.forEach(ing => {
+    normalizedUser.forEach((ing, idx) => {
       if (searchText.includes(ing)) {
         matchCount++;
-        matchedIngredients.push(ing);
+        // Store original user ingredient that matched
+        matchedIngredients.push(userIngredients[idx]);
         if (recipe.primary_protein?.toLowerCase().includes(ing)) {
           proteinMatch = true;
         }
       }
     });
     
-    // Calculate score
-    let score = matchCount / Math.max(ingredients.length, 1);
+    // Calculate ratio based on recipe ingredients
+    const totalRecipeIngredients = normalizedRecipe.length || 1;
+    const matchRatio = Math.min(matchCount / totalRecipeIngredients, 1);
+    
+    // Base score = match ratio
+    let score = matchRatio;
     
     // Bonuses
-    if (proteinMatch) score += 1;
-    if (recipe.speed === 'quick') score += 0.5;
+    if (proteinMatch) score += 0.2;
+    if (recipe.speed === 'quick') score += 0.1;
     
     return {
       recipe,
       matchScore: score,
+      matchRatio,
       matchedIngredients
     };
   });
@@ -84,4 +100,46 @@ export function recommendRecipes(
   return scored
     .filter(r => r.matchScore >= minThreshold)
     .sort((a, b) => b.matchScore - a.matchScore);
+}
+
+/**
+ * Score a single recipe for the planner with pantry ingredients
+ * Used by generate.js to prioritize recipes
+ */
+export function scoreRecipeForPlanner(
+  userIngredients: string[],
+  recipe: Recipe
+): { score: number; matchedIngredients: string[] } {
+  if (!userIngredients?.length) {
+    return { score: 0, matchedIngredients: [] };
+  }
+
+  const normalizedUser = normalizeIngredients(userIngredients);
+  const recipeIngredients = recipe.ingredients_list || [];
+  const normalizedRecipe = normalizeIngredients(recipeIngredients);
+  
+  const searchText = [
+    ...normalizedRecipe,
+    recipe.name,
+    recipe.description,
+    recipe.cuisine,
+    recipe.method,
+    recipe.dish_type,
+    recipe.primary_protein
+  ].filter(Boolean).join(' ').toLowerCase();
+  
+  let matchCount = 0;
+  const matchedIngredients: string[] = [];
+  
+  normalizedUser.forEach((ing, idx) => {
+    if (searchText.includes(ing)) {
+      matchCount++;
+      matchedIngredients.push(userIngredients[idx]);
+    }
+  });
+  
+  // Bonus scoring for planner (not filtered, just preferred)
+  const score = matchCount; // +1 per matched ingredient
+  
+  return { score, matchedIngredients };
 }
