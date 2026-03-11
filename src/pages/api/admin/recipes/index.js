@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
+import { ensureSupabase } from '@/lib/ensureSupabase'
 
 const supabase = supabaseServer
 
@@ -7,6 +8,10 @@ const supabase = supabaseServer
 const isAdmin = (req) => requireAdmin(req)
 
 export default async function handler(req, res) {
+  if (!ensureSupabase(res, supabase)) {
+    return
+  }
+
   if (!isAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }

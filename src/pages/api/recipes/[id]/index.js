@@ -1,7 +1,12 @@
 import { supabase } from '@/lib/supabaseClient'
+import { ensureSupabase } from '@/lib/ensureSupabase'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
+
+  if (!ensureSupabase(res, supabase)) {
+    return
+  }
   
   try {
     const { id } = req.query
@@ -43,6 +48,6 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error('Supabase error:', err.message)
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: 'Failed to fetch recipe' })
   }
 }

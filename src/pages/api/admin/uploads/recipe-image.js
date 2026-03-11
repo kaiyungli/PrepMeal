@@ -1,9 +1,14 @@
 import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
+import { ensureSupabase } from '@/lib/ensureSupabase'
 
 const supabase = supabaseServer
 
 export default async function handler(req, res) {
+  if (!ensureSupabase(res, supabase)) {
+    return
+  }
+
   if (!requireAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
@@ -13,6 +18,10 @@ export default async function handler(req, res) {
   }
 
   const { fileName, fileType } = req.body
+
+  if (!fileName || !fileType || !fileType.startsWith('image/')) {
+    return res.status(400).json({ error: 'Invalid upload payload' })
+  }
 
   try {
     // Generate signed URL for upload

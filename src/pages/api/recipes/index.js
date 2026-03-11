@@ -1,7 +1,12 @@
 import { supabase } from '@/lib/supabaseClient'
+import { ensureSupabase } from '@/lib/ensureSupabase'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
+
+  if (!ensureSupabase(res, supabase)) {
+    return
+  }
   
   try {
     const { id } = req.query;
@@ -35,6 +40,6 @@ export default async function handler(req, res) {
     res.status(200).json({ recipes: recipes || [], hasMore: (recipes || []).length >= (parseInt(req.query.limit) || 20) })
   } catch (err) {
     console.error('Supabase error:', err.message)
-    res.status(200).json({ recipes: [], error: err.message })
+    res.status(500).json({ recipes: [], error: 'Failed to fetch recipes' })
   }
 }

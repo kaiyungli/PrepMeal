@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PrepMeal
 
-## Getting Started
+PrepMeal is a Next.js (Pages Router) meal planning app with Supabase-backed recipes, favorites, and admin import/export APIs.
 
-First, run the development server:
+## Tech stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (Pages Router)
+- React 19
+- Supabase JS client
+- Tailwind CSS 4
+
+## Project structure
+
+```text
+src/
+  components/        UI and feature components
+  lib/               shared clients/auth helpers
+  pages/             routes + API routes (Pages Router)
+    api/             backend endpoints
+  services/          fetch/data helper functions
+  styles/            global styles
+supabase/            SQL/bootstrap assets
+scripts/             local tooling (smoke checks)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Copy the template:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+2. Fill required variables in `.env.local`:
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- (optional) `ADMIN_USERNAME`, `ADMIN_PASSWORD`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Install and run
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+Open `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - start local dev server
+- `npm run build` - production build
+- `npm run start` - run built app
+- `npm run lint` - lint codebase
+- `npm run smoke` - basic API smoke checks against a temporary local dev server
+
+## Notes
+
+- Supabase clients are guarded so missing env vars return graceful API errors instead of crashing at module import time.
+- Admin routes depend on `SUPABASE_SERVICE_ROLE_KEY`.
