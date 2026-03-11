@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
@@ -19,6 +20,33 @@ const dishTypeOptions = ['全部', 'main', 'side', 'soup', 'staple', 'snack'];
 const difficultyOptions = ['全部', 'easy', 'medium', 'hard'];
 
 export default function AdminRecipes() {
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simple admin check - in production use proper auth
+    const adminKey = localStorage.getItem('admin_key');
+    const expectedKey = 'prepmeal-admin-2024'; // Simple key for demo
+    
+    if (adminKey === expectedKey) {
+      setIsAdmin(true);
+    } else {
+      // Show login prompt
+      const entered = prompt('請輸入管理員密碼:');
+      if (entered === expectedKey) {
+        localStorage.setItem('admin_key', entered);
+        setIsAdmin(true);
+      } else {
+        router.push('/');
+      }
+    }
+    setLoading(false);
+  }, [router]);
+  
+  if (loading) return <div>載入中...</div>;
+  if (!isAdmin) return null;
+  
   const [recipes, setRecipes] = useState([
     { id: 'bacd544f-1b25-414a-a1b2-b16650b6778d', name: '蒸水蛋', slug: 'steamed-egg', cuisine: 'chinese', dish_type: 'side', difficulty: 'easy', calories_per_serving: null, is_public: true, steps: [{step_no:1,text:'準備所有食材'},{step_no:2,text:'開始烹煮及調味'}] },
     { id: '9fed944c-71b0-4e68-8344-b8fd1709db73', name: '蝦仁炒蛋', slug: 'shrimp-egg', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy', calories_per_serving: null, is_public: true, steps: [{step_no:1,text:'準備所有食材'},{step_no:2,text:'開始烹煮及調味'}] },
@@ -31,7 +59,7 @@ export default function AdminRecipes() {
       {step_no:6,text:'關火後撒上蔥花，上碟'}
     ]},
   ]);
-  const [loading, setLoading] = useState(false);
+  // Loading handled by auth check
   const [search, setSearch] = useState('');
   const [cuisineFilter, setCuisineFilter] = useState('全部');
   const [dishTypeFilter, setDishTypeFilter] = useState('全部');

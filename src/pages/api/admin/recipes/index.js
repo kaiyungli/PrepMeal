@@ -13,7 +13,7 @@ const isAdmin = (req) => {
 }
 
 export default async function handler(req, res) {
-  if (!isAdmin(req)(req)) {
+  if (!isAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
   
