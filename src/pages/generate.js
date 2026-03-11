@@ -287,11 +287,22 @@ export default function GeneratePage() {
     
     // Helper: get candidates with smart fallbacks
     const getCandidatesWithFallback = (primary, fallbacks, isWeekend = false) => {
+      // Try primary category first
       let candidates = filterCandidates(primary, isWeekend);
+      
+      // Fallback chain: if not enough, try each fallback category
       for (const fallback of fallbacks) {
-        if (candidates.length > 0) break;
-        candidates = filterCandidates(fallback, isWeekend);
+        if (candidates.length >= 2) break; // Good enough
+        const fallbackCandidates = filterCandidates(fallback, isWeekend);
+        candidates = [...candidates, ...fallbackCandidates];
       }
+      
+      // If still not enough, try all other recipes
+      if (candidates.length < 2) {
+        const allFiltered = filterCandidates(filteredRecipes, isWeekend);
+        candidates = [...candidates, ...allFiltered];
+      }
+      
       // Shuffle for variety
       for (let i = candidates.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -307,19 +318,23 @@ export default function GeneratePage() {
       const scored = candidates.map(r => {
         let score = 0;
         
-        // +1 if protein not recently used (protein diversity)
+        // +2 if protein not recently used (protein diversity)
         const protein = r.primary_protein || r.protein?.[0];
         if (protein && recentProteins.length > 0) {
           if (!recentProteins.slice(-2).includes(protein)) {
-            score += 2; // Higher weight for protein diversity
+            score += 2;
+          } else {
+            score -= 1; // penalty for same protein yesterday
           }
         }
         
-        // +1 if method adds variety (method diversity)
+        // +1 if method adds variety, -1 penalty if same
         const method = r.method;
         if (method && recentMethods.length > 0) {
           if (!recentMethods.slice(-1).includes(method)) {
             score += 1;
+          } else {
+            score -= 1; // penalty for same method yesterday
           }
         }
         
@@ -328,12 +343,14 @@ export default function GeneratePage() {
         if (!isWeekend) {
           if (speed === 'quick') score += 1;
           else if (speed === 'normal') score += 0.5;
+          else if (speed === 'slow') score -= 2; // penalty for slow on weekday
         }
         
         // +1 if difficulty matches weekday preference
         const difficulty = r.difficulty || 'medium';
         if (!isWeekend) {
           if (difficulty === 'easy') score += 1;
+          else if (difficulty === 'hard') score -= 0.5; // penalty for hard on weekday
         }
         
         // Budget awareness: prefer budget recipes when in budget mode
@@ -341,9 +358,10 @@ export default function GeneratePage() {
           const recipeBudget = r.budget_level || 'medium';
           if (budget === 'low' && recipeBudget === 'low') score += 1;
           if (budget === 'medium' && (recipeBudget === 'low' || recipeBudget === 'medium')) score += 0.5;
+          if (budget === 'low' && recipeBudget !== 'low') score -= 0.5; // penalty for expensive
         }
         
-        // Variety bonus: prefer recipes with good variety in recent meals
+        // Variety bonus
         if (recentProteins.length > 3 && protein) {
           const uniqueProteins = new Set(recentProteins.slice(-4));
           if (!uniqueProteins.has(protein)) score += 0.5;
@@ -355,7 +373,7 @@ export default function GeneratePage() {
       // Sort by score (highest first), then shuffle equal scores for variety
       scored.sort((a, b) => b.score - a.score);
       
-      // Shuffle top candidates with same score
+      // Shuffle top candidates with same score for randomness
       const topScore = scored[0]?.score || 0;
       const topCandidates = scored.filter(s => s.score === topScore);
       for (let i = topCandidates.length - 1; i > 0; i--) {
