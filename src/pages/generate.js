@@ -318,27 +318,6 @@ const CONFIG = {
       console.log('[FILTER] Candidates:', before, '->', filtered.length, 'isWeekend:', isWeekend);
       return filtered;
     };
-        // Check repetition based on CONFIG
-        if (!CONFIG.RECIPE_REPEAT_ALLOWED && usedRecipeIds.has(r.id)) {
-          // Check if we have enough recipes to avoid repetition
-          const totalAvailable = filteredRecipes.length;
-          const canAvoidRepetition = totalAvailable >= daysPerWeek * dishesPerDay * 2;
-          
-          if (canAvoidRepetition) {
-            return false; // Don't allow repetition
-          }
-          // If small DB, allow after some recipes assigned
-          const assignedCount = Object.values(weeklyPlan).flat().length;
-          if (assignedCount < 3) return false;
-        }
-        
-        return !hasExcludedProtein(r) &&
-        matchesDiet(r) &&
-        matchesConstraint(r) &&
-        matchesBudget(r) &&
-        matchesSpeedDifficulty(r, isWeekend);
-      });
-    };
     
     // Helper: get candidates with smart fallbacks
     const getCandidatesWithFallback = (primary, fallbacks, isWeekend = false) => {
