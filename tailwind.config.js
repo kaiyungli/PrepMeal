@@ -8,6 +8,10 @@ module.exports = {
       colors: {
         // From Figma design
         bg: '#F8F3E8',        // warm ivory cream
+        surface: '#FEFCF8',
+        text: '#3A2010',
+        muted: '#AA7A50',
+        border: '#DDD0B0',
         sage: '#C8D49A',      // olive green
         primary: '#9B6035',   // chocolate brown
         accent: '#F0A060',    // warm orange
