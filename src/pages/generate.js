@@ -1,6 +1,7 @@
 'use client';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
+import GenerateResults from '@/components/generate/GenerateResults';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -445,110 +446,22 @@ export default function GeneratePage() {
         />
 
         {/* Weekly Plan Grid */}
-        <div className="max-w-[1200px] mx-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
-            {DAYS.slice(0, daysPerWeek).map(day => (
-              <div 
-                key={day.key}
-                className={`rounded-xl overflow-hidden ${
-                  day.isWeekend ? 'bg-[#C8D49A]/30' : 'bg-white'
-                } shadow-md`}
-              >
-                {/* Day Header */}
-                <div className={`px-3 py-2 flex justify-between items-center ${
-                  day.isWeekend ? 'bg-[#C8D49A]' : 'bg-[#9B6035]'
-                }`}>
-                  <div>
-                    <span className="text-white font-bold text-sm">{day.label}</span>
-                    <span className="text-white/70 text-xs ml-1">{day.date}</span>
-                  </div>
-                </div>
-
-                {/* Recipe Slots */}
-                <div className="p-2 space-y-2">
-                  {Array.from({ length: dishesPerDay }).map((_, index) => {
-                    const recipe = weeklyPlan[day.key]?.[index];
-                    const isLocked = lockedSlots[`${day.key}-${index}`];
-                    
-                    return (
-                      <div key={index} className="relative">
-                        {recipe ? (
-                          <div className="bg-[#F8F3E8] rounded-lg overflow-hidden">
-                            <div 
-                              className="h-20 relative cursor-pointer"
-                              onClick={() => {
-                                setModalLoading(true);
-                                fetch('/api/recipes/' + recipe.id)
-                                  .then(res => res.json())
-                                  .then(setSelectedRecipe)
-                                  .finally(() => setModalLoading(false));
-                              }}
-                            >
-                              {recipe.image_url ? (
-                                <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
-                              ) : (
-                                <div className="h-full flex items-center justify-center bg-gray-200">
-                                  <span className="text-2xl">🍳</span>
-                                </div>
-                              )}
-                              {isLocked && (
-                                <div className="absolute top-1 right-1 bg-yellow-400 text-xs px-1 rounded">
-                                  🔒
-                                </div>
-                              )}
-                            </div>
-                            <div className="p-2">
-                              <div className="text-xs font-medium text-[#3A2010] truncate">{recipe.name}</div>
-                              <div className="flex gap-1 mt-1">
-                                <button
-                                  onClick={() => replaceRecipe(day.key, index)}
-                                  className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
-                                >
-                                  替換
-                                </button>
-                                <button
-                                  onClick={() => isLocked ? unlockSlot(day.key, index) : lockSlot(day.key, index)}
-                                  className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
-                                >
-                                  {isLocked ? '解鎖' : '鎖定'}
-                                </button>
-                                <button
-                                  onClick={() => removeRecipe(day.key, index)}
-                                  className="text-[10px] px-1 py-0.5 bg-red-100 rounded text-red-600"
-                                >
-                                  移除
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              const available = filteredRecipes.filter(r => 
-                                !weeklyPlan[day.key]?.some(pr => pr?.id === r.id)
-                              );
-                              if (available.length > 0) {
-                                const random = available[Math.floor(Math.random() * available.length)];
-                                setWeeklyPlan(prev => ({
-                                  ...prev,
-                                  [day.key]: [...(prev[day.key] || []), random]
-                                }));
-                              }
-                            }}
-                            className="w-full py-3 border-2 border-dashed border-[#DDD0B0] rounded-lg text-[#AA7A50] text-sm hover:border-[#9B6035] hover:text-[#9B6035] transition-colors"
-                          >
-                            + 添加
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+        <GenerateResults
+          weeklyPlan={weeklyPlan}
+          setWeeklyPlan={setWeeklyPlan}
+          lockedSlots={lockedSlots}
+          setLockedSlots={setLockedSlots}
+          daysPerWeek={daysPerWeek}
+          dishesPerDay={dishesPerDay}
+          filteredRecipes={filteredRecipes}
+          onRecipeClick={(recipe) => {
+            setModalLoading(true);
+            fetch('/api/recipes/' + recipe.id)
+              .then(res => res.json())
+              .then(setSelectedRecipe)
+              .finally(() => setModalLoading(false));
+          }}
+        />
         {/* Shopping List Modal */}
         <ShoppingListModal 
           isOpen={showShoppingList} 
