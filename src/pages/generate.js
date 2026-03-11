@@ -574,22 +574,33 @@ const CONFIG = {
     
     const scored = filteredRecipes.map(recipe => {
       // Build searchable text from name, description, cuisine, method
-      const searchText = `${recipe.name} ${recipe.description || ''} ${recipe.cuisine || ''} ${recipe.method || ''} ${recipe.dish_type || ''}`.toLowerCase();
+      const searchText = `${recipe.name} ${recipe.description || ''} ${recipe.cuisine || ''} ${recipe.method || ''} ${recipe.dish_type || ''} ${recipe.primary_protein || ''}`.toLowerCase();
       
       let matchCount = 0;
+      let proteinMatch = false;
       ingredients.forEach(ing => {
         if (searchText.includes(ing)) {
           matchCount++;
+          if (recipe.primary_protein?.toLowerCase().includes(ing)) {
+            proteinMatch = true;
+          }
         }
       });
       
-      // Score = matched / total user ingredients
-      const score = matchCount / Math.max(ingredients.length, 1);
+      // Base score = matched / total user ingredients
+      let score = matchCount / Math.max(ingredients.length, 1);
+      
+      // Bonus: +1 if primary_protein matches
+      if (proteinMatch) score += 1;
+      // Bonus: +0.5 if speed is quick
+      if (recipe.speed === 'quick') score += 0.5;
+      
       return { recipe, score, matchCount };
     });
     
-    // Sort by score, show top 6 with at least 1 match
-    const top = scored.filter(r => r.matchCount > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+    // Filter: only show if match_ratio >= 0.3, then sort by score
+    const minThreshold = 0.3;
+    const top = scored.filter(r => r.score >= minThreshold).sort((a, b) => b.score - a.score).slice(0, 6);
     setPantryRecommendations(top);
   };
 
