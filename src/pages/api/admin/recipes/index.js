@@ -7,7 +7,7 @@ const supabase = supabaseServer
 const isAdmin = (req) => requireAdmin(req)
 
 export default async function handler(req, res) {
-  if (!supabaseServer && !supabase) {
+  if (!supabase) {
     return res.status(500).json({ error: 'Supabase is not configured' })
   }
 
