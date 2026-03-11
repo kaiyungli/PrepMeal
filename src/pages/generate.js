@@ -573,21 +573,23 @@ const CONFIG = {
     const ingredients = pantryInput.toLowerCase().split(',').map(i => i.trim()).filter(Boolean);
     
     const scored = filteredRecipes.map(recipe => {
-      let matchCount = 0;
-      const recipeText = `${recipe.name} ${recipe.description || ''} ${recipe.cuisine || ''} ${recipe.method || ''}`.toLowerCase();
+      // Build searchable text from name, description, cuisine, method
+      const searchText = `${recipe.name} ${recipe.description || ''} ${recipe.cuisine || ''} ${recipe.method || ''} ${recipe.dish_type || ''}`.toLowerCase();
       
+      let matchCount = 0;
       ingredients.forEach(ing => {
-        if (recipeText.includes(ing)) {
+        if (searchText.includes(ing)) {
           matchCount++;
         }
       });
       
+      // Score = matched / total user ingredients
       const score = matchCount / Math.max(ingredients.length, 1);
       return { recipe, score, matchCount };
     });
     
-    // Sort by score, show top 6
-    const top = scored.filter(r => r.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+    // Sort by score, show top 6 with at least 1 match
+    const top = scored.filter(r => r.matchCount > 0).sort((a, b) => b.score - a.score).slice(0, 6);
     setPantryRecommendations(top);
   };
 
