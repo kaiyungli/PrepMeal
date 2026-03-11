@@ -36,7 +36,39 @@ function RecipeForm({ recipe, onSave, onCancel }) {
     tags: [],
   });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      // Upload to Supabase Storage
+      const fileName = `${Date.now()}-${file.name}`;
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, fileType: file.type }),
+      });
+      
+      const { uploadUrl, publicUrl } = await res.json();
+      
+      // Upload file to the signed URL
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+      
+      handleChange('image_url', publicUrl);
+    } catch (err) {
+      setError('圖片上傳失敗');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (recipe) {
@@ -210,7 +242,25 @@ function RecipeForm({ recipe, onSave, onCancel }) {
       {/* Image URL */}
       <div>
         <h3 className="text-lg font-bold text-[#3A2010] mb-4">🖼️ 圖片</h3>
-        <input value={form.image_url || ''} onChange={e => handleChange('image_url', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" placeholder="https://..." />
+        <div className="flex gap-3 items-start">
+          <div className="flex-1">
+            <input 
+              value={form.image_url || ''} 
+              onChange={e => handleChange('image_url', e.target.value)} 
+              className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" 
+              placeholder="圖片網址或上傳" 
+            />
+          </div>
+          <label className="cursor-pointer bg-[#C8D49A] text-[#3A2010] px-4 py-2 rounded-lg hover:bg-[#b5c288]">
+            {uploading ? '上傳中...' : '📁 上傳'}
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+          </label>
+        </div>
+        {form.image_url && (
+          <div className="mt-2">
+            <img src={form.image_url} alt="預覽" className="h-32 object-cover rounded-lg" />
+          </div>
+        )}
       </div>
 
       {/* Ingredients */}
