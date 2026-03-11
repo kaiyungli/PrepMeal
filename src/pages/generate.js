@@ -213,18 +213,11 @@ const CONFIG = {
 
 // Generate meal plan based on settings with balancing rules
   const handleGenerate = () => {
-    alert('Generate clicked!');
-    console.log('[GENERATE] Button clicked');
-    console.log('[GENERATE] Settings:', { daysPerWeek, dishesPerDay, cuisines, budget, exclusions, dietMode, cookingConstraints });
-    console.log('[GENERATE] filteredRecipes count:', filteredRecipes?.length);
-    
     const newPlan = {};
     const daysToGenerate = DAYS.slice(0, daysPerWeek);
     const usedRecipeIds = new Set();
     const recentProteins = [];
     const recentMethods = [];
-    
-    console.log('[GENERATE] Days to generate:', daysToGenerate.map(d => d.key));
     
     // Categorize recipes by meal_role (fallback to dish_type)
     const categorizeRecipe = (r) => {
@@ -316,7 +309,6 @@ const CONFIG = {
         }
         return true;
       });
-      console.log('[FILTER] Candidates:', before, '->', filtered.length, 'isWeekend:', isWeekend);
       return filtered;
     };
     
@@ -564,10 +556,7 @@ const CONFIG = {
       newPlan[day.key] = dayRecipes;
     });
     
-    console.log('[GENERATE] Final plan:', JSON.stringify(newPlan, null, 2));
-    
     setWeeklyPlan(newPlan);
-    console.log('[GENERATE] Done - weeklyPlan set');
   };
 
   const lockSlot = (dayKey, index) => {
