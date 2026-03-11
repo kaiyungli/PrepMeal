@@ -275,14 +275,29 @@ export default function GeneratePage() {
     
     // Helper: filter candidates by all rules
     const filterCandidates = (candidates, isWeekend = false) => {
-      return filterByCuisine(candidates).filter(r => 
-        !usedRecipeIds.has(r.id) && 
-        !hasExcludedProtein(r) &&
+      // Check if we have enough recipes for no repetition
+      const totalAvailable = filteredRecipes.length;
+      const canAvoidRepetition = totalAvailable >= daysPerWeek * dishesPerDay * 2;
+      
+      return filterByCuisine(candidates).filter(r => {
+        // If we have enough recipes, avoid repetition entirely
+        if (canAvoidRepetition && usedRecipeIds.has(r.id)) {
+          return false;
+        }
+        
+        // If database is small, allow controlled repetition after day 3
+        if (!canAvoidRepetition && usedRecipeIds.has(r.id)) {
+          // Only allow if we've already assigned some recipes (day 3+)
+          const assignedCount = Object.values(weeklyPlan).flat().length;
+          return assignedCount >= 3;
+        }
+        
+        return !hasExcludedProtein(r) &&
         matchesDiet(r) &&
         matchesConstraint(r) &&
         matchesBudget(r) &&
-        matchesSpeedDifficulty(r, isWeekend)
-      );
+        matchesSpeedDifficulty(r, isWeekend);
+      });
     };
     
     // Helper: get candidates with smart fallbacks
@@ -463,11 +478,10 @@ export default function GeneratePage() {
         // Apply scoring to rank candidates by diversity
         candidates = scoreCandidates(candidates, isWeekend);
         
-        // Select first valid candidate
+        // Select top candidate with reason tracking
         if (candidates.length > 0) {
           const recipe = candidates[0];
-          dayRecipes.push(recipe);
-          usedRecipeIds.add(recipe.id);
+          const reason = recipe._selectionReason || 'Best score';
           
           // Track for balancing
           const protein = recipe.primary_protein || recipe.protein?.[0];
@@ -475,6 +489,10 @@ export default function GeneratePage() {
           
           const method = recipe.method;
           if (method) recentMethods.push(method);
+          
+          // Add selection to plan
+          dayRecipes.push(recipe);
+          usedRecipeIds.add(recipe.id);
         }
       }
       
