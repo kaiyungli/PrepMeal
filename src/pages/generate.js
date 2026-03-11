@@ -15,6 +15,7 @@ import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
+import { normalizeIngredients } from '@/lib/ingredientNormalizer';
 
 // Settings Options from Spec
 const DAYS_PER_WEEK = [3, 5, 7];
@@ -233,6 +234,11 @@ const CONFIG = {
     const recentProteins = [];
     const recentMethods = [];
     
+    // Track remaining pantry ingredients for pantry-first planning
+    const remainingPantry = pantryIngredients.length > 0 
+      ? [...new Set(normalizeIngredients(pantryIngredients))]
+      : [];
+    
     // Categorize recipes by meal_role (fallback to dish_type)
     const categorizeRecipe = (r) => {
       const role = r.meal_role || r.dish_type;
@@ -446,6 +452,16 @@ const CONFIG = {
           }
         }
         
+        // Pantry-first bonus: prioritize recipes that use remaining pantry ingredients
+        if (remainingPantry.length > 0 && r.ingredients_list) {
+          const recipeNorm = normalizeIngredients(r.ingredients_list);
+          const remainingMatch = recipeNorm.filter(ing => remainingPantry.includes(ing));
+          if (remainingMatch.length > 0) {
+            score += remainingMatch.length * 1.5; // Extra bonus for using remaining
+            breakdown.pantry_remaining = `+${remainingMatch.length * 1.5} (${remainingMatch.join(', ')})`;
+          }
+        }
+        
         // Store debug info on recipe
         const debugInfo = {
           recipe: r,
@@ -564,11 +580,20 @@ const CONFIG = {
           const reason = recipe._selectionReason || 'Best score';
           
           // Track for balancing
-          const protein = recipe.primary_protein || recipe.protein?.[0];
+          const protein = recipe.primary_protein || recipe.poprotein?.[0];
           if (protein) recentProteins.push(protein);
           
           const method = recipe.method;
           if (method) recentMethods.push(method);
+          
+          // Update remaining pantry ingredients
+          if (remainingPantry.length > 0 && recipe.ingredients_list) {
+            const recipeNorm = normalizeIngredients(recipe.ingredients_list);
+            recipeNorm.forEach(ing => {
+              const idx = remainingPantry.indexOf(ing);
+              if (idx > -1) remainingPantry.splice(idx, 1);
+            });
+          }
           
           // Add selection to plan
           dayRecipes.push(recipe);

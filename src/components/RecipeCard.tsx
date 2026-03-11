@@ -85,6 +85,11 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
                 匹配食材：{recipe.matchedIngredients.join('、')}
               </div>
             )}
+            {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
+              <div className="text-xs text-gray-400 mt-0.5">
+                缺少食材：{recipe.missingIngredients.slice(0, 3).join('、')}{recipe.missingIngredients.length > 3 ? '...' : ''}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,7 +3,7 @@
  * Matches user ingredients against recipe data in memory
  */
 
-import { normalizeIngredient, normalizeIngredients } from './ingredientNormalizer';
+import { normalizeIngredient, normalizeIngredients, getCanonicalIngredients, findMatchingCanonical } from './ingredientNormalizer';
 
 export interface Recipe {
   id: string;
@@ -24,15 +24,12 @@ export interface Recommendation {
   recipe: Recipe;
   matchScore: number;
   matchedIngredients: string[];
+  missingIngredients: string[];
   matchRatio: number;
 }
 
 /**
  * Recommend recipes based on user ingredients
- * @param userIngredients - Array of ingredient strings
- * @param recipes - Array of Recipe objects
- * @param minThreshold - Minimum score threshold (default 0.3)
- * @returns Sorted array of recommendations
  */
 export function recommendRecipes(
   userIngredients: string[],
@@ -43,17 +40,15 @@ export function recommendRecipes(
     return [];
   }
 
-  // Normalize user ingredients
-  const normalizedUser = normalizeIngredients(userIngredients);
-  
   const scored = recipes.map(recipe => {
-    // Use ingredients_list from API if available, otherwise build from text
+    // Get recipe ingredients (from API or build from text)
     const recipeIngredients = recipe.ingredients_list || [];
-    const normalizedRecipe = normalizeIngredients(recipeIngredients);
     
-    // Build searchable text
+    // Find matches using canonical forms
+    const { matched, missing } = findMatchingCanonical(userIngredients, recipeIngredients);
+    
+    // Also check text fields for fallback
     const searchText = [
-      ...normalizedRecipe,
       recipe.name,
       recipe.description,
       recipe.cuisine,
@@ -62,37 +57,34 @@ export function recommendRecipes(
       recipe.primary_protein
     ].filter(Boolean).join(' ').toLowerCase();
     
-    let matchCount = 0;
-    let proteinMatch = false;
-    const matchedIngredients: string[] = [];
+    let textMatchCount = 0;
+    const normalizedUser = normalizeIngredients(userIngredients);
     
-    normalizedUser.forEach((ing, idx) => {
+    normalizedUser.forEach(ing => {
       if (searchText.includes(ing)) {
-        matchCount++;
-        // Store original user ingredient that matched
-        matchedIngredients.push(userIngredients[idx]);
-        if (recipe.primary_protein?.toLowerCase().includes(ing)) {
-          proteinMatch = true;
-        }
+        textMatchCount++;
       }
     });
     
-    // Calculate ratio based on recipe ingredients
-    const totalRecipeIngredients = normalizedRecipe.length || 1;
-    const matchRatio = Math.min(matchCount / totalRecipeIngredients, 1);
+    // Combine canonical matches + text matches
+    const totalMatchCount = matched.length + textMatchCount;
+    const totalRecipeIngredients = recipeIngredients.length || 1;
+    const matchRatio = Math.min(totalMatchCount / totalRecipeIngredients, 1);
     
-    // Base score = match ratio
+    // Calculate score with bonuses
     let score = matchRatio;
-    
-    // Bonuses
-    if (proteinMatch) score += 0.2;
+    if (matched.length > 0) score += 0.2;
     if (recipe.speed === 'quick') score += 0.1;
+    
+    // Get display names for matched
+    const matchedDisplay = matched.length > 0 ? matched : (textMatchCount > 0 ? normalizedUser.slice(0, textMatchCount) : []);
     
     return {
       recipe,
       matchScore: score,
       matchRatio,
-      matchedIngredients
+      matchedIngredients: matchedDisplay,
+      missingIngredients: missing
     };
   });
   
@@ -104,22 +96,20 @@ export function recommendRecipes(
 
 /**
  * Score a single recipe for the planner with pantry ingredients
- * Used by generate.js to prioritize recipes
  */
 export function scoreRecipeForPlanner(
   userIngredients: string[],
   recipe: Recipe
-): { score: number; matchedIngredients: string[] } {
+): { score: number; matchedIngredients: string[]; missingIngredients: string[] } {
   if (!userIngredients?.length) {
-    return { score: 0, matchedIngredients: [] };
+    return { score: 0, matchedIngredients: [], missingIngredients: [] };
   }
 
-  const normalizedUser = normalizeIngredients(userIngredients);
   const recipeIngredients = recipe.ingredients_list || [];
-  const normalizedRecipe = normalizeIngredients(recipeIngredients);
+  const { matched, missing } = findMatchingCanonical(userIngredients, recipeIngredients);
   
+  // Also check text fields
   const searchText = [
-    ...normalizedRecipe,
     recipe.name,
     recipe.description,
     recipe.cuisine,
@@ -128,18 +118,21 @@ export function scoreRecipeForPlanner(
     recipe.primary_protein
   ].filter(Boolean).join(' ').toLowerCase();
   
-  let matchCount = 0;
-  const matchedIngredients: string[] = [];
+  const normalizedUser = normalizeIngredients(userIngredients);
+  let textMatches = 0;
   
-  normalizedUser.forEach((ing, idx) => {
+  normalizedUser.forEach(ing => {
     if (searchText.includes(ing)) {
-      matchCount++;
-      matchedIngredients.push(userIngredients[idx]);
+      textMatches++;
     }
   });
   
-  // Bonus scoring for planner (not filtered, just preferred)
-  const score = matchCount; // +1 per matched ingredient
+  const totalMatches = matched.length + textMatches;
+  const score = totalMatches; // +1 per match
   
-  return { score, matchedIngredients };
+  return { 
+    score, 
+    matchedIngredients: matched,
+    missingIngredients: missing
+  };
 }
