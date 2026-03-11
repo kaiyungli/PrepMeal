@@ -35,9 +35,14 @@ export default function RecipesPage({ initialRecipes }) {
     const userIngredients = ingredients.toString().split(',').map(i => i.trim().toLowerCase()).filter(Boolean);
     if (userIngredients.length === 0) return;
 
-    // Score each recipe
+    // Score each recipe using actual ingredients_list
     const scored = initialRecipes.map(recipe => {
+      const ingredientsList = recipe.ingredients_list || [];
+      const ingredientText = ingredientsList.join(' ').toLowerCase();
+      
+      // Also include name/description for fallback
       const searchText = [
+        ingredientText,
         recipe.name,
         recipe.description,
         recipe.cuisine,
@@ -51,7 +56,9 @@ export default function RecipesPage({ initialRecipes }) {
         if (searchText.includes(ing)) matchCount++;
       });
 
-      const matchRatio = matchCount / Math.max(userIngredients.length, 1);
+      // Use actual recipe ingredients for ratio
+      const totalRecipeIngredients = ingredientsList.length || 1;
+      const matchRatio = Math.min(matchCount / totalRecipeIngredients, 1);
       let score = matchRatio;
       if (recipe.primary_protein && userIngredients.some(ing => recipe.primary_protein.toLowerCase().includes(ing))) score += 0.2;
       if (recipe.speed === 'quick') score += 0.1;

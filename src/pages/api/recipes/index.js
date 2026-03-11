@@ -22,7 +22,27 @@ export default async function handler(req, res) {
       query = query.limit(limit).range(offset, offset + limit - 1);
     }
     
-    const { data: recipes, error } = await query
+    const { data: recipes, error } = await query;
+    
+    // Fetch ingredients for each recipe
+    if (recipes && recipes.length > 0) {
+      const recipeIds = recipes.map(r => r.id);
+      const { data: allIngredients } = await supabase
+        .from('recipe_ingredients')
+        .select('recipe_id, name')
+        .in('recipe_id', recipeIds);
+      
+      // Map ingredients to recipes
+      const ingredientMap = {};
+      allIngredients?.forEach(ing => {
+        if (!ingredientMap[ing.recipe_id]) ingredientMap[ing.recipe_id] = [];
+        ingredientMap[ing.recipe_id].push(ing.name);
+      });
+      
+      recipes.forEach(r => {
+        r.ingredients_list = ingredientMap[r.id] || [];
+      });
+    }
     
     if (error) throw error
     
