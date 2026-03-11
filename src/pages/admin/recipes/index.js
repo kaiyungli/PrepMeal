@@ -16,8 +16,9 @@ const colors = {
 const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'taiwanese', 'indian', 'italian', 'fusion'];
 const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack', 'dessert'];
 const difficultyOptions = ['easy', 'medium', 'hard'];
+const presetTags = ['家常', '快手', '高蛋白', '低卡', '湯類', '蒸', '煎', '炒', '焗', '小朋友啱食', '一鍋到底', '下飯', '健康', '早餐', '晚餐'];
 
-function RecipeForm({ recipe, onSave, onCancel }) {
+function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [form, setForm] = useState({
     name: '',
     slug: '',
@@ -93,13 +94,32 @@ function RecipeForm({ recipe, onSave, onCancel }) {
         ...recipe,
         ingredients: recipe.ingredients?.map(i => ({ name: i.name || i.ingredient_name || '', quantity: i.quantity || '', unit: i.unit || '', notes: i.notes || '' })) || [],
         steps: recipe.steps?.map(s => ({ text: s.text || s.instruction || '' })) || [],
-        tags: recipe.tags?.join(', ') || '',
+        tags: Array.isArray(recipe.tags) ? recipe.tags : (recipe.tags?.split(',').map(t => t.trim()).filter(Boolean) || []),
       });
     }
   }, [recipe]);
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleTag = (tag) => {
+    setForm(prev => ({
+      ...prev,
+      tags: prev.tags.includes(tag) 
+        ? prev.tags.filter(t => t !== tag)
+        : [...prev.tags, tag]
+    }));
+  };
+
+  const addCustomTag = (e) => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      const tag = e.target.value.trim();
+      if (!form.tags.includes(tag)) {
+        setForm(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      }
+      e.target.value = '';
+    }
   };
 
   const addIngredient = () => {
@@ -142,12 +162,24 @@ function RecipeForm({ recipe, onSave, onCancel }) {
     if (form.ingredients.length === 0) return setError('請至少添加一個食材');
     if (form.steps.length === 0) return setError('請至少添加一個步驟');
 
+    // Duplicate slug check
+    const existingSlug = existingRecipes.find(r => r.slug === form.slug && r.id !== recipe?.id);
+    if (existingSlug) return setError(`Slug "${form.slug}" 已被食譜「${existingSlug.name}」使用`);
+
+    // Similar name warning (not blocking, just info)
+    const similarName = existingRecipes.find(r => 
+      r.name && form.name && 
+      r.id !== recipe?.id &&
+      (r.name.includes(form.name) || form.name.includes(r.name))
+    );
+    // Note: We don't block on similar names, just continue
+
     setSaving(true);
     
     try {
       const payload = {
         ...form,
-        tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+        tags: form.tags, // Already an array
         ingredients: form.ingredients.filter(i => i.name?.trim()),
         steps: form.steps.filter(s => s.text?.trim()),
       };
@@ -251,7 +283,31 @@ function RecipeForm({ recipe, onSave, onCancel }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">標籤</label>
-            <input value={form.tags} onChange={e => handleChange('tags', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" placeholder="quick, healthy" />
+            <div className="flex flex-wrap gap-1 mb-2">
+              {form.tags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-[#9B6035] text-white text-xs px-2 py-1 rounded-full">
+                  {tag}
+                  <button type="button" onClick={() => toggleTag(tag)} className="hover:text-red-200">×</button>
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1 mb-2">
+              {presetTags.filter(t => !form.tags.includes(t)).map(tag => (
+                <button 
+                  key={tag} 
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  className="text-xs px-2 py-1 rounded-full border border-[#DDD0B0] text-[#AA7A50] hover:bg-[#F8F3E8]"
+                >
+                  + {tag}
+                </button>
+              ))}
+            </div>
+            <input 
+              onKeyDown={addCustomTag}
+              className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" 
+              placeholder="輸入自訂標籤，按 Enter 加入"
+            />
           </div>
         </div>
       </div>
@@ -400,6 +456,7 @@ export default function AdminRecipes() {
               <button onClick={() => { setView('list'); setEditingRecipe(null); }} className="mb-4 text-[#9B6035] hover:underline">← 返回列表</button>
               <RecipeForm 
                 recipe={editingRecipe} 
+                existingRecipes={recipes}
                 onSave={handleSave} 
                 onCancel={() => { setView('list'); setEditingRecipe(null); }} 
               />
