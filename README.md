@@ -23,6 +23,18 @@ supabase/            SQL/bootstrap assets
 scripts/             local tooling (smoke checks)
 ```
 
+## Structure conventions
+
+- Keep route handlers inside `src/pages/api/**` only.
+  - Public APIs: `src/pages/api/recipes/**`, `src/pages/api/menus/**`
+  - Admin APIs: `src/pages/api/admin/**`
+- Keep Supabase/client/auth helpers inside `src/lib/**`.
+  - `supabaseClient.ts` for public client usage
+  - `supabaseServer.ts` for admin/service-role usage
+  - `ensureSupabase.js` for shared config guard behavior
+- Keep UI pages in `src/pages/**` and reusable fetch logic in `src/services/**`.
+- Put one-off/dev checks in `scripts/**` (example: `scripts/smoke.mjs`).
+
 ## Environment setup
 
 1. Copy the template:
