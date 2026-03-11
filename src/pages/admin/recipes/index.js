@@ -79,7 +79,7 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
       const ext = file.name.split('.').pop() || 'jpg';
       const fileName = `recipes/${slug}-${Date.now()}.${ext}`;
       
-      const res = await fetch('/api/admin/upload', {
+      const res = await fetch('/api/admin/uploads/image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName, fileType: file.type }),
@@ -609,7 +609,7 @@ function ImportModal({ onClose, onSuccess }) {
     
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/import', {
+      const res = await fetch('/api/admin/recipes/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recipes: results.recipes }),
