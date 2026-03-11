@@ -105,6 +105,19 @@ export default async function handler(req, res) {
         fat_g: body.fat_g || null,
         image_url: body.image_url || null,
       };
+
+      // Check for duplicate slug
+      let existingQuery = supabase.from('recipes').select('id, name').eq('slug', recipeData.slug);
+      if (method === 'PUT' && body.id) {
+        existingQuery = existingQuery.neq('id', body.id);
+      }
+      const { data: existing } = await existingQuery.maybeSingle();
+      
+      if (existing) {
+        return res.status(409).json({ 
+          error: `Slug "${recipeData.slug}" 已被食譜「${existing.name}」使用` 
+        });
+      }
       
       if (body.id) {
         const { data: recipe, error: recipeError } = await supabase
