@@ -43,10 +43,27 @@ function RecipeForm({ recipe, onSave, onCancel }) {
     const file = e.target.files?.[0];
     if (!file) return;
     
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('只支援 JPG, PNG, WebP 格式');
+      return;
+    }
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('圖片大小不能超過 5MB');
+      return;
+    }
+    
     setUploading(true);
+    setError('');
     try {
-      // Upload to Supabase Storage
-      const fileName = `${Date.now()}-${file.name}`;
+      // Use slug in filename: recipes/{slug}-{timestamp}.jpg
+      const slug = form.slug || 'recipe';
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `recipes/${slug}-${Date.now()}.${ext}`;
+      
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
