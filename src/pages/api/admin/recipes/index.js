@@ -1,33 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
-import { parse } from 'cookie'
-import crypto from 'crypto'
+import { requireAdmin } from '@/lib/adminAuth'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET
-
-function verifyToken(token) {
-  try {
-    const [timestamp, signature] = token.split('.')
-    const expected = crypto
-      .createHmac('sha256', ADMIN_SECRET)
-      .update(timestamp)
-      .digest('hex')
-    return signature === expected
-  } catch {
-    return false
-  }
-}
-
-// HMAC-signed token verification
-const isAdmin = (req) => {
-  const cookies = parse(req.headers.cookie || '')
-  const token = cookies.admin_session
-  return token && verifyToken(token)
-}
+// Use centralized admin auth
+const isAdmin = (req) => requireAdmin(req)
 
 export default async function handler(req, res) {
   if (!isAdmin(req)) {
