@@ -2,6 +2,7 @@
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
+import PantryRecommendation from '@/components/recipes/PantryRecommendation';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -121,10 +122,6 @@ export default function GeneratePage() {
     DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {})
   );
   const [lockedSlots, setLockedSlots] = useState({}); // { 'mon-0': true }
-  
-  // Pantry-based recommendation
-  const [pantryInput, setPantryInput] = useState('');
-  const [pantryRecommendations, setPantryRecommendations] = useState([]);
   
   // Shopping List
   const [shoppingList, setShoppingList] = useState([]);
@@ -563,47 +560,6 @@ const CONFIG = {
     setWeeklyPlan(newPlan);
   };
 
-  // Pantry-based recipe recommendation
-  const handlePantrySearch = () => {
-    if (!pantryInput.trim() || filteredRecipes.length === 0) {
-      setPantryRecommendations([]);
-      return;
-    }
-    
-    const ingredients = pantryInput.toLowerCase().split(',').map(i => i.trim()).filter(Boolean);
-    
-    const scored = filteredRecipes.map(recipe => {
-      // Build searchable text from name, description, cuisine, method
-      const searchText = `${recipe.name} ${recipe.description || ''} ${recipe.cuisine || ''} ${recipe.method || ''} ${recipe.dish_type || ''} ${recipe.primary_protein || ''}`.toLowerCase();
-      
-      let matchCount = 0;
-      let proteinMatch = false;
-      ingredients.forEach(ing => {
-        if (searchText.includes(ing)) {
-          matchCount++;
-          if (recipe.primary_protein?.toLowerCase().includes(ing)) {
-            proteinMatch = true;
-          }
-        }
-      });
-      
-      // Base score = matched / total user ingredients
-      let score = matchCount / Math.max(ingredients.length, 1);
-      
-      // Bonus: +1 if primary_protein matches
-      if (proteinMatch) score += 1;
-      // Bonus: +0.5 if speed is quick
-      if (recipe.speed === 'quick') score += 0.5;
-      
-      return { recipe, score, matchCount };
-    });
-    
-    // Filter: only show if match_ratio >= 0.3, then sort by score
-    const minThreshold = 0.3;
-    const top = scored.filter(r => r.score >= minThreshold).sort((a, b) => b.score - a.score).slice(0, 6);
-    setPantryRecommendations(top);
-  };
-
   const lockSlot = (dayKey, index) => {
     setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: true }));
   };
@@ -713,54 +669,7 @@ const CONFIG = {
 
         {/* Pantry-based Recommendation */}
         <div className="max-w-[1200px] mx-auto px-4 py-6">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-bold text-[#3A2010] mb-3">🥬 入廚房有咩餸?</h3>
-            <p className="text-sm text-[#AA7A50] mb-3">輸入你既食材，我地推薦啱既食譜</p>
-            
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                value={pantryInput}
-                onChange={(e) => setPantryInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handlePantrySearch()}
-                placeholder="例如: 蛋, 番茄, 雞肉"
-                className="flex-1 px-4 py-2 border border-[#DDD0B0] rounded-lg focus:outline-none focus:border-[#9B6035]"
-              />
-              <button
-                onClick={handlePantrySearch}
-                className="px-6 py-2 bg-[#9B6035] text-white rounded-lg font-medium hover:bg-[#7a4a2a] transition-colors"
-              >
-                搜尋
-              </button>
-            </div>
-            
-            {pantryInput && (
-              <p className="text-sm text-[#AA7A50] mb-3">
-                你有: {pantryInput}
-              </p>
-            )}
-            
-            {pantryRecommendations.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-[#3A2010] mb-3">推薦食譜</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                  {pantryRecommendations.map(({ recipe, score, matchCount }) => (
-                    <div 
-                      key={recipe.id}
-                      onClick={() => onRecipeClick(recipe)}
-                      className="bg-[#F8F3E8] rounded-lg p-3 cursor-pointer hover:shadow-md transition-shadow"
-                    >
-                      <div className="h-16 flex items-center justify-center bg-gray-200 rounded-lg mb-2">
-                        <span className="text-2xl">🍳</span>
-                      </div>
-                      <div className="text-sm font-medium text-[#3A2010] truncate">{recipe.name}</div>
-                      <div className="text-xs text-[#AA7A50]">{matchCount} 食材匹配</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          <PantryRecommendation recipes={filteredRecipes} />
         </div>
 
         {/* Action Bar */}
