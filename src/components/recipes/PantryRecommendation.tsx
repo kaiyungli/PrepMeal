@@ -21,12 +21,19 @@ export default function PantryRecommendation({ recipes, pantryIngredients = [] }
     : localInput.split(',').map(i => i.trim()).filter(Boolean);
 
   const handleSearch = () => {
+    console.log('[PANTRY] handleSearch called, effectiveIngredients:', effectiveIngredients);
+    console.log('[PANTRY] recipes count:', recipes?.length);
+    
     if (effectiveIngredients.length === 0) {
       setRecommendations([]);
       return;
     }
     
     const results = recommendRecipes(effectiveIngredients, recipes);
+    console.log('[PANTRY] recommendRecipes results:', results.length);
+    if (results.length > 0) {
+      console.log('[PANTRY] top result:', results[0].recipe.name, 'score:', results[0].matchScore);
+    }
     setRecommendations(results);
   };
 
