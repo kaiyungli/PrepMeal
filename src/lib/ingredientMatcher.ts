@@ -51,29 +51,33 @@ export function recommendRecipes(
     // Find matches using canonical forms
     const { matched, missing } = findMatchingCanonical(userIngredients, recipeIngredients);
     
-    // Also check text fields for fallback
-    const searchText = [
+    // Also check text fields for fallback - normalize both sides
+    const searchTextRaw = [
       recipe.name,
       recipe.description,
       recipe.cuisine,
       recipe.method,
       recipe.dish_type,
       recipe.primary_protein
-    ].filter(Boolean).join(' ').toLowerCase();
+    ].filter(Boolean).join(' ');
+    
+    // Normalize search text to handle 蕃茄 vs 番茄
+    const searchTextNormalized = normalizeIngredients(searchTextRaw.split(/[\s,]+/).filter(Boolean));
+    const searchText = [...searchTextRaw.toLowerCase().split(/[\s,]+/), ...searchTextNormalized].filter(Boolean);
     
     let textMatchCount = 0;
     const normalizedUser = normalizeIngredients(userIngredients);
     
-    // Check both normalized AND original user ingredients against search text
+    // Check normalized user ingredients against normalized search text
     normalizedUser.forEach(ing => {
       if (searchText.includes(ing)) {
         textMatchCount++;
       }
     });
     
-    // Also check original Chinese input against recipe text
+    // Also check original Chinese input against raw search text
     userIngredients.forEach(ing => {
-      if (searchText.includes(ing.toLowerCase())) {
+      if (searchTextRaw.toLowerCase().includes(ing.toLowerCase())) {
         textMatchCount++;
       }
     });
