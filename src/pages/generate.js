@@ -2,7 +2,6 @@
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
-import PantryRecommendation from '@/components/recipes/PantryRecommendation';
 import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
@@ -849,11 +848,6 @@ const CONFIG = {
             </div>
           </div>
         )}
-
-        {/* Pantry-based Recommendation */}
-        <div className="max-w-[1200px] mx-auto px-4 py-6">
-          <PantryRecommendation recipes={filteredRecipes} pantryIngredients={pantryIngredients} />
-        </div>
 
         {/* Action Bar */}
         <GenerateActions 
