@@ -241,3 +241,167 @@ export function planWeek(recipes: Recipe[]): Recipe[] {
   }
   return result
 }
+
+/**
+ * Advanced planning with full pantry support
+ * This combines all features from generate.js inline planner
+ */
+export interface PlanConfig {
+  daysPerWeek: number;
+  dishesPerDay: number;
+  isWeekend: (dayKey: string) => boolean;
+  cuisines?: string[];
+  exclusions?: string[];
+  cookingConstraints?: string[];
+  budget?: string;
+  pantryIngredients?: string[];
+  lockedSlots?: Record<string, boolean>;
+  lockedRecipes?: Record<string, Recipe>;
+}
+
+export function planWeekAdvanced(
+  recipes: Recipe[],
+  config: PlanConfig
+): Record<string, Recipe[]> {
+  const {
+    daysPerWeek,
+    dishesPerDay,
+    isWeekend,
+    cuisines = [],
+    exclusions = [],
+    cookingConstraints = [],
+    budget,
+    pantryIngredients = [],
+    lockedSlots = {},
+    lockedRecipes = {}
+  } = config;
+
+  const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].slice(0, daysPerWeek);
+  const result: Record<string, Recipe[]> = {};
+  const recentProteins: string[] = [];
+  const recentMethods: string[] = [];
+  const usedPantryIngredients: string[] = [];
+
+  // Filter recipes
+  let filtered = recipes.filter(r => {
+    if (cuisines.length > 0 && r.cuisine && !cuisines.includes(r.cuisine)) return false;
+    if (exclusions.length > 0) {
+      const protein = r.protein || [];
+      if (exclusions.some(ex => protein.includes(ex))) return false;
+    }
+    return true;
+  });
+
+  // Pantry candidate pool: if pantry has matches, use only those
+  if (pantryIngredients.length > 0) {
+    const pantryMatched = filtered.filter(r => {
+      const recipeText = [
+        r.name,
+        r.description,
+        r.cuisine,
+        r.method,
+        r.dish_type,
+        r.primary_protein
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      const normPantry = normalizeIngredients(pantryIngredients);
+      const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+      
+      return normPantry.some(p => normText.includes(p));
+    });
+    
+    if (pantryMatched.length > 0) {
+      filtered = pantryMatched;
+    }
+  }
+
+  // Generate plan
+  days.forEach((day, dayIndex) => {
+    const dayRecipes: Recipe[] = [];
+    
+    for (let dish = 0; dish < dishesPerDay; dish++) {
+      const slotKey = `${day}-${dish}`;
+      
+      // Use locked recipe if exists
+      if (lockedSlots[slotKey] && lockedRecipes[slotKey]) {
+        dayRecipes.push(lockedRecipes[slotKey]);
+        continue;
+      }
+      
+      // Calculate diminishing pantry bonus
+      const mealPosition = dayIndex * dishesPerDay + dish;
+      const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
+      
+      // Score candidates
+      const scored = filtered.map(r => {
+        let score = 5; // base score
+        
+        // Protein diversity
+        const protein = r.primary_protein || r.protein?.[0];
+        if (protein && recentProteins.length > 0) {
+          if (!recentProteins.slice(-3).includes(protein)) {
+            score += 2;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        // Method diversity
+        const method = r.method;
+        if (method && recentMethods.length > 0) {
+          if (!recentMethods.slice(-2).includes(method)) {
+            score += 1;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        // Pantry bonus with diminishing factor
+        if (pantryIngredients.length > 0) {
+          const recipeText = [
+            r.name,
+            r.description,
+            r.cuisine,
+            r.method,
+            r.dish_type,
+            r.primary_protein
+          ].filter(Boolean).join(' ').toLowerCase();
+          
+          const normPantry = normalizeIngredients(pantryIngredients);
+          const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+          
+          const matches = normPantry.filter(p => normText.includes(p));
+          if (matches.length > 0) {
+            score += 5 * diminishingFactor;
+            
+            // Repetition penalty
+            const usedCount = usedPantryIngredients.filter(u => matches.includes(u)).length;
+            if (usedCount > 0) {
+              score -= 0.5 * usedCount;
+            }
+            
+            matches.forEach(m => usedPantryIngredients.push(m));
+          }
+        }
+        
+        return { recipe: r, score };
+      });
+      
+      // Sort by score and pick top
+      scored.sort((a, b) => b.score - a.score);
+      const selected = scored[0]?.recipe;
+      
+      if (selected) {
+        dayRecipes.push(selected);
+        const protein = selected.primary_protein || selected.protein?.[0];
+        if (protein) recentProteins.push(protein);
+        const method = selected.method;
+        if (method) recentMethods.push(method);
+      }
+    }
+    
+    result[day] = dayRecipes;
+  });
+
+  return result;
+}

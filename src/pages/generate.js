@@ -17,6 +17,7 @@ import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { recommendRecipes, scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
 import { normalizeIngredients } from '@/lib/ingredientNormalizer';
+import { planWeekAdvanced } from '@/lib/mealPlanner';
 
 // Category mapping for shopping list
 const CATEGORY_MAP = {
