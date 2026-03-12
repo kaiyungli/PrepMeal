@@ -736,6 +736,19 @@ const CONFIG = {
           </p>
         </section>
 
+        {/* Settings Panel */}
+        <GenerateSettings 
+          daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
+          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay}
+          servings={servings} setServings={setServings}
+          dietMode={dietMode} setDietMode={setDietMode}
+          exclusions={exclusions} toggleExclusion={toggleExclusion}
+          cuisines={cuisines} toggleCuisine={toggleCuisine}
+          cookingConstraints={cookingConstraints} toggleConstraint={toggleConstraint}
+          budget={budget} setBudget={setBudget}
+          ingredientReuse={ingredientReuse} setIngredientReuse={setIngredientReuse}
+        />
+
         {/* Pantry Input/Display */}
         {pantryIngredients.length > 0 ? (
           <div className="max-w-[1200px] mx-auto px-4 py-3">
@@ -792,19 +805,6 @@ const CONFIG = {
             </div>
           </div>
         )}
-
-        {/* Settings Panel */}
-        <GenerateSettings 
-          daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
-          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay}
-          servings={servings} setServings={setServings}
-          dietMode={dietMode} setDietMode={setDietMode}
-          exclusions={exclusions} toggleExclusion={toggleExclusion}
-          cuisines={cuisines} toggleCuisine={toggleCuisine}
-          cookingConstraints={cookingConstraints} toggleConstraint={toggleConstraint}
-          budget={budget} setBudget={setBudget}
-          ingredientReuse={ingredientReuse} setIngredientReuse={setIngredientReuse}
-        />
 
         {/* Pantry-based Recommendation */}
         <div className="max-w-[1200px] mx-auto px-4 py-6">
