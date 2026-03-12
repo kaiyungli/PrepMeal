@@ -226,3 +226,20 @@ npm run test
 ## License
 
 MIT
+
+---
+
+## Future Roadmap
+
+- [ ] Auto meal plan from pantry
+- [ ] Pantry inventory tracking
+- [ ] Nutrition balancing
+- [ ] AI recipe suggestions
+- [ ] User accounts
+- [ ] Saved meal plans
+
+---
+
+## License
+
+MIT
