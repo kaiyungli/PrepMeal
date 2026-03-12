@@ -17,6 +17,9 @@ interface Recipe {
 
 // Weight configuration
 const WEIGHTS = {
+  // Repeat penalty
+  REPEAT_PENALTY: -3,
+  
   // Protein diversity
   PROTEIN_SAME_DAY: -2,
   PROTEIN_WITHIN_2_DAYS: -1,
@@ -134,6 +137,13 @@ export function selectRecipeForSlot(
   const scored = candidates.map(r => {
     let totalScore = r.score || WEIGHTS.BASE_SCORE
     const reasons: string[] = []
+    
+    // Repeat penalty: if recipe was already used earlier in the week
+    const isRepeated = usedIds.has(r.id)
+    if (isRepeated) {
+      totalScore += WEIGHTS.REPEAT_PENALTY
+      reasons.push('repeat_penalty')
+    }
     
     // Protein diversity
     const proteinResult = scoreProteinDiversity(r.primary_protein, recentProteins)
