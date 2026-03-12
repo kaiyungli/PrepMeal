@@ -3,6 +3,7 @@ import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
 import PantryRecommendation from '@/components/recipes/PantryRecommendation';
+import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -735,16 +736,39 @@ const CONFIG = {
           </p>
         </section>
 
-        {/* Pantry Display */}
-        {pantryIngredients.length > 0 && (
+        {/* Pantry Input/Display */}
+        {pantryIngredients.length > 0 ? (
           <div className="max-w-[1200px] mx-auto px-4 py-3">
             <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-              <div className="text-sm text-green-800">
+              <div className="text-sm text-green-800 mb-2">
                 <span className="font-medium">已選食材：</span>
-                {pantryIngredients.join('、')}
+                {pantryIngredients.length > 0 && (
+                  <span className="ml-2">
+                    <PantryChipInput
+                      value={pantryIngredients}
+                      onChange={setPantryIngredients}
+                      placeholder="輸入更多食材..."
+                    />
+                  </span>
+                )}
               </div>
               <div className="text-xs text-green-600 mt-1">
                 已優先使用你現有的食材生成餐單
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-[1200px] mx-auto px-4 py-3">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+              <div className="text-sm text-gray-600 mb-2">
+                <span className="font-medium">輸入食材：</span>
+                <span className="ml-2">
+                  <PantryChipInput
+                    value={pantryIngredients}
+                    onChange={setPantryIngredients}
+                    placeholder="輸入食材，按 Enter 加入..."
+                  />
+                </span>
               </div>
             </div>
           </div>
