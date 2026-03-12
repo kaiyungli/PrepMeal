@@ -29,8 +29,8 @@ const WEIGHTS = {
   METHOD_SAME_DAY: -1,
   METHOD_NEW: 1,
   
-  // Pantry (uses normalized ingredients)
-  PANTRY_MATCH: 1,
+  // Pantry (uses normalized ingredients) - strong bonus
+  PANTRY_MATCH: 5,
   
   // Speed bias (weekday)
   SPEED_QUICK: 1,
@@ -171,11 +171,28 @@ export function selectRecipeForSlot(
       reasons.push('new_cuisine')
     }
     
-    // Pantry bonus: uses normalized ingredients
-    if (pantryIngredients.length > 0 && r.ingredients_list) {
+    // Pantry bonus: uses normalized ingredients + text fallback
+    if (pantryIngredients.length > 0) {
       const normalizedPantry = normalizeIngredients(pantryIngredients)
-      const normalizedRecipe = normalizeIngredients(r.ingredients_list)
-      const matches = normalizedPantry.filter(p => normalizedRecipe.includes(p))
+      
+      // Check ingredients_list
+      const normalizedRecipe = r.ingredients_list ? normalizeIngredients(r.ingredients_list) : []
+      
+      // Also check text fields (name, description, etc.)
+      const textFields = [
+        r.name,
+        r.description,
+        r.cuisine,
+        r.method,
+        r.dish_type,
+        r.primary_protein
+      ].filter(Boolean).join(' ').toLowerCase()
+      const normalizedText = normalizeIngredients(textFields.split(/[\s,]+/).filter(Boolean))
+      
+      // Combine all recipe ingredients
+      const allRecipeIngs = [...normalizedRecipe, ...normalizedText]
+      
+      const matches = normalizedPantry.filter(p => allRecipeIngs.includes(p))
       if (matches.length > 0) {
         totalScore += matches.length * WEIGHTS.PANTRY_MATCH
         reasons.push(`pantry_match_${matches.length}`)
