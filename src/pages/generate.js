@@ -494,8 +494,8 @@ const CONFIG = {
         if (pantryIngredients.length > 0) {
           const { score: pantryScore, matchedIngredients } = scoreRecipeForPlanner(pantryIngredients, r);
           if (pantryScore > 0) {
-            score += pantryScore;
-            breakdown.pantry_match = `+${pantryScore} (${matchedIngredients.join(', ')})`;
+            score += pantryScore * diminishingFactor;
+            breakdown.pantry_match = `+${(pantryScore * diminishingFactor).toFixed(1)} (${matchedIngredients.join(', ')})`;
           }
         }
         
@@ -517,8 +517,8 @@ const CONFIG = {
           
           const remainingMatch = allRecipeIngs.filter(ing => remainingPantry.includes(ing));
           if (remainingMatch.length > 0) {
-            score += remainingMatch.length * 5; // Strong bonus for using remaining pantry
-            breakdown.pantry_remaining = `+${remainingMatch.length * 5} (${remainingMatch.join(', ')})`;
+            score += remainingMatch.length * 5 * diminishingFactor; // Strong bonus for using remaining pantry
+            breakdown.pantry_remaining = `+${(remainingMatch.length * 5 * diminishingFactor).toFixed(1)} (${remainingMatch.join(', ')})`;
           }
         }
         
@@ -588,13 +588,17 @@ const CONFIG = {
       return shuffled;
     };
     
-    daysToGenerate.forEach(day => {
+    daysToGenerate.forEach((day, dayIndex) => {
       const dayRecipes = [];
       const isWeekend = day.isWeekend || false;
       
       for (let dish = 0; dish < dishesPerDay; dish++) {
         const slotKey = `${day.key}-${dish}`;
         if (lockedSlots[slotKey]) continue;
+        
+        // Calculate diminishing pantry bonus: first 2-3 slots get full bonus, then decreases
+        const mealPosition = dayIndex * dishesPerDay + dish;
+        const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
         
         let candidates = [];
         
