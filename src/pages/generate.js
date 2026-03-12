@@ -476,7 +476,7 @@ const CONFIG = {
           }
         }
         
-        // Pantry bonus: +1 per matched ingredient from URL
+        // Pantry bonus: +3 per matched ingredient from URL (strong bonus)
         if (pantryIngredients.length > 0) {
           const { score: pantryScore, matchedIngredients } = scoreRecipeForPlanner(pantryIngredients, r);
           if (pantryScore > 0) {
@@ -486,12 +486,25 @@ const CONFIG = {
         }
         
         // Pantry-first bonus: prioritize recipes that use remaining pantry ingredients
-        if (remainingPantry.length > 0 && r.ingredients_list) {
-          const recipeNorm = normalizeIngredients(r.ingredients_list);
-          const remainingMatch = recipeNorm.filter(ing => remainingPantry.includes(ing));
+        if (remainingPantry.length > 0) {
+          // Check both ingredients_list and text fields
+          const recipeText = [
+            r.name,
+            r.description,
+            r.cuisine,
+            r.method,
+            r.dish_type,
+            r.primary_protein
+          ].filter(Boolean).join(' ').toLowerCase();
+          
+          const recipeNorm = r.ingredients_list ? normalizeIngredients(r.ingredients_list) : [];
+          const textNorm = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+          const allRecipeIngs = [...recipeNorm, ...textNorm];
+          
+          const remainingMatch = allRecipeIngs.filter(ing => remainingPantry.includes(ing));
           if (remainingMatch.length > 0) {
-            score += remainingMatch.length * 1.5; // Extra bonus for using remaining
-            breakdown.pantry_remaining = `+${remainingMatch.length * 1.5} (${remainingMatch.join(', ')})`;
+            score += remainingMatch.length * 5; // Strong bonus for using remaining pantry
+            breakdown.pantry_remaining = `+${remainingMatch.length * 5} (${remainingMatch.join(', ')})`;
           }
         }
         

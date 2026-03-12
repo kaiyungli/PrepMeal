@@ -126,8 +126,8 @@ export function scoreRecipeForPlanner(
   const recipeIngredients = recipe.ingredients_list || [];
   const { matched, missing } = findMatchingCanonical(userIngredients, recipeIngredients);
   
-  // Also check text fields
-  const searchText = [
+  // Also check text fields for fallback (when ingredients_list is empty)
+  const searchTextRaw = [
     recipe.name,
     recipe.description,
     recipe.cuisine,
@@ -136,21 +136,34 @@ export function scoreRecipeForPlanner(
     recipe.primary_protein
   ].filter(Boolean).join(' ').toLowerCase();
   
+  // Normalize search text to handle 蕃茄 vs 番茄
+  const searchTextNormalized = normalizeIngredients(searchTextRaw.split(/[\s,]+/).filter(Boolean));
+  const searchText = [...searchTextRaw.toLowerCase().split(/[\s,]+/), ...searchTextNormalized];
+  
   const normalizedUser = normalizeIngredients(userIngredients);
   let textMatches = 0;
   
+  // Check normalized ingredients
   normalizedUser.forEach(ing => {
     if (searchText.includes(ing)) {
       textMatches++;
     }
   });
   
+  // Also check original input against raw text
+  userIngredients.forEach(ing => {
+    if (searchTextRaw.toLowerCase().includes(ing.toLowerCase())) {
+      textMatches++;
+    }
+  });
+  
   const totalMatches = matched.length + textMatches;
-  const score = totalMatches; // +1 per match
+  // Give strong pantry bonus: +3 per match to outweigh other factors
+  const score = totalMatches * 3;
   
   return { 
     score, 
-    matchedIngredients: matched,
+    matchedIngredients: matched.length > 0 ? matched : (textMatches > 0 ? normalizedUser.slice(0, textMatches) : []),
     missingIngredients: missing
   };
 }
