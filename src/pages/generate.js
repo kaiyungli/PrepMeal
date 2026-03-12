@@ -280,6 +280,7 @@ const CONFIG = {
     const usedRecipeIds = new Set();
     const recentProteins = [];
     const recentMethods = [];
+    const usedPantryIngredients = []; // Track pantry ingredients used in plan
     
     // Track remaining pantry ingredients for pantry-first planning
     const remainingPantry = pantryIngredients.length > 0 
@@ -517,8 +518,20 @@ const CONFIG = {
           
           const remainingMatch = allRecipeIngs.filter(ing => remainingPantry.includes(ing));
           if (remainingMatch.length > 0) {
-            score += remainingMatch.length * 5 * diminishingFactor; // Strong bonus for using remaining pantry
+            // Apply diminishing bonus
+            score += remainingMatch.length * 5 * diminishingFactor;
             breakdown.pantry_remaining = `+${(remainingMatch.length * 5 * diminishingFactor).toFixed(1)} (${remainingMatch.join(', ')})`;
+            
+            // Pantry repetition penalty: reduce score if same ingredient used multiple times
+            const usedCount = usedPantryIngredients.filter(u => remainingMatch.includes(u)).length;
+            if (usedCount > 0) {
+              const repetitionPenalty = -0.5 * usedCount; // -0.5 per previous use
+              score += repetitionPenalty;
+              breakdown.pantry_repeat_penalty = `${repetitionPenalty.toFixed(1)}`;
+            }
+            
+            // Add to used pantry tracking
+            remainingMatch.forEach(ing => usedPantryIngredients.push(ing));
           }
         }
         
