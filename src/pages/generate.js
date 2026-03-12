@@ -740,19 +740,27 @@ const CONFIG = {
         {pantryIngredients.length > 0 ? (
           <div className="max-w-[1200px] mx-auto px-4 py-3">
             <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
-              <div className="text-sm text-green-800 mb-2">
-                <span className="font-medium">已選食材：</span>
-                {pantryIngredients.length > 0 && (
-                  <span className="ml-2">
-                    <PantryChipInput
-                      value={pantryIngredients}
-                      onChange={setPantryIngredients}
-                      placeholder="輸入更多食材..."
-                    />
-                  </span>
-                )}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-sm text-green-800 font-medium shrink-0">已選食材：</span>
+                <div className="flex-1">
+                  <PantryChipInput
+                    value={pantryIngredients}
+                    onChange={(chips) => {
+                      setPantryIngredients(chips);
+                      // Auto-regenerate when pantry changes
+                      setTimeout(() => handleGenerate(), 100);
+                    }}
+                    placeholder="輸入更多食材..."
+                  />
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition shrink-0"
+                >
+                  重新生成
+                </button>
               </div>
-              <div className="text-xs text-green-600 mt-1">
+              <div className="text-xs text-green-600 mt-2">
                 已優先使用你現有的食材生成餐單
               </div>
             </div>
@@ -760,15 +768,26 @@ const CONFIG = {
         ) : (
           <div className="max-w-[1200px] mx-auto px-4 py-3">
             <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-              <div className="text-sm text-gray-600 mb-2">
-                <span className="font-medium">輸入食材：</span>
-                <span className="ml-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <span className="text-sm text-gray-600 font-medium shrink-0">輸入食材：</span>
+                <div className="flex-1">
                   <PantryChipInput
                     value={pantryIngredients}
-                    onChange={setPantryIngredients}
+                    onChange={(chips) => {
+                      setPantryIngredients(chips);
+                      // Auto-regenerate when pantry changes
+                      setTimeout(() => handleGenerate(), 100);
+                    }}
                     placeholder="輸入食材，按 Enter 加入..."
                   />
-                </span>
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  disabled={pantryIngredients.length === 0}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                >
+                  生成餐單
+                </button>
               </div>
             </div>
           </div>
