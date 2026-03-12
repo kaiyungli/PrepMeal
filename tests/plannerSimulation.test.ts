@@ -6,6 +6,8 @@ const PROTEINS = ['chicken', 'beef', 'pork', 'fish', 'tofu']
 const METHODS = ['stir_fry', 'steamed', 'braised', 'fried', 'boiled']
 const SPEEDS = ['quick', 'normal', 'slow']
 const DIFFICULTIES = ['easy', 'medium', 'hard']
+const INGREDIENTS = ['ingredient-a', 'ingredient-b', 'ingredient-c', 'ingredient-d', 'ingredient-e']
+const BUDGET_LEVELS = ['low', 'medium', 'high']
 
 function createMockRecipe(id: number, overrides = {}) {
   return {
@@ -16,7 +18,8 @@ function createMockRecipe(id: number, overrides = {}) {
     speed: SPEEDS[id % SPEEDS.length],
     primary_protein: PROTEINS[id % PROTEINS.length],
     dish_type: 'main',
-    ingredients_list: ['ingredient-a', 'ingredient-b'],
+    budget_level: BUDGET_LEVELS[id % BUDGET_LEVELS.length],
+    ingredients_list: [INGREDIENTS[id % INGREDIENTS.length], INGREDIENTS[(id + 1) % INGREDIENTS.length]],
     score: 5 + (id % 10),
     ...overrides,
   }
@@ -46,11 +49,18 @@ describe('plannerSimulation', () => {
       const recentProteins: string[] = []
       const recentMethods: string[] = []
       
-      // Random settings
+      // Vary inputs per run
       const dishesPerDay = [1, 2, 3][run % 3]
       const daysPerWeek = 7
-      const hasPantry = run % 2 === 0
-      const pantryIngredients = hasPantry ? ['ingredient-a'] : []
+      
+      // Vary pantry: none / small (1) / medium (2) ingredients
+      const pantrySize = run % 3 // 0=none, 1=small, 2=medium
+      const pantryIngredients = pantrySize === 0 
+        ? [] 
+        : INGREDIENTS.slice(0, pantrySize)
+      
+      // Vary budget: none / budget
+      const budgetMode = run % 2 === 0 ? 'low' : 'none'
       
       // Simulate selecting recipes for each day
       for (let day = 0; day < daysPerWeek; day++) {
@@ -92,7 +102,7 @@ describe('plannerSimulation', () => {
       const uniqueMethods = new Set(selectedRecipes.map(r => r.method)).size
       
       let pantryMatched = 0
-      if (hasPantry) {
+      if (pantryIngredients.length > 0) {
         pantryMatched = selectedRecipes.filter(r => 
           r.ingredients_list?.some((i: string) => pantryIngredients.includes(i))
         ).length
