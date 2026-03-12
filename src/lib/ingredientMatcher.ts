@@ -64,8 +64,16 @@ export function recommendRecipes(
     let textMatchCount = 0;
     const normalizedUser = normalizeIngredients(userIngredients);
     
+    // Check both normalized AND original user ingredients against search text
     normalizedUser.forEach(ing => {
       if (searchText.includes(ing)) {
+        textMatchCount++;
+      }
+    });
+    
+    // Also check original Chinese input against recipe text
+    userIngredients.forEach(ing => {
+      if (searchText.includes(ing.toLowerCase())) {
         textMatchCount++;
       }
     });
