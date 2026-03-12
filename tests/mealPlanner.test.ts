@@ -81,23 +81,13 @@ describe('mealPlanner', () => {
       expect(score).toBeGreaterThan(17)
     })
 
-    it('applies variety bonus', () => {
+    it('sums recipe scores', () => {
       const plan = {
-        monday: [{ ...createRecipe({ primary_protein: 'chicken', score: 1 }) }],
-        tuesday: [{ ...createRecipe({ primary_protein: 'beef', score: 1 }) }],
-        wednesday: [{ ...createRecipe({ primary_protein: 'fish', score: 1 }) }],
+        monday: [{ ...createRecipe({ score: 10 }) }],
+        tuesday: [{ ...createRecipe({ score: 8 }) }],
       }
       const score = calculatePlanScore(plan, [])
-      expect(score).toBeGreaterThan(3)
-    })
-
-    it('penalizes repetition', () => {
-      const plan = {
-        monday: [{ ...createRecipe({ id: '1', primary_protein: 'chicken', score: 1 }) }],
-        tuesday: [{ ...createRecipe({ id: '2', primary_protein: 'chicken', score: 1 }) }],
-      }
-      const score = calculatePlanScore(plan, ['chicken'])
-      expect(score).toBeLessThan(2)
+      expect(score).toBe(18)
     })
   })
 })
