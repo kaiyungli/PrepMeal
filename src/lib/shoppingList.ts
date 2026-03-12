@@ -99,3 +99,63 @@ export function groupByCategory(list: Ingredient[]): Record<string, Ingredient[]
   
   return result
 }
+
+export interface ShoppingListResult {
+  pantry: { name: string }[]
+  toBuy: Ingredient[]
+}
+
+/**
+ * Build shopping list from recipes and pantry
+ * 1. Aggregate recipe ingredients
+ * 2. Normalize ingredients
+ * 3. Split into pantry vs toBuy
+ * 4. Return structured result
+ */
+export function buildShoppingList(
+  recipes: any[],
+  pantryIngredients: string[] = [],
+  servings: number = 1
+): ShoppingListResult {
+  // 1. Collect all ingredients from recipes
+  const allIngredients: Ingredient[] = []
+  
+  for (const recipe of recipes) {
+    if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) continue
+    
+    const scale = servings / (recipe.base_servings || 1)
+    
+    for (const ing of recipe.ingredients) {
+      if (!ing || !ing.name || typeof ing.quantity !== 'number') continue
+      
+      allIngredients.push({
+        name: ing.name,
+        quantity: (ing.quantity || 1) * scale,
+        unit: ing.unit,
+        category: ing.category
+      })
+    }
+  }
+  
+  // 2. Normalize and merge
+  const merged = mergeIngredients(allIngredients)
+  
+  // 3. Split into pantry vs toBuy using normalized comparison
+  const pantryNorm = pantryIngredients.length > 0
+    ? new Set(normalizeIngredients(pantryIngredients))
+    : new Set()
+  
+  const pantry: { name: string }[] = []
+  const toBuy: Ingredient[] = []
+  
+  for (const item of merged) {
+    const normName = normalizeIngredientName(item.name)
+    if (pantryNorm.has(normName)) {
+      pantry.push({ name: item.name })
+    } else {
+      toBuy.push(item)
+    }
+  }
+  
+  return { pantry, toBuy }
+}

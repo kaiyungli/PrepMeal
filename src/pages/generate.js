@@ -12,6 +12,7 @@ import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
+import { buildShoppingList } from '@/lib/shoppingList';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
@@ -668,15 +669,8 @@ const CONFIG = {
 
   // Generate shopping list - fetch full recipe details with ingredients
   const generateShoppingList = async () => {
-    const ingredientMap = new Map(); // key: name+unit, value: {name, quantity, unit, category, inPantry}
+    // Collect unique recipe IDs from weekly plan
     const recipeIds = new Set();
-    
-    // Normalize pantry ingredients for comparison
-    const pantryNorm = pantryIngredients.length > 0 
-      ? new Set(normalizeIngredients(pantryIngredients))
-      : new Set();
-    
-    // Collect unique recipe IDs
     Object.values(weeklyPlan).forEach(recipes => {
       (recipes || []).forEach(recipe => {
         if (recipe?.id) recipeIds.add(recipe.id);
@@ -688,7 +682,7 @@ const CONFIG = {
       return;
     }
     
-    // Fetch full recipe details for each
+    // Fetch full recipe details
     const fetchPromises = Array.from(recipeIds).map(id => 
       fetch('/api/recipes/' + id)
         .then(res => {
@@ -702,53 +696,16 @@ const CONFIG = {
     );
     
     const fullRecipes = await Promise.all(fetchPromises);
+    const validRecipes = fullRecipes.filter(r => r !== null);
     
-    // Process ingredients with proper merging
-    fullRecipes.forEach(recipe => {
-      if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) return;
-      
-      const scale = servings / (recipe.base_servings || 1);
-      
-      recipe.ingredients.forEach(ing => {
-        // Skip invalid rows
-        if (!ing || !ing.name || typeof ing.quantity !== 'number') return;
-        
-        const name = ing.name.trim();
-        const unit = (ing.unit || '份').trim();
-        const qty = (ing.quantity || 1) * scale;
-        
-        // Normalize name and get category
-        const normalized = normalizeIngredients([name]);
-        const canonicalName = normalized[0] || name;
-        const category = getCategory(name, ing.category);
-        
-        // Check if in pantry
-        const inPantry = pantryNorm.has(canonicalName);
-        
-        // Key includes canonical name + unit
-        const key = `${canonicalName}-${unit}`;
-        
-        if (ingredientMap.has(key)) {
-          const existing = ingredientMap.get(key);
-          existing.quantity += qty;
-        } else {
-          ingredientMap.set(key, { 
-            name, // Keep original name for display
-            canonicalName, // For potential future use
-            quantity: Math.round(qty * 100) / 100,
-            unit, 
-            category,
-            inPantry 
-          });
-        }
-      });
-    });
+    // Use buildShoppingList to separate pantry vs toBuy
+    const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
     
-    // Convert to array and sort by category then name
-    const list = Array.from(ingredientMap.values()).sort((a, b) => {
-      if (a.category !== b.category) return a.category.localeCompare(b.category);
-      return a.name.localeCompare(b.name);
-    });
+    // Combine for modal display
+    const list = [
+      ...pantry.map(p => ({ ...p, inPantry: true })),
+      ...toBuy.map(t => ({ ...t, inPantry: false }))
+    ];
     
     setShoppingList(list);
     setShowShoppingList(true);
