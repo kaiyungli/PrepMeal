@@ -769,7 +769,7 @@ const CONFIG = {
           <div className="max-w-[1200px] mx-auto px-4 py-3">
             <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <span className="text-sm text-gray-600 font-medium shrink-0">輸入食材：</span>
+                <span className="text-sm text-gray-600 font-medium shrink-0">你已有咩食材？（可選）</span>
                 <div className="flex-1">
                   <PantryChipInput
                     value={pantryIngredients}
@@ -778,7 +778,7 @@ const CONFIG = {
                       // Auto-regenerate when pantry changes
                       setTimeout(() => handleGenerate(), 100);
                     }}
-                    placeholder="輸入食材，按 Enter 加入..."
+                    placeholder="例如: 蛋, 番茄, 雞肉..."
                   />
                 </div>
                 <button
@@ -786,7 +786,7 @@ const CONFIG = {
                   disabled={pantryIngredients.length === 0}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                 >
-                  生成餐單
+                  用食材生成餐單
                 </button>
               </div>
             </div>
