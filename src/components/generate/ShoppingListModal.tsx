@@ -37,12 +37,12 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
   const shopGrouped = groupByCategory(shopItems)
 
   const handleCopy = () => {
-    // Separate output
+    // Simple format: just names for pantry, full for shopping
     const pantryText = pantryItems.length > 0 
-      ? '已有食材:\n' + pantryItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
+      ? '已有食材\n' + pantryItems.map(i => i.name).join('\n')
       : ''
     const shopText = shopItems.length > 0
-      ? '需要購買:\n' + shopItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
+      ? '需要購買\n' + shopItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
       : ''
     
     const text = [pantryText, shopText].filter(Boolean).join('\n\n')
@@ -66,18 +66,15 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
       </div>
 
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-        {/* 已有食材 */}
+        {/* 已有食材 - just names */}
         {pantryItems.length > 0 && (
           <div>
-            <h3 className="font-bold text-green-600 text-sm mb-2">✅ 已有食材</h3>
-            <div className="space-y-1">
+            <h3 className="font-bold text-green-600 text-sm mb-2">已有食材</h3>
+            <div className="flex flex-wrap gap-2">
               {pantryItems.map((item, i) => (
-                <div key={i} className="flex justify-between py-1.5 px-2 bg-green-50 rounded">
-                  <span className="text-[#3A2010]">{item.name}</span>
-                  <span className="text-green-600 font-medium">
-                    {item.quantity} {item.unit || ''}
-                  </span>
-                </div>
+                <span key={i} className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+                  {item.name}
+                </span>
               ))}
             </div>
           </div>
@@ -86,7 +83,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
         {/* 需要購買 */}
         {shopItems.length > 0 && (
           <div>
-            <h3 className="font-bold text-[#9B6035] text-sm mb-2">🛒 需要購買</h3>
+            <h3 className="font-bold text-[#9B6035] text-sm mb-2">需要購買</h3>
             {Object.entries(shopGrouped).map(([category, items]) => (
               <div key={category} className="mb-3">
                 <h4 className="text-xs text-[#AA7A50] mb-1">{category}</h4>
