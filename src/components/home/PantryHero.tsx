@@ -2,20 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import PantryChipInput from './PantryChipInput';
 
 export default function PantryHero() {
   const router = useRouter();
-  const [input, setInput] = useState('');
+  const [chips, setChips] = useState<string[]>([]);
 
   const handleRecommend = () => {
-    if (!input.trim()) return;
-    const encoded = encodeURIComponent(input);
+    if (chips.length === 0) return;
+    const encoded = encodeURIComponent(chips.join(','));
     router.push(`/recipes?ingredients=${encoded}`);
   };
 
   const handleGenerate = () => {
-    if (!input.trim()) return;
-    const encoded = encodeURIComponent(input);
+    if (chips.length === 0) return;
+    const encoded = encodeURIComponent(chips.join(','));
     router.push(`/generate?ingredients=${encoded}`);
   };
 
@@ -31,27 +32,28 @@ export default function PantryHero() {
         輸入你雪櫃有咩食材，我幫你推薦食譜
       </p>
       
-      {/* Input */}
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleRecommend()}
-        placeholder="例如: 蛋, 番茄, 雞肉"
-        className="w-full border rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-      />
+      {/* Chip Input */}
+      <div className="max-w-2xl mx-auto">
+        <PantryChipInput
+          value={chips}
+          onChange={setChips}
+          placeholder="輸入食材，按 Enter 或 , 加入"
+        />
+      </div>
       
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
         <button
           onClick={handleRecommend}
-          className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition font-medium"
+          disabled={chips.length === 0}
+          className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           推薦食譜
         </button>
         <button
           onClick={handleGenerate}
-          className="bg-gray-100 text-gray-900 px-6 py-3 rounded-xl hover:bg-gray-200 transition font-medium"
+          disabled={chips.length === 0}
+          className="bg-gray-100 text-gray-900 px-6 py-3 rounded-xl hover:bg-gray-200 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           生成一週餐單
         </button>
