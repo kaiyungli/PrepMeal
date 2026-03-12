@@ -735,6 +735,21 @@ const CONFIG = {
           </p>
         </section>
 
+        {/* Pantry Display */}
+        {pantryIngredients.length > 0 && (
+          <div className="max-w-[1200px] mx-auto px-4 py-3">
+            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+              <div className="text-sm text-green-800">
+                <span className="font-medium">已選食材：</span>
+                {pantryIngredients.join('、')}
+              </div>
+              <div className="text-xs text-green-600 mt-1">
+                已優先使用你現有的食材生成餐單
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Settings Panel */}
         <GenerateSettings 
           daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
