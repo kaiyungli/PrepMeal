@@ -16,7 +16,7 @@ import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import { buildShoppingList } from '@/lib/shoppingList';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
-import { scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
+import { recommendRecipes } from '@/lib/ingredientMatcher';
 import { normalizeIngredients } from '@/lib/ingredientNormalizer';
 
 // Category mapping for shopping list
@@ -808,7 +808,7 @@ const CONFIG = {
 
         {/* Pantry-based Recommendation */}
         <div className="max-w-[1200px] mx-auto px-4 py-6">
-          <PantryRecommendation recipes={filteredRecipes} />
+          <PantryRecommendation recipes={filteredRecipes} pantryIngredients={pantryIngredients} />
         </div>
 
         {/* Action Bar */}

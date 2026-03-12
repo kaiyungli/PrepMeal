@@ -7,20 +7,26 @@ import { recommendRecipes, type Recipe, type Recommendation } from '@/lib/ingred
 
 interface PantryRecommendationProps {
   recipes: Recipe[];
+  pantryIngredients?: string[];
 }
 
-export default function PantryRecommendation({ recipes }: PantryRecommendationProps) {
-  const [input, setInput] = useState('');
+export default function PantryRecommendation({ recipes, pantryIngredients = [] }: PantryRecommendationProps) {
+  // Use pantryIngredients if provided, otherwise use local input
+  const [localInput, setLocalInput] = useState('');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
+  // Use pantry from props if available, otherwise from local input
+  const effectiveIngredients = pantryIngredients.length > 0 
+    ? pantryIngredients 
+    : localInput.split(',').map(i => i.trim()).filter(Boolean);
+
   const handleSearch = () => {
-    if (!input.trim()) {
+    if (effectiveIngredients.length === 0) {
       setRecommendations([]);
       return;
     }
     
-    const ingredients = input.split(',').map(i => i.trim()).filter(Boolean);
-    const results = recommendRecipes(ingredients, recipes);
+    const results = recommendRecipes(effectiveIngredients, recipes);
     setRecommendations(results);
   };
 
@@ -30,31 +36,41 @@ export default function PantryRecommendation({ recipes }: PantryRecommendationPr
     }
   };
 
+  // Auto-search when pantryIngredients changes
+  if (pantryIngredients.length > 0) {
+    const results = recommendRecipes(pantryIngredients, recipes);
+    if (recommendations.length !== results.length) {
+      setRecommendations(results);
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
       <h3 className="text-lg font-bold text-[#3A2010] mb-3">🥬 入廚房有咩餸?</h3>
       <p className="text-sm text-[#AA7A50] mb-3">輸入你既食材，我地推薦啱既食譜</p>
       
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="例如: 蛋, 番茄, 雞肉"
-          className="flex-1 px-4 py-2 border border-[#DDD0B0] rounded-lg focus:outline-none focus:border-[#9B6035]"
-        />
-        <button
-          onClick={handleSearch}
-          className="px-6 py-2 bg-[#9B6035] text-white rounded-lg font-medium hover:bg-[#7a4a2a] transition-colors"
-        >
-          搜尋
-        </button>
-      </div>
+      {pantryIngredients.length === 0 && (
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={localInput}
+            onChange={(e) => setLocalInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="例如: 蛋, 番茄, 雞肉"
+            className="flex-1 px-4 py-2 border border-[#DDD0B0] rounded-lg focus:outline-none focus:border-[#9B6035]"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-6 py-2 bg-[#9B6035] text-white rounded-lg font-medium hover:bg-[#7a4a2a] transition"
+          >
+            搜尋
+          </button>
+        </div>
+      )}
       
-      {input && (
+      {effectiveIngredients.length > 0 && (
         <p className="text-sm text-[#AA7A50] mb-3">
-          你有: {input}
+          你有: {effectiveIngredients.join('、')}
         </p>
       )}
       
@@ -85,7 +101,7 @@ export default function PantryRecommendation({ recipes }: PantryRecommendationPr
         </div>
       )}
       
-      {input && recommendations.length === 0 && (
+      {effectiveIngredients.length > 0 && recommendations.length === 0 && (
         <p className="text-sm text-[#AA7A50]">沒有找到匹配既食譜</p>
       )}
     </div>
