@@ -75,6 +75,8 @@ export function recommendRecipes(
     let score = matchRatio;
     if (matched.length > 0) score += 0.2;
     if (recipe.speed === 'quick') score += 0.1;
+    // Penalty for missing ingredients
+    if (missing.length > 0) score -= 0.1 * missing.length;
     
     // Get display names for matched
     const matchedDisplay = matched.length > 0 ? matched : (textMatchCount > 0 ? normalizedUser.slice(0, textMatchCount) : []);

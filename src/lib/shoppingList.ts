@@ -1,4 +1,5 @@
 import { normalizeIngredients } from './ingredientNormalizer'
+import { CATEGORY_ORDER } from './ingredientCategories'
 
 interface Ingredient {
   name: string
@@ -8,9 +9,6 @@ interface Ingredient {
   baseServings?: number
   targetServings?: number
 }
-
-// Category order for display
-const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨']
 
 /**
  * Normalize ingredient name using the normalizer
