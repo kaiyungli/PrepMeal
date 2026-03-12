@@ -414,18 +414,6 @@ const CONFIG = {
         let score = 0;
         const breakdown = {};
         
-        // +2 if protein not recently used (protein diversity)
-        const protein = r.primary_protein || r.protein?.[0];
-        if (protein && recentProteins.length > 0) {
-          if (!recentProteins.slice(-CONFIG.PROTEIN_LOOKBACK_DAYS).includes(protein)) {
-            score += 2;
-            breakdown.protein_diversity = '+2';
-          } else {
-            score -= 1;
-            breakdown.protein_same = '-1';
-          }
-        }
-        
         // +1 if method adds variety, -1 penalty if same
         const method = r.method;
         if (method && recentMethods.length > 0) {
@@ -491,12 +479,24 @@ const CONFIG = {
           }
         }
         
-        // Pantry bonus: +3 per matched ingredient from URL (strong bonus)
+        // Pantry bonus: +3 per matched ingredient from URL (strong bonus but diminishes)
         if (pantryIngredients.length > 0) {
           const { score: pantryScore, matchedIngredients } = scoreRecipeForPlanner(pantryIngredients, r);
           if (pantryScore > 0) {
             score += pantryScore * diminishingFactor;
             breakdown.pantry_match = `+${(pantryScore * diminishingFactor).toFixed(1)} (${matchedIngredients.join(', ')})`;
+          }
+        }
+        
+        // Protein diversity: +2 for new protein (this should WIN at later positions)
+        const protein = r.primary_proprotein || r.protein?.[0];
+        if (protein && recentProteins.length > 0) {
+          if (!recentProteins.slice(-CONFIG.PROTEIN_LOOKBACK_DAYS).includes(protein)) {
+            score += 2;
+            breakdown.protein_diversity = '+2';
+          } else {
+            score -= 1;
+            breakdown.protein_same = '-1';
           }
         }
         
