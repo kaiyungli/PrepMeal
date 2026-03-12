@@ -668,8 +668,13 @@ const CONFIG = {
 
   // Generate shopping list - fetch full recipe details with ingredients
   const generateShoppingList = async () => {
-    const ingredientMap = new Map(); // key: name+unit, value: {name, quantity, unit, category}
+    const ingredientMap = new Map(); // key: name+unit, value: {name, quantity, unit, category, inPantry}
     const recipeIds = new Set();
+    
+    // Normalize pantry ingredients for comparison
+    const pantryNorm = pantryIngredients.length > 0 
+      ? new Set(normalizeIngredients(pantryIngredients))
+      : new Set();
     
     // Collect unique recipe IDs
     Object.values(weeklyPlan).forEach(recipes => {
@@ -717,6 +722,9 @@ const CONFIG = {
         const canonicalName = normalized[0] || name;
         const category = getCategory(name, ing.category);
         
+        // Check if in pantry
+        const inPantry = pantryNorm.has(canonicalName);
+        
         // Key includes canonical name + unit
         const key = `${canonicalName}-${unit}`;
         
@@ -729,7 +737,8 @@ const CONFIG = {
             canonicalName, // For potential future use
             quantity: Math.round(qty * 100) / 100,
             unit, 
-            category 
+            category,
+            inPantry 
           });
         }
       });

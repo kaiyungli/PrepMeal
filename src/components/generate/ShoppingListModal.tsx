@@ -6,6 +6,7 @@ interface ShoppingListItem {
   quantity: number
   category?: string
   unit?: string
+  inPantry?: boolean
 }
 
 interface ShoppingListModalProps {
@@ -20,29 +21,37 @@ const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜�
 export default function ShoppingListModal({ isOpen, onClose, shoppingList }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
 
-  // Group by category
-  const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
-    const items = shoppingList.filter(item => item.category === cat);
-    if (items.length > 0) acc[cat] = items;
-    return acc;
-  }, {} as Record<string, ShoppingListItem[]>);
+  // Separate into pantry vs shopping
+  const pantryItems = shoppingList.filter(item => item.inPantry)
+  const shopItems = shoppingList.filter(item => !item.inPantry)
 
-  // Add any uncategorized items
-  const uncategorized = shoppingList.filter(item => !CATEGORY_ORDER.includes(item.category || '雜貨'));
-  if (uncategorized.length > 0) {
-    grouped['雜貨'] = [...(grouped['雜貨'] || []), ...uncategorized];
+  // Group shopping items by category
+  const groupByCategory = (items: ShoppingListItem[]) => {
+    return CATEGORY_ORDER.reduce((acc, cat) => {
+      const filtered = items.filter(item => item.category === cat)
+      if (filtered.length > 0) acc[cat] = filtered
+      return acc
+    }, {} as Record<string, ShoppingListItem[]>)
   }
 
+  const shopGrouped = groupByCategory(shopItems)
+
   const handleCopy = () => {
-    const text = shoppingList
-      .map(item => `${item.name} ${item.quantity}${item.unit || ''}`)
-      .join('\n');
+    // Separate output
+    const pantryText = pantryItems.length > 0 
+      ? '已有食材:\n' + pantryItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
+      : ''
+    const shopText = shopItems.length > 0
+      ? '需要購買:\n' + shopItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
+      : ''
+    
+    const text = [pantryText, shopText].filter(Boolean).join('\n\n')
     
     navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   return (
     <Modal isOpen={isOpen} title="購物清單" onClose={onClose} maxWidth="600px">
@@ -56,24 +65,46 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
         </button>
       </div>
 
-      {/* Grouped List */}
       <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-        {Object.entries(grouped).map(([category, items]) => (
-          <div key={category}>
-            <h3 className="font-bold text-[#9B6035] text-sm mb-2">{category}</h3>
+        {/* 已有食材 */}
+        {pantryItems.length > 0 && (
+          <div>
+            <h3 className="font-bold text-green-600 text-sm mb-2">✅ 已有食材</h3>
             <div className="space-y-1">
-              {items.map((item, i) => (
-                <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
+              {pantryItems.map((item, i) => (
+                <div key={i} className="flex justify-between py-1.5 px-2 bg-green-50 rounded">
                   <span className="text-[#3A2010]">{item.name}</span>
-                  <span className="text-[#AA7A50] font-medium">
+                  <span className="text-green-600 font-medium">
                     {item.quantity} {item.unit || ''}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-        ))}
-        
+        )}
+
+        {/* 需要購買 */}
+        {shopItems.length > 0 && (
+          <div>
+            <h3 className="font-bold text-[#9B6035] text-sm mb-2">🛒 需要購買</h3>
+            {Object.entries(shopGrouped).map(([category, items]) => (
+              <div key={category} className="mb-3">
+                <h4 className="text-xs text-[#AA7A50] mb-1">{category}</h4>
+                <div className="space-y-1">
+                  {items.map((item, i) => (
+                    <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
+                      <span className="text-[#3A2010]">{item.name}</span>
+                      <span className="text-[#AA7A50] font-medium">
+                        {item.quantity} {item.unit || ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {shoppingList.length === 0 && (
           <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
         )}
