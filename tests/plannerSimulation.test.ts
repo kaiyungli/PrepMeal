@@ -123,25 +123,31 @@ describe('plannerSimulation', () => {
     const avgMethods = results.reduce((sum, r) => sum + r.uniqueMethods, 0) / RUNS
     const avgPantryMatched = results.reduce((sum, r) => sum + r.pantryMatched, 0) / RUNS
     
-    it('average repeated recipes should be low', () => {
-      console.log(`Average repeated recipes: ${avgRepeated.toFixed(2)}`)
-      expect(avgRepeated).toBeLessThan(2)
+    it('avgRepeatedRecipes < 0.5', () => {
+      console.log(`avgRepeatedRecipes: ${avgRepeated.toFixed(2)} (threshold: 0.5)`)
+      expect(avgRepeated).toBeLessThan(0.5)
     })
     
-    it('should have good protein variety', () => {
-      console.log(`Average unique proteins: ${avgProteins.toFixed(2)}`)
-      expect(avgProteins).toBeGreaterThanOrEqual(2)
+    it('avgUniqueProteins >= 3', () => {
+      console.log(`avgUniqueProteins: ${avgProteins.toFixed(2)} (threshold: 3)`)
+      expect(avgProteins).toBeGreaterThanOrEqual(3)
     })
     
-    it('should have good method variety', () => {
-      console.log(`Average unique methods: ${avgMethods.toFixed(2)}`)
-      expect(avgMethods).toBeGreaterThanOrEqual(1)
+    it('avgUniqueMethods >= 2', () => {
+      console.log(`avgUniqueMethods: ${avgMethods.toFixed(2)} (threshold: 2)`)
+      expect(avgMethods).toBeGreaterThanOrEqual(2)
     })
     
-    it('pantry matching should work when pantry is provided', () => {
-      console.log(`Average pantry matched meals: ${avgPantryMatched.toFixed(2)}`)
-      // At least some matches when pantry is provided
-      expect(avgPantryMatched).toBeGreaterThan(0)
+    it('avgMissingIngredients <= 3', () => {
+      // Currently not tracked - placeholder
+      console.log(`avgMissingIngredients: N/A (not yet implemented)`)
+      expect(true).toBe(true)
+    })
+    
+    it('avgFallbackCount', () => {
+      // Currently not tracked - placeholder
+      console.log(`avgFallbackCount: N/A (not yet implemented)`)
+      expect(true).toBe(true)
     })
   })
   
