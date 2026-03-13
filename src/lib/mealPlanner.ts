@@ -120,97 +120,6 @@ function scoreDifficulty(difficulty: string | undefined): { score: number; reaso
 /**
  * Select the best recipe for a slot
  */
-export function selectRecipeForSlot(
-  candidates: Recipe[],
-  usedIds: Set<string>,
-  totalAvailable: number,
-  recentProteins: string[] = [],
-  recentMethods: string[] = [],
-  recentCuisines: string[] = [],
-  isWeekday: boolean = false,
-  pantryIngredients: string[] = [],
-  budgetMode: string = 'none'
-): Recipe | null {
-  if (candidates.length === 0) return null
-  
-  // Score each candidate
-  const scored = candidates.map(r => {
-    let totalScore = r.score || WEIGHTS.BASE_SCORE
-    const reasons: string[] = []
-    
-    // Repeat penalty: if recipe was already used earlier in the week
-    const isRepeated = usedIds.has(r.id)
-    if (isRepeated) {
-      totalScore += WEIGHTS.REPEAT_PENALTY
-      reasons.push('repeat_penalty')
-    }
-    
-    // Protein diversity
-    const proteinResult = scoreProteinDiversity(r.primary_protein, recentProteins)
-    totalScore += proteinResult.score
-    if (proteinResult.reason) reasons.push(proteinResult.reason)
-    
-    // Method diversity
-    const methodResult = scoreMethodDiversity(r.method, recentMethods)
-    totalScore += methodResult.score
-    if (methodResult.reason) reasons.push(methodResult.reason)
-    
-    // Weekday speed bias
-    const speedResult = scoreWeekdaySpeed(r.speed, isWeekday)
-    totalScore += speedResult.score
-    if (speedResult.reason) reasons.push(speedResult.reason)
-    
-    // Difficulty bias
-    const difficultyResult = scoreDifficulty(r.difficulty)
-    totalScore += difficultyResult.score
-    if (difficultyResult.reason) reasons.push(difficultyResult.reason)
-    
-    // Cuisine variety bonus (NEW this week)
-    if (r.cuisine && !recentCuisines.includes(r.cuisine)) {
-      totalScore += WEIGHTS.VARIETY_NEW_CUISINE
-      reasons.push('new_cuisine')
-    }
-    
-    // Pantry bonus: uses normalized ingredients + text fallback
-    if (pantryIngredients.length > 0) {
-      const normalizedPantry = normalizeIngredients(pantryIngredients)
-      
-      // Check ingredients_list
-      const normalizedRecipe = r.ingredients_list ? normalizeIngredients(r.ingredients_list) : []
-      
-      // Also check text fields (name, description, etc.)
-      const textFields = [
-        r.name,
-        r.description,
-        r.cuisine,
-        r.method,
-        r.dish_type,
-        r.primary_protein
-      ].filter(Boolean).join(' ').toLowerCase()
-      const normalizedText = normalizeIngredients(textFields.split(/[\s,]+/).filter(Boolean))
-      
-      // Combine all recipe ingredients
-      const allRecipeIngs = [...normalizedRecipe, ...normalizedText]
-      
-      const matches = normalizedPantry.filter(p => allRecipeIngs.includes(p))
-      if (matches.length > 0) {
-        totalScore += matches.length * WEIGHTS.PANTRY_MATCH
-        reasons.push(`pantry_match_${matches.length}`)
-      }
-    }
-    
-    return { recipe: r, score: totalScore, reasons }
-  })
-  
-  // Sort by score descending
-  scored.sort((a, b) => b.score - a.score)
-  
-  return scored[0]?.recipe || candidates[0]
-}
-
-/**
- * Calculate overall plan score
- */
 export function calculatePlanScore(
   plan: Record<string, Recipe[]>,
   usedProteins: string[] = []
@@ -501,10 +410,3 @@ export function planWeekAdvanced(
  * DEPRECATED: Pantry now affects SCORING only, not filtering.
  * This function returns all recipes to ensure pantry never shrinks candidate pool.
  */
-export function filterByPantry(
-  recipes: Recipe[],
-  pantryIngredients: string[]
-): Recipe[] {
-  // Pantry should NEVER shrink candidate pool - use scoring for pantry influence instead!
-  return recipes;
-}
