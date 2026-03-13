@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
     const ingredients = (recipeIngredients || []).map(ri => ({
       name: ri.ingredients?.name || '',
-      quantity: ri.quantity,
+      quantity: Number(ri.quantity) || 0,
       unit: ri.unit
     }))
 

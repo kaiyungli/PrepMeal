@@ -28,11 +28,11 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   const map = new Map<string, Ingredient>()
   
   for (const item of list) {
-    // Skip invalid items
-    if (!item || !item.name || typeof item.quantity !== 'number') continue
+    // Skip invalid items - be tolerant of type issues
+    let quantity = Number(item.quantity)
+    if (!item || !item.name || Number.isNaN(quantity)) continue
     
     // Apply scaling if provided
-    let quantity = item.quantity
     if (item.baseServings && item.targetServings) {
       quantity = quantity * (item.targetServings / item.baseServings)
     }
