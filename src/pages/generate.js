@@ -309,15 +309,59 @@ const CONFIG = {
   };
 
   const replaceRecipe = (dayKey, index) => {
-    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
-    if (available.length === 0) return;
+    // Get current recipes for this day to use in scoring
+    const currentDayRecipes = weeklyPlan[dayKey] || [];
+    const allRecipes = Object.values(weeklyPlan).flat().filter(r => r);
     
-    const random = available[Math.floor(Math.random() * available.length)];
-    setWeeklyPlan(prev => {
-      const dayRecipes = [...(prev[dayKey] || [])];
-      dayRecipes[index] = random;
-      return { ...prev, [dayKey]: dayRecipes };
-    });
+    // Score each available recipe using same logic as planner
+    const scored = filteredRecipes
+      .filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
+      .map(r => {
+        let score = 5; // base score
+        
+        // Repeat penalty - avoid recipes already in plan
+        if (allRecipes.some(pr => pr.id === r.id)) {
+          score -= 100;
+        }
+        
+        // Protein diversity
+        const protein = r.primary_protein || r.protein?.[0];
+        const recentProteins = allRecipes.slice(-3).map(pr => pr.primary_protein || pr.protein?.[0]).filter(Boolean);
+        if (protein && recentProteins.length > 0) {
+          if (!recentProteins.includes(protein)) {
+            score += 2;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        // Method diversity
+        const method = r.method;
+        const recentMethods = allRecipes.slice(-2).map(pr => pr.method).filter(Boolean);
+        if (method && recentMethods.length > 0) {
+          if (!recentMethods.includes(method)) {
+            score += 1;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        return { recipe: r, score };
+      });
+    
+    if (scored.length === 0) return;
+    
+    // Sort by score and pick highest
+    scored.sort((a, b) => b.score - a.score);
+    const selected = scored[0]?.recipe;
+    
+    if (selected) {
+      setWeeklyPlan(prev => {
+        const dayRecipes = [...(prev[dayKey] || [])];
+        dayRecipes[index] = selected;
+        return { ...prev, [dayKey]: dayRecipes };
+      });
+    }
   };
 
   // Generate shopping list - fetch full recipe details with ingredients
