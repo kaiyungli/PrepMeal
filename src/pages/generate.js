@@ -15,8 +15,6 @@ import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import { buildShoppingList } from '@/lib/shoppingList';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
-import { recommendRecipes, scoreRecipeForPlanner } from '@/lib/ingredientMatcher';
-import { normalizeIngredients } from '@/lib/ingredientNormalizer';
 import { planWeekAdvanced } from '@/lib/mealPlanner';
 
 // Category mapping for shopping list
