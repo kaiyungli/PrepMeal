@@ -421,8 +421,6 @@ const CONFIG = {
                     value={pantryIngredients}
                     onChange={(chips) => {
                       setPantryIngredients(chips);
-                      // Auto-regenerate when pantry changes
-                      setTimeout(() => handleGenerate(), 100);
                     }}
                     placeholder="輸入更多食材..."
                   />
@@ -449,8 +447,6 @@ const CONFIG = {
                     value={pantryIngredients}
                     onChange={(chips) => {
                       setPantryIngredients(chips);
-                      // Auto-regenerate when pantry changes
-                      setTimeout(() => handleGenerate(), 100);
                     }}
                     placeholder="例如: 蛋, 番茄, 雞肉..."
                   />
