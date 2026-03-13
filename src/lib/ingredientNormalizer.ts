@@ -61,11 +61,27 @@ for (const [canonical, synonyms] of Object.entries(INGREDIENT_SYNONYMS)) {
 }
 
 /**
- * Convert ingredient to canonical form
+ * Convert ingredient to canonical form with partial matching support
  */
 export function normalizeIngredient(ingredient: string): string {
   const lower = ingredient.toLowerCase().trim();
-  return SYNONYM_TO_CANONICAL[lower] || lower;
+  
+  // First check exact match
+  if (SYNONYM_TO_CANONICAL[lower]) {
+    return SYNONYM_TO_CANONICAL[lower];
+  }
+  
+  // Then check partial match (for Chinese compound ingredients)
+  for (const [canonical, synonyms] of Object.entries(INGREDIENT_SYNONYMS)) {
+    for (const synonym of synonyms) {
+      const synLower = synonym.toLowerCase();
+      if (lower.includes(synLower) || synLower.includes(lower)) {
+        return canonical;
+      }
+    }
+  }
+  
+  return lower;
 }
 
 /**
