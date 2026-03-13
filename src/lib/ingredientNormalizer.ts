@@ -17,10 +17,10 @@ export const INGREDIENT_SYNONYMS: Record<string, string[]> = {
   chicken: ['雞', '雞肉', '雞脾', '雞翼', 'chicken'],
   
   // Beef
-  beef: ['牛', '牛肉', 'beef'],
+  beef: ['牛肉', 'beef'],
   
   // Pork
-  pork: ['豬', '豬肉', 'pork'],
+  pork: ['豬肉', 'pork'],
   
   // Tofu
   tofu: ['豆腐', '硬豆腐', '豆腐卜', 'tofu'],
@@ -29,7 +29,7 @@ export const INGREDIENT_SYNONYMS: Record<string, string[]> = {
   fish: ['魚', '魚片', 'fish'],
   
   // Vegetables
-  vegetable: ['菜', '蔬菜', 'vegetable', 'vegetables'],
+  vegetable: ['蔬菜', 'vegetable', 'vegetables'],
   choySum: ['菜心', 'choy sum'],
   broccoli: ['西蘭花', 'broccoli'],
   greenPepper: ['青椒', 'green pepper'],
@@ -38,16 +38,16 @@ export const INGREDIENT_SYNONYMS: Record<string, string[]> = {
   scallion: ['蔥', 'green onion', 'scallion'],
   
   // Carbs
-  rice: ['飯', 'rice'],
+  rice: ['白飯', '米飯', 'rice'],
   riceNoodle: ['米粉', 'rice noodles'],
   noodle: ['麵', 'noodle', 'noodles'],
   pasta: ['意粉', 'pasta'],
   
-  // Basic
+  // Basic - more specific
   salt: ['鹽', 'salt'],
-  oil: ['油', 'oil'],
+  oil: ['植物油', '芝麻油', '花生油', 'oil'],
   sugar: ['糖', 'sugar'],
-  soySauce: ['醬油', '豉油', 'soy sauce'],
+  soySauce: ['醬油', '豉油', '生抽', '老抽', 'soy sauce'],
 };
 
 /**
