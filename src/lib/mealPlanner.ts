@@ -328,17 +328,23 @@ export function planWeekAdvanced(
         ...(r.ingredients_list || [])
       ].filter(Boolean).join(' ').toLowerCase();
       
-      // Tokenize for exact matching
-      const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
-      const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
+      // Tokenize for exact matching - for Chinese use includes() for partial match
+      const recipeTextLower = recipeTextRaw.toLowerCase();
       
-      // DEBUG: Log recipe tokens
-      console.log('[PLANNER] recipe:', r.name, 'tokens:', [...recipeTokens]);
-      
-      // Check each pantry ingredient - must match tokens
+      // Check each pantry ingredient - must match raw text OR normalized
       return pantryIngredients.every(p => {
+        const pLower = p.toLowerCase();
         const pNorm = normalizeIngredients([p])[0];
-        return recipeTokens.has(p.toLowerCase()) || recipeTokensNorm.has(pNorm);
+        // For Chinese (non-ASCII), use partial match; for ASCII use token match
+        const isChinese = /[^\x00-\x7F]/.test(p);
+        if (isChinese) {
+          // Chinese: check if ingredient is PART of recipe text
+          return recipeTextLower.includes(pLower);
+        }
+        // English: check exact token match
+        const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean).map(t => t.toLowerCase()));
+        const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
+        return recipeTokens.has(pLower) || recipeTokensNorm.has(pNorm);
       });
     });
     
