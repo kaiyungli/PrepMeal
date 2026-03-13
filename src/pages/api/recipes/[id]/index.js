@@ -24,13 +24,14 @@ export default async function handler(req, res) {
     // Fetch ingredients
     const { data: recipeIngredients } = await supabase
       .from('recipe_ingredients')
-      .select('quantity, unit, ingredients(name)')
+      .select('quantity, unit, ingredients(id, name, category)')
       .eq('recipe_id', id)
 
     const ingredients = (recipeIngredients || []).map(ri => ({
       name: ri.ingredients?.name || '',
       quantity: Number(ri.quantity) || 0,
-      unit: ri.unit
+      unit: ri.unit,
+      category: ri.ingredients?.category || null
     }))
 
     // Fetch steps
