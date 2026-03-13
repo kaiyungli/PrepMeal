@@ -167,7 +167,7 @@ export default function GeneratePage() {
   const [showShoppingList, setShowShoppingList] = useState(false);
 
   useEffect(() => {
-    fetch('/api/recipes?limit=100')
+    fetch('/api/recipes?limit=500')
       .then(res => res.json())
       .then(data => {
         const recipes = data.recipes || [];
