@@ -299,10 +299,9 @@ export function planWeekAdvanced(
   // Find perfect pantry matches (recipes that use ALL pantry ingredients)
   let perfectMatchRecipe: Recipe | null = null;
   if (pantryIngredients.length > 0 && filtered.length > 0) {
-    const normPantry = normalizeIngredients(pantryIngredients);
-    
+    // Check both normalized and original Chinese text for matches
     const perfectMatches = filtered.filter(r => {
-      const recipeText = [
+      const recipeTextRaw = [
         r.name,
         r.description,
         r.cuisine,
@@ -312,10 +311,15 @@ export function planWeekAdvanced(
         ...(r.ingredients_list || [])
       ].filter(Boolean).join(' ').toLowerCase();
       
-      const normRecipeText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+      // Also check normalized version
+      const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
       
-      // Must match ALL pantry ingredients
-      return normPantry.every(p => normRecipeText.includes(p));
+      // Check each pantry ingredient - must match either raw or normalized text
+      return pantryIngredients.every(p => {
+        const pLower = p.toLowerCase();
+        const pNorm = normalizeIngredients([p])[0];
+        return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
+      });
     });
     
     if (perfectMatches.length > 0) {
@@ -381,7 +385,7 @@ export function planWeekAdvanced(
         
         // Pantry bonus with diminishing factor
         if (pantryIngredients.length > 0) {
-          const recipeText = [
+          const recipeTextRaw = [
             r.name,
             r.description,
             r.cuisine,
@@ -391,11 +395,16 @@ export function planWeekAdvanced(
           ].filter(Boolean).join(' ').toLowerCase();
           
           const normPantry = normalizeIngredients(pantryIngredients);
-          const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
           
-          const matches = normPantry.filter(p => normText.includes(p));
+          // Check matches - both raw text and normalized
+          const matches = pantryIngredients.filter(p => {
+            const pLower = p.toLowerCase();
+            const pNorm = normalizeIngredients([p])[0];
+            return recipeTextRaw.includes(pLower) || normPantry.includes(pNorm);
+          });
+          
           if (matches.length > 0) {
-            score += 5 * diminishingFactor;
+            score += matches.length * 5 * diminishingFactor;
             
             // Repetition penalty - check how many times pantry ingredients used
             const usedCount = usedPantryIngredients.filter(u => matches.includes(u)).length;
@@ -415,7 +424,7 @@ export function planWeekAdvanced(
       
       // AFTER selection: update pantry tracking
       if (selected && pantryIngredients.length > 0) {
-        const recipeText = [
+        const recipeTextRaw = [
           selected.name,
           selected.description,
           selected.cuisine,
@@ -424,10 +433,11 @@ export function planWeekAdvanced(
           selected.primary_protein
         ].filter(Boolean).join(' ').toLowerCase();
         
-        const normPantry = normalizeIngredients(pantryIngredients);
-        const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
-        
-        const selectedMatches = normPantry.filter(p => normText.includes(p));
+        // Track matched pantry ingredients (use original form)
+        const selectedMatches = pantryIngredients.filter(p => {
+          const pLower = p.toLowerCase();
+          return recipeTextRaw.includes(pLower);
+        });
         selectedMatches.forEach(m => usedPantryIngredients.push(m));
       }
       
