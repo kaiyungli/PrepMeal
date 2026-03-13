@@ -498,37 +498,13 @@ export function planWeekAdvanced(
 }
 
 /**
- * Filter recipes by pantry - returns pantry-matched recipes if any exist
+ * DEPRECATED: Pantry now affects SCORING only, not filtering.
+ * This function returns all recipes to ensure pantry never shrinks candidate pool.
  */
 export function filterByPantry(
   recipes: Recipe[],
   pantryIngredients: string[]
 ): Recipe[] {
-  if (!pantryIngredients || pantryIngredients.length === 0) {
-    return recipes;
-  }
-  
-  const normPantry = normalizeIngredients(pantryIngredients);
-  
-  const pantryMatched = recipes.filter(r => {
-    // Check ingredients_list
-    const recipeIngs = r.ingredients_list || [];
-    const normRecipeIngs = normalizeIngredients(recipeIngs);
-    
-    // Check text fields
-    const textFields = [
-      r.name,
-      r.description,
-      r.cuisine,
-      r.method,
-      r.dish_type,
-      r.primary_protein
-    ].filter(Boolean).join(' ').toLowerCase();
-    const normText = normalizeIngredients(textFields.split(/[\s,]+/).filter(Boolean));
-    
-    const allIngs = [...normRecipeIngs, ...normText];
-    return normPantry.some(p => allIngs.includes(p));
-  });
-  
-  return pantryMatched.length > 0 ? pantryMatched : recipes;
+  // Pantry should NEVER shrink candidate pool - use scoring for pantry influence instead!
+  return recipes;
 }
