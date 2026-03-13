@@ -8,6 +8,7 @@ interface Ingredient {
   category?: string
   baseServings?: number
   targetServings?: number
+  source?: string  // 'ingredients' or 'ingredients_list'
 }
 
 /**
@@ -148,7 +149,8 @@ export function buildShoppingList(
           name: String(name),
           quantity: 1,
           unit: '份',
-          category: undefined
+          category: undefined,
+          source: 'ingredients_list'  // Mark as fallback
         })
       }
     }
