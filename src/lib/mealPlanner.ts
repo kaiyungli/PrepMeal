@@ -293,28 +293,8 @@ export function planWeekAdvanced(
     return true;
   });
 
-  // Pantry candidate pool: if pantry has matches, use only those
-  if (pantryIngredients.length > 0) {
-    const pantryMatched = filtered.filter(r => {
-      const recipeText = [
-        r.name,
-        r.description,
-        r.cuisine,
-        r.method,
-        r.dish_type,
-        r.primary_protein
-      ].filter(Boolean).join(' ').toLowerCase();
-      
-      const normPantry = normalizeIngredients(pantryIngredients);
-      const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
-      
-      return normPantry.some(p => normText.includes(p));
-    });
-    
-    if (pantryMatched.length > 0) {
-      filtered = pantryMatched;
-    }
-  }
+  // Note: Pantry affects SCORING, not filtering
+  // Pantry bonus is applied in the scoring section below
 
   // Generate plan
   days.forEach((day, dayIndex) => {

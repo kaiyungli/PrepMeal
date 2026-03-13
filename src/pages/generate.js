@@ -219,19 +219,8 @@ export default function GeneratePage() {
       });
     }
     
-    // PRIORITY FILTER: If pantry has matches, use only pantry-matched recipes
-    // This ensures pantry-matched recipes are always selected
-    if (pantryIngredients.length > 0) {
-      const pantryMatched = filtered.filter(r => {
-        const { score } = scoreRecipeForPlanner(pantryIngredients, r);
-        return score > 0;
-      });
-      
-      // Only use pantry-matched if there are any
-      if (pantryMatched.length > 0) {
-        filtered = pantryMatched;
-      }
-    }
+    // Note: Pantry now affects scoring only (not filtering)
+    // This is handled in mealPlanner.ts
     
     setFilteredRecipes(filtered);
   }, [allRecipes, cuisines, cookingConstraints, exclusions, pantryIngredients]);
