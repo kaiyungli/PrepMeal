@@ -296,6 +296,34 @@ export function planWeekAdvanced(
   // Note: Pantry affects SCORING, not filtering
   // Pantry bonus is applied in the scoring section below
 
+  // Find perfect pantry matches (recipes that use ALL pantry ingredients)
+  let perfectMatchRecipe: Recipe | null = null;
+  if (pantryIngredients.length > 0 && filtered.length > 0) {
+    const normPantry = normalizeIngredients(pantryIngredients);
+    
+    const perfectMatches = filtered.filter(r => {
+      const recipeText = [
+        r.name,
+        r.description,
+        r.cuisine,
+        r.method,
+        r.dish_type,
+        r.primary_protein,
+        ...(r.ingredients_list || [])
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      const normRecipeText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+      
+      // Must match ALL pantry ingredients
+      return normPantry.every(p => normRecipeText.includes(p));
+    });
+    
+    if (perfectMatches.length > 0) {
+      // Pick one random perfect match
+      perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
+    }
+  }
+
   // Generate plan
   days.forEach((day, dayIndex) => {
     const dayRecipes: Recipe[] = [];
@@ -307,6 +335,14 @@ export function planWeekAdvanced(
       if (lockedSlots[slotKey] && lockedRecipes[slotKey]) {
         dayRecipes.push(lockedRecipes[slotKey]);
         usedRecipeIds.add(lockedRecipes[slotKey].id);
+        continue;
+      }
+      
+      // GUARANTEE: Use perfect match in first available slot
+      if (perfectMatchRecipe && !usedRecipeIds.has(perfectMatchRecipe.id)) {
+        dayRecipes.push(perfectMatchRecipe);
+        usedRecipeIds.add(perfectMatchRecipe.id);
+        perfectMatchRecipe = null; // Only use once
         continue;
       }
       
