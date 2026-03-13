@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
+import { getCanonicalIngredients } from '@/lib/ingredientNormalizer'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
@@ -41,6 +42,8 @@ export default async function handler(req, res) {
       
       recipes.forEach(r => {
         r.ingredients_list = ingredientMap[r.id] || [];
+        // Add canonical ingredients for matching
+        r.canonical_ingredients = getCanonicalIngredients(r.ingredients_list);
       });
     }
     
