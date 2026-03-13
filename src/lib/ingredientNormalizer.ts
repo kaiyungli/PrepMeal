@@ -106,3 +106,18 @@ export function findMatchingCanonical(
   
   return { matched, missing };
 }
+
+/**
+ * Get recipe canonical ingredients with fallback
+ */
+export function getRecipeCanonicalIngredients(recipe: any): string[] {
+  // Primary: canonical_ingredients from recipe
+  if (recipe.canonical_ingredients?.length) {
+    return recipe.canonical_ingredients;
+  }
+  // Fallback: derive from ingredients_list
+  if (recipe.ingredients_list?.length) {
+    return getCanonicalIngredients(recipe.ingredients_list);
+  }
+  return [];
+}

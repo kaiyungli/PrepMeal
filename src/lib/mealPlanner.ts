@@ -1,4 +1,4 @@
-import { normalizeIngredients } from './ingredientNormalizer'
+import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
 interface Recipe {
   id: string
@@ -322,7 +322,7 @@ export function planWeekAdvanced(
     
     // Use canonical_ingredients as primary source
     let perfectMatches = filtered.filter(r => {
-      const canonical = r.canonical_ingredients || [];
+      const canonical = getRecipeCanonicalIngredients(r);
       const recipeCanonical = new Set(canonical);
       return normPantry.every(p => recipeCanonical.has(p));
     });
@@ -412,7 +412,7 @@ export function planWeekAdvanced(
         // Pantry bonus with diminishing factor
         if (pantryIngredients.length > 0) {
           // Primary: use canonical ingredients
-          const canonical = r.canonical_ingredients || [];
+          const canonical = getRecipeCanonicalIngredients(r);
           const recipeCanonical = new Set(canonical);
           const normPantry = normalizeIngredients(pantryIngredients);
           
