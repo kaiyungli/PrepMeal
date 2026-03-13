@@ -121,21 +121,36 @@ export function buildShoppingList(
   const allIngredients: Ingredient[] = []
   
   for (const recipe of recipes) {
-    if (!recipe?.ingredients || !Array.isArray(recipe.ingredients)) continue
+    if (!recipe) continue
     
-    const scale = servings / (recipe.base_servings || 1)
-    
-    for (const ing of recipe.ingredients) {
-      // Be tolerant of type issues - quantity might be string from Supabase
-      const qty = Number(ing.quantity)
-      if (!ing || !ing.name || Number.isNaN(qty)) continue
+    // Primary: use recipe.ingredients if available
+    if (recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
+      const scale = servings / (recipe.base_servings || 1)
       
-      allIngredients.push({
-        name: ing.name,
-        quantity: qty || 1,
-        unit: ing.unit,
-        category: ing.category
-      })
+      for (const ing of recipe.ingredients) {
+        // Be tolerant of type issues - quantity might be string from Supabase
+        const qty = Number(ing.quantity)
+        if (!ing || !ing.name || Number.isNaN(qty)) continue
+        
+        allIngredients.push({
+          name: ing.name,
+          quantity: qty || 1,
+          unit: ing.unit,
+          category: ing.category
+        })
+      }
+    } 
+    // Fallback: use ingredients_list if no ingredients
+    else if (recipe.ingredients_list && Array.isArray(recipe.ingredients_list)) {
+      for (const name of recipe.ingredients_list) {
+        if (!name) continue
+        allIngredients.push({
+          name: String(name),
+          quantity: 1,
+          unit: '份',
+          category: undefined
+        })
+      }
     }
   }
   
