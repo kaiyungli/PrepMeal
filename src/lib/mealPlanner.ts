@@ -361,13 +361,12 @@ export function planWeekAdvanced(
           if (matches.length > 0) {
             score += 5 * diminishingFactor;
             
-            // Repetition penalty
+            // Repetition penalty - check how many times pantry ingredients used
             const usedCount = usedPantryIngredients.filter(u => matches.includes(u)).length;
             if (usedCount > 0) {
               score -= 0.5 * usedCount;
             }
-            
-            matches.forEach(m => usedPantryIngredients.push(m));
+            // Note: Don't push here - push AFTER selection
           }
         }
         
@@ -377,6 +376,24 @@ export function planWeekAdvanced(
       // Sort by score and pick top
       scored.sort((a, b) => b.score - a.score);
       const selected = scored[0]?.recipe;
+      
+      // AFTER selection: update pantry tracking
+      if (selected && pantryIngredients.length > 0) {
+        const recipeText = [
+          selected.name,
+          selected.description,
+          selected.cuisine,
+          selected.method,
+          selected.dish_type,
+          selected.primary_protein
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        const normPantry = normalizeIngredients(pantryIngredients);
+        const normText = normalizeIngredients(recipeText.split(/[\s,]+/).filter(Boolean));
+        
+        const selectedMatches = normPantry.filter(p => normText.includes(p));
+        selectedMatches.forEach(m => usedPantryIngredients.push(m));
+      }
       
       if (selected) {
         dayRecipes.push(selected);
