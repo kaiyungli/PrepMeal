@@ -126,11 +126,13 @@ export function buildShoppingList(
     const scale = servings / (recipe.base_servings || 1)
     
     for (const ing of recipe.ingredients) {
-      if (!ing || !ing.name || typeof ing.quantity !== 'number') continue
+      // Be tolerant of type issues - quantity might be string from Supabase
+      const qty = Number(ing.quantity)
+      if (!ing || !ing.name || Number.isNaN(qty)) continue
       
       allIngredients.push({
         name: ing.name,
-        quantity: (ing.quantity || 1) * scale,
+        quantity: qty || 1,
         unit: ing.unit,
         category: ing.category
       })
