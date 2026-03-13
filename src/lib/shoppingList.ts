@@ -118,9 +118,7 @@ export function buildShoppingList(
   pantryIngredients: string[] = [],
   servings: number = 1
 ): ShoppingListResult {
-  // DEBUG
-  console.log("=== BUILD SHOPPING LIST ===");
-  console.log("input recipes:", recipes?.length);
+  console.log('[BUILD] input recipes:', recipes?.length);
   
   // 1. Collect all ingredients from recipes
   const allIngredients: Ingredient[] = []
@@ -180,9 +178,8 @@ export function buildShoppingList(
     }
   }
   
-  // DEBUG
-  console.log("allIngredients collected:", allIngredients.length);
-  console.log("merged:", merged.length);
+  console.log('[BUILD] pantry:', pantry.length);
+  console.log('[BUILD] toBuy:', toBuy.length);
   
   return { pantry, toBuy }
 }

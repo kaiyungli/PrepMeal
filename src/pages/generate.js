@@ -397,11 +397,9 @@ const CONFIG = {
     const validRecipes = fullRecipes.filter(r => r !== null);
     
     // DEBUG
-    console.log("=== SHOPPING LIST DEBUG ===");
-    console.log("weeklyPlan:", weeklyPlan);
-    console.log("recipeIds:", Array.from(recipeIds));
-    console.log("fullRecipes:", fullRecipes);
-    console.log("validRecipes:", validRecipes);
+    console.log('[SHOPPING] recipeIds:', Array.from(recipeIds));
+    console.log('[SHOPPING] fullRecipes:', fullRecipes?.length);
+    console.log('[SHOPPING] validRecipes:', validRecipes?.length);
     
     // Use buildShoppingList to separate pantry vs toBuy
     const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
