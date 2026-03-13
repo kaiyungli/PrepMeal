@@ -30,7 +30,7 @@ const WEIGHTS = {
   METHOD_NEW: 1,
   
   // Pantry (uses normalized ingredients) - strong bonus
-  PANTRY_MATCH: 5,
+  PANTRY_MATCH: 12,
   
   // Speed bias (weekday)
   SPEED_QUICK: 1,
@@ -435,7 +435,7 @@ export function planWeekAdvanced(
           }
           
           if (matches.length > 0) {
-            score += matches.length * 12 * diminishingFactor;
+            score += matches.length * WEIGHTS.PANTRY_MATCH * diminishingFactor;
             
             // Repetition penalty - check how many times pantry ingredients used
             const usedCount = usedPantryIngredients.filter(u => matches.includes(u)).length;
