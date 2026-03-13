@@ -320,15 +320,30 @@ export function planWeekAdvanced(
     const normPantry = normalizeIngredients(pantryIngredients);
     console.log('[PLANNER] normalized pantry:', normPantry);
     
-    // Use canonical_ingredients as primary source if available
-    const perfectMatches = filtered.filter(r => {
-      // Primary: canonical ingredients from recipe
+    // Use canonical_ingredients as primary source
+    let perfectMatches = filtered.filter(r => {
       const canonical = r.canonical_ingredients || [];
       const recipeCanonical = new Set(canonical);
-      
-      // Check if all pantry ingredients match canonical
       return normPantry.every(p => recipeCanonical.has(p));
     });
+    
+    // Fallback: if no canonical match, try Chinese partial matching
+    if (perfectMatches.length === 0) {
+      perfectMatches = filtered.filter(r => {
+        const recipeText = [
+          r.name,
+          r.description,
+          r.cuisine,
+          r.method,
+          r.dish_type,
+          r.primary_protein,
+          ...(r.ingredients_list || [])
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        // For Chinese, use partial match
+        return pantryIngredients.every(p => recipeText.includes(p.toLowerCase()));
+      });
+    }
     
     console.log('[PLANNER] perfectMatches:', perfectMatches.map(r => r.name));
     
@@ -401,8 +416,23 @@ export function planWeekAdvanced(
           const recipeCanonical = new Set(canonical);
           const normPantry = normalizeIngredients(pantryIngredients);
           
-          // Count matches against canonical ingredients
-          const matches = normPantry.filter(p => recipeCanonical.has(p));
+          // Primary: count matches against canonical ingredients
+          let matches = normPantry.filter(p => recipeCanonical.has(p));
+          
+          // Fallback: if no canonical match, try partial text match for Chinese
+          if (matches.length === 0) {
+            const recipeText = [
+              r.name,
+              r.description,
+              r.cuisine,
+              r.method,
+              r.dish_type,
+              r.primary_protein,
+              ...(r.ingredients_list || [])
+            ].filter(Boolean).join(' ').toLowerCase();
+            
+            matches = pantryIngredients.filter(p => recipeText.includes(p.toLowerCase()));
+          }
           
           if (matches.length > 0) {
             score += matches.length * 12 * diminishingFactor;
@@ -425,13 +455,29 @@ export function planWeekAdvanced(
       
       // AFTER selection: update pantry tracking
       if (selected && pantryIngredients.length > 0) {
-        // Use canonical ingredients for tracking
+        // Use canonical ingredients for tracking (same as scoring)
         const canonical = selected.canonical_ingredients || [];
         const recipeCanonical = new Set(canonical);
         const normPantry = normalizeIngredients(pantryIngredients);
         
-        // Track matched pantry ingredients
-        const selectedMatches = normPantry.filter(p => recipeCanonical.has(p));
+        // Primary: track canonical matches
+        let selectedMatches = normPantry.filter(p => recipeCanonical.has(p));
+        
+        // Fallback: if no canonical match, try partial text
+        if (selectedMatches.length === 0) {
+          const recipeText = [
+            selected.name,
+            selected.description,
+            selected.cuisine,
+            selected.method,
+            selected.dish_type,
+            selected.primary_protein,
+            ...(selected.ingredients_list || [])
+          ].filter(Boolean).join(' ').toLowerCase();
+          
+          selectedMatches = pantryIngredients.filter(p => recipeText.includes(p.toLowerCase()));
+        }
+        
         selectedMatches.forEach(m => usedPantryIngredients.push(m));
       }
       
