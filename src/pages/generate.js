@@ -154,6 +154,7 @@ export default function GeneratePage() {
   
   // Pantry ingredients from URL
   const [pantryIngredients, setPantryIngredients] = useState([]);
+  const [hasGenerated, setHasGenerated] = useState(false);
   
   // Weekly Plan
   const [weeklyPlan, setWeeklyPlan] = useState(
@@ -299,6 +300,7 @@ const CONFIG = {
     });
 
     setWeeklyPlan(newPlan);
+    setHasGenerated(true);
   };
 
   const lockSlot = (dayKey, index) => {
@@ -432,9 +434,11 @@ const CONFIG = {
                   重新生成
                 </button>
               </div>
-              <div className="text-xs text-green-600 mt-2">
-                已優先使用你現有的食材生成餐單
-              </div>
+              {hasGenerated && (
+                <div className="text-xs text-green-600 mt-2">
+                  已優先使用你現有的食材生成餐單
+                </div>
+              )}
             </div>
           </div>
         ) : (
