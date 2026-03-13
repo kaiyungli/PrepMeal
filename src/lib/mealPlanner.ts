@@ -287,8 +287,15 @@ export function planWeekAdvanced(
   let filtered = recipes.filter(r => {
     if (cuisines.length > 0 && r.cuisine && !cuisines.includes(r.cuisine)) return false;
     if (exclusions.length > 0) {
-      const protein = r.protein || [];
-      if (exclusions.some(ex => protein.includes(ex))) return false;
+      // Check both primary_protein and protein array
+      const proteinValues = [r.primary_protein, ...(r.protein || [])].filter(Boolean);
+      const normProtein = normalizeIngredients(proteinValues);
+      const normExclusions = normalizeIngredients(exclusions);
+      
+      // If any exclusion matches normalized protein, filter out
+      if (normProtein.some(p => normExclusions.includes(p))) {
+        return false;
+      }
     }
     return true;
   });
@@ -445,10 +452,12 @@ export function planWeekAdvanced(
           ...(selected.ingredients_list || [])
         ].filter(Boolean).join(' ').toLowerCase();
         
-        // Track matched pantry ingredients (use original form)
+        // Track matched pantry ingredients (use same matching logic as scoring)
+        const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
         const selectedMatches = pantryIngredients.filter(p => {
           const pLower = p.toLowerCase();
-          return recipeTextRaw.includes(pLower);
+          const pNorm = normalizeIngredients([p])[0];
+          return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
         });
         selectedMatches.forEach(m => usedPantryIngredients.push(m));
       }
