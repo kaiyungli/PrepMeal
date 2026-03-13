@@ -398,7 +398,8 @@ export function planWeekAdvanced(
             r.cuisine,
             r.method,
             r.dish_type,
-            r.primary_protein
+            r.primary_protein,
+            ...(r.ingredients_list || [])
           ].filter(Boolean).join(' ').toLowerCase();
           
           const normPantry = normalizeIngredients(pantryIngredients);
@@ -437,7 +438,8 @@ export function planWeekAdvanced(
           selected.cuisine,
           selected.method,
           selected.dish_type,
-          selected.primary_protein
+          selected.primary_protein,
+          ...(selected.ingredients_list || [])
         ].filter(Boolean).join(' ').toLowerCase();
         
         // Track matched pantry ingredients (use original form)
