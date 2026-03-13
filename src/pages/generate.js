@@ -396,8 +396,18 @@ const CONFIG = {
     const fullRecipes = await Promise.all(fetchPromises);
     const validRecipes = fullRecipes.filter(r => r !== null);
     
+    // DEBUG
+    console.log("=== SHOPPING LIST DEBUG ===");
+    console.log("weeklyPlan:", weeklyPlan);
+    console.log("recipeIds:", Array.from(recipeIds));
+    console.log("fullRecipes:", fullRecipes);
+    console.log("validRecipes:", validRecipes);
+    
     // Use buildShoppingList to separate pantry vs toBuy
     const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
+    
+    // DEBUG
+    console.log("buildShoppingList result:", { pantry, toBuy });
     
     // Combine for modal display
     const list = [
