@@ -313,6 +313,9 @@ export function planWeekAdvanced(
   // Find perfect pantry matches (recipes that use ALL pantry ingredients)
   let perfectMatchRecipe: Recipe | null = null;
   if (pantryIngredients.length > 0 && filtered.length > 0) {
+    // DEBUG: Log pantry ingredients
+    console.log('[PLANNER] pantryIngredients:', pantryIngredients);
+    
     // Check both normalized and original Chinese text for matches
     const perfectMatches = filtered.filter(r => {
       const recipeTextRaw = [
@@ -329,6 +332,9 @@ export function planWeekAdvanced(
       const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
       const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
       
+      // DEBUG: Log recipe tokens
+      console.log('[PLANNER] recipe:', r.name, 'tokens:', [...recipeTokens]);
+      
       // Check each pantry ingredient - must match tokens
       return pantryIngredients.every(p => {
         const pNorm = normalizeIngredients([p])[0];
@@ -336,9 +342,12 @@ export function planWeekAdvanced(
       });
     });
     
+    console.log('[PLANNER] perfectMatches:', perfectMatches.map(r => r.name));
+    
     if (perfectMatches.length > 0) {
       // Pick one random perfect match
       perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
+      console.log('[PLANNER] Selected perfect match:', perfectMatchRecipe.name);
     }
   }
 
