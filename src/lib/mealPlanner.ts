@@ -402,13 +402,16 @@ export function planWeekAdvanced(
             ...(r.ingredients_list || [])
           ].filter(Boolean).join(' ').toLowerCase();
           
+          // Normalize the recipe text for matching
+          const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
           const normPantry = normalizeIngredients(pantryIngredients);
           
           // Check matches - both raw text and normalized
           const matches = pantryIngredients.filter(p => {
             const pLower = p.toLowerCase();
             const pNorm = normalizeIngredients([p])[0];
-            return recipeTextRaw.includes(pLower) || normPantry.includes(pNorm);
+            // Compare pantry against recipe text (raw AND normalized)
+            return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
           });
           
           if (matches.length > 0) {
