@@ -293,6 +293,13 @@ export function planWeekAdvanced(
     return true;
   });
 
+  // Pre-populate usedRecipeIds with locked recipes to prevent duplication
+  if (lockedRecipes) {
+    Object.values(lockedRecipes).forEach(r => {
+      if (r && r.id) usedRecipeIds.add(r.id);
+    });
+  }
+
   // Note: Pantry affects SCORING, not filtering
   // Pantry bonus is applied in the scoring section below
 
