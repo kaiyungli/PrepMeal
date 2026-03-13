@@ -278,6 +278,7 @@ export function planWeekAdvanced(
 
   const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].slice(0, daysPerWeek);
   const result: Record<string, Recipe[]> = {};
+  const usedRecipeIds = new Set<string>(); // Track used recipes to avoid repeats
   const recentProteins: string[] = [];
   const recentMethods: string[] = [];
   const usedPantryIngredients: string[] = [];
@@ -325,6 +326,7 @@ export function planWeekAdvanced(
       // Use locked recipe if exists
       if (lockedSlots[slotKey] && lockedRecipes[slotKey]) {
         dayRecipes.push(lockedRecipes[slotKey]);
+        usedRecipeIds.add(lockedRecipes[slotKey].id);
         continue;
       }
       
@@ -335,6 +337,11 @@ export function planWeekAdvanced(
       // Score candidates
       const scored = filtered.map(r => {
         let score = 5; // base score
+        
+        // Repeat penalty - exclude already used recipes or heavily penalize
+        if (usedRecipeIds.has(r.id)) {
+          score -= 100; // Heavy penalty to avoid repeats
+        }
         
         // Protein diversity
         const protein = r.primary_protein || r.protein?.[0];
@@ -393,6 +400,7 @@ export function planWeekAdvanced(
       
       if (selected) {
         dayRecipes.push(selected);
+        usedRecipeIds.add(selected.id); // Track used recipe
         const protein = selected.primary_protein || selected.protein?.[0];
         if (protein) recentProteins.push(protein);
         const method = selected.method;
