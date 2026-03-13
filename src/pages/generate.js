@@ -214,8 +214,11 @@ export default function GeneratePage() {
     // Filter by exclusions
     if (exclusions.length > 0) {
       filtered = filtered.filter(r => {
-        const protein = r.protein || [];
-        return !exclusions.some(ex => protein.includes(ex));
+        // Use normalized exclusion matching
+        const proteinValues = [r.primary_protein, ...(r.protein || [])].filter(Boolean);
+        const normProtein = proteinValues.map(p => p.toLowerCase());
+        const normExclusions = exclusions.map(e => e.toLowerCase());
+        return !normProtein.some(p => normExclusions.includes(p));
       });
     }
     
