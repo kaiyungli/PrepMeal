@@ -325,14 +325,14 @@ export function planWeekAdvanced(
         ...(r.ingredients_list || [])
       ].filter(Boolean).join(' ').toLowerCase();
       
-      // Also check normalized version
-      const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
+      // Tokenize for exact matching
+      const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
+      const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
       
-      // Check each pantry ingredient - must match either raw or normalized text
+      // Check each pantry ingredient - must match tokens
       return pantryIngredients.every(p => {
-        const pLower = p.toLowerCase();
         const pNorm = normalizeIngredients([p])[0];
-        return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
+        return recipeTokens.has(p.toLowerCase()) || recipeTokensNorm.has(pNorm);
       });
     });
     
@@ -409,20 +409,19 @@ export function planWeekAdvanced(
             ...(r.ingredients_list || [])
           ].filter(Boolean).join(' ').toLowerCase();
           
-          // Normalize the recipe text for matching
-          const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
-          const normPantry = normalizeIngredients(pantryIngredients);
+          // Tokenize recipe text - split by common delimiters
+          const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
+          const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
           
-          // Check matches - both raw text and normalized
+          // Check matches using token-aware matching
           const matches = pantryIngredients.filter(p => {
-            const pLower = p.toLowerCase();
             const pNorm = normalizeIngredients([p])[0];
-            // Compare pantry against recipe text (raw AND normalized)
-            return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
+            // Match against tokens (both raw and normalized)
+            return recipeTokens.has(p.toLowerCase()) || recipeTokensNorm.has(pNorm);
           });
           
           if (matches.length > 0) {
-            score += matches.length * 5 * diminishingFactor;
+            score += matches.length * 12 * diminishingFactor;
             
             // Repetition penalty - check how many times pantry ingredients used
             const usedCount = usedPantryIngredients.filter(u => matches.includes(u)).length;
@@ -453,11 +452,11 @@ export function planWeekAdvanced(
         ].filter(Boolean).join(' ').toLowerCase();
         
         // Track matched pantry ingredients (use same matching logic as scoring)
-        const recipeTextNorm = normalizeIngredients(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
+        const recipeTokens = new Set(recipeTextRaw.split(/[\s,]+/).filter(Boolean));
+        const recipeTokensNorm = new Set(normalizeIngredients([...recipeTokens]));
         const selectedMatches = pantryIngredients.filter(p => {
-          const pLower = p.toLowerCase();
           const pNorm = normalizeIngredients([p])[0];
-          return recipeTextRaw.includes(pLower) || recipeTextNorm.includes(pNorm);
+          return recipeTokens.has(p.toLowerCase()) || recipeTokensNorm.has(pNorm);
         });
         selectedMatches.forEach(m => usedPantryIngredients.push(m));
       }
