@@ -578,6 +578,7 @@ const CONFIG = {
           isOpen={showShoppingList} 
           onClose={() => setShowShoppingList(false)}
           shoppingList={shoppingList}
+          loading={!shoppingListLoaded}
         />
 
         {/* Recipe Detail Modal */}

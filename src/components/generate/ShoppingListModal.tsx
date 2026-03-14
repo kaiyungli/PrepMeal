@@ -13,12 +13,14 @@ interface ShoppingListModalProps {
   isOpen: boolean
   onClose: () => void
   shoppingList: ShoppingListItem[]
+  loading?: boolean
 }
 
 // Category order
 const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨', '其他'];
 
-export default function ShoppingListModal({ isOpen, onClose, shoppingList }: ShoppingListModalProps) {
+// Add loading prop to props
+export default function ShoppingListModal({ isOpen, onClose, shoppingList, loading = false }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
 
   // Separate into pantry vs shopping
@@ -124,9 +126,13 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
           </div>
         )}
 
-        {shoppingList.length === 0 && (
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="text-[#AA7A50]">載入中...</div>
+          </div>
+        ) : shoppingList.length === 0 ? (
           <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
-        )}
+        ) : null}
       </div>
     </Modal>
   )
