@@ -2,6 +2,7 @@ import { normalizeIngredients } from './ingredientNormalizer'
 import { CATEGORY_ORDER } from './ingredientCategories'
 
 interface Ingredient {
+  ingredient_id?: string | null
   name: string
   quantity: number | null
   unit?: string | null
@@ -26,10 +27,14 @@ export function normalizeIngredientName(name: string): string {
 export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   if (!list || !Array.isArray(list)) return []
   
+  // Filter to only include items with ingredient_id (from DB source)
+  // Skip fallback items (they don't have proper ingredient_id)
+  const validItems = list.filter(item => item.ingredient_id)
+  
   const map = new Map<string, Ingredient>()
   
-  for (const item of list) {
-    // Skip invalid items - be tolerant of type issues
+  for (const item of validItems) {
+    // Skip invalid items
     let quantity = Number(item.quantity)
     if (!item || !item.name || Number.isNaN(quantity)) continue
     
@@ -38,28 +43,48 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
       quantity = quantity * (item.targetServings / item.baseServings)
     }
     
-    // Normalize name
-    const normalizedName = normalizeIngredientName(item.name)
-    const unit = item.unit || '份'
-    const qty = quantity || 1  // Default to 1 if null
+    // Use ingredient_id as key for aggregation
+    const key = item.ingredient_id || item.name
     
-    // Key by normalized name + unit
-    const key = `${normalizedName}-${unit}`
+    // Normalize unit
+    const unit = normalizeUnit(item.unit) || '份'
+    const qty = quantity || 1
     
     const existing = map.get(key)
     if (existing) {
       existing.quantity = (existing.quantity || 0) + qty
     } else {
       map.set(key, {
-        name: normalizedName,
+        name: item.name,
         quantity: Math.round(qty * 100) / 100,
         unit,
-        category: item.category
+        category: item.category,
+        ingredient_id: item.ingredient_id
       })
     }
   }
   
   return Array.from(map.values())
+}
+
+// Normalize unit to standard abbreviations
+function normalizeUnit(unit: string | undefined | null): string {
+  if (!unit) return ''
+  
+  const unitLower = unit.toLowerCase().trim()
+  const unitMap: Record<string, string> = {
+    'gram': 'g', 'grams': 'g', 'gramme': 'g', '克': 'g',
+    'kilogram': 'kg', 'kilograms': 'kg', '千克': 'kg',
+    'milliliter': 'ml', 'milliliters': 'ml', '毫升': 'ml',
+    'liter': 'l', 'liters': 'l', '升': 'l',
+    'tablespoon': 'tbsp', 'tablespoons': 'tbsp', '大湯匙': 'tbsp',
+    'teaspoon': 'tsp', 'teaspoons': 'tsp', '茶匙': 'tsp',
+    'cup': 'cup', 'cups': 'cup', '杯': 'cup',
+    'piece': 'pc', 'pieces': 'pc', '個': 'pc',
+    'clove': '瓣', 'cloves': '瓣'
+  }
+  
+  return unitMap[unitLower] || unit
 }
 
 /**
