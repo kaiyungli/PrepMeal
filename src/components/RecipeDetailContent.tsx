@@ -14,7 +14,15 @@ interface RecipeDetailContentProps {
     protein_g?: number
     carbs_g?: number
     fat_g?: number
-    ingredients?: Array<{ name: string; quantity: number; unit: string }>
+    ingredients?: Array<{
+      display_name?: string
+      name?: string
+      slug?: string
+      quantity?: number | null
+      unit?: { name?: string } | string | null
+      shopping_category?: string
+      source?: string
+    }>
     steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
   }
 }
@@ -25,6 +33,10 @@ const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', bo
 
 export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps) {
   if (!recipe) return null
+
+  // Defensive guards for arrays
+  const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : []
+  const steps = Array.isArray(recipe?.steps) ? recipe.steps : []
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
@@ -107,12 +119,12 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
         {/* Ingredients Card */}
         <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材</h3>
-          {(recipe.ingredients && recipe.ingredients.length > 0) ? (
+          {ingredients.length > 0 ? (
             <ul className="space-y-3">
-              {recipe.ingredients.map((ing, i) => (
+              {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
-                  <span style={{ color: '#3A2010' }}>{ing.name}</span>
-                  <span style={{ color: '#AA7A50' }}>{ing.quantity} {ing.unit}</span>
+                  <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
+                  <span style={{ color: '#AA7A50' }}>{ing.quantity ?? '-'} {ing.unit?.name || ing.unit || ''}</span>
                 </li>
               ))}
             </ul>
@@ -124,7 +136,7 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
         {/* Steps Card */}
         <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>👨‍🍳 烹飪步驟</h3>
-          {(recipe.steps && recipe.steps.length > 0) ? (
+          {steps.length > 0 ? (
             <ol className="space-y-4">
               {recipe.steps.map((step, i) => (
                 <li key={i} className="flex gap-4">
