@@ -118,19 +118,33 @@ export default async function handler(req, res) {
         recipe.ingredients_list.map(name => lookupIngredient(name))
       )
       
-      // Build ingredients array, only include successful lookups
-      ingredients = results
-        .filter(ing => ing !== null)
-        .map(ing => ({
-          ingredient_id: ing.id,
-          slug: ing.slug,
-          display_name: ing.name,
-          shopping_category: ing.shopping_category || '其他',
+      // Build ingredients array, include DB matches and raw fallback for failures
+      ingredients = results.map((ing, idx) => {
+        const rawName = recipe.ingredients_list[idx]
+        if (ing) {
+          return {
+            ingredient_id: ing.id,
+            slug: ing.slug,
+            display_name: ing.name,
+            shopping_category: ing.shopping_category || '其他',
+            quantity: null,
+            unit: null,
+            is_optional: false,
+            source: 'ingredients_list'
+          }
+        }
+        // RAW FALLBACK: only if absolutely no DB match
+        return {
+          ingredient_id: null,
+          slug: rawName.toLowerCase().replace(/\s+/g, '_'),
+          display_name: rawName,
+          shopping_category: '其他',
           quantity: null,
           unit: null,
           is_optional: false,
-          source: 'ingredients_list'
-        }))
+          source: 'raw'
+        }
+      })
     }
 
     // Final fallback: use primary_protein to lookup in ingredients table
