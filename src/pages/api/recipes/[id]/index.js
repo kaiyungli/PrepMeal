@@ -82,32 +82,36 @@ export default async function handler(req, res) {
       })
     }
 
-    // Final fallback: if DB is completely empty, derive from recipe name
+    // Final fallback: derive from recipe and lookup in ingredients table
     if (ingredients.length === 0) {
-      // Map recipe name to common ingredients (simple heuristic)
-      const nameToIngredients = {
-        '滑蛋牛肉': ['牛肉', '雞蛋', '蔥'],
-        '青椒牛肉': ['牛肉', '青椒', '蒜'],
-        '洋蔥牛肉': ['牛肉', '洋蔥', '蒜'],
-        '粟米雞粒': ['雞肉', '粟米', '蛋'],
-        '宮保雞丁': ['雞肉', '花生', '蔥'],
-        '咖哩雞': ['雞肉', '咖哩', '洋蔥'],
-        '蒜香雞翼': ['雞翼', '蒜'],
-        '蒸肉餅': ['豬肉', '馬蹄', '蔥'],
-        '梅菜蒸肉餅': ['豬肉', '梅菜', '蔥'],
-        '麻婆豆腐': ['豆腐', '牛肉', '蔥']
+      // Get ingredient names from canonical_ingredients or primary_protein
+      const possibleNames = [
+        ...(recipe.canonical_ingredients || []),
+        recipe.primary_protein,
+        recipe.name
+      ].filter(Boolean)
+      
+      if (possibleNames.length > 0) {
+        // Try to lookup in ingredients table
+        const { data: ingredientData } = await supabase
+          .from('ingredients')
+          .select('id, name, slug, shopping_category')
+          .in('name', possibleNames)
+          .limit(10)
+        
+        if (ingredientData && ingredientData.length > 0) {
+          ingredients = ingredientData.map(ing => ({
+            ingredient_id: ing.id,
+            slug: ing.slug,
+            display_name: ing.name,
+            shopping_category: ing.shopping_category || '其他',
+            quantity: null,
+            unit: null,
+            is_optional: false,
+            source: 'derived'
+          }))
+        }
       }
-      const names = nameToIngredients[recipe.name] || [recipe.primary_protein || '肉'].filter(Boolean)
-      ingredients = names.map(name => ({
-        ingredient_id: null,
-        slug: name.toLowerCase().replace(/\s+/g, '_'),
-        display_name: name,
-        shopping_category: '其他',
-        quantity: null,
-        unit: null,
-        is_optional: false,
-        source: 'derived'
-      }))
     }
 
     // Fetch steps
