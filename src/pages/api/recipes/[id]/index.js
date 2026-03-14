@@ -39,44 +39,37 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // FALLBACK: If no ingredients in DB, use sample data
-    // Also add fallback ingredients to ingredients array
-    if (ingredients.length === 0) {
-      const sampleIngredients = {
-        '滑蛋牛肉': ['牛肉', '雞蛋', '蔥', '鹽', '醬油'],
-        '青椒牛肉': ['牛肉', '青椒', '蒜', '鹽', '醬油'],
-        '洋蔥牛肉': ['牛肉', '洋蔥', '蒜', '鹽', '醬油'],
-        '粟米雞粒': ['雞肉', '粟米', '蛋', '鹽'],
-        '宮保雞丁': ['雞肉', '花生', '乾辣椒', '蔥', '醬油'],
-        '咖哩雞': ['雞肉', '咖哩磚', '洋蔥', '薯仔', '椰漿'],
-        '蒜香雞翼': ['雞翼', '蒜', '鹽', '醬油', '胡椒'],
-        '蒸肉餅': ['豬肉', '馬蹄', '蔥', '鹽', '醬油'],
-        '梅菜蒸肉餅': ['豬肉', '梅菜', '馬蹄', '蔥', '醬油'],
-        '麻婆豆腐': ['豆腐', '牛肉', '豆瓣醬', '花椒', '蔥']
-      }
-      const sampleNames = sampleIngredients[recipe.name] || []
+    // FALLBACK: If no ingredients in DB, use recipe.ingredients_list and lookup from ingredients table
+    if (ingredients.length === 0 && recipe.ingredients_list && recipe.ingredients_list.length > 0) {
+      // Get unique ingredient names from ingredients_list
+      const ingredientNames = [...new Set(recipe.ingredients_list.filter(Boolean))]
       
-      // Category mapping for common ingredients
-      const categoryMap = {
-        '牛肉': '肉類', '豬肉': '肉類', '雞肉': '肉類', '雞翼': '肉類',
-        '魚': '海鮮', '蝦': '海鮮', '魚片': '海鮮',
-        '雞蛋': '蛋類', '蛋': '蛋類',
-        '豆腐': '豆腐',
-        '青椒': '蔬菜', '洋蔥': '蔬菜', '蔥': '蔬菜', '薯仔': '蔬菜',
-        '鹽': '雜貨', '醬油': '雜貨', '胡椒': '雜貨', '花生': '雜貨',
-        '咖哩磚': '雜貨', '椰漿': '雜貨', '豆瓣醬': '雜貨', '花椒': '雜貨'
-      }
+      // Lookup ingredients by name from the ingredients table
+      const { data: ingredientData } = await supabase
+        .from('ingredients')
+        .select('id, name, slug, shopping_category')
+        .in('name', ingredientNames)
       
-      ingredients = sampleNames.map(name => ({
-        ingredient_id: null,
-        slug: name.toLowerCase().replace(/\s+/g, '_'),
-        display_name: name,
-        shopping_category: categoryMap[name] || '其他',
-        quantity: null,
-        unit: null,
-        is_optional: false,
-        source: 'ingredients_list'
-      }))
+      // Build a map for quick lookup
+      const ingredientMap = {}
+      ;(ingredientData || []).forEach(ing => {
+        ingredientMap[ing.name] = ing
+      })
+      
+      // Map ingredients_list to proper format
+      ingredients = ingredientNames.map(name => {
+        const ing = ingredientMap[name]
+        return {
+          ingredient_id: ing?.id || null,
+          slug: ing?.slug || name.toLowerCase().replace(/\s+/g, '_'),
+          display_name: name,
+          shopping_category: ing?.shopping_category || '其他',
+          quantity: null,
+          unit: null,
+          is_optional: false,
+          source: 'ingredients_list'
+        }
+      })
     }
 
     // Fetch steps
