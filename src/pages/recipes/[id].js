@@ -214,7 +214,12 @@ export async function getServerSideProps({ params }) {
       return { props: { recipe: null, error: 'Not found' } };
     }
     
-    const recipe = await res.json();
+    const data = await res.json();
+    const recipe = data.recipes?.[0];
+    
+    if (!recipe) {
+      return { props: { recipe: null, error: 'Not found' } };
+    }
     
     return {
       props: {
