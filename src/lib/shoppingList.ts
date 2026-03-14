@@ -4,6 +4,7 @@ import { CATEGORY_ORDER } from './ingredientCategories'
 interface Ingredient {
   ingredient_id?: string | null
   name: string
+  display_name?: string
   quantity: number | null
   unit?: string | null
   category?: string
