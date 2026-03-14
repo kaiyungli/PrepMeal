@@ -197,42 +197,23 @@ export default function RecipeDetail({ recipe, error }) {
 export async function getServerSideProps({ params }) {
   try {
     const { id } = params;
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return { props: { recipe: null, error: 'Missing Supabase configuration' } };
-    }
-
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const { data: recipe, error } = await supabase
-      .from('recipes')
-      .select('id,name,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,protein_g,carbs_g,fat_g,slug,is_public,prep_time_minutes,cook_time_minutes')
-      .eq('id', id)
-      .single();
     
-    if (error || !recipe) {
+    // Reuse /api/recipes/[id] for consistent data shape
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://prep-meal-tan.vercel.app';
+    const res = await fetch(`${baseUrl}/api/recipes/${id}`);
+    
+    if (!res.ok) {
       return { props: { recipe: null, error: 'Not found' } };
     }
     
-    const { data: steps } = await supabase
-      .from('recipe_steps')
-      .select('step_no,text,time_seconds')
-      .eq('recipe_id', id)
-      .order('step_no');
-    
-    const { data: ingredients } = await supabase
-      .from('recipe_ingredients')
-      .select('quantity,unit,ingredient_id')
-      .eq('recipe_id', id);
+    const recipe = await res.json();
     
     return {
       props: {
-        recipe: { ...recipe, steps: steps || [], ingredients: ingredients || [] }
+        recipe,
+        error: null
       }
-    };
+    }
   } catch (e) {
     return { props: { recipe: null, error: e.message } };
   }
