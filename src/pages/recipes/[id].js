@@ -100,8 +100,12 @@ export default function RecipeDetail({ recipe, error }) {
               <ul className='list-none p-0 m-0'>
                 {recipe.ingredients.map((ing, i) => (
                   <li key={i} className='flex justify-between py-2.5 border-b border-[#DDD0B0]'>
-                    <span className='text-[#3A2010]'>{ing.ingredient_id || ing.ingredient}</span>
-                    <span className='text-[#AA7A50]'>{ing.quantity} {ing.unit}</span>
+                    <span className='text-[#3A2010]'>
+                      {ing.display_name || ing.name || ing.slug || ing.ingredient_id || '-'}
+                    </span>
+                    <span className='text-[#AA7A50]'>
+                      {ing.quantity ?? '-'} {ing.unit?.name || ing.unit || ''}
+                    </span>
                   </li>
                 ))}
               </ul>
