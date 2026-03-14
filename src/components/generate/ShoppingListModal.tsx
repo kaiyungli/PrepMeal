@@ -97,7 +97,9 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
                       <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
                         <span className="text-[#3A2010]">{item.name}</span>
                         <span className="text-[#AA7A50] font-medium">
-                          {item.quantity} {item.unit || ''}
+                          {(item as any).source === 'ingredients_list' 
+                            ? '（數量待補）' 
+                            : `${item.quantity} ${item.unit || ''}`}
                         </span>
                       </div>
                     ))}
@@ -111,7 +113,9 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
                   <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
                     <span className="text-[#3A2010]">{item.name}</span>
                     <span className="text-[#AA7A50] font-medium">
-                      {item.quantity} {item.unit || ''}
+                      {(item as any).source === 'ingredients_list' 
+                        ? '（數量待補）' 
+                        : `${item.quantity} ${item.unit || ''}`}
                     </span>
                   </div>
                 ))}
