@@ -17,7 +17,7 @@ interface ShoppingListModalProps {
 }
 
 // Category order
-const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨', '其他'];
+const CATEGORY_ORDER = ['肉類', '海鮮', '蛋', '豆腐', '蔬菜', '調味料', '主食', '其他'];
 
 // Format unit for display
 function formatUnit(unit: string | undefined | null): string {
@@ -145,11 +145,13 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
 
         {loading ? (
           <div className="flex justify-center py-8">
-            <div className="text-[#AA7A50]">載入中...</div>
+            <div className="text-[#AA7A50]">正在整理購物清單...</div>
           </div>
-        ) : shoppingList.length === 0 ? (
-          <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
         ) : null}
+
+        {!loading && shoppingList.length === 0 && (
+          <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
+        )}
       </div>
     </Modal>
   )

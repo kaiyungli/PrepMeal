@@ -53,15 +53,25 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
     const normalizedUnit = normalizeUnit(rawUnit)
     // Only use '份' if unit was explicitly provided but not recognized, OR if it's a fallback item
     const unit = (rawUnit && !normalizedUnit) || (item.source === 'ingredients_list') ? '份' : (normalizedUnit || '')
-    const qty = quantity || 1
+    
+    // Round quantity based on unit type
+    // g/ml/kg -> integer, tbsp/tsp -> 0.5 precision, others -> 2 decimal
+    let qty = quantity || 1
+    if (unit === 'g' || unit === 'ml' || unit === 'kg' || unit === 'l') {
+      qty = Math.round(qty) // integer for g/ml/kg/l
+    } else if (unit === 'tbsp' || unit === 'tsp') {
+      qty = Math.round(qty * 2) / 2 // 0.5 precision for tbsp/tsp
+    } else {
+      qty = Math.round(qty * 100) / 100 // 2 decimal for others
+    }
     
     const existing = map.get(key)
     if (existing) {
       existing.quantity = (existing.quantity || 0) + qty
     } else {
       map.set(key, {
-        name: item.name,
-        quantity: Math.round(qty * 100) / 100,
+        name: item.display_name || item.name, // Use display_name first
+        quantity: qty,
         unit,
         category: item.category,
         ingredient_id: item.ingredient_id
