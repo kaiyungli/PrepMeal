@@ -82,6 +82,25 @@ export default async function handler(req, res) {
       })
     }
 
+    // Final fallback: if DB is completely empty, use recipe name to guess ingredients
+    if (ingredients.length === 0) {
+      // Try to get from recipe.ingredients_list (JSON column in recipes table)
+      const recipeIngredientsList = recipe.ingredients_list || []
+      if (recipeIngredientsList.length > 0) {
+        // Already have list, map to format
+        ingredients = recipeIngredientsList.map(name => ({
+          ingredient_id: null,
+          slug: name.toLowerCase().replace(/\s+/g, '_'),
+          display_name: name,
+          shopping_category: '其他',
+          quantity: null,
+          unit: null,
+          is_optional: false,
+          source: 'ingredients_list'
+        }))
+      }
+    }
+
     // Fetch steps
     const { data: steps } = await supabase
       .from('recipe_steps')
