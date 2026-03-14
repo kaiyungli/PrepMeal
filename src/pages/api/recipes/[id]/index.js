@@ -34,6 +34,16 @@ export default async function handler(req, res) {
       category: ri.ingredients?.category || null
     }))
 
+    // Also fetch ingredients_list (simple array of names)
+    const { data: ingredientData } = await supabase
+      .from('recipe_ingredients')
+      .select('ingredients(name)')
+      .eq('recipe_id', id)
+    
+    const ingredients_list = (ingredientData || [])
+      .map(ri => ri.ingredients?.name)
+      .filter(Boolean)
+
     // Fetch steps
     const { data: steps } = await supabase
       .from('recipe_steps')
@@ -44,6 +54,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       ...recipe,
       ingredients: ingredients || [],
+      ingredients_list: ingredients_list || [],
       steps: steps || []
     })
   } catch (err) {
