@@ -26,6 +26,10 @@ export default function RecipeDetail({ recipe, error }) {
   const difficultyLabels = { easy: '易', medium: '中', hard: '難' };
   const speedLabels = { quick: '快', normal: '中', slow: '慢' };
   const methodLabels = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒' };
+  
+  // Defensive guards for API response shape
+  const ingredients = (recipe?.ingredients || []);
+  const steps = (recipe?.steps || []);
 
   return (
     <>
@@ -96,9 +100,9 @@ export default function RecipeDetail({ recipe, error }) {
           {/* Ingredients Card */}
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>🥬 食材</h3>
-            {(recipe.ingredients && recipe.ingredients.length > 0) ? (
+            {ingredients.length > 0 ? (
               <ul className='list-none p-0 m-0'>
-                {recipe.ingredients.map((ing, i) => (
+                {ingredients.map((ing, i) => (
                   <li key={i} className='flex justify-between py-2.5 border-b border-[#DDD0B0]'>
                     <span className='text-[#3A2010]'>
                       {ing.display_name || ing.name || ing.slug || ing.ingredient_id || '-'}
@@ -117,9 +121,9 @@ export default function RecipeDetail({ recipe, error }) {
           {/* Cooking Steps Card */}
           <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-4'>👨‍🍳 烹飪步驟</h3>
-            {(recipe.steps && recipe.steps.length > 0) ? (
-              <ol className='list-none p-0 m-0'>
-                {recipe.steps.map((step, i) => (
+            {steps.length > 0 ? (
+              <ol className='list-none p-0 m-0 space-y-4'>
+                {steps.map((step, i) => (
                   <li key={i} className='flex gap-4 mb-5 relative'>
                     <div className='w-8 h-8 rounded-full bg-[#9B6035] text-white flex items-center justify-center font-bold flex-shrink-0'>
                       {step.step_no}

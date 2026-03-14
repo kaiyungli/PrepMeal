@@ -138,7 +138,7 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>👨‍🍳 烹飪步驟</h3>
           {steps.length > 0 ? (
             <ol className="space-y-4">
-              {recipe.steps.map((step, i) => (
+              {steps.map((step: any, i: number) => (
                 <li key={i} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{ backgroundColor: '#9B6035', color: 'white' }}>
                     {step.step_no || i + 1}
