@@ -82,23 +82,32 @@ export default async function handler(req, res) {
       })
     }
 
-    // Final fallback: if DB is completely empty, use recipe name to guess ingredients
+    // Final fallback: if DB is completely empty, derive from recipe name
     if (ingredients.length === 0) {
-      // Try to get from recipe.ingredients_list (JSON column in recipes table)
-      const recipeIngredientsList = recipe.ingredients_list || []
-      if (recipeIngredientsList.length > 0) {
-        // Already have list, map to format
-        ingredients = recipeIngredientsList.map(name => ({
-          ingredient_id: null,
-          slug: name.toLowerCase().replace(/\s+/g, '_'),
-          display_name: name,
-          shopping_category: '其他',
-          quantity: null,
-          unit: null,
-          is_optional: false,
-          source: 'ingredients_list'
-        }))
+      // Map recipe name to common ingredients (simple heuristic)
+      const nameToIngredients = {
+        '滑蛋牛肉': ['牛肉', '雞蛋', '蔥'],
+        '青椒牛肉': ['牛肉', '青椒', '蒜'],
+        '洋蔥牛肉': ['牛肉', '洋蔥', '蒜'],
+        '粟米雞粒': ['雞肉', '粟米', '蛋'],
+        '宮保雞丁': ['雞肉', '花生', '蔥'],
+        '咖哩雞': ['雞肉', '咖哩', '洋蔥'],
+        '蒜香雞翼': ['雞翼', '蒜'],
+        '蒸肉餅': ['豬肉', '馬蹄', '蔥'],
+        '梅菜蒸肉餅': ['豬肉', '梅菜', '蔥'],
+        '麻婆豆腐': ['豆腐', '牛肉', '蔥']
       }
+      const names = nameToIngredients[recipe.name] || [recipe.primary_protein || '肉'].filter(Boolean)
+      ingredients = names.map(name => ({
+        ingredient_id: null,
+        slug: name.toLowerCase().replace(/\s+/g, '_'),
+        display_name: name,
+        shopping_category: '其他',
+        quantity: null,
+        unit: null,
+        is_optional: false,
+        source: 'derived'
+      }))
     }
 
     // Fetch steps
