@@ -16,7 +16,7 @@ interface ShoppingListModalProps {
 }
 
 // Category order
-const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨'];
+const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨', '其他'];
 
 export default function ShoppingListModal({ isOpen, onClose, shoppingList }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
@@ -25,10 +25,14 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
   const pantryItems = shoppingList.filter(item => item.inPantry)
   const shopItems = shoppingList.filter(item => !item.inPantry)
 
-  // Group shopping items by category
+  // Debug
+  console.log('[MODAL] shopItems:', shopItems.length);
+  console.log('[MODAL] categories:', shopItems.map(i => i.category));
+
+  // Group shopping items by category (with fallback for missing categories)
   const groupByCategory = (items: ShoppingListItem[]) => {
     return CATEGORY_ORDER.reduce((acc, cat) => {
-      const filtered = items.filter(item => item.category === cat)
+      const filtered = items.filter(item => (item.category || '其他') === cat)
       if (filtered.length > 0) acc[cat] = filtered
       return acc
     }, {} as Record<string, ShoppingListItem[]>)
