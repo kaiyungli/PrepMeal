@@ -19,6 +19,18 @@ interface ShoppingListModalProps {
 // Category order
 const CATEGORY_ORDER = ['肉類', '海鮮', '蛋', '豆腐', '蔬菜', '調味料', '主食', '其他'];
 
+// Category icons
+const CATEGORY_ICONS: Record<string, string> = {
+  '肉類': '🥩',
+  '海鮮': '🦐',
+  '蛋': '🥚',
+  '豆腐': '🧈',
+  '蔬菜': '🥬',
+  '調味料': '🧂',
+  '主食': '🍚',
+  '其他': '📦'
+};
+
 // Map DB categories to display categories
 const CATEGORY_MAP: Record<string, string> = {
   'meat_seafood': '肉類',
@@ -59,7 +71,6 @@ function formatUnit(unit: string | undefined | null): string {
   return unitMap[u] || unit;
 }
 
-// Add loading prop to props
 export default function ShoppingListModal({ isOpen, onClose, shoppingList, loading = false }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
 
@@ -67,11 +78,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
   const pantryItems = shoppingList.filter(item => item.inPantry)
   const shopItems = shoppingList.filter(item => !item.inPantry)
 
-  // Debug
-  console.log('[MODAL] shopItems:', shopItems.length);
-  console.log('[MODAL] categories:', shopItems.map(i => i.category));
-
-  // Group shopping items by category (with fallback for missing categories)
+  // Group shopping items by category
   const groupByCategory = (items: ShoppingListItem[]) => {
     return CATEGORY_ORDER.reduce((acc, cat) => {
       const filtered = items.filter(item => getDisplayCategory(item.category) === cat)
@@ -83,15 +90,36 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
   const shopGrouped = groupByCategory(shopItems)
 
   const handleCopy = () => {
-    // Simple format: just names for pantry, full for shopping
-    const pantryText = pantryItems.length > 0 
-      ? '已有食材\n' + pantryItems.map(i => i.name).join('\n')
-      : ''
-    const shopText = shopItems.length > 0
-      ? '需要購買\n' + shopItems.map(i => `${i.name} ${i.quantity}${i.unit || ''}`).join('\n')
-      : ''
+    // Format with category grouping and icons
+    const lines: string[] = []
     
-    const text = [pantryText, shopText].filter(Boolean).join('\n\n')
+    // Add pantry items first
+    if (pantryItems.length > 0) {
+      lines.push('✅ 已有食材')
+      pantryItems.forEach(item => {
+        lines.push(`  ${item.name}`)
+      })
+      lines.push('')
+    }
+    
+    // Add shopping items grouped by category
+    if (shopItems.length > 0) {
+      lines.push('🛒 需要購買')
+      lines.push('')
+      
+      Object.entries(shopGrouped).forEach(([category, items]) => {
+        const icon = CATEGORY_ICONS[category] || '📦'
+        lines.push(`${icon} ${category}`)
+        items.forEach(item => {
+          const qty = item.quantity ? `${item.quantity}` : '（數量待補）'
+          const unit = formatUnit(item.unit)
+          lines.push(`  ${item.name} ${unit ? qty + ' ' + unit : qty}`)
+        })
+        lines.push('')
+      })
+    }
+    
+    const text = lines.join('\n').trim()
     
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
@@ -100,7 +128,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
   }
 
   return (
-    <Modal isOpen={isOpen} title="購物清單" onClose={onClose} maxWidth="600px">
+    <Modal isOpen={isOpen} title="🛒 購物清單" onClose={onClose} maxWidth="600px">
       {/* Copy Button */}
       <div className="mb-4 flex justify-end">
         <button
@@ -111,71 +139,84 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
         </button>
       </div>
 
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-        {/* 已有食材 - just names */}
-        {pantryItems.length > 0 && (
-          <div>
-            <h3 className="font-bold text-green-600 text-sm mb-2">已有食材</h3>
-            <div className="flex flex-wrap gap-2">
-              {pantryItems.map((item, i) => (
-                <span key={i} className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
-                  {item.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 需要購買 */}
-        {shopItems.length > 0 && (
-          <div>
-            <h3 className="font-bold text-[#9B6035] text-sm mb-2">需要購買</h3>
-            {Object.keys(shopGrouped).length > 0 ? (
-              Object.entries(shopGrouped).map(([category, items]) => (
-                <div key={category} className="mb-3">
-                  <h4 className="text-xs text-[#AA7A50] mb-1">{category}</h4>
-                  <div className="space-y-1">
-                    {items.map((item, i) => (
-                      <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
-                        <span className="text-[#3A2010]">{item.name}</span>
-                        <span className="text-[#AA7A50] font-medium">
-                          {(item as any).source === 'ingredients_list' 
-                            ? '（數量待補）' 
-                            : `${item.quantity} ${item.unit || ''}`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              // Fallback: flat list if grouping failed
-              <div className="space-y-1">
-                {shopItems.map((item, i) => (
-                  <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
-                    <span className="text-[#3A2010]">{item.name}</span>
-                    <span className="text-[#AA7A50] font-medium">
-                      {(item as any).source === 'ingredients_list' 
-                        ? '（數量待補）' 
-                        : `${item.quantity} ${item.unit || ''}`}
-                    </span>
-                  </div>
+      {/* Loading or Empty State */}
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="text-[#AA7A50]">正在整理購物清單...</div>
+        </div>
+      ) : shoppingList.length === 0 ? (
+        <div className="flex justify-center py-12">
+          <div className="text-[#AA7A50]">暫無食材</div>
+        </div>
+      ) : (
+        <div className="max-h-[75vh] overflow-y-auto space-y-6 px-1">
+          {/* 已有食材 - just names */}
+          {pantryItems.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-green-600 text-base mb-3 flex items-center gap-2">
+                ✅ 已有食材
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {pantryItems.map((item, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-sm border border-green-200">
+                    {item.name}
+                  </span>
                 ))}
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="text-[#AA7A50]">正在整理購物清單...</div>
-          </div>
-        ) : null}
-
-        {!loading && shoppingList.length === 0 && (
-          <p className="text-center text-[#AA7A50] py-4">暫無食材</p>
-        )}
-      </div>
+          {/* 需要購買 */}
+          {shopItems.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-[#9B6035] text-base mb-4 flex items-center gap-2">
+                🛒 需要購買
+              </h3>
+              
+              {Object.keys(shopGrouped).length > 0 ? (
+                Object.entries(shopGrouped).map(([category, items]) => (
+                  <div key={category} className="mb-5">
+                    {/* Category Header */}
+                    <h4 className="font-semibold text-[#7a4a2a] text-sm mb-2 flex items-center gap-2 pb-1 border-b border-[#DDD0B0]">
+                      <span className="text-lg">{CATEGORY_ICONS[category] || '📦'}</span>
+                      <span>{category}</span>
+                      <span className="text-xs font-normal text-[#AA7A50] ml-auto">({items.length}項)</span>
+                    </h4>
+                    
+                    {/* Items */}
+                    <div className="space-y-1.5 mt-2">
+                      {items.map((item, i) => (
+                        <div key={i} className="flex justify-between items-center py-2 px-3 bg-[#FEFCF8] rounded-lg border border-[#F0E8D8]">
+                          <span className="text-[#3A2010] font-medium">{item.name}</span>
+                          <span className="text-[#9B6035] font-semibold text-sm whitespace-nowrap">
+                            {(item as any).source === 'ingredients_list' 
+                              ? '（數量待補）' 
+                              : `${item.quantity} ${formatUnit(item.unit)}`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                /* Fallback: flat list */
+                <div className="space-y-1">
+                  {shopItems.map((item, i) => (
+                    <div key={i} className="flex justify-between items-center py-2 px-3 bg-[#FEFCF8] rounded-lg border border-[#F0E8D8]">
+                      <span className="text-[#3A2010] font-medium">{item.name}</span>
+                      <span className="text-[#9B6035] font-semibold text-sm">
+                        {(item as any).source === 'ingredients_list' 
+                          ? '（數量待補）' 
+                          : `${item.quantity} ${formatUnit(item.unit)}`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </Modal>
   )
 }
