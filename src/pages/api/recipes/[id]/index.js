@@ -84,9 +84,18 @@ export default async function handler(req, res) {
 
     // Final fallback: derive from recipe and lookup in ingredients table
     if (ingredients.length === 0) {
-      // Get ingredient names from canonical_ingredients or primary_protein
+      // Map English protein names to Chinese for lookup
+      const proteinToChinese = {
+        'beef': '牛肉', 'pork': '豬肉', 'chicken': '雞肉', 'fish': '魚',
+        'shrimp': '蝦', 'tofu': '豆腐', 'egg': '雞蛋'
+      }
+      
+      // Get ingredient names from primary_protein (mapped to Chinese)
+      const primaryProtein = recipe.primary_protein?.toLowerCase()
+      const chineseProtein = primaryProtein ? proteinToChinese[primaryProtein] : null
+      
       const possibleNames = [
-        ...(recipe.canonical_ingredients || []),
+        chineseProtein,
         recipe.primary_protein,
         recipe.name
       ].filter(Boolean)
