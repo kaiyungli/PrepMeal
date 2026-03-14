@@ -21,20 +21,20 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Recipe not found' })
     }
     
-    // Fetch ingredients
+    // Fetch ingredients with proper joins
     const { data: recipeIngredients } = await supabase
       .from('recipe_ingredients')
-      .select('quantity, unit, ingredients(id, name, category)')
+      .select('quantity, unit_id, ingredients(id, name, slug, shopping_category), units(code, name)')
       .eq('recipe_id', id)
 
     // Build proper ingredient shape with source tracking
     let ingredients = (recipeIngredients || []).map(ri => ({
       ingredient_id: ri.ingredients?.id || null,
-      slug: ri.ingredients?.name?.toLowerCase().replace(/\s+/g, '_') || '',
+      slug: ri.ingredients?.slug || ri.ingredients?.name?.toLowerCase().replace(/\s+/g, '_') || '',
       display_name: ri.ingredients?.name || '',
-      shopping_category: ri.ingredients?.category || '其他',
+      shopping_category: ri.ingredients?.shopping_category || '其他',
       quantity: Number(ri.quantity) || null,
-      unit: ri.unit ? { code: ri.unit, name: ri.unit } : null,
+      unit: ri.units ? { code: ri.units.code, name: ri.units.name } : (ri.unit_id ? { code: ri.unit_id, name: ri.unit_id } : null),
       is_optional: false,
       source: 'recipe_ingredients'
     }))
