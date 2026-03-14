@@ -49,37 +49,37 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // FALLBACK: If no ingredients in DB, use recipe.ingredients_list and lookup from ingredients table
-    if (ingredients.length === 0 && ingredientsListFromDB.length > 0) {
-      // Get unique ingredient names
-      const ingredientNames = [...new Set(ingredientsListFromDB)]
+    // FALLBACK: If recipe_ingredients is empty, try getting ingredients_list from recipes table
+    if (ingredients.length === 0 && ingredientsListFromDB.length === 0) {
+      // Check if recipe has ingredients_list as JSON column
+      const recipeIngredientsList = recipe.ingredients_list || []
       
-      // Lookup ingredients by name from the ingredients table
-      const { data: ingredientData } = await supabase
-        .from('ingredients')
-        .select('id, name, slug, shopping_category')
-        .in('name', ingredientNames)
-      
-      // Build a map for quick lookup
-      const ingredientMap = {}
-      ;(ingredientData || []).forEach(ing => {
-        ingredientMap[ing.name] = ing
-      })
-      
-      // Map ingredients_list to proper format
-      ingredients = ingredientNames.map(name => {
-        const ing = ingredientMap[name]
-        return {
-          ingredient_id: ing?.id || null,
-          slug: ing?.slug || name.toLowerCase().replace(/\s+/g, '_'),
-          display_name: name,
-          shopping_category: ing?.shopping_category || '其他',
-          quantity: null,
-          unit: null,
-          is_optional: false,
-          source: 'ingredients_list'
-        }
-      })
+      if (recipeIngredientsList.length > 0) {
+        // Lookup each in ingredients table
+        const { data: ingredientData } = await supabase
+          .from('ingredients')
+          .select('id, name, slug, shopping_category')
+          .in('name', recipeIngredientsList)
+        
+        const ingredientMap = {}
+        ;(ingredientData || []).forEach(ing => {
+          ingredientMap[ing.name] = ing
+        })
+        
+        ingredients = recipeIngredientsList.map(name => {
+          const ing = ingredientMap[name]
+          return {
+            ingredient_id: ing?.id || null,
+            slug: ing?.slug || name.toLowerCase().replace(/\s+/g, '_'),
+            display_name: name,
+            shopping_category: ing?.shopping_category || '其他',
+            quantity: null,
+            unit: null,
+            is_optional: false,
+            source: 'ingredients_list'
+          }
+        })
+      }
     }
 
     // Final fallback: use primary_protein to lookup in ingredients table
