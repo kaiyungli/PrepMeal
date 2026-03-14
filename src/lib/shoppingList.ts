@@ -144,16 +144,21 @@ export function buildShoppingList(
       }
     } 
     // Fallback: use ingredients_list if no ingredients
-    else if (recipe.ingredients_list && Array.isArray(recipe.ingredients_list)) {
-      for (const name of recipe.ingredients_list) {
-        if (!name) continue
-        allIngredients.push({
-          name: String(name),
-          quantity: 1,
-          unit: '份',
-          category: undefined,
-          source: 'ingredients_list'  // Mark as fallback
-        })
+    else if (recipe.ingredients_list) {
+      const list = Array.isArray(recipe.ingredients_list) 
+        ? recipe.ingredients_list 
+        : [];
+      if (list.length > 0) {
+        for (const name of list) {
+          if (!name) continue
+          allIngredients.push({
+            name: String(name),
+            quantity: 1,
+            unit: '份',
+            category: undefined,
+            source: 'ingredients_list'
+          })
+        }
       }
     }
   }
