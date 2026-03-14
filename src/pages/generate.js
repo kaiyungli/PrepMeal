@@ -163,6 +163,7 @@ export default function GeneratePage() {
   // Shopping List
   const [shoppingList, setShoppingList] = useState([]);
   const [showShoppingList, setShowShoppingList] = useState(false);
+  const [shoppingListLoaded, setShoppingListLoaded] = useState(false);
 
   useEffect(() => {
     fetch('/api/recipes?limit=500')
@@ -266,6 +267,57 @@ const CONFIG = {
 
 // Generate meal plan based on settings with balancing rules
 
+  // Preload shopping list - called after plan generation
+  const preloadShoppingList = async (plan) => {
+    // Collect recipe IDs from plan
+    const recipeIds = new Set();
+    Object.values(plan).forEach(recipes => {
+      if (Array.isArray(recipes)) {
+        recipes.forEach(r => {
+          if (r?.id) recipeIds.add(r.id);
+        });
+      }
+    });
+    
+    if (recipeIds.size === 0) {
+      setShoppingList([]);
+      setShoppingListLoaded(true);
+      return;
+    }
+    
+    try {
+      // Fetch all recipe details in parallel
+      const fetchPromises = Array.from(recipeIds).map(id => 
+        fetch('/api/recipes/' + id)
+          .then(res => {
+            if (!res.ok) throw new Error('Failed to fetch');
+            return res.json();
+          })
+          .catch(err => {
+            console.error('Error fetching recipe:', id, err);
+            return null;
+          })
+      );
+      
+      const fullRecipes = await Promise.all(fetchPromises);
+      const validRecipes = fullRecipes.filter(r => r !== null);
+      
+      // Build shopping list
+      const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
+      
+      const list = [
+        ...pantry.map(p => ({ ...p, inPantry: true })),
+        ...toBuy.map(t => ({ ...t, inPantry: false }))
+      ];
+      
+      setShoppingList(list);
+      setShoppingListLoaded(true);
+    } catch (err) {
+      console.error('Error preloading shopping list:', err);
+      setShoppingListLoaded(true);
+    }
+  };
+
   const handleGenerate = () => {
     // Build locked recipes map
     const lockedRecipes = {};
@@ -291,6 +343,9 @@ const CONFIG = {
 
     setWeeklyPlan(newPlan);
     setHasGenerated(true);
+    
+    // Preload shopping list immediately
+    preloadShoppingList(newPlan);
   };
 
   const lockSlot = (dayKey, index) => {
@@ -365,55 +420,15 @@ const CONFIG = {
     }
   };
 
-  // Generate shopping list - fetch full recipe details with ingredients
-  const generateShoppingList = async () => {
-    // Collect unique recipe IDs from weekly plan
-    const recipeIds = new Set();
-    Object.values(weeklyPlan).forEach(recipes => {
-      (recipes || []).forEach(recipe => {
-        if (recipe?.id) recipeIds.add(recipe.id);
-      });
-    });
-    
-    if (recipeIds.size === 0) {
-      alert('請先生成餐單!');
+  // Open shopping list - data already preloaded
+  const generateShoppingList = () => {
+    // If not loaded yet, show loading
+    if (!shoppingListLoaded) {
+      alert('載入中...');
       return;
     }
     
-    // Fetch full recipe details
-    const fetchPromises = Array.from(recipeIds).map(id => 
-      fetch('/api/recipes/' + id)
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.json();
-        })
-        .catch(err => {
-          console.error('Error fetching recipe:', id, err);
-          return null;
-        })
-    );
-    
-    const fullRecipes = await Promise.all(fetchPromises);
-    const validRecipes = fullRecipes.filter(r => r !== null);
-    
-    // DEBUG
-    console.log('[SHOPPING] recipeIds:', Array.from(recipeIds));
-    console.log('[SHOPPING] fullRecipes:', fullRecipes?.length);
-    console.log('[SHOPPING] validRecipes:', validRecipes?.length);
-    
-    // Use buildShoppingList to separate pantry vs toBuy
-    const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
-    
-    // DEBUG
-    console.log("buildShoppingList result:", { pantry, toBuy });
-    
-    // Combine for modal display
-    const list = [
-      ...pantry.map(p => ({ ...p, inPantry: true })),
-      ...toBuy.map(t => ({ ...t, inPantry: false }))
-    ];
-    
-    setShoppingList(list);
+    // Open modal immediately - data already in state
     setShowShoppingList(true);
   };
 
