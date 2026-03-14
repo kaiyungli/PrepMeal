@@ -47,8 +47,12 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
     // Use ingredient_id as key for aggregation
     const key = item.ingredient_id || item.name
     
-    // Normalize unit
-    const unit = normalizeUnit(item.unit) || '份'
+    // Normalize unit - only use '份' fallback for items without unit
+    // DB-backed items should preserve their unit (even if null/empty)
+    const rawUnit = item.unit
+    const normalizedUnit = normalizeUnit(rawUnit)
+    // Only use '份' if unit was explicitly provided but not recognized, OR if it's a fallback item
+    const unit = (rawUnit && !normalizedUnit) || (item.source === 'ingredients_list') ? '份' : (normalizedUnit || '')
     const qty = quantity || 1
     
     const existing = map.get(key)

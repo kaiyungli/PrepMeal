@@ -422,13 +422,8 @@ const CONFIG = {
 
   // Open shopping list - data already preloaded
   const generateShoppingList = () => {
-    // If not loaded yet, show loading
-    if (!shoppingListLoaded) {
-      alert('載入中...');
-      return;
-    }
-    
     // Open modal immediately - data already in state
+    // If not loaded yet, show inline loading inside modal
     setShowShoppingList(true);
   };
 
