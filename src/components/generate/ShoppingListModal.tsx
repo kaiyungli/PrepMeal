@@ -19,6 +19,23 @@ interface ShoppingListModalProps {
 // Category order
 const CATEGORY_ORDER = ['肉類', '海鮮', '蛋類', '豆腐', '蔬菜', '雜貨', '其他'];
 
+// Format unit for display
+function formatUnit(unit: string | undefined | null): string {
+  if (!unit) return '';
+  const u = unit.toLowerCase().trim();
+  const unitMap: Record<string, string> = {
+    'g': 'g', 'gram': 'g', 'grams': 'g',
+    'kg': 'kg', 'kilogram': 'kg', 'kilograms': 'kg',
+    'ml': 'ml', 'milliliter': 'ml', 'milliliters': 'ml',
+    'l': 'l', 'liter': 'l', 'liters': 'l',
+    'tbsp': 'tbsp', 'tablespoon': 'tbsp', 'tablespoons': 'tbsp',
+    'tsp': 'tsp', 'teaspoon': 'tsp', 'teaspoons': 'tsp',
+    'cup': 'cup', 'cups': 'cup',
+    'pc': 'pc', 'piece': 'pc', 'pieces': 'pc', '個': 'pc'
+  };
+  return unitMap[u] || unit;
+}
+
 // Add loading prop to props
 export default function ShoppingListModal({ isOpen, onClose, shoppingList, loading = false }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
