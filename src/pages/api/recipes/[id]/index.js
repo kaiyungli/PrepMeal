@@ -50,40 +50,25 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // Helper to lookup ingredient by various fields (slug, name, or via canonical aliases)
-    async function lookupIngredient(searchValue) {
-      if (!searchValue) return null
+    // Batch lookup for multiple ingredients using OR
+    async function lookupIngredientsBatch(searchValues) {
+      if (!searchValues || searchValues.length === 0) return {}
       
-      const lower = searchValue.toLowerCase()
+      const lowers = searchValues.map(v => v.toLowerCase())
       
-      // Try by slug first
-      const { data: bySlug } = await supabase
+      // Single query with OR: slug IN (...) OR name IN (...)
+      const { data } = await supabase
         .from('ingredients')
         .select('id, name, slug, shopping_category')
-        .eq('slug', lower)
-        .limit(1)
-      if (bySlug && bySlug.length > 0) return bySlug[0]
+        .or(`slug.in.(${lowers.join(',')}),name.in.(${searchValues.join(',')})`)
       
-      // Try by exact name match
-      const { data: byName } = await supabase
-        .from('ingredients')
-        .select('id, name, slug, shopping_category')
-        .eq('name', searchValue)
-        .limit(1)
-      if (byName && byName.length > 0) return byName[0]
-      
-      // Try using canonical aliases from normalizer
-      const canonical = getCanonicalIngredients([searchValue])[0]
-      if (canonical && canonical !== searchValue.toLowerCase()) {
-        const { data: byCanonical } = await supabase
-          .from('ingredients')
-          .select('id, name, slug, shopping_category')
-          .eq('slug', canonical)
-          .limit(1)
-        if (byCanonical && byCanonical.length > 0) return byCanonical[0]
-      }
-      
-      return null
+      // Build map by slug and name
+      const map = {}
+      ;(data || []).forEach(ing => {
+        if (ing.slug) map[ing.slug.toLowerCase()] = ing
+        if (ing.name) map[ing.name] = ing
+      })
+      return map
     }
 
     // FALLBACK: If recipe_ingredients is empty, try getting ingredients_list from recipes table
@@ -91,36 +76,36 @@ export default async function handler(req, res) {
       // Get unique ingredient names
       const ingredientNames = [...new Set(ingredientsListFromDB)]
       
-      // Try to lookup each in ingredients table by slug or name
-      const results = await Promise.all(
-        ingredientNames.map(name => lookupIngredient(name))
-      )
+      // Batch lookup by slug or name in single query
+      const map = await lookupIngredientsBatch(ingredientNames)
       
       // Build ingredients array, only include successful lookups
-      ingredients = results
-        .filter(ing => ing !== null)
-        .map(ing => ({
-          ingredient_id: ing.id,
-          slug: ing.slug,
-          display_name: ing.name,
-          shopping_category: ing.shopping_category || '其他',
-          quantity: null,
-          unit: null,
-          is_optional: false,
-          source: 'ingredients_list'
-        }))
+      ingredients = ingredientNames
+        .map(name => {
+          const ing = map[name.toLowerCase()] || map[name]
+          if (!ing) return null
+          return {
+            ingredient_id: ing.id,
+            slug: ing.slug,
+            display_name: ing.name,
+            shopping_category: ing.shopping_category || '其他',
+            quantity: null,
+            unit: null,
+            is_optional: false,
+            source: 'ingredients_list'
+          }
+        })
+        .filter(Boolean)
     }
 
     // FALLBACK: If recipe_ingredients is empty, check recipe.ingredients_list JSON column
     if (ingredients.length === 0 && recipe.ingredients_list && recipe.ingredients_list.length > 0) {
-      // Try to lookup each in ingredients table
-      const results = await Promise.all(
-        recipe.ingredients_list.map(name => lookupIngredient(name))
-      )
+      // Batch lookup by slug or name
+      const map = await lookupIngredientsBatch(recipe.ingredients_list)
       
       // Build ingredients array, include DB matches and raw fallback for failures
-      ingredients = results.map((ing, idx) => {
-        const rawName = recipe.ingredients_list[idx]
+      ingredients = recipe.ingredients_list.map(rawName => {
+        const ing = map[rawName.toLowerCase()] || map[rawName]
         if (ing) {
           return {
             ingredient_id: ing.id,
@@ -149,7 +134,8 @@ export default async function handler(req, res) {
 
     // Final fallback: use primary_protein to lookup in ingredients table
     if (ingredients.length === 0 && recipe.primary_protein) {
-      const ing = await lookupIngredient(recipe.primary_protein)
+      const map = await lookupIngredientsBatch([recipe.primary_protein])
+      const ing = map[recipe.primary_protein.toLowerCase()]
       
       if (ing) {
         ingredients = [{
