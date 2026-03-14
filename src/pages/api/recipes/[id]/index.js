@@ -82,28 +82,22 @@ export default async function handler(req, res) {
       })
     }
 
-    // Final fallback: map protein to Chinese ingredients
-    if (ingredients.length === 0) {
-      // Simple protein to Chinese mapping
-      const proteinMap = {
-        'beef': ['牛肉', '肉類'],
-        'pork': ['豬肉', '肉類'],
-        'chicken': ['雞肉', '肉類'],
-        'fish': ['魚', '海鮮'],
-        'shrimp': ['蝦', '海鮮'],
-        'tofu': ['豆腐', '豆腐'],
-        'egg': ['雞蛋', '蛋類']
-      }
+    // Final fallback: use primary_protein to lookup in ingredients table
+    if (ingredients.length === 0 && recipe.primary_protein) {
+      // Look up primary protein in ingredients table by slug
+      const { data: ingredientData } = await supabase
+        .from('ingredients')
+        .select('id, name, slug, shopping_category')
+        .eq('slug', recipe.primary_protein.toLowerCase())
+        .limit(1)
       
-      const primaryProtein = recipe.primary_protein?.toLowerCase()
-      const mapped = primaryProtein ? proteinMap[primaryProtein] : null
-      
-      if (mapped) {
+      if (ingredientData && ingredientData.length > 0) {
+        const ing = ingredientData[0]
         ingredients = [{
-          ingredient_id: null,
-          slug: mapped[0].toLowerCase(),
-          display_name: mapped[0],
-          shopping_category: mapped[1],
+          ingredient_id: ing.id,
+          slug: ing.slug,
+          display_name: ing.name,
+          shopping_category: ing.shopping_category,
           quantity: null,
           unit: null,
           is_optional: false,
