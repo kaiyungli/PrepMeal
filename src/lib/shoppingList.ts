@@ -163,7 +163,9 @@ export function buildShoppingList(
       const unitName = ing.unit?.name || null
       
       allIngredients.push({
+        ingredient_id: ing.ingredient_id || null,
         name: name,
+        display_name: name,
         quantity: qty,
         unit: unitName,
         category: ing.shopping_category || '其他',
