@@ -27,6 +27,16 @@ export default async function handler(req, res) {
       .select('quantity, unit_id, ingredients(id, name, slug, shopping_category), units(code, name)')
       .eq('recipe_id', id)
 
+    // Also fetch ingredients_list (simple array of names) for fallback
+    const { data: ingredientData } = await supabase
+      .from('recipe_ingredients')
+      .select('ingredients(name)')
+      .eq('recipe_id', id)
+    
+    const ingredientsListFromDB = (ingredientData || [])
+      .map(ri => ri.ingredients?.name)
+      .filter(Boolean)
+
     // Build proper ingredient shape with source tracking
     let ingredients = (recipeIngredients || []).map(ri => ({
       ingredient_id: ri.ingredients?.id || null,
@@ -40,9 +50,9 @@ export default async function handler(req, res) {
     }))
 
     // FALLBACK: If no ingredients in DB, use recipe.ingredients_list and lookup from ingredients table
-    if (ingredients.length === 0 && recipe.ingredients_list && recipe.ingredients_list.length > 0) {
-      // Get unique ingredient names from ingredients_list
-      const ingredientNames = [...new Set(recipe.ingredients_list.filter(Boolean))]
+    if (ingredients.length === 0 && ingredientsListFromDB.length > 0) {
+      // Get unique ingredient names
+      const ingredientNames = [...new Set(ingredientsListFromDB)]
       
       // Lookup ingredients by name from the ingredients table
       const { data: ingredientData } = await supabase
