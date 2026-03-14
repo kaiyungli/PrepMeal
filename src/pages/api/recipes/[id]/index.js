@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
+import { getCanonicalIngredients } from '@/lib/ingredientNormalizer'
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // Helper to lookup ingredient by various fields (all fields lowercase for comparison)
+    // Helper to lookup ingredient by various fields (slug, name, or via canonical aliases)
     async function lookupIngredient(searchValue) {
       if (!searchValue) return null
       
@@ -70,6 +71,17 @@ export default async function handler(req, res) {
         .eq('name', searchValue)
         .limit(1)
       if (byName && byName.length > 0) return byName[0]
+      
+      // Try using canonical aliases from normalizer
+      const canonical = getCanonicalIngredients([searchValue])[0]
+      if (canonical && canonical !== searchValue.toLowerCase()) {
+        const { data: byCanonical } = await supabase
+          .from('ingredients')
+          .select('id, name, slug, shopping_category')
+          .eq('slug', canonical)
+          .limit(1)
+        if (byCanonical && byCanonical.length > 0) return byCanonical[0]
+      }
       
       return null
     }
