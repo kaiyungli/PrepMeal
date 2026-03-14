@@ -88,21 +88,35 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList }: Sho
         {shopItems.length > 0 && (
           <div>
             <h3 className="font-bold text-[#9B6035] text-sm mb-2">需要購買</h3>
-            {Object.entries(shopGrouped).map(([category, items]) => (
-              <div key={category} className="mb-3">
-                <h4 className="text-xs text-[#AA7A50] mb-1">{category}</h4>
-                <div className="space-y-1">
-                  {items.map((item, i) => (
-                    <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
-                      <span className="text-[#3A2010]">{item.name}</span>
-                      <span className="text-[#AA7A50] font-medium">
-                        {item.quantity} {item.unit || ''}
-                      </span>
-                    </div>
-                  ))}
+            {Object.keys(shopGrouped).length > 0 ? (
+              Object.entries(shopGrouped).map(([category, items]) => (
+                <div key={category} className="mb-3">
+                  <h4 className="text-xs text-[#AA7A50] mb-1">{category}</h4>
+                  <div className="space-y-1">
+                    {items.map((item, i) => (
+                      <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
+                        <span className="text-[#3A2010]">{item.name}</span>
+                        <span className="text-[#AA7A50] font-medium">
+                          {item.quantity} {item.unit || ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              ))
+            ) : (
+              // Fallback: flat list if grouping failed
+              <div className="space-y-1">
+                {shopItems.map((item, i) => (
+                  <div key={i} className="flex justify-between py-1.5 px-2 bg-[#F8F3E8] rounded">
+                    <span className="text-[#3A2010]">{item.name}</span>
+                    <span className="text-[#AA7A50] font-medium">
+                      {item.quantity} {item.unit || ''}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
 
