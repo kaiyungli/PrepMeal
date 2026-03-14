@@ -49,50 +49,83 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // FALLBACK: If recipe_ingredients is empty, try getting ingredients_list from recipes table
-    if (ingredients.length === 0 && ingredientsListFromDB.length === 0) {
-      // Check if recipe has ingredients_list as JSON column
-      const recipeIngredientsList = recipe.ingredients_list || []
+    // Helper to lookup ingredient by various fields (all fields lowercase for comparison)
+    async function lookupIngredient(searchValue) {
+      if (!searchValue) return null
       
-      if (recipeIngredientsList.length > 0) {
-        // Lookup each in ingredients table
-        const { data: ingredientData } = await supabase
-          .from('ingredients')
-          .select('id, name, slug, shopping_category')
-          .in('name', recipeIngredientsList)
-        
-        const ingredientMap = {}
-        ;(ingredientData || []).forEach(ing => {
-          ingredientMap[ing.name] = ing
-        })
-        
-        ingredients = recipeIngredientsList.map(name => {
-          const ing = ingredientMap[name]
-          return {
-            ingredient_id: ing?.id || null,
-            slug: ing?.slug || name.toLowerCase().replace(/\s+/g, '_'),
-            display_name: name,
-            shopping_category: ing?.shopping_category || '其他',
-            quantity: null,
-            unit: null,
-            is_optional: false,
-            source: 'ingredients_list'
-          }
-        })
-      }
+      const lower = searchValue.toLowerCase()
+      
+      // Try by slug first
+      const { data: bySlug } = await supabase
+        .from('ingredients')
+        .select('id, name, slug, shopping_category')
+        .eq('slug', lower)
+        .limit(1)
+      if (bySlug && bySlug.length > 0) return bySlug[0]
+      
+      // Try by exact name match
+      const { data: byName } = await supabase
+        .from('ingredients')
+        .select('id, name, slug, shopping_category')
+        .eq('name', searchValue)
+        .limit(1)
+      if (byName && byName.length > 0) return byName[0]
+      
+      return null
+    }
+
+    // FALLBACK: If recipe_ingredients is empty, try getting ingredients_list from recipes table
+    if (ingredients.length === 0 && ingredientsListFromDB.length > 0) {
+      // Get unique ingredient names
+      const ingredientNames = [...new Set(ingredientsListFromDB)]
+      
+      // Try to lookup each in ingredients table by slug or name
+      const results = await Promise.all(
+        ingredientNames.map(name => lookupIngredient(name))
+      )
+      
+      // Build ingredients array, only include successful lookups
+      ingredients = results
+        .filter(ing => ing !== null)
+        .map(ing => ({
+          ingredient_id: ing.id,
+          slug: ing.slug,
+          display_name: ing.name,
+          shopping_category: ing.shopping_category || '其他',
+          quantity: null,
+          unit: null,
+          is_optional: false,
+          source: 'ingredients_list'
+        }))
+    }
+
+    // FALLBACK: If recipe_ingredients is empty, check recipe.ingredients_list JSON column
+    if (ingredients.length === 0 && recipe.ingredients_list && recipe.ingredients_list.length > 0) {
+      // Try to lookup each in ingredients table
+      const results = await Promise.all(
+        recipe.ingredients_list.map(name => lookupIngredient(name))
+      )
+      
+      // Build ingredients array, only include successful lookups
+      ingredients = results
+        .filter(ing => ing !== null)
+        .map(ing => ({
+          ingredient_id: ing.id,
+          slug: ing.slug,
+          display_name: ing.name,
+          shopping_category: ing.shopping_category || '其他',
+          quantity: null,
+          unit: null,
+          is_optional: false,
+          source: 'ingredients_list'
+        }))
     }
 
     // Final fallback: use primary_protein to lookup in ingredients table
     if (ingredients.length === 0 && recipe.primary_protein) {
-      // Look up primary protein in ingredients table by slug
-      const { data: ingredientData } = await supabase
-        .from('ingredients')
-        .select('id, name, slug, shopping_category')
-        .eq('slug', recipe.primary_protein.toLowerCase())
-        .limit(1)
+      const ing = await lookupIngredient(recipe.primary_protein)
       
-      if (ingredientData && ingredientData.length > 0) {
-        const ing = ingredientData[0]
+      if (ing) {
         ingredients = [{
           ingredient_id: ing.id,
           slug: ing.slug,
