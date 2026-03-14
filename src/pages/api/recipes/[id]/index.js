@@ -82,44 +82,33 @@ export default async function handler(req, res) {
       })
     }
 
-    // Final fallback: derive from recipe and lookup in ingredients table
+    // Final fallback: map protein to Chinese ingredients
     if (ingredients.length === 0) {
-      // Map English protein names to Chinese for lookup
-      const proteinToChinese = {
-        'beef': '牛肉', 'pork': '豬肉', 'chicken': '雞肉', 'fish': '魚',
-        'shrimp': '蝦', 'tofu': '豆腐', 'egg': '雞蛋'
+      // Simple protein to Chinese mapping
+      const proteinMap = {
+        'beef': ['牛肉', '肉類'],
+        'pork': ['豬肉', '肉類'],
+        'chicken': ['雞肉', '肉類'],
+        'fish': ['魚', '海鮮'],
+        'shrimp': ['蝦', '海鮮'],
+        'tofu': ['豆腐', '豆腐'],
+        'egg': ['雞蛋', '蛋類']
       }
       
-      // Get ingredient names from primary_protein (mapped to Chinese)
       const primaryProtein = recipe.primary_protein?.toLowerCase()
-      const chineseProtein = primaryProtein ? proteinToChinese[primaryProtein] : null
+      const mapped = primaryProtein ? proteinMap[primaryProtein] : null
       
-      const possibleNames = [
-        chineseProtein,
-        recipe.primary_protein,
-        recipe.name
-      ].filter(Boolean)
-      
-      if (possibleNames.length > 0) {
-        // Try to lookup in ingredients table
-        const { data: ingredientData } = await supabase
-          .from('ingredients')
-          .select('id, name, slug, shopping_category')
-          .in('name', possibleNames)
-          .limit(10)
-        
-        if (ingredientData && ingredientData.length > 0) {
-          ingredients = ingredientData.map(ing => ({
-            ingredient_id: ing.id,
-            slug: ing.slug,
-            display_name: ing.name,
-            shopping_category: ing.shopping_category || '其他',
-            quantity: null,
-            unit: null,
-            is_optional: false,
-            source: 'derived'
-          }))
-        }
+      if (mapped) {
+        ingredients = [{
+          ingredient_id: null,
+          slug: mapped[0].toLowerCase(),
+          display_name: mapped[0],
+          shopping_category: mapped[1],
+          quantity: null,
+          unit: null,
+          is_optional: false,
+          source: 'derived'
+        }]
       }
     }
 
