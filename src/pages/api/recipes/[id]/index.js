@@ -27,25 +27,21 @@ export default async function handler(req, res) {
       .select('quantity, unit, ingredients(id, name, category)')
       .eq('recipe_id', id)
 
-    const ingredients = (recipeIngredients || []).map(ri => ({
-      name: ri.ingredients?.name || '',
-      quantity: Number(ri.quantity) || 0,
-      unit: ri.unit,
-      category: ri.ingredients?.category || null
+    // Build proper ingredient shape with source tracking
+    let ingredients = (recipeIngredients || []).map(ri => ({
+      ingredient_id: ri.ingredients?.id || null,
+      slug: ri.ingredients?.name?.toLowerCase().replace(/\s+/g, '_') || '',
+      display_name: ri.ingredients?.name || '',
+      shopping_category: ri.ingredients?.category || '其他',
+      quantity: Number(ri.quantity) || null,
+      unit: ri.unit ? { code: ri.unit, name: ri.unit } : null,
+      is_optional: false,
+      source: 'recipe_ingredients'
     }))
 
-    // Also fetch ingredients_list (simple array of names)
-    const { data: ingredientData } = await supabase
-      .from('recipe_ingredients')
-      .select('ingredients(name)')
-      .eq('recipe_id', id)
-    
-    let ingredients_list = (ingredientData || [])
-      .map(ri => ri.ingredients?.name)
-      .filter(Boolean)
-    
     // FALLBACK: If no ingredients in DB, use sample data
-    if (ingredients_list.length === 0) {
+    // Also add fallback ingredients to ingredients array
+    if (ingredients.length === 0) {
       const sampleIngredients = {
         '滑蛋牛肉': ['牛肉', '雞蛋', '蔥', '鹽', '醬油'],
         '青椒牛肉': ['牛肉', '青椒', '蒜', '鹽', '醬油'],
@@ -58,7 +54,29 @@ export default async function handler(req, res) {
         '梅菜蒸肉餅': ['豬肉', '梅菜', '馬蹄', '蔥', '醬油'],
         '麻婆豆腐': ['豆腐', '牛肉', '豆瓣醬', '花椒', '蔥']
       }
-      ingredients_list = sampleIngredients[recipe.name] || []
+      const sampleNames = sampleIngredients[recipe.name] || []
+      
+      // Category mapping for common ingredients
+      const categoryMap = {
+        '牛肉': '肉類', '豬肉': '肉類', '雞肉': '肉類', '雞翼': '肉類',
+        '魚': '海鮮', '蝦': '海鮮', '魚片': '海鮮',
+        '雞蛋': '蛋類', '蛋': '蛋類',
+        '豆腐': '豆腐',
+        '青椒': '蔬菜', '洋蔥': '蔬菜', '蔥': '蔬菜', '薯仔': '蔬菜',
+        '鹽': '雜貨', '醬油': '雜貨', '胡椒': '雜貨', '花生': '雜貨',
+        '咖哩磚': '雜貨', '椰漿': '雜貨', '豆瓣醬': '雜貨', '花椒': '雜貨'
+      }
+      
+      ingredients = sampleNames.map(name => ({
+        ingredient_id: null,
+        slug: name.toLowerCase().replace(/\s+/g, '_'),
+        display_name: name,
+        shopping_category: categoryMap[name] || '其他',
+        quantity: null,
+        unit: null,
+        is_optional: false,
+        source: 'ingredients_list'
+      }))
     }
 
     // Fetch steps
@@ -71,7 +89,6 @@ export default async function handler(req, res) {
     res.status(200).json({
       ...recipe,
       ingredients: ingredients || [],
-      ingredients_list: ingredients_list || [],
       steps: steps || []
     })
   } catch (err) {

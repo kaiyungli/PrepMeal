@@ -3,12 +3,12 @@ import { CATEGORY_ORDER } from './ingredientCategories'
 
 interface Ingredient {
   name: string
-  quantity: number
-  unit?: string
+  quantity: number | null
+  unit?: string | null
   category?: string
   baseServings?: number
   targetServings?: number
-  source?: string  // 'ingredients' or 'ingredients_list'
+  source?: string  // 'recipe_ingredients' or 'ingredients_list'
 }
 
 /**
@@ -41,17 +41,18 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
     // Normalize name
     const normalizedName = normalizeIngredientName(item.name)
     const unit = item.unit || '份'
+    const qty = quantity || 1  // Default to 1 if null
     
     // Key by normalized name + unit
     const key = `${normalizedName}-${unit}`
     
     const existing = map.get(key)
     if (existing) {
-      existing.quantity += quantity
+      existing.quantity = (existing.quantity || 0) + qty
     } else {
       map.set(key, {
         name: normalizedName,
-        quantity: Math.round(quantity * 100) / 100,
+        quantity: Math.round(qty * 100) / 100,
         unit,
         category: item.category
       })
@@ -124,42 +125,25 @@ export function buildShoppingList(
   const allIngredients: Ingredient[] = []
   
   for (const recipe of recipes) {
-    if (!recipe) continue
+    if (!recipe || !recipe.ingredients) continue
     
-    // Primary: use recipe.ingredients if available
-    if (recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
-      const scale = servings / (recipe.base_servings || 1)
+    const scale = servings / (recipe.base_servings || 1)
+    
+    for (const ing of recipe.ingredients) {
+      // New format: display_name, shopping_category, unit.name, source
+      const name = ing.display_name
+      if (!name) continue
       
-      for (const ing of recipe.ingredients) {
-        // Be tolerant of type issues - quantity might be string from Supabase
-        const qty = Number(ing.quantity)
-        if (!ing || !ing.name || Number.isNaN(qty)) continue
-        
-        allIngredients.push({
-          name: ing.name,
-          quantity: qty || 1,
-          unit: ing.unit,
-          category: ing.category
-        })
-      }
-    } 
-    // Fallback: use ingredients_list if no ingredients
-    else if (recipe.ingredients_list) {
-      const list = Array.isArray(recipe.ingredients_list) 
-        ? recipe.ingredients_list 
-        : [];
-      if (list.length > 0) {
-        for (const name of list) {
-          if (!name) continue
-          allIngredients.push({
-            name: String(name),
-            quantity: 1,
-            unit: '份',
-            category: undefined,
-            source: 'ingredients_list'
-          })
-        }
-      }
+      const qty = ing.quantity ? Number(ing.quantity) * scale : null
+      const unitName = ing.unit?.name || null
+      
+      allIngredients.push({
+        name: name,
+        quantity: qty,
+        unit: unitName,
+        category: ing.shopping_category || '其他',
+        source: ing.source || 'recipe_ingredients'
+      })
     }
   }
   
