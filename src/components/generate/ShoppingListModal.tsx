@@ -19,6 +19,29 @@ interface ShoppingListModalProps {
 // Category order
 const CATEGORY_ORDER = ['肉類', '海鮮', '蛋', '豆腐', '蔬菜', '調味料', '主食', '其他'];
 
+// Map DB categories to display categories
+const CATEGORY_MAP: Record<string, string> = {
+  'meat_seafood': '肉類',
+  'meat': '肉類',
+  'seafood': '海鮮',
+  'egg': '蛋',
+  'eggs': '蛋',
+  'tofu': '豆腐',
+  'vegetables': '蔬菜',
+  'produce': '蔬菜',
+  'condiments': '調味料',
+  'seasoning': '調味料',
+  'staple': '主食',
+  'grains': '主食',
+  'rice': '主食',
+  'noodles': '主食'
+};
+
+function getDisplayCategory(cat: string | undefined): string {
+  if (!cat) return '其他';
+  return CATEGORY_MAP[cat.toLowerCase()] || '其他';
+}
+
 // Format unit for display
 function formatUnit(unit: string | undefined | null): string {
   if (!unit) return '';
@@ -51,7 +74,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
   // Group shopping items by category (with fallback for missing categories)
   const groupByCategory = (items: ShoppingListItem[]) => {
     return CATEGORY_ORDER.reduce((acc, cat) => {
-      const filtered = items.filter(item => (item.category || '其他') === cat)
+      const filtered = items.filter(item => getDisplayCategory(item.category) === cat)
       if (filtered.length > 0) acc[cat] = filtered
       return acc
     }, {} as Record<string, ShoppingListItem[]>)

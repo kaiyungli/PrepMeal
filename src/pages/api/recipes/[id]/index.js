@@ -25,8 +25,15 @@ export default async function handler(req, res) {
     // Fetch ingredients with proper joins
     const { data: recipeIngredients } = await supabase
       .from('recipe_ingredients')
-      .select('quantity, unit_id, ingredients(id, name, slug, shopping_category), units(code, name)')
+      .select('quantity, unit_id, ingredients(id, name, slug, shopping_category)')
       .eq('recipe_id', id)
+    
+    // Fetch units separately (if unit_id exists)
+    const unitIds = [...new Set((recipeIngredients || []).map(ri => ri.unit_id).filter(Boolean))]
+    const { data: unitsData } = unitIds.length > 0
+      ? await supabase.from('units').select('id, code, name').in('id', unitIds)
+      : { data: [] }
+    const unitsMap = new Map((unitsData || []).map(u => [u.id, u]))
 
     // Also fetch ingredients_list (simple array of names) for fallback
     const { data: ingredientData } = await supabase
@@ -39,16 +46,19 @@ export default async function handler(req, res) {
       .filter(Boolean)
 
     // Build proper ingredient shape with source tracking
-    let ingredients = (recipeIngredients || []).map(ri => ({
-      ingredient_id: ri.ingredients?.id || null,
-      slug: ri.ingredients?.slug || ri.ingredients?.name?.toLowerCase().replace(/\s+/g, '_') || '',
-      display_name: ri.ingredients?.name || '',
-      shopping_category: ri.ingredients?.shopping_category || '其他',
-      quantity: Number(ri.quantity) || null,
-      unit: ri.units ? { code: ri.units.code, name: ri.units.name } : (ri.unit_id ? { code: ri.unit_id, name: ri.unit_id } : null),
-      is_optional: false,
-      source: 'recipe_ingredients'
-    }))
+    let ingredients = (recipeIngredients || []).map(ri => {
+      const unit = unitsMap.get(ri.unit_id)
+      return {
+        ingredient_id: ri.ingredients?.id || null,
+        slug: ri.ingredients?.slug || ri.ingredients?.name?.toLowerCase().replace(/\s+/g, '_') || '',
+        display_name: ri.ingredients?.name || '',
+        shopping_category: ri.ingredients?.shopping_category || '其他',
+        quantity: Number(ri.quantity) || null,
+        unit: unit ? { code: unit.code, name: unit.name } : null,
+        is_optional: false,
+        source: 'recipe_ingredients'
+      }
+    })
 
     // Batch lookup for multiple ingredients using OR (includes aliases)
     async function lookupIngredientsBatch(searchValues) {
