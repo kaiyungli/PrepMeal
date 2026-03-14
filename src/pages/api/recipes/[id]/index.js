@@ -50,17 +50,22 @@ export default async function handler(req, res) {
       source: 'recipe_ingredients'
     }))
 
-    // Batch lookup for multiple ingredients using OR
+    // Batch lookup for multiple ingredients using OR (includes aliases)
     async function lookupIngredientsBatch(searchValues) {
       if (!searchValues || searchValues.length === 0) return {}
       
       const lowers = searchValues.map(v => v.toLowerCase())
       
+      // Also expand via canonical aliases
+      const expanded = new Set([...searchValues, ...lowers])
+      const canonicals = getCanonicalIngredients([...searchValues])
+      canonicals.forEach(c => expanded.add(c))
+      
       // Single query with OR: slug IN (...) OR name IN (...)
       const { data } = await supabase
         .from('ingredients')
         .select('id, name, slug, shopping_category')
-        .or(`slug.in.(${lowers.join(',')}),name.in.(${searchValues.join(',')})`)
+        .or(`slug.in.(${Array.from(expanded).join(',')}),name.in.(${Array.from(expanded).join(',')})`)
       
       // Build map by slug and name
       const map = {}
