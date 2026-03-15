@@ -270,44 +270,41 @@ const CONFIG = {
   // Preload shopping list - called after plan generation
   const preloadShoppingList = async (plan) => {
     // Collect recipe IDs from plan
-    const recipeIds = new Set();
+    const recipeIds = [];
     Object.values(plan).forEach(recipes => {
       if (Array.isArray(recipes)) {
         recipes.forEach(r => {
-          if (r?.id) recipeIds.add(r.id);
+          if (r?.id) recipeIds.push(r.id);
         });
       }
     });
     
-    if (recipeIds.size === 0) {
+    if (recipeIds.length === 0) {
       setShoppingList([]);
       setShoppingListLoaded(true);
       return;
     }
     
     try {
-      // Fetch all recipe details in parallel
-      const fetchPromises = Array.from(recipeIds).map(id => 
-        fetch('/api/recipes/' + id)
-          .then(res => {
-            if (!res.ok) throw new Error('Failed to fetch');
-            return res.json();
-          })
-          .catch(err => {
-            console.error('Error fetching recipe:', id, err);
-            return null;
-          })
-      );
+      // Use dedicated shopping list API for server-side aggregation
+      const res = await fetch('/api/shopping-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipeIds,
+          pantryIngredients,
+          servings
+        })
+      });
       
-      const fullRecipes = await Promise.all(fetchPromises);
-      const validRecipes = fullRecipes.filter(r => r !== null);
+      if (!res.ok) throw new Error('Failed to fetch shopping list');
       
-      // Build shopping list
-      const { pantry, toBuy } = buildShoppingList(validRecipes, pantryIngredients, servings);
+      const data = await res.json();
       
+      // Convert API response to shopping list format
       const list = [
-        ...pantry.map(p => ({ ...p, inPantry: true })),
-        ...toBuy.map(t => ({ ...t, inPantry: false }))
+        ...(data.pantry || []).map(p => ({ ...p, inPantry: true })),
+        ...(data.toBuy || []).map(t => ({ ...t, inPantry: false }))
       ];
       
       setShoppingList(list);
