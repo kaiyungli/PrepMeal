@@ -78,10 +78,10 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
   const pantryItems = shoppingList.filter(item => item.inPantry)
   const shopItems = shoppingList.filter(item => !item.inPantry)
 
-  // Group shopping items by category
+  // Group shopping items by category - API already returns Chinese category
   const groupByCategory = (items: ShoppingListItem[]) => {
     return CATEGORY_ORDER.reduce((acc, cat) => {
-      const filtered = items.filter(item => getDisplayCategory(item.category) === cat)
+      const filtered = items.filter(item => item.category === cat)
       if (filtered.length > 0) acc[cat] = filtered
       return acc
     }, {} as Record<string, ShoppingListItem[]>)
@@ -180,7 +180,6 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
                     <h4 className="font-semibold text-[#7a4a2a] text-sm mb-2 flex items-center gap-2 pb-1 border-b border-[#DDD0B0]">
                       <span className="text-lg">{CATEGORY_ICONS[category] || '📦'}</span>
                       <span>{category}</span>
-                      <span className="text-xs font-normal text-[#AA7A50] ml-auto">({items.length}項)</span>
                     </h4>
                     
                     {/* Items */}
