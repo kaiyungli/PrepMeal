@@ -1,5 +1,20 @@
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
+// Helper to apply recipe selection and update state
+// Unified state update for locked / perfect match / normal selection
+function applyRecipeSelection(
+  recipe: Recipe,
+  usedRecipeIds: Set<string>,
+  recentProteins: string[],
+  recentMethods: string[]
+) {
+  usedRecipeIds.add(recipe.id)
+  const protein = recipe.primary_protein || (Array.isArray(recipe.protein) ? recipe.protein[0] : null)
+  if (protein) recentProteins.push(protein)
+  const method = recipe.method
+  if (method) recentMethods.push(method)
+}
+
 interface Recipe {
   id: string
   name: string
@@ -273,14 +288,14 @@ export function planWeekAdvanced(
       // Use locked recipe if exists
       if (lockedSlots[slotKey] && lockedRecipes[slotKey]) {
         dayRecipes.push(lockedRecipes[slotKey]);
-        usedRecipeIds.add(lockedRecipes[slotKey].id);
+        applyRecipeSelection(lockedRecipes[slotKey], usedRecipeIds, recentProteins, recentMethods);
         continue;
       }
       
       // GUARANTEE: Use perfect match in first available slot
       if (perfectMatchRecipe && !usedRecipeIds.has(perfectMatchRecipe.id)) {
         dayRecipes.push(perfectMatchRecipe);
-        usedRecipeIds.add(perfectMatchRecipe.id);
+        applyRecipeSelection(perfectMatchRecipe, usedRecipeIds, recentProteins, recentMethods);
         perfectMatchRecipe = null; // Only use once
         continue;
       }
@@ -392,11 +407,7 @@ export function planWeekAdvanced(
       
       if (selected) {
         dayRecipes.push(selected);
-        usedRecipeIds.add(selected.id); // Track used recipe
-        const protein = selected.primary_protein || selected.protein?.[0];
-        if (protein) recentProteins.push(protein);
-        const method = selected.method;
-        if (method) recentMethods.push(method);
+        applyRecipeSelection(selected, usedRecipeIds, recentProteins, recentMethods);
       }
     }
     
