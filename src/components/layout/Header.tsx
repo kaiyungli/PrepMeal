@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/', label: '首頁' },
   { href: '/generate', label: '生成餐單' },
   { href: '/recipes', label: '食譜' },
+  { href: '/admin', label: '後台' },
   { href: '/', label: '價格' },
   { href: '/login', label: '登入' },
 ];
