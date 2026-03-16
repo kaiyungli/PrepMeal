@@ -1,9 +1,6 @@
-import { supabaseServer } from '@/lib/supabaseServer'
+import { supabase } from '@/lib/supabaseClient'
 import { requireAdmin } from '@/lib/adminAuth'
 
-const supabase = supabaseServer
-
-// Use centralized admin auth
 const isAdmin = (req) => requireAdmin(req)
 
 export default async function handler(req, res) {
