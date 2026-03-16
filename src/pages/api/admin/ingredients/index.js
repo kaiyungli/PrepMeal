@@ -1,17 +1,8 @@
-import { supabaseServer } from '@/lib/supabaseServer'
-import { requireAdmin } from '@/lib/adminAuth'
-
-const supabase = supabaseServer
-
-const isAdmin = (req) => requireAdmin(req)
+import { supabase } from '@/lib/supabaseClient'
 
 export default async function handler(req, res) {
   if (!supabase) {
     return res.status(500).json({ error: 'Supabase is not configured' })
-  }
-
-  if (!isAdmin(req)) {
-    return res.status(401).json({ error: 'Unauthorized' })
   }
   
   const { method, query, body } = req;
