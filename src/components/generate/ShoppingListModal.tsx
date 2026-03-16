@@ -1,5 +1,7 @@
 import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
+import { CATEGORY_ORDER, CATEGORY_ICONS } from '@/constants/ui'
+import { formatUnit } from '@/lib/formatters'
 
 interface ShoppingListItem {
   name: string
