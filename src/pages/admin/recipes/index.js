@@ -16,6 +16,9 @@ function IngredientSelector({ value, onChange, ingredients }) {
   
   const selectedIngredient = ingredients.find(i => i.id === value);
   
+  // Show search if user is typing, otherwise show selected or placeholder
+  const displayValue = isOpen ? search : (selectedIngredient?.name || '');
+  
   const filtered = search 
     ? ingredients.filter(i => 
         i.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -23,35 +26,62 @@ function IngredientSelector({ value, onChange, ingredients }) {
       )
     : ingredients.slice(0, 10);
   
+  const handleSelect = (ing) => {
+    onChange(ing.id);
+    setSearch(ing.name);
+    setIsOpen(false);
+  };
+  
+  const handleClear = () => {
+    onChange(null);
+    setSearch('');
+    setIsOpen(true);
+  };
+  
   return (
     <div className="relative flex-1">
-      <input
-        type="text"
-        value={selectedIngredient?.name || search}
-        onChange={e => {
-          setSearch(e.target.value);
-          onChange(null);
-          setIsOpen(true);
-        }}
-        onFocus={() => setIsOpen(true)}
-        placeholder="搜尋食材..."
-        className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm"
-      />
+      <div className="flex">
+        <input
+          type="text"
+          value={displayValue}
+          onChange={e => {
+            setSearch(e.target.value);
+            onChange(null);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder={selectedIngredient ? '' : '搜尋食材...'}
+          className="flex-1 px-3 py-2 border border-[#DDD0B0] rounded-l-lg text-[#3A2010] text-sm"
+        />
+        {selectedIngredient && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="px-2 bg-[#F0E8D8] border border-l-0 border-[#DDD0B0] rounded-r-lg text-[#AA7A50] hover:bg-[#E8DCC8]"
+            title="清除選擇"
+          >
+            ✕
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="px-2 bg-[#C8D49A] border border-l-0 border-[#DDD0B0] rounded-r-lg text-[#3A2010]"
+        >
+          ▼
+        </button>
+      </div>
       {isOpen && filtered.length > 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-[#DDD0B0] rounded-lg shadow-lg max-h-48 overflow-auto">
           {filtered.map(ing => (
             <button
               key={ing.id}
               type="button"
-              onClick={() => {
-                onChange(ing.id);
-                setSearch(ing.name);
-                setIsOpen(false);
-              }}
-              className="w-full text-left px-3 py-2 hover:bg-[#F8F3E8] text-sm"
+              onClick={() => handleSelect(ing)}
+              className="w-full text-left px-3 py-2 hover:bg-[#F8F3E8] text-sm flex justify-between items-center"
             >
-              {ing.name}
-              {ing.shopping_category && <span className="text-xs text-[#AA7A50] ml-2">({ing.shopping_category})</span>}
+              <span>{ing.name}</span>
+              {ing.shopping_category && <span className="text-xs text-[#AA7A50]">({ing.shopping_category})</span>}
             </button>
           ))}
         </div>
@@ -113,12 +143,23 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [similarNames, setSimilarNames] = useState([]);
 
   useEffect(() => {
+    setLoadingData(true);
     Promise.all([
-      fetch('/api/admin/ingredients').then(r => r.json()),
-      fetch('/api/admin/units').then(r => r.json())
+      fetch('/api/admin/ingredients').then(async (res) => {
+        if (!res.ok) throw new Error('Failed to fetch ingredients');
+        return res.json();
+      }),
+      fetch('/api/admin/units').then(async (res) => {
+        if (!res.ok) throw new Error('Failed to fetch units');
+        return res.json();
+      })
     ]).then(([ingData, unitData]) => {
       setIngredients(ingData.ingredients || []);
       setUnits(unitData.units || []);
+    }).catch((err) => {
+      console.error('Failed to load data:', err);
+      setError('載入資料失敗，請刷新頁面');
+    }).finally(() => {
       setLoadingData(false);
     });
   }, []);
@@ -188,7 +229,11 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
     setError('');
     if (!form.name?.trim()) return setError('請輸入食譜名稱');
     if (!form.slug?.trim()) return setError('請輸入網址 slug');
-    const validIngredients = form.ingredients.filter(i => i.ingredient_id && i.quantity);
+    // Validate quantity is a positive number
+    const invalidQuantity = form.ingredients.find(i => i.ingredient_id && i.unit_id && (!i.quantity || isNaN(parseFloat(i.quantity)) || parseFloat(i.quantity) <= 0));
+    if (invalidQuantity) return setError('請輸入有效的份量 (必須大於 0)');
+    
+    const validIngredients = form.ingredients.filter(i => i.ingredient_id && i.quantity && i.unit_id);
     if (validIngredients.length === 0) return setError('請至少添加一個有效食材 (需要選擇食材、份量和單位)');
     if (form.steps.length === 0) return setError('請至少添加一個步驟');
     const validSteps = form.steps.filter(s => s.text?.trim());
