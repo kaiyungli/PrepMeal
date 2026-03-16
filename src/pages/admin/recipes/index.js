@@ -162,7 +162,8 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
         quantity: i.quantity || '',
         unit_id: i.unit_id || null,
         is_optional: i.is_optional || false,
-        notes: i.notes || i.prep_note || ''
+        notes: i.notes || i.prep_note || '',
+        group_key: i.group_key || ''
       }));
       const formSteps = (recipe.steps || []).map(s => ({ text: s.text || s.instruction || '', time_seconds: s.time_seconds || '' }));
       setForm({ ...recipe, ingredients: formIngredients, steps: formSteps, tags: Array.isArray(recipe.tags) ? recipe.tags : (recipe.tags?.split(',').map(t => t.trim()).filter(Boolean) || []) });
@@ -173,7 +174,7 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const toggleTag = (tag) => setForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
   const addCustomTag = (e) => { if (e.key === 'Enter' && e.target.value.trim()) { if (!form.tags.includes(e.target.value.trim())) setForm(prev => ({ ...prev, tags: [...prev.tags, e.target.value.trim()] })); e.target.value = ''; }};
 
-  const addIngredient = () => setForm(prev => ({ ...prev, ingredients: [...prev.ingredients, { ingredient_id: null, quantity: '', unit_id: null, is_optional: false, notes: '' }] }));
+  const addIngredient = () => setForm(prev => ({ ...prev, ingredients: [...prev.ingredients, { ingredient_id: null, quantity: '', unit_id: null, is_optional: false, notes: '', group_key: '' }] }));
   const removeIngredient = (index) => setForm(prev => ({ ...prev, ingredients: prev.ingredients.filter((_, i) => i !== index) }));
   const updateIngredient = (index, field, value) => setForm(prev => ({ ...prev, ingredients: prev.ingredients.map((ing, i) => i === index ? { ...ing, [field]: value } : ing) }));
 
@@ -198,7 +199,7 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
     try {
       const payload = {
         ...form, tags: form.tags,
-        ingredients: form.ingredients.filter(i => i.ingredient_id && i.quantity).map(i => ({ ingredient_id: i.ingredient_id, quantity: parseFloat(i.quantity) || 0, unit_id: i.unit_id, is_optional: i.is_optional || false, notes: i.notes || '' })),
+        ingredients: form.ingredients.filter(i => i.ingredient_id && i.quantity).map(i => ({ ingredient_id: i.ingredient_id, quantity: parseFloat(i.quantity) || 0, unit_id: i.unit_id, is_optional: i.is_optional || false, notes: i.notes || '', group_key: i.group_key || null })),
         steps: form.steps.filter(s => s.text?.trim()).map((s, idx) => ({ step_no: idx + 1, text: s.text.trim(), time_seconds: s.time_seconds ? parseInt(s.time_seconds) : null }))
       };
       const url = recipe?.id ? `/api/admin/recipes?id=${recipe.id}` : '/api/admin/recipes';
@@ -294,18 +295,19 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
           <h3 className="text-lg font-bold text-[#3A2010]">🥬 食材 ({form.ingredients.length})</h3>
           <button type="button" onClick={addIngredient} className="text-sm bg-[#C8D49A] text-[#3A2010] px-3 py-1 rounded-lg hover:bg-[#b5c288]">+ 添加食材</button>
         </div>
-        <div className="hidden md:grid grid-cols-12 gap-2 text-xs text-[#AA7A50] font-medium px-2 mb-2">
-          <div className="col-span-5">食材</div><div className="col-span-2">份量</div><div className="col-span-2">單位</div><div className="col-span-2">備註</div><div className="col-span-1"></div>
+        <div className="hidden md:grid grid-cols-13 gap-2 text-xs text-[#AA7A50] font-medium px-2 mb-2">
+          <div className="col-span-4">食材</div><div className="col-span-2">份量</div><div className="col-span-2">單位</div><div className="col-span-2">備註</div><div className="col-span-2">分組</div><div className="col-span-1"></div>
         </div>
         <div className="space-y-2">
           {form.ingredients.map((ing, i) => {
             const selectedIng = ingredients.find(a => a.id === ing.ingredient_id);
             return (
-              <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-[#FDFBF7] p-2 rounded-lg">
-                <div className="col-span-5"><IngredientSelector value={ing.ingredient_id} onChange={v => updateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} />{selectedIng && <span className="text-xs text-[#AA7A50] ml-2">{selectedIng.shopping_category}</span>}</div>
+              <div key={i} className="grid grid-cols-1 md:grid-cols-13 gap-2 items-center bg-[#FDFBF7] p-2 rounded-lg">
+                <div className="col-span-4"><IngredientSelector value={ing.ingredient_id} onChange={v => updateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} />{selectedIng && <span className="text-xs text-[#AA7A50] ml-2">{selectedIng.shopping_category}</span>}</div>
                 <div className="col-span-2"><input type="number" step="0.1" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} placeholder="份量" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
                 <div className="col-span-2"><UnitSelector value={ing.unit_id} onChange={v => updateIngredient(i, 'unit_id', v)} units={units} /></div>
                 <div className="col-span-2"><input value={ing.notes} onChange={e => updateIngredient(i, 'notes', e.target.value)} placeholder="備註" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
+                <div className="col-span-2"><input value={ing.group_key || ''} onChange={e => updateIngredient(i, 'group_key', e.target.value)} placeholder="分組" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
                 <div className="col-span-1 flex items-center gap-2"><label className="flex items-center gap-1 text-xs text-[#AA7A50]"><input type="checkbox" checked={ing.is_optional} onChange={e => updateIngredient(i, 'is_optional', e.target.checked)} className="rounded" />可選</label><button type="button" onClick={() => removeIngredient(i)} className="text-red-500 hover:text-red-700">✕</button></div>
               </div>
             );
