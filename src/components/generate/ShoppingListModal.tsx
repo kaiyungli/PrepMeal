@@ -1,7 +1,7 @@
 import Modal from '@/components/ui/Modal'
 import { useState } from 'react'
-import { CATEGORY_ORDER, CATEGORY_ICONS } from '@/constants/ui'
-import { formatUnit } from '@/lib/formatters'
+import { CATEGORY_ORDER, CATEGORY_ICONS, CATEGORY_MAP } from '@/constants/ui'
+import { formatUnit as formatUnitLib } from '@/lib/formatters'
 
 interface ShoppingListItem {
   name: string
@@ -18,59 +18,9 @@ interface ShoppingListModalProps {
   loading?: boolean
 }
 
-// Category order
-const CATEGORY_ORDER = ['肉類', '海鮮', '蛋', '豆腐', '蔬菜', '調味料', '主食', '其他'];
-
-// Category icons
-const CATEGORY_ICONS: Record<string, string> = {
-  '肉類': '🥩',
-  '海鮮': '🦐',
-  '蛋': '🥚',
-  '豆腐': '🧈',
-  '蔬菜': '🥬',
-  '調味料': '🧂',
-  '主食': '🍚',
-  '其他': '📦'
-};
-
-// Map DB categories to display categories
-const CATEGORY_MAP: Record<string, string> = {
-  'meat_seafood': '肉類',
-  'meat': '肉類',
-  'seafood': '海鮮',
-  'egg': '蛋',
-  'eggs': '蛋',
-  'tofu': '豆腐',
-  'vegetables': '蔬菜',
-  'produce': '蔬菜',
-  'condiments': '調味料',
-  'seasoning': '調味料',
-  'staple': '主食',
-  'grains': '主食',
-  'rice': '主食',
-  'noodles': '主食'
-};
-
 function getDisplayCategory(cat: string | undefined): string {
   if (!cat) return '其他';
   return CATEGORY_MAP[cat.toLowerCase()] || '其他';
-}
-
-// Format unit for display
-function formatUnit(unit: string | undefined | null): string {
-  if (!unit) return '';
-  const u = unit.toLowerCase().trim();
-  const unitMap: Record<string, string> = {
-    'g': 'g', 'gram': 'g', 'grams': 'g',
-    'kg': 'kg', 'kilogram': 'kg', 'kilograms': 'kg',
-    'ml': 'ml', 'milliliter': 'ml', 'milliliters': 'ml',
-    'l': 'l', 'liter': 'l', 'liters': 'l',
-    'tbsp': 'tbsp', 'tablespoon': 'tbsp', 'tablespoons': 'tbsp',
-    'tsp': 'tsp', 'teaspoon': 'tsp', 'teaspoons': 'tsp',
-    'cup': 'cup', 'cups': 'cup',
-    'pc': 'pc', 'piece': 'pc', 'pieces': 'pc', '個': 'pc'
-  };
-  return unitMap[u] || unit;
 }
 
 export default function ShoppingListModal({ isOpen, onClose, shoppingList, loading = false }: ShoppingListModalProps) {
@@ -114,7 +64,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
         lines.push(`${icon} ${category}`)
         items.forEach(item => {
           const qty = item.quantity ? `${item.quantity}` : '（數量待補）'
-          const unit = formatUnit(item.unit)
+          const unit = formatUnitLib(item.unit)
           lines.push(`  ${item.name} ${unit ? qty + ' ' + unit : qty}`)
         })
         lines.push('')
@@ -192,7 +142,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
                           <span className="text-[#9B6035] font-semibold text-sm whitespace-nowrap">
                             {(item as any).source === 'ingredients_list' 
                               ? '（數量待補）' 
-                              : `${item.quantity} ${formatUnit(item.unit)}`}
+                              : `${item.quantity} ${formatUnitLib(item.unit)}`}
                           </span>
                         </div>
                       ))}
@@ -208,7 +158,7 @@ export default function ShoppingListModal({ isOpen, onClose, shoppingList, loadi
                       <span className="text-[#9B6035] font-semibold text-sm">
                         {(item as any).source === 'ingredients_list' 
                           ? '（數量待補）' 
-                          : `${item.quantity} ${formatUnit(item.unit)}`}
+                          : `${item.quantity} ${formatUnitLib(item.unit)}`}
                       </span>
                     </div>
                   ))}
