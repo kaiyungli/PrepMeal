@@ -54,53 +54,53 @@ const DISHES_PER_DAY = [1, 2, 3];
 const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 const DIET_MODES = [
-  { value: 'general', label: 'General' },
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'egg_lacto', label: 'Egg/Lacto Vegetarian' },
-  { value: 'high_protein', label: 'High Protein' },
-  { value: 'low_fat', label: 'Low Fat' },
-  { value: 'light', label: 'Light' },
+  { value: 'general', label: '一般' },
+  { value: 'vegetarian', label: '素食' },
+  { value: 'egg_lacto', label: '蛋奶素' },
+  { value: 'high_protein', label: '高蛋白' },
+  { value: 'low_fat', label: '低脂' },
+  { value: 'light', label: '清淡' },
 ];
 
 const EXCLUSIONS = [
-  { value: 'beef', label: 'No Beef' },
-  { value: 'pork', label: 'No Pork' },
-  { value: 'chicken', label: 'No Chicken' },
-  { value: 'seafood', label: 'No Seafood' },
-  { value: 'eggs', label: 'No Eggs' },
-  { value: 'dairy', label: 'No Dairy' },
-  { value: 'spicy', label: 'No Spicy' },
+  { value: 'beef', label: '不牛' },
+  { value: 'pork', label: '不豬' },
+  { value: 'chicken', label: '不雞' },
+  { value: 'seafood', label: '不海鮮' },
+  { value: 'eggs', label: '不蛋' },
+  { value: 'dairy', label: '不奶' },
+  { value: 'spicy', label: '不辣' },
 ];
 
 const CUISINES = [
-  { value: 'chinese', label: 'Chinese' },
-  { value: 'japanese', label: 'Japanese' },
-  { value: 'korean', label: 'Korean' },
-  { value: 'western', label: 'Western' },
-  { value: 'taiwanese', label: 'Taiwanese' },
-  { value: 'se_asian', label: 'Southeast Asian' },
+  { value: 'chinese', label: '中式' },
+  { value: 'japanese', label: '日式' },
+  { value: 'korean', label: '韓式' },
+  { value: 'western', label: '西式' },
+  { value: 'taiwanese', label: '台式' },
+  { value: 'se_asian', label: '東南亞' },
 ];
 
 const COOKING_CONSTRAINTS = [
-  { value: 'under_15', label: 'Under 15 min' },
-  { value: 'under_30', label: 'Under 30 min' },
-  { value: 'under_45', label: 'Under 45 min' },
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
-  { value: 'one_pot', label: 'One-pot' },
-  { value: 'air_fryer', label: 'Air fryer' },
+  { value: 'under_15', label: '15分鐘內' },
+  { value: 'under_30', label: '30分鐘內' },
+  { value: 'under_45', label: '45分鐘內' },
+  { value: 'easy', label: '簡易' },
+  { value: 'medium', label: '中等' },
+  { value: 'hard', label: '困難' },
+  { value: 'one_pot', label: '一鍋料理' },
+  { value: 'air_fryer', label: '氣炸鍋' },
 ];
 
 const BUDGET_OPTIONS = [
-  { value: 'budget', label: 'Budget' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'premium', label: 'Premium' },
+  { value: 'budget', label: '經濟' },
+  { value: 'normal', label: '普通' },
+  { value: 'premium', label: '高級' },
 ];
 
 const INGREDIENT_REUSE = [
-  { value: 'normal', label: 'Normal' },
-  { value: 'smart', label: 'Smart Reuse' },
+  { value: 'normal', label: '普通' },
+  { value: 'smart', label: '智能重用' },
 ];
 
 // Generate dynamic week dates
