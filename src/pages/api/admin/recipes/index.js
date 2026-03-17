@@ -1,12 +1,25 @@
 import { supabase } from '@/lib/supabaseClient'
+import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
 
 const isAdmin = (req) => requireAdmin(req)
 
+// Helper to get admin client (service role)
+const getAdminClient = () => {
+  if (supabaseServer) return supabaseServer;
+  if (supabase) return supabase;
+  return null;
+}
+
+const db = getAdminClient()
+
 export default async function handler(req, res) {
-  if (!supabase) {
+  if (!db) {
+    console.error('[ADMIN RECIPES] Database not configured')
     return res.status(500).json({ error: 'Supabase is not configured' })
   }
+
+  console.log('[ADMIN RECIPES] Method:', method, 'Query:', query)
 
   if (!isAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -19,18 +32,21 @@ export default async function handler(req, res) {
       const { id, slug } = query;
       
       if (id || slug) {
-        let q = supabase.from('recipes').select('*');
+        let q = db.from('recipes').select('*');
         if (id) q = q.eq('id', id);
         else if (slug) q = q.eq('slug', slug);
         const { data: recipe, error: recipeError } = await q.single();
-        if (recipeError) throw recipeError;
+        if (recipeError) {
+          console.error('[ADMIN RECIPES] Error fetching recipe:', recipeError);
+          throw recipeError;
+        }
         const rid = recipe.id;
-        const { data: ingredients } = await supabase
+        const { data: ingredients } = await db
           .from('recipe_ingredients')
           .select('*')
           .eq('recipe_id', rid);
         
-        const { data: steps } = await supabase
+        const { data: steps } = await db
           .from('recipe_steps')
           .select('*')
           .eq('recipe_id', rid)
@@ -40,16 +56,17 @@ export default async function handler(req, res) {
           recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } 
         });
       } else {
-        const { data: recipes, error } = await supabase
-          .from('recipes')
-          .select('*')
-          .order('created_at', { ascending: false });
+        let q = db.from('recipes').select('*');
+        const { data: recipes, error } = await q.order('created_at', { ascending: false });
         
-        if (error) throw error;
+        if (error) {
+          console.error('[ADMIN RECIPES] Error fetching recipes:', error);
+          throw error;
+        }
         
         // Get all ingredients and steps
-        const { data: allIngredients } = await supabase.from('recipe_ingredients').select('*');
-        const { data: allSteps } = await supabase.from('recipe_steps').select('*');
+        const { data: allIngredients } = await db.from('recipe_ingredients').select('*');
+        const { data: allSteps } = await db.from('recipe_steps').select('*');
         
         // Attach to each recipe
         const recipesWithData = (recipes || []).map(r => ({
@@ -63,6 +80,8 @@ export default async function handler(req, res) {
     }
     
     if (method === 'POST' || method === 'PUT') {
+      console.log('[ADMIN RECIPES] Payload:', JSON.stringify(body, null, 2));
+      
       const recipeData = {
         name: body.name,
         slug: body.slug || body.name?.toLowerCase().replace(/[^a-z0-9]/g, '-'),
@@ -85,7 +104,7 @@ export default async function handler(req, res) {
       };
 
       // Check for duplicate slug
-      let existingQuery = supabase.from('recipes').select('id, name').eq('slug', recipeData.slug);
+      let existingQuery = db.from('recipes').select('id, name').eq('slug', recipeData.slug);
       if (method === 'PUT' && body.id) {
         existingQuery = existingQuery.neq('id', body.id);
       }
@@ -107,8 +126,8 @@ export default async function handler(req, res) {
         
         if (recipeError) throw recipeError;
         
-        await supabase.from('recipe_ingredients').delete().eq('recipe_id', body.id);
-        await supabase.from('recipe_steps').delete().eq('recipe_id', body.id);
+        await db.from('recipe_ingredients').delete().eq('recipe_id', body.id);
+        await db.from('recipe_steps').delete().eq('recipe_id', body.id);
         
         if (body.ingredients && body.ingredients.length > 0) {
           const ingData = body.ingredients.filter(i => i.ingredient).map(i => ({
@@ -118,7 +137,7 @@ export default async function handler(req, res) {
             is_optional: i.is_optional || false,
           }));
           if (ingData.length > 0) {
-            await supabase.from('recipe_ingredients').insert(ingData);
+            await db.from('recipe_ingredients').insert(ingData);
           }
         }
         
@@ -130,7 +149,7 @@ export default async function handler(req, res) {
             time_seconds: s.time_seconds || 0,
           }));
           if (stepData.length > 0) {
-            await supabase.from('recipe_steps').insert(stepData);
+            await db.from('recipe_steps').insert(stepData);
           }
         }
         
@@ -152,7 +171,7 @@ export default async function handler(req, res) {
             is_optional: i.is_optional || false,
           }));
           if (ingData.length > 0) {
-            await supabase.from('recipe_ingredients').insert(ingData);
+            await db.from('recipe_ingredients').insert(ingData);
           }
         }
         
@@ -164,7 +183,7 @@ export default async function handler(req, res) {
             time_seconds: s.time_seconds || 0,
           }));
           if (stepData.length > 0) {
-            await supabase.from('recipe_steps').insert(stepData);
+            await db.from('recipe_steps').insert(stepData);
           }
         }
         
@@ -176,10 +195,10 @@ export default async function handler(req, res) {
       const { id } = query;
       
       // Cascade delete in order
-      await supabase.from('recipe_ingredients').delete().eq('recipe_id', id);
-      await supabase.from('recipe_steps').delete().eq('recipe_id', id);
-      await supabase.from('recipe_equipment').delete().eq('recipe_id', id);
-      await supabase.from('menu_plan_items').delete().eq('recipe_id', id);
+      await db.from('recipe_ingredients').delete().eq('recipe_id', id);
+      await db.from('recipe_steps').delete().eq('recipe_id', id);
+      await db.from('recipe_equipment').delete().eq('recipe_id', id);
+      await db.from('menu_plan_items').delete().eq('recipe_id', id);
       
       const { error } = await supabase
         .from('recipes')
