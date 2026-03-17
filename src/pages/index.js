@@ -45,6 +45,7 @@ const methodOptions = [
   { label: '煎', value: '煎' },
   { label: '燉', value: '燉' },
   { label: '氣炸', value: '氣炸' },
+  { label: '一鍋煮', value: '一鍋煮' },
 ];
 const dietOptions = [
   { label: '素食', value: 'vegetarian' },
