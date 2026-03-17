@@ -81,9 +81,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [modalMethod, setModalMethod] = useState('');
   const [modalDiet, setModalDiet] = useState('');
 
-  // Derived state
-  const hasActiveFilters = Boolean(
-    searchQuery ||
+  // Derived state - use this consistently
+  const hasFilters = Boolean(
+    searchQuery?.trim() ||
     modalCuisine ||
     modalTime ||
     modalDifficulty ||
@@ -91,6 +91,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     modalDiet ||
     activeFilters.length > 0
   );
+  
+  // Ensure recipes is always an array
+  const recipesList = recipes || [];
 
   // Fetch recipes with filters
   const fetchRecipes = async () => {
@@ -134,8 +137,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   // Only fetch when user applies filters explicitly
   useEffect(() => {
     // Skip on initial SSR load - use initialRecipes
-    const hasUserInteraction = hasActiveFilters || sortBy !== 'newest';
-    if (hasUserInteraction) {
+    if (hasFilters || sortBy !== 'newest') {
       fetchRecipes();
     }
   }, [activeFilters, sortBy, searchQuery, modalCuisine, modalTime, modalDifficulty, modalMethod, modalDiet]);
@@ -187,21 +189,30 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetchRecipes();
   };
 
-  const hasFilters = activeFilters.length > 0 || modalCuisine !== '' && modalCuisine || modalTime !== '' && modalTime || modalDifficulty !== '' && modalDifficulty || modalMethod !== '' && modalMethod || modalDiet !== '' && modalDiet;
-  const hasSearch = searchQuery.trim().length > 0;
-  const hasActiveFilters = hasFilters || hasSearch;
+  const hasFilters = Boolean(
+    searchQuery?.trim() ||
+    modalCuisine ||
+    modalTime ||
+    modalDifficulty ||
+    modalMethod ||
+    modalDiet ||
+    activeFilters.length > 0
+  );
+  const hasSearch = searchQuery?.trim()?.length > 0;
   
-  // Show empty state only if user has applied filters and got no results
-  const showEmptyState = !loading && hasActiveFilters && recipes.length === 0;
+  // Ensure recipes is always an array
+  const recipesList = recipes || [];
   
-  // Show empty state only if filters/search applied but no results
-  const showEmptyState = !loading && recipes.length === 0 && (hasFilters || hasSearch);
+  // Show empty state only if filters applied and no results
+  const showEmptyState = !loading && hasFilters && recipesList.length === 0;
+  
+  // Only show skeleton when actually loading new data
+  const showSkeleton = loading && recipesList.length === 0;
 
   // Determine recipe count text
-  const recipesList = recipes || [];
   const recipeCountText = loading ? '載入中...' : 
     (recipesList.length > 0 ? `${recipesList.length} 個食譜` : 
-    (hasFilters || hasSearch ? '無符合條件既食譜' : '載入緊...'));
+    (hasFilters ? '無符合條件既食譜' : '載入緊...'));
 
   return (
     <Layout>
@@ -290,12 +301,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               onClick={() => setShowFilterModal(true)}
               className="px-4 py-2 rounded-full border text-sm font-medium"
               style={{ 
-                borderColor: hasActiveFilters ? 'var(--primary)' : 'var(--border)',
-                backgroundColor: hasActiveFilters ? 'var(--primary)' : 'transparent',
-                color: hasActiveFilters ? 'white' : 'var(--foreground)'
+                borderColor: hasFilters ? 'var(--primary)' : 'var(--border)',
+                backgroundColor: hasFilters ? 'var(--primary)' : 'transparent',
+                color: hasFilters ? 'white' : 'var(--foreground)'
               }}
             >
-              篩選 {hasActiveFilters && '✓'}
+              篩選 {hasFilters && '✓'}
             </button>
           </div>
 
@@ -304,7 +315,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
               {recipeCountText}
             </h2>
-            {hasActiveFilters && (
+            {hasFilters && (
               <button 
                 onClick={clearFilters}
                 className="text-sm font-medium"
@@ -379,8 +390,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         onClick={() => setModalCuisine(modalCuisine === c.value || modalCuisine === c.label ? c.value : '全部')}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
-                          backgroundColor: modalCuisine === c ? 'var(--primary)' : 'var(--background)',
-                          color: modalCuisine === c ? 'white' : 'var(--foreground)'
+                          backgroundColor: modalCuisine === c.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalCuisine === c.value ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {c}
@@ -399,8 +410,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         onClick={() => setModalTime(modalTime === t.value ? '' : t.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
-                          backgroundColor: modalTime === t ? 'var(--primary)' : 'var(--background)',
-                          color: modalTime === t ? 'white' : 'var(--foreground)'
+                          backgroundColor: modalTime === t.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalTime === t.value ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {t}
@@ -419,8 +430,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         onClick={() => setModalDifficulty(modalDifficulty === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
-                          backgroundColor: modalDifficulty === d ? 'var(--primary)' : 'var(--background)',
-                          color: modalDifficulty === d ? 'white' : 'var(--foreground)'
+                          backgroundColor: modalDifficulty === d.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalDifficulty === d.value ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {d}
@@ -439,8 +450,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         onClick={() => setModalMethod(modalMethod === m.value ? '' : m.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
-                          backgroundColor: modalMethod === m ? 'var(--primary)' : 'var(--background)',
-                          color: modalMethod === m ? 'white' : 'var(--foreground)'
+                          backgroundColor: modalMethod === m.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalMethod === m.value ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {m}
@@ -459,8 +470,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         onClick={() => setModalDiet(modalDiet === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
-                          backgroundColor: modalDiet === d ? 'var(--primary)' : 'var(--background)',
-                          color: modalDiet === d ? 'white' : 'var(--foreground)'
+                          backgroundColor: modalDiet === d.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalDiet === d.value ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {d}
