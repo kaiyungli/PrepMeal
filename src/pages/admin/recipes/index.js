@@ -346,8 +346,27 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">標籤</label>
-            <div className="flex flex-wrap gap-1 mb-2">{(form.tags || []).map(tag => (<span key={tag} className="inline-flex items-center gap-1 bg-[#9B6035] text-white text-xs px-2 py-1 rounded-full">{tag}<button type="button" onClick={() => toggleTag(tag)} className="hover:text-red-200">×</button></span>))}</div>
-            <div className="flex flex-wrap gap-1 mb-2">{presetTags.filter(t => !(form.tags || []).includes(t)).map(tag => (<button key={tag} type="button" onClick={() => toggleTag(tag)} className="text-xs px-2 py-1 rounded-full border border-[#DDD0B0] text-[#AA7A50] hover:bg-[#F8F3E8]">+ {tag}</button>))}</div>
+            <div className="flex flex-wrap gap-1 mb-2">
+              {(form.tags || []).map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 bg-[#9B6035] text-white text-xs px-2 py-1 rounded-full">
+                  {tag}
+                  <button type="button" onClick={() => toggleTag(tag)} className="hover:text-red-200">×</button>
+                </span>
+              ))}
+              {presetTags.filter(t => !(form.tags || []).includes(t)).map(tag => (
+                <button 
+                  key={tag} 
+                  type="button" 
+                  onClick={() => toggleTag(tag)} 
+                  className="text-xs px-2 py-1 rounded-full border border-[#DDD0B0] text-[#AA7A50] hover:bg-[#F8F3E8]"
+                >
+                  + {tag}
+                </button>
+              ))}
+              {(form.tags || []).length === 0 && presetTags.length === 0 && (
+                <span className="text-xs text-[#AA7A50]">點擊上方選項或輸入自訂標籤</span>
+              )}
+            </div>
             <input onKeyDown={addCustomTag} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" placeholder="輸入自訂標籤，按 Enter 加入" />
           </div>
         </div>
