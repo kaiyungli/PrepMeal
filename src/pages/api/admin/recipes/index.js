@@ -6,6 +6,8 @@ const isAdmin = (req) => requireAdmin(req)
 
 // Helper to get admin client (service role)
 const getAdminClient = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  console.log('[ADMIN RECIPES] Using Supabase URL:', url);
   if (supabaseServer) return supabaseServer;
   if (supabase) return supabase;
   return null;

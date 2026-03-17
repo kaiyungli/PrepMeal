@@ -418,6 +418,7 @@ export default function AdminRecipes() {
           return res.json();
         })
         .then(data => {
+          console.log('[ADMIN RECIPES] Raw response:', data);
           console.log('[ADMIN RECIPES] Loaded:', data.recipes?.length || 0, 'recipes');
           setRecipes(data.recipes || []);
         })
