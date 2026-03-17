@@ -437,6 +437,36 @@ export default function AdminRecipes() {
     setEditingRecipe(null);
   };
 
+  const [deletingRecipe, setDeletingRecipe] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteClick = (recipe) => {
+    setDeletingRecipe(recipe);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingRecipe) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/recipes?id=${deletingRecipe.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || '刪除失敗');
+      }
+      setRecipes(recipes.filter(r => r.id !== deletingRecipe.id));
+      setDeletingRecipe(null);
+      alert('食譜已刪除');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingRecipe(null);
+  };
+
   if (loading) return <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center"><span className="text-[#9B6035]">載入中...</span></div>;
   if (!isAdmin) return null;
 
@@ -486,6 +516,7 @@ export default function AdminRecipes() {
                       </div>
                       <button onClick={() => { setEditingRecipe(recipe); setView('form'); }} className="w-full mt-3 bg-[#F0A060] text-white py-1.5 rounded text-sm hover:bg-[#d88a4a]">編輯</button>
                       <button onClick={() => { const cloned = { ...recipe, id: undefined, name: recipe.name + '（副本）', slug: recipe.slug + '-copy' }; setEditingRecipe(cloned); setView('form'); }} className="w-full mt-2 bg-[#C8D49A] text-[#3A2010] py-1.5 rounded text-sm hover:bg-[#b5c288]">複製</button>
+                      <button onClick={() => handleDeleteClick(recipe)} className="w-full mt-2 bg-red-500 text-white py-1.5 rounded text-sm hover:bg-red-600">刪除</button>
                     </div>
                   </div>
                 ))}
@@ -494,6 +525,37 @@ export default function AdminRecipes() {
           )}
         </div>
         {showImportModal && <ImportModal onClose={() => setShowImportModal(false)} onSuccess={handleSave} />}
+        
+        {/* Delete Confirmation Modal */}
+        {deletingRecipe && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+              <h2 className="text-xl font-bold text-[#3A2010] mb-4">⚠️ 確認刪除</h2>
+              <p className="text-[#3A2010] mb-4">
+                確定要刪除「<strong>{deletingRecipe.name}</strong>」？
+              </p>
+              <p className="text-red-600 text-sm mb-6">
+                此操作會同時刪除相關食材、步驟等資料，且不能還原。
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={handleDeleteConfirm} 
+                  disabled={deleting}
+                  className="flex-1 bg-red-500 text-white py-3 rounded-lg font-medium hover:bg-red-600 disabled:opacity-50"
+                >
+                  {deleting ? '刪除中...' : '確認刪除'}
+                </button>
+                <button 
+                  onClick={handleDeleteCancel} 
+                  disabled={deleting}
+                  className="flex-1 px-6 py-3 border border-[#DDD0B0] text-[#3A2010] rounded-lg hover:bg-[#F8F3E8] disabled:opacity-50"
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
