@@ -9,6 +9,8 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '台式', '東南亞'];
 const timeOptions = ['全部', '15分鐘內', '30分鐘內', '45分鐘內', '60分鐘內'];
 const difficultyOptions = ['全部', '簡易', '中等', '困難'];
+const methodOptions = ['全部', '炒', '蒸', '煮', '焗', '煎', '燉', '氣炸'];
+const dietOptions = ['全部', '素食', '蛋奶素', '高蛋白', '低脂', '低卡'];
 const sortOptions = [
   { value: 'newest', label: '最新' },
   { value: 'popular', label: '最受歡迎' },
@@ -29,6 +31,8 @@ export default function Home({ initialRecipes }) {
   const [selectedCuisine, setSelectedCuisine] = useState('全部');
   const [selectedTime, setSelectedTime] = useState('全部');
   const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
+  const [selectedMethod, setSelectedMethod] = useState('全部');
+  const [selectedDiet, setSelectedDiet] = useState('全部');
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -42,6 +46,8 @@ export default function Home({ initialRecipes }) {
       if (selectedCuisine !== '全部') params.set('cuisine', selectedCuisine);
       if (selectedTime !== '全部') params.set('maxTime', selectedTime.replace('分鐘內', ''));
       if (selectedDifficulty !== '全部') params.set('difficulty', selectedDifficulty);
+      if (selectedMethod !== '全部') params.set('method', selectedMethod);
+      if (selectedDiet !== '全部') params.set('diet', selectedDiet);
       params.set('sort', sortBy);
       
       const res = await fetch(`/api/recipes?${params}`);
@@ -56,7 +62,7 @@ export default function Home({ initialRecipes }) {
 
   useEffect(() => {
     fetchRecipes();
-  }, [selectedCuisine, selectedTime, selectedDifficulty, sortBy]);
+  }, [selectedCuisine, selectedTime, selectedDifficulty, selectedMethod, selectedDiet, sortBy]);
 
   const handleSearch = () => {
     fetchRecipes();
@@ -202,6 +208,26 @@ export default function Home({ initialRecipes }) {
                 {difficultyOptions.map(d => <option key={d} value={d}>{d === '全部' ? '全部難度' : d}</option>)}
               </select>
 
+              {/* Method */}
+              <select
+                value={selectedMethod}
+                onChange={(e) => setSelectedMethod(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                {methodOptions.map(m => <option key={m} value={m}>{m === '全部' ? '全部烹調' : m}</option>)}
+              </select>
+
+              {/* Diet */}
+              <select
+                value={selectedDiet}
+                onChange={(e) => setSelectedDiet(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                {dietOptions.map(d => <option key={d} value={d}>{d === '全部' ? '全部飲食' : d}</option>)}
+              </select>
+
               {/* Sort */}
               <select
                 value={sortBy}
@@ -284,6 +310,42 @@ export default function Home({ initialRecipes }) {
                         style={{
                           backgroundColor: selectedDifficulty === d ? 'var(--primary)' : 'var(--background)',
                           color: selectedDifficulty === d ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">烹調方式</label>
+                  <div className="flex flex-wrap gap-2">
+                    {methodOptions.map(m => (
+                      <button
+                        key={m}
+                        onClick={() => setSelectedMethod(m)}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{
+                          backgroundColor: selectedMethod === m ? 'var(--primary)' : 'var(--background)',
+                          color: selectedMethod === m ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">飲食限制</label>
+                  <div className="flex flex-wrap gap-2">
+                    {dietOptions.map(d => (
+                      <button
+                        key={d}
+                        onClick={() => setSelectedDiet(d)}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{
+                          backgroundColor: selectedDiet === d ? 'var(--primary)' : 'var(--background)',
+                          color: selectedDiet === d ? 'white' : 'var(--foreground)'
                         }}
                       >
                         {d}

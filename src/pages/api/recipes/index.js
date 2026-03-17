@@ -13,7 +13,9 @@ export default async function handler(req, res) {
       search, 
       cuisine, 
       maxTime, 
-      difficulty, 
+      difficulty,
+      method,
+      diet,
       sort = 'newest',
       limit = 20, 
       offset = 0 
@@ -39,6 +41,16 @@ export default async function handler(req, res) {
     // Difficulty filter
     if (difficulty && difficulty !== '全部') {
       query = query.eq('difficulty', difficulty);
+    }
+    
+    // Method filter
+    if (method && method !== '全部') {
+      query = query.ilike('method', `%${method}%`);
+    }
+    
+    // Diet filter
+    if (diet && diet !== '全部') {
+      query = query.ilike('diet', `%${diet}%`);
     }
     
     // Max time filter
