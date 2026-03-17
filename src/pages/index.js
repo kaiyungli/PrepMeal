@@ -52,6 +52,25 @@ const dietOptions = [
   { label: '高蛋白', value: 'high_protein' },
   { label: '低脂', value: 'low_fat' },
   { label: '低卡', value: 'low_calorie' },
+  { label: '清淡', value: 'light' },
+];
+
+// Exclusions
+const exclusionOptions = [
+  { label: '不要牛肉', value: 'no_beef' },
+  { label: '不要豬肉', value: 'no_pork' },
+  { label: '不要雞肉', value: 'no_chicken' },
+  { label: '不要海鮮', value: 'no_seafood' },
+  { label: '不要蛋', value: 'no_eggs' },
+  { label: '不要奶', value: 'no_dairy' },
+  { label: '不要辣', value: 'no_spicy' },
+];
+
+// Budget
+const budgetOptions = [
+  { label: '平價', value: 'budget' },
+  { label: '一般', value: 'normal' },
+  { label: '高級', value: 'premium' },
 ];
 
 const sortOptions = [
@@ -80,6 +99,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [modalDifficulty, setModalDifficulty] = useState('');
   const [modalMethod, setModalMethod] = useState('');
   const [modalDiet, setModalDiet] = useState('');
+  const [modalExclusions, setModalExclusions] = useState('');
+  const [modalBudget, setModalBudget] = useState('');
 
   // Derived state - use this consistently
   const hasFilters = Boolean(
@@ -114,6 +135,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       if (modalDifficulty !== '' && modalDifficulty) params.set('difficulty', modalDifficulty);
       if (modalMethod !== '' && modalMethod) params.set('method', modalMethod);
       if (modalDiet !== '' && modalDiet) params.set('diet', modalDiet);
+      if (modalExclusions !== '' && modalExclusions) params.set('exclusions', modalExclusions);
+      if (modalBudget !== '' && modalBudget) params.set('budget', modalBudget);
       if (sortBy !== 'newest' && !activeFilters.includes('protein') && !activeFilters.includes('lowcal')) params.set('sort', sortBy);
       
       const url = `/api/recipes?${params.toString()}`;
@@ -185,6 +208,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     setModalDifficulty('');
     setModalMethod('');
     setModalDiet('');
+    setModalExclusions('');
+    setModalBudget('');
     setSortBy('newest');
     fetchRecipes();
   };
@@ -453,11 +478,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 
                 {/* 飲食限制 */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">飲食限制</label>
+                  <label className="block text-sm font-medium mb-2">飲食 / 營養</label>
                   <div className="flex flex-wrap gap-2">
                     {dietOptions.map(d => (
                       <button
-                        key={d}
+                        key={d.value}
                         onClick={() => setModalDiet(modalDiet === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
@@ -465,7 +490,47 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                           color: modalDiet === d.value ? 'white' : 'var(--foreground)'
                         }}
                       >
-                        {d}
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 排除食材 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">排除食材</label>
+                  <div className="flex flex-wrap gap-2">
+                    {exclusionOptions.map(e => (
+                      <button
+                        key={e.value}
+                        onClick={() => setModalExclusions(modalExclusions === e.value ? '' : e.value)}
+                        className="px-3 py-1.5 rounded-full text-sm"
+                        style={{
+                          backgroundColor: modalExclusions === e.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalExclusions === e.value ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {e.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 預算 */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">預算</label>
+                  <div className="flex flex-wrap gap-2">
+                    {budgetOptions.map(b => (
+                      <button
+                        key={b.value}
+                        onClick={() => setModalBudget(modalBudget === b.value ? '' : b.value)}
+                        className="px-3 py-1.5 rounded-full text-sm"
+                        style={{
+                          backgroundColor: modalBudget === b.value ? 'var(--primary)' : 'var(--background)',
+                          color: modalBudget === b.value ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {b.label}
                       </button>
                     ))}
                   </div>
