@@ -131,15 +131,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   };
 
-  // Only fetch when user applies filters, not on initial load
-  // initialRecipes from SSR should be used by default
+  // Only fetch when user applies filters explicitly
   useEffect(() => {
-    // Skip on first render - use SSR data
-    const hasUserInteraction = searchQuery || activeFilters.length > 0 || sortBy !== 'newest';
+    // Skip on initial SSR load - use initialRecipes
+    const hasUserInteraction = hasActiveFilters || sortBy !== 'newest';
     if (hasUserInteraction) {
       fetchRecipes();
     }
-  }, [activeFilters, sortBy, searchQuery]);
+  }, [activeFilters, sortBy, searchQuery, modalCuisine, modalTime, modalDifficulty, modalMethod, modalDiet]);
 
   const handlePantrySearch = () => {
     const ingredients = pantryInput.split(',').map(s => s.trim()).filter(Boolean);
@@ -190,6 +189,10 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
   const hasFilters = activeFilters.length > 0 || modalCuisine !== '' && modalCuisine || modalTime !== '' && modalTime || modalDifficulty !== '' && modalDifficulty || modalMethod !== '' && modalMethod || modalDiet !== '' && modalDiet;
   const hasSearch = searchQuery.trim().length > 0;
+  const hasActiveFilters = hasFilters || hasSearch;
+  
+  // Show empty state only if user has applied filters and got no results
+  const showEmptyState = !loading && hasActiveFilters && recipes.length === 0;
   
   // Show empty state only if filters/search applied but no results
   const showEmptyState = !loading && recipes.length === 0 && (hasFilters || hasSearch);
@@ -323,7 +326,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
               ))}
             </div>
-          ) : showEmptyState ? (
+          ) : recipesList.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recipesList.map(recipe => (
                 <RecipeCard
@@ -333,7 +336,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 />
               ))}
             </div>
-          ) : (
+          ) : showEmptyState ? (
             /* Friendly Empty State */
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🥘</div>
