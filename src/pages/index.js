@@ -14,11 +14,43 @@ const QUICK_FILTERS = [
   { id: 'lowcal', label: '🔥 低卡', value: 'lowcal' },
 ];
 
-const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '台式', '東南亞'];
-const timeOptions = ['15分鐘內', '30分鐘內', '45分鐘內', '60分鐘內'];
-const difficultyOptions = ['簡易', '中等', '困難'];
-const methodOptions = ['炒', '蒸', '煮', '焗', '煎', '燉', '氣炸'];
-const dietOptions = ['素食', '蛋奶素', '高蛋白', '低脂', '低卡'];
+// Filter options with UI label -> DB value mapping
+const cuisineOptions = [
+  { label: '全部', value: '全部' },
+  { label: '中式', value: 'chinese' },
+  { label: '日式', value: 'japanese' },
+  { label: '韓式', value: 'korean' },
+  { label: '西式', value: 'western' },
+  { label: '台式', value: 'taiwanese' },
+  { label: '東南亞', value: 'se_asian' },
+];
+const timeOptions = [
+  { label: '15分鐘內', value: '15' },
+  { label: '30分鐘內', value: '30' },
+  { label: '45分鐘內', value: '45' },
+  { label: '60分鐘內', value: '60' },
+];
+const difficultyOptions = [
+  { label: '簡易', value: 'easy' },
+  { label: '中等', value: 'medium' },
+  { label: '困難', value: 'hard' },
+];
+const methodOptions = [
+  { label: '炒', value: '炒' },
+  { label: '蒸', value: '蒸' },
+  { label: '煮', value: '煮' },
+  { label: '焗', value: '焗' },
+  { label: '煎', value: '煎' },
+  { label: '燉', value: '燉' },
+  { label: '氣炸', value: '氣炸' },
+];
+const dietOptions = [
+  { label: '素食', value: 'vegetarian' },
+  { label: '蛋奶素', value: 'egg_lacto' },
+  { label: '高蛋白', value: 'high_protein' },
+  { label: '低脂', value: 'low_fat' },
+  { label: '低卡', value: 'low_calorie' },
+];
 
 const sortOptions = [
   { value: 'newest', label: '最新' },
@@ -315,7 +347,7 @@ export default function Home({ initialRecipes }) {
                     {cuisineOptions.filter(c => c !== '全部').map(c => (
                       <button
                         key={c}
-                        onClick={() => setModalCuisine(modalCuisine === c ? '全部' : c)}
+                        onClick={() => setModalCuisine(modalCuisine === c.value ? c.value : '全部')}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalCuisine === c ? 'var(--primary)' : 'var(--background)',
@@ -450,7 +482,7 @@ export async function getServerSideProps() {
     );
     const { data: recipes } = await supabase
       .from('recipes')
-      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time,cook_time')
+      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time_minutes,cook_time_minutes')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(20);

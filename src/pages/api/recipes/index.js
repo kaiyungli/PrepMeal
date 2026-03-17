@@ -106,19 +106,21 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message, details: error });
     }
     
-    // Fetch ingredients for each recipe
+    // Fetch ingredients for each recipe (join with ingredients table)
     if (recipes && recipes.length > 0) {
       const recipeIds = recipes.map(r => r.id);
       const { data: allIngredients } = await supabase
         .from('recipe_ingredients')
-        .select('recipe_id, name')
+        .select('recipe_id, ingredients(name)')
         .in('recipe_id', recipeIds);
       
       // Map ingredients to recipes
       const ingredientMap = {};
       allIngredients?.forEach(ing => {
         if (!ingredientMap[ing.recipe_id]) ingredientMap[ing.recipe_id] = [];
-        ingredientMap[ing.recipe_id].push(ing.name);
+        if (ing.ingredients?.name) {
+          ingredientMap[ing.recipe_id].push(ing.ingredients.name);
+        }
       });
       
       recipes.forEach(r => {
