@@ -122,6 +122,7 @@ export default async function handler(req, res) {
     if (method === 'POST') {
       console.log('[ADMIN RECIPES] Creating recipe:', body.name)
       
+      // Map form fields to DB column names
       const recipeData = {
         name: body.name,
         slug: body.slug,
@@ -129,9 +130,9 @@ export default async function handler(req, res) {
         cuisine: body.cuisine,
         dish_type: body.dish_type,
         difficulty: body.difficulty,
-        prep_time: body.prep_time,
-        cook_time: body.cook_time,
-        servings: body.servings,
+        prep_time_minutes: body.prep_time,
+        cook_time_minutes: body.cook_time,
+        base_servings: body.servings,
         image_url: body.image_url,
         calories_per_serving: body.calories_per_serving,
         is_public: body.is_public,
@@ -227,6 +228,7 @@ export default async function handler(req, res) {
       const { id } = query;
       console.log('[ADMIN RECIPES] Updating recipe:', id)
       
+      // Map form fields to DB column names
       const recipeData = {
         name: body.name,
         slug: body.slug,
@@ -234,9 +236,9 @@ export default async function handler(req, res) {
         cuisine: body.cuisine,
         dish_type: body.dish_type,
         difficulty: body.difficulty,
-        prep_time: body.prep_time,
-        cook_time: body.cook_time,
-        servings: body.servings,
+        prep_time_minutes: body.prep_time,
+        cook_time_minutes: body.cook_time,
+        base_servings: body.servings,
         image_url: body.image_url,
         calories_per_serving: body.calories_per_serving,
         is_public: body.is_public,

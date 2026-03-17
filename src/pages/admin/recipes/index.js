@@ -207,7 +207,19 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
         group_key: i.group_key || ''
       }));
       const formSteps = (recipe.steps || []).map(s => ({ text: s.text || s.instruction || '', time_seconds: s.time_seconds || '' }));
-      setForm({ ...recipe, ingredients: formIngredients, steps: formSteps, tags: Array.isArray(recipe.tags) ? recipe.tags : (recipe.tags?.split(',').map(t => t.trim()).filter(Boolean) || []) });
+      
+      // Map DB column names to form field names
+      // DB: prep_time_minutes, cook_time_minutes, base_servings -> Form: prep_time, cook_time, servings
+      const formData = {
+        ...recipe,
+        prep_time: recipe.prep_time_minutes || recipe.prep_time || 15,
+        cook_time: recipe.cook_time_minutes || recipe.cook_time || 20,
+        servings: recipe.base_servings || recipe.servings || 2,
+        ingredients: formIngredients,
+        steps: formSteps,
+        tags: Array.isArray(recipe.tags) ? recipe.tags : (recipe.tags?.split(',').map(t => t.trim()).filter(Boolean) || [])
+      };
+      setForm(formData);
     }
   }, [recipe]);
 
