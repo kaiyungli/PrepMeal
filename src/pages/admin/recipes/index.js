@@ -210,6 +210,20 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
       
       // Map DB column names to form field names
       // DB: prep_time_minutes, cook_time_minutes, base_servings -> Form: prep_time, cook_time, servings
+      // Safely parse tags from recipe data
+      let recipeTags = [];
+      if (recipe.tags) {
+        if (Array.isArray(recipe.tags)) {
+          recipeTags = recipe.tags;
+        } else if (typeof recipe.tags === 'string') {
+          try {
+            recipeTags = JSON.parse(recipe.tags);
+          } catch {
+            recipeTags = recipe.tags.split(',').map(t => t.trim()).filter(Boolean);
+          }
+        }
+      }
+      
       const formData = {
         ...recipe,
         prep_time: recipe.prep_time_minutes || recipe.prep_time || 15,
@@ -217,15 +231,15 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
         servings: recipe.base_servings || recipe.servings || 2,
         ingredients: formIngredients,
         steps: formSteps,
-        tags: Array.isArray(recipe.tags) ? recipe.tags : (recipe.tags?.split(',').map(t => t.trim()).filter(Boolean) || [])
+        tags: recipeTags
       };
       setForm(formData);
     }
   }, [recipe]);
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
-  const toggleTag = (tag) => setForm(prev => ({ ...prev, tags: prev.tags.includes(tag) ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag] }));
-  const addCustomTag = (e) => { if (e.key === 'Enter' && e.target.value.trim()) { if (!form.tags.includes(e.target.value.trim())) setForm(prev => ({ ...prev, tags: [...prev.tags, e.target.value.trim()] })); e.target.value = ''; }};
+  const toggleTag = (tag) => setForm(prev => ({ ...prev, tags: (prev.tags || []).includes(tag) ? prev.tags.filter(t => t !== tag) : [...(prev.tags || []), tag] }));
+  const addCustomTag = (e) => { if (e.key === 'Enter' && e.target.value.trim()) { if (!(form.tags || []).includes(e.target.value.trim())) setForm(prev => ({ ...prev, tags: [...(prev.tags || []), e.target.value.trim()] })); e.target.value = ''; }};
 
   const addIngredient = () => setForm(prev => ({ ...prev, ingredients: [...prev.ingredients, { ingredient_id: null, quantity: '', unit_id: null, is_optional: false, notes: '', group_key: '' }] }));
   const removeIngredient = (index) => setForm(prev => ({ ...prev, ingredients: prev.ingredients.filter((_, i) => i !== index) }));
@@ -255,7 +269,8 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
     setSaving(true);
     try {
       const payload = {
-        ...form, tags: form.tags,
+        ...form, 
+        tags: Array.isArray(form.tags) ? form.tags : [],
         ingredients: form.ingredients.filter(i => i.ingredient_id && i.quantity).map(i => ({ ingredient_id: i.ingredient_id, quantity: parseFloat(i.quantity) || 0, unit_id: i.unit_id, is_optional: i.is_optional || false, notes: i.notes || '', group_key: i.group_key || null })),
         steps: form.steps.filter(s => s.text?.trim()).map((s, idx) => ({ step_no: idx + 1, text: s.text.trim(), time_seconds: s.time_seconds ? parseInt(s.time_seconds) : null }))
       };
@@ -331,8 +346,8 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">標籤</label>
-            <div className="flex flex-wrap gap-1 mb-2">{form.tags.map(tag => (<span key={tag} className="inline-flex items-center gap-1 bg-[#9B6035] text-white text-xs px-2 py-1 rounded-full">{tag}<button type="button" onClick={() => toggleTag(tag)} className="hover:text-red-200">×</button></span>))}</div>
-            <div className="flex flex-wrap gap-1 mb-2">{presetTags.filter(t => !form.tags.includes(t)).map(tag => (<button key={tag} type="button" onClick={() => toggleTag(tag)} className="text-xs px-2 py-1 rounded-full border border-[#DDD0B0] text-[#AA7A50] hover:bg-[#F8F3E8]">+ {tag}</button>))}</div>
+            <div className="flex flex-wrap gap-1 mb-2">{(form.tags || []).map(tag => (<span key={tag} className="inline-flex items-center gap-1 bg-[#9B6035] text-white text-xs px-2 py-1 rounded-full">{tag}<button type="button" onClick={() => toggleTag(tag)} className="hover:text-red-200">×</button></span>))}</div>
+            <div className="flex flex-wrap gap-1 mb-2">{presetTags.filter(t => !(form.tags || []).includes(t)).map(tag => (<button key={tag} type="button" onClick={() => toggleTag(tag)} className="text-xs px-2 py-1 rounded-full border border-[#DDD0B0] text-[#AA7A50] hover:bg-[#F8F3E8]">+ {tag}</button>))}</div>
             <input onKeyDown={addCustomTag} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" placeholder="輸入自訂標籤，按 Enter 加入" />
           </div>
         </div>
