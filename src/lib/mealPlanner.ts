@@ -1,5 +1,8 @@
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
+// Randomness factor for variety (0.8 = -20%, 1.2 = +20%)
+const RANDOM_FACTOR = 0.4;
+
 // Helper to apply recipe selection and update state
 // Unified state update for locked / perfect match / normal selection
 function applyRecipeSelection(
@@ -373,9 +376,29 @@ export function planWeekAdvanced(
         return { recipe: r, score };
       });
       
-      // Sort by score and pick top
+      // Add randomness to scores
+      scored.forEach(s => {
+        const randomMultiplier = 1 + (Math.random() * RANDOM_FACTOR * 2 - RANDOM_FACTOR);
+        s.score *= randomMultiplier;
+      });
+      
+      // Sort by score (descending) - now with randomness applied
       scored.sort((a, b) => b.score - a.score);
-      const selected = scored[0]?.recipe;
+      
+      // Weighted random selection: pick from top candidates
+      // Top 3 have higher chance, but not guaranteed
+      const topCandidates = scored.slice(0, Math.min(3, scored.length));
+      const totalScore = topCandidates.reduce((sum, s) => sum + s.score, 0);
+      let random = Math.random() * totalScore;
+      let selected = topCandidates[0]?.recipe;
+      
+      for (const candidate of topCandidates) {
+        random -= candidate.score;
+        if (random <= 0) {
+          selected = candidate.recipe;
+          break;
+        }
+      }
       
       // AFTER selection: update pantry tracking
       if (selected && pantryIngredients.length > 0) {
