@@ -475,19 +475,31 @@ export default function Home({ initialRecipes }) {
 
 export async function getServerSideProps() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[SSR] Missing env vars:', { supabaseUrl: !!supabaseUrl, supabaseKey: !!supabaseKey });
+      return { props: { initialRecipes: [] } };
+    }
+    
     const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
-    const { data: recipes } = await supabase
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const { data: recipes, error } = await supabase
       .from('recipes')
       .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time_minutes,cook_time_minutes')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(20);
+    
+    if (error) {
+      console.error('[SSR] Supabase error:', error);
+    }
+    
     return { props: { initialRecipes: recipes || [] } };
   } catch (e) {
+    console.error('[SSR] Fatal error:', e);
     return { props: { initialRecipes: [] } };
   }
 }
