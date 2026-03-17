@@ -131,9 +131,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   };
 
+  // Only fetch when user applies filters, not on initial load
+  // initialRecipes from SSR should be used by default
   useEffect(() => {
-    fetchRecipes();
-  }, [activeFilters, sortBy]);
+    // Skip on first render - use SSR data
+    const hasUserInteraction = searchQuery || activeFilters.length > 0 || sortBy !== 'newest';
+    if (hasUserInteraction) {
+      fetchRecipes();
+    }
+  }, [activeFilters, sortBy, searchQuery]);
 
   const handlePantrySearch = () => {
     const ingredients = pantryInput.split(',').map(s => s.trim()).filter(Boolean);
