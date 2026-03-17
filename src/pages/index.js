@@ -5,6 +5,8 @@ import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 
+console.log('[CLIENT] Module loaded');
+
 // Quick filter chips
 const QUICK_FILTERS = [
   { id: 'quick', label: '⚡ 15分鐘', value: '15' },
