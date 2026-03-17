@@ -126,7 +126,16 @@ export default function Home({ initialRecipes }) {
     fetchRecipes();
   };
 
-  const hasActiveFilters = activeFilters.length > 0 || 
+  const hasFilters = activeFilters.length > 0 || modalCuisine !== '全部' || modalTime !== '全部' || modalDifficulty !== '全部' || modalMethod !== '全部' || modalDiet !== '全部';
+  const hasSearch = searchQuery.trim().length > 0;
+  
+  // Show empty state only if filters/search applied but no results
+  const showEmptyState = !loading && recipes.length === 0 && (hasFilters || hasSearch);
+
+  // Determine recipe count text
+  const recipeCountText = loading ? '載入中...' : 
+    (recipes.length > 0 ? `${recipes.length} 個食譜` : 
+    (hasFilters || hasSearch ? '無符合條件既食譜' : '載入緊...'));
     modalCuisine !== '全部' || 
     modalTime !== '全部' || 
     modalDifficulty !== '全部' ||
@@ -232,7 +241,7 @@ export default function Home({ initialRecipes }) {
           {/* Result Count */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
-              {loading ? '載入中...' : `${recipes.length} 個食譜`}
+              {recipeCountText}
             </h2>
             {hasActiveFilters && (
               <button 
@@ -256,7 +265,7 @@ export default function Home({ initialRecipes }) {
                 </div>
               ))}
             </div>
-          ) : recipes.length > 0 ? (
+          ) : showEmptyState ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recipes.map(recipe => (
                 <RecipeCard
