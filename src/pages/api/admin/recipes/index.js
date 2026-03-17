@@ -333,31 +333,31 @@ export default async function handler(req, res) {
       console.log('[ADMIN RECIPES] Deleting recipe:', id);
       
       try {
-        // Step 1: Delete recipe_ingredients
+        // Step 1: Delete recipe_ingredients (has id column)
         console.log('[ADMIN RECIPES] Step 1: Delete recipe_ingredients');
         const { data: delRI, error: errRI } = await db.from('recipe_ingredients').delete().eq('recipe_id', id).select('id');
         console.log('[ADMIN RECIPES] recipe_ingredients deleted:', delRI?.length || 0, 'rows');
         if (errRI) { console.error('[ADMIN RECIPES] Error:', errRI); return res.status(500).json({ error: 'Failed to delete recipe_ingredients: ' + errRI.message }); }
         
-        // Step 2: Delete recipe_steps
+        // Step 2: Delete recipe_steps (has id column)
         console.log('[ADMIN RECIPES] Step 2: Delete recipe_steps');
         const { data: delRS, error: errRS } = await db.from('recipe_steps').delete().eq('recipe_id', id).select('id');
         console.log('[ADMIN RECIPES] recipe_steps deleted:', delRS?.length || 0, 'rows');
         if (errRS) { console.error('[ADMIN RECIPES] Error:', errRS); return res.status(500).json({ error: 'Failed to delete recipe_steps: ' + errRS.message }); }
         
-        // Step 3: Delete recipe_equipment
+        // Step 3: Delete recipe_equipment (NO id column - composite PK recipe_id + equipment_id)
         console.log('[ADMIN RECIPES] Step 3: Delete recipe_equipment');
-        const { data: delRE, error: errRE } = await db.from('recipe_equipment').delete().eq('recipe_id', id).select('id');
-        console.log('[ADMIN RECIPES] recipe_equipment deleted:', delRE?.length || 0, 'rows');
+        const { error: errRE } = await db.from('recipe_equipment').delete().eq('recipe_id', id);
+        console.log('[ADMIN RECIPES] recipe_equipment delete result:', errRE ? errRE.message : 'success');
         if (errRE) { console.error('[ADMIN RECIPES] Error:', errRE); return res.status(500).json({ error: 'Failed to delete recipe_equipment: ' + errRE.message }); }
         
-        // Step 4: Delete menu_plan_items
+        // Step 4: Delete menu_plan_items (has id column)
         console.log('[ADMIN RECIPES] Step 4: Delete menu_plan_items');
         const { data: delMPI, error: errMPI } = await db.from('menu_plan_items').delete().eq('recipe_id', id).select('id');
         console.log('[ADMIN RECIPES] menu_plan_items deleted:', delMPI?.length || 0, 'rows');
         if (errMPI) { console.error('[ADMIN RECIPES] Error:', errMPI); return res.status(500).json({ error: 'Failed to delete menu_plan_items: ' + errMPI.message }); }
         
-        // Step 5: Delete recipe
+        // Step 5: Delete recipe (has id column)
         console.log('[ADMIN RECIPES] Step 5: Delete recipe');
         const { data: delR, error: errR } = await db.from('recipes').delete().eq('id', id).select('id');
         console.log('[ADMIN RECIPES] recipes deleted:', delR?.length || 0, 'rows', delR);
