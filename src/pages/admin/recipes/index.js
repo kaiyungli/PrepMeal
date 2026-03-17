@@ -411,9 +411,20 @@ export default function AdminRecipes() {
   useEffect(() => {
     if (isAdmin) {
       fetch('/api/admin/recipes')
-        .then(res => res.json())
-        .then(data => setRecipes(data.recipes || []))
-        .catch(() => {});
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`API error: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log('[ADMIN RECIPES] Loaded:', data.recipes?.length || 0, 'recipes');
+          setRecipes(data.recipes || []);
+        })
+        .catch(err => {
+          console.error('[ADMIN RECIPES] Error:', err);
+          setRecipes([]);
+        });
     }
   }, [isAdmin]);
 
