@@ -1,7 +1,7 @@
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
-// Randomness factor for variety (0.8 = -20%, 1.2 = +20%)
-const RANDOM_FACTOR = 0.4;
+// Randomness factor for variety (±20% score variation)
+const RANDOM_FACTOR = 0.2;
 
 // Helper to apply recipe selection and update state
 // Unified state update for locked / perfect match / normal selection
@@ -386,14 +386,15 @@ export function planWeekAdvanced(
       scored.sort((a, b) => b.score - a.score);
       
       // Weighted random selection: pick from top candidates
-      // Top 3 have higher chance, but not guaranteed
+      // Use Math.max to avoid 0 or negative scores
       const topCandidates = scored.slice(0, Math.min(3, scored.length));
-      const totalScore = topCandidates.reduce((sum, s) => sum + s.score, 0);
-      let random = Math.random() * totalScore;
+      const totalWeight = topCandidates.reduce((sum, s) => sum + Math.max(s.score, 0.001), 0);
+      let random = Math.random() * totalWeight;
       let selected = topCandidates[0]?.recipe;
       
       for (const candidate of topCandidates) {
-        random -= candidate.score;
+        const weight = Math.max(candidate.score, 0.001);
+        random -= weight;
         if (random <= 0) {
           selected = candidate.recipe;
           break;
