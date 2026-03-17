@@ -24,6 +24,9 @@ export default async function handler(req, res) {
     let query = supabase
       .from('recipes')
       .select('*', { count: 'exact' });
+
+    console.log('[RECIPES API] Starting query...');
+    console.log('[RECIPES API] Params:', { cuisine, difficulty, method, diet, maxTime, sort, search });
     
     // Always filter by public
     query = query.eq('is_public', true);
@@ -96,8 +99,10 @@ export default async function handler(req, res) {
     
     const { data: recipes, error, count } = await query;
 
+    console.log('[RECIPES API] Query executed, error:', error);
+
     if (error) {
-      console.error('Recipes API error:', error);
+      console.error('[RECIPES API] Full error:', error);
       return res.status(500).json({ error: error.message, details: error });
     }
     
