@@ -30,6 +30,13 @@ export default async function handler(req, res) {
   const { method, query, body } = req;
   
   try {
+    console.log('[ADMIN RECIPES][GET] Start, method:', method, 'query:', query);
+    
+    if (!db) {
+      console.error('[ADMIN RECIPES][GET] DB client is null!');
+      return res.status(500).json({ error: 'Database client not initialized' });
+    }
+    
     if (method === 'GET') {
       const { id, slug } = query;
       
@@ -58,13 +65,18 @@ export default async function handler(req, res) {
           recipe: { ...recipe, ingredients: ingredients || [], steps: steps || [] } 
         });
       } else {
+        console.log('[ADMIN RECIPES][GET] Fetching all recipes');
         let q = db.from('recipes').select('*');
+        console.log('[ADMIN RECIPES][GET] Query built, executing...');
+        
         const { data: recipes, error } = await q.order('created_at', { ascending: false });
         
         if (error) {
-          console.error('[ADMIN RECIPES] Error fetching recipes:', error);
-          throw error;
+          console.error('[ADMIN RECIPES][GET] Error fetching recipes:', error);
+          return res.status(500).json({ error: error.message, details: error });
         }
+        
+        console.log('[ADMIN RECIPES][GET] Found', recipes?.length || 0, 'recipes');
         
         // Get all ingredients and steps
         const { data: allIngredients } = await db.from('recipe_ingredients').select('*');
