@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     
     let query = supabase
       .from('recipes')
-      .select('id, name, description, image_url, cuisine, dish_type, method, speed, difficulty, protein, diet, flavor, base_servings, calories_per_serving, protein_g, carbs_g, fat_g, slug, is_public, prep_time_minutes, cook_time_minutes, created_at', { count: 'exact' });
+      .select('*', { count: 'exact' });
     
     // Always filter by public
     query = query.eq('is_public', true);
