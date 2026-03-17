@@ -505,17 +505,23 @@ export default function AdminRecipes() {
   const handleDeleteConfirm = async () => {
     if (!deletingRecipe) return;
     setDeleting(true);
+    console.log('[DELETE] Starting delete for recipe:', deletingRecipe.id);
     try {
-      const res = await fetch(`/api/admin/recipes?id=${deletingRecipe.id}`, { method: 'DELETE' });
+      const url = `/api/admin/recipes?id=${deletingRecipe.id}`;
+      console.log('[DELETE] Sending DELETE request to:', url);
+      const res = await fetch(url, { method: 'DELETE' });
+      console.log('[DELETE] Response status:', res.status);
+      const data = await res.json();
+      console.log('[DELETE] Response data:', data);
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || '刪除失敗');
       }
       setRecipes(recipes.filter(r => r.id !== deletingRecipe.id));
       setDeletingRecipe(null);
       alert('食譜已刪除');
     } catch (err) {
-      alert(err.message);
+      console.error('[DELETE] Error:', err);
+      alert('刪除失敗: ' + err.message);
     } finally {
       setDeleting(false);
     }

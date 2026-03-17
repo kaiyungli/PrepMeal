@@ -332,25 +332,34 @@ export default async function handler(req, res) {
       const { id } = query;
       console.log('[ADMIN RECIPES] Deleting recipe:', id)
       
-      // Cascade delete in order
-      await db.from('recipe_ingredients').delete().eq('recipe_id', id);
-      await db.from('recipe_steps').delete().eq('recipe_id', id);
-      await db.from('recipe_equipment').delete().eq('recipe_id', id);
-      await db.from('menu_plan_items').delete().eq('recipe_id', id);
-      
-      const { error } = await db
-        .from('recipes')
-        .delete()
-        .eq('id', id);
-      
-      if (error) {
-        console.error('[ADMIN RECIPES] Error deleting recipe:', error);
-        return res.status(500).json({ error: error.message, details: error });
+      try {
+        // Cascade delete in order
+        console.log('[ADMIN RECIPES] Step 1: Delete recipe_ingredients');
+        const { error: err1 } = await db.from('recipe_ingredients').delete().eq('recipe_id', id);
+        if (err1) { console.error('[ADMIN RECIPES] Error deleting recipe_ingredients:', err1); return res.status(500).json({ error: 'Failed to delete recipe_ingredients: ' + err1.message, details: err1 }); }
+        
+        console.log('[ADMIN RECIPES] Step 2: Delete recipe_steps');
+        const { error: err2 } = await db.from('recipe_steps').delete().eq('recipe_id', id);
+        if (err2) { console.error('[ADMIN RECIPES] Error deleting recipe_steps:', err2); return res.status(500).json({ error: 'Failed to delete recipe_steps: ' + err2.message, details: err2 }); }
+        
+        console.log('[ADMIN RECIPES] Step 3: Delete recipe_equipment');
+        const { error: err3 } = await db.from('recipe_equipment').delete().eq('recipe_id', id);
+        if (err3) { console.error('[ADMIN RECIPES] Error deleting recipe_equipment:', err3); return res.status(500).json({ error: 'Failed to delete recipe_equipment: ' + err3.message, details: err3 }); }
+        
+        console.log('[ADMIN RECIPES] Step 4: Delete menu_plan_items');
+        const { error: err4 } = await db.from('menu_plan_items').delete().eq('recipe_id', id);
+        if (err4) { console.error('[ADMIN RECIPES] Error deleting menu_plan_items:', err4); return res.status(500).json({ error: 'Failed to delete menu_plan_items: ' + err4.message, details: err4 }); }
+        
+        console.log('[ADMIN RECIPES] Step 5: Delete recipe');
+        const { error: err5 } = await db.from('recipes').delete().eq('id', id);
+        if (err5) { console.error('[ADMIN RECIPES] Error deleting recipe:', err5); return res.status(500).json({ error: 'Failed to delete recipe: ' + err5.message, details: err5 }); }
+        
+        console.log('[ADMIN RECIPES] Recipe deleted successfully:', id)
+        return res.status(200).json({ success: true });
+      } catch (err) {
+        console.error('[ADMIN RECIPES] Delete cascade failed:', err);
+        return res.status(500).json({ error: 'Delete failed: ' + err.message, details: err.toString() });
       }
-      
-      console.log('[ADMIN RECIPES] Recipe deleted successfully:', id)
-      
-      return res.status(200).json({ success: true });
     }
     
     return res.status(405).json({ error: 'Method not allowed' });
