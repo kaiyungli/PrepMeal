@@ -1,10 +1,15 @@
 import { supabase } from '@/lib/supabaseClient'
+import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
 
 const isAdmin = (req) => requireAdmin(req)
 
-// Use anon client - works for authenticated admin users
-const db = supabase
+// Use service role client for admin operations (bypasses RLS)
+const db = supabaseServer || supabase
+const usingServiceRole = !!supabaseServer
+
+// Use anon client for read operations (needs auth)
+const dbRead = supabase
 
 export default async function handler(req, res) {
   const { method, query, body } = req;
@@ -358,14 +363,19 @@ export default async function handler(req, res) {
         if (errMPI) { console.error('[ADMIN RECIPES] Error:', errMPI); return res.status(500).json({ error: 'Failed to delete menu_plan_items: ' + errMPI.message }); }
         
         // Step 5: Delete recipe (has id column)
-        console.log('[ADMIN RECIPES] Step 5: Delete recipe');
+        console.log('[ADMIN RECIPES] Step 5: Delete recipe, id:', id);
+        
+        // First verify recipe exists
+        const { data: checkR, error: checkErr } = await db.from('recipes').select('id').eq('id', id);
+        console.log('[ADMIN RECIPES] Recipe check: found', checkR?.length || 0, 'rows, error:', checkErr || 'none');
+        
         const { data: delR, error: errR } = await db.from('recipes').delete().eq('id', id).select('id');
-        console.log('[ADMIN RECIPES] recipes deleted:', delR?.length || 0, 'rows', delR);
-        if (errR) { console.error('[ADMIN RECIPES] Error:', errR); return res.status(500).json({ error: 'Failed to delete recipe: ' + errR.message }); }
+        console.log('[ADMIN RECIPES] recipes delete result: deleted', delR?.length || 0, 'rows, error:', errR ? errR.message : 'none');
+        if (errR) { console.error('[ADMIN RECIPES] Error deleting recipe:', errR); return res.status(500).json({ error: 'Failed to delete recipe: ' + errR.message }); }
         
         if (!delR || delR.length === 0) {
-          console.error('[ADMIN RECIPES] Delete returned no rows - recipe may not exist');
-          return res.status(404).json({ error: 'Recipe not found or already deleted' });
+          console.error('[ADMIN RECIPES] Delete returned 0 rows - RLS or service role issue');
+          return res.status(404).json({ error: 'Delete failed: 0 rows deleted. Using service role: ' + usingServiceRole });
         }
         
         console.log('[ADMIN RECIPES] Recipe deleted successfully:', id);
