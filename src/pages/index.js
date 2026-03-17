@@ -73,11 +73,11 @@ export default function Home({ initialRecipes }) {
   const [showFilterModal, setShowFilterModal] = useState(false);
   
   // Filter modal states
-  const [modalCuisine, setModalCuisine] = useState('全部');
-  const [modalTime, setModalTime] = useState('全部');
-  const [modalDifficulty, setModalDifficulty] = useState('全部');
-  const [modalMethod, setModalMethod] = useState('全部');
-  const [modalDiet, setModalDiet] = useState('全部');
+  const [modalCuisine, setModalCuisine] = useState('');
+  const [modalTime, setModalTime] = useState('');
+  const [modalDifficulty, setModalDifficulty] = useState('');
+  const [modalMethod, setModalMethod] = useState('');
+  const [modalDiet, setModalDiet] = useState('');
 
   // Fetch recipes with filters
   const fetchRecipes = async () => {
@@ -90,11 +90,11 @@ export default function Home({ initialRecipes }) {
       if (activeFilters.includes('protein')) params.set('sort', 'high_protein');
       if (activeFilters.includes('vegetarian')) params.set('diet', 'vegetarian');
       if (activeFilters.includes('lowcal')) params.set('sort', 'low_calorie');
-      if (modalCuisine !== '全部') params.set('cuisine', modalCuisine);
-      if (modalTime !== '全部') params.set('maxTime', modalTime.replace('分鐘內', ''));
-      if (modalDifficulty !== '全部') params.set('difficulty', modalDifficulty);
-      if (modalMethod !== '全部') params.set('method', modalMethod);
-      if (modalDiet !== '全部') params.set('diet', modalDiet);
+      if (modalCuisine !== '' && modalCuisine) params.set('cuisine', modalCuisine);
+      if (modalTime !== '' && modalTime) params.set('maxTime', modalTime);
+      if (modalDifficulty !== '' && modalDifficulty) params.set('difficulty', modalDifficulty);
+      if (modalMethod !== '' && modalMethod) params.set('method', modalMethod);
+      if (modalDiet !== '' && modalDiet) params.set('diet', modalDiet);
       if (sortBy !== 'newest' && !activeFilters.includes('protein') && !activeFilters.includes('lowcal')) params.set('sort', sortBy);
       
       const res = await fetch(`/api/recipes?${params}`);
@@ -149,16 +149,16 @@ export default function Home({ initialRecipes }) {
 
   const clearFilters = () => {
     setActiveFilters([]);
-    setModalCuisine('全部');
-    setModalTime('全部');
-    setModalDifficulty('全部');
-    setModalMethod('全部');
-    setModalDiet('全部');
+    setModalCuisine('');
+    setModalTime('');
+    setModalDifficulty('');
+    setModalMethod('');
+    setModalDiet('');
     setSortBy('newest');
     fetchRecipes();
   };
 
-  const hasFilters = activeFilters.length > 0 || modalCuisine !== '全部' || modalTime !== '全部' || modalDifficulty !== '全部' || modalMethod !== '全部' || modalDiet !== '全部';
+  const hasFilters = activeFilters.length > 0 || modalCuisine !== '' && modalCuisine || modalTime !== '' && modalTime || modalDifficulty !== '' && modalDifficulty || modalMethod !== '' && modalMethod || modalDiet !== '' && modalDiet;
   const hasSearch = searchQuery.trim().length > 0;
   
   // Show empty state only if filters/search applied but no results
@@ -343,7 +343,7 @@ export default function Home({ initialRecipes }) {
                     {cuisineOptions.filter(c => c !== '全部').map(c => (
                       <button
                         key={c}
-                        onClick={() => setModalCuisine(modalCuisine === c.value ? c.value : '全部')}
+                        onClick={() => setModalCuisine(modalCuisine === c.value || modalCuisine === c.label ? c.value : '全部')}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalCuisine === c ? 'var(--primary)' : 'var(--background)',
@@ -363,7 +363,7 @@ export default function Home({ initialRecipes }) {
                     {timeOptions.map(t => (
                       <button
                         key={t}
-                        onClick={() => setModalTime(modalTime === t ? '全部' : t)}
+                        onClick={() => setModalTime(modalTime === t.value ? '' : t.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalTime === t ? 'var(--primary)' : 'var(--background)',
@@ -383,7 +383,7 @@ export default function Home({ initialRecipes }) {
                     {difficultyOptions.map(d => (
                       <button
                         key={d}
-                        onClick={() => setModalDifficulty(modalDifficulty === d ? '全部' : d)}
+                        onClick={() => setModalDifficulty(modalDifficulty === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalDifficulty === d ? 'var(--primary)' : 'var(--background)',
@@ -403,7 +403,7 @@ export default function Home({ initialRecipes }) {
                     {methodOptions.map(m => (
                       <button
                         key={m}
-                        onClick={() => setModalMethod(modalMethod === m ? '全部' : m)}
+                        onClick={() => setModalMethod(modalMethod === m.value ? '' : m.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalMethod === m ? 'var(--primary)' : 'var(--background)',
@@ -423,7 +423,7 @@ export default function Home({ initialRecipes }) {
                     {dietOptions.map(d => (
                       <button
                         key={d}
-                        onClick={() => setModalDiet(modalDiet === d ? '全部' : d)}
+                        onClick={() => setModalDiet(modalDiet === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalDiet === d ? 'var(--primary)' : 'var(--background)',
