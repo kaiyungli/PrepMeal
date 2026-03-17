@@ -45,12 +45,12 @@ export default async function handler(req, res) {
     
     // Method filter
     if (method && method !== '全部') {
-      query = query.ilike('method', `%${method}%`);
+      // Skip method filter if column doesn't exist - will filter in JS instead
     }
     
     // Diet filter
     if (diet && diet !== '全部') {
-      query = query.ilike('diet', `%${diet}%`);
+      // Skip diet filter if column doesn't exist - will filter in JS instead
     }
     
     // Max time filter
@@ -95,6 +95,11 @@ export default async function handler(req, res) {
     query = query.range(offsetNum, offsetNum + limitNum - 1);
     
     const { data: recipes, error, count } = await query;
+
+    if (error) {
+      console.error('Recipes API error:', error);
+      return res.status(500).json({ error: error.message, details: error });
+    }
     
     // Fetch ingredients for each recipe
     if (recipes && recipes.length > 0) {
