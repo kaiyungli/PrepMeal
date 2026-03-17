@@ -81,6 +81,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [modalMethod, setModalMethod] = useState('');
   const [modalDiet, setModalDiet] = useState('');
 
+  // Derived state
+  const hasActiveFilters = Boolean(
+    searchQuery ||
+    modalCuisine ||
+    modalTime ||
+    modalDifficulty ||
+    modalMethod ||
+    modalDiet ||
+    activeFilters.length > 0
+  );
+
   // Fetch recipes with filters
   const fetchRecipes = async () => {
     console.log('[CLIENT] ====== START ======');
