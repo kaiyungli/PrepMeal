@@ -59,7 +59,7 @@ const sortOptions = [
   { value: 'high_protein', label: '高蛋白' },
 ];
 
-export default function Home({ initialRecipes }) {
+export default function Home({ initialRecipes = [], ssrError = null }) {
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -486,35 +486,43 @@ export async function getServerSideProps() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    console.log('[SSR] Env check:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    console.log('[SSR] 1. Env check:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
     
     if (!supabaseUrl || !supabaseKey) {
-      console.error('[SSR] Missing env vars');
-      return { props: { initialRecipes: [] } };
+      console.error('[SSR] 2. Missing env vars - returning empty');
+      return { props: { initialRecipes: [], ssrError: 'Missing env vars' } };
     }
     
     const { createClient } = require('@supabase/supabase-js');
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    console.log('[SSR] Executing query...');
-    const { data: recipes, error } = await supabase
+    console.log('[SSR] 3. Client created, executing query...');
+    
+    // Use simpler query first to debug
+    const { data: recipes, error, count } = await supabase
       .from('recipes')
-      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time_minutes,cook_time_minutes')
+      .select('*', { count: 'exact' })
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(20);
     
-    console.log('[SSR] Query result:', { error: error?.message, count: recipes?.length });
-    console.log('[SSR] First recipe:', recipes?.[0]?.name);
+    console.log('[SSR] 4. Query executed:', { 
+      error: error?.message, 
+      count: count,
+      recipesLength: recipes?.length,
+      errorDetails: JSON.stringify(error)
+    });
     
     if (error) {
-      console.error('[SSR] Supabase error:', error);
+      console.error('[SSR] 5. Supabase error:', error.message, error.details, error.hint);
+      return { props: { initialRecipes: [], ssrError: error.message } };
     }
     
+    console.log('[SSR] 6. Success, returning', recipes?.length || 0, 'recipes');
     console.log('[SSR] ====== END ======');
-    return { props: { initialRecipes: recipes || [] } };
+    return { props: { initialRecipes: recipes || [], ssrError: null } };
   } catch (e) {
-    console.error('[SSR] Fatal error:', e);
-    return { props: { initialRecipes: [] } };
+    console.error('[SSR] 7. Fatal error:', e.message, e.stack);
+    return { props: { initialRecipes: [], ssrError: e.message } };
   }
 }
