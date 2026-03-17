@@ -175,8 +175,11 @@ export default async function handler(req, res) {
     if (method === 'DELETE') {
       const { id } = query;
       
+      // Cascade delete in order
       await supabase.from('recipe_ingredients').delete().eq('recipe_id', id);
       await supabase.from('recipe_steps').delete().eq('recipe_id', id);
+      await supabase.from('recipe_equipment').delete().eq('recipe_id', id);
+      await supabase.from('menu_plan_items').delete().eq('recipe_id', id);
       
       const { error } = await supabase
         .from('recipes')
