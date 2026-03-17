@@ -7,9 +7,19 @@ const isAdmin = (req) => requireAdmin(req)
 // Helper to get admin client (service role)
 const getAdminClient = () => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  console.log('[ADMIN RECIPES] Using Supabase URL:', url);
-  if (supabaseServer) return supabaseServer;
-  if (supabase) return supabase;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log('[ADMIN] URL:', url);
+  console.log('[ADMIN] Has service key:', !!serviceKey);
+  
+  if (supabaseServer) {
+    console.log('[ADMIN] Using supabaseServer (service role)');
+    return supabaseServer;
+  }
+  if (supabase) {
+    console.log('[ADMIN] Using supabase (anon key - FALLBACK!)');
+    return supabase;
+  }
+  console.log('[ADMIN] No client available!');
   return null;
 }
 
@@ -225,7 +235,7 @@ export default async function handler(req, res) {
     
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
-    console.error('API error:', err.message);
-    return res.status(500).json({ error: err.message });
+    console.error('[ADMIN] API error:', err.message, err.stack);
+    return res.status(500).json({ error: err.message, details: err.toString() });
   }
 }
