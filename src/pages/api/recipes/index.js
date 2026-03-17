@@ -1,13 +1,16 @@
 import { supabase } from '@/lib/supabaseClient'
 
 export default async function handler(req, res) {
+  console.log('[API] ====== START ======');
+  console.log('[API] req.query:', req.query);
+  
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
   
   try {
-    console.log('[RECIPES API] Starting...')
+    console.log('[API] Starting...')
     
     if (!supabase) {
-      console.error('[RECIPES API] Supabase not configured')
+      console.error('[API] Supabase not configured')
       return res.status(500).json({ error: 'Supabase is not configured' })
     }
 
@@ -23,7 +26,7 @@ export default async function handler(req, res) {
       offset = 0 
     } = req.query;
     
-    console.log('[RECIPES API] Params:', { cuisine, difficulty, maxTime, sort })
+    console.log('[API] Parsed params:', { cuisine, difficulty, maxTime, sort });
     
     // Build query safely
     let query = supabase
@@ -35,16 +38,19 @@ export default async function handler(req, res) {
     
     // Search
     if (search && typeof search === 'string') {
+      console.log('[API] Adding search:', search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
     }
     
     // Cuisine filter
-    if (cuisine && cuisine !== '全部' && typeof cuisine === 'string') {
+    if (cuisine && cuisine !== '' && typeof cuisine === 'string') {
+      console.log('[API] Adding cuisine:', cuisine);
       query = query.eq('cuisine', cuisine)
     }
     
     // Difficulty filter
-    if (difficulty && difficulty !== '全部' && typeof difficulty === 'string') {
+    if (difficulty && difficulty !== '' && typeof difficulty === 'string') {
+      console.log('[API] Adding difficulty:', difficulty);
       query = query.eq('difficulty', difficulty)
     }
     
@@ -52,12 +58,14 @@ export default async function handler(req, res) {
     if (maxTime) {
       const timeNum = parseInt(maxTime)
       if (timeNum && timeNum > 0) {
+        console.log('[API] Adding maxTime:', timeNum);
         query = query.lt('cook_time_minutes', timeNum)
       }
     }
     
     // Sorting
     const safeSort = typeof sort === 'string' ? sort : 'newest'
+    console.log('[API] Sorting by:', safeSort);
     switch (safeSort) {
       case 'quick':
         query = query.order('cook_time_minutes', { ascending: true })
@@ -79,25 +87,30 @@ export default async function handler(req, res) {
     const offsetNum = Math.max(parseInt(offset) || 0, 0)
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     
-    console.log('[RECIPES API] Executing query...')
-    const { data: recipes, error, count } = await query
+    console.log('[API] Executing query...');
+    const { data: recipes, error } = await query
+
+    console.log('[API] Query result:', { error: error?.message, count: recipes?.length });
 
     if (error) {
-      console.error('[RECIPES API] Query error:', error)
+      console.error('[API] Supabase error:', error)
       return res.status(500).json({ error: error.message, details: error.message })
     }
     
-    console.log('[RECIPES API] Success, found:', recipes?.length || 0, 'recipes')
+    console.log('[API] First recipe:', recipes?.[0]?.name);
 
     // Return recipes (without ingredients for now - to ensure basic functionality)
     const recipesList = Array.isArray(recipes) ? recipes : []
+    console.log('[API] Final response count:', recipesList.length);
+    console.log('[API] ====== END ======');
     
     res.status(200).json({ 
       recipes: recipesList, 
-      hasMore: (count || 0) > (offsetNum + recipesList.length)
+      hasMore: (recipesList.length) > offsetNum + limitNum
     })
   } catch (error) {
-    console.error('[RECIPES API] Fatal error:', error)
+    console.error('[API] Fatal error:', error)
+    console.log('[API] ====== ERROR ======');
     res.status(500).json({ error: error.message || 'Unknown error' })
   }
 }

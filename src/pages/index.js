@@ -81,6 +81,9 @@ export default function Home({ initialRecipes }) {
 
   // Fetch recipes with filters
   const fetchRecipes = async () => {
+    console.log('[CLIENT] ====== START ======');
+    console.log('[CLIENT] activeFilters:', activeFilters);
+    console.log('[CLIENT] sortBy:', sortBy);
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -97,8 +100,16 @@ export default function Home({ initialRecipes }) {
       if (modalDiet !== '' && modalDiet) params.set('diet', modalDiet);
       if (sortBy !== 'newest' && !activeFilters.includes('protein') && !activeFilters.includes('lowcal')) params.set('sort', sortBy);
       
-      const res = await fetch(`/api/recipes?${params}`);
+      const url = `/api/recipes?${params.toString()}`;
+      console.log('[CLIENT] Request URL:', url);
+      
+      const res = await fetch(url);
+      console.log('[CLIENT] Response status:', res.status);
       const data = await res.json();
+      console.log('[CLIENT] Response:', { error: data.error, count: data.recipes?.length });
+      console.log('[CLIENT] First recipe:', data.recipes?.[0]?.name);
+      console.log('[CLIENT] ====== END ======');
+      
       setRecipes(data.recipes || []);
     } catch (err) {
       console.error('Fetch error:', err);
@@ -470,18 +481,22 @@ export default function Home({ initialRecipes }) {
 }
 
 export async function getServerSideProps() {
+  console.log('[SSR] ====== START ======');
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
+    console.log('[SSR] Env check:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    
     if (!supabaseUrl || !supabaseKey) {
-      console.error('[SSR] Missing env vars:', { supabaseUrl: !!supabaseUrl, supabaseKey: !!supabaseKey });
+      console.error('[SSR] Missing env vars');
       return { props: { initialRecipes: [] } };
     }
     
     const { createClient } = require('@supabase/supabase-js');
     const supabase = createClient(supabaseUrl, supabaseKey);
     
+    console.log('[SSR] Executing query...');
     const { data: recipes, error } = await supabase
       .from('recipes')
       .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time_minutes,cook_time_minutes')
@@ -489,10 +504,14 @@ export async function getServerSideProps() {
       .order('created_at', { ascending: false })
       .limit(20);
     
+    console.log('[SSR] Query result:', { error: error?.message, count: recipes?.length });
+    console.log('[SSR] First recipe:', recipes?.[0]?.name);
+    
     if (error) {
       console.error('[SSR] Supabase error:', error);
     }
     
+    console.log('[SSR] ====== END ======');
     return { props: { initialRecipes: recipes || [] } };
   } catch (e) {
     console.error('[SSR] Fatal error:', e);
