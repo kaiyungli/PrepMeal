@@ -1,223 +1,338 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-
-export const dynamic = 'force-dynamic';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { Button } from '@/components';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import PantryHero from '@/components/home/PantryHero';
 
-
-
+// Filter options
+const cuisineOptions = ['全部', '中式', '日式', '韓式', '西式', '台式', '東南亞'];
+const timeOptions = ['全部', '15分鐘內', '30分鐘內', '45分鐘內', '60分鐘內'];
+const difficultyOptions = ['全部', '簡易', '中等', '困難'];
+const sortOptions = [
+  { value: 'newest', label: '最新' },
+  { value: 'popular', label: '最受歡迎' },
+  { value: 'quick', label: '最快完成' },
+  { value: 'fewest_ingredients', label: '最少食材' },
+  { value: 'high_protein', label: '高蛋白' },
+  { value: 'low_calorie', label: '低卡路里' },
+];
 
 export default function Home({ initialRecipes }) {
-  const [allRecipes, setAllRecipes] = useState(initialRecipes || []);
-  const [visibleCount, setVisibleCount] = useState(4);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [recipes, setRecipes] = useState(initialRecipes || []);
+  const [loading, setLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   
+  // Filter states
+  const [pantryInput, setPantryInput] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('全部');
+  const [selectedTime, setSelectedTime] = useState('全部');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
+  const [sortBy, setSortBy] = useState('newest');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  // Fetch recipes with filters
+  const fetchRecipes = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('search', searchQuery);
+      if (selectedCuisine !== '全部') params.set('cuisine', selectedCuisine);
+      if (selectedTime !== '全部') params.set('maxTime', selectedTime.replace('分鐘內', ''));
+      if (selectedDifficulty !== '全部') params.set('difficulty', selectedDifficulty);
+      params.set('sort', sortBy);
+      
+      const res = await fetch(`/api/recipes?${params}`);
+      const data = await res.json();
+      setRecipes(data.recipes || []);
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Fetch recipes
-    fetch('/api/recipes?limit=8&offset=0')
-      .then(res => {
-        // Response
-        return res.json();
-      })
+    fetchRecipes();
+  }, [selectedCuisine, selectedTime, selectedDifficulty, sortBy]);
+
+  const handleSearch = () => {
+    fetchRecipes();
+  };
+
+  const handlePantrySearch = () => {
+    // Navigate to generate page with pantry ingredients
+    const ingredients = pantryInput.split(',').map(s => s.trim()).filter(Boolean);
+    if (ingredients.length > 0) {
+      window.location.href = `/generate?pantry=${encodeURIComponent(ingredients.join(','))}`;
+    } else {
+      window.location.href = '/generate';
+    }
+  };
+
+  const handleRecipeClick = (recipe) => {
+    setModalLoading(true);
+    fetch(`/api/recipes/${recipe.id}`)
+      .then(res => res.json())
       .then(data => {
-        // Data
-        const recipes = data.recipes || data || [];
-        // Recipes
-        setAllRecipes(recipes);
-        // setLoading removed
-        if (recipes.length > 0) {
-          setVisibleCount(Math.min(8, recipes.length));
-        }
+        setSelectedRecipe(data);
+        setModalLoading(false);
       })
       .catch(err => {
-        console.error('Fetch error:', err);
-        // setLoading removed
+        console.error('Error:', err);
+        setModalLoading(false);
       });
-  }, []);
-  const loaderRef = useRef(null);
-  
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loadingMore) {
-        // Fetch more with pagination
-      fetch(`/api/recipes?limit=8&offset=${allRecipes.length}`)
-        .then(r => r.json())
-        .then(data => {
-          setAllRecipes(prev => [...prev, ...(data.recipes || [])]);
-          setLoadingMore(false);
-          setVisibleCount(prev => prev + 8);
-          setHasMore(data.hasMore !== false);
-        });
-      }
-    }, { threshold: 0.1 });
-    
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-    
-    return () => observer.disconnect();
-  }, [visibleCount]);
-  
-  const visibleRecipes = (allRecipes || []).slice(0, visibleCount);
-  
-  // Show grid - data loads via useEffect
-  const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
+  };
+
+  const getDifficultyLabel = (d) => {
+    const map = { easy: '簡易', medium: '中等', hard: '困難' };
+    return map[d] || d;
+  };
+
   return (
     <Layout>
       <Head>
-        <title>今晚食乜 🥘 - 智能一週餐單生成器</title>
-        <meta name="description" content="自動生成一週晚餐餐單，支援購物清單，簡單方便" />
-        <meta name="keywords" content="食譜,餐單,晚餐,一週,買餸,教煮" />
+        <title>今晚食乜 🥘 - 智能食譜搜尋及餐單生成</title>
+        <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
-      
-      {/* Hero */}
-      <section className="pt-12 pb-20 overflow-hidden relative" style={{ backgroundColor: 'var(--background)' }}>
-        {/* Decorative circles */}
-        <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full -z10" style={{ backgroundColor: 'var(--secondary)', opacity: 0.6 }} />
-        <div className="absolute bottom-0 -left-12 w-48 h-48 rounded-full -z10" style={{ backgroundColor: 'var(--accent)', opacity: 0.4 }} />
-        <div className="absolute top-1/4 -left-8 w-24 h-24 rounded-full -z10" style={{ backgroundColor: 'var(--accent)', opacity: 0.3 }} />
-        <div className="absolute bottom-20 right-1/4 w-16 h-16 rounded-full -z10" style={{ backgroundColor: 'var(--primary)', opacity: 0.2 }} />
-        <div className="absolute -bottom-8 right-0 w-32 h-32 rounded-full -z10" style={{ backgroundColor: 'var(--secondary)', opacity: 0.4 }} />
-        
-        <div className="max-w-[1200px] mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center relative z-10">
-            <div>
-              <h1 style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', fontWeight: 900, color: 'var(--foreground)', lineHeight: 1.1 }}>
-                今晚<br/>食乜?
-              </h1>
-              <p style={{ fontSize: '1.25rem', color: 'var(--muted-foreground)', marginTop: '1rem', marginBottom: '2rem' }}>
-                每日晚餐話你知，一click生成一週餐單
-              </p>
-              <button 
-                onClick={() => window.location.href = '/generate'}
-                className="px-12 py-4 rounded-full text-white font-semibold text-lg hover:scale-105 transition-transform"
-                style={{ backgroundColor: 'var(--primary)' }}
+
+      {/* Clean Hero */}
+      <section className="py-12" style={{ backgroundColor: 'var(--background)' }}>
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
+            今晚食乜?
+          </h1>
+          <p className="text-lg mb-8" style={{ color: 'var(--muted-foreground)' }}>
+            搜尋食譜 · 生成餐單 · 輕鬆煮飯
+          </p>
+
+          {/* Ingredient Input */}
+          <div className="flex gap-2 max-w-xl mx-auto mb-6">
+            <input
+              type="text"
+              value={pantryInput}
+              onChange={(e) => setPantryInput(e.target.value)}
+              placeholder="有咩食材？例如：蛋、番茄、雞肉"
+              className="flex-1 px-4 py-3 rounded-xl border"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'white' }}
+              onKeyDown={(e) => e.key === 'Enter' && handlePantrySearch()}
+            />
+            <button
+              onClick={handlePantrySearch}
+              className="px-6 py-3 rounded-xl text-white font-medium"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              用食材搵食譜
+            </button>
+          </div>
+
+          {/* Two Main Actions */}
+          <div className="flex gap-4 justify-center">
+            <a
+              href="/recipes"
+              className="px-8 py-3 rounded-xl font-medium"
+              style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}
+            >
+              🔍 搵食譜
+            </a>
+            <a
+              href="/generate"
+              className="px-8 py-3 rounded-xl text-white font-medium"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              📅 生成餐單
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Recipe Listing with Filters */}
+      <section className="py-8" style={{ backgroundColor: 'white' }}>
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
+                {recipes.length} 個食譜
+              </span>
+            </div>
+
+            {/* Desktop Filters */}
+            <div className="hidden md:flex items-center gap-3">
+              {/* Search */}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="搜尋食譜..."
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              />
+
+              {/* Cuisine */}
+              <select
+                value={selectedCuisine}
+                onChange={(e) => setSelectedCuisine(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
               >
-                生成食譜
-              </button>
+                {cuisineOptions.map(c => <option key={c} value={c}>{c === '全部' ? '全部菜系' : c}</option>)}
+              </select>
+
+              {/* Time */}
+              <select
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                {timeOptions.map(t => <option key={t} value={t}>{t === '全部' ? '全部時間' : t}</option>)}
+              </select>
+
+              {/* Difficulty */}
+              <select
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                {difficultyOptions.map(d => <option key={d} value={d}>{d === '全部' ? '全部難度' : d}</option>)}
+              </select>
+
+              {/* Sort */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 rounded-lg border text-sm"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
             </div>
-            <div className="block">
-              {/* Weekly Plan Card - New Style */}
-              <div className="bg-white rounded-2xl shadow-xl p-5 border border-gray-100 w-full max-w-sm mx-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#9B6035' }}>
-                      <span>📅</span>
-                    </div>
-                    <span className="text-sm text-gray-700" style={{ fontWeight: 600 }}>今週餐單</span>
+
+            {/* Mobile Filter Button */}
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="md:hidden px-4 py-2 rounded-lg border"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              篩選 🔽
+            </button>
+          </div>
+
+          {/* Mobile Filters Drawer */}
+          {showMobileFilters && (
+            <div className="md:hidden mb-6 p-4 rounded-xl" style={{ backgroundColor: 'var(--background)' }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">搜尋</label>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="搜尋食譜..."
+                    className="w-full px-3 py-2 rounded-lg border"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">菜系</label>
+                  <div className="flex flex-wrap gap-2">
+                    {cuisineOptions.map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setSelectedCuisine(c)}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{
+                          backgroundColor: selectedCuisine === c ? 'var(--primary)' : 'var(--background)',
+                          color: selectedCuisine === c ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: '#9B6035' }}>
-                    7天
-                  </span>
                 </div>
-                <div className="space-y-2">
-                  {[
-                    { dish: '番茄炒蛋' },
-                    { dish: '蒸水蛋' },
-                    { dish: '蝦仁炒蛋' },
-                    { dish: '苦瓜炒蛋' },
-                    { dish: '咖哩雞' },
-                    { dish: '豉油雞翼' },
-                    { dish: '薑蔥蒸雞' },
-                  ].map((recipe, i) => (
-                    <div key={i} className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: '#fff' }}>
-                      <span className="text-xs font-medium" style={{ color: '#374151' }}>{days[i]}</span>
-                      <span className="text-xs" style={{ color: '#9B6035' }}>{'✓ ' + (recipe?.dish || recipe?.name || '未選擇')}</span>
-                    </div>
-                  ))}
+                <div>
+                  <label className="block text-sm font-medium mb-2">時間</label>
+                  <div className="flex flex-wrap gap-2">
+                    {timeOptions.map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setSelectedTime(t)}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{
+                          backgroundColor: selectedTime === t ? 'var(--primary)' : 'var(--background)',
+                          color: selectedTime === t ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="mt-4 w-full py-2.5 rounded-xl text-sm text-white text-center cursor-pointer hover:opacity-90" style={{ backgroundColor: '#9B6035' }}>
-                  生成購物清單 →
+                <div>
+                  <label className="block text-sm font-medium mb-2">難度</label>
+                  <div className="flex flex-wrap gap-2">
+                    {difficultyOptions.map(d => (
+                      <button
+                        key={d}
+                        onClick={() => setSelectedDifficulty(d)}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{
+                          backgroundColor: selectedDifficulty === d ? 'var(--primary)' : 'var(--background)',
+                          color: selectedDifficulty === d ? 'white' : 'var(--foreground)'
+                        }}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+                <button
+                  onClick={() => { handleSearch(); setShowMobileFilters(false); }}
+                  className="w-full py-2 rounded-lg text-white font-medium"
+                  style={{ backgroundColor: 'var(--primary)' }}
+                >
+                  應用篩選
+                </button>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          )}
 
-      {/* Pantry Hero Search */}
-      <PantryHero />
-
-      {/* How It Works */}
-      <section className="py-16" style={{ backgroundColor: '#fff' }}>
-        <div className="max-w-[1200px] mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { num: '01', title: '設定偏好', desc: '選擇人數、烹飪時間、菜系和飲食限制。' },
-              { num: '02', title: '生成餐單', desc: '系統即時為你生成均衡健康的7日晚餐安排。' },
-              { num: '03', title: '開始買餸', desc: '自動生成購物清單，超市直接按清單採購。' },
-            ].map((step, i) => (
-              <div key={step.num} className="relative text-center">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg" style={{ backgroundColor: '#14B8A6', fontWeight: 800, fontSize: '1.125rem' }}>
-                  {step.num}
-                </div>
-                <h3 className="text-gray-900 mb-2" style={{ fontWeight: 600 }}>{step.title}</h3>
-                <p className="text-gray-500 text-sm">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* Featured Recipes */}
-            <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
-        <div className="max-w-[1200px] mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: 'var(--foreground)' }}>精選食譜</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {visibleRecipes.map((recipe) => {
-              const cuisineLabels = { chinese: '中式', japanese: '日式', korean: '韓式', western: '西式', vegetarian: '素食' };
-              const methodLabels = { stir_fry: '炒', steamed: '蒸', braised: '炆', boiled: '煮', fried: '炸', grilled: '燒' };
-              const difficultyLabels = { easy: '易', medium: '中', hard: '難' };
-              const proteinLabels = { egg: '蛋', chicken: '雞', beef: '牛', pork: '豬', tofu: '豆腐', seafood: '海鮮', fish: '魚', vegetarian: '素' };
-              const tags = [...(recipe.protein || []), ...(recipe.diet || [])].slice(0, 3);
-              return (
-              <RecipeCard key={recipe.id} recipe={recipe} onClick={() => {
-                setModalLoading(true);
-                fetch('/api/recipes/' + recipe.id).then(res => res.json()).then(fullRecipe => {
-                  console.log('Full recipe:', fullRecipe);
-                  if (fullRecipe.error) {
-                    alert('Error: ' + fullRecipe.error);
-                  }
-                  setSelectedRecipe(fullRecipe);
-                  setModalLoading(false);
-                }).catch(err => {
-                  console.error('Error:', err);
-                  alert('Error loading recipe');
-                  setModalLoading(false);
-                });
-              }} />
-            );})}
-          </div>
-
-          {hasMore && (
-            <div ref={loaderRef} className="text-center py-8">
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>載入更多...</p>
+          {/* Recipe Grid */}
+          {loading ? (
+            <div className="text-center py-12">載入中...</div>
+          ) : recipes.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {recipes.map(recipe => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  onClick={() => handleRecipeClick(recipe)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12" style={{ color: 'var(--muted-foreground)' }}>
+              沒有找到符合條件的食譜
             </div>
           )}
         </div>
       </section>
 
-      <RecipeDetailModal 
-        isOpen={!!selectedRecipe} 
-        onClose={() => setSelectedRecipe(null)} 
+      {/* Recipe Detail Modal */}
+      <RecipeDetailModal
+        isOpen={!!selectedRecipe}
+        onClose={() => setSelectedRecipe(null)}
         recipe={selectedRecipe}
         loading={modalLoading}
       />
     </Layout>
   );
 }
-
-// Force dynamic rendering
-
 
 export async function getServerSideProps() {
   try {
@@ -226,7 +341,12 @@ export async function getServerSideProps() {
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
-    const { data: recipes } = await supabase.from('recipes').select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving').limit(20);
+    const { data: recipes } = await supabase
+      .from('recipes')
+      .select('id,name,slug,description,image_url,cuisine,dish_type,method,speed,difficulty,calories_per_serving,prep_time,cook_time')
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(20);
     return { props: { initialRecipes: recipes || [] } };
   } catch (e) {
     return { props: { initialRecipes: [] } };
