@@ -189,25 +189,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetchRecipes();
   };
 
-  const hasFilters = Boolean(
-    searchQuery?.trim() ||
-    modalCuisine ||
-    modalTime ||
-    modalDifficulty ||
-    modalMethod ||
-    modalDiet ||
-    activeFilters.length > 0
-  );
   const hasSearch = searchQuery?.trim()?.length > 0;
-  
-  // Ensure recipes is always an array
-  const recipesList = recipes || [];
   
   // Show empty state only if filters applied and no results
   const showEmptyState = !loading && hasFilters && recipesList.length === 0;
   
-  // Only show skeleton when actually loading new data
-  const showSkeleton = loading && recipesList.length === 0;
+  // Show skeleton when loading with no data
+  const showSkeleton = loading;
 
   // Determine recipe count text
   const recipeCountText = loading ? '載入中...' : 
@@ -327,7 +315,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           </div>
 
           {/* Recipe Grid */}
-          {loading ? (
+          {showSkeleton && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="animate-pulse">
@@ -337,7 +325,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
               ))}
             </div>
-          ) : recipesList.length > 0 ? (
+          )}
+
+          {!showSkeleton && recipesList.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {recipesList.map(recipe => (
                 <RecipeCard
@@ -347,8 +337,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 />
               ))}
             </div>
-          ) : showEmptyState ? (
-            /* Friendly Empty State */
+          )}
+
+          {!showSkeleton && recipesList.length === 0 && hasFilters && (
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🥘</div>
               <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
