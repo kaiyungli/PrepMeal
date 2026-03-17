@@ -165,14 +165,10 @@ export default function Home({ initialRecipes }) {
   const showEmptyState = !loading && recipes.length === 0 && (hasFilters || hasSearch);
 
   // Determine recipe count text
+  const recipesList = recipes || [];
   const recipeCountText = loading ? '載入中...' : 
-    (recipes.length > 0 ? `${recipes.length} 個食譜` : 
+    (recipesList.length > 0 ? `${recipesList.length} 個食譜` : 
     (hasFilters || hasSearch ? '無符合條件既食譜' : '載入緊...'));
-    modalCuisine !== '全部' || 
-    modalTime !== '全部' || 
-    modalDifficulty !== '全部' ||
-    modalMethod !== '全部' ||
-    modalDiet !== '全部';
 
   return (
     <Layout>
@@ -299,7 +295,7 @@ export default function Home({ initialRecipes }) {
             </div>
           ) : showEmptyState ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {recipes.map(recipe => (
+              {recipesList.map(recipe => (
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
