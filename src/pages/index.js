@@ -17,7 +17,7 @@ const sortOptions = [
   { value: 'quick', label: '最快完成' },
   { value: 'fewest_ingredients', label: '最少食材' },
   { value: 'high_protein', label: '高蛋白' },
-  { value: 'low_calorie', label: '低卡路里' },
+  { value: 'low_budget', label: '低預算' },
 ];
 
 export default function Home({ initialRecipes }) {
@@ -245,7 +245,7 @@ export default function Home({ initialRecipes }) {
               className="md:hidden px-4 py-2 rounded-lg border"
               style={{ borderColor: 'var(--border)' }}
             >
-              篩選 🔽
+              全部篩選
             </button>
           </div>
 

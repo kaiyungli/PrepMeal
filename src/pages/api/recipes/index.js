@@ -70,8 +70,16 @@ export default async function handler(req, res) {
       case 'quick':
         query = query.order('cook_time', { ascending: true });
         break;
+      case 'fewest_ingredients':
+        // Sort by number of ingredients (requires subquery - skip for now)
+        query = query.order('created_at', { ascending: false });
+        break;
       case 'high_protein':
         query = query.order('protein_g', { ascending: false, nullsFirst: false });
+        break;
+      case 'low_budget':
+        // Could add estimated_cost column later - sort by calories as proxy
+        query = query.order('calories_per_serving', { ascending: true, nullsFirst: false });
         break;
       case 'low_calorie':
         query = query.order('calories_per_serving', { ascending: true, nullsFirst: false });
