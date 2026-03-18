@@ -310,72 +310,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             onClear={clearFilters}
           />
 
-{/* Desktop: Stacked Filter Sections - Like Generate Page */}
-          <div className="hidden lg:block mb-6 pb-4 border-b">
-            {/* Primary Filters Row - Like Generate Page */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {/* 菜系 */}
-              <div>
-                <FilterSection title="菜系" options={cuisineOptions.filter(c => c.value !== '')} selected={modalCuisine} onToggle={(v) => toggleFilter(modalCuisine, v, setModalCuisine)} />
-              </div>
 
-              {/* 時間 */}
-              <div>
-                <FilterSection title="烹飪時間" options={timeOptions} selected={modalTime} onToggle={(v) => toggleFilter(modalTime, v, setModalTime)} />
-              </div>
-
-              {/* 難度 */}
-              <div>
-                <FilterSection title="難度" options={difficultyOptions} selected={modalDifficulty} onToggle={(v) => toggleFilter(modalDifficulty, v, setModalDifficulty)} />
-              </div>
-
-              {/* 更多篩選 Toggle */}
-              <div>
-                <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>更多篩選</span>
-                <button 
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                  style={{
-                    backgroundColor: showAdvanced ? '#9B6035' : 'white',
-                    color: showAdvanced ? 'white' : '#3A2010',
-                    border: '1px solid #E7E0D4'
-                  }}
-                >
-                  {showAdvanced ? '▲ 收起' : '▼ 更多'}
-                </button>
-              </div>
-            </div>
-
-            {/* Clear button */}
-            {hasFilters && (
-              <button onClick={clearFilters} className="text-xs font-medium mt-3" style={{color: '#9B6035'}}>
-                清除全部
-              </button>
-            )}
-          </div>
-
-          {/* Advanced Filters - Using FilterSection */}
-          {showAdvanced && (
-            <div className="mb-4 p-4 rounded-xl" style={{backgroundColor: '#F8F3E8'}}>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <FilterSection title="烹調方式" options={methodOptions} selected={modalMethod} onToggle={(v) => toggleFilter(modalMethod, v, setModalMethod)} />
-                <FilterSection title="飲食偏好" options={dietOptions} selected={modalDiet} onToggle={(v) => toggleFilter(modalDiet, v, setModalDiet)} />
-                <FilterSection title="排除項目" options={exclusionOptions.slice(0, 4)} selected={modalExclusions} onToggle={(v) => toggleFilter(modalExclusions, v, setModalExclusions)} variant="danger" />
-              </div>
-            </div>
-          )}
-
-            {hasFilters && modalCuisine.length > 0 && (
-              <button 
-                onClick={clearFilters} 
-                className="text-sm text-red-500 hover:text-red-600 ml-auto"
-              >
-                清除篩選
-              </button>
-            )}
-          </div>
-
-            <div className="flex-1">
               {/* Header Row */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">{recipeCountText}</h2>
