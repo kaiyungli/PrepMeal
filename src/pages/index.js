@@ -395,72 +395,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             )}
           </div>
 
-          {/* Advanced Filters - Collapsible */}
+          {/* Advanced Filters - Using FilterSection */}
           {showAdvanced && (
             <div className="mb-4 p-4 rounded-xl" style={{backgroundColor: '#F8F3E8'}}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* 烹調方式 */}
-                <div>
-                  <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>烹調方式</span>
-                  <div className="flex flex-wrap gap-1">
-                    {methodOptions.map(m => (
-                      <button
-                        key={m.value}
-                        onClick={() => toggleFilter(modalMethod, m.value, setModalMethod)}
-                        className="px-2 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: modalMethod.includes(m.value) ? '#9B6035' : 'white',
-                          color: modalMethod.includes(m.value) ? 'white' : '#3A2010',
-                          border: '1px solid #E7E0D4'
-                        }}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 飲食偏好 */}
-                <div>
-                  <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>飲食偏好</span>
-                  <div className="flex flex-wrap gap-1">
-                    {dietOptions.map(d => (
-                      <button
-                        key={d.value}
-                        onClick={() => toggleFilter(modalDiet, d.value, setModalDiet)}
-                        className="px-2 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: modalDiet.includes(d.value) ? '#9B6035' : 'white',
-                          color: modalDiet.includes(d.value) ? 'white' : '#3A2010',
-                          border: '1px solid #E7E0D4'
-                        }}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 排除項目 */}
-                <div>
-                  <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>排除項目</span>
-                  <div className="flex flex-wrap gap-1">
-                    {exclusionOptions.slice(0, 4).map(e => (
-                      <button
-                        key={e.value}
-                        onClick={() => toggleFilter(modalExclusions, e.value, setModalExclusions)}
-                        className="px-2 py-1 rounded-full text-xs font-medium"
-                        style={{
-                          backgroundColor: modalExclusions.includes(e.value) ? '#EF4444' : 'white',
-                          color: modalExclusions.includes(e.value) ? 'white' : '#3A2010',
-                          border: '1px solid #E7E0D4'
-                        }}
-                      >
-                        {e.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <FilterSection title="烹調方式" options={methodOptions} selected={modalMethod} onToggle={(v) => toggleFilter(modalMethod, v, setModalMethod)} />
+                <FilterSection title="飲食偏好" options={dietOptions} selected={modalDiet} onToggle={(v) => toggleFilter(modalDiet, v, setModalDiet)} />
+                <FilterSection title="排除項目" options={exclusionOptions.slice(0, 4)} selected={modalExclusions} onToggle={(v) => toggleFilter(modalExclusions, v, setModalExclusions)} variant="danger" />
               </div>
             </div>
           )}
