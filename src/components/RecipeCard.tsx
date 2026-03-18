@@ -34,7 +34,7 @@ const methodLabels: Record<string, string> = {
   boiled: '煮', 
   baked: '焗', 
   fried: '煎',
- 炖: '燉',
+ braised: '燉',
   air_fryer: '氣炸',
   one_pot: '一鍋煮'
 }
