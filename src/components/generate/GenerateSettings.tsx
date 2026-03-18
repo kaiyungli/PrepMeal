@@ -170,54 +170,31 @@ export default function GenerateSettings({
         </div>
 
         <div className="mt-4">
-          <label className="block text-xs font-semibold text-[#AA7A50] mb-2">菜系</label>
-          <div className="flex flex-wrap gap-2">
-            {CUISINES.map(c => (
-              <button
-                key={c.value}
-                onClick={() => toggleCuisine(c.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  cuisines.includes(c.value) ? 'bg-[#C8D49A] text-[#3A2010]' : 'bg-[#F8F3E8] text-[#AA7A50]'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <FilterSection
+            title="菜系"
+            options={CUISINES}
+            selected={cuisines}
+            onToggle={toggleCuisine}
+          />
         </div>
 
         <div className="mt-4">
-          <label className="block text-xs font-semibold text-[#AA7A50] mb-2">烹飪限制</label>
-          <div className="flex flex-wrap gap-2">
-            {COOKING_CONSTRAINTS.map(c => (
-              <button
-                key={c.value}
-                onClick={() => toggleConstraint(c.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  cookingConstraints.includes(c.value) ? 'bg-[#F0A060] text-white' : 'bg-[#F8F3E8] text-[#AA7A50]'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
+          <FilterSection
+            title="烹飪限制"
+            options={COOKING_CONSTRAINTS}
+            selected={cookingConstraints}
+            onToggle={toggleConstraint}
+          />
         </div>
 
         <div className="mt-4">
-          <label className="block text-xs font-semibold text-[#AA7A50] mb-2">排除</label>
-          <div className="flex flex-wrap gap-2">
-            {EXCLUSIONS.map(e => (
-              <button
-                key={e.value}
-                onClick={() => toggleExclusion(e.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  exclusions.includes(e.value) ? 'bg-red-100 text-red-700' : 'bg-[#F8F3E8] text-[#AA7A50]'
-                }`}
-              >
-                {e.label}
-              </button>
-            ))}
-          </div>
+          <FilterSection
+            title="排除"
+            options={EXCLUSIONS}
+            selected={exclusions}
+            onToggle={toggleExclusion}
+            variant="danger"
+          />
         </div>
 
         <div className="mt-4">
