@@ -18,13 +18,9 @@ const QUICK_FILTERS = [
 
 // Filter options with UI label -> DB value mapping
 const cuisineOptions = [
-  { label: '全部', value: '全部' },
+  { label: '全部', value: '' },
   { label: '中式', value: 'chinese' },
-  { label: '日式', value: 'japanese' },
-  { label: '韓式', value: 'korean' },
   { label: '西式', value: 'western' },
-  { label: '台式', value: 'taiwanese' },
-  { label: '東南亞', value: 'se_asian' },
 ];
 const timeOptions = [
   { label: '15分鐘內', value: '15' },
@@ -403,7 +399,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 <div>
                   <label className="block text-sm font-medium mb-2">菜系</label>
                   <div className="flex flex-wrap gap-2">
-                    {cuisineOptions.filter(c => c.value !== '全部').map(c => (
+                    {cuisineOptions.filter(c => c.value !== '').map(c => (
                       <button
                         key={c.value}
                         onClick={() => setModalCuisine(modalCuisine === c.value ? '' : c.value)}
