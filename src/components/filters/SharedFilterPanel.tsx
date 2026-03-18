@@ -40,8 +40,52 @@ export default function SharedFilterPanel({
     : sections.slice(0, 4);
   const advancedSections = sections.filter(s => !primarySectionIds.includes(s.id));
 
+  // Collect all selected filters for summary
+  const allSelectedFilters = sections
+    .flatMap(section => 
+      section.selected.map(value => ({
+        value,
+        label: section.options.find(o => o.value === value)?.label || value,
+        sectionId: section.id,
+        variant: section.variant
+      }))
+    );
+
   return (
-    <div className="hidden lg:block mb-6 pb-4 border-b">
+    <div className="hidden lg:block mb-5">
+      {/* Selected Filters Summary Row */}
+      {allSelectedFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 pb-3 border-b" style={{ borderColor: '#E7E0D4' }}>
+          <span className="text-xs font-medium" style={{ color: '#7A746B' }}>已選擇：</span>
+          {allSelectedFilters.map(filter => (
+            <button
+              key={`${filter.sectionId}-${filter.value}`}
+              onClick={() => {
+                const section = sections.find(s => s.id === filter.sectionId);
+                if (section) section.onToggle(filter.value);
+              }}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+              style={{
+                backgroundColor: filter.variant === 'danger' ? '#FEE2E2' : '#EEF3DF',
+                color: filter.variant === 'danger' ? '#DC2626' : '#3A2010',
+              }}
+            >
+              {filter.label}
+              <span className="text-xs">×</span>
+            </button>
+          ))}
+          {onClear && (
+            <button 
+              onClick={onClear} 
+              className="text-xs font-medium ml-2" 
+              style={{ color: '#9B6035' }}
+            >
+              清除全部
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Primary Sections - Grid Layout */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         {primarySections.map(section => (
@@ -92,17 +136,6 @@ export default function SharedFilterPanel({
             ))}
           </div>
         </div>
-      )}
-
-      {/* Clear Button */}
-      {sections.some(s => s.selected.length > 0) && onClear && (
-        <button 
-          onClick={onClear} 
-          className="text-xs font-medium mt-3" 
-          style={{ color: '#9B6035' }}
-        >
-          清除全部
-        </button>
       )}
     </div>
   );
