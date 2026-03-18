@@ -284,17 +284,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             {showAdvanced && (
               <div className="px-4 pb-4 flex flex-col gap-6">
                 {/* 菜系 */}
-                <div>
-                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">菜系</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                <div className="space-y-3">
+                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">菜系</div>
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
                     {cuisineOptions.filter(c => c.value).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
+                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
                           modalCuisine.includes(c.value)
-                            ? 'bg-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
                         }`}
                       >
                         {c.label}
@@ -303,24 +303,38 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   </div>
                 </div>
                 
-                {/* 烹飪難度/時間 */}
-                <div>
-                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">難度/時間</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
-                    {difficultyOptions.concat(timeOptions.slice(0,2)).map(c => (
+                {/* 難度 */}
+                <div className="space-y-3">
+                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">難度</div>
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                    {difficultyOptions.map(c => (
                       <button
                         key={c.value}
-                        onClick={() => {
-                          if (timeOptions.find(t => t.value === c.value)) {
-                            toggleFilter(modalTime, c.value, setModalTime);
-                          } else {
-                            toggleFilter(modalDifficulty, c.value, setModalDifficulty);
-                          }
-                        }}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
-                          modalDifficulty.includes(c.value) || modalTime.includes(c.value)
-                            ? 'bg-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                        onClick={() => toggleFilter(modalDifficulty, c.value, setModalDifficulty)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                          modalDifficulty.includes(c.value)
+                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 時間 */}
+                <div className="space-y-3">
+                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">時間</div>
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                    {timeOptions.map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => toggleFilter(modalTime, c.value, setModalTime)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                          modalTime.includes(c.value)
+                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
                         }`}
                       >
                         {c.label}
@@ -330,17 +344,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 排除 */}
-                <div>
-                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">排除</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
-                    {exclusionOptions.slice(0, 4).map(c => (
+                <div className="space-y-3">
+                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">排除</div>
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                    {exclusionOptions.slice(0, 6).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalExclusions, c.value, setModalExclusions)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
+                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
                           modalExclusions.includes(c.value)
-                            ? 'bg-red-500 text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                            ? 'bg-red-500 border-red-500 text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
                         }`}
                       >
                         {c.label}
@@ -349,11 +363,31 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   </div>
                 </div>
                 
-                {/* Clear */}
-                <div className="flex items-end">
+                {/* 飲食模式 */}
+                <div className="space-y-3">
+                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">飲食模式</div>
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                    {dietOptions.slice(0, 5).map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => toggleFilter(modalDiet, c.value, setModalDiet)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                          modalDiet.includes(c.value)
+                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Clear All */}
+                <div className="mt-6 pt-4 border-t border-[#F2EBDD]">
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-[#9B6035] hover:underline"
+                    className="text-sm font-semibold text-[#9B6035] hover:underline"
                   >
                     清除全部
                   </button>
