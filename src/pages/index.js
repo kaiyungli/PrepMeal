@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
+import HomeHero from '@/components/home/HomeHero';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { FilterChip, FilterSection, SharedFilterPanel } from '@/components/filters';

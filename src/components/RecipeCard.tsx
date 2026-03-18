@@ -71,7 +71,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
   const tags = [...(recipeProtein ? [recipeProtein] : []), ...recipeDiet].slice(0, 3)
   
   return (
-    <div onClick={() => { if (onClick) onClick(); }} className={`cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all border border-transparent hover:border-[#C8B79B] ${className}`}>
+    <div onClick={() => { if (onClick) onClick(); }} className={`cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow ${className}`}>
       {/* Image */}
       <div className={`relative ${imageHeightClass}`}>
         {recipeImage ? (
