@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { FilterChip, FilterSection, RecipeFilterPanel } from '@/components/filters';
+import { FilterChip, FilterSection, SharedFilterPanel } from '@/components/filters';
 import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
 console.log('[CLIENT] Module loaded');
