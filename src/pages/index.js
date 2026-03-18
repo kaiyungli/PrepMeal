@@ -111,6 +111,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     modalDifficulty ||
     modalMethod ||
     modalDiet ||
+    modalExclusions ||
+    modalBudget ||
     activeFilters.length > 0
   );
   
