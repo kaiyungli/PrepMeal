@@ -282,9 +282,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </div>
             
             {showAdvanced && (
-              <div className="px-4 pb-4 flex flex-col gap-6">
+              <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                 {/* 菜系 */}
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">菜系</div>
                   <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {cuisineOptions.filter(c => c.value).map(c => (
@@ -304,7 +304,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 難度 */}
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">難度</div>
                   <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {difficultyOptions.map(c => (
@@ -324,7 +324,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 時間 */}
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">時間</div>
                   <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {timeOptions.map(c => (
@@ -344,7 +344,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 排除 */}
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">排除</div>
                   <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {exclusionOptions.slice(0, 6).map(c => (
@@ -364,7 +364,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 飲食模式 */}
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">飲食模式</div>
                   <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {dietOptions.slice(0, 5).map(c => (
