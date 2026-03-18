@@ -240,7 +240,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       {/* Clean Hero */}
       <section className="py-8" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-2xl mx-auto px-4">
-          <div className="border border-[#E7E0D4] rounded-2xl p-6" style={{ backgroundColor: 'white' }}>
+          <div className="border border-[#E5DCC8] rounded-2xl p-8 shadow-sm" style={{ backgroundColor: 'white' }}>
             <div className="text-center">
           <h1 className="text-5xl md:text-6xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
             今晚食乜?
@@ -262,7 +262,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             />
             <button
               onClick={handlePantrySearch}
-              className="px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-lg"
+              className="px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-md"
               style={{ backgroundColor: 'var(--primary)' }}
             >
               搵食譜
@@ -285,7 +285,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </section>
 
       {/* Recipe Listing - Sidebar + Grid Layout */}
-      <section className="py-6 border-t" style={{ backgroundColor: 'white', borderColor: '#E7E0D4' }}>
+      <section className="py-6 border-t" style={{ backgroundColor: '#F8F3E8', borderColor: '#E5DCC8' }}>
         <div className="max-w-7xl mx-auto px-4">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden mb-4">
