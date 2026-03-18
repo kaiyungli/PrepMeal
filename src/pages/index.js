@@ -282,7 +282,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </div>
             
             {showAdvanced && (
-              <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="px-4 pb-4 flex flex-col gap-6">
                 {/* 菜系 */}
                 <div>
                   <div className="text-xs font-semibold text-[#AA7A50] mb-2">菜系</div>
