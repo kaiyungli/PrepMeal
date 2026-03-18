@@ -284,14 +284,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             {showAdvanced && (
               <div className="px-4 pb-4 flex flex-col gap-6">
                 {/* 菜系 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">菜系</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {cuisineOptions.filter(c => c.value).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
                           modalCuisine.includes(c.value)
                             ? 'bg-[#9B6035] border-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
@@ -304,14 +304,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 難度 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">難度</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {difficultyOptions.map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalDifficulty, c.value, setModalDifficulty)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
                           modalDifficulty.includes(c.value)
                             ? 'bg-[#9B6035] border-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
@@ -324,14 +324,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 時間 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">時間</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {timeOptions.map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalTime, c.value, setModalTime)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
                           modalTime.includes(c.value)
                             ? 'bg-[#9B6035] border-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
@@ -344,14 +344,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 排除 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">排除</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {exclusionOptions.slice(0, 6).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalExclusions, c.value, setModalExclusions)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
                           modalExclusions.includes(c.value)
                             ? 'bg-red-500 border-red-500 text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
@@ -364,14 +364,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 飲食模式 */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">飲食模式</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2 pr-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                     {dietOptions.slice(0, 5).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalDiet, c.value, setModalDiet)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
                           modalDiet.includes(c.value)
                             ? 'bg-[#9B6035] border-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
@@ -384,7 +384,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* Clear All */}
-                <div className="mt-2 pt-3 border-t border-[#F2EBDD]">
+                <div className="mt-1 border-t border-[#F2EBDD]">
                   <button
                     onClick={clearFilters}
                     className="text-sm font-semibold text-[#9B6035] hover:underline"
@@ -402,7 +402,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 rounded-full border border-[#DDD0B0] bg-white text-sm font-medium text-[#3A2010] focus:outline-none"
+              className="px-3 py-1.5 rounded-full border border-[#DDD0B0] bg-white text-sm font-medium text-[#3A2010] focus:outline-none"
             >
               {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
@@ -440,7 +440,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
           {!showSkeleton && recipesList.length === 0 && hasFilters && (
             <div className="text-center py-16">
-              <div className="text-6xl mb-4">😕</div>
+              <div className="text-6xl mb-2">😕</div>
               <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
               <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件，或者清除所有篩選</p>
               <button
@@ -457,7 +457,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       {/* Filter Modal */}
       {showFilterModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowFilterModal(false)}>
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl max-w-[900px] mx-auto shadow-xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="p-5 border-b flex justify-between items-center flex-shrink-0">
               <h2 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>篩選條件</h2>
               <button onClick={() => setShowFilterModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
@@ -467,7 +467,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               {/* 菜系 */}
               <div className="bg-gray-50 p-4 rounded-xl">
                 <label className="block text-sm font-semibold mb-3 text-gray-700">🍽️ 菜系</label>
-                <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {cuisineOptions.filter(c => c.value !== '').map(c => (
                       <button
                         key={c.value}
@@ -487,7 +487,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 時間 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">⏱️ 烹飪時間</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {timeOptions.map(t => (
                       <button
                         key={t.value}
@@ -507,7 +507,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 難度 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">📊 難度</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {difficultyOptions.map(d => (
                       <button
                         key={d.value}
@@ -527,7 +527,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 烹調方式 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🍳 烹調方式</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {methodOptions.map(m => (
                       <button
                         key={m.value}
@@ -547,7 +547,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 飲食限制 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🥗 飲食/營養</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {dietOptions.map(d => (
                       <button
                         key={d.value}
@@ -567,7 +567,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 排除食材 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🚫 排除食材</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {exclusionOptions.map(e => (
                       <button
                         key={e.value}
@@ -587,7 +587,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 預算 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">💰 預算</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
                     {budgetOptions.map(b => (
                       <button
                         key={b.value}
