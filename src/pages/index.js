@@ -384,10 +384,10 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
               {/* Clear All at bottom */}
-              <div className="mt-3 border-t border-[#EEE5D6] pt-3">
+              <div className="mt-3 w-full border-t border-[#EEE5D6] pt-3">
                 <button
                   onClick={clearFilters}
-                  className="text-sm font-semibold text-[#9B6035] hover:underline"
+                  className="block text-left text-sm font-semibold text-[#9B6035] hover:underline"
                 >
                   清除全部
                 </button>
