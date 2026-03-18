@@ -77,7 +77,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
         {recipeImage ? (
           <Image src={recipeImage} alt={recipeName} fill className="object-cover" />
         ) : (
-          <div className="flex items-center justify-center h-full bg-gray-200">
+          <div className="flex items-center justify-center h-full bg-gradient-to-br from-amber-50 to-orange-100">
             <span className="text-5xl">🍳</span>
           </div>
         )}
@@ -103,7 +103,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
             <span className="text-xs px-2 py-1 bg-[#C8D49A] text-[#3A2010] rounded">{cuisineLabels[recipeCuisine] || recipeCuisine}</span>
           )}
           {recipeDifficulty && (
-            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">{difficultyLabels[recipeDifficulty] || recipeDifficulty}</span>
+            <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded">{difficultyLabels[recipeDifficulty] || recipeDifficulty}</span>
           )}
           {recipeMethod && (
             <span className="text-xs px-2 py-1 bg-teal-500 text-white rounded">{methodLabels[recipeMethod] || recipeMethod}</span>
