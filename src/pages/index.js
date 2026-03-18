@@ -488,36 +488,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
               )}
             </div>
-            <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
-              {recipeCountText}
-            </h2>
-            
-            <div className="flex items-center gap-2">
-              {/* Sort Dropdown */}
-              <span className="text-sm text-gray-500">排序：</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-1.5 rounded-full border text-sm font-medium"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </select>
-              
-              {/* Full Filter Button */}
-              <button
-                onClick={() => setShowFilterModal(true)}
-                className="px-4 py-2 rounded-full border text-sm font-medium"
-                style={{ 
-                  borderColor: hasFilters ? 'var(--primary)' : 'var(--border)',
-                  backgroundColor: hasFilters ? 'var(--primary)' : 'transparent',
-                  color: hasFilters ? 'white' : 'var(--foreground)'
-                }}
-              >
-                篩選 {hasFilters && '✓'}
-              </button>
             </div>
-          </div>
 
           {/* Recipe Grid */}
           {showSkeleton && (
