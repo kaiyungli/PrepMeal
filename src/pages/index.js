@@ -403,7 +403,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 <div>
                   <label className="block text-sm font-medium mb-2">菜系</label>
                   <div className="flex flex-wrap gap-2">
-                    {cuisineOptions.filter(c => c !== '全部').map(c => (
+                    {cuisineOptions.filter(c => c.value !== '全部').map(c => (
                       <button
                         key={c}
                         onClick={() => setModalCuisine(modalCuisine === c.value || modalCuisine === c.label ? c.value : '全部')}
