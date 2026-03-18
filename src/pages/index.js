@@ -415,9 +415,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 時間 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">⏱️ 烹飪時間</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {timeOptions.map(t => (
                       <button
@@ -436,9 +435,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 難度 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">📊 難度</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {difficultyOptions.map(d => (
                       <button
@@ -457,9 +455,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 烹調方式 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🍳 烹調方式</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {methodOptions.map(m => (
                       <button
@@ -478,9 +475,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 飲食限制 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🥗 飲食/營養</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {dietOptions.map(d => (
                       <button
@@ -499,9 +495,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 排除食材 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🚫 排除食材</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {exclusionOptions.map(e => (
                       <button
@@ -520,9 +515,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
                 
                 {/* 預算 */}
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">💰 預算</label>
-                  <div className="bg-gray-50 p-3 rounded-lg">
                   <div className="flex flex-wrap gap-2">
                     {budgetOptions.map(b => (
                       <button
@@ -558,10 +552,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
+            </div>
+          )}
+      
       {/* Recipe Detail Modal */}
       <RecipeDetailModal
         isOpen={!!selectedRecipe}
