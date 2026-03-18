@@ -38,6 +38,10 @@ const methodLabels: Record<string, string> = {
   air_fryer: '氣炸',
   one_pot: '一鍋煮'
 }
+const proteinLabels: Record<string, string> = {
+  chicken: "雞肉", beef: "牛肉", pork: "豬肉", shrimp: "蝦", fish: "魚", tofu: "豆腐", egg: "蛋", vegetarian: "素食"
+}
+
 const dietLabels: Record<string, string> = {
   vegetarian: '素食',
   egg_lacto: '蛋奶素',
@@ -49,7 +53,7 @@ const dietLabels: Record<string, string> = {
 
 // Helper to translate tag to Chinese
 function translateTag(tag: string): string {
-  return dietLabels[tag] || cuisineLabels[tag] || methodLabels[tag] || difficultyLabels[tag] || tag
+  return proteinLabels[tag] || dietLabels[tag] || cuisineLabels[tag] || methodLabels[tag] || difficultyLabels[tag] || tag
 }
 
 export default function RecipeCard({ recipe, onClick, onFavorite, className = '', imageHeightClass = 'h-48' }: RecipeCardProps) {
