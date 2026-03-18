@@ -36,14 +36,30 @@ export default function HomeHero() {
           
           {/* Right side - HeroCard */}
           <div className="col-span-12 md:col-span-6 hidden md:flex justify-center">
-            <div className="w-full max-w-md rounded-2xl border-2 border-[#DDD0B0] bg-white p-6 shadow-[0_20px_60px_rgba(155,96,53,0.14)]">
-              {/* Placeholder content for HeroCard */}
-              <div className="space-y-4">
-                <div className="h-4 bg-[#F8F3E8] rounded w-3/4"></div>
-                <div className="h-4 bg-[#F8F3E8] rounded w-1/2"></div>
-                <div className="h-20 bg-[#F8F3E8] rounded-xl"></div>
-                <div className="h-4 bg-[#F8F3E8] rounded w-full"></div>
-                <div className="h-4 bg-[#F8F3E8] rounded w-2/3"></div>
+            <div className="w-full max-w-[520px] rounded-2xl border-2 border-[#DDD0B0] bg-white p-6 shadow-[0_20px_60px_rgba(155,96,53,0.14)]">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <span className="text-xs font-bold text-[#C0A080]">本週計劃</span>
+                  <div className="text-base font-extrabold text-[#9B6035]">WEEKLY PLAN</div>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-[#9B6035] flex items-center justify-center text-xl">
+                  🍜
+                </div>
+              </div>
+              
+              {/* Left column: 本週餐單 */}
+              <div className="space-y-3">
+                <div className="text-sm font-bold text-[#3A2010]">📅 本週餐單</div>
+                
+                {/* 5 items */}
+                {['週一 番茄意粉', '週二 咖喱飯', '週三 魚香茄子', '週四 鹽焗雞', '週五 炒米粉'].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2 py-2 border-b border-[#F0E8D8]">
+                    <span className="text-sm text-[#9B6035]">{item.split(' ')[0]}</span>
+                    <span className="flex-1 text-sm text-[#3A2010]">{item.split(' ')[1]}</span>
+                    <span className="text-xs text-[#AA7A50]">25min</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
