@@ -234,7 +234,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </Head>
 
       {/* Clean Hero */}
-      <section className="py-16" style={{ backgroundColor: 'var(--background)' }}>
+      <section className="py-8" style={{ backgroundColor: 'var(--background)' }}>
         <div className="max-w-2xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
             今晚食乜?
@@ -461,11 +461,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">{recipeCountText}</h2>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">排序：</span>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 rounded-full border text-sm font-medium"
+                    className="px-3 py-1.5 rounded-full border text-sm font-medium"
                     style={{ borderColor: 'var(--border)' }}
                   >
                     {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -491,12 +492,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               {recipeCountText}
             </h2>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {/* Sort Dropdown */}
+              <span className="text-sm text-gray-500">排序：</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 rounded-full border text-sm font-medium"
+                className="px-3 py-1.5 rounded-full border text-sm font-medium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
