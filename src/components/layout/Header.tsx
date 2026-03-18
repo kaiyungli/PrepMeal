@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface HeaderProps {
@@ -7,30 +8,70 @@ interface HeaderProps {
 }
 
 export default function Header({ showNav = true }: HeaderProps) {
-  return (
-    <header className="h-16 border-b border-[#E5DCC8] bg-white flex items-center justify-between px-6">
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 text-xl font-bold text-[#9B6035]">
-        <span>🍜</span>
-        <span>今晚食乜</span>
-      </Link>
+  const [menuOpen, setMenuOpen] = useState(false);
 
-      {/* Nav */}
-      {showNav && (
-        <nav className="flex items-center gap-6">
-          <Link href="/" className="text-[#3A2010] hover:text-[#9B6035]">首頁</Link>
-          <Link href="/generate" className="text-[#3A2010] hover:text-[#9B6035]">生成餐單</Link>
-          <Link href="/recipes" className="text-[#3A2010] hover:text-[#9B6035]">食譜</Link>
-          
-          {/* CTA */}
-          <Link 
-            href="/generate" 
-            className="px-4 py-2 bg-[#9B6035] text-white rounded-lg font-medium hover:bg-[#8B5530]"
-          >
-            開始使用
+  const navLinks = [
+    { label: "首頁", path: "/" },
+    { label: "食譜", path: "/recipes" },
+    { label: "生成餐單", path: "/generate" },
+  ];
+
+  return (
+    <>
+      <header className="h-16 bg-[#F8F3E8] border-b border-[#DDD0B0]">
+        <div className="h-full max-w-[1200px] mx-auto px-4 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 text-lg font-extrabold text-[#9B6035]">
+            <span>🍜</span>
+            <span>今晚食乜</span>
           </Link>
-        </nav>
+
+          {/* Desktop Nav */}
+          {showNav && (
+            <nav className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  className="text-sm font-semibold text-[#AA7A50] hover:text-[#9B6035] transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          )}
+
+          {/* Mobile Hamburger */}
+          {showNav && (
+            <button
+              className="md:hidden p-2"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              <div className="space-y-1.5">
+                <span className="block w-6 h-0.5 bg-[#9B6035]"></span>
+                <span className="block w-6 h-0.5 bg-[#9B6035]"></span>
+                <span className="block w-6 h-0.5 bg-[#9B6035]"></span>
+              </div>
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      {menuOpen && showNav && (
+        <div className="md:hidden bg-[#F8F3E8] border-t border-[#DDD0B0]">
+          {navLinks.map((link, i) => (
+            <Link
+              key={link.path}
+              href={link.path}
+              className="block py-3 px-4 text-sm font-semibold text-[#AA7A50] border-b border-[#DDD0B0]"
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
       )}
-    </header>
+    </>
   );
 }
