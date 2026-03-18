@@ -281,7 +281,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </section>
 
       {/* Recipe Listing - Sidebar + Grid Layout */}
-      <section className="py-6" style={{ backgroundColor: 'white' }}>
+      <section className="py-6 border-t" style={{ backgroundColor: 'white', borderColor: '#E7E0D4' }}>
         <div className="max-w-7xl mx-auto px-4">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden mb-4">

@@ -39,7 +39,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 text-center text-sm opacity-60">© 2026 今晚食乜 Made with ❤️</div>
+        <div className="border-t border-[#E7E0D4] pt-8 text-center text-sm opacity-60">© 2026 今晚食乜 Made with ❤️</div>
       </div>
     </footer>
   );
