@@ -89,6 +89,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   
   // Filter modal states
   const [modalCuisine, setModalCuisine] = useState([]);
@@ -423,7 +424,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               </div>
             </div>
 
-            {hasFilters && (
+            {hasFilters && modalCuisine.length > 0 && (
               <button 
                 onClick={clearFilters} 
                 className="ml-auto text-sm text-red-500 hover:text-red-600"
@@ -433,7 +434,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             )}
           </div>
 
-            {hasFilters && (
+            {hasFilters && modalCuisine.length > 0 && (
               <button 
                 onClick={clearFilters} 
                 className="text-sm text-red-500 hover:text-red-600 ml-auto"
