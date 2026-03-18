@@ -16,11 +16,11 @@ export default function HomeHero() {
             <div className="inline-flex items-center rounded-full bg-[#F8F3E8] px-4 py-1.5 text-sm font-semibold text-[#9B6035] mb-4">
               🍜 今晚食乜
             </div>
-            <h1 className="text-[2.5rem] font-extrabold tracking-[-0.02em] text-[#3A2010] md:text-[3rem] leading-tight">
-              今晚<br/>食咩好？
+            <h1 className="clamp(4rem, 10vw, 9rem) font-black leading-none tracking-[-0.02em] text-[#3A2010] mb-8">
+              今晚<br/>食乜
             </h1>
             <p className="mt-4 text-base text-[#7A5A38]">
-              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成一週餐單。
+              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成食譜。
             </p>
             
             {/* Input + Button Row */}
@@ -50,7 +50,7 @@ export default function HomeHero() {
                 href="/generate"
                 className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#DDD0B0] bg-[#F8F3E8] px-5 text-sm font-semibold text-[#7A5A38] transition hover:bg-[#F4EDDD]"
               >
-                生成一週餐單
+                生成食譜
               </Link>
               <span className="text-xs text-[#AA7A50]">
                 或者直接規劃本週晚餐
