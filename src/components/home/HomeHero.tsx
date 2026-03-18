@@ -3,10 +3,13 @@ import Link from 'next/link';
 export default function HomeHero() {
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden">
-      {/* Decorative circle */}
-      <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#C8D49A] opacity-20 -translate-y-1/2 translate-x-1/2 hidden md:block"></div>
+      {/* Top-right green circle decoration */}
+      <div className="absolute w-80 h-80 rounded-full bg-[#C8D49A] opacity-60 -top-16 -right-16 hidden md:block"></div>
       
-      <div className="px-4 pt-8 pb-10 md:pt-12 md:pb-14">
+      {/* Bottom-left warm yellow circle decoration */}
+      <div className="absolute w-48 h-48 rounded-full bg-[#E8C87A] opacity-40 bottom-0 -left-12 hidden md:block"></div>
+      
+      <div className="relative z-10 px-4 pt-8 pb-10 md:pt-12 md:pb-14">
         <div className="mx-auto max-w-[1200px]">
           <div className="mx-auto max-w-[880px] rounded-[28px] border border-[#E5DCC8] bg-white px-6 py-10 shadow-[0_16px_40px_rgba(155,96,53,0.08)] md:px-10 md:py-14">
             <div className="text-center">
