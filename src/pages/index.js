@@ -280,7 +280,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       <section className="py-8" style={{ backgroundColor: 'white' }}>
         <div className="max-w-6xl mx-auto px-4">
           {/* Quick Filter Chips */}
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>快速篩選：</span>
             {QUICK_FILTERS.map(filter => (
               <button
@@ -296,46 +296,38 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {filter.label}
               </button>
             ))}
-            
-            <div className="flex-1" />
-            
-            {/* Sort & Filter Buttons */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 rounded-full border text-sm font-medium"
-              style={{ borderColor: 'var(--border)' }}
-            >
-              {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-            
-            <button
-              onClick={() => setShowFilterModal(true)}
-              className="px-4 py-2 rounded-full border text-sm font-medium"
-              style={{ 
-                borderColor: hasFilters ? 'var(--primary)' : 'var(--border)',
-                backgroundColor: hasFilters ? 'var(--primary)' : 'transparent',
-                color: hasFilters ? 'white' : 'var(--foreground)'
-              }}
-            >
-              篩選 {hasFilters && '✓'}
-            </button>
           </div>
 
-          {/* Result Count */}
+          {/* Sort & Filter Row */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>
               {recipeCountText}
             </h2>
-            {hasFilters && (
-              <button 
-                onClick={clearFilters}
-                className="text-sm font-medium"
-                style={{ color: 'var(--primary)' }}
+            
+            <div className="flex items-center gap-3">
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 rounded-full border text-sm font-medium"
+                style={{ borderColor: 'var(--border)' }}
               >
-                清除篩選
+                {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+              
+              {/* Full Filter Button */}
+              <button
+                onClick={() => setShowFilterModal(true)}
+                className="px-4 py-2 rounded-full border text-sm font-medium"
+                style={{ 
+                  borderColor: hasFilters ? 'var(--primary)' : 'var(--border)',
+                  backgroundColor: hasFilters ? 'var(--primary)' : 'transparent',
+                  color: hasFilters ? 'white' : 'var(--foreground)'
+                }}
+              >
+                篩選 {hasFilters && '✓'}
               </button>
-            )}
+            </div>
           </div>
 
           {/* Recipe Grid */}
