@@ -1,4 +1,5 @@
 // Generate page settings panel component
+import { FilterSection, FilterChip } from '@/components/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
