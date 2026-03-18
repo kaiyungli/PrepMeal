@@ -239,7 +239,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
       {/* Clean Hero */}
       <section className="py-8" style={{ backgroundColor: 'var(--background)' }}>
-        <div className="max-w-2xl mx-auto px-4 text-center">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="border border-[#E7E0D4] rounded-2xl p-6" style={{ backgroundColor: 'white' }}>
+            <div className="text-center">
           <h1 className="text-5xl md:text-6xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
             今晚食乜?
           </h1>
@@ -276,6 +278,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             >
               📅 生成一週餐單
             </a>
+          </div>
+            </div>
           </div>
         </div>
       </section>
