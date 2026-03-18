@@ -5,6 +5,7 @@ import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { FilterChip, FilterSection, RecipeFilterPanel } from '@/components/filters';
+import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
 console.log('[CLIENT] Module loaded');
 
@@ -18,22 +19,15 @@ const QUICK_FILTERS = [
 ];
 
 // Filter options with UI label -> DB value mapping
-const cuisineOptions = [
-  { label: '全部', value: '' },
-  { label: '中式', value: 'chinese' },
-  { label: '西式', value: 'western' },
-];
+// Use shared constants from @/constants/filters
+const cuisineOptions = CUISINES.filter(c => ['chinese', 'western'].includes(c.value));
 const timeOptions = [
   { label: '15分鐘內', value: '15' },
   { label: '30分鐘內', value: '30' },
   { label: '45分鐘內', value: '45' },
   { label: '60分鐘內', value: '60' },
 ];
-const difficultyOptions = [
-  { label: '簡易', value: 'easy' },
-  { label: '中等', value: 'medium' },
-  { label: '困難', value: 'hard' },
-];
+const difficultyOptions = COOKING_CONSTRAINTS.filter(c => ['easy', 'medium', 'hard'].includes(c.value));
 const methodOptions = [
   { label: '炒', value: 'stir_fry' },
   { label: '蒸', value: 'steamed' },
@@ -44,16 +38,7 @@ const methodOptions = [
   { label: '氣炸', value: 'air_fryer' },
   { label: '一鍋煮', value: 'one_pot' },
 ];
-const dietOptions = [
-  { label: '素食', value: 'vegetarian' },
-  { label: '蛋奶素', value: 'egg_lacto' },
-  { label: '高蛋白', value: 'high_protein' },
-  { label: '低脂', value: 'low_fat' },
-  { label: '低卡', value: 'low_calorie' },
-  { label: '清淡', value: 'light' },
-];
-
-// Exclusions
+const dietOptions = DIET_MODES.filter(d => ['vegetarian', 'egg_lacto', 'high_protein', 'low_fat', 'low_calorie', 'light'].includes(d.value));
 const exclusionOptions = [
   { label: '不要牛肉', value: 'no_beef' },
   { label: '不要豬肉', value: 'no_pork' },
@@ -63,8 +48,6 @@ const exclusionOptions = [
   { label: '不要奶', value: 'no_dairy' },
   { label: '不要辣', value: 'no_spicy' },
 ];
-
-// Budget
 const budgetOptions = [
   { label: '平價', value: 'budget' },
   { label: '一般', value: 'normal' },
