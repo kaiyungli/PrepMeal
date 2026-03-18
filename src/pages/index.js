@@ -74,7 +74,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(true);
   
   // Filter modal states
   const [modalCuisine, setModalCuisine] = useState([]);
