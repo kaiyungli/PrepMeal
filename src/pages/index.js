@@ -38,14 +38,14 @@ const difficultyOptions = [
   { label: '困難', value: 'hard' },
 ];
 const methodOptions = [
-  { label: '炒', value: '炒' },
-  { label: '蒸', value: '蒸' },
-  { label: '煮', value: '煮' },
-  { label: '焗', value: '焗' },
-  { label: '煎', value: '煎' },
-  { label: '燉', value: '燉' },
-  { label: '氣炸', value: '氣炸' },
-  { label: '一鍋煮', value: '一鍋煮' },
+  { label: '炒', value: 'stir_fry' },
+  { label: '蒸', value: 'steamed' },
+  { label: '煮', value: 'boiled' },
+  { label: '焗', value: 'baked' },
+  { label: '煎', value: 'fried' },
+  { label: '燉', value: 'braised' },
+  { label: '氣炸', value: 'air_fryer' },
+  { label: '一鍋煮', value: 'one_pot' },
 ];
 const dietOptions = [
   { label: '素食', value: 'vegetarian' },
