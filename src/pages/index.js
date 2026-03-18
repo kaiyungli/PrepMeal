@@ -285,12 +285,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 菜系 */}
                 <div>
                   <div className="text-xs font-semibold text-[#AA7A50] mb-2">菜系</div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {cuisineOptions.filter(c => c.value).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                        className={`px-3 py-1.5 rounded-md text-sm ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
                           modalCuisine.includes(c.value)
                             ? 'bg-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
@@ -305,7 +305,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 烹飪難度/時間 */}
                 <div>
                   <div className="text-xs font-semibold text-[#AA7A50] mb-2">難度/時間</div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {difficultyOptions.concat(timeOptions.slice(0,2)).map(c => (
                       <button
                         key={c.value}
@@ -316,7 +316,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                             toggleFilter(modalDifficulty, c.value, setModalDifficulty);
                           }
                         }}
-                        className={`px-3 py-1.5 rounded-md text-sm ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
                           modalDifficulty.includes(c.value) || modalTime.includes(c.value)
                             ? 'bg-[#9B6035] text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
@@ -331,12 +331,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 排除 */}
                 <div>
                   <div className="text-xs font-semibold text-[#AA7A50] mb-2">排除</div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {exclusionOptions.slice(0, 4).map(c => (
                       <button
                         key={c.value}
                         onClick={() => toggleFilter(modalExclusions, c.value, setModalExclusions)}
-                        className={`px-3 py-1.5 rounded-md text-sm ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-md text-sm ${
                           modalExclusions.includes(c.value)
                             ? 'bg-red-500 text-white'
                             : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
@@ -432,7 +432,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               {/* 菜系 */}
               <div className="bg-gray-50 p-4 rounded-xl">
                 <label className="block text-sm font-semibold mb-3 text-gray-700">🍽️ 菜系</label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {cuisineOptions.filter(c => c.value !== '').map(c => (
                       <button
                         key={c.value}
@@ -452,7 +452,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 時間 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">⏱️ 烹飪時間</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {timeOptions.map(t => (
                       <button
                         key={t.value}
@@ -472,7 +472,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 難度 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">📊 難度</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {difficultyOptions.map(d => (
                       <button
                         key={d.value}
@@ -492,7 +492,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 烹調方式 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🍳 烹調方式</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {methodOptions.map(m => (
                       <button
                         key={m.value}
@@ -512,7 +512,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 飲食限制 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🥗 飲食/營養</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {dietOptions.map(d => (
                       <button
                         key={d.value}
@@ -532,7 +532,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 排除食材 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">🚫 排除食材</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {exclusionOptions.map(e => (
                       <button
                         key={e.value}
@@ -552,7 +552,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 {/* 預算 */}
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">💰 預算</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-nowrap overflow-x-auto gap-2 pb-2">
                     {budgetOptions.map(b => (
                       <button
                         key={b.value}
