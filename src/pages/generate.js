@@ -4,6 +4,7 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
 import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect } from 'react';
+import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -84,16 +85,21 @@ const DAYS = getWeekDates();
 export default function GeneratePage() {
   const router = useRouter();
   
-  // Settings State
-  const [daysPerWeek, setDaysPerWeek] = useState(7);
-  const [dishesPerDay, setDishesPerDay] = useState(1);
-  const [servings, setServings] = useState(2);
-  const [dietMode, setDietMode] = useState('general');
-  const [exclusions, setExclusions] = useState([]);
-  const [cuisines, setCuisines] = useState([]);
-  const [cookingConstraints, setCookingConstraints] = useState([]);
-  const [budget, setBudget] = useState('normal');
-  const [ingredientReuse, setIngredientReuse] = useState('normal');
+  // Settings State - use hook for preferences
+  const {
+    daysPerWeek, setDaysPerWeek,
+    dishesPerDay, setDishesPerDay,
+    servings, setServings,
+    dietMode, setDietMode,
+    budget, setBudget,
+    ingredientReuse, setIngredientReuse,
+    exclusions, setExclusions,
+    cuisines, setCuisines,
+    cookingConstraints, setCookingConstraints,
+    toggleExclusion,
+    toggleCuisine,
+    toggleConstraint,
+  } = useGeneratePreferences();
   
   // Recipe State
   const [allRecipes, setAllRecipes] = useState([]);
@@ -178,30 +184,6 @@ export default function GeneratePage() {
     
     setFilteredRecipes(filtered);
   }, [allRecipes, cuisines, cookingConstraints, exclusions, pantryIngredients]);
-
-  const toggleExclusion = (value) => {
-    setExclusions(prev => 
-      prev.includes(value) 
-        ? prev.filter(e => e !== value)
-        : [...prev, value]
-    );
-  };
-
-  const toggleCuisine = (value) => {
-    setCuisines(prev => 
-      prev.includes(value) 
-        ? prev.filter(c => c !== value)
-        : [...prev, value]
-    );
-  };
-
-  const toggleConstraint = (value) => {
-    setCookingConstraints(prev => 
-      prev.includes(value) 
-        ? prev.filter(c => c !== value)
-        : [...prev, value]
-    );
-  };
 
 // ============================================
 // PLANNER CONFIGURATION CONSTANTS
