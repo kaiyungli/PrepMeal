@@ -238,52 +238,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-      {/* Clean Hero */}
-      <section className="py-8" style={{ backgroundColor: 'var(--background)' }}>
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="border border-[#E5DCC8] rounded-2xl p-8 shadow-sm" style={{ backgroundColor: 'white' }}>
-            <div className="text-center">
-          <h1 className="text-5xl md:text-6xl font-black mb-4" style={{ color: 'var(--foreground)' }}>
-            今晚食乜?
-          </h1>
-          <p className="text-xl mb-8" style={{ color: 'var(--muted-foreground)' }}>
-            輸入你有嘅食材，我帮你搵啱啱嘅食譜
-          </p>
-
-          {/* Ingredient Input - Primary Action */}
-          <div className="flex gap-2 max-w-lg mx-auto mb-6">
-            <input
-              type="text"
-              value={pantryInput}
-              onChange={(e) => setPantryInput(e.target.value)}
-              placeholder="例如：蛋、番茄、雞肉..."
-              className="flex-1 px-5 py-4 rounded-2xl border-2 text-lg"
-              style={{ borderColor: 'var(--primary)', backgroundColor: 'white' }}
-              onKeyDown={(e) => e.key === 'Enter' && handlePantrySearch()}
-            />
-            <button
-              onClick={handlePantrySearch}
-              className="px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-md"
-              style={{ backgroundColor: 'var(--primary)' }}
-            >
-              搵食譜
-            </button>
-          </div>
-
-          {/* Secondary Action */}
-          <div>
-            <a
-              href="/generate"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium"
-              style={{ backgroundColor: 'var(--secondary)', color: 'var(--foreground)' }}
-            >
-              📅 生成一週餐單
-            </a>
-          </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <HomeHero onPrimaryAction={handlePantrySearch} />
 
       {/* Recipe Listing - Sidebar + Grid Layout */}
       <section className="py-6 border-t" style={{ backgroundColor: '#F8F3E8', borderColor: '#E5DCC8' }}>

@@ -1,6 +1,10 @@
 import Link from 'next/link';
 
-export default function HomeHero() {
+interface HomeHeroProps {
+  onPrimaryAction?: () => void;
+}
+
+export default function HomeHero({ onPrimaryAction }: HomeHeroProps) {
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
       {/* Top-right green circle decoration */}
@@ -13,24 +17,18 @@ export default function HomeHero() {
         <div className="grid grid-cols-12 gap-8 items-center">
           {/* Left side - Text */}
           <div className="col-span-12 md:col-span-6 text-center md:text-left">
-            <div className="inline-flex items-center rounded-full bg-[#F8F3E8] px-4 py-1.5 text-sm font-semibold text-[#9B6035] mb-4">
-              🍜 今晚食乜
-            </div>
             <h1 className="clamp(4rem, 10vw, 9rem) font-black leading-none tracking-[-0.02em] text-[#3A2010] mb-8">
-              今晚食乜
+              今晚<br/>食乜
             </h1>
-            <p className="mt-2 text-base text-[#7A5A38]">
-              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成一週餐單。
-            </p>
             
             {/* CTA Button */}
             <div className="mt-6">
-              <Link
-                href="/generate"
+              <button
+                onClick={onPrimaryAction}
                 className="inline-flex px-12 py-4 rounded-full bg-[#9B6035] text-white font-extrabold text-lg hover:opacity-95 transition-opacity"
               >
                 生成食譜
-              </Link>
+              </button>
             </div>
           </div>
           
@@ -48,18 +46,61 @@ export default function HomeHero() {
                 </div>
               </div>
               
-              {/* Left column: 本週餐單 */}
-              <div className="space-y-3">
-                <div className="text-sm font-bold text-[#3A2010]">📅 本週餐單</div>
-                
-                {/* 5 items */}
-                {['週一 番茄意粉', '週二 咖喱飯', '週三 魚香茄子', '週四 鹽焗雞', '週五 炒米粉'].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 py-2 border-b border-[#F0E8D8]">
-                    <span className="text-sm text-[#9B6035]">{item.split(' ')[0]}</span>
-                    <span className="flex-1 text-sm text-[#3A2010]">{item.split(' ')[1]}</span>
-                    <span className="text-xs text-[#AA7A50]">25min</span>
+              {/* Two columns: 餐單 + 購物清單 */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* 左欄：本週餐單 */}
+                <div>
+                  <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
+                  <div className="space-y-1">
+                    {/* Done items */}
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded bg-[rgba(200,212,154,0.30)] border border-[rgba(155,96,53,0.22)]">
+                      <span className="text-xs text-[#9B6035] font-medium">週一</span>
+                      <span className="flex-1 text-sm text-[#3A2010]">番茄炒蛋</span>
+                      <span className="text-green-600">✓</span>
+                    </div>
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded bg-[rgba(200,212,154,0.30)] border border-[rgba(155,96,53,0.22)]">
+                      <span className="text-xs text-[#9B6035] font-medium">週二</span>
+                      <span className="flex-1 text-sm text-[#3A2010]">咖喱雞</span>
+                      <span className="text-green-600">✓</span>
+                    </div>
+                    {/* Not done items */}
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]">
+                      <span className="text-xs text-[#9B6035] font-medium">週三</span>
+                      <span className="flex-1 text-sm text-[#3A2010]">西蘭花牛肉</span>
+                    </div>
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]">
+                      <span className="text-xs text-[#9B6035] font-medium">週四</span>
+                      <span className="flex-1 text-sm text-[#3A2010]">照燒雞扒</span>
+                    </div>
+                    <div className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]">
+                      <span className="text-xs text-[#9B6035] font-medium">週五</span>
+                      <span className="flex-1 text-sm text-[#3A2010]">黑椒牛柳</span>
+                    </div>
                   </div>
-                ))}
+                </div>
+                
+                {/* 右欄：購物清單 */}
+                <div>
+                  <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded">
+                      <span className="text-sm text-[#3A2010]">雞蛋</span>
+                      <span className="text-xs text-[#AA7A50]">x6</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded">
+                      <span className="text-sm text-[#3A2010]">西蘭花</span>
+                      <span className="text-xs text-[#AA7A50]">x1</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded">
+                      <span className="text-sm text-[#3A2010]">牛肉</span>
+                      <span className="text-xs text-[#AA7A50]">300g</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded">
+                      <span className="text-sm text-[#3A2010]">番茄</span>
+                      <span className="text-xs text-[#AA7A50]">x4</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
