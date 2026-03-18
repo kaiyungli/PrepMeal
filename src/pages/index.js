@@ -240,105 +240,183 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
             <HomeHero onPrimaryAction={handlePantrySearch} />
 
-      {/* Recipe Listing - Sidebar + Grid Layout */}
-      <section className="py-6 border-t" style={{ backgroundColor: '#F8F3E8', borderColor: '#E5DCC8' }}>
-        <div className="max-w-7xl mx-auto px-4">
-          {/* Mobile Filter Toggle */}
-          <div className="lg:hidden mb-4">
-            <button 
-              onClick={() => setShowFilterModal(true)}
-              className="w-full py-3 rounded-xl border font-medium flex items-center justify-center gap-2"
-              style={{ borderColor: hasFilters ? 'var(--primary)' : 'var(--border)' }}
-            >
-              <span>🔍</span>
-              <span>{hasFilters ? '已套用篩選' : '篩選'}</span>
-              {hasFilters && <span className="bg-primary text-white px-2 py-0.5 rounded-full text-xs">✓</span>}
-            </button>
+      {/* Recipe Section - Homepage Style */}
+      <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
+        <div className="max-w-[1200px] mx-auto px-4">
+          {/* 1. Centered Heading */}
+          <div className="text-center mb-8">
+            <div className="text-xs font-extrabold text-[#F0A060] uppercase tracking-widest mb-3">⭐ 食譜庫</div>
+            <h2 className="text-[1.5rem] md:text-[2.25rem] font-black text-[#3A2010] mb-2">食譜</h2>
+            <p className="text-sm font-semibold text-[#C0A080]">{recipeCountText}</p>
           </div>
 
-          {/* Use SharedFilterPanel */}
-          <SharedFilterPanel
-            sections={recipeFilterSections}
-            primarySectionIds={["cuisine", "time", "difficulty"]}
-            showAdvanced={showAdvanced}
-            setShowAdvanced={setShowAdvanced}
-            hasAdvanced={true}
-            onClear={clearFilters}
-          />
+          {/* 2. Search Bar */}
+          <div className="relative mb-6">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA7A50]">🔍</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="尋食譜... 例如：番茄、牛肉、咖哩"
+              className="w-full py-3.5 pl-11 pr-11 rounded-xl border-2 border-[#DDD0B0] bg-white text-[#3A2010] placeholder:text-[#C0A080] focus:outline-none focus:border-[#9B6035] transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#AA7A50] hover:text-[#9B6035]"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
-
-              {/* Header Row */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">{recipeCountText}</h2>
+          {/* 3. Advanced Filter Box */}
+          <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-8 overflow-hidden">
+            <div 
+              className="flex items-center justify-between px-4 py-3 cursor-pointer"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+            >
+              <span className="text-sm font-semibold text-[#7A5A38]">篩選</span>
+              <span className="text-[#9B6035]">{showAdvanced ? '▲ 收起' : '▼ 展開'}</span>
+            </div>
+            
+            {showAdvanced && (
+              <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* 菜系 */}
+                <div>
+                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">菜系</div>
+                  <div className="flex flex-wrap gap-2">
+                    {cuisineOptions.filter(c => c.value).map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
+                        className={`px-3 py-1.5 rounded-md text-sm ${
+                          modalCuisine.includes(c.value)
+                            ? 'bg-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">排序：</span>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-1.5 rounded-full border text-sm font-medium"
-                    style={{ borderColor: 'var(--border)' }}
+                {/* 烹飪難度/時間 */}
+                <div>
+                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">難度/時間</div>
+                  <div className="flex flex-wrap gap-2">
+                    {difficultyOptions.concat(timeOptions.slice(0,2)).map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => {
+                          if (timeOptions.find(t => t.value === c.value)) {
+                            toggleFilter(modalTime, c.value, setModalTime);
+                          } else {
+                            toggleFilter(modalDifficulty, c.value, setModalDifficulty);
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-sm ${
+                          modalDifficulty.includes(c.value) || modalTime.includes(c.value)
+                            ? 'bg-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* 排除 */}
+                <div>
+                  <div className="text-xs font-semibold text-[#AA7A50] mb-2">排除</div>
+                  <div className="flex flex-wrap gap-2">
+                    {exclusionOptions.slice(0, 4).map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => toggleFilter(modalExclusions, c.value, setModalExclusions)}
+                        className={`px-3 py-1.5 rounded-md text-sm ${
+                          modalExclusions.includes(c.value)
+                            ? 'bg-red-500 text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38]'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Clear */}
+                <div className="flex items-end">
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-[#9B6035] hover:underline"
                   >
-                    {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
+                    清除全部
+                  </button>
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* Active Filters - shown when filters active */}
-              {hasFilters && modalCuisine.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {modalCuisine.map(v => (
-                    <span key={v} className="px-2 py-0.5 rounded-full bg-primary text-white text-xs">
-                      {cuisineOptions.find(c => c.value === v)?.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+          {/* 4. Count + Sort Row */}
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm font-semibold text-[#C0A080]">{recipeCountText}</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2 rounded-full border border-[#DDD0B0] bg-white text-sm font-medium text-[#3A2010] focus:outline-none"
+            >
+              {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
+          </div>
 
-          {/* Recipe Grid */}
+          {/* 5. Recipe Cards Grid */}
           {showSkeleton && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-12 gap-6">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 rounded-xl h-48 mb-3"></div>
-                  <div className="bg-gray-200 h-5 rounded w-3/4 mb-2"></div>
-                  <div className="bg-gray-200 h-4 rounded w-1/2"></div>
+                <div key={i} className="col-span-12 sm:col-span-6 md:col-span-4 animate-pulse">
+                  <div className="bg-[#F8F3E8] rounded-2xl border-2 border-[#DDD0B0] overflow-hidden">
+                    <div className="h-48 bg-gray-200"></div>
+                    <div className="p-6">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
           {!showSkeleton && recipesList.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-12 gap-6">
               {recipesList.map(recipe => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  onClick={() => handleRecipeClick(recipe)}
-                />
+                <div key={recipe.id} className="col-span-12 sm:col-span-6 md:col-span-4">
+                  <RecipeCard
+                    recipe={recipe}
+                    onClick={() => handleRecipeClick(recipe)}
+                  />
+                </div>
               ))}
             </div>
           )}
 
           {!showSkeleton && recipesList.length === 0 && hasFilters && (
             <div className="text-center py-16">
-              <div className="text-6xl mb-4">🥘</div>
-              <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--foreground)' }}>
-                搵唔到啱啱嘅食譜
-              </h3>
-              <p className="mb-6" style={{ color: 'var(--muted-foreground)' }}>
-                試下調整篩選條件，或者清除所有篩選
-              </p>
+              <div className="text-6xl mb-4">😕</div>
+              <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
+              <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件，或者清除所有篩選</p>
               <button
                 onClick={clearFilters}
-                className="px-6 py-3 rounded-full text-white font-medium"
-                style={{ backgroundColor: 'var(--primary)' }}
+                className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95"
               >
                 清除篩選
               </button>
             </div>
           )}
+        </div>
       </section>
 
       {/* Filter Modal */}
