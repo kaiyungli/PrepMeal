@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { FilterChip, FilterSection } from '@/components/filters';
 
 console.log('[CLIENT] Module loaded');
 
