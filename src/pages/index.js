@@ -312,7 +312,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={c.value}
                     onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalCuisine.includes(c.value) 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -332,7 +332,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={t.value}
                     onClick={() => toggleFilter(modalTime, t.value, setModalTime)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalTime.includes(t.value) 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -352,7 +352,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={d.value}
                     onClick={() => toggleFilter(modalDifficulty, d.value, setModalDifficulty)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalDifficulty.includes(d.value) 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -372,7 +372,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={m.value}
                     onClick={() => toggleFilter(modalMethod, m.value, setModalMethod)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalMethod.includes(m.value) 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -392,7 +392,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={d.value}
                     onClick={() => toggleFilter(modalDiet, d.value, setModalDiet)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalDiet.includes(d.value) 
                         ? 'bg-primary text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -412,7 +412,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <button
                     key={e.value}
                     onClick={() => toggleFilter(modalExclusions, e.value, setModalExclusions)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       modalExclusions.includes(e.value) 
                         ? 'bg-red-500 text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
