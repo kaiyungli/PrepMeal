@@ -277,7 +277,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </section>
 
       {/* Recipe Listing - Sidebar + Grid Layout */}
-      <section className="py-8" style={{ backgroundColor: 'white' }}>
+      <section className="py-6" style={{ backgroundColor: 'white' }}>
         <div className="max-w-7xl mx-auto px-4">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden mb-4">
@@ -292,170 +292,108 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </button>
           </div>
 
-          {/* Desktop: Sidebar + Grid */}
-          <div className="flex gap-8">
-            {/* Left Sidebar - Filters (Desktop) */}
-            <div className="hidden lg:block w-64 flex-shrink-0">
-              <div className="sticky top-24 space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-lg">篩選</h3>
-                  {hasFilters && (
-                    <button onClick={clearFilters} className="text-sm" style={{ color: 'var(--primary)' }}>
-                      清除全部
-                    </button>
-                  )}
-                </div>
-
-                {/* 菜系 */}
-                <div>
-                  <h4 className="font-semibold mb-3">菜系</h4>
-                  <div className="space-y-2">
-                    {cuisineOptions.filter(c => c.value !== '').map(c => (
-                      <label key={c.value} className="flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="radio" 
-                          name="cuisine" 
-                          checked={modalCuisine === c.value}
-                          onChange={() => setModalCuisine(modalCuisine === c.value ? '' : c.value)}
-                          className="w-4 h-4"
-                        />
-                        <span>{c.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 烹飪時間 */}
-                <div>
-                  <h4 className="font-semibold mb-3">烹飪時間</h4>
-                  <div className="space-y-2">
-                    {timeOptions.map(t => (
-                      <label key={t.value} className="flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="radio" 
-                          name="time" 
-                          checked={modalTime === t.value}
-                          onChange={() => setModalTime(modalTime === t.value ? '' : t.value)}
-                          className="w-4 h-4"
-                        />
-                        <span>{t.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 難度 */}
-                <div>
-                  <h4 className="font-semibold mb-3">難度</h4>
-                  <div className="space-y-2">
-                    {difficultyOptions.map(d => (
-                      <label key={d.value} className="flex items-center gap-2 cursor-pointer">
-                        <input 
-                          type="radio" 
-                          name="difficulty" 
-                          checked={modalDifficulty === d.value}
-                          onChange={() => setModalDifficulty(modalDifficulty === d.value ? '' : d.value)}
-                          className="w-4 h-4"
-                        />
-                        <span>{d.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 烹調方式 */}
-                <div>
-                  <h4 className="font-semibold mb-3">烹調方式</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {methodOptions.map(m => (
-                      <button
-                        key={m.value}
-                        onClick={() => setModalMethod(modalMethod === m.value ? '' : m.value)}
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalMethod === m.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalMethod === m.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 飲食/營養 */}
-                <div>
-                  <h4 className="font-semibold mb-3">飲食/營養</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {dietOptions.map(d => (
-                      <button
-                        key={d.value}
-                        onClick={() => setModalDiet(modalDiet === d.value ? '' : d.value)}
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalDiet === d.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalDiet === d.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 排除食材 */}
-                <div>
-                  <h4 className="font-semibold mb-3">排除食材</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {exclusionOptions.map(e => (
-                      <button
-                        key={e.value}
-                        onClick={() => setModalExclusions(modalExclusions === e.value ? '' : e.value)}
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalExclusions === e.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalExclusions === e.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {e.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 預算 */}
-                <div>
-                  <h4 className="font-semibold mb-3">預算</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {budgetOptions.map(b => (
-                      <button
-                        key={b.value}
-                        onClick={() => setModalBudget(modalBudget === b.value ? '' : b.value)}
-                        className="px-3 py-1 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalBudget === b.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalBudget === b.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Apply Button */}
-                <button
-                  onClick={applyFilters}
-                  className="w-full py-3 rounded-xl text-white font-medium"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                >
-                  套用篩選
-                </button>
-              </div>
+          {/* Desktop: Horizontal Filter Bar */}
+          <div className="hidden lg:flex flex-wrap items-center gap-4 mb-6 pb-4 border-b">
+            {/* 菜系 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">菜系：</span>
+              <select 
+                value={modalCuisine}
+                onChange={(e) => setModalCuisine(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {cuisineOptions.filter(c => c.value !== '').map(c => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Right Content */}
+            {/* 時間 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">時間：</span>
+              <select 
+                value={modalTime}
+                onChange={(e) => setModalTime(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {timeOptions.map(t => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 難度 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">難度：</span>
+              <select 
+                value={modalDifficulty}
+                onChange={(e) => setModalDifficulty(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {difficultyOptions.map(d => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 烹調方式 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">烹調：</span>
+              <select 
+                value={modalMethod}
+                onChange={(e) => setModalMethod(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {methodOptions.map(m => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 飲食 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">飲食：</span>
+              <select 
+                value={modalDiet}
+                onChange={(e) => setModalDiet(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {dietOptions.map(d => (
+                  <option key={d.value} value={d.value}>{d.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* 預算 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-600">預算：</span>
+              <select 
+                value={modalBudget}
+                onChange={(e) => setModalBudget(e.target.value)}
+                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
+              >
+                <option value="">全部</option>
+                {budgetOptions.map(b => (
+                  <option key={b.value} value={b.value}>{b.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {hasFilters && (
+              <button 
+                onClick={clearFilters} 
+                className="text-sm text-red-500 hover:text-red-600 ml-auto"
+              >
+                清除篩選
+              </button>
+            )}
+          </div>
+
             <div className="flex-1">
               {/* Header Row */}
               <div className="flex items-center justify-between mb-6">
@@ -533,7 +471,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               </button>
             </div>
           )}
-        </div>
       </section>
 
       {/* Filter Modal */}
