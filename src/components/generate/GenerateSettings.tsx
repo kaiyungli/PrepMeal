@@ -1,4 +1,6 @@
 // Generate page settings panel component
+import PlanningSection from './PlanningSection';
+import PreferenceSection from './PreferenceSection';
 import { FilterSection, FilterChip } from '@/components/filters';
 
 interface GenerateSettingsProps {
@@ -90,112 +92,32 @@ export default function GenerateSettings({
   return (
     <div className="bg-white border-b border-[#DDD0B0] p-4">
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每週日數</label>
-            <div className="flex gap-1">
-              {DAYS_PER_WEEK.map(days => (
-                <button
-                  key={days}
-                  onClick={() => setDaysPerWeek(days)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    daysPerWeek === days ? 'bg-[#9B6035] text-white' : 'bg-[#F8F3E8] text-[#3A2010]'
-                  }`}
-                >
-                  {days}日
-                </button>
-              ))}
-            </div>
-          </div>
+        <PlanningSection
+          daysPerWeek={daysPerWeek}
+          setDaysPerWeek={setDaysPerWeek}
+          dishesPerDay={dishesPerDay}
+          setDishesPerDay={setDishesPerDay}
+          servings={servings}
+          setServings={setServings}
+        />
 
-          <div>
-            <label className="block text-xs font-semibold text-[#AA7A50] mb-2">每日碟數</label>
-            <div className="flex gap-1">
-              {DISHES_PER_DAY.map(dishes => (
-                <button
-                  key={dishes}
-                  onClick={() => setDishesPerDay(dishes)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    dishesPerDay === dishes ? 'bg-[#9B6035] text-white' : 'bg-[#F8F3E8] text-[#3A2010]'
-                  }`}
-                >
-                  {dishes}碟
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#AA7A50] mb-2">人數</label>
-            <select 
-              value={servings}
-              onChange={(e) => setServings(parseInt(e.target.value))}
-              className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
-            >
-              {SERVINGS_OPTIONS.map(s => (
-                <option key={s} value={s}>{s}人</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#AA7A50] mb-2">飲食模式</label>
-            <select 
-              value={dietMode}
-              onChange={(e) => setDietMode(e.target.value)}
-              className="w-full py-2 px-3 rounded-lg bg-[#F8F3E8] text-[#3A2010] border-none text-sm"
-            >
-              {DIET_MODES.map(d => (
-                <option key={d.value} value={d.value}>{d.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#AA7A50] mb-2">預算</label>
-            <div className="flex gap-1">
-              {BUDGET_OPTIONS.map(b => (
-                <button
-                  key={b.value}
-                  onClick={() => setBudget(b.value)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
-                    budget === b.value ? 'bg-[#9B6035] text-white' : 'bg-[#F8F3E8] text-[#3A2010]'
-                  }`}
-                >
-                  {b.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <FilterSection
-            title="菜系"
-            options={CUISINES}
-            selected={cuisines}
-            onToggle={toggleCuisine}
-          />
-        </div>
-
-        <div className="mt-4">
-          <FilterSection
-            title="烹飪限制"
-            options={COOKING_CONSTRAINTS}
-            selected={cookingConstraints}
-            onToggle={toggleConstraint}
-          />
-        </div>
-
-        <div className="mt-4">
-          <FilterSection
-            title="排除"
-            options={EXCLUSIONS}
-            selected={exclusions}
-            onToggle={toggleExclusion}
-            variant="danger"
-          />
-        </div>
+        <PreferenceSection
+          dietMode={dietMode}
+          setDietMode={setDietMode}
+          budget={budget}
+          setBudget={setBudget}
+          ingredientReuse={ingredientReuse}
+          setIngredientReuse={setIngredientReuse}
+          CUISINES={CUISINES}
+          cuisines={cuisines}
+          toggleCuisine={toggleCuisine}
+          COOKING_CONSTRAINTS={COOKING_CONSTRAINTS}
+          cookingConstraints={cookingConstraints}
+          toggleConstraint={toggleConstraint}
+          EXCLUSIONS={EXCLUSIONS}
+          exclusions={exclusions}
+          toggleExclusion={toggleExclusion}
+        />
 
         <div className="mt-4">
           <label className="block text-xs font-semibold text-[#AA7A50] mb-2">食材重用</label>
