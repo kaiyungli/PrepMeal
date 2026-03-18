@@ -28,7 +28,29 @@ const cuisineLabels: Record<string, string> = {
   chinese: '中式', western: '西式', japanese: '日式', korean: '韓式', taiwanese: '台式', se_asian: '東南亞'
 }
 const difficultyLabels: Record<string, string> = { easy: '簡易', medium: '中等', hard: '困難' }
-const methodLabels: Record<string, string> = { stir_fry: '炒', steamed: '蒸', boiled: '煮', baked: '焗', fried: '煎' }
+const methodLabels: Record<string, string> = { 
+  stir_fry: '炒', 
+  steamed: '蒸', 
+  boiled: '煮', 
+  baked: '焗', 
+  fried: '煎',
+ 炖: '燉',
+  air_fryer: '氣炸',
+  one_pot: '一鍋煮'
+}
+const dietLabels: Record<string, string> = {
+  vegetarian: '素食',
+  egg_lacto: '蛋奶素',
+  high_protein: '高蛋白',
+  low_fat: '低脂',
+  low_calorie: '低卡',
+  light: '清淡'
+}
+
+// Helper to translate tag to Chinese
+function translateTag(tag: string): string {
+  return dietLabels[tag] || cuisineLabels[tag] || methodLabels[tag] || difficultyLabels[tag] || tag
+}
 
 export default function RecipeCard({ recipe, onClick, onFavorite, className = '', imageHeightClass = 'h-48' }: RecipeCardProps) {
   // Safely extract recipe fields
@@ -83,7 +105,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
             <span className="text-xs px-2 py-1 bg-teal-500 text-white rounded">{methodLabels[recipeMethod] || recipeMethod}</span>
           )}
           {tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded">{tag}</span>
+            <span key={i} className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded">{translateTag(tag)}</span>
           ))}
         </div>
         
