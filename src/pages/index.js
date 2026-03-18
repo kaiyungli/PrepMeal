@@ -93,6 +93,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   };
 
+  // Filter sections for SharedFilterPanel
+  const recipeFilterSections = [
+    { id: "cuisine", title: "菜系", options: cuisineOptions.filter(c => c.value), selected: modalCuisine, onToggle: (v) => toggleFilter(modalCuisine, v, setModalCuisine) },
+    { id: "time", title: "烹飪時間", options: timeOptions, selected: modalTime, onToggle: (v) => toggleFilter(modalTime, v, setModalTime) },
+    { id: "difficulty", title: "難度", options: difficultyOptions, selected: modalDifficulty, onToggle: (v) => toggleFilter(modalDifficulty, v, setModalDifficulty) },
+    { id: "method", title: "烹調方式", options: methodOptions, selected: modalMethod, onToggle: (v) => toggleFilter(modalMethod, v, setModalMethod) },
+    { id: "diet", title: "飲食偏好", options: dietOptions, selected: modalDiet, onToggle: (v) => toggleFilter(modalDiet, v, setModalDiet) },
+    { id: "exclusions", title: "排除項目", options: exclusionOptions.slice(0, 4), selected: modalExclusions, onToggle: (v) => toggleFilter(modalExclusions, v, setModalExclusions), variant: "danger" },
+  ];
+
   // Derived state - use this consistently
   const hasFilters = Boolean(
     searchQuery?.trim() ||
@@ -285,6 +295,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               {hasFilters && <span className="bg-primary text-white px-2 py-0.5 rounded-full text-xs">✓</span>}
             </button>
           </div>
+
+          {/* Use SharedFilterPanel */}
+          <SharedFilterPanel
+            sections={recipeFilterSections}
+            primarySectionIds={["cuisine", "time", "difficulty"]}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            hasAdvanced={true}
+            onClear={clearFilters}
+          />
 
 {/* Desktop: Stacked Filter Sections - Like Generate Page */}
           <div className="hidden lg:block mb-6 pb-4 border-b">
