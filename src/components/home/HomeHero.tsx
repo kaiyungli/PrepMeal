@@ -17,51 +17,35 @@ export default function HomeHero() {
               🍜 今晚食乜
             </div>
             <h1 className="clamp(4rem, 10vw, 9rem) font-black leading-none tracking-[-0.02em] text-[#3A2010] mb-8">
-              今晚<br/>食乜
+              今晚食乜
             </h1>
-            <p className="mt-4 text-base text-[#7A5A38]">
-              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成食譜。
+            <p className="mt-2 text-base text-[#7A5A38]">
+              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成一週餐單。
             </p>
             
-            {/* Input + Button Row */}
-            <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
-              <div className="relative flex-1">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-[#AA7A50]">
-                  🔍
-                </span>
-                <input
-                  type="text"
-                  readOnly
-                  placeholder="例如：蛋、番茄、雞肉..."
-                  className="h-12 w-full rounded-2xl border border-[#DDD0B0] bg-white pl-11 pr-4 text-sm font-medium text-[#3A2010] placeholder:text-[#B08A63] focus:outline-none"
-                />
-              </div>
-              <button
-                type="button"
-                className="h-12 rounded-2xl bg-[#9B6035] px-6 text-sm font-bold text-white transition hover:opacity-95 whitespace-nowrap"
-              >
-                搵食譜
-              </button>
-            </div>
-            
-            {/* Secondary CTA */}
-            <div className="mt-4 flex flex-col items-center gap-2 md:flex-row">
+            {/* CTA Button */}
+            <div className="mt-6">
               <Link
                 href="/generate"
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#DDD0B0] bg-[#F8F3E8] px-5 text-sm font-semibold text-[#7A5A38] transition hover:bg-[#F4EDDD]"
+                className="inline-flex px-12 py-4 rounded-full bg-[#9B6035] text-white font-extrabold text-lg hover:opacity-95 transition-opacity"
               >
                 生成食譜
               </Link>
-              <span className="text-xs text-[#AA7A50]">
-                或者直接規劃本週晚餐
-              </span>
             </div>
           </div>
           
-          {/* Right side - Decorative (hidden on mobile) */}
-          <div className="col-span-12 md:col-span-6 hidden md:flex justify-end">
-            {/* Placeholder for right side decoration or image */}
-            <div className="w-64 h-64 rounded-full bg-gradient-to-br from-[#9B6035] to-[#7A5A38] opacity-10"></div>
+          {/* Right side - HeroCard */}
+          <div className="col-span-12 md:col-span-6 hidden md:flex justify-center">
+            <div className="w-full max-w-md rounded-2xl border-2 border-[#DDD0B0] bg-white p-6 shadow-[0_20px_60px_rgba(155,96,53,0.14)]">
+              {/* Placeholder content for HeroCard */}
+              <div className="space-y-4">
+                <div className="h-4 bg-[#F8F3E8] rounded w-3/4"></div>
+                <div className="h-4 bg-[#F8F3E8] rounded w-1/2"></div>
+                <div className="h-20 bg-[#F8F3E8] rounded-xl"></div>
+                <div className="h-4 bg-[#F8F3E8] rounded w-full"></div>
+                <div className="h-4 bg-[#F8F3E8] rounded w-2/3"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
