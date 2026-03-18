@@ -7,34 +7,34 @@ interface HomeHeroProps {
 export default function HomeHero({ onPrimaryAction }: HomeHeroProps) {
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
-      {/* Top-right green circle decoration */}
-      <div className="absolute w-80 h-80 rounded-full bg-[#C8D49A] opacity-60 -top-16 -right-16 hidden md:block"></div>
+      {/* Top-right green circle decoration - LARGER */}
+      <div className="absolute w-[400px] h-[400px] rounded-full bg-[#C8D49A] opacity-40 -top-32 -right-32 hidden md:block"></div>
       
-      {/* Bottom-left warm yellow circle decoration */}
-      <div className="absolute w-48 h-48 rounded-full bg-[#E8C87A] opacity-40 bottom-0 -left-12 hidden md:block"></div>
+      {/* Bottom-left warm yellow circle decoration - LARGER */}
+      <div className="absolute w-[250px] h-[250px] rounded-full bg-[#E8C87A] opacity-30 -bottom-20 -left-20 hidden md:block"></div>
       
       <div className="relative z-10 mx-auto max-w-[1200px] px-4">
-        <div className="grid grid-cols-12 gap-8 items-center">
-          {/* Left side - Text */}
-          <div className="col-span-12 md:col-span-6 text-center md:text-left">
-            <h1 className="clamp(4rem, 10vw, 9rem) font-black leading-none tracking-[-0.02em] text-[#3A2010] mb-8">
+        <div className="grid grid-cols-12 gap-6 items-center">
+          {/* Left side - Text - WIDER (col-span-7) */}
+          <div className="col-span-12 md:col-span-7 text-center md:text-left">
+            <h1 className="text-7xl md:text-[8rem] font-black leading-[0.9] tracking-[-0.03em] text-[#3A2010]">
               今晚<br/>食乜
             </h1>
             
-            {/* CTA Button */}
-            <div className="mt-6">
+            {/* CTA Button - LARGER */}
+            <div className="mt-8">
               <button
                 onClick={onPrimaryAction}
-                className="inline-flex px-12 py-4 rounded-full bg-[#9B6035] text-white font-extrabold text-lg hover:opacity-95 transition-opacity"
+                className="px-12 py-5 rounded-full bg-[#9B6035] text-white font-bold text-lg shadow-md hover:opacity-95 transition-opacity"
               >
                 生成食譜
               </button>
             </div>
           </div>
           
-          {/* Right side - HeroCard */}
-          <div className="col-span-12 md:col-span-6 hidden md:flex justify-center">
-            <div className="w-full max-w-[520px] rounded-2xl border-2 border-[#DDD0B0] bg-white p-6 shadow-[0_20px_60px_rgba(155,96,53,0.14)]">
+          {/* Right side - HeroCard - ENHANCED */}
+          <div className="col-span-12 md:col-span-5 hidden md:flex justify-center">
+            <div className="w-full max-w-[480px] rounded-2xl border border-[#DDD0B0] bg-white p-6 shadow-[0_30px_80px_rgba(155,96,53,0.18)] scale-[1.05]">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
                 <div>
