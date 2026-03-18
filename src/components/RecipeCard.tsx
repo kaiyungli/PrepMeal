@@ -65,7 +65,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, className = ''
   const recipeMethod = recipe?.method || ''
   const recipeTime = recipe?.cooking_time || 30
   const recipeCalories = recipe?.calories_per_serving || 0
-  const recipeProtein = typeof recipe?.protein === 'string' ? recipe.protein : (Array.isArray(recipe?.protein) ? recipe.protein[0] : '')
+  const recipeProtein = typeof recipe?.protein === 'string' ? recipe.protein : (Array.isArray(recipe?.protein) && recipe.protein.length > 0 ? recipe.protein[0] : (recipe?.primary_protein || ''))
   const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : []
   
   const tags = [...(recipeProtein ? [recipeProtein] : []), ...recipeDiet].slice(0, 3)
