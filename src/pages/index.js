@@ -303,83 +303,93 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </button>
           </div>
 
-          {/* Desktop: Horizontal Filter Bar - Multi-select chips */}
-          <div className="hidden lg:flex flex-wrap items-center gap-3 mb-6 pb-4 border-b">
-            {/* 菜系 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-gray-500">菜系</span>
-              <div className="flex flex-wrap gap-1">
-                {cuisineOptions.filter(c => c.value !== '').map(c => (
-                  <button
-                    key={c.value}
-                    onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      modalCuisine.includes(c.value) 
-                        ? 'bg-primary text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
+{/* Desktop: Stacked Filter Sections - Like Generate Page */}
+          <div className="hidden lg:block mb-6 pb-4 border-b">
+            {/* Primary Filters Row - Like Generate Page */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {/* 菜系 */}
+              <div>
+                <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>菜系</span>
+                <div className="flex flex-wrap gap-1">
+                  {cuisineOptions.filter(c => c.value !== '').map(c => (
+                    <button
+                      key={c.value}
+                      onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
+                      className="px-2 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: modalCuisine.includes(c.value) ? '#9B6035' : 'white',
+                        color: modalCuisine.includes(c.value) ? 'white' : '#3A2010',
+                        border: '1px solid #E7E0D4'
+                      }}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 時間 */}
+              <div>
+                <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>烹飪時間</span>
+                <div className="flex flex-wrap gap-1">
+                  {timeOptions.map(t => (
+                    <button
+                      key={t.value}
+                      onClick={() => toggleFilter(modalTime, t.value, setModalTime)}
+                      className="px-2 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: modalTime.includes(t.value) ? '#9B6035' : 'white',
+                        color: modalTime.includes(t.value) ? 'white' : '#3A2010',
+                        border: '1px solid #E7E0D4'
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 難度 */}
+              <div>
+                <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>難度</span>
+                <div className="flex flex-wrap gap-1">
+                  {difficultyOptions.map(d => (
+                    <button
+                      key={d.value}
+                      onClick={() => toggleFilter(modalDifficulty, d.value, setModalDifficulty)}
+                      className="px-2 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: modalDifficulty.includes(d.value) ? '#9B6035' : 'white',
+                        color: modalDifficulty.includes(d.value) ? 'white' : '#3A2010',
+                        border: '1px solid #E7E0D4'
+                      }}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 更多篩選 Toggle */}
+              <div>
+                <span className="text-xs font-medium block mb-2" style={{color: '#7A746B'}}>更多篩選</span>
+                <button 
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style={{
+                    backgroundColor: showAdvanced ? '#9B6035' : 'white',
+                    color: showAdvanced ? 'white' : '#3A2010',
+                    border: '1px solid #E7E0D4'
+                  }}
+                >
+                  {showAdvanced ? '▲ 收起' : '▼ 更多'}
+                </button>
               </div>
             </div>
 
-            {/* 時間 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-gray-500">時間</span>
-              <div className="flex flex-wrap gap-1">
-                {timeOptions.map(t => (
-                  <button
-                    key={t.value}
-                    onClick={() => toggleFilter(modalTime, t.value, setModalTime)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      modalTime.includes(t.value) 
-                        ? 'bg-primary text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 難度 */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-gray-500">難度</span>
-              <div className="flex flex-wrap gap-1">
-                {difficultyOptions.map(d => (
-                  <button
-                    key={d.value}
-                    onClick={() => toggleFilter(modalDifficulty, d.value, setModalDifficulty)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      modalDifficulty.includes(d.value) 
-                        ? 'bg-primary text-white' 
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <button 
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium"
-              style={{
-                backgroundColor: showAdvanced ? '#9B6035' : 'white',
-                color: showAdvanced ? 'white' : '#3A2010',
-                border: '1px solid #E7E0D4'
-              }}
-            >
-              更多篩選 {showAdvanced ? '▲' : '▼'}
-            </button>
-
-            <div className="flex-1" />
-            
+            {/* Clear button */}
             {hasFilters && (
-              <button onClick={clearFilters} className="text-xs font-medium" style={{color: '#9B6035'}}>
+              <button onClick={clearFilters} className="text-xs font-medium mt-3" style={{color: '#9B6035'}}>
                 清除全部
               </button>
             )}
