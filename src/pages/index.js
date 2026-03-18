@@ -405,15 +405,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <div className="flex flex-wrap gap-2">
                     {cuisineOptions.filter(c => c.value !== '全部').map(c => (
                       <button
-                        key={c}
-                        onClick={() => setModalCuisine(modalCuisine === c.value || modalCuisine === c.label ? c.value : '全部')}
+                        key={c.value}
+                        onClick={() => setModalCuisine(modalCuisine === c.value ? '' : c.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
                           backgroundColor: modalCuisine === c.value ? 'var(--primary)' : 'var(--background)',
                           color: modalCuisine === c.value ? 'white' : 'var(--foreground)'
                         }}
                       >
-                        {c}
+                        {c.label}
                       </button>
                     ))}
                   </div>
@@ -425,7 +425,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <div className="flex flex-wrap gap-2">
                     {timeOptions.map(t => (
                       <button
-                        key={t}
+                        key={t.value}
                         onClick={() => setModalTime(modalTime === t.value ? '' : t.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
@@ -433,7 +433,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                           color: modalTime === t.value ? 'white' : 'var(--foreground)'
                         }}
                       >
-                        {t}
+                        {t.label}
                       </button>
                     ))}
                   </div>
@@ -445,7 +445,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <div className="flex flex-wrap gap-2">
                     {difficultyOptions.map(d => (
                       <button
-                        key={d}
+                        key={d.value}
                         onClick={() => setModalDifficulty(modalDifficulty === d.value ? '' : d.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
@@ -453,7 +453,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                           color: modalDifficulty === d.value ? 'white' : 'var(--foreground)'
                         }}
                       >
-                        {d}
+                        {d.label}
                       </button>
                     ))}
                   </div>
@@ -465,7 +465,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <div className="flex flex-wrap gap-2">
                     {methodOptions.map(m => (
                       <button
-                        key={m}
+                        key={m.value}
                         onClick={() => setModalMethod(modalMethod === m.value ? '' : m.value)}
                         className="px-3 py-1.5 rounded-full text-sm"
                         style={{
@@ -473,7 +473,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                           color: modalMethod === m.value ? 'white' : 'var(--foreground)'
                         }}
                       >
-                        {m}
+                        {m.label}
                       </button>
                     ))}
                   </div>
