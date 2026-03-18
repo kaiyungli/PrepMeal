@@ -383,15 +383,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   </div>
                 </div>
                 
-                {/* Clear All */}
-                <div className="mt-1 border-t border-[#F2EBDD]">
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm font-semibold text-[#9B6035] hover:underline"
-                  >
-                    清除全部
-                  </button>
-                </div>
+              {/* Clear All at bottom */}
+              <div className="mt-3 border-t border-[#EEE5D6] pt-3">
+                <button
+                  onClick={clearFilters}
+                  className="text-sm font-semibold text-[#9B6035] hover:underline"
+                >
+                  清除全部
+                </button>
+              </div>
               </div>
             )}
           </div>
