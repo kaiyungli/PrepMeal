@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       method,
       diet,
       sort = 'newest',
-      limit = 20, 
+      limit = 100, 
       offset = 0 
     } = req.query;
     
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     }
     
     // Pagination
-    const limitNum = Math.min(Math.max(parseInt(limit) || 20, 1), 100)
+    const limitNum = Math.min(Math.max(parseInt(limit) || 100, 1), 100)
     const offsetNum = Math.max(parseInt(offset) || 0, 0)
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     

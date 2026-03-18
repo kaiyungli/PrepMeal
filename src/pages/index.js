@@ -206,6 +206,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   };
 
   const clearFilters = () => {
+    setSearchQuery('');
     setActiveFilters([]);
     setModalCuisine([]);
     setModalTime([]);
@@ -625,7 +626,7 @@ export async function getServerSideProps() {
       .select('*', { count: 'exact' })
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(100);
     
     console.log('[SSR] 4. Query executed:', { 
       error: error?.message, 
