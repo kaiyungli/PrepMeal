@@ -91,24 +91,33 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [showFilterModal, setShowFilterModal] = useState(false);
   
   // Filter modal states
-  const [modalCuisine, setModalCuisine] = useState('');
-  const [modalTime, setModalTime] = useState('');
-  const [modalDifficulty, setModalDifficulty] = useState('');
-  const [modalMethod, setModalMethod] = useState('');
-  const [modalDiet, setModalDiet] = useState('');
-  const [modalExclusions, setModalExclusions] = useState('');
-  const [modalBudget, setModalBudget] = useState('');
+  const [modalCuisine, setModalCuisine] = useState([]);
+  const [modalTime, setModalTime] = useState([]);
+  const [modalDifficulty, setModalDifficulty] = useState([]);
+  const [modalMethod, setModalMethod] = useState([]);
+  const [modalDiet, setModalDiet] = useState([]);
+  const [modalExclusions, setModalExclusions] = useState([]);
+  const [modalBudget, setModalBudget] = useState([]);
+
+  // Toggle function for multi-select
+  const toggleFilter = (arr, val, setter) => {
+    if (arr.includes(val)) {
+      setter(arr.filter(v => v !== val));
+    } else {
+      setter([...arr, val]);
+    }
+  };
 
   // Derived state - use this consistently
   const hasFilters = Boolean(
     searchQuery?.trim() ||
-    modalCuisine ||
-    modalTime ||
-    modalDifficulty ||
-    modalMethod ||
-    modalDiet ||
-    modalExclusions ||
-    modalBudget ||
+    modalCuisine.length > 0 ||
+    modalTime.length > 0 ||
+    modalDifficulty.length > 0 ||
+    modalMethod.length > 0 ||
+    modalDiet.length > 0 ||
+    modalExclusions.length > 0 ||
+    modalBudget.length > 0 ||
     activeFilters.length > 0
   );
   
@@ -129,13 +138,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       if (activeFilters.includes('protein')) params.set('sort', 'high_protein');
       if (activeFilters.includes('vegetarian')) params.set('diet', 'vegetarian');
       if (activeFilters.includes('lowcal')) params.set('sort', 'low_calorie');
-      if (modalCuisine !== '' && modalCuisine) params.set('cuisine', modalCuisine);
-      if (modalTime !== '' && modalTime) params.set('maxTime', modalTime);
-      if (modalDifficulty !== '' && modalDifficulty) params.set('difficulty', modalDifficulty);
-      if (modalMethod !== '' && modalMethod) params.set('method', modalMethod);
-      if (modalDiet !== '' && modalDiet) params.set('diet', modalDiet);
-      if (modalExclusions !== '' && modalExclusions) params.set('exclusions', modalExclusions);
-      if (modalBudget !== '' && modalBudget) params.set('budget', modalBudget);
+      if (modalCuisine.length > 0) params.set('cuisine', modalCuisine.join(','));
+      if (modalTime.length > 0) params.set('maxTime', modalTime.join(','));
+      if (modalDifficulty.length > 0) params.set('difficulty', modalDifficulty.join(','));
+      if (modalMethod.length > 0) params.set('method', modalMethod.join(','));
+      if (modalDiet.length > 0) params.set('diet', modalDiet.join(','));
+      if (modalExclusions.length > 0) params.set('exclusions', modalExclusions.join(','));
+      if (modalBudget.length > 0) params.set('budget', modalBudget.join(','));
       if (sortBy !== 'newest' && !activeFilters.includes('protein') && !activeFilters.includes('lowcal')) params.set('sort', sortBy);
       
       const url = `/api/recipes?${params.toString()}`;
@@ -202,13 +211,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
   const clearFilters = () => {
     setActiveFilters([]);
-    setModalCuisine('');
-    setModalTime('');
-    setModalDifficulty('');
-    setModalMethod('');
-    setModalDiet('');
-    setModalExclusions('');
-    setModalBudget('');
+    setModalCuisine([]);
+    setModalTime([]);
+    setModalDifficulty([]);
+    setModalMethod([]);
+    setModalDiet([]);
+    setModalExclusions([]);
+    setModalBudget([]);
     setSortBy('newest');
     fetchRecipes();
   };
@@ -292,97 +301,137 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </button>
           </div>
 
-          {/* Desktop: Horizontal Filter Bar */}
-          <div className="hidden lg:flex flex-wrap items-center gap-4 mb-6 pb-4 border-b">
+          {/* Desktop: Horizontal Filter Bar - Multi-select chips */}
+          <div className="hidden lg:flex flex-wrap items-center gap-3 mb-6 pb-4 border-b">
             {/* 菜系 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">菜系：</span>
-              <select 
-                value={modalCuisine}
-                onChange={(e) => setModalCuisine(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">菜系</span>
+              <div className="flex flex-wrap gap-1">
                 {cuisineOptions.filter(c => c.value !== '').map(c => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
+                  <button
+                    key={c.value}
+                    onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalCuisine.includes(c.value) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {c.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* 時間 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">時間：</span>
-              <select 
-                value={modalTime}
-                onChange={(e) => setModalTime(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">時間</span>
+              <div className="flex flex-wrap gap-1">
                 {timeOptions.map(t => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                  <button
+                    key={t.value}
+                    onClick={() => toggleFilter(modalTime, t.value, setModalTime)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalTime.includes(t.value) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* 難度 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">難度：</span>
-              <select 
-                value={modalDifficulty}
-                onChange={(e) => setModalDifficulty(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">難度</span>
+              <div className="flex flex-wrap gap-1">
                 {difficultyOptions.map(d => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
+                  <button
+                    key={d.value}
+                    onClick={() => toggleFilter(modalDifficulty, d.value, setModalDifficulty)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalDifficulty.includes(d.value) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            {/* 烹調方式 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">烹調：</span>
-              <select 
-                value={modalMethod}
-                onChange={(e) => setModalMethod(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
+            {/* 烹調 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">烹調</span>
+              <div className="flex flex-wrap gap-1">
                 {methodOptions.map(m => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
+                  <button
+                    key={m.value}
+                    onClick={() => toggleFilter(modalMethod, m.value, setModalMethod)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalMethod.includes(m.value) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* 飲食 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">飲食：</span>
-              <select 
-                value={modalDiet}
-                onChange={(e) => setModalDiet(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">飲食</span>
+              <div className="flex flex-wrap gap-1">
                 {dietOptions.map(d => (
-                  <option key={d.value} value={d.value}>{d.label}</option>
+                  <button
+                    key={d.value}
+                    onClick={() => toggleFilter(modalDiet, d.value, setModalDiet)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalDiet.includes(d.value) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            {/* 預算 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">預算：</span>
-              <select 
-                value={modalBudget}
-                onChange={(e) => setModalBudget(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border text-sm bg-white"
-              >
-                <option value="">全部</option>
-                {budgetOptions.map(b => (
-                  <option key={b.value} value={b.value}>{b.label}</option>
+            {/* 排除 */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium text-gray-500">排除</span>
+              <div className="flex flex-wrap gap-1">
+                {exclusionOptions.slice(0, 4).map(e => (
+                  <button
+                    key={e.value}
+                    onClick={() => toggleFilter(modalExclusions, e.value, setModalExclusions)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      modalExclusions.includes(e.value) 
+                        ? 'bg-red-500 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {e.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
+
+            {hasFilters && (
+              <button 
+                onClick={clearFilters} 
+                className="ml-auto text-sm text-red-500 hover:text-red-600"
+              >
+                清除
+              </button>
+            )}
+          </div>
 
             {hasFilters && (
               <button 
@@ -412,20 +461,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 </div>
               </div>
 
-              {/* Active Filters */}
-              {hasFilters && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {modalCuisine && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">菜系: {cuisineOptions.find(c => c.value === modalCuisine)?.label}</span>}
-                  {modalTime && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">時間: {timeOptions.find(t => t.value === modalTime)?.label}</span>}
-                  {modalDifficulty && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">難度: {difficultyOptions.find(d => d.value === modalDifficulty)?.label}</span>}
-                  {modalMethod && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">烹調: {methodOptions.find(m => m.value === modalMethod)?.label}</span>}
-                  {modalDiet && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">飲食: {dietOptions.find(d => d.value === modalDiet)?.label}</span>}
-                  {modalExclusions && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">排除: {exclusionOptions.find(e => e.value === modalExclusions)?.label}</span>}
-                  {modalBudget && <span className="px-3 py-1 rounded-full bg-primary text-white text-sm">預算: {budgetOptions.find(b => b.value === modalBudget)?.label}</span>}
-                  <button onClick={clearFilters} className="text-sm underline">清除</button>
+              {/* Active Filters - shown when filters active */}
+              {hasFilters && modalCuisine.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {modalCuisine.map(v => (
+                    <span key={v} className="px-2 py-0.5 rounded-full bg-primary text-white text-xs">
+                      {cuisineOptions.find(c => c.value === v)?.label}
+                    </span>
+                  ))}
                 </div>
               )}
-            </div>
             </div>
 
           {/* Recipe Grid */}
