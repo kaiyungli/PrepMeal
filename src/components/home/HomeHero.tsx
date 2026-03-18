@@ -1,66 +1,53 @@
-'use client';
+import Link from 'next/link';
 
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-
-export default function Hero() {
-  const router = useRouter();
-  const [input, setInput] = useState('');
-
-  const handleSearch = () => {
-    if (!input.trim()) return;
-    const encoded = encodeURIComponent(input);
-    router.push(`/recipes?ingredients=${encoded}`);
-  };
-
-  const handleGenerate = () => {
-    if (!input.trim()) {
-      router.push('/generate');
-      return;
-    }
-    const encoded = encodeURIComponent(input);
-    router.push(`/generate?ingredients=${encoded}`);
-  };
-
+export default function HomeHero() {
   return (
-    <section className="py-12 bg-[#F8F3E8]">
-      <div className="max-w-2xl mx-auto px-4">
-        {/* White Card */}
-        <div className="bg-white rounded-2xl p-10 shadow-sm border border-[#E5DCC8]">
-          <h1 className="text-5xl md:text-6xl font-black text-center text-[#3A2010] mb-4">
-            今晚食乜?
-          </h1>
-          
-          <p className="text-xl text-center text-[#AA7A50] mb-8">
-            輸入你有嘅食材，我幫你搵啱啱嘅食譜
-          </p>
-
-          {/* Input + Button Row */}
-          <div className="flex gap-3 max-w-lg mx-auto mb-6">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="例如：蛋、番茄、雞肉..."
-              className="flex-1 px-5 py-3 rounded-xl border-2 border-[#E5DCC8] text-lg focus:outline-none focus:border-[#9B6035]"
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button
-              onClick={handleSearch}
-              className="px-6 py-3 bg-[#9B6035] text-white rounded-xl font-medium hover:bg-[#8B5530] transition-colors"
-            >
-              搵食譜
-            </button>
+    <section className="bg-[#F8F3E8] px-4 pt-8 pb-10 md:pt-12 md:pb-14">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="mx-auto max-w-[880px] rounded-[28px] border border-[#E5DCC8] bg-white px-6 py-10 shadow-[0_16px_40px_rgba(155,96,53,0.08)] md:px-10 md:py-14">
+          <div className="text-center">
+            <div className="mb-4 inline-flex items-center rounded-full bg-[#F8F3E8] px-4 py-1.5 text-sm font-semibold text-[#9B6035]">
+              🍜 今晚食乜
+            </div>
+            <h1 className="text-[2rem] font-extrabold tracking-[-0.02em] text-[#3A2010] md:text-[3rem]">
+              今晚食乜？
+            </h1>
+            <p className="mx-auto mt-4 max-w-[560px] text-sm leading-7 text-[#7A5A38] md:text-base">
+              輸入你有嘅食材，我幫你搵啱啱嘅食譜，亦可以直接生成一週餐單。
+            </p>
           </div>
 
-          {/* Secondary CTA */}
-          <div className="text-center">
-            <button
-              onClick={handleGenerate}
-              className="text-[#9B6035] font-medium hover:underline"
-            >
-              或者生成一週餐單 →
-            </button>
+          <div className="mx-auto mt-8 max-w-[700px]">
+            <div className="flex flex-col gap-3 md:flex-row">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-[#AA7A50]">
+                  🔍
+                </span>
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="例如：蛋、番茄、雞肉..."
+                  className="h-12 w-full rounded-2xl border border-[#DDD0B0] bg-white pl-11 pr-4 text-sm font-medium text-[#3A2010] placeholder:text-[#B08A63] focus:outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                className="h-12 rounded-2xl bg-[#9B6035] px-6 text-sm font-bold text-white transition hover:opacity-95"
+              >
+                搵食譜
+              </button>
+            </div>
+            <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/generate"
+                className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#DDD0B0] bg-[#F8F3E8] px-5 text-sm font-semibold text-[#7A5A38] transition hover:bg-[#F4EDDD]"
+              >
+                生成一週餐單
+              </Link>
+              <div className="text-xs text-[#AA7A50] md:text-sm">
+                輸入食材找食譜，或者直接規劃本週晚餐
+              </div>
+            </div>
           </div>
         </div>
       </div>
