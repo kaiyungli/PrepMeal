@@ -38,7 +38,9 @@ export default function SharedFilterPanel({
   const primarySections = primarySectionIds.length > 0 
     ? sections.filter(s => primarySectionIds.includes(s.id))
     : sections.slice(0, 4);
-  const advancedSections = sections.filter(s => !primarySectionIds.includes(s.id));
+  const advancedSections = primarySectionIds.length > 0
+    ? sections.filter(s => !primarySectionIds.includes(s.id))
+    : sections.slice(4);
 
   // Collect all selected filters for summary
   const allSelectedFilters = sections
