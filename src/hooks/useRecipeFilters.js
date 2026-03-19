@@ -45,7 +45,7 @@ export function useRecipeFilters(initialRecipes = []) {
   const [modalExclusions, setModalExclusions] = useState([]);
   
   // Advanced visibility
-  const [showAdvanced, setShowAdvanced] = useState(true);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Toggle filter helper
   const toggleFilter = useCallback((current, value, setter) => {
