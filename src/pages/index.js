@@ -114,9 +114,17 @@ async function generateShoppingListFromPlan(weeklyPlan) {
     console.log('[ShoppingList] API response:', JSON.stringify(data).substring(0, 500));
     
     // Use the toBuy items from the real API
+    // Format quantity with unit properly
+    const formatQty = (item) => {
+      const qty = item.quantity;
+      const unit = item.unit || item.unit_name || item.unit_code || '';
+      if (!qty) return '';
+      return unit ? `${qty}${unit}` : `${qty}`;
+    };
+    
     const list = (data.toBuy || data.items || []).slice(0, 5).map(item => ({
       name: item.display_name || item.name || item.ingredient_name || '食材',
-      qty: item.quantity ? `${item.quantity}${item.unit_code || ''}` : ''
+      qty: formatQty(item)
     }));
     
     console.log('[ShoppingList] Final list:', list);

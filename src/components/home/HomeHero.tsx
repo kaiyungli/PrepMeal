@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 interface Recipe {
@@ -29,6 +30,7 @@ interface HomeHeroProps {
 const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
 export default function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
+  const router = useRouter();
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
       {/* Top-right green circle decoration - LARGER */}
