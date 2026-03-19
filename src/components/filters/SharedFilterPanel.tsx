@@ -74,15 +74,6 @@ export default function SharedFilterPanel({
               <span className="text-xs">×</span>
             </button>
           ))}
-          {onClear && (
-            <button 
-              onClick={onClear} 
-              className="text-xs font-medium ml-2" 
-              style={{ color: '#9B6035' }}
-            >
-              清除全部
-            </button>
-          )}
         </div>
       )}
 
@@ -135,6 +126,19 @@ export default function SharedFilterPanel({
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Clear All Button - Bottom of Filter Card */}
+      {onClear && (
+        <div className="mt-4 pt-3 border-t flex justify-end">
+          <button 
+            onClick={onClear} 
+            className="text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-[#E5DCC8] transition-colors"
+            style={{ color: '#9B6035' }}
+          >
+            清除全部
+          </button>
         </div>
       )}
     </div>
