@@ -151,7 +151,7 @@ export function useRecipeFilters(initialRecipes = []) {
     if (sortBy !== 'newest') params.set('sort', sortBy);
     
     return params;
-  }, [searchQuery, modalCuisine, modalDishType, modalTime, modalDifficulty, modalMethod, modalDiet, modalProtein, modalBudget, modalCompleteMeal, sortBy]);
+  }, [searchQuery, modalCuisine, modalDishType, modalTime, modalDifficulty, modalMethod, modalDiet, modalProtein, sortBy]);
 
   // Fetch recipes with filters
   const fetchRecipes = useCallback(async () => {

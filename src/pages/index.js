@@ -7,54 +7,8 @@ import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
-import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
 console.log('[CLIENT] Module loaded');
-
-// Quick filter chips
-const QUICK_FILTERS = [
-  { id: 'quick', label: '⚡ 15分鐘', value: '15' },
-  { id: 'easy', label: '😊 簡易', value: 'easy' },
-  { id: 'protein', label: '💪 高蛋白', value: 'protein' },
-  { id: 'vegetarian', label: '🥬 素食', value: 'vegetarian' },
-  { id: 'lowcal', label: '🔥 低卡', value: 'lowcal' },
-];
-
-// Filter options with UI label -> DB value mapping
-// Use shared constants from @/constants/filters
-const cuisineOptions = CUISINES.filter(c => ['chinese', 'western'].includes(c.value));
-const timeOptions = [
-  { label: '15分鐘內', value: '15' },
-  { label: '30分鐘內', value: '30' },
-  { label: '45分鐘內', value: '45' },
-  { label: '60分鐘內', value: '60' },
-];
-const difficultyOptions = COOKING_CONSTRAINTS.filter(c => ['easy', 'medium', 'hard'].includes(c.value));
-const methodOptions = [
-  { label: '炒', value: 'stir_fry' },
-  { label: '蒸', value: 'steamed' },
-  { label: '煮', value: 'boiled' },
-  { label: '焗', value: 'baked' },
-  { label: '煎', value: 'fried' },
-  { label: '燉', value: 'braised' },
-  { label: '氣炸', value: 'air_fryer' },
-  { label: '一鍋煮', value: 'one_pot' },
-];
-const dietOptions = DIET_MODES.filter(d => ['vegetarian', 'egg_lacto', 'high_protein', 'low_fat', 'low_calorie', 'light'].includes(d.value));
-const exclusionOptions = [
-  { label: '不要牛肉', value: 'no_beef' },
-  { label: '不要豬肉', value: 'no_pork' },
-  { label: '不要雞肉', value: 'no_chicken' },
-  { label: '不要海鮮', value: 'no_seafood' },
-  { label: '不要蛋', value: 'no_eggs' },
-  { label: '不要奶', value: 'no_dairy' },
-  { label: '不要辣', value: 'no_spicy' },
-];
-const budgetOptions = [
-  { label: '平價', value: 'budget' },
-  { label: '一般', value: 'normal' },
-  { label: '高級', value: 'premium' },
-];
 
 const sortOptions = [
   { value: 'newest', label: '最新' },
