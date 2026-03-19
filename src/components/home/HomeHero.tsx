@@ -8,6 +8,11 @@ interface Recipe {
   [key: string]: any;
 }
 
+interface ShoppingItem {
+  name: string;
+  qty?: string;
+}
+
 interface WeeklyPlanItem {
   day: string;
   recipe: Recipe;
@@ -17,12 +22,13 @@ interface WeeklyPlanItem {
 interface HomeHeroProps {
   onPrimaryAction?: () => void;
   weeklyPlan?: WeeklyPlanItem[];
+  shoppingList?: ShoppingItem[];
   onRefreshPlan?: () => void;
 }
 
 const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
-export default function HomeHero({ onPrimaryAction, weeklyPlan = [], onRefreshPlan }: HomeHeroProps) {
+export default function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
       {/* Top-right green circle decoration - LARGER */}
@@ -113,12 +119,26 @@ export default function HomeHero({ onPrimaryAction, weeklyPlan = [], onRefreshPl
                   </div>
                 </div>
                 
-                {/* 右欄：購物清單 - Simplified placeholder */}
+                {/* 右欄：購物清單 */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
-                  <div className="text-xs text-[#AA7A50] italic">
-                    選擇食譜後自動生成
-                  </div>
+                  {shoppingList && shoppingList.length > 0 ? (
+                    <div className="space-y-1">
+                      {shoppingList.map((item, index) => (
+                        <div 
+                          key={item.name + index} 
+                          className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded"
+                        >
+                          <span className="text-sm text-[#3A2010]">{item.name}</span>
+                          {item.qty && <span className="text-xs text-[#AA7A50]">{item.qty}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-[#AA7A50] italic">
+                      選擇食譜後自動生成
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

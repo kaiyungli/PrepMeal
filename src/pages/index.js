@@ -78,6 +78,53 @@ function generateWeeklyPlan(recipes) {
   }));
 }
 
+// Helper to generate shopping list from weekly plan
+async function generateShoppingListFromPlan(weeklyPlan) {
+  if (!weeklyPlan || weeklyPlan.length === 0) return [];
+  
+  const recipeIds = weeklyPlan.map(item => item.recipe?.id).filter(Boolean);
+  if (recipeIds.length === 0) return [];
+  
+  try {
+    // Fetch ingredients for these recipes
+    const response = await fetch(`/api/recipes/ingredients?recipeIds=${recipeIds.join(',')}`);
+    const data = await response.json();
+    
+    if (!data || !data.ingredients) return [];
+    
+    // Aggregate ingredients
+    const ingredientMap = new Map();
+    data.ingredients.forEach(ing => {
+      const name = ing.ingredient_name || ing.name || '食材';
+      if (ingredientMap.has(name)) {
+        // Merge quantities if possible
+        const existing = ingredientMap.get(name);
+        existing.count = (existing.count || 1) + 1;
+      } else {
+        ingredientMap.set(name, { 
+          name, 
+          count: 1,
+          unit: ing.unit_name || ''
+        });
+      }
+    });
+    
+    // Convert to array and take top 5
+    const list = Array.from(ingredientMap.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+      .map(item => ({
+        name: item.name,
+        qty: item.count > 1 ? `x${item.count}` : item.unit || ''
+      }));
+    
+    return list;
+  } catch (e) {
+    console.error('Error generating shopping list:', e);
+    return [];
+  }
+}
+
 export default function Home({ initialRecipes = [], ssrError = null }) {
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
@@ -94,6 +141,20 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   
   // Weekly plan state
   const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
+  const [shoppingList, setShoppingList] = useState([]);
+  
+  // Fetch shopping list when weeklyPlan changes
+  useEffect(() => {
+    async function fetchShoppingList() {
+      if (weeklyPlan.length === 0) {
+        setShoppingList([]);
+        return;
+      }
+      const list = await generateShoppingListFromPlan(weeklyPlan);
+      setShoppingList(list);
+    }
+    fetchShoppingList();
+  }, [weeklyPlan]);
   
   // Filter modal states
   const [modalCuisine, setModalCuisine] = useState([]);
@@ -261,7 +322,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             <HomeHero 
               onPrimaryAction={handlePantrySearch} 
               weeklyPlan={weeklyPlan}
-              onRefreshPlan={() => setWeeklyPlan(generateWeeklyPlan(recipes.length > 0 ? recipes : initialRecipes))}
+              shoppingList={shoppingList}
+              onRefreshPlan={() => {
+                const newPlan = generateWeeklyPlan(recipes.length > 0 ? recipes : initialRecipes);
+                setWeeklyPlan(newPlan);
+              }}
             />
 
       {/* Recipe Section - Homepage Style */}
