@@ -245,8 +245,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
             setSortBy={setSortBy}
-            showAdvanced={showAdvanced}
-            setShowAdvanced={setShowAdvanced}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
             recipeFilterSections={recipeFilterSections}
             hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}

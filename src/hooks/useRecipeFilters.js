@@ -61,11 +61,7 @@ const proteinOptions = [
   { value: 'mixed', label: '混合' },
 ];
 
-const budgetOptions = [
-  { value: 'budget', label: '慳錢' },
-  { value: 'normal', label: '普通' },
-  { value: 'premium', label: ' Premium' },
-];
+
 
 export { cuisineOptions, dishTypeOptions, timeOptions, difficultyOptions, methodOptions, dietOptions, proteinOptions, budgetOptions };
 
@@ -88,11 +84,10 @@ export function useRecipeFilters(initialRecipes = []) {
   const [modalMethod, setModalMethod] = useState([]);
   const [modalDiet, setModalDiet] = useState([]);
   const [modalProtein, setModalProtein] = useState([]);
-  const [modalBudget, setModalBudget] = useState([]);
-  const [modalCompleteMeal, setModalCompleteMeal] = useState([]);
+  
   
   // Advanced visibility
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
 
   // Toggle filter helper
   const toggleFilter = useCallback((current, value, setter) => {
@@ -112,9 +107,7 @@ export function useRecipeFilters(initialRecipes = []) {
     modalDifficulty.length > 0 ||
     modalMethod.length > 0 ||
     modalDiet.length > 0 ||
-    modalProtein.length > 0 ||
-    modalBudget.length > 0 ||
-    modalCompleteMeal.length > 0
+    modalProtein.length > 0
   );
 
   // Active filter count
@@ -126,8 +119,6 @@ export function useRecipeFilters(initialRecipes = []) {
     modalMethod.length +
     modalDiet.length +
     modalProtein.length +
-    modalBudget.length +
-    modalCompleteMeal.length +
     (searchQuery?.trim() ? 1 : 0);
 
   // Clear all filters
@@ -157,8 +148,6 @@ export function useRecipeFilters(initialRecipes = []) {
     if (modalMethod.length > 0) params.set('method', modalMethod.join(','));
     if (modalDiet.length > 0) params.set('diet', modalDiet.join(','));
     if (modalProtein.length > 0) params.set('protein', modalProtein.join(','));
-    if (modalBudget.length > 0) params.set('budget', modalBudget.join(','));
-    if (modalCompleteMeal.length > 0) params.set('complete', modalCompleteMeal.join(','));
     if (sortBy !== 'newest') params.set('sort', sortBy);
     
     return params;
@@ -198,8 +187,6 @@ export function useRecipeFilters(initialRecipes = []) {
     { id: "method", title: "烹調方式", options: methodOptions, selected: modalMethod, onToggle: (v) => toggleFilter(modalMethod, v, setModalMethod) },
     { id: "diet", title: "飲食模式", options: dietOptions, selected: modalDiet, onToggle: (v) => toggleFilter(modalDiet, v, setModalDiet) },
     { id: "protein", title: "主要蛋白", options: proteinOptions, selected: modalProtein, onToggle: (v) => toggleFilter(modalProtein, v, setModalProtein) },
-    { id: "budget", title: "預算", options: budgetOptions, selected: modalBudget, onToggle: (v) => toggleFilter(modalBudget, v, setModalBudget) },
-    { id: "complete", title: "完整一餐", options: [{ value: 'true', label: '完整一餐' }], selected: modalCompleteMeal, onToggle: (v) => toggleFilter(modalCompleteMeal, v, setModalCompleteMeal) },
   ];
 
   return {
@@ -226,13 +213,9 @@ export function useRecipeFilters(initialRecipes = []) {
     setModalDiet,
     modalProtein,
     setModalProtein,
-    modalBudget,
-    setModalBudget,
-    modalCompleteMeal,
-    setModalCompleteMeal,
     // UI state
-    showAdvanced,
-    setShowAdvanced,
+    showFilters,
+    setShowFilters,
     // Helpers
     toggleFilter,
     hasFilters,
