@@ -18,7 +18,7 @@ export default function RecipesPage({ initialRecipes }) {
     setSearchQuery,
     sortBy,
     setSortBy,
-    showAdvanced,
+    showFilters,
     setShowAdvanced,
     recipeFilterSections,
     hasFilters,
