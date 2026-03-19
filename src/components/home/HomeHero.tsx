@@ -143,6 +143,17 @@ export default function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingLis
                   )}
                 </div>
               </div>
+              
+              {/* CTA Button */}
+              <button
+                onClick={() => {
+                  sessionStorage.setItem('heroWeeklyPlan', JSON.stringify(weeklyPlan));
+                  router.push('/generate');
+                }}
+                className="w-full mt-4 py-3 px-4 bg-[#9B6035] text-white rounded-xl font-medium hover:bg-[#7D4E2A] transition-colors"
+              >
+                使用這個餐單
+              </button>
             </div>
           </div>
         </div>

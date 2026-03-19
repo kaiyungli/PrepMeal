@@ -143,6 +143,34 @@ export default function GeneratePage() {
     }
   }, [router.query]);
 
+  // Load heroWeeklyPlan from sessionStorage
+  useEffect(() => {
+    const heroPlanStr = sessionStorage.getItem('heroWeeklyPlan');
+    if (heroPlanStr) {
+      try {
+        const heroPlan = JSON.parse(heroPlanStr);
+        if (heroPlan && heroPlan.length > 0) {
+          console.log('[Generate] Loading hero weekly plan:', heroPlan);
+          // Convert from hero format [{day, recipe}] to generate format {mon: [recipe], ...}
+          const converted = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
+          const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+          heroPlan.forEach((item, idx) => {
+            const dayKey = item.day?.toLowerCase() || days[idx % 7];
+            if (item.recipe && converted[dayKey]) {
+              converted[dayKey].push(item.recipe);
+            }
+          });
+          setWeeklyPlan(converted);
+          setHasGenerated(true);
+          sessionStorage.removeItem('heroWeeklyPlan');
+          console.log('[Generate] Hero weekly plan loaded:', converted);
+        }
+      } catch (e) {
+        console.error('[Generate] Failed to parse hero weekly plan:', e);
+      }
+    }
+  }, []);
+
   // Filter recipes based on settings
   useEffect(() => {
     let filtered = [...allRecipes];
