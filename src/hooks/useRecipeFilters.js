@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
+import { DIET_MODES, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
-// Filter options
+// Filter options based on actual DB schema
 const cuisineOptions = [
   { value: 'chinese', label: '中式' },
   { value: 'western', label: '西式' },
@@ -14,15 +14,15 @@ const cuisineOptions = [
 const dishTypeOptions = [
   { value: 'main', label: '主菜' },
   { value: 'side', label: '配菜' },
-  { value: 'staple', label: '主食' },
   { value: 'soup', label: '湯' },
-  { value: 'dessert', label: '甜品' },
+  { value: 'staple', label: '主食' },
+  { value: 'snack', label: '小食' },
 ];
 
 const timeOptions = [
-  { value: 'quick', label: '15分鐘內', icon: '⚡' },
-  { value: 'normal', label: '15-30分鐘', icon: '⏱️' },
-  { value: 'slow', label: '30分鐘以上', icon: '🐢' },
+  { value: '15', label: '15分鐘內', icon: '⚡' },
+  { value: '30', label: '30分鐘內', icon: '⏱️' },
+  { value: '60', label: '60分鐘內', icon: '🐢' },
 ];
 
 const difficultyOptions = [
@@ -33,41 +33,41 @@ const difficultyOptions = [
 
 const methodOptions = [
   { value: 'stir_fry', label: '炒', icon: '🥘' },
-  { value: 'boiled', label: '煮/湯', icon: '🍲' },
   { value: 'steamed', label: '蒸', icon: '🥟' },
   { value: 'fried', label: '煎/炸', icon: '🍳' },
-  { value: 'baked', label: '焗', icon: '🧀' },
   { value: 'braised', label: '燜/紅燒', icon: '🍖' },
-  { value: 'steamed', label: '蒸', icon: '🥟' },
+  { value: 'boiled', label: '煮/湯', icon: '🍲' },
+  { value: 'baked', label: '焗', icon: '🧀' },
 ];
 
 const dietOptions = [
   { value: 'vegetarian', label: '素食' },
+  { value: 'egg_lacto', label: '蛋奶素' },
   { value: 'high_protein', label: '高蛋白' },
   { value: 'low_fat', label: '低脂' },
   { value: 'low_calorie', label: '低卡' },
   { value: 'gluten_free', label: '無麩質' },
-  { value: 'dairy_free', label: '無奶製品' },
 ];
 
-const exclusionOptions = [
-  { value: 'no_beef', label: '無牛肉' },
-  { value: 'no_pork', label: '無豬肉' },
-  { value: 'no_chicken', label: '無雞肉' },
-  { value: 'no_seafood', label: '無海鮮' },
-  { value: 'no_egg', label: '無蛋' },
-  { value: 'no_soy', label: '無豆製品' },
+const proteinOptions = [
+  { value: 'chicken', label: '雞' },
+  { value: 'beef', label: '牛' },
+  { value: 'pork', label: '豬' },
+  { value: 'fish', label: '魚' },
+  { value: 'shrimp', label: '蝦' },
+  { value: 'tofu', label: '豆腐' },
+  { value: 'egg', label: '蛋' },
+  { value: 'vegetarian', label: '素' },
+  { value: 'mixed', label: '混合' },
 ];
 
-const goalOptions = [
-  { value: 'muscle', label: '增肌' },
-  { value: 'fat_loss', label: '減脂' },
-  { value: 'maintain', label: '維持' },
-  { value: 'energy', label: '補充能量' },
-  { value: 'light', label: '輕盈' },
+const budgetOptions = [
+  { value: 'budget', label: '慳錢' },
+  { value: 'normal', label: '普通' },
+  { value: 'premium', label: ' Premium' },
 ];
 
-export { cuisineOptions, dishTypeOptions, timeOptions, difficultyOptions, methodOptions, dietOptions, exclusionOptions, goalOptions };
+export { cuisineOptions, dishTypeOptions, timeOptions, difficultyOptions, methodOptions, dietOptions, proteinOptions, budgetOptions };
 
 export function useRecipeFilters(initialRecipes = []) {
   // State
@@ -87,8 +87,9 @@ export function useRecipeFilters(initialRecipes = []) {
   // Filter states - Advanced
   const [modalMethod, setModalMethod] = useState([]);
   const [modalDiet, setModalDiet] = useState([]);
-  const [modalExclusions, setModalExclusions] = useState([]);
-  const [modalGoal, setModalGoal] = useState([]);
+  const [modalProtein, setModalProtein] = useState([]);
+  const [modalBudget, setModalBudget] = useState([]);
+  const [modalCompleteMeal, setModalCompleteMeal] = useState([]);
   
   // Advanced visibility
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -111,8 +112,9 @@ export function useRecipeFilters(initialRecipes = []) {
     modalDifficulty.length > 0 ||
     modalMethod.length > 0 ||
     modalDiet.length > 0 ||
-    modalExclusions.length > 0 ||
-    modalGoal.length > 0
+    modalProtein.length > 0 ||
+    modalBudget.length > 0 ||
+    modalCompleteMeal.length > 0
   );
 
   // Active filter count
@@ -123,8 +125,9 @@ export function useRecipeFilters(initialRecipes = []) {
     modalDifficulty.length +
     modalMethod.length +
     modalDiet.length +
-    modalExclusions.length +
-    modalGoal.length +
+    modalProtein.length +
+    modalBudget.length +
+    modalCompleteMeal.length +
     (searchQuery?.trim() ? 1 : 0);
 
   // Clear all filters
@@ -136,8 +139,9 @@ export function useRecipeFilters(initialRecipes = []) {
     setModalDifficulty([]);
     setModalMethod([]);
     setModalDiet([]);
-    setModalExclusions([]);
-    setModalGoal([]);
+    setModalProtein([]);
+    setModalBudget([]);
+    setModalCompleteMeal([]);
     setSortBy('newest');
   }, []);
 
@@ -148,16 +152,17 @@ export function useRecipeFilters(initialRecipes = []) {
     if (searchQuery) params.set('search', searchQuery);
     if (modalCuisine.length > 0) params.set('cuisine', modalCuisine.join(','));
     if (modalDishType.length > 0) params.set('dish_type', modalDishType.join(','));
-    if (modalTime.length > 0) params.set('time', modalTime.join(','));
+    if (modalTime.length > 0) params.set('maxTime', modalTime.join(','));
     if (modalDifficulty.length > 0) params.set('difficulty', modalDifficulty.join(','));
     if (modalMethod.length > 0) params.set('method', modalMethod.join(','));
     if (modalDiet.length > 0) params.set('diet', modalDiet.join(','));
-    if (modalExclusions.length > 0) params.set('exclusions', modalExclusions.join(','));
-    if (modalGoal.length > 0) params.set('goal', modalGoal.join(','));
+    if (modalProtein.length > 0) params.set('protein', modalProtein.join(','));
+    if (modalBudget.length > 0) params.set('budget', modalBudget.join(','));
+    if (modalCompleteMeal.length > 0) params.set('complete', modalCompleteMeal.join(','));
     if (sortBy !== 'newest') params.set('sort', sortBy);
     
     return params;
-  }, [searchQuery, modalCuisine, modalDishType, modalTime, modalDifficulty, modalMethod, modalDiet, modalExclusions, modalGoal, sortBy]);
+  }, [searchQuery, modalCuisine, modalDishType, modalTime, modalDifficulty, modalMethod, modalDiet, modalProtein, modalBudget, modalCompleteMeal, sortBy]);
 
   // Fetch recipes with filters
   const fetchRecipes = useCallback(async () => {
@@ -181,8 +186,8 @@ export function useRecipeFilters(initialRecipes = []) {
   }, [fetchRecipes]);
 
   // Filter sections for SharedFilterPanel
-  // Primary: 菜系, 餐類, 時間, 難度
-  // Advanced: 烹調方式, 飲食模式, 排除, 目標
+  // Primary: cuisine, dish_type, time, difficulty
+  // Advanced: method, diet, primary_protein, budget_level, is_complete_meal
   const recipeFilterSections = [
     // Primary
     { id: "cuisine", title: "菜系", options: cuisineOptions, selected: modalCuisine, onToggle: (v) => toggleFilter(modalCuisine, v, setModalCuisine) },
@@ -192,8 +197,9 @@ export function useRecipeFilters(initialRecipes = []) {
     // Advanced
     { id: "method", title: "烹調方式", options: methodOptions, selected: modalMethod, onToggle: (v) => toggleFilter(modalMethod, v, setModalMethod) },
     { id: "diet", title: "飲食模式", options: dietOptions, selected: modalDiet, onToggle: (v) => toggleFilter(modalDiet, v, setModalDiet) },
-    { id: "exclusions", title: "排除", options: exclusionOptions, selected: modalExclusions, onToggle: (v) => toggleFilter(modalExclusions, v, setModalExclusions), variant: "danger" },
-    { id: "goal", title: "目標", options: goalOptions, selected: modalGoal, onToggle: (v) => toggleFilter(modalGoal, v, setModalGoal) },
+    { id: "protein", title: "主要蛋白", options: proteinOptions, selected: modalProtein, onToggle: (v) => toggleFilter(modalProtein, v, setModalProtein) },
+    { id: "budget", title: "預算", options: budgetOptions, selected: modalBudget, onToggle: (v) => toggleFilter(modalBudget, v, setModalBudget) },
+    { id: "complete", title: "完整一餐", options: [{ value: 'true', label: '完整一餐' }], selected: modalCompleteMeal, onToggle: (v) => toggleFilter(modalCompleteMeal, v, setModalCompleteMeal) },
   ];
 
   return {
@@ -218,10 +224,12 @@ export function useRecipeFilters(initialRecipes = []) {
     setModalMethod,
     modalDiet,
     setModalDiet,
-    modalExclusions,
-    setModalExclusions,
-    modalGoal,
-    setModalGoal,
+    modalProtein,
+    setModalProtein,
+    modalBudget,
+    setModalBudget,
+    modalCompleteMeal,
+    setModalCompleteMeal,
     // UI state
     showAdvanced,
     setShowAdvanced,

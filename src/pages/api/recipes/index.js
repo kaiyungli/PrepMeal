@@ -17,16 +17,20 @@ export default async function handler(req, res) {
     const { 
       search, 
       cuisine, 
+      dish_type,
       maxTime, 
       difficulty,
       method,
       diet,
+      protein,
+      budget,
+      complete,
       sort = 'newest',
       limit = 100, 
       offset = 0 
     } = req.query;
     
-    console.log('[API] Parsed params:', { cuisine, difficulty, maxTime, sort });
+    console.log('[API] Parsed params:', { cuisine, dish_type, difficulty, maxTime, method, diet, protein, budget, complete, sort });
     
     // Build query safely
     let query = supabase
@@ -48,10 +52,41 @@ export default async function handler(req, res) {
       query = query.eq('cuisine', cuisine)
     }
     
+    // Dish type filter
+    if (dish_type && dish_type !== '' && typeof dish_type === 'string') {
+      console.log('[API] Adding dish_type:', dish_type);
+      query = query.eq('dish_type', dish_type)
+    }
+    
     // Difficulty filter
     if (difficulty && difficulty !== '' && typeof difficulty === 'string') {
       console.log('[API] Adding difficulty:', difficulty);
       query = query.eq('difficulty', difficulty)
+    }
+    
+    // Method filter
+    if (method && method !== '' && typeof method === 'string') {
+      console.log('[API] Adding method:', method);
+      query = query.eq('method', method)
+    }
+    
+    // Protein filter (primary_protein)
+    if (protein && protein !== '' && typeof protein === 'string') {
+      console.log('[API] Adding protein:', protein);
+      query = query.eq('primary_protein', protein)
+    }
+    
+    // Budget filter
+    if (budget && budget !== '' && typeof budget === 'string') {
+      console.log('[API] Adding budget:', budget);
+      query = query.eq('budget_level', budget)
+    }
+    
+    // Complete meal filter
+    if (complete && complete !== '' && typeof complete === 'string') {
+      console.log('[API] Adding complete:', complete);
+      const isComplete = complete === 'true';
+      query = query.eq('is_complete_meal', isComplete)
     }
     
     // Max time filter
@@ -63,19 +98,36 @@ export default async function handler(req, res) {
       }
     }
     
+    // Diet filter (array contains)
+    if (diet && diet !== '' && typeof diet === 'string') {
+      console.log('[API] Adding diet:', diet);
+      // Diet is an array column, use contains
+      const dietValues = diet.split(',');
+      query = query.contains('diet', dietValues)
+    }
+    
     // Sorting
     const safeSort = typeof sort === 'string' ? sort : 'newest'
     console.log('[API] Sorting by:', safeSort);
     switch (safeSort) {
       case 'quick':
-        query = query.order('cook_time_minutes', { ascending: true })
+        query = query.order('total_time_minutes', { ascending: true, nullsFirst: false })
         break
       case 'high_protein':
         query = query.order('protein_g', { ascending: false, nullsFirst: false })
         break
       case 'low_calorie':
-      case 'low_budget':
+      case 'calories_low':
         query = query.order('calories_per_serving', { ascending: true, nullsFirst: false })
+        break
+      case 'calories_high':
+        query = query.order('calories_per_serving', { ascending: false, nullsFirst: false })
+        break
+      case 'protein_high':
+        query = query.order('protein_g', { ascending: false, nullsFirst: false })
+        break
+      case 'time_short':
+        query = query.order('total_time_minutes', { ascending: true, nullsFirst: false })
         break
       case 'newest':
       default:
@@ -99,7 +151,7 @@ export default async function handler(req, res) {
     
     console.log('[API] First recipe:', recipes?.[0]?.name);
 
-    // Return recipes (without ingredients for now - to ensure basic functionality)
+    // Return recipes
     const recipesList = Array.isArray(recipes) ? recipes : []
     console.log('[API] Final response count:', recipesList.length);
     console.log('[API] ====== END ======');
