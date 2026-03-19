@@ -85,27 +85,29 @@ async function generateShoppingListFromPlan(weeklyPlan) {
   const recipeIds = weeklyPlan.map(item => item.recipe?.id).filter(Boolean);
   if (recipeIds.length === 0) return [];
   
+  console.log('[ShoppingList] Generating for recipe IDs:', recipeIds);
+  
   try {
     // Fetch ingredients for these recipes
     const response = await fetch(`/api/recipes/ingredients?recipeIds=${recipeIds.join(',')}`);
     const data = await response.json();
     
-    if (!data || !data.ingredients) return [];
+    console.log('[ShoppingList] API response:', data);
     
-    // Aggregate ingredients
+    if (!data || !data.ingredients || data.ingredients.length === 0) {
+      console.log('[ShoppingList] No ingredients found');
+      return [];
+    }
+    
+    // Aggregate ingredients by name
     const ingredientMap = new Map();
     data.ingredients.forEach(ing => {
-      const name = ing.ingredient_name || ing.name || '食材';
+      const name = ing.name || '食材';
       if (ingredientMap.has(name)) {
-        // Merge quantities if possible
         const existing = ingredientMap.get(name);
         existing.count = (existing.count || 1) + 1;
       } else {
-        ingredientMap.set(name, { 
-          name, 
-          count: 1,
-          unit: ing.unit_name || ''
-        });
+        ingredientMap.set(name, { name, count: 1 });
       }
     });
     
@@ -115,12 +117,13 @@ async function generateShoppingListFromPlan(weeklyPlan) {
       .slice(0, 5)
       .map(item => ({
         name: item.name,
-        qty: item.count > 1 ? `x${item.count}` : item.unit || ''
+        qty: item.count > 1 ? `x${item.count}` : ''
       }));
     
+    console.log('[ShoppingList] Final list:', list);
     return list;
   } catch (e) {
-    console.error('Error generating shopping list:', e);
+    console.error('[ShoppingList] Error:', e);
     return [];
   }
 }
