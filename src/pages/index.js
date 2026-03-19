@@ -62,6 +62,22 @@ const sortOptions = [
   { value: 'high_protein', label: '高蛋白' },
 ];
 
+// Helper to generate weekly plan from recipes
+function generateWeeklyPlan(recipes) {
+  if (!recipes || recipes.length === 0) return [];
+  
+  // Shuffle and pick 5 unique recipes
+  const shuffled = [...recipes].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, 5);
+  const days = ['週一', '週二', '週三', '週四', '週五'];
+  
+  return selected.map((recipe, index) => ({
+    day: days[index],
+    recipe: recipe,
+    done: index < 2 // First 2 days marked as done for demo
+  }));
+}
+
 export default function Home({ initialRecipes = [], ssrError = null }) {
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
@@ -75,6 +91,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(true);
+  
+  // Weekly plan state
+  const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
   
   // Filter modal states
   const [modalCuisine, setModalCuisine] = useState([]);
@@ -239,7 +258,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-            <HomeHero onPrimaryAction={handlePantrySearch} />
+            <HomeHero 
+              onPrimaryAction={handlePantrySearch} 
+              weeklyPlan={weeklyPlan}
+              onRefreshPlan={() => setWeeklyPlan(generateWeeklyPlan(recipes.length > 0 ? recipes : initialRecipes))}
+            />
 
       {/* Recipe Section - Homepage Style */}
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
