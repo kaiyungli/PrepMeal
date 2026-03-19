@@ -80,10 +80,20 @@ function generateWeeklyPlan(recipes) {
 
 // Helper to generate shopping list from weekly plan using the real API
 async function generateShoppingListFromPlan(weeklyPlan) {
-  if (!weeklyPlan || weeklyPlan.length === 0) return [];
+  console.log('[ShoppingList] Input weeklyPlan:', JSON.stringify(weeklyPlan));
+  
+  if (!weeklyPlan || weeklyPlan.length === 0) {
+    console.log('[ShoppingList] Empty weeklyPlan, returning []');
+    return [];
+  }
   
   const recipeIds = weeklyPlan.map(item => item.recipe?.id).filter(Boolean);
-  if (recipeIds.length === 0) return [];
+  console.log('[ShoppingList] Extracted recipeIds:', recipeIds);
+  
+  if (recipeIds.length === 0) {
+    console.log('[ShoppingList] No recipeIds found, returning []');
+    return [];
+  }
   
   console.log('[ShoppingList] Generating for recipe IDs:', recipeIds);
   
@@ -100,7 +110,8 @@ async function generateShoppingListFromPlan(weeklyPlan) {
     });
     
     const data = await response.json();
-    console.log('[ShoppingList] API response:', data);
+    console.log('[ShoppingList] API response status:', response.status);
+    console.log('[ShoppingList] API response:', JSON.stringify(data).substring(0, 500));
     
     // Use the toBuy items from the real API
     const list = (data.toBuy || data.items || []).slice(0, 5).map(item => ({
