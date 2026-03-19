@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 interface Recipe {
-  id: number;
+  id: string | number;
   name: string;
   prep_time_minutes?: number;
   cook_time_minutes?: number;

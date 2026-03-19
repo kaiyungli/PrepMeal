@@ -6,7 +6,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'recipeIds required' });
   }
   
-  const ids = recipeIds.split(',').map(Number).filter(n => !isNaN(n));
+  console.log("[ingredients api] recipeIds raw:", recipeIds);
+  const ids = recipeIds.split(',').map(s => s.trim()).filter(Boolean);
   
   if (ids.length === 0) {
     return res.status(400).json({ error: 'invalid recipeIds' });
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message, ingredients: [] });
     }
     
+    console.log('[ingredients api] rows:', recipeIngredients?.length);
     if (!recipeIngredients || recipeIngredients.length === 0) {
       return res.status(200).json({ ingredients: [] });
     }
