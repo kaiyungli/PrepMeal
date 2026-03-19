@@ -6,6 +6,8 @@ import HomeHero from '@/components/home/HomeHero';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { FilterChip, FilterSection, SharedFilterPanel } from '@/components/filters';
+import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
 console.log('[CLIENT] Module loaded');
@@ -136,20 +138,10 @@ async function generateShoppingListFromPlan(weeklyPlan) {
 }
 
 export default function Home({ initialRecipes = [], ssrError = null }) {
-  const [recipes, setRecipes] = useState(initialRecipes || []);
-  const [loading, setLoading] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
-  // Filter states
-  const [pantryInput, setPantryInput] = useState('');
-  const [activeFilters, setActiveFilters] = useState([]);
-  const [sortBy, setSortBy] = useState('newest');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(true);
-  
-  // Weekly plan state
+  // Weekly plan state (homepage specific)
   const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
   const [shoppingList, setShoppingList] = useState([]);
   
@@ -166,16 +158,23 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetchShoppingList();
   }, [weeklyPlan]);
   
-  // Filter modal states
-  const [modalCuisine, setModalCuisine] = useState([]);
-  const [modalTime, setModalTime] = useState([]);
-  const [modalDifficulty, setModalDifficulty] = useState([]);
-  const [modalMethod, setModalMethod] = useState([]);
-  const [modalDiet, setModalDiet] = useState([]);
-  const [modalExclusions, setModalExclusions] = useState([]);
-  const [modalBudget, setModalBudget] = useState([]);
+  // Use shared recipe filters hook
+  const {
+    recipes,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    showAdvanced,
+    setShowAdvanced,
+    recipeFilterSections,
+    hasFilters,
+    activeFilterCount,
+    clearFilters,
+  } = useRecipeFilters(initialRecipes);
 
-  // Toggle function for multi-select
+  // Toggle function for multi-select (keep for other uses)
   const toggleFilter = (arr, val, setter) => {
     if (arr.includes(val)) {
       setter(arr.filter(v => v !== val));
@@ -185,28 +184,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   };
 
   // Filter sections for SharedFilterPanel
-  const recipeFilterSections = [
-    { id: "cuisine", title: "菜系", options: cuisineOptions.filter(c => c.value), selected: modalCuisine, onToggle: (v) => toggleFilter(modalCuisine, v, setModalCuisine) },
-    { id: "time", title: "烹飪時間", options: timeOptions, selected: modalTime, onToggle: (v) => toggleFilter(modalTime, v, setModalTime) },
-    { id: "difficulty", title: "難度", options: difficultyOptions, selected: modalDifficulty, onToggle: (v) => toggleFilter(modalDifficulty, v, setModalDifficulty) },
-    { id: "method", title: "烹調方式", options: methodOptions, selected: modalMethod, onToggle: (v) => toggleFilter(modalMethod, v, setModalMethod) },
-    { id: "diet", title: "飲食偏好", options: dietOptions, selected: modalDiet, onToggle: (v) => toggleFilter(modalDiet, v, setModalDiet) },
-    { id: "exclusions", title: "排除項目", options: exclusionOptions.slice(0, 4), selected: modalExclusions, onToggle: (v) => toggleFilter(modalExclusions, v, setModalExclusions), variant: "danger" },
-  ];
-
-  // Derived state - use this consistently
-  const hasFilters = Boolean(
-    searchQuery?.trim() ||
-    modalCuisine.length > 0 ||
-    modalTime.length > 0 ||
-    modalDifficulty.length > 0 ||
-    modalMethod.length > 0 ||
-    modalDiet.length > 0 ||
-    modalExclusions.length > 0 ||
-    modalBudget.length > 0 ||
-    activeFilters.length > 0
-  );
-  
+  // Use recipeFilterSections from hook
   // Ensure recipes is always an array
   const recipesList = recipes || [];
 
@@ -295,20 +273,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     setShowFilterModal(false);
   };
 
-  const clearFilters = () => {
-    setSearchQuery('');
-    setActiveFilters([]);
-    setModalCuisine([]);
-    setModalTime([]);
-    setModalDifficulty([]);
-    setModalMethod([]);
-    setModalDiet([]);
-    setModalExclusions([]);
-    setModalBudget([]);
-    setSortBy('newest');
-    fetchRecipes();
-  };
-
   const hasSearch = searchQuery?.trim()?.length > 0;
   
   // Show empty state only if filters applied and no results
@@ -349,162 +313,19 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             <p className="text-sm font-semibold text-[#C0A080]">{recipeCountText}</p>
           </div>
 
-          {/* 2. Search Bar */}
-          <div className="relative mb-6">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA7A50]">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="尋食譜... 例如：番茄、牛肉、咖哩"
-              className="w-full py-3.5 pl-11 pr-11 rounded-xl border-2 border-[#DDD0B0] bg-white text-[#3A2010] placeholder:text-[#C0A080] focus:outline-none focus:border-[#9B6035] transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#AA7A50] hover:text-[#9B6035]"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* 3. Advanced Filter Box */}
-          <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-8 overflow-hidden">
-            <div 
-              className="flex items-center justify-between px-4 py-3 cursor-pointer"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-            >
-              <span className="text-sm font-semibold text-[#7A5A38]">篩選</span>
-              <span className="text-[#9B6035]">{showAdvanced ? '▲ 收起' : '▼ 展開'}</span>
-            </div>
-            
-            {showAdvanced && (
-              <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                {/* 菜系 */}
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">菜系</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
-                    {cuisineOptions.filter(c => c.value).map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => toggleFilter(modalCuisine, c.value, setModalCuisine)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
-                          modalCuisine.includes(c.value)
-                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 難度 */}
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">難度</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
-                    {difficultyOptions.map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => toggleFilter(modalDifficulty, c.value, setModalDifficulty)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
-                          modalDifficulty.includes(c.value)
-                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 時間 */}
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">時間</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
-                    {timeOptions.map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => toggleFilter(modalTime, c.value, setModalTime)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
-                          modalTime.includes(c.value)
-                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 排除 */}
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">排除</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
-                    {exclusionOptions.slice(0, 6).map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => toggleFilter(modalExclusions, c.value, setModalExclusions)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
-                          modalExclusions.includes(c.value)
-                            ? 'bg-red-500 border-red-500 text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 飲食模式 */}
-                <div className="min-w-0 space-y-1">
-                  <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">飲食模式</div>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
-                    {dietOptions.slice(0, 5).map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => toggleFilter(modalDiet, c.value, setModalDiet)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
-                          modalDiet.includes(c.value)
-                            ? 'bg-[#9B6035] border-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-              {/* Clear All at bottom */}
-              <div className="mt-3 w-full border-t border-[#EEE5D6] pt-3">
-                <button
-                  onClick={clearFilters}
-                  className="block text-left text-sm font-semibold text-[#9B6035] hover:underline"
-                >
-                  清除全部
-                </button>
-              </div>
-              </div>
-            )}
-          </div>
-
-          {/* 4. Count + Sort Row */}
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm font-semibold text-[#C0A080]">{recipeCountText}</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 rounded-full border border-[#DDD0B0] bg-white text-sm font-medium text-[#3A2010] focus:outline-none"
-            >
-              {sortOptions.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
-          </div>
+          {/* Shared Filter Component */}
+          <RecipeFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            recipeFilterSections={recipeFilterSections}
+            hasFilters={hasFilters}
+            activeFilterCount={activeFilterCount}
+            clearFilters={clearFilters}
+          />
 
           {/* 5. Recipe Cards Grid */}
           {showSkeleton && (
