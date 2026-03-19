@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     // Fetch ingredient details
     const { data: ingredientDetails, error: ingError } = await supabase
       .from('ingredients')
-      .select('id, name, display_name')
+      .select('id, name, name')
       .in('id', ingredientIds);
     
     if (ingError) {
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     const ingredientMap = new Map();
     if (ingredientDetails) {
       ingredientDetails.forEach(ing => {
-        ingredientMap.set(ing.id, ing.display_name || ing.name || 'Unknown');
+        ingredientMap.set(ing.id, ing.name || ing.name || 'Unknown');
       });
     }
     
