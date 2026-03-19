@@ -78,7 +78,7 @@ function generateWeeklyPlan(recipes) {
   }));
 }
 
-// Helper to generate shopping list from weekly plan
+// Helper to generate shopping list from weekly plan using the real API
 async function generateShoppingListFromPlan(weeklyPlan) {
   if (!weeklyPlan || weeklyPlan.length === 0) return [];
   
@@ -88,37 +88,25 @@ async function generateShoppingListFromPlan(weeklyPlan) {
   console.log('[ShoppingList] Generating for recipe IDs:', recipeIds);
   
   try {
-    // Fetch ingredients for these recipes
-    const response = await fetch(`/api/recipes/ingredients?recipeIds=${recipeIds.join(',')}`);
-    const data = await response.json();
-    
-    console.log('[ShoppingList] API response:', data);
-    
-    if (!data || !data.ingredients || data.ingredients.length === 0) {
-      console.log('[ShoppingList] No ingredients found');
-      return [];
-    }
-    
-    // Aggregate ingredients by name
-    const ingredientMap = new Map();
-    data.ingredients.forEach(ing => {
-      const name = ing.name || '食材';
-      if (ingredientMap.has(name)) {
-        const existing = ingredientMap.get(name);
-        existing.count = (existing.count || 1) + 1;
-      } else {
-        ingredientMap.set(name, { name, count: 1 });
-      }
+    // Use the real shopping list API
+    const response = await fetch('/api/shopping-list', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipeIds,
+        pantryIngredients: [],
+        servings: 1
+      })
     });
     
-    // Convert to array and take top 5
-    const list = Array.from(ingredientMap.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
-      .map(item => ({
-        name: item.name,
-        qty: item.count > 1 ? `x${item.count}` : ''
-      }));
+    const data = await response.json();
+    console.log('[ShoppingList] API response:', data);
+    
+    // Use the toBuy items from the real API
+    const list = (data.toBuy || data.items || []).slice(0, 5).map(item => ({
+      name: item.display_name || item.name || item.ingredient_name || '食材',
+      qty: item.quantity ? `${item.quantity}${item.unit_code || ''}` : ''
+    }));
     
     console.log('[ShoppingList] Final list:', list);
     return list;
