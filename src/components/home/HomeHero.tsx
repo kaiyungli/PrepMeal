@@ -91,20 +91,21 @@ export default function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingLis
                   <div className="space-y-1">
                     {weeklyPlan.length > 0 ? (
                       weeklyPlan.map((item, index) => (
-                        <div 
-                          key={item.day} 
+                        <Link
+                          key={item.day}
+                          href={item.recipe?.id ? `/recipes/${item.recipe.id}` : '#'}
                           className={`flex items-center gap-2 py-1.5 px-2 rounded ${
                             item.done 
                               ? 'bg-[rgba(200,212,154,0.30)] border border-[rgba(155,96,53,0.22)]' 
                               : 'bg-[#faf7f0] border border-[#DDD0B0]'
-                          }`}
+                          } hover:opacity-80 transition-opacity`}
                         >
                           <span className="text-xs text-[#9B6035] font-medium">{item.day}</span>
                           <span className="flex-1 text-sm text-[#3A2010] truncate">
                             {item.recipe?.name || '—'}
                           </span>
                           {item.done && <span className="text-green-600">✓</span>}
-                        </div>
+                        </Link>
                       ))
                     ) : (
                       // Fallback when no weekly plan

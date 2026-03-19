@@ -154,14 +154,21 @@ export default function GeneratePage() {
           // Convert from hero format [{day, recipe}] to generate format {mon: [recipe], ...}
           const converted = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
           const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+          const dayMap = {
+            '週一': 'mon', '週二': 'tue', '週三': 'wed', '週四': 'thu', '週五': 'fri',
+            '週六': 'sat', '週日': 'sun', '週天': 'sun',
+            'mon': 'mon', 'tue': 'tue', 'wed': 'wed', 'thu': 'thu', 'fri': 'fri', 'sat': 'sat', 'sun': 'sun'
+          };
           heroPlan.forEach((item, idx) => {
-            const dayKey = item.day?.toLowerCase() || days[idx % 7];
+            const dayKey = dayMap[item.day] || days[idx % 7];
             if (item.recipe && converted[dayKey]) {
               converted[dayKey].push(item.recipe);
             }
           });
           setWeeklyPlan(converted);
           setHasGenerated(true);
+          // Also preload shopping list with the loaded plan
+          preloadShoppingList(converted);
           sessionStorage.removeItem('heroWeeklyPlan');
           console.log('[Generate] Hero weekly plan loaded:', converted);
         }
