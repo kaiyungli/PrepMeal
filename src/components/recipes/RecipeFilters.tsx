@@ -1,4 +1,4 @@
-import { SharedFilterPanel } from '@/components/filters';
+import Link from 'next/link'
 
 interface RecipeFiltersProps {
   // State
@@ -8,7 +8,7 @@ interface RecipeFiltersProps {
   setSortBy: (v: string) => void;
   showAdvanced: boolean;
   setShowAdvanced: (v: boolean) => void;
-  // Filter sections
+  // Filter sections (from useRecipeFilters)
   recipeFilterSections: any[];
   // Helpers
   hasFilters: boolean;
@@ -28,50 +28,100 @@ export default function RecipeFilters({
   activeFilterCount,
   clearFilters,
 }: RecipeFiltersProps) {
+  // Filter groups to display (all from recipeFilterSections)
+  const filterGroups = recipeFilterSections;
+
   return (
     <div className="mb-6">
-      {/* Search Bar */}
-      <div className="relative mb-4">
+      {/* 1. Search Bar - Same as homepage */}
+      <div className="relative mb-6">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#AA7A50]">🔍</span>
         <input
           type="text"
-          placeholder="搜尋食譜..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-3 pl-12 rounded-xl border bg-white focus:outline-none focus:ring-2 focus:ring-[#9B6035]/30"
-          style={{ borderColor: '#E5DCC8' }}
+          placeholder="尋食譜... 例如：番茄、牛肉、咖哩"
+          className="w-full py-3.5 pl-11 pr-11 rounded-xl border-2 border-[#DDD0B0] bg-white text-[#3A2010] placeholder:text-[#C0A080] focus:outline-none focus:border-[#9B6035] transition-colors"
         />
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#AA7A50] hover:text-[#9B6035]"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
-      {/* Filter Panel */}
-      <SharedFilterPanel
-        sections={recipeFilterSections}
-        onClear={hasFilters ? clearFilters : undefined}
-        showAdvanced={showAdvanced}
-        setShowAdvanced={setShowAdvanced}
-        hasAdvanced={true}
-        advancedLabel="更多篩選"
-      />
+      {/* 2. Filter Card - Single collapsible card, same as homepage */}
+      <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-8 overflow-hidden">
+        {/* Header with expand/collapse */}
+        <div 
+          className="flex items-center justify-between px-4 py-3 cursor-pointer"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
+          <span className="text-sm font-semibold text-[#7A5A38]">篩選</span>
+          <span className="text-[#9B6035]">{showAdvanced ? '▲ 收起' : '▼ 展開'}</span>
+        </div>
+        
+        {/* Filter groups - shown when expanded */}
+        {showAdvanced && (
+          <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+            {filterGroups.map((group) => (
+              <div key={group.id} className="min-w-0 space-y-1">
+                <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">{group.title}</div>
+                <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
+                  {group.options.map((option: any) => {
+                    const isSelected = group.selected?.includes(option.value);
+                    const isDanger = group.variant === 'danger';
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => group.onToggle(option.value)}
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
+                          isSelected
+                            ? isDanger
+                              ? 'bg-red-500 border-red-500 text-white'
+                              : 'bg-[#9B6035] border-[#9B6035] text-white'
+                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            
+            {/* Clear All at bottom */}
+            <div className="mt-3 w-full border-t border-[#EEE5D6] pt-3 col-span-full">
+              <button
+                onClick={clearFilters}
+                className="block text-left text-sm font-semibold text-[#9B6035] hover:underline"
+              >
+                清除全部
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
-      {/* Sort Row */}
-      <div className="flex items-center justify-between mt-4">
-        <span className="text-sm text-[#7A746B]">
-          {activeFilterCount > 0 && (
-            <span className="mr-2">已選 {activeFilterCount} 項</span>
-          )}
+      {/* 3. Count + Sort Row - Same as homepage */}
+      <div className="flex items-center justify-between mb-6">
+        <span className="text-sm font-semibold text-[#C0A080]">
+          {activeFilterCount > 0 ? `已選 ${activeFilterCount} 項` : '所有食譜'}
         </span>
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-3 py-2 rounded-lg border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9B6035]/30"
-          style={{ borderColor: '#E5DCC8', color: '#3D3D3D' }}
+          className="px-3 py-1.5 rounded-full border border-[#DDD0B0] bg-white text-sm font-medium text-[#3A2010] focus:outline-none"
         >
           <option value="newest">最新</option>
           <option value="popular">最受歡迎</option>
+          <option value="time_short">最快</option>
           <option value="calories_low">卡路里低到高</option>
-          <option value="calories_high">卡路里高到低</option>
           <option value="protein_high">蛋白質高到低</option>
-          <option value="time_short">時間短到長</option>
         </select>
       </div>
     </div>
