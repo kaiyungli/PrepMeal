@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface RecipeCardProps {
   recipe: {
@@ -9,37 +10,39 @@ interface RecipeCardProps {
     cuisine?: string;
     difficulty?: string;
     method?: string;
-    cooking_time?: number | string;
-    calories_per_serving?: number | string;
-    protein?: string | string[] | number;
-    carbs_g?: number;
-    fat_g?: number;
+    total_time_minutes?: number | null;
+    cook_time_minutes?: number | null;
+    prep_time_minutes?: number | null;
+    calories_per_serving?: number | null;
+    protein_g?: number | null;
+    primary_protein?: string;
+    dish_type?: string;
     diet?: string[];
     [key: string]: any;
   };
   onClick?: () => void;
   onFavorite?: () => void;
   className?: string;
-  imageHeightClass?: string;
 }
 
 // Label mappings
 const cuisineLabels: Record<string, string> = {
-  chinese: '中式', western: '西式', japanese: '日式', korean: '韓式', taiwanese: '台式', se_asian: '東南亞'
+  chinese: '中式', western: '西式', japanese: '日式', korean: '韓式', taiwanese: '台式', fusion: '混合'
 }
-const difficultyLabels: Record<string, string> = { easy: '簡易', medium: '中等', hard: '困難' }
+const difficultyLabels: Record<string, string> = { easy: '簡單', medium: '中等', hard: '複雜' }
 const methodLabels: Record<string, string> = { 
   stir_fry: '炒', 
   steamed: '蒸', 
-  boiled: '煮', 
+  boiled: '煮/湯',
   baked: '焗', 
-  fried: '煎',
- braised: '燉',
-  air_fryer: '氣炸',
-  one_pot: '一鍋煮'
+  fried: '煎/炸',
+  braised: '燜',
 }
 const proteinLabels: Record<string, string> = {
-  chicken: "雞肉", beef: "牛肉", pork: "豬肉", shrimp: "蝦", fish: "魚", tofu: "豆腐", egg: "蛋", vegetarian: "素食"
+  chicken: "雞", beef: "牛", pork: "豬", shrimp: "蝦", fish: "魚", tofu: "豆腐", egg: "蛋", vegetarian: "素", mixed: "混合"
+}
+const dishTypeLabels: Record<string, string> = {
+  main: '主菜', side: '配菜', staple: '主食', soup: '湯', snack: '小食'
 }
 
 const dietLabels: Record<string, string> = {
@@ -48,84 +51,147 @@ const dietLabels: Record<string, string> = {
   high_protein: '高蛋白',
   low_fat: '低脂',
   low_calorie: '低卡',
-  light: '清淡'
+  light: '清淡',
+  gluten_free: '無麩質'
 }
 
-// Helper to translate tag to Chinese
-function translateTag(tag: string): string {
-  return proteinLabels[tag] || dietLabels[tag] || cuisineLabels[tag] || methodLabels[tag] || difficultyLabels[tag] || tag
-}
-
-export default function RecipeCard({ recipe, onClick, onFavorite, className = '', imageHeightClass = 'h-48' }: RecipeCardProps) {
+export default function RecipeCard({ recipe, onClick, onFavorite, className = '' }: RecipeCardProps) {
   // Safely extract recipe fields
+  const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'
   const recipeImage = recipe?.image_url || null
-  const recipeCuisine = recipe?.cuisine || ''
+  
+  // Time: prefer total_time_minutes, then cook_time_minutes
+  const recipeTime = recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null
+  
   const recipeDifficulty = recipe?.difficulty || ''
   const recipeMethod = recipe?.method || ''
-  const recipeTime = recipe?.cooking_time || 30
-  const recipeCalories = recipe?.calories_per_serving || 0
-  const recipeProtein = typeof recipe?.protein === 'string' ? recipe.protein : (Array.isArray(recipe?.protein) && recipe.protein.length > 0 ? recipe.protein[0] : (recipe?.primary_protein || ''))
+  const recipeCalories = recipe?.calories_per_serving || null
+  const recipeProtein = recipe?.primary_protein || ''
   const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : []
+  const recipeDishType = recipe?.dish_type || ''
   
-  const tags = [...(recipeProtein ? [recipeProtein] : []), ...recipeDiet].slice(0, 3)
+  // Build tags: protein + dish_type
+  const tags: string[] = []
+  if (recipeProtein && proteinLabels[recipeProtein]) {
+    tags.push(proteinLabels[recipeProtein])
+  }
+  if (recipeDishType && dishTypeLabels[recipeDishType]) {
+    tags.push(dishTypeLabels[recipeDishType])
+  }
   
-  return (
-    <div onClick={() => { if (onClick) onClick(); }} className={`cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow ${className}`}>
-      {/* Image */}
-      <div className={`relative ${imageHeightClass}`}>
+  // Card content
+  const cardContent = (
+    <>
+      {/* Image - Fixed aspect ratio */}
+      <div className="relative aspect-[4/3]">
         {recipeImage ? (
-          <Image src={recipeImage} alt={recipeName} fill className="object-cover" />
+          <Image src={recipeImage} alt={recipeName} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw" />
         ) : (
           <div className="flex items-center justify-center h-full bg-gradient-to-br from-amber-50 to-orange-100">
             <span className="text-5xl">🍳</span>
           </div>
         )}
         {onFavorite && (
-          <button onClick={(e) => { e.stopPropagation(); onFavorite(); }} className="absolute top-3 right-3 bg-white/95 border-2 border-red-400 rounded-full w-10 h-10 flex items-center justify-center shadow-lg z-10 hover:scale-105 transition-transform">
-            <span className="text-xl">❤️</span>
+          <button 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFavorite(); }} 
+            className="absolute top-3 right-3 bg-white/95 rounded-full w-9 h-9 flex items-center justify-center shadow-md z-10 hover:scale-110 transition-transform"
+          >
+            <span className="text-lg">❤️</span>
           </button>
         )}
       </div>
       
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-semibold text-lg mb-2 text-[#3A2010]">{recipeName}</h3>
+        {/* Title - max 2 lines */}
+        <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
+          {recipeName}
+        </h3>
         
-        {/* Info row */}
-        <div className="text-sm text-gray-500 mb-2">
-          {recipeTime}分鐘 · {recipeCalories}卡路里
+        {/* Metadata row: Time · Difficulty · Method */}
+        <div className="flex items-center gap-2 text-xs text-[#7A746B] mb-3">
+          {recipeTime && (
+            <span className="flex items-center gap-1">
+              <span>⏱️</span>
+              <span>{recipeTime}分鐘</span>
+            </span>
+          )}
+          {recipeTime && recipeDifficulty && <span>·</span>}
+          {recipeDifficulty && difficultyLabels[recipeDifficulty] && (
+            <span className="flex items-center gap-1">
+              <span className={`w-2 h-2 rounded-full ${
+                recipeDifficulty === 'easy' ? 'bg-green-400' : 
+                recipeDifficulty === 'medium' ? 'bg-yellow-400' : 'bg-red-400'
+              }`}></span>
+              <span>{difficultyLabels[recipeDifficulty]}</span>
+            </span>
+          )}
+          {(recipeTime || recipeDifficulty) && recipeMethod && methodLabels[recipeMethod] && <span>·</span>}
+          {recipeMethod && methodLabels[recipeMethod] && (
+            <span className="flex items-center gap-1">
+              <span>🥘</span>
+              <span>{methodLabels[recipeMethod]}</span>
+            </span>
+          )}
         </div>
         
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 mb-2">
-          {recipeCuisine && (
-            <span className="text-xs px-2 py-1 bg-[#C8D49A] text-[#3A2010] rounded">{cuisineLabels[recipeCuisine] || recipeCuisine}</span>
-          )}
-          {recipeDifficulty && (
-            <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded">{difficultyLabels[recipeDifficulty] || recipeDifficulty}</span>
-          )}
-          {recipeMethod && (
-            <span className="text-xs px-2 py-1 bg-teal-500 text-white rounded">{methodLabels[recipeMethod] || recipeMethod}</span>
-          )}
-          {tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded">{translateTag(tag)}</span>
-          ))}
-        </div>
-        
-        {/* Match info (if exists) */}
-        {recipe?.matchScore !== undefined && recipe.matchScore > 0 && (
-          <div className="mt-2 text-sm">
-            <span className="text-green-600 font-medium">匹配度 {Math.round(recipe.matchScore * 100)}%</span>
-            {recipe?.matchedIngredients?.length > 0 && (
-              <div className="text-xs text-gray-500">匹配食材：{recipe.matchedIngredients.join('、')}</div>
-            )}
-            {recipe?.missingIngredients?.length > 0 && (
-              <div className="text-xs text-red-500">缺少食材：{recipe.missingIngredients.slice(0, 3).join('、')}{recipe.missingIngredients.length > 3 ? '...' : ''}</div>
-            )}
+        {/* Tags row */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {tags.map((tag, i) => (
+              <span key={i} className="text-xs px-2 py-0.5 bg-[#F8F3E8] text-[#9B6035] rounded-md font-medium">
+                {tag}
+              </span>
+            ))}
           </div>
         )}
+        
+        {/* Nutrition row - optional, show 1-2 key info */}
+        <div className="flex items-center gap-3 text-xs text-[#AA7A50]">
+          {recipeCalories && (
+            <span className="flex items-center gap-1">
+              <span>🔥</span>
+              <span>{recipeCalories}卡</span>
+            </span>
+          )}
+          {recipeProtein && (
+            <span className="flex items-center gap-1">
+              <span>💪</span>
+              <span>{recipeProtein}g蛋白</span>
+            </span>
+          )}
+          {recipeDiet.length > 0 && !recipeProtein && (
+            <span className="flex items-center gap-1">
+              <span>🥗</span>
+              <span>{dietLabels[recipeDiet[0]] || recipeDiet[0]}</span>
+            </span>
+          )}
+        </div>
       </div>
+    </>
+  )
+
+  // If we have an ID, wrap with Link
+  if (recipeId) {
+    return (
+      <Link 
+        href={`/recipes/${recipeId}`}
+        onClick={onClick}
+        className={`block cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
+      >
+        {cardContent}
+      </Link>
+    )
+  }
+
+  // Fallback: just clickable div
+  return (
+    <div 
+      onClick={onClick}
+      className={`cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
+    >
+      {cardContent}
     </div>
   )
 }
