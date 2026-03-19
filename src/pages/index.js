@@ -5,7 +5,6 @@ import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { FilterChip, FilterSection, SharedFilterPanel } from '@/components/filters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
@@ -175,84 +174,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   } = useRecipeFilters(initialRecipes);
 
   // Toggle function for multi-select (keep for other uses)
-  const toggleFilter = (arr, val, setter) => {
-    if (arr.includes(val)) {
-      setter(arr.filter(v => v !== val));
-    } else {
-      setter([...arr, val]);
-    }
-  };
 
   // Filter sections for SharedFilterPanel
   // Use recipeFilterSections from hook
   // Ensure recipes is always an array
   const recipesList = recipes || [];
 
-  // Fetch recipes with filters
-  const fetchRecipes = async () => {
-    console.log('[CLIENT] ====== START ======');
-    console.log('[CLIENT] activeFilters:', activeFilters);
-    console.log('[CLIENT] sortBy:', sortBy);
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
-      if (activeFilters.includes('15')) params.set('maxTime', '15');
-      if (activeFilters.includes('easy')) params.set('difficulty', 'easy');
-      if (activeFilters.includes('protein')) params.set('sort', 'high_protein');
-      if (activeFilters.includes('vegetarian')) params.set('diet', 'vegetarian');
-      if (activeFilters.includes('lowcal')) params.set('sort', 'low_calorie');
-      if (modalCuisine.length > 0) params.set('cuisine', modalCuisine.join(','));
-      if (modalTime.length > 0) params.set('maxTime', modalTime.join(','));
-      if (modalDifficulty.length > 0) params.set('difficulty', modalDifficulty.join(','));
-      if (modalMethod.length > 0) params.set('method', modalMethod.join(','));
-      if (modalDiet.length > 0) params.set('diet', modalDiet.join(','));
-      if (modalExclusions.length > 0) params.set('exclusions', modalExclusions.join(','));
-      if (modalBudget.length > 0) params.set('budget', modalBudget.join(','));
-      if (sortBy !== 'newest' && !activeFilters.includes('protein') && !activeFilters.includes('lowcal')) params.set('sort', sortBy);
-      
-      const url = `/api/recipes?${params.toString()}`;
-      console.log('[CLIENT] Request URL:', url);
-      
-      const res = await fetch(url);
-      console.log('[CLIENT] Response status:', res.status);
-      const data = await res.json();
-      console.log('[CLIENT] Response:', { error: data.error, count: data.recipes?.length });
-      console.log('[CLIENT] First recipe:', data.recipes?.[0]?.name);
-      console.log('[CLIENT] ====== END ======');
-      
-      setRecipes(data.recipes || []);
-    } catch (err) {
-      console.error('Fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Recipe click handler
 
-  // Only fetch when user applies filters explicitly
-  useEffect(() => {
-    // Skip on initial SSR load - use initialRecipes
-    if (hasFilters || sortBy !== 'newest') {
-      fetchRecipes();
-    }
-  }, [activeFilters, sortBy, searchQuery, modalCuisine, modalTime, modalDifficulty, modalMethod, modalDiet]);
 
-  const handlePantrySearch = () => {
-    const ingredients = pantryInput.split(',').map(s => s.trim()).filter(Boolean);
-    if (ingredients.length > 0) {
-      window.location.href = `/generate?pantry=${encodeURIComponent(ingredients.join(','))}`;
-    } else {
-      window.location.href = '/generate';
-    }
-  };
-
-  const handleQuickFilter = (filterId) => {
-    setActiveFilters(prev => 
-      prev.includes(filterId) 
-        ? prev.filter(f => f !== filterId)
-        : [...prev, filterId]
-    );
-  };
 
   const handleRecipeClick = (recipe) => {
     setModalLoading(true);
@@ -268,10 +198,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       });
   };
 
-  const applyFilters = () => {
-    fetchRecipes();
-    setShowFilterModal(false);
-  };
 
   const hasSearch = searchQuery?.trim()?.length > 0;
   
@@ -294,7 +220,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </Head>
 
             <HomeHero 
-              onPrimaryAction={handlePantrySearch} 
+              onPrimaryAction={() => {}} 
               weeklyPlan={weeklyPlan}
               shoppingList={shoppingList}
               onRefreshPlan={() => {
@@ -374,176 +300,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </section>
 
       {/* Filter Modal */}
-      {showFilterModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowFilterModal(false)}>
-          <div className="bg-white rounded-2xl max-w-[900px] mx-auto shadow-xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="p-5 border-b flex justify-between items-center flex-shrink-0">
-              <h2 className="text-lg font-bold" style={{ color: 'var(--foreground)' }}>篩選條件</h2>
-              <button onClick={() => setShowFilterModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-            </div>
-            
-            <div className="p-5 overflow-y-auto flex-1 space-y-6">
-              {/* 菜系 */}
-              <div className="bg-gray-50 p-4 rounded-xl">
-                <label className="block text-sm font-semibold mb-3 text-gray-700">🍽️ 菜系</label>
-                <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {cuisineOptions.filter(c => c.value !== '').map(c => (
-                      <button
-                        key={c.value}
-                        onClick={() => setModalCuisine(modalCuisine === c.value ? '' : c.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalCuisine === c.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalCuisine === c.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 時間 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">⏱️ 烹飪時間</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {timeOptions.map(t => (
-                      <button
-                        key={t.value}
-                        onClick={() => setModalTime(modalTime === t.value ? '' : t.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalTime === t.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalTime === t.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 難度 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">📊 難度</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {difficultyOptions.map(d => (
-                      <button
-                        key={d.value}
-                        onClick={() => setModalDifficulty(modalDifficulty === d.value ? '' : d.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalDifficulty === d.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalDifficulty === d.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 烹調方式 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">🍳 烹調方式</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {methodOptions.map(m => (
-                      <button
-                        key={m.value}
-                        onClick={() => setModalMethod(modalMethod === m.value ? '' : m.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalMethod === m.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalMethod === m.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 飲食限制 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">🥗 飲食/營養</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {dietOptions.map(d => (
-                      <button
-                        key={d.value}
-                        onClick={() => setModalDiet(modalDiet === d.value ? '' : d.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalDiet === d.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalDiet === d.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 排除食材 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">🚫 排除食材</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {exclusionOptions.map(e => (
-                      <button
-                        key={e.value}
-                        onClick={() => setModalExclusions(modalExclusions === e.value ? '' : e.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalExclusions === e.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalExclusions === e.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {e.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* 預算 */}
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <label className="block text-sm font-semibold mb-3 text-gray-700">💰 預算</label>
-                  <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2">
-                    {budgetOptions.map(b => (
-                      <button
-                        key={b.value}
-                        onClick={() => setModalBudget(modalBudget === b.value ? '' : b.value)}
-                        className="px-3 py-1.5 rounded-full text-sm"
-                        style={{
-                          backgroundColor: modalBudget === b.value ? 'var(--primary)' : 'var(--background)',
-                          color: modalBudget === b.value ? 'white' : 'var(--foreground)'
-                        }}
-                      >
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={clearFilters}
-                  className="flex-1 py-3 rounded-xl border font-medium"
-                  style={{ borderColor: 'var(--border)' }}
-                >
-                  清除
-                </button>
-                <button
-                  onClick={applyFilters}
-                  className="flex-1 py-3 rounded-xl text-white font-medium"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                >
-                  應用篩選
-                </button>
-              </div>
-            </div>
-            </div>
-          )}
-      
       {/* Recipe Detail Modal */}
       <RecipeDetailModal
         isOpen={!!selectedRecipe}
