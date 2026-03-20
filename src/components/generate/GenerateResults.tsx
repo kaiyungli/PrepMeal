@@ -14,6 +14,31 @@ interface Recipe {
   steps?: { text: string }[]
 }
 
+/**
+ * GenerateResults - displays weekly meal plan grid
+ * 
+ * CURRENT CONTRACT (not fully presentational - has inline logic):
+ * 
+ * DATA PROPS:
+ *   weeklyPlan: Record<string, Recipe[]>      - current plan state
+ *   lockedSlots: Record<string, boolean>      - which slots are locked
+ *   daysPerWeek: number                       - how many days to show
+ *   dishesPerDay: number                     - how many dishes per day
+ *   filteredRecipes: Recipe[]                - available recipes to choose from
+ * 
+ * CALLBACK PROPS:
+ *   onLock: (dayKey, index) => void         - lock a slot
+ *   onUnlock: (dayKey, index) => void       - unlock a slot
+ *   onRemove: (dayKey, index) => void       - remove recipe from slot
+ *   onRecipeClick: (recipe) => void        - show recipe detail
+ * 
+ * RAW SETTER PROPS (should be action callbacks instead):
+ *   setWeeklyPlan?: Function                 - raw setState (optional)
+ * 
+ * INLINE LOGIC (still in component):
+ *   - addRandomRecipe (line ~67)
+ *   - replaceRecipe (line ~70)
+ */
 interface GenerateResultsProps {
   weeklyPlan: Record<string, Recipe[]>
   lockedSlots: Record<string, boolean>

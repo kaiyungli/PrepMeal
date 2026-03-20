@@ -1,6 +1,29 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
+/**
+ * RecipeCard - displays a single recipe card
+ * 
+ * DATA PROPS:
+ *   recipe: Object              - recipe data (many optional fields)
+ *   recipe.id                   - recipe ID
+ *   recipe.name                 - recipe name
+ *   recipe.image_url           - optional image
+ *   recipe.cuisine             - cuisine type
+ *   recipe.difficulty          - easy/medium/hard
+ *   recipe.method              - cooking method
+ *   recipe.total_time_minutes  - total time
+ *   recipe.calories_per_serving - calories
+ *   recipe.protein_g           - protein grams
+ *   recipe.primary_protein     - main protein type
+ *   recipe.dish_type          - main/side/soup/etc
+ *   recipe.diet               - dietary tags array
+ * 
+ * OPTIONAL PROPS:
+ *   onClick?: () => void       - click handler
+ *   onFavorite?: () => void   - favorite button handler
+ *   className?: string         - additional CSS classes
+ */
 interface RecipeCardProps {
   recipe: {
     id?: string | number;
@@ -18,7 +41,6 @@ interface RecipeCardProps {
     primary_protein?: string;
     dish_type?: string;
     diet?: string[];
-    [key: string]: any;
   };
   onClick?: () => void;
   onFavorite?: () => void;

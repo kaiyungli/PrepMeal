@@ -33,6 +33,23 @@ interface Recipe {
   dish_type?: string
 }
 
+/**
+ * WeeklyPlanGrid - displays weekly meal plan as a grid
+ * 
+ * DATA PROPS:
+ *   weeklyPlan: Record<string, Recipe[]>   - current plan state
+ *   lockedSlots: Record<string, boolean> - which slots are locked
+ *   daysPerWeek: number                  - how many days to display
+ *   dishesPerDay: number                - how many dishes per day
+ * 
+ * CALLBACK PROPS (all required):
+ *   onRecipeClick: (recipe) => void    - show recipe detail
+ *   onReplace: (dayKey, index) => void - replace recipe
+ *   onLock: (dayKey, index) => void    - lock slot
+ *   onUnlock: (dayKey, index) => void  - unlock slot
+ *   onRemove: (dayKey, index) => void  - remove recipe
+ *   onAddRandom: (dayKey) => void     - add random recipe
+ */
 interface WeeklyPlanGridProps {
   weeklyPlan: Record<string, Recipe[]>
   lockedSlots: Record<string, boolean>
