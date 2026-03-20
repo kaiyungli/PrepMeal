@@ -16,46 +16,38 @@ interface Recipe {
 
 interface GenerateResultsProps {
   weeklyPlan: Record<string, Recipe[]>
-  setWeeklyPlan: React.Dispatch<React.SetStateAction<Record<string, Recipe[]>>>
   lockedSlots: Record<string, boolean>
-  setLockedSlots: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
   daysPerWeek: number
   dishesPerDay: number
   filteredRecipes: Recipe[]
+  onLock: (dayKey: string, index: number) => void
+  onUnlock: (dayKey: string, index: number) => void
+  onRemove: (dayKey: string, index: number) => void
   onRecipeClick: (recipe: Recipe) => void
+  setWeeklyPlan?: React.Dispatch<React.SetStateAction<Record<string, Recipe[]>>>
 }
 
 export default function GenerateResults({
   weeklyPlan,
-  setWeeklyPlan,
   lockedSlots,
-  setLockedSlots,
   daysPerWeek,
   dishesPerDay,
   filteredRecipes,
+  onLock,
+  onUnlock,
+  onRemove,
   onRecipeClick,
+  setWeeklyPlan,
 }: GenerateResultsProps) {
-  const lockSlot = (dayKey: string, index: number) => {
-    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: true }))
-  }
-
-  const unlockSlot = (dayKey: string, index: number) => {
-    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: false }))
-  }
-
-  const removeRecipe = (dayKey: string, index: number) => {
-    setWeeklyPlan(prev => ({
-      ...prev,
-      [dayKey]: (prev[dayKey] || []).filter((_, i) => i !== index)
-    }))
-  }
+  // Placeholder if not provided (for simple actions)
+  const safeSetWeeklyPlan = setWeeklyPlan || (() => {})
 
   const replaceRecipe = (dayKey: string, index: number) => {
     const current = weeklyPlan[dayKey]?.[index]
     const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
     if (available.length > 0) {
       const random = available[Math.floor(Math.random() * available.length)]
-      setWeeklyPlan(prev => ({
+      safeSetWeeklyPlan((prev: Record<string, Recipe[]>) => ({
         ...prev,
         [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
       }))
@@ -66,7 +58,7 @@ export default function GenerateResults({
     const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
     if (available.length > 0) {
       const random = available[Math.floor(Math.random() * available.length)]
-      setWeeklyPlan(prev => ({
+      safeSetWeeklyPlan((prev: Record<string, Recipe[]>) => ({
         ...prev,
         [dayKey]: [...(prev[dayKey] || []), random]
       }))
@@ -95,9 +87,9 @@ export default function GenerateResults({
         dishesPerDay={dishesPerDay}
         onRecipeClick={onRecipeClick}
         onReplace={replaceRecipe}
-        onLock={lockSlot}
-        onUnlock={unlockSlot}
-        onRemove={removeRecipe}
+        onLock={onLock}
+        onUnlock={onUnlock}
+        onRemove={onRemove}
         onAddRandom={addRandomRecipe}
       />
     </div>

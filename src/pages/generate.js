@@ -57,6 +57,12 @@ export default function GeneratePage() {
     DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {})
   );
   const [lockedSlots, setLockedSlots] = useState({}); // { 'mon-0': true }
+
+  // Use weekly plan actions hook for simple actions
+  const { lockSlot, unlockSlot, removeRecipe } = useWeeklyPlanActions(
+    setWeeklyPlan,
+    setLockedSlots
+  );
   
   // Shopping List
   const [shoppingList, setShoppingList] = useState([]);
@@ -254,22 +260,6 @@ const CONFIG = {
     preloadShoppingList(newPlan);
   };
 
-  const lockSlot = (dayKey, index) => {
-    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: true }));
-  };
-
-  const unlockSlot = (dayKey, index) => {
-    setLockedSlots(prev => ({ ...prev, [`${dayKey}-${index}`]: false }));
-  };
-
-  const removeRecipe = (dayKey, index) => {
-    setWeeklyPlan(prev => {
-      const dayRecipes = [...(prev[dayKey] || [])];
-      dayRecipes.splice(index, 1);
-      return { ...prev, [dayKey]: dayRecipes };
-    });
-  };
-
   const replaceRecipe = (dayKey, index) => {
     // Get current recipes for this day to use in scoring
     const currentDayRecipes = weeklyPlan[dayKey] || [];
@@ -460,12 +450,14 @@ const CONFIG = {
         {/* Weekly Plan Grid */}
         <GenerateResults
           weeklyPlan={weeklyPlan}
-          setWeeklyPlan={setWeeklyPlan}
           lockedSlots={lockedSlots}
-          setLockedSlots={setLockedSlots}
           daysPerWeek={daysPerWeek}
           dishesPerDay={dishesPerDay}
           filteredRecipes={filteredRecipes}
+          onLock={lockSlot}
+          onUnlock={unlockSlot}
+          onRemove={removeRecipe}
+          setWeeklyPlan={setWeeklyPlan}
           onRecipeClick={(recipe) => {
             setModalLoading(true);
             fetch('/api/recipes/' + recipe.id)
