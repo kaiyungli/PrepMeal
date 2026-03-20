@@ -210,14 +210,16 @@ export function planWeekAdvanced(
   const recentMethods: string[] = [];
   const usedPantryIngredients: string[] = [];
 
+  // Pre-normalize exclusions ONCE before filter loop (optimization)
+  const normExclusions = exclusions.length > 0 ? normalizeIngredients(exclusions) : [];
+  
   // Filter recipes
   let filtered = recipes.filter(r => {
     if (cuisines.length > 0 && r.cuisine && !cuisines.includes(r.cuisine)) return false;
-    if (exclusions.length > 0) {
+    if (normExclusions.length > 0) {
       // Check both primary_protein and protein array
       const proteinValues = [r.primary_protein, ...(r.protein || [])].filter(Boolean);
       const normProtein = normalizeIngredients(proteinValues);
-      const normExclusions = normalizeIngredients(exclusions);
       
       // If any exclusion matches normalized protein, filter out
       if (normProtein.some(p => normExclusions.includes(p))) {
@@ -237,14 +239,15 @@ export function planWeekAdvanced(
   // Note: Pantry affects SCORING, not filtering
   // Pantry bonus is applied in the scoring section below
 
+  // Pre-normalize pantry ONCE (optimization)
+  const normPantry = pantryIngredients.length > 0 ? normalizeIngredients(pantryIngredients) : [];
+
   // Find perfect pantry matches (recipes that use ALL pantry ingredients)
   let perfectMatchRecipe: Recipe | null = null;
-  if (pantryIngredients.length > 0 && filtered.length > 0) {
+  if (normPantry.length > 0 && filtered.length > 0) {
     // DEBUG: Log pantry ingredients
     console.log('[PLANNER] pantryIngredients:', pantryIngredients);
-    
-    // Get normalized pantry ingredients
-    const normPantry = normalizeIngredients(pantryIngredients);
+    console.log('[PLANNER] normalized pantry:', normPantry);
     console.log('[PLANNER] normalized pantry:', normPantry);
     
     // Use canonical_ingredients as primary source
@@ -306,6 +309,9 @@ export function planWeekAdvanced(
       // Calculate diminishing pantry bonus
       const mealPosition = dayIndex * dishesPerDay + dish;
       const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
+      
+      // Pre-normalize pantry ONCE before scoring loop (optimization)
+      const scoringNormPantry = pantryIngredients.length > 0 ? normalizeIngredients(pantryIngredients) : [];
       
       // Score candidates
       const scored = filtered.map(r => {
