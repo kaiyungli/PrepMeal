@@ -6,8 +6,8 @@ interface RecipeFiltersProps {
   setSearchQuery: (v: string) => void;
   sortBy: string;
   setSortBy: (v: string) => void;
-  showFilters: boolean;
-  setShowFilters: (v: boolean) => void;
+  showAdvanced: boolean;
+  setShowAdvanced: (v: boolean) => void;
   // Filter sections (from useRecipeFilters)
   recipeFilterSections: any[];
   // Helpers
@@ -21,8 +21,8 @@ export default function RecipeFilters({
   setSearchQuery,
   sortBy,
   setSortBy,
-  showFilters,
-  setShowFilters,
+  showAdvanced,
+  setShowAdvanced,
   recipeFilterSections,
   hasFilters,
   activeFilterCount,
@@ -58,14 +58,14 @@ export default function RecipeFilters({
         {/* Header with expand/collapse */}
         <div 
           className="flex items-center justify-between px-4 py-3 cursor-pointer"
-          onClick={() => setShowFilters(!showFilters)}
+          onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <span className="text-sm font-semibold text-[#7A5A38]">篩選</span>
-          <span className="text-[#9B6035]">{showFilters ? '▲ 收起' : '▼ 展開'}</span>
+          <span className="text-[#9B6035]">{showAdvanced ? '▲ 收起' : '▼ 展開'}</span>
         </div>
         
         {/* Filter groups - shown when expanded */}
-        {showFilters && (
+        {showAdvanced && (
           <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
             {filterGroups.map((group) => (
               <div key={group.id} className="min-w-0 space-y-1">

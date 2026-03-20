@@ -87,7 +87,7 @@ export function useRecipeFilters(initialRecipes = []) {
   
   
   // Advanced visibility
-  const [showFilters, setShowFilters] = useState(true);
+  const [showAdvanced, setShowAdvanced] = useState(true);
 
   // Toggle filter helper
   const toggleFilter = useCallback((current, value, setter) => {
@@ -214,8 +214,8 @@ export function useRecipeFilters(initialRecipes = []) {
     modalProtein,
     setModalProtein,
     // UI state
-    showFilters,
-    setShowFilters,
+    showAdvanced,
+    setShowAdvanced,
     // Helpers
     toggleFilter,
     hasFilters,

@@ -18,7 +18,7 @@ export default function RecipesPage({ initialRecipes }) {
     setSearchQuery,
     sortBy,
     setSortBy,
-    showFilters,
+    showAdvanced,
     setShowAdvanced,
     recipeFilterSections,
     hasFilters,
@@ -64,8 +64,8 @@ export default function RecipesPage({ initialRecipes }) {
           setSearchQuery={setSearchQuery}
           sortBy={sortBy}
           setSortBy={setSortBy}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
+          showAdvanced={showAdvanced}
+          setShowAdvanced={setShowAdvanced}
           recipeFilterSections={recipeFilterSections}
           hasFilters={hasFilters}
           activeFilterCount={activeFilterCount}
