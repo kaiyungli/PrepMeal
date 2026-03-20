@@ -131,8 +131,6 @@ export function useRecipeFilters(initialRecipes = []) {
     setModalMethod([]);
     setModalDiet([]);
     setModalProtein([]);
-    setModalBudget([]);
-    setModalCompleteMeal([]);
     setSortBy('newest');
   }, []);
 

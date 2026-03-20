@@ -13,48 +13,11 @@ import Modal from '@/components/ui/Modal';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
-import { buildShoppingList } from '@/lib/shoppingList';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { planWeekAdvanced } from '@/lib/mealPlanner';
 
 // Category mapping for shopping list
-const CATEGORY_MAP = {
-  meat: '肉類',
-  beef: '肉類',
-  pork: '肉類',
-  chicken: '肉類',
-  vegetable: '蔬菜',
-  vegetables: '蔬菜',
-  tofu: '豆腐',
-  egg: '蛋類',
-  eggs: '蛋類',
-  seafood: '海鮮',
-  shrimp: '海鮮',
-  fish: '海鮮',
-  other: '雜貨',
-};
-
-function getCategory(name, existingCategory) {
-  if (existingCategory && existingCategory !== 'other') {
-    return CATEGORY_MAP[existingCategory] || '雜貨';
-  }
-  // Try to infer from ingredient name
-  const lower = name.toLowerCase();
-  if (lower.includes('牛') || lower.includes('豬') || lower.includes('雞') || lower.includes('肉')) return '肉類';
-  if (lower.includes('菜') || lower.includes('茄') || lower.includes('蔥') || lower.includes('椒')) return '蔬菜';
-  if (lower.includes('蛋')) return '蛋類';
-  if (lower.includes('蝦') || lower.includes('魚')) return '海鮮';
-  if (lower.includes('豆腐')) return '豆腐';
-  return '雜貨';
-}
-
-// Settings Options from Spec
-const DAYS_PER_WEEK = [3, 5, 7];
-const DISHES_PER_DAY = [1, 2, 3];
-const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
-
-import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS, BUDGET_OPTIONS, INGREDIENT_REUSE } from '@/constants/filters'
 
 // Generate dynamic week dates
 const getWeekDates = () => {
@@ -106,7 +69,6 @@ export default function GeneratePage() {
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
   
   // Pantry ingredients from URL
   const [pantryIngredients, setPantryIngredients] = useState([]);
