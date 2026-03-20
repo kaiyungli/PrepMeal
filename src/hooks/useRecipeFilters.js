@@ -1,7 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
 
-// Local arrays for homepage filter - intentionally different from generate page
+// ============================================
+// HOMEPAGE FILTER OPTIONS - CLASSIFICATION
+// ============================================
+// Shared canonical (from constants):
+// - DISH_TYPE -> dishTypeOptions  
+// - COOKING_METHODS -> methodOptions
+// - PROTEIN_TYPES -> proteinOptions
+// - TIME_OPTIONS -> timeOptions
+
+// Homepage-specific extensions:
+// - dietOptions: DIET_MODES + extra (low_calorie, gluten_free)
+
+// Homepage-only local:
+// - cuisineOptions: has thai/fusion not in CUISINES
+// - difficultyOptions: simplified labels from COOKING_CONSTRAINTS
+
 const cuisineOptions = [
   { value: 'chinese', label: '中式' },
   { value: 'western', label: '西式' },
@@ -11,24 +26,22 @@ const cuisineOptions = [
   { value: 'fusion', label: '混合' },
 ];
 
-// Import from shared constants
 const dishTypeOptions = DISH_TYPE;
 const methodOptions = COOKING_METHODS;
 const proteinOptions = PROTEIN_TYPES;
 const timeOptions = TIME_OPTIONS;
 
-// Difficulty - simplified from COOKING_CONSTRAINTS
 const difficultyOptions = [
   { value: 'easy', label: '簡單' },
   { value: 'medium', label: '中等' },
   { value: 'hard', label: '複雜' },
 ];
 
-// Diet - uses DIET_MODES + extra options
-const dietOptions = DIET_MODES.concat([
+const dietOptions = [
+  ...DIET_MODES,
   { value: 'low_calorie', label: '低卡' },
   { value: 'gluten_free', label: '無麩質' },
-]);
+];
 
 
 
