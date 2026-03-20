@@ -50,3 +50,39 @@ export const INGREDIENT_REUSE = [
   { value: 'normal', label: '普通' },
   { value: 'smart', label: '智能重用' },
 ];
+
+// Homepage filter specific constants
+export const DISH_TYPE = [
+  { value: 'main', label: '主菜' },
+  { value: 'side', label: '配菜' },
+  { value: 'soup', label: '湯' },
+  { value: 'staple', label: '主食' },
+  { value: 'snack', label: '小食' },
+];
+
+export const COOKING_METHODS = [
+  { value: 'stir_fry', label: '炒' },
+  { value: 'steamed', label: '蒸' },
+  { value: 'fried', label: '煎/炸' },
+  { value: 'braised', label: '燜/紅燒' },
+  { value: 'boiled', label: '煮/湯' },
+  { value: 'baked', label: '焗' },
+];
+
+export const PROTEIN_TYPES = [
+  { value: 'chicken', label: '雞' },
+  { value: 'beef', label: '牛' },
+  { value: 'pork', label: '豬' },
+  { value: 'fish', label: '魚' },
+  { value: 'shrimp', label: '蝦' },
+  { value: 'tofu', label: '豆腐' },
+  { value: 'egg', label: '蛋' },
+  { value: 'vegetarian', label: '素' },
+  { value: 'mixed', label: '混合' },
+];
+
+export const TIME_OPTIONS = [
+  { value: '15', label: '15分鐘內' },
+  { value: '30', label: '30分鐘內' },
+  { value: '60', label: '60分鐘內' },
+];

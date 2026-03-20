@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DIET_MODES, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES } from '@/constants/filters';
 
-// Filter options based on actual DB schema
+// Local arrays for homepage filter - intentionally different from generate page
 const cuisineOptions = [
   { value: 'chinese', label: '中式' },
   { value: 'western', label: '西式' },
@@ -11,59 +11,28 @@ const cuisineOptions = [
   { value: 'fusion', label: '混合' },
 ];
 
-const dishTypeOptions = [
-  { value: 'main', label: '主菜' },
-  { value: 'side', label: '配菜' },
-  { value: 'soup', label: '湯' },
-  { value: 'staple', label: '主食' },
-  { value: 'snack', label: '小食' },
-];
+// Import from shared constants
+const dishTypeOptions = DISH_TYPE;
+const methodOptions = COOKING_METHODS;
+const proteinOptions = PROTEIN_TYPES;
+const timeOptions = TIME_OPTIONS;
 
-const timeOptions = [
-  { value: '15', label: '15分鐘內', icon: '⚡' },
-  { value: '30', label: '30分鐘內', icon: '⏱️' },
-  { value: '60', label: '60分鐘內', icon: '🐢' },
-];
-
+// Difficulty - simplified from COOKING_CONSTRAINTS
 const difficultyOptions = [
   { value: 'easy', label: '簡單' },
   { value: 'medium', label: '中等' },
   { value: 'hard', label: '複雜' },
 ];
 
-const methodOptions = [
-  { value: 'stir_fry', label: '炒', icon: '🥘' },
-  { value: 'steamed', label: '蒸', icon: '🥟' },
-  { value: 'fried', label: '煎/炸', icon: '🍳' },
-  { value: 'braised', label: '燜/紅燒', icon: '🍖' },
-  { value: 'boiled', label: '煮/湯', icon: '🍲' },
-  { value: 'baked', label: '焗', icon: '🧀' },
-];
-
-const dietOptions = [
-  { value: 'vegetarian', label: '素食' },
-  { value: 'egg_lacto', label: '蛋奶素' },
-  { value: 'high_protein', label: '高蛋白' },
-  { value: 'low_fat', label: '低脂' },
+// Diet - uses DIET_MODES + extra options
+const dietOptions = DIET_MODES.concat([
   { value: 'low_calorie', label: '低卡' },
   { value: 'gluten_free', label: '無麩質' },
-];
-
-const proteinOptions = [
-  { value: 'chicken', label: '雞' },
-  { value: 'beef', label: '牛' },
-  { value: 'pork', label: '豬' },
-  { value: 'fish', label: '魚' },
-  { value: 'shrimp', label: '蝦' },
-  { value: 'tofu', label: '豆腐' },
-  { value: 'egg', label: '蛋' },
-  { value: 'vegetarian', label: '素' },
-  { value: 'mixed', label: '混合' },
-];
+]);
 
 
 
-export { cuisineOptions, dishTypeOptions, timeOptions, difficultyOptions, methodOptions, dietOptions, proteinOptions, budgetOptions };
+export { cuisineOptions, dishTypeOptions, timeOptions, difficultyOptions, methodOptions, dietOptions, proteinOptions };
 
 export function useRecipeFilters(initialRecipes = []) {
   // State

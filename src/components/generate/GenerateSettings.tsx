@@ -2,6 +2,7 @@
 import PlanningSection from './PlanningSection';
 import PreferenceSection from './PreferenceSection';
 import { FilterSection, FilterChip } from '@/components/filters';
+import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS, BUDGET_OPTIONS, INGREDIENT_REUSE } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -28,55 +29,11 @@ const DAYS_PER_WEEK = [3, 5, 7];
 const DISHES_PER_DAY = [1, 2, 3];
 const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
-const DIET_MODES = [
-  { value: 'general', label: 'General' },
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'egg_lacto', label: 'Egg/Lacto Vegetarian' },
-  { value: 'high_protein', label: 'High Protein' },
-  { value: 'low_fat', label: 'Low Fat' },
-  { value: 'light', label: 'Light' },
-];
 
-const EXCLUSIONS = [
-  { value: 'beef', label: 'No Beef' },
-  { value: 'pork', label: 'No Pork' },
-  { value: 'chicken', label: 'No Chicken' },
-  { value: 'seafood', label: 'No Seafood' },
-  { value: 'eggs', label: 'No Eggs' },
-  { value: 'dairy', label: 'No Dairy' },
-  { value: 'spicy', label: 'No Spicy' },
-];
 
-const CUISINES = [
-  { value: 'chinese', label: 'Chinese' },
-  { value: 'japanese', label: 'Japanese' },
-  { value: 'korean', label: 'Korean' },
-  { value: 'western', label: 'Western' },
-  { value: 'taiwanese', label: 'Taiwanese' },
-  { value: 'se_asian', label: 'Southeast Asian' },
-];
 
-const COOKING_CONSTRAINTS = [
-  { value: 'under_15', label: 'Under 15 min' },
-  { value: 'under_30', label: 'Under 30 min' },
-  { value: 'under_45', label: 'Under 45 min' },
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
-  { value: 'one_pot', label: 'One-pot' },
-  { value: 'air_fryer', label: 'Air fryer' },
-];
 
-const BUDGET_OPTIONS = [
-  { value: 'budget', label: 'Budget' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'premium', label: 'Premium' },
-];
 
-const INGREDIENT_REUSE = [
-  { value: 'normal', label: 'Normal' },
-  { value: 'smart', label: 'Smart Reuse' },
-];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
