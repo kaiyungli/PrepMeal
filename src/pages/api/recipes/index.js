@@ -1,5 +1,13 @@
 import { supabase } from '@/lib/supabaseClient'
 
+// Recommended indexes for this query (see docs/db-indexes.md):
+// - idx_recipes_is_public ON recipes(is_public)
+// - idx_recipes_cuisine ON recipes(cuisine)  
+// - idx_recipes_difficulty ON recipes(difficulty)
+// - idx_recipes_primary_protein ON recipes(primary_protein)
+// - idx_recipes_cook_time ON recipes(cook_time_minutes)
+// - idx_recipes_created_at ON recipes(created_at DESC)
+
 export default async function handler(req, res) {
   console.log('[API] ====== START ======');
   console.log('[API] req.query:', req.query);
