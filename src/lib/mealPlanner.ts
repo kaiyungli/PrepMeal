@@ -13,6 +13,12 @@ function getRecipeSearchText(recipe: Recipe): string {
   ].filter(Boolean).join(' ').toLowerCase();
 }
 
+// Helper to get canonical Set (optimization: combine getRecipeCanonicalIngredients + new Set)
+function getRecipeCanonicalSet(recipe: Recipe): Set<string> {
+  const canonical = getRecipeCanonicalIngredients(recipe);
+  return new Set(canonical);
+}
+
 
 
 // Randomness factor for variety (±20% score variation)
@@ -264,8 +270,7 @@ export function planWeekAdvanced(
     
     // Use canonical_ingredients as primary source
     let perfectMatches = filtered.filter(r => {
-      const canonical = getRecipeCanonicalIngredients(r);
-      const recipeCanonical = new Set(canonical);
+      const recipeCanonical = getRecipeCanonicalSet(r);
       return normPantry.every(p => recipeCanonical.has(p));
     });
     
@@ -347,8 +352,7 @@ export function planWeekAdvanced(
         // Pantry bonus with diminishing factor
         if (pantryIngredients.length > 0) {
           // Primary: use canonical ingredients
-          const canonical = getRecipeCanonicalIngredients(r);
-          const recipeCanonical = new Set(canonical);
+          const recipeCanonical = getRecipeCanonicalSet(r);
           const pantryForScoring = normPantry;
           
           // Primary: count matches against canonical ingredients
@@ -404,8 +408,7 @@ export function planWeekAdvanced(
       // AFTER selection: update pantry tracking
       if (selected && pantryIngredients.length > 0) {
         // Use canonical ingredients for tracking (same as scoring)
-        const canonical = selected.canonical_ingredients || [];
-        const recipeCanonical = new Set(canonical);
+        const recipeCanonical = selected.canonical_ingredients ? new Set(selected.canonical_ingredients) : getRecipeCanonicalSet(selected);
         const pantryForScoring = normPantry;
         
         // Primary: track canonical matches
