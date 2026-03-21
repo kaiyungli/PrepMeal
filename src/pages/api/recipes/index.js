@@ -33,10 +33,10 @@ export default async function handler(req, res) {
     
     console.log('[API] Parsed params:', { cuisine, dish_type, difficulty, maxTime, method, diet, protein, budget, complete, sort });
     
-    // Build query safely
+    // Build query safely - select only fields needed for recipe cards
     let query = supabase
       .from('recipes')
-      .select('*', { count: 'exact' })
+      .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,carbs_g,fat_g,primary_protein,protein,dish_type,diet,description,is_public,created_at', { count: 'exact' })
     
     // Always filter by public
     query = query.eq('is_public', true)

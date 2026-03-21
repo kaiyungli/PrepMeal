@@ -143,47 +143,9 @@ export default function GeneratePage() {
     }
   }, []);
 
-  // Filter recipes based on settings (useMemo for optimization)
-  const filteredRecipes = useMemo(() => {
-    let filtered = [...allRecipes];
-    
-    // Filter by cuisine
-    if (cuisines.length > 0) {
-      filtered = filtered.filter(r => cuisines.includes(r.cuisine));
-    }
-    
-    // Filter by cooking time
-    const timeConstraint = cookingConstraints.find(c => c.startsWith('under_'));
-    if (timeConstraint) {
-      const maxMinutes = parseInt(timeConstraint.split('_')[1]);
-      filtered = filtered.filter(r => {
-        const time = r.prep_time_minutes || r.cook_time_minutes || 30;
-        return time <= maxMinutes;
-      });
-    }
-    
-    // Filter by difficulty
-    const difficulty = cookingConstraints.find(c => ['easy', 'medium', 'hard'].includes(c));
-    if (difficulty) {
-      filtered = filtered.filter(r => r.difficulty === difficulty);
-    }
-    
-    // Filter by exclusions
-    if (exclusions.length > 0) {
-      filtered = filtered.filter(r => {
-        // Use normalized exclusion matching
-        const proteinValues = [r.primary_protein, ...(r.protein || [])].filter(Boolean);
-        const normProtein = proteinValues.map(p => p.toLowerCase());
-        const normExclusions = exclusions.map(e => e.toLowerCase());
-        return !normProtein.some(p => normExclusions.includes(p));
-      });
-    }
-    
-    // Note: Pantry now affects scoring only (not filtering)
-    // This is handled in mealPlanner.ts
-    
-    return filtered;
-  }, [allRecipes, cuisines, cookingConstraints, exclusions]);
+  // Recipes are already filtered by server (cuisine, difficulty, maxTime, exclusions)
+  // No client-side filtering needed - server does the filtering
+  const filteredRecipes = allRecipes;
 
 // ============================================
 // PLANNER CONFIGURATION CONSTANTS
