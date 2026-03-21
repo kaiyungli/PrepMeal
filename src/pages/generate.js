@@ -5,7 +5,7 @@ import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
 import PantryChipInput from '@/components/home/PantryChipInput';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -44,7 +44,7 @@ export default function GeneratePage() {
   
   // Recipe State
   const [allRecipes, setAllRecipes] = useState([]);
-  const [filteredRecipes, setFilteredRecipes] = useState([]);
+  
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
@@ -131,8 +131,8 @@ export default function GeneratePage() {
     }
   }, []);
 
-  // Filter recipes based on settings
-  useEffect(() => {
+  // Filter recipes based on settings (useMemo for optimization)
+  const filteredRecipes = useMemo(() => {
     let filtered = [...allRecipes];
     
     // Filter by cuisine
@@ -170,8 +170,8 @@ export default function GeneratePage() {
     // Note: Pantry now affects scoring only (not filtering)
     // This is handled in mealPlanner.ts
     
-    setFilteredRecipes(filtered);
-  }, [allRecipes, cuisines, cookingConstraints, exclusions, pantryIngredients]);
+    return filtered;
+  }, [allRecipes, cuisines, cookingConstraints, exclusions]);
 
 // ============================================
 // PLANNER CONFIGURATION CONSTANTS
