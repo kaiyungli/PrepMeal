@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   try {
     
     if (!supabase) {
-      console.error('[API] Supabase not configured')
+      if (process.env.NODE_ENV !== 'production') console.error('Supabase not configured')
       return res.status(500).json({ error: 'Supabase is not configured' })
     }
 
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
 
 
     if (error) {
-      console.error('[API] Supabase error:', error)
+      if (process.env.NODE_ENV !== 'production') // Supabase error
       return res.status(500).json({ error: error.message, details: error.message })
     }
     
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
       hasMore: (recipesList.length) > offsetNum + limitNum
     })
   } catch (error) {
-    console.error('[API] Fatal error:', error)
+    if (process.env.NODE_ENV !== 'production') // Fatal error
     res.status(500).json({ error: error.message || 'Unknown error' })
   }
 }
