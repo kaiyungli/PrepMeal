@@ -306,7 +306,7 @@ export function planWeekAdvanced(
       const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
       
       // Pre-normalize pantry ONCE before scoring loop (optimization)
-      const scoringNormPantry = pantryIngredients.length > 0 ? normalizeIngredients(pantryIngredients) : [];
+      const scoringNormPantry = normPantry;
       
       // Score candidates
       const scored = filtered.map(r => {
@@ -342,7 +342,7 @@ export function planWeekAdvanced(
           // Primary: use canonical ingredients
           const canonical = getRecipeCanonicalIngredients(r);
           const recipeCanonical = new Set(canonical);
-          const normPantry = normalizeIngredients(pantryIngredients);
+          const pantryForScoring = normPantry;
           
           // Primary: count matches against canonical ingredients
           let matches = normPantry.filter(p => recipeCanonical.has(p));
@@ -407,7 +407,7 @@ export function planWeekAdvanced(
         // Use canonical ingredients for tracking (same as scoring)
         const canonical = selected.canonical_ingredients || [];
         const recipeCanonical = new Set(canonical);
-        const normPantry = normalizeIngredients(pantryIngredients);
+        const pantryForScoring = normPantry;
         
         // Primary: track canonical matches
         let selectedMatches = normPantry.filter(p => recipeCanonical.has(p));
