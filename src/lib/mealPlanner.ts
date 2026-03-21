@@ -1,5 +1,20 @@
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
+// Helper to build recipe search text (optimization: avoid repeated construction)
+function getRecipeSearchText(recipe: Recipe): string {
+  return [
+    recipe.name,
+    recipe.description,
+    recipe.cuisine,
+    recipe.method,
+    recipe.dish_type,
+    recipe.primary_protein,
+    ...(recipe.ingredients_list || [])
+  ].filter(Boolean).join(' ').toLowerCase();
+}
+
+
+
 // Randomness factor for variety (±20% score variation)
 const RANDOM_FACTOR = 0.2;
 
@@ -257,15 +272,7 @@ export function planWeekAdvanced(
     // Fallback: if no canonical match, try Chinese partial matching
     if (perfectMatches.length === 0) {
       perfectMatches = filtered.filter(r => {
-        const recipeText = [
-          r.name,
-          r.description,
-          r.cuisine,
-          r.method,
-          r.dish_type,
-          r.primary_protein,
-          ...(r.ingredients_list || [])
-        ].filter(Boolean).join(' ').toLowerCase();
+        const recipeText = getRecipeSearchText(r);
         
         // For Chinese, use partial match
         return pantryIngredients.every(p => recipeText.includes(p.toLowerCase()));
@@ -349,15 +356,7 @@ export function planWeekAdvanced(
           
           // Fallback: if no canonical match, try partial text match for Chinese
           if (matches.length === 0) {
-            const recipeText = [
-              r.name,
-              r.description,
-              r.cuisine,
-              r.method,
-              r.dish_type,
-              r.primary_protein,
-              ...(r.ingredients_list || [])
-            ].filter(Boolean).join(' ').toLowerCase();
+            const recipeText = getRecipeSearchText(r);
             
             matches = pantryIngredients.filter(p => recipeText.includes(p.toLowerCase()));
           }
@@ -414,15 +413,7 @@ export function planWeekAdvanced(
         
         // Fallback: if no canonical match, try partial text
         if (selectedMatches.length === 0) {
-          const recipeText = [
-            selected.name,
-            selected.description,
-            selected.cuisine,
-            selected.method,
-            selected.dish_type,
-            selected.primary_protein,
-            ...(selected.ingredients_list || [])
-          ].filter(Boolean).join(' ').toLowerCase();
+          const recipeText = getRecipeSearchText(selected);
           
           selectedMatches = pantryIngredients.filter(p => recipeText.includes(p.toLowerCase()));
         }
