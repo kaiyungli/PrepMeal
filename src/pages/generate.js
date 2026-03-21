@@ -72,6 +72,13 @@ export default function GeneratePage() {
   // Recipe detail cache (optimization)
   const recipeCache = useRef(new Map());
 
+  // Lazy load shopping list when modal opens
+  useEffect(() => {
+    if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
+      preloadShoppingList(weeklyPlan);
+    }
+  }, [showShoppingList, shoppingListLoaded]);
+
   useEffect(() => {
     fetch('/api/recipes?limit=100')
       .then(res => res.json())
@@ -115,8 +122,7 @@ export default function GeneratePage() {
           });
           setWeeklyPlan(converted);
           setHasGenerated(true);
-          // Also preload shopping list with the loaded plan
-          preloadShoppingList(converted);
+          // Shopping list loads lazily when modal opens
           sessionStorage.removeItem('heroWeeklyPlan');
         }
       } catch (e) {
@@ -257,8 +263,7 @@ const CONFIG = {
     setWeeklyPlan(newPlan);
     setHasGenerated(true);
     
-    // Preload shopping list immediately
-    preloadShoppingList(newPlan);
+    // Shopping list loads lazily when modal opens
   };
 
   const replaceRecipe = (dayKey, index) => {
