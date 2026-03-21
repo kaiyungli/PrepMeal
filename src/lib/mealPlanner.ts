@@ -320,8 +320,11 @@ export function planWeekAdvanced(
       // Pre-normalize pantry ONCE before scoring loop (optimization)
       const scoringNormPantry = normPantry;
       
-      // Score candidates
-      const scored = filtered.map(r => {
+      // Score candidates and maintain top 3 only (optimization: avoid full array sort)
+      // Use simple insertion to keep only top 3 instead of sorting entire array
+      let top3: { recipe: Recipe; score: number }[] = [];
+      
+      for (const r of filtered) {
         let score = 5; // base score
         
         // Repeat penalty - exclude already used recipes or heavily penalize
@@ -353,7 +356,6 @@ export function planWeekAdvanced(
         if (pantryIngredients.length > 0) {
           // Primary: use canonical ingredients
           const recipeCanonical = getRecipeCanonicalSet(r);
-          const pantryForScoring = normPantry;
           
           // Primary: count matches against canonical ingredients
           let matches = normPantry.filter(p => recipeCanonical.has(p));
@@ -373,25 +375,28 @@ export function planWeekAdvanced(
             if (usedCount > 0) {
               score -= 0.5 * usedCount;
             }
-            // Note: Don't push here - push AFTER selection
           }
         }
         
-        return { recipe: r, score };
-      });
-      
-      // Add randomness to scores
-      scored.forEach(s => {
+        // Add randomness to score
         const randomMultiplier = 1 + (Math.random() * RANDOM_FACTOR * 2 - RANDOM_FACTOR);
-        s.score *= randomMultiplier;
-      });
-      
-      // Sort by score (descending) - now with randomness applied
-      scored.sort((a, b) => b.score - a.score);
+        score *= randomMultiplier;
+        
+        // Maintain top 3 using simple insertion sort (O(n) instead of O(n log n))
+        // Keep sorted descending by score
+        if (top3.length < 3) {
+          top3.push({ recipe: r, score });
+          top3.sort((a, b) => b.score - a.score);
+        } else if (score > top3[top3.length - 1].score) {
+          top3.pop();
+          top3.push({ recipe: r, score });
+          top3.sort((a, b) => b.score - a.score);
+        }
+      }
       
       // Weighted random selection: pick from top candidates
       // Use Math.max to avoid 0 or negative scores
-      const topCandidates = scored.slice(0, Math.min(3, scored.length));
+      const topCandidates = top3;
       const totalWeight = topCandidates.reduce((sum, s) => sum + Math.max(s.score, 0.001), 0);
       let random = Math.random() * totalWeight;
       let selected = topCandidates[0]?.recipe;
