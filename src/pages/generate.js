@@ -5,7 +5,7 @@ import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
 import PantryChipInput from '@/components/home/PantryChipInput';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -68,9 +68,12 @@ export default function GeneratePage() {
   const [shoppingList, setShoppingList] = useState([]);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [shoppingListLoaded, setShoppingListLoaded] = useState(false);
+  
+  // Recipe detail cache (optimization)
+  const recipeCache = useRef(new Map());
 
   useEffect(() => {
-    fetch('/api/recipes?limit=500')
+    fetch('/api/recipes?limit=100')
       .then(res => res.json())
       .then(data => {
         const recipes = data.recipes || [];
@@ -96,7 +99,6 @@ export default function GeneratePage() {
       try {
         const heroPlan = JSON.parse(heroPlanStr);
         if (heroPlan && heroPlan.length > 0) {
-          console.log('[Generate] Loading hero weekly plan:', heroPlan);
           // Convert from hero format [{day, recipe}] to generate format {mon: [recipe], ...}
           const converted = { mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] };
           const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -116,7 +118,6 @@ export default function GeneratePage() {
           // Also preload shopping list with the loaded plan
           preloadShoppingList(converted);
           sessionStorage.removeItem('heroWeeklyPlan');
-          console.log('[Generate] Hero weekly plan loaded:', converted);
         }
       } catch (e) {
         console.error('[Generate] Failed to parse hero weekly plan:', e);
@@ -459,10 +460,18 @@ const CONFIG = {
           onRemove={removeRecipe}
           setWeeklyPlan={setWeeklyPlan}
           onRecipeClick={(recipe) => {
+            // Use cache if available
+            if (recipeCache.current.has(recipe.id)) {
+              setSelectedRecipe(recipeCache.current.get(recipe.id));
+              return;
+            }
             setModalLoading(true);
             fetch('/api/recipes/' + recipe.id)
               .then(res => res.json())
-              .then(setSelectedRecipe)
+              .then(data => {
+                recipeCache.current.set(recipe.id, data);
+                setSelectedRecipe(data);
+              })
               .finally(() => setModalLoading(false));
           }}
         />
