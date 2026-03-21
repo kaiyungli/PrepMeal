@@ -80,15 +80,27 @@ export default function GeneratePage() {
   }, [showShoppingList, shoppingListLoaded]);
 
   useEffect(() => {
-    fetch('/api/recipes?limit=100')
+    // Build filter params for API (server-side filtering)
+    const params = new URLSearchParams();
+    params.set('limit', '100');
+    
+    if (cuisines.length > 0) params.set('cuisine', cuisines.join(','));
+    if (cookingConstraints.length > 0) {
+      const difficulty = cookingConstraints.find(c => ['easy', 'medium', 'hard'].includes(c));
+      if (difficulty) params.set('difficulty', difficulty);
+      const time = cookingConstraints.find(c => c.startsWith('under_'));
+      if (time) params.set('maxTime', time.split('_')[1]);
+    }
+    if (exclusions.length > 0) params.set('exclusions', exclusions.join(','));
+    
+    fetch('/api/recipes?' + params.toString())
       .then(res => res.json())
       .then(data => {
         const recipes = data.recipes || [];
         setAllRecipes(recipes);
-        setFilteredRecipes(recipes);
       })
       .catch(() => {});
-  }, []);
+  }, [cuisines, cookingConstraints, exclusions]);
 
   // Read pantry ingredients from URL
   useEffect(() => {

@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       protein,
       budget,
       complete,
+      exclusions,
       sort = 'newest',
       limit = 100, 
       offset = 0 
@@ -62,6 +63,16 @@ export default async function handler(req, res) {
     if (difficulty && difficulty !== '' && typeof difficulty === 'string') {
       console.log('[API] Adding difficulty:', difficulty);
       query = query.eq('difficulty', difficulty)
+    }
+    
+    // Exclusions filter - exclude recipes with these proteins
+    if (exclusions && typeof exclusions === 'string') {
+      const exclusionList = exclusions.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+      if (exclusionList.length > 0) {
+        console.log('[API] Adding exclusions:', exclusionList);
+        // Use not.ilike to exclude recipes containing these proteins
+        query = query.not('primary_protein', 'in', `(${exclusionList.map(e => `"${e}"`).join(',')})`);
+      }
     }
     
     // Method filter
