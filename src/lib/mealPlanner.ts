@@ -246,9 +246,6 @@ export function planWeekAdvanced(
   let perfectMatchRecipe: Recipe | null = null;
   if (normPantry.length > 0 && filtered.length > 0) {
     // DEBUG: Log pantry ingredients
-    console.log('[PLANNER] pantryIngredients:', pantryIngredients);
-    console.log('[PLANNER] normalized pantry:', normPantry);
-    console.log('[PLANNER] normalized pantry:', normPantry);
     
     // Use canonical_ingredients as primary source
     let perfectMatches = filtered.filter(r => {
@@ -275,12 +272,10 @@ export function planWeekAdvanced(
       });
     }
     
-    console.log('[PLANNER] perfectMatches:', perfectMatches.map(r => r.name));
     
     if (perfectMatches.length > 0) {
       // Pick one random perfect match
       perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
-      console.log('[PLANNER] Selected perfect match:', perfectMatchRecipe.name);
     }
   }
 
