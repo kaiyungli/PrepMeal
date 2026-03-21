@@ -9,13 +9,10 @@ import { supabase } from '@/lib/supabaseClient'
 // - idx_recipes_created_at ON recipes(created_at DESC)
 
 export default async function handler(req, res) {
-  console.log('[API] ====== START ======');
-  console.log('[API] req.query:', req.query);
   
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
   
   try {
-    console.log('[API] Starting...')
     
     if (!supabase) {
       console.error('[API] Supabase not configured')
@@ -39,7 +36,6 @@ export default async function handler(req, res) {
       offset = 0 
     } = req.query;
     
-    console.log('[API] Parsed params:', { cuisine, dish_type, difficulty, maxTime, method, diet, protein, budget, complete, sort });
     
     // Build query safely - select only fields needed for recipe cards
     let query = supabase
@@ -51,25 +47,21 @@ export default async function handler(req, res) {
     
     // Search
     if (search && typeof search === 'string') {
-      console.log('[API] Adding search:', search);
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
     }
     
     // Cuisine filter
     if (cuisine && cuisine !== '' && typeof cuisine === 'string') {
-      console.log('[API] Adding cuisine:', cuisine);
       query = query.eq('cuisine', cuisine)
     }
     
     // Dish type filter
     if (dish_type && dish_type !== '' && typeof dish_type === 'string') {
-      console.log('[API] Adding dish_type:', dish_type);
       query = query.eq('dish_type', dish_type)
     }
     
     // Difficulty filter
     if (difficulty && difficulty !== '' && typeof difficulty === 'string') {
-      console.log('[API] Adding difficulty:', difficulty);
       query = query.eq('difficulty', difficulty)
     }
     
@@ -77,7 +69,6 @@ export default async function handler(req, res) {
     if (exclusions && typeof exclusions === 'string') {
       const exclusionList = exclusions.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
       if (exclusionList.length > 0) {
-        console.log('[API] Adding exclusions:', exclusionList);
         // Use not.ilike to exclude recipes containing these proteins
         query = query.not('primary_protein', 'in', `(${exclusionList.map(e => `"${e}"`).join(',')})`);
       }
@@ -85,25 +76,21 @@ export default async function handler(req, res) {
     
     // Method filter
     if (method && method !== '' && typeof method === 'string') {
-      console.log('[API] Adding method:', method);
       query = query.eq('method', method)
     }
     
     // Protein filter (primary_protein)
     if (protein && protein !== '' && typeof protein === 'string') {
-      console.log('[API] Adding protein:', protein);
       query = query.eq('primary_protein', protein)
     }
     
     // Budget filter
     if (budget && budget !== '' && typeof budget === 'string') {
-      console.log('[API] Adding budget:', budget);
       query = query.eq('budget_level', budget)
     }
     
     // Complete meal filter
     if (complete && complete !== '' && typeof complete === 'string') {
-      console.log('[API] Adding complete:', complete);
       const isComplete = complete === 'true';
       query = query.eq('is_complete_meal', isComplete)
     }
@@ -112,14 +99,12 @@ export default async function handler(req, res) {
     if (maxTime) {
       const timeNum = parseInt(maxTime)
       if (timeNum && timeNum > 0) {
-        console.log('[API] Adding maxTime:', timeNum);
         query = query.lt('cook_time_minutes', timeNum)
       }
     }
     
     // Diet filter (array contains)
     if (diet && diet !== '' && typeof diet === 'string') {
-      console.log('[API] Adding diet:', diet);
       // Diet is an array column, use contains
       const dietValues = diet.split(',');
       query = query.contains('diet', dietValues)
@@ -127,7 +112,6 @@ export default async function handler(req, res) {
     
     // Sorting
     const safeSort = typeof sort === 'string' ? sort : 'newest'
-    console.log('[API] Sorting by:', safeSort);
     switch (safeSort) {
       case 'quick':
         query = query.order('total_time_minutes', { ascending: true, nullsFirst: false })
@@ -158,22 +142,17 @@ export default async function handler(req, res) {
     const offsetNum = Math.max(parseInt(offset) || 0, 0)
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     
-    console.log('[API] Executing query...');
     const { data: recipes, error } = await query
 
-    console.log('[API] Query result:', { error: error?.message, count: recipes?.length });
 
     if (error) {
       console.error('[API] Supabase error:', error)
       return res.status(500).json({ error: error.message, details: error.message })
     }
     
-    console.log('[API] First recipe:', recipes?.[0]?.name);
 
     // Return recipes
     const recipesList = Array.isArray(recipes) ? recipes : []
-    console.log('[API] Final response count:', recipesList.length);
-    console.log('[API] ====== END ======');
     
     res.status(200).json({ 
       recipes: recipesList, 
@@ -181,7 +160,6 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error('[API] Fatal error:', error)
-    console.log('[API] ====== ERROR ======');
     res.status(500).json({ error: error.message || 'Unknown error' })
   }
 }
