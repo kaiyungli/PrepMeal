@@ -356,21 +356,42 @@ const CONFIG = {
             }
             const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
             if (!name) return;
+            
+            // Build normalized items from weeklyPlan
+            const items = [];
+            weeklyPlan.forEach((dayPlan, dayIndex) => {
+              if (dayPlan && dayPlan.meals) {
+                dayPlan.meals.forEach((meal) => {
+                  if (meal && meal.recipe && meal.recipe.id) {
+                    items.push({
+                      day_index: dayIndex,
+                      meal_type: meal.mealType || 'dinner',
+                      recipe_id: meal.recipe.id,
+                      servings: servings,
+                    });
+                  }
+                });
+              }
+            });
+            
+            if (items.length === 0) {
+              alert('沒有餐單內容可以保存');
+              return;
+            }
+            
             try {
-              await fetch('/api/menus', {
+              const res = await fetch('/api/user/menus', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   name,
-                  menu_data: {
-                    daysPerWeek,
-                    dishesPerDay,
-                    servings,
-                    weeklyPlan,
-                    settings: { dietMode, exclusions, cuisines, cookingConstraints, budget, ingredientReuse }
-                  }
+                  week_start_date: new Date().toISOString().split('T')[0],
+                  days_count: daysPerWeek,
+                  items,
                 })
               });
+              const data = await res.json();
+              if (data.error) throw new Error(data.error);
               alert('已保存餐單！');
             } catch (e) {
               alert('保存失敗: ' + e.message);
