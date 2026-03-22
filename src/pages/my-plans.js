@@ -15,7 +15,7 @@ export default function MyPlansPage() {
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push('/login?redirect=/my-plans');
     }
   }, [authLoading, isAuthenticated, router]);
 

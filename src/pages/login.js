@@ -37,7 +37,8 @@ export default function LoginPage() {
     const checkUser = async () => {
       const { data: { user } } = await supabase?.auth.getUser();
       if (user) {
-        router.push('/profile');
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/profile';
+        router.push(redirectUrl);
       }
     };
     checkUser();
@@ -76,7 +77,8 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        router.push('/profile');
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/profile';
+        router.push(redirectUrl);
       }
     } catch (err) {
       setError(err.message);

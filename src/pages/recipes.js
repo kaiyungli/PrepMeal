@@ -97,6 +97,7 @@ export default function RecipesPage({ initialRecipes }) {
                 onFavorite={() => {
                   if (!isAuthenticated) {
                     alert('請先登入以收藏食譜');
+                      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                     return;
                   }
                   toggleFavorite(recipe.id);

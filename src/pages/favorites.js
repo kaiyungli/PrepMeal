@@ -17,7 +17,7 @@ export default function FavoritesPage() {
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push('/login?redirect=/favorites');
     }
   }, [authLoading, isAuthenticated, router]);
 

@@ -352,6 +352,7 @@ const CONFIG = {
             // Check auth first
             if (!isAuthenticated) {
               alert('請先登入以保存餐單');
+              window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
             const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
