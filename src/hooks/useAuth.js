@@ -59,7 +59,7 @@ export function useAuth() {
       return data;
     } catch (err) {
       // Apple provider may not be configured
-      throw new Error('Apple登入暫時不可用，請使用其他方式登入');
+      throw new Error('Apple 登入尚未完成設定，請使用其他方式');
     }
   };
 
@@ -79,7 +79,7 @@ export function useAuth() {
       if (error) throw error;
       return data;
     } catch (err) {
-      throw new Error('Facebook登入暫時不可用，請使用其他方式登入');
+      throw new Error('Facebook 登入尚未完成設定，請使用其他方式');
     }
   };
 
