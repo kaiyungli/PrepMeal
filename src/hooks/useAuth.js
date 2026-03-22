@@ -41,6 +41,28 @@ export function useAuth() {
     return data;
   };
 
+  const signInWithApple = async () => {
+    // Preserve return URL if present
+    const redirectParam = typeof window !== 'undefined' 
+      ? new URLSearchParams(window.location.search).get('redirect') 
+      : null;
+    const redirectTo = redirectParam 
+      ? `${window.location.origin}${redirectParam}` 
+      : `${window.location.origin}/my-plans`;
+    
+    try {
+      const { data, error } = await supabase?.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo },
+      });
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      // Apple provider may not be configured
+      throw new Error('Apple登入暫時不可用，請使用其他方式登入');
+    }
+  };
+
   const signOut = async () => {
     const { error } = await supabase?.auth.signOut();
     if (error) throw error;
@@ -51,6 +73,7 @@ export function useAuth() {
     user,
     loading,
     signInWithGoogle,
+    signInWithApple,
     signOut,
     isAuthenticated: !!user,
   };
