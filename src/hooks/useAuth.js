@@ -63,6 +63,26 @@ export function useAuth() {
     }
   };
 
+  const signInWithFacebook = async () => {
+    const redirectParam = typeof window !== 'undefined' 
+      ? new URLSearchParams(window.location.search).get('redirect') 
+      : null;
+    const redirectTo = redirectParam 
+      ? `${window.location.origin}${redirectParam}` 
+      : `${window.location.origin}/my-plans`;
+    
+    try {
+      const { data, error } = await supabase?.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: { redirectTo },
+      });
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      throw new Error('Facebook登入暫時不可用，請使用其他方式登入');
+    }
+  };
+
   const signOut = async () => {
     const { error } = await supabase?.auth.signOut();
     if (error) throw error;
@@ -74,6 +94,7 @@ export function useAuth() {
     loading,
     signInWithGoogle,
     signInWithApple,
+    signInWithFacebook,
     signOut,
     isAuthenticated: !!user,
   };
