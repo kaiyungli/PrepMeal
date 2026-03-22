@@ -7,7 +7,7 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 
 export default function RecipesPage({ initialRecipes }) {
-  const { isAuthenticated } = useAuth();
+  const { isFavorite, toggleFavorite, isAuthenticated, loading: favLoading } = useFavorites();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
@@ -99,8 +99,9 @@ export default function RecipesPage({ initialRecipes }) {
                     alert('請先登入以收藏食譜');
                     return;
                   }
-                  console.log('Favorite:', recipe.id);
+                  toggleFavorite(recipe.id);
                 }}
+                isFavorite={isFavorite(recipe.id)}
               />
             ))}
           </div>

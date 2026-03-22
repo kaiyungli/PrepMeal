@@ -44,6 +44,7 @@ interface RecipeCardProps {
   };
   onClick?: () => void;
   onFavorite?: () => void;
+  isFavorite?: boolean;
   className?: string;
 }
 
@@ -77,7 +78,7 @@ const dietLabels: Record<string, string> = {
   gluten_free: '無麩質'
 }
 
-export default function RecipeCard({ recipe, onClick, onFavorite, className = '' }: RecipeCardProps) {
+export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, className = '' }: RecipeCardProps) {
   // Safely extract recipe fields
   const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'

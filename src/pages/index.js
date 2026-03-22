@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useFavorites } from '@/hooks/useFavorites';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -237,8 +237,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         alert('請先登入以收藏食譜');
                         return;
                       }
-                      console.log('Favorite:', recipe.id);
+                      toggleFavorite(recipe.id);
                     }}
+                    isFavorite={isFavorite(recipe.id)}
                   />
                 </div>
               ))}
