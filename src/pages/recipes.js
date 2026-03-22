@@ -7,6 +7,7 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 
 export default function RecipesPage({ initialRecipes }) {
+  const { isAuthenticated } = useAuth();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
@@ -93,6 +94,13 @@ export default function RecipesPage({ initialRecipes }) {
                 key={recipe.id}
                 recipe={recipe}
                 onClick={() => setSelectedRecipe(recipe)}
+                onFavorite={() => {
+                  if (!isAuthenticated) {
+                    alert('請先登入以收藏食譜');
+                    return;
+                  }
+                  console.log('Favorite:', recipe.id);
+                }}
               />
             ))}
           </div>

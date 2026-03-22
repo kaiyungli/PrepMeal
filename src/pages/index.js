@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -231,6 +232,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <RecipeCard
                     recipe={recipe}
                     onClick={() => handleRecipeClick(recipe)}
+                    onFavorite={() => {
+                      if (!isAuthenticated) {
+                        alert('請先登入以收藏食譜');
+                        return;
+                      }
+                      console.log('Favorite:', recipe.id);
+                    }}
                   />
                 </div>
               ))}
