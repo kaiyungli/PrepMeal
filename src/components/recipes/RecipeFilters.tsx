@@ -69,7 +69,7 @@ export default function RecipeFilters({
           <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
             {filterGroups.map((group) => (
               <div key={group.id} className="min-w-0 space-y-1">
-                <div className="text-sm font-bold text-[#7A5A38] tracking-[0.01em]">{group.title}</div>
+                <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase">{group.title}</div>
                 <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
                   {group.options.map((option: any) => {
                     const isSelected = group.selected?.includes(option.value);
@@ -78,12 +78,12 @@ export default function RecipeFilters({
                       <button
                         key={option.value}
                         onClick={() => group.onToggle(option.value)}
-                        className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors ${
+                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                           isSelected
                             ? isDanger
-                              ? 'bg-red-500 border-red-500 text-white'
-                              : 'bg-[#9B6035] border-[#9B6035] text-white'
-                            : 'bg-[#F8F3E8] border border-[#E5DCC8] text-[#7A5A38] hover:bg-[#F4EDDD]'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-[#9B6035] text-white'
+                            : 'bg-white text-[#3A2010] border border-[#E7E0D4] hover:bg-gray-100'
                         }`}
                       >
                         {option.label}
@@ -98,7 +98,7 @@ export default function RecipeFilters({
             <div className="mt-3 w-full border-t border-[#EEE5D6] pt-3 col-span-full">
               <button
                 onClick={clearFilters}
-                className="block text-left text-sm font-semibold text-[#9B6035] hover:underline"
+                className="block text-left text-xs font-semibold text-[#9B6035] hover:underline"
               >
                 清除全部
               </button>
