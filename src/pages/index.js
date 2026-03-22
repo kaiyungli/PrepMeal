@@ -95,6 +95,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
+  // Favorites hook
+  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  
   // Weekly plan state (homepage specific)
   const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
   const [shoppingList, setShoppingList] = useState([]);
