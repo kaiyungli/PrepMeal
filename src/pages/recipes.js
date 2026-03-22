@@ -8,6 +8,7 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 
 export default function RecipesPage({ initialRecipes }) {
   const { isFavorite, toggleFavorite, isAuthenticated, loading: favLoading } = useFavorites();
+  const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
@@ -60,6 +61,7 @@ export default function RecipesPage({ initialRecipes }) {
         </div>
 
         {/* Reusable Filters */}
+        
         <RecipeFilters
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -96,7 +98,7 @@ export default function RecipesPage({ initialRecipes }) {
                 onClick={() => setSelectedRecipe(recipe)}
                 onFavorite={() => {
                   if (!isAuthenticated) {
-                    alert('請先登入以收藏食譜');
+                    showToast('請先登入以收藏食譜', 'info');
                       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                     return;
                   }

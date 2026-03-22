@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
+
+
+import { Toast, useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function MyPlansPage() {
@@ -11,6 +14,7 @@ export default function MyPlansPage() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
+  const { toast, showToast } = useToast();
 
   // Redirect if not logged in
   useEffect(() => {
@@ -49,7 +53,7 @@ export default function MyPlansPage() {
       const res = await fetch(`/api/user/menus/${planId}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.error) {
-        alert('刪除失敗: ' + data.error);
+        showToast('刪除失敗: ' + data.error, 'error');
       } else {
         setPlans(plans.filter(p => p.id !== planId));
       }
@@ -69,6 +73,7 @@ export default function MyPlansPage() {
     return (
       <>
         <Header />
+      
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
@@ -79,6 +84,7 @@ export default function MyPlansPage() {
   return (
     <>
       <Header />
+      
       <Head><title>我的餐單 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[1200px] mx-auto px-4">

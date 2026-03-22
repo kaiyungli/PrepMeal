@@ -1,6 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
+
+
+import { Toast, useToast } from '@/components/ui/Toast';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -97,6 +100,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   
   // Favorites hook
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  const { toast, showToast } = useToast();
   
   // Weekly plan state (homepage specific)
   const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
@@ -177,7 +181,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-            <HomeHero 
+            
+        <HomeHero 
               onPrimaryAction={() => {}} 
               weeklyPlan={weeklyPlan}
               shoppingList={shoppingList}
@@ -237,7 +242,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                     onClick={() => handleRecipeClick(recipe)}
                     onFavorite={() => {
                       if (!isAuthenticated) {
-                        alert('請先登入以收藏食譜');
+                        showToast('請先登入以收藏食譜', 'info');
                       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                         return;
                       }

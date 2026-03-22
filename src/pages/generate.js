@@ -19,6 +19,8 @@ import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { planWeekAdvanced } from '@/lib/mealPlanner';
 
+
+
 // Category mapping for shopping list
 
 const DAYS = getWeekDates();
@@ -342,6 +344,7 @@ const CONFIG = {
         />
 
         {/* Action Bar */}
+        
         <GenerateActions 
           selectedCount={selectedCount}
           hasRecipes={hasRecipes}
@@ -351,7 +354,7 @@ const CONFIG = {
           onSave={async () => {
             // Check auth first
             if (!isAuthenticated) {
-              alert('請先登入以保存餐單');
+              showToast('請先登入以保存餐單', 'info');
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
@@ -393,9 +396,9 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.error) throw new Error(data.error);
-              alert('已保存餐單！');
+              showToast('已保存餐單！', 'success');
             } catch (e) {
-              alert('保存失敗: ' + e.message);
+              showToast('保存失敗: ' + e.message, 'error');
             }
           }}
         />

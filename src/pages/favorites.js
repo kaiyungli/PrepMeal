@@ -7,11 +7,16 @@ import RecipeCard from '@/components/RecipeCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 
+
+import { Toast, useToast } from '@/components/ui/Toast';
+
 export default function FavoritesPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [recipes, setRecipes] = useState([]);
+  const [toast, setToast] = useState(null);
+  const showToast = (msg, type='info') => { setToast({msg, type}); setTimeout(()=>setToast(null), 3000); };
   const [loading, setLoading] = useState(true);
 
   // Redirect if not logged in
@@ -51,6 +56,7 @@ export default function FavoritesPage() {
     return (
       <>
         <Header />
+      
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
@@ -61,6 +67,7 @@ export default function FavoritesPage() {
   return (
     <>
       <Header />
+      
       <Head><title>我的收藏 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[1200px] mx-auto px-4">
