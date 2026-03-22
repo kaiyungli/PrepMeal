@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components';
 import supabase from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 const colors = {
   background: '#F8F3E8',
@@ -41,6 +42,19 @@ export default function LoginPage() {
     };
     checkUser();
   }, [router]);
+
+  const { signInWithGoogle } = useAuth();
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
