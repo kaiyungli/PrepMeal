@@ -1,8 +1,7 @@
-// Generate page settings panel component
-import PlanningSection from './PlanningSection';
-import PreferenceSection from './PreferenceSection';
-import { FilterSection, FilterChip } from '@/components/filters';
-import { DIET_MODES, EXCLUSIONS, CUISINES, COOKING_CONSTRAINTS, BUDGET_OPTIONS, INGREDIENT_REUSE } from '@/constants/filters';
+// Generate page settings panel - unified with recipes page design language
+import { useState } from 'react';
+import GenerateFilterShell from './GenerateFilterShell';
+import { CUISINES, COOKING_CONSTRAINTS, EXCLUSIONS, DIET_MODES } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -23,17 +22,10 @@ interface GenerateSettingsProps {
   setBudget: (v: string) => void;
   ingredientReuse: string;
   setIngredientReuse: (v: string) => void;
+  pantryIngredients: string[];
+  setPantryIngredients: (v: string[]) => void;
+  onClearAll?: () => void;
 }
-
-const DAYS_PER_WEEK = [3, 5, 7];
-const DISHES_PER_DAY = [1, 2, 3];
-const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
-
-
-
-
-
-
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
@@ -44,54 +36,95 @@ export default function GenerateSettings({
   cuisines, toggleCuisine,
   cookingConstraints, toggleConstraint,
   budget, setBudget,
-  ingredientReuse, setIngredientReuse
+  ingredientReuse, setIngredientReuse,
+  pantryIngredients, setPantryIngredients,
+  onClearAll
 }: GenerateSettingsProps) {
+  const [pantryInput, setPantryInput] = useState(pantryIngredients.join(', '));
+
+  const handlePantryChange = (value: string) => {
+    setPantryInput(value);
+  };
+
+  const handlePantryBlur = () => {
+    const ingredients = pantryInput
+      .split(',')
+      .map(i => i.trim())
+      .filter(Boolean);
+    setPantryIngredients(ingredients);
+  };
+
+  // Build filter sections for the shared shell
+  const filterSections = [
+    {
+      id: 'diet',
+      title: '飲食模式',
+      options: DIET_MODES.map(d => ({ value: d.value, label: d.label })),
+      selected: [dietMode],
+      onToggle: (v: string) => setDietMode(v)
+    },
+    {
+      id: 'budget',
+      title: '預算',
+      options: [
+        { value: 'normal', label: '普通' },
+        { value: 'low', label: '省錢' },
+        { value: 'high', label: '寬裕' }
+      ],
+      selected: [budget],
+      onToggle: (v: string) => setBudget(v)
+    },
+    {
+      id: 'reuse',
+      title: '食材重用',
+      options: [
+        { value: 'allow', label: '允許' },
+        { value: 'avoid', label: '避免' }
+      ],
+      selected: [ingredientReuse],
+      onToggle: (v: string) => setIngredientReuse(v)
+    },
+    {
+      id: 'cuisine',
+      title: '菜系',
+      options: CUISINES.map(c => ({ value: c.value, label: c.label })),
+      selected: cuisines,
+      onToggle: toggleCuisine
+    },
+    {
+      id: 'constraints',
+      title: '烹飪限制',
+      options: COOKING_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
+      selected: cookingConstraints,
+      onToggle: toggleConstraint
+    },
+    {
+      id: 'exclusions',
+      title: '排除',
+      options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })),
+      selected: exclusions,
+      onToggle: toggleExclusion,
+      variant: 'danger' as const
+    }
+  ];
+
   return (
-    <div className="bg-white border-b border-[#DDD0B0] p-4">
+    <div className="p-4">
       <div className="max-w-[1200px] mx-auto">
-        <PlanningSection
-          daysPerWeek={daysPerWeek}
-          setDaysPerWeek={setDaysPerWeek}
-          dishesPerDay={dishesPerDay}
-          setDishesPerDay={setDishesPerDay}
-          servings={servings}
-          setServings={setServings}
+        <GenerateFilterShell
+          planning={{
+            daysPerWeek,
+            setDaysPerWeek,
+            dishesPerDay,
+            setDishesPerDay,
+            servings,
+            setServings
+          }}
+          filterSections={filterSections}
+          pantryValue={pantryInput}
+          onPantryChange={handlePantryChange}
+          onClear={onClearAll}
         />
-
-        <PreferenceSection
-          dietMode={dietMode}
-          setDietMode={setDietMode}
-          budget={budget}
-          setBudget={setBudget}
-          ingredientReuse={ingredientReuse}
-          setIngredientReuse={setIngredientReuse}
-          CUISINES={CUISINES}
-          cuisines={cuisines}
-          toggleCuisine={toggleCuisine}
-          COOKING_CONSTRAINTS={COOKING_CONSTRAINTS}
-          cookingConstraints={cookingConstraints}
-          toggleConstraint={toggleConstraint}
-          EXCLUSIONS={EXCLUSIONS}
-          exclusions={exclusions}
-          toggleExclusion={toggleExclusion}
-        />
-
-        <div className="mt-4">
-          <label className="block text-xs font-semibold text-[#AA7A50] mb-2">食材重用</label>
-          <div className="flex gap-2">
-            {INGREDIENT_REUSE.map(ir => (
-              <button
-                key={ir.value}
-                onClick={() => setIngredientReuse(ir.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  ingredientReuse === ir.value ? 'bg-[#9B6035] text-white' : 'bg-[#F8F3E8] text-[#3A2010]'
-                }`}
-              >
-                {ir.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

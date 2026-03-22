@@ -338,6 +338,7 @@ const CONFIG = {
           cookingConstraints={cookingConstraints} toggleConstraint={toggleConstraint}
           budget={budget} setBudget={setBudget}
           ingredientReuse={ingredientReuse} setIngredientReuse={setIngredientReuse}
+          pantryIngredients={pantryIngredients} setPantryIngredients={setPantryIngredients}
         />
 
         {/* Pantry Input/Display */}
