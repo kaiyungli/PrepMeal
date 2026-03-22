@@ -29,6 +29,16 @@ export const CUISINES = [
   { value: 'se_asian', label: '東南亞' },
 ];
 
+// Canonical cuisine values (labels defined by context)
+export const CUISINE_VALUES = [
+  { value: 'chinese' },
+  { value: 'western' },
+  { value: 'japanese' },
+  { value: 'korean' },
+  { value: 'taiwanese' },
+  { value: 'se_asian' },
+];
+
 export const COOKING_CONSTRAINTS = [
   { value: 'under_15', label: '15分鐘內' },
   { value: 'under_30', label: '30分鐘內' },

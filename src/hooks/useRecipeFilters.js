@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINES, DIFFICULTY_VALUES } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION
@@ -17,11 +17,12 @@ import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CU
 // - cuisineOptions: has thai/fusion not in CUISINES
 // - difficultyOptions: simplified labels from COOKING_CONSTRAINTS
 
+// Recipe page: uses CUISINE_VALUES + recipe page specific: thai, fusion
 const cuisineOptions = [
-  { value: 'chinese', label: '中式' },
-  { value: 'western', label: '西式' },
-  { value: 'japanese', label: '日式' },
-  { value: 'korean', label: '韓式' },
+  ...CUISINE_VALUES.map(c => ({
+    ...c,
+    label: c.value === 'chinese' ? '中式' : c.value === 'western' ? '西式' : c.value === 'japanese' ? '日式' : c.value === 'korean' ? '韓式' : c.value === 'taiwanese' ? '台式' : '東南亞'
+  })),
   { value: 'thai', label: '泰式' },
   { value: 'fusion', label: '混合' },
 ];
