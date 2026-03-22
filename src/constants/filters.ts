@@ -60,6 +60,30 @@ export const COOKING_CONSTRAINTS = [
   { value: 'air_fryer', label: '氣炸鍋' },
 ];
 
+// ============================================
+// GENERATE-SIDE CONSTRAINT HELPERS
+// ============================================
+
+// Time constraints for generate page (under_X format)
+export const GENERATE_TIME_CONSTRAINTS = [
+  { value: 'under_15', label: '15分鐘內' },
+  { value: 'under_30', label: '30分鐘內' },
+  { value: 'under_45', label: '45分鐘內' },
+];
+
+// Difficulty constraints for generate page
+export const GENERATE_DIFFICULTY_CONSTRAINTS = [
+  { value: 'easy', label: '簡易' },
+  { value: 'medium', label: '中等' },
+  { value: 'hard', label: '困難' },
+];
+
+// Equipment/method constraints for generate page
+export const GENERATE_EQUIPMENT_CONSTRAINTS = [
+  { value: 'one_pot', label: '一鍋料理' },
+  { value: 'air_fryer', label: '氣炸鍋' },
+];
+
 export const BUDGET_OPTIONS = [
   { value: 'budget', label: '經濟' },
   { value: 'normal', label: '普通' },
