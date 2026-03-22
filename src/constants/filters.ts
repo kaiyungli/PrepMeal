@@ -162,7 +162,7 @@ export function buildRecipeCuisineOptions() {
   ];
 }
 
-// Helper to build time options for recipe page
+// Helper to build time options for recipe page (unified: 15/30/60分鐘內)
 export function buildRecipeTimeOptions() {
   return TIME_VALUES.map(t => ({
     ...t,
@@ -170,11 +170,11 @@ export function buildRecipeTimeOptions() {
   }));
 }
 
-// Helper to build difficulty options for recipe page
+// Helper to build difficulty options for recipe page (unified with generate: 簡易/中等/困難)
 export function buildRecipeDifficultyOptions() {
   return DIFFICULTY_VALUES.map(d => ({
     ...d,
-    label: d.value === 'easy' ? '簡單' : d.value === 'medium' ? '中等' : '複雜'
+    label: d.value === 'easy' ? '簡易' : d.value === 'medium' ? '中等' : '困難'
   }));
 }
 
