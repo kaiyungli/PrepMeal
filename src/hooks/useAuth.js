@@ -25,11 +25,17 @@ export function useAuth() {
   }, []);
 
   const signInWithGoogle = async () => {
+    // Preserve return URL if present
+    const redirectParam = typeof window !== 'undefined' 
+      ? new URLSearchParams(window.location.search).get('redirect') 
+      : null;
+    const redirectTo = redirectParam 
+      ? `${window.location.origin}${redirectParam}` 
+      : `${window.location.origin}/my-plans`;
+    
     const { data, error } = await supabase?.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/my-plans` : '/my-plans',
-      },
+      options: { redirectTo },
     });
     if (error) throw error;
     return data;
