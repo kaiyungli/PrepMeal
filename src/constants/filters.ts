@@ -214,15 +214,21 @@ export function buildRecipeDietOptions() {
 
 
 // ============================================
-// SHARED FILTER SECTION BUILDERS
+// UNIFIED FILTER SECTION BUILDER
 // ============================================
 
 import type { FilterSectionConfig } from '@/components/filters/FilterCardShell';
 
-// Build recipe page filter sections
-export function buildRecipeFilterSections(config: {
+export type FilterContext = 'recipe' | 'generate';
+
+interface BaseFilterConfig {
+  context: FilterContext;
   cuisine: string[];
   setCuisine: (v: string[]) => void;
+}
+
+interface RecipeFilterConfig extends BaseFilterConfig {
+  context: 'recipe';
   dishType: string[];
   setDishType: (v: string[]) => void;
   time: string[];
@@ -235,9 +241,26 @@ export function buildRecipeFilterSections(config: {
   setDiet: (v: string[]) => void;
   protein: string[];
   setProtein: (v: string[]) => void;
-}): FilterSectionConfig[] {
-  const { cuisine, setCuisine, dishType, setDishType, time, setTime, difficulty, setDifficulty, method, setMethod, diet, setDiet, protein, setProtein } = config;
+}
+
+interface GenerateFilterConfig extends BaseFilterConfig {
+  context: 'generate';
+  dietMode: string;
+  setDietMode: (v: string) => void;
+  ingredientReuse: string;
+  setIngredientReuse: (v: string) => void;
+  cookingConstraints: string[];
+  toggleConstraint: (v: string) => void;
+  exclusions: string[];
+  toggleExclusion: (v: string) => void;
+}
+
+// Single unified builder - DRY source of truth
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function buildFilterSections(config: any): FilterSectionConfig[] {
+  const { context, cuisine, setCuisine } = config;
   
+  // Shared toggle helper for multi-select
   const toggleMulti = (selected: string[], setter: (v: string[]) => void) => (value: string) => {
     if (selected.includes(value)) {
       setter(selected.filter(v => v !== value));
@@ -246,39 +269,49 @@ export function buildRecipeFilterSections(config: {
     }
   };
   
-  return [
-    { id: "cuisine", title: "菜系", options: buildRecipeCuisineOptions(), selected: cuisine, onToggle: toggleMulti(cuisine, setCuisine) },
-    { id: "dishType", title: "餐類", options: DISH_TYPE.map(d => ({ value: d.value, label: d.label })), selected: dishType, onToggle: toggleMulti(dishType, setDishType) },
-    { id: "time", title: "時間", options: buildRecipeTimeOptions(), selected: time, onToggle: toggleMulti(time, setTime) },
-    { id: "difficulty", title: "難度", options: buildRecipeDifficultyOptions(), selected: difficulty, onToggle: toggleMulti(difficulty, setDifficulty) },
-    { id: "method", title: "烹調方式", options: COOKING_METHODS.map(m => ({ value: m.value, label: m.label })), selected: method, onToggle: toggleMulti(method, setMethod) },
-    { id: "diet", title: "飲食模式", options: buildRecipeDietOptions(), selected: diet, onToggle: toggleMulti(diet, setDiet) },
-    { id: "protein", title: "主要蛋白", options: PROTEIN_TYPES.map(p => ({ value: p.value, label: p.label })), selected: protein, onToggle: toggleMulti(protein, setProtein) },
+  const sections: FilterSectionConfig[] = [
+    // Cuisine - shared
+    { 
+      id: "cuisine", 
+      title: "菜系", 
+      options: context === 'recipe' ? buildRecipeCuisineOptions() : CUISINES.map(c => ({ value: c.value, label: c.label })), 
+      selected: cuisine, 
+      onToggle: toggleMulti(cuisine, setCuisine) 
+    },
   ];
+  
+  if (context === 'recipe') {
+    const rc = config as RecipeFilterConfig;
+    // Recipe-specific filters
+    sections.push(
+      { id: "dishType", title: "餐類", options: DISH_TYPE.map(d => ({ value: d.value, label: d.label })), selected: rc.dishType, onToggle: toggleMulti(rc.dishType, rc.setDishType) },
+      { id: "time", title: "時間", options: buildRecipeTimeOptions(), selected: rc.time, onToggle: toggleMulti(rc.time, rc.setTime) },
+      { id: "difficulty", title: "難度", options: buildRecipeDifficultyOptions(), selected: rc.difficulty, onToggle: toggleMulti(rc.difficulty, rc.setDifficulty) },
+      { id: "method", title: "烹調方式", options: COOKING_METHODS.map(m => ({ value: m.value, label: m.label })), selected: rc.method, onToggle: toggleMulti(rc.method, rc.setMethod) },
+      { id: "diet", title: "飲食模式", options: buildRecipeDietOptions(), selected: rc.diet, onToggle: toggleMulti(rc.diet, rc.setDiet) },
+      { id: "protein", title: "主要蛋白", options: PROTEIN_TYPES.map(p => ({ value: p.value, label: p.label })), selected: rc.protein, onToggle: toggleMulti(rc.protein, rc.setProtein) }
+    );
+  } else {
+    const gc = config as GenerateFilterConfig;
+    // Generate-specific filters
+    sections.push(
+      { id: "diet", title: "飲食模式", options: DIET_MODES.map(d => ({ value: d.value, label: d.label })), selected: [gc.dietMode], onToggle: gc.setDietMode },
+      { id: "reuse", title: "食材重用", options: [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }], selected: [gc.ingredientReuse], onToggle: gc.setIngredientReuse },
+      { id: "time", title: "時間", options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => c.startsWith('under_')), onToggle: gc.toggleConstraint },
+      { id: "difficulty", title: "難度", options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)), onToggle: gc.toggleConstraint },
+      { id: "equipment", title: "工具", options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)), onToggle: gc.toggleConstraint },
+      { id: "exclusions", title: "排除", options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })), selected: gc.exclusions, onToggle: gc.toggleExclusion, variant: 'danger' }
+    );
+  }
+  
+  return sections;
 }
 
-// Build generate page filter sections  
-export function buildGenerateFilterSections(config: {
-  dietMode: string;
-  setDietMode: (v: string) => void;
-  ingredientReuse: string;
-  setIngredientReuse: (v: string) => void;
-  cuisines: string[];
-  toggleCuisine: (v: string) => void;
-  cookingConstraints: string[];
-  toggleConstraint: (v: string) => void;
-  exclusions: string[];
-  toggleExclusion: (v: string) => void;
-}): FilterSectionConfig[] {
-  const { dietMode, setDietMode, ingredientReuse, setIngredientReuse, cuisines, toggleCuisine, cookingConstraints, toggleConstraint, exclusions, toggleExclusion } = config;
-  
-  return [
-    { id: "diet", title: "飲食模式", options: DIET_MODES.map(d => ({ value: d.value, label: d.label })), selected: [dietMode], onToggle: setDietMode },
-    { id: "reuse", title: "食材重用", options: [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }], selected: [ingredientReuse], onToggle: setIngredientReuse },
-    { id: "cuisine", title: "菜系", options: CUISINES.map(c => ({ value: c.value, label: c.label })), selected: cuisines, onToggle: toggleCuisine },
-    { id: "time", title: "時間", options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => c.startsWith('under_')), onToggle: toggleConstraint },
-    { id: "difficulty", title: "難度", options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)), onToggle: toggleConstraint },
-    { id: "equipment", title: "工具", options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)), onToggle: toggleConstraint },
-    { id: "exclusions", title: "排除", options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })), selected: exclusions, onToggle: toggleExclusion, variant: 'danger' },
-  ];
+// Keep legacy builders for backward compatibility (deprecated)
+export function buildRecipeFilterSections(config: Omit<RecipeFilterConfig, 'context'>): FilterSectionConfig[] {
+  return buildFilterSections({ ...config, context: 'recipe' } as RecipeFilterConfig);
+}
+
+export function buildGenerateFilterSections(config: Omit<GenerateFilterConfig, 'context'>): FilterSectionConfig[] {
+  return buildFilterSections({ ...config, context: 'generate' } as GenerateFilterConfig);
 }

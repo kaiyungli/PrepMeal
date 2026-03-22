@@ -1,6 +1,6 @@
 // Generate page settings panel - unified with recipes page design language
 import { FilterCardShell } from '@/components/filters';
-import { buildGenerateFilterSections } from '@/constants/filters';
+import { buildFilterSections } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -13,7 +13,7 @@ interface GenerateSettingsProps {
   setDietMode: (v: string) => void;
   exclusions: string[];
   toggleExclusion: (v: string) => void;
-  cuisines: string[];
+  cuisine: string[];
   toggleCuisine: (v: string) => void;
   cookingConstraints: string[];
   toggleConstraint: (v: string) => void;
@@ -34,7 +34,7 @@ export default function GenerateSettings({
   servings, setServings,
   dietMode, setDietMode,
   exclusions, toggleExclusion,
-  cuisines, toggleCuisine,
+  cuisine, toggleCuisine,
   cookingConstraints, toggleConstraint,
   ingredientReuse, setIngredientReuse,
   pantryIngredients, setPantryIngredients,
@@ -44,17 +44,17 @@ export default function GenerateSettings({
   const activeCount = 
     (dietMode && dietMode !== 'general' ? 1 : 0) +
     (ingredientReuse && ingredientReuse !== 'allow' ? 1 : 0) +
-    cuisines.length +
+    (cuisine?.length || 0) +
     cookingConstraints.length +
     exclusions.length;
 
   // Use shared builder
-  const filterSections = buildGenerateFilterSections({
+  const filterSections = buildFilterSections({ context: 'generate',
     dietMode,
     setDietMode,
     ingredientReuse,
     setIngredientReuse,
-    cuisines,
+    cuisine,
     toggleCuisine,
     cookingConstraints,
     toggleConstraint,
