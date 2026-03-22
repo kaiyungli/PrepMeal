@@ -107,6 +107,14 @@ export const TIME_OPTIONS = [
   { value: '60', label: '60分鐘內' },
 ];
 
+// Canonical time values (for recipe page / API)
+// Generate page uses under_X format in COOKING_CONSTRAINTS
+export const TIME_VALUES = [
+  { value: '15' },
+  { value: '30' },
+  { value: '60' },
+];
+
 // Canonical difficulty values (labels defined by context)
 export const DIFFICULTY_VALUES = [
   { value: 'easy' },

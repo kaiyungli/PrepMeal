@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_VALUES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_VALUES, DIET_VALUES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION
@@ -30,7 +30,11 @@ const cuisineOptions = [
 const dishTypeOptions = DISH_TYPE;
 const methodOptions = COOKING_METHODS;
 const proteinOptions = PROTEIN_TYPES;
-const timeOptions = TIME_OPTIONS;
+// Recipe page: uses TIME_VALUES + recipe page specific: 60 min option
+const timeOptions = TIME_VALUES.map(t => ({
+  ...t,
+  label: t.value === '15' ? '15分鐘內' : t.value === '30' ? '30分鐘內' : '60分鐘內'
+}));
 
 // Recipe page labels: 簡單/中等/複雜
 const difficultyOptions = DIFFICULTY_VALUES.map(d => ({
