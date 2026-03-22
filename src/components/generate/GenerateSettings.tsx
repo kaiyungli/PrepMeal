@@ -1,7 +1,6 @@
 // Generate page settings panel - unified with recipes page design language
-import { useState } from 'react';
-import GenerateFilterShell from './GenerateFilterShell';
-import { CUISINES, COOKING_CONSTRAINTS, EXCLUSIONS, DIET_MODES } from '@/constants/filters';
+import { FilterCardShell } from '@/components/filters';
+import { CUISINES, COOKING_CONSTRAINTS, EXCLUSIONS, DIET_MODES, GENERATE_TIME_CONSTRAINTS, GENERATE_DIFFICULTY_CONSTRAINTS, GENERATE_EQUIPMENT_CONSTRAINTS } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -18,14 +17,16 @@ interface GenerateSettingsProps {
   toggleCuisine: (v: string) => void;
   cookingConstraints: string[];
   toggleConstraint: (v: string) => void;
-  budget: string;
-  setBudget: (v: string) => void;
   ingredientReuse: string;
   setIngredientReuse: (v: string) => void;
   pantryIngredients: string[];
   setPantryIngredients: (v: string[]) => void;
   onClearAll?: () => void;
 }
+
+const DAYS_OPTIONS = [3, 5, 7];
+const DISHES_OPTIONS = [1, 2, 3];
+const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
@@ -35,27 +36,21 @@ export default function GenerateSettings({
   exclusions, toggleExclusion,
   cuisines, toggleCuisine,
   cookingConstraints, toggleConstraint,
-  budget, setBudget,
   ingredientReuse, setIngredientReuse,
   pantryIngredients, setPantryIngredients,
   onClearAll
 }: GenerateSettingsProps) {
-  const [pantryInput, setPantryInput] = useState(pantryIngredients.join(', '));
+  // Count active filters
+  const activeCount = 
+    (dietMode && dietMode !== 'general' ? 1 : 0) +
+    (ingredientReuse && ingredientReuse !== 'allow' ? 1 : 0) +
+    cuisines.length +
+    cookingConstraints.length +
+    exclusions.length;
 
-  const handlePantryChange = (value: string) => {
-    setPantryInput(value);
-  };
-
-  const handlePantryBlur = () => {
-    const ingredients = pantryInput
-      .split(',')
-      .map(i => i.trim())
-      .filter(Boolean);
-    setPantryIngredients(ingredients);
-  };
-
-  // Build filter sections for the shared shell
+  // Build filter sections - NO BUDGET
   const filterSections = [
+    // Diet mode
     {
       id: 'diet',
       title: '飲食模式',
@@ -63,17 +58,7 @@ export default function GenerateSettings({
       selected: [dietMode],
       onToggle: (v: string) => setDietMode(v)
     },
-    {
-      id: 'budget',
-      title: '預算',
-      options: [
-        { value: 'normal', label: '普通' },
-        { value: 'low', label: '省錢' },
-        { value: 'high', label: '寬裕' }
-      ],
-      selected: [budget],
-      onToggle: (v: string) => setBudget(v)
-    },
+    // Ingredient reuse
     {
       id: 'reuse',
       title: '食材重用',
@@ -84,6 +69,7 @@ export default function GenerateSettings({
       selected: [ingredientReuse],
       onToggle: (v: string) => setIngredientReuse(v)
     },
+    // Cuisine
     {
       id: 'cuisine',
       title: '菜系',
@@ -91,13 +77,31 @@ export default function GenerateSettings({
       selected: cuisines,
       onToggle: toggleCuisine
     },
+    // Time constraints
     {
-      id: 'constraints',
-      title: '烹飪限制',
-      options: COOKING_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
-      selected: cookingConstraints,
+      id: 'time',
+      title: '時間',
+      options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
+      selected: cookingConstraints.filter(c => c.startsWith('under_')),
       onToggle: toggleConstraint
     },
+    // Difficulty
+    {
+      id: 'difficulty',
+      title: '難度',
+      options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
+      selected: cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)),
+      onToggle: toggleConstraint
+    },
+    // Equipment
+    {
+      id: 'equipment',
+      title: '工具',
+      options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
+      selected: cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)),
+      onToggle: toggleConstraint
+    },
+    // Exclusions
     {
       id: 'exclusions',
       title: '排除',
@@ -111,19 +115,78 @@ export default function GenerateSettings({
   return (
     <div className="p-4">
       <div className="max-w-[1200px] mx-auto">
-        <GenerateFilterShell
-          planning={{
-            daysPerWeek,
-            setDaysPerWeek,
-            dishesPerDay,
-            setDishesPerDay,
-            servings,
-            setServings
-          }}
+        {/* Planning Controls - embedded in header */}
+        <div className="bg-[#F8F3E8] rounded-t-xl border border-b-0 border-[#E5DCC8] px-4 py-3 mb-[-1px]">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Days per week */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">每週</span>
+              <div className="flex gap-1">
+                {DAYS_OPTIONS.map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setDaysPerWeek(d)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      daysPerWeek === d
+                        ? 'bg-[#9B6035] text-white'
+                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
+                    }`}
+                  >
+                    {d}天
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Dishes per day */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">每日</span>
+              <div className="flex gap-1">
+                {DISHES_OPTIONS.map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setDishesPerDay(d)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      dishesPerDay === d
+                        ? 'bg-[#9B6035] text-white'
+                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
+                    }`}
+                  >
+                    {d}碟
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Servings */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">份量</span>
+              <select
+                value={servings}
+                onChange={(e) => setServings(parseInt(e.target.value))}
+                className="px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-[#E5DCC8] text-[#3A2010] focus:outline-none"
+              >
+                {SERVINGS_OPTIONS.map(s => (
+                  <option key={s} value={s}>{s}人</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Pantry indicator */}
+            {pantryIngredients.length > 0 && (
+              <div className="ml-auto text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+                已選 {pantryIngredients.length} 項食材
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Use shared FilterCardShell */}
+        <FilterCardShell
           filterSections={filterSections}
-          pantryValue={pantryInput}
-          onPantryChange={handlePantryChange}
+          activeFilterCount={activeCount}
           onClear={onClearAll}
+          clearLabel="重設所有設定"
         />
       </div>
     </div>
