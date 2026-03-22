@@ -121,3 +121,47 @@ export const DIFFICULTY_VALUES = [
   { value: 'medium' },
   { value: 'hard' },
 ];
+
+// ============================================
+// RECIPE PAGE OPTION BUILDERS
+// ============================================
+
+// Helper to build cuisine options for recipe page (canonical + extensions)
+export function buildRecipeCuisineOptions() {
+  return [
+    ...CUISINE_VALUES.map(c => ({
+      ...c,
+      label: c.value === 'chinese' ? '中式' : c.value === 'western' ? '西式' : c.value === 'japanese' ? '日式' : c.value === 'korean' ? '韓式' : c.value === 'taiwanese' ? '台式' : '東南亞'
+    })),
+    { value: 'thai', label: '泰式' },
+    { value: 'fusion', label: '混合' },
+  ];
+}
+
+// Helper to build time options for recipe page
+export function buildRecipeTimeOptions() {
+  return TIME_VALUES.map(t => ({
+    ...t,
+    label: t.value === '15' ? '15分鐘內' : t.value === '30' ? '30分鐘內' : '60分鐘內'
+  }));
+}
+
+// Helper to build difficulty options for recipe page
+export function buildRecipeDifficultyOptions() {
+  return DIFFICULTY_VALUES.map(d => ({
+    ...d,
+    label: d.value === 'easy' ? '簡單' : d.value === 'medium' ? '中等' : '複雜'
+  }));
+}
+
+// Helper to build diet options for recipe page (canonical + extensions)
+export function buildRecipeDietOptions() {
+  return [
+    ...DIET_VALUES.map(d => ({
+      ...d,
+      label: d.value === 'general' ? '一般' : d.value === 'vegetarian' ? '素食' : d.value === 'egg_lacto' ? '蛋奶素' : d.value === 'high_protein' ? '高蛋白' : d.value === 'low_fat' ? '低脂' : '清淡'
+    })),
+    { value: 'low_calorie', label: '低卡' },
+    { value: 'gluten_free', label: '無麩質' },
+  ];
+}

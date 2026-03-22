@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_VALUES, DIET_VALUES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, buildRecipeCuisineOptions, buildRecipeTimeOptions, buildRecipeDifficultyOptions, buildRecipeDietOptions } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION
@@ -17,40 +17,14 @@ import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_VALUES, DIET_VALUES, CU
 // - cuisineOptions: has thai/fusion not in CUISINES
 // - difficultyOptions: simplified labels from COOKING_CONSTRAINTS
 
-// Recipe page: uses CUISINE_VALUES + recipe page specific: thai, fusion
-const cuisineOptions = [
-  ...CUISINE_VALUES.map(c => ({
-    ...c,
-    label: c.value === 'chinese' ? '中式' : c.value === 'western' ? '西式' : c.value === 'japanese' ? '日式' : c.value === 'korean' ? '韓式' : c.value === 'taiwanese' ? '台式' : '東南亞'
-  })),
-  { value: 'thai', label: '泰式' },
-  { value: 'fusion', label: '混合' },
-];
-
+// Build recipe page options using shared builders
+const cuisineOptions = buildRecipeCuisineOptions();
 const dishTypeOptions = DISH_TYPE;
 const methodOptions = COOKING_METHODS;
 const proteinOptions = PROTEIN_TYPES;
-// Recipe page: uses TIME_VALUES + recipe page specific: 60 min option
-const timeOptions = TIME_VALUES.map(t => ({
-  ...t,
-  label: t.value === '15' ? '15分鐘內' : t.value === '30' ? '30分鐘內' : '60分鐘內'
-}));
-
-// Recipe page labels: 簡單/中等/複雜
-const difficultyOptions = DIFFICULTY_VALUES.map(d => ({
-  ...d,
-  label: d.value === 'easy' ? '簡單' : d.value === 'medium' ? '中等' : '複雜'
-}));
-
-// Recipe page: uses DIET_VALUES + recipe page specific: low_calorie, gluten_free
-const dietOptions = [
-  ...DIET_VALUES.map(d => ({
-    ...d,
-    label: d.value === 'general' ? '一般' : d.value === 'vegetarian' ? '素食' : d.value === 'egg_lacto' ? '蛋奶素' : d.value === 'high_protein' ? '高蛋白' : d.value === 'low_fat' ? '低脂' : '清淡'
-  })),
-  { value: 'low_calorie', label: '低卡' },
-  { value: 'gluten_free', label: '無麩質' },
-];
+const timeOptions = buildRecipeTimeOptions();
+const difficultyOptions = buildRecipeDifficultyOptions();
+const dietOptions = buildRecipeDietOptions();
 
 
 
