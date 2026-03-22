@@ -28,7 +28,7 @@ export function useAuth() {
     const { data, error } = await supabase?.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/profile` : '/profile',
+        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/my-plans` : '/my-plans',
       },
     });
     if (error) throw error;
