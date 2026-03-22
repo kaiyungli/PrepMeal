@@ -49,6 +49,7 @@ export const CUISINE_VALUES = [
   { value: 'se_asian' },
 ];
 
+// Legacy: Use GENERATE_TIME_CONSTRAINTS, GENERATE_DIFFICULTY_CONSTRAINTS, GENERATE_EQUIPMENT_CONSTRAINTS instead
 export const COOKING_CONSTRAINTS = [
   { value: 'under_15', label: '15分鐘內' },
   { value: 'under_30', label: '30分鐘內' },
@@ -83,6 +84,27 @@ export const GENERATE_EQUIPMENT_CONSTRAINTS = [
   { value: 'one_pot', label: '一鍋料理' },
   { value: 'air_fryer', label: '氣炸鍋' },
 ];
+
+// Helper to get grouped constraint options for generate page
+export function getGenerateConstraintGroups() {
+  return [
+    {
+      key: 'time',
+      label: '時間',
+      options: GENERATE_TIME_CONSTRAINTS
+    },
+    {
+      key: 'difficulty',
+      label: '難度',
+      options: GENERATE_DIFFICULTY_CONSTRAINTS
+    },
+    {
+      key: 'equipment',
+      label: '工具',
+      options: GENERATE_EQUIPMENT_CONSTRAINTS
+    }
+  ];
+}
 
 export const BUDGET_OPTIONS = [
   { value: 'budget', label: '經濟' },
