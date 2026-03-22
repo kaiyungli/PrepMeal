@@ -17,6 +17,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { label: "首頁", path: "/" },
     { label: "食譜", path: "/recipes" },
     { label: "生成餐單", path: "/generate" },
+    { label: "收藏", path: "/favorites" },
   ];
 
   const handleLogout = async () => {
