@@ -86,3 +86,10 @@ export const TIME_OPTIONS = [
   { value: '30', label: '30分鐘內' },
   { value: '60', label: '60分鐘內' },
 ];
+
+// Canonical difficulty values (labels defined by context)
+export const DIFFICULTY_VALUES = [
+  { value: 'easy' },
+  { value: 'medium' },
+  { value: 'hard' },
+];

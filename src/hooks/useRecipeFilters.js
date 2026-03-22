@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINES, COOKING_CONSTRAINTS } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINES, DIFFICULTY_VALUES } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION
@@ -31,11 +31,11 @@ const methodOptions = COOKING_METHODS;
 const proteinOptions = PROTEIN_TYPES;
 const timeOptions = TIME_OPTIONS;
 
-const difficultyOptions = [
-  { value: 'easy', label: '簡單' },
-  { value: 'medium', label: '中等' },
-  { value: 'hard', label: '複雜' },
-];
+// Recipe page labels: 簡單/中等/複雜
+const difficultyOptions = DIFFICULTY_VALUES.map(d => ({
+  ...d,
+  label: d.value === 'easy' ? '簡單' : d.value === 'medium' ? '中等' : '複雜'
+}));
 
 const dietOptions = [
   ...DIET_MODES,
