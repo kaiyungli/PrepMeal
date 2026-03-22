@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_MODES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, TIME_OPTIONS, DIET_VALUES, CUISINE_VALUES, DIFFICULTY_VALUES } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION
@@ -38,8 +38,12 @@ const difficultyOptions = DIFFICULTY_VALUES.map(d => ({
   label: d.value === 'easy' ? '簡單' : d.value === 'medium' ? '中等' : '複雜'
 }));
 
+// Recipe page: uses DIET_VALUES + recipe page specific: low_calorie, gluten_free
 const dietOptions = [
-  ...DIET_MODES,
+  ...DIET_VALUES.map(d => ({
+    ...d,
+    label: d.value === 'general' ? '一般' : d.value === 'vegetarian' ? '素食' : d.value === 'egg_lacto' ? '蛋奶素' : d.value === 'high_protein' ? '高蛋白' : d.value === 'low_fat' ? '低脂' : '清淡'
+  })),
   { value: 'low_calorie', label: '低卡' },
   { value: 'gluten_free', label: '無麩質' },
 ];

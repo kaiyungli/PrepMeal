@@ -10,6 +10,16 @@ export const DIET_MODES = [
   { value: 'light', label: '清淡' },
 ];
 
+// Canonical diet values (labels defined by context)
+export const DIET_VALUES = [
+  { value: 'general' },
+  { value: 'vegetarian' },
+  { value: 'egg_lacto' },
+  { value: 'high_protein' },
+  { value: 'low_fat' },
+  { value: 'light' },
+];
+
 export const EXCLUSIONS = [
   { value: 'beef', label: '不牛' },
   { value: 'pork', label: '不豬' },
