@@ -37,7 +37,7 @@ export default function LoginPage() {
     const checkUser = async () => {
       const { data: { user } } = await supabase?.auth.getUser();
       if (user) {
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/profile';
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
         router.push(redirectUrl);
       }
     };
@@ -77,7 +77,7 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/profile';
+        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
         router.push(redirectUrl);
       }
     } catch (err) {
