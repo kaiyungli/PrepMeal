@@ -211,3 +211,74 @@ export function buildRecipeDietOptions() {
     { value: 'gluten_free', label: '無麩質' },
   ];
 }
+
+
+// ============================================
+// SHARED FILTER SECTION BUILDERS
+// ============================================
+
+import type { FilterSectionConfig } from '@/components/filters/FilterCardShell';
+
+// Build recipe page filter sections
+export function buildRecipeFilterSections(config: {
+  cuisine: string[];
+  setCuisine: (v: string[]) => void;
+  dishType: string[];
+  setDishType: (v: string[]) => void;
+  time: string[];
+  setTime: (v: string[]) => void;
+  difficulty: string[];
+  setDifficulty: (v: string[]) => void;
+  method: string[];
+  setMethod: (v: string[]) => void;
+  diet: string[];
+  setDiet: (v: string[]) => void;
+  protein: string[];
+  setProtein: (v: string[]) => void;
+}): FilterSectionConfig[] {
+  const { cuisine, setCuisine, dishType, setDishType, time, setTime, difficulty, setDifficulty, method, setMethod, diet, setDiet, protein, setProtein } = config;
+  
+  const toggleMulti = (selected: string[], setter: (v: string[]) => void) => (value: string) => {
+    if (selected.includes(value)) {
+      setter(selected.filter(v => v !== value));
+    } else {
+      setter([...selected, value]);
+    }
+  };
+  
+  return [
+    { id: "cuisine", title: "菜系", options: buildRecipeCuisineOptions(), selected: cuisine, onToggle: toggleMulti(cuisine, setCuisine) },
+    { id: "dishType", title: "餐類", options: DISH_TYPE.map(d => ({ value: d.value, label: d.label })), selected: dishType, onToggle: toggleMulti(dishType, setDishType) },
+    { id: "time", title: "時間", options: buildRecipeTimeOptions(), selected: time, onToggle: toggleMulti(time, setTime) },
+    { id: "difficulty", title: "難度", options: buildRecipeDifficultyOptions(), selected: difficulty, onToggle: toggleMulti(difficulty, setDifficulty) },
+    { id: "method", title: "烹調方式", options: COOKING_METHODS.map(m => ({ value: m.value, label: m.label })), selected: method, onToggle: toggleMulti(method, setMethod) },
+    { id: "diet", title: "飲食模式", options: buildRecipeDietOptions(), selected: diet, onToggle: toggleMulti(diet, setDiet) },
+    { id: "protein", title: "主要蛋白", options: PROTEIN_TYPES.map(p => ({ value: p.value, label: p.label })), selected: protein, onToggle: toggleMulti(protein, setProtein) },
+  ];
+}
+
+// Build generate page filter sections  
+export function buildGenerateFilterSections(config: {
+  dietMode: string;
+  setDietMode: (v: string) => void;
+  ingredientReuse: string;
+  setIngredientReuse: (v: string) => void;
+  cuisines: string[];
+  toggleCuisine: (v: string) => void;
+  cookingConstraints: string[];
+  toggleConstraint: (v: string) => void;
+  exclusions: string[];
+  toggleExclusion: (v: string) => void;
+}): FilterSectionConfig[] {
+  const { dietMode, setDietMode, ingredientReuse, setIngredientReuse, cuisines, toggleCuisine, cookingConstraints, toggleConstraint, exclusions, toggleExclusion } = config;
+  
+  return [
+    { id: "diet", title: "飲食模式", options: DIET_MODES.map(d => ({ value: d.value, label: d.label })), selected: [dietMode], onToggle: setDietMode },
+    { id: "reuse", title: "食材重用", options: [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }], selected: [ingredientReuse], onToggle: setIngredientReuse },
+    { id: "cuisine", title: "菜系", options: CUISINES.map(c => ({ value: c.value, label: c.label })), selected: cuisines, onToggle: toggleCuisine },
+    { id: "time", title: "時間", options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => c.startsWith('under_')), onToggle: toggleConstraint },
+    { id: "difficulty", title: "難度", options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)), onToggle: toggleConstraint },
+    { id: "equipment", title: "工具", options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)), onToggle: toggleConstraint },
+    { id: "exclusions", title: "排除", options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })), selected: exclusions, onToggle: toggleExclusion, variant: 'danger' },
+  ];
+}

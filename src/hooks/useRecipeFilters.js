@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, buildRecipeCuisineOptions, buildRecipeTimeOptions, buildRecipeDifficultyOptions, buildRecipeDietOptions } from '@/constants/filters';
+import { DISH_TYPE, COOKING_METHODS, PROTEIN_TYPES, buildRecipeCuisineOptions, buildRecipeTimeOptions, buildRecipeDifficultyOptions, buildRecipeDietOptions, buildRecipeFilterSections } from '@/constants/filters';
 
 // ============================================
 // HOMEPAGE FILTER OPTIONS - CLASSIFICATION

@@ -1,6 +1,6 @@
 // Generate page settings panel - unified with recipes page design language
 import { FilterCardShell } from '@/components/filters';
-import { CUISINES, COOKING_CONSTRAINTS, EXCLUSIONS, DIET_MODES, GENERATE_TIME_CONSTRAINTS, GENERATE_DIFFICULTY_CONSTRAINTS, GENERATE_EQUIPMENT_CONSTRAINTS } from '@/constants/filters';
+import { buildGenerateFilterSections } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -48,69 +48,19 @@ export default function GenerateSettings({
     cookingConstraints.length +
     exclusions.length;
 
-  // Build filter sections - NO BUDGET
-  const filterSections = [
-    // Diet mode
-    {
-      id: 'diet',
-      title: '飲食模式',
-      options: DIET_MODES.map(d => ({ value: d.value, label: d.label })),
-      selected: [dietMode],
-      onToggle: (v: string) => setDietMode(v)
-    },
-    // Ingredient reuse
-    {
-      id: 'reuse',
-      title: '食材重用',
-      options: [
-        { value: 'allow', label: '允許' },
-        { value: 'avoid', label: '避免' }
-      ],
-      selected: [ingredientReuse],
-      onToggle: (v: string) => setIngredientReuse(v)
-    },
-    // Cuisine
-    {
-      id: 'cuisine',
-      title: '菜系',
-      options: CUISINES.map(c => ({ value: c.value, label: c.label })),
-      selected: cuisines,
-      onToggle: toggleCuisine
-    },
-    // Time constraints
-    {
-      id: 'time',
-      title: '時間',
-      options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
-      selected: cookingConstraints.filter(c => c.startsWith('under_')),
-      onToggle: toggleConstraint
-    },
-    // Difficulty
-    {
-      id: 'difficulty',
-      title: '難度',
-      options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
-      selected: cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)),
-      onToggle: toggleConstraint
-    },
-    // Equipment
-    {
-      id: 'equipment',
-      title: '工具',
-      options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })),
-      selected: cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)),
-      onToggle: toggleConstraint
-    },
-    // Exclusions
-    {
-      id: 'exclusions',
-      title: '排除',
-      options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })),
-      selected: exclusions,
-      onToggle: toggleExclusion,
-      variant: 'danger' as const
-    }
-  ];
+  // Use shared builder
+  const filterSections = buildGenerateFilterSections({
+    dietMode,
+    setDietMode,
+    ingredientReuse,
+    setIngredientReuse,
+    cuisines,
+    toggleCuisine,
+    cookingConstraints,
+    toggleConstraint,
+    exclusions,
+    toggleExclusion
+  });
 
   return (
     <div className="p-4">
