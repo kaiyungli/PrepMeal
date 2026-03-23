@@ -56,23 +56,33 @@ export default function FilterCardShell({
 
   return (
     <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-6 overflow-hidden">
-      {/* 1. Search Bar */}
+      {/* 1. Search Bar - Premium styling */}
       {onSearchChange && (
         <div className="relative px-4 pt-4">
-          <span className="absolute left-7 top-1/2 -translate-y-1/2 text-[#AA7A50]">🔍</span>
+          <svg 
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A]" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder}
-            className="w-full py-3.5 pl-11 pr-11 rounded-xl border-2 border-[#DDD0B0] bg-white text-[#3A2010] placeholder:text-[#C0A080] focus:outline-none focus:border-[#9B6035] transition-colors"
+            className="w-full h-14 pl-12 pr-4 rounded-2xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C] transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#AA7A50] hover:text-[#9B6035]"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full text-[#B79B7A] hover:bg-[#F5EDE3] transition-colors"
             >
-              ✕
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           )}
         </div>
