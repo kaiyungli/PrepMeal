@@ -1,5 +1,5 @@
 // Shared filter card shell - used by both recipes page and generate page
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 
 interface FilterOption {
   value: string;
@@ -45,7 +45,14 @@ export default function FilterCardShell({
   defaultExpanded = true,
   headerContent
 }: FilterCardShellProps) {
+  // Sync with prop to avoid hydration mismatch
   const [showFilters, setShowFilters] = useState(defaultExpanded);
+  useEffect(() => {
+    setShowFilters(defaultExpanded);
+  }, [defaultExpanded]);
+
+  // Compute expand/collapse text on render to ensure consistency
+  const expandText = showFilters ? '▲ 收起' : '▼ 展開';
 
   return (
     <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-6 overflow-hidden">
@@ -85,7 +92,7 @@ export default function FilterCardShell({
           )}
           {headerContent}
         </div>
-        <span className="text-[#9B6035]">{showFilters ? '▲ 收起' : '▼ 展開'}</span>
+        <span className="text-[#9B6035]">{expandText}</span>
       </div>
 
       {/* 3. Filter Sections */}
