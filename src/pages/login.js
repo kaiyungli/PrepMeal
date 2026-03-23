@@ -191,7 +191,7 @@ export default function LoginPage() {
             />
             <Input
               label="密碼"
-              type="text"
+              type="password"
               value={password}
               onChange={setPassword}
               placeholder="••••••••"

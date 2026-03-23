@@ -1,11 +1,33 @@
-// Get single menu plan with items
+// Get single menu plan with items - supports token and cookie auth
 import supabase from '@/lib/supabase';
 
 export default async function handler(req, res) {
-  const { data: { user }, error: authError } = await supabase?.auth.getUser();
-  
-  if (authError || !user) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  let userId = null;
+
+  // Try to get user from Authorization header first (token-based)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (!error && user) {
+        userId = user.id;
+      }
+    } catch (err) {
+      console.error('Token verification error:', err);
+    }
+  }
+
+  // If no token-based auth, try cookie-based
+  if (!userId) {
+    const { data: { session } } = await supabase?.auth.getSession();
+    if (session?.user) {
+      userId = session.user.id;
+    }
+  }
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized - please log in' });
   }
 
   const planId = req.query.id;
@@ -17,7 +39,7 @@ export default async function handler(req, res) {
         .from('saved_menu_plans')
         .select('*')
         .eq('id', planId)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
       
       if (planError || !plan) {
@@ -39,7 +61,7 @@ export default async function handler(req, res) {
       if (recipeIds.length > 0) {
         const { data: recipes, error: recipeError } = await supabase
           .from('recipes')
-          .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,calories_per_serving,protein_g')
+          .select('id, name, image_url, total_time_minutes, difficulty, method')
           .in('id', recipeIds);
         
         if (!recipeError && recipes) {
@@ -50,36 +72,13 @@ export default async function handler(req, res) {
         }
       }
       
-      // Attach recipe info to items
+      // Attach recipe details to items
       const itemsWithRecipes = items.map(item => ({
         ...item,
-        recipe: recipesMap[item.recipe_id] || null,
+        recipe: item.recipe_id ? recipesMap[item.recipe_id] : null,
       }));
       
-      return res.status(200).json({ plan, items: itemsWithRecipes });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-
-  if (req.method === 'DELETE') {
-    try {
-      // Delete items first
-      await supabase
-        .from('saved_menu_plan_items')
-        .delete()
-        .eq('menu_plan_id', planId);
-      
-      // Delete the plan
-      const { error } = await supabase
-        .from('saved_menu_plans')
-        .delete()
-        .eq('id', planId)
-        .eq('user_id', user.id);
-      
-      if (error) throw error;
-      
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ ...plan, items: itemsWithRecipes });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }

@@ -1,15 +1,36 @@
-// Save menu plan API
+// Save menu plan API - supports both cookie-based and token-based auth
 import supabase from '@/lib/supabase';
 
 export default async function handler(req, res) {
-  // Get user from session
-  const { data: { user }, error: authError } = await supabase?.auth.getUser();
-  
-  if (authError || !user) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  let userId = null;
+
+  // Try to get user from Authorization header first (token-based)
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (!error && user) {
+        userId = user.id;
+      }
+    } catch (err) {
+      console.error('Token verification error:', err);
+    }
   }
 
-  const userId = user.id;
+  // If no token-based auth, try cookie-based (for SSR)
+  if (!userId) {
+    // Try to get session from cookie
+    const { data: { session }, error: authError } = await supabase?.auth.getSession();
+    if (!authError && session?.user) {
+      userId = session.user.id;
+    }
+  }
+
+  // If still no user, return 401
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized - please log in' });
+  }
 
   if (req.method === 'POST') {
     const { name, week_start_date, days_count, items, notes } = req.body;

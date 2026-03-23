@@ -10,33 +10,41 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function MyPlansPage() {
   const router = useRouter();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const { toast, showToast } = useToast();
 
-  // Redirect if not logged in
+  // Redirect if not logged in - only after auth check completes
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push('/login?redirect=/my-plans');
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Load plans
+  // Load plans - now with token for API auth
   useEffect(() => {
     if (!isAuthenticated) return;
 
     const fetchPlans = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/user/menus');
+        // Get access token for API authentication
+        const token = await getAccessToken();
+        
+        const res = await fetch('/api/user/menus', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         const data = await res.json();
         if (data.plans) {
           setPlans(data.plans);
+        } else if (data.error) {
+          showToast('載入失敗: ' + data.error, 'error');
         }
       } catch (err) {
         console.error('Failed to load plans:', err);
+        showToast('載入失敗', 'error');
       } finally {
         setLoading(false);
       }
@@ -50,7 +58,11 @@ export default function MyPlansPage() {
     
     setDeleting(planId);
     try {
-      const res = await fetch(`/api/user/menus/${planId}`, { method: 'DELETE' });
+      const token = await getAccessToken();
+      const res = await fetch(`/api/user/menus/${planId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       const data = await res.json();
       if (data.error) {
         showToast('刪除失敗: ' + data.error, 'error');
