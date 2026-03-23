@@ -55,8 +55,8 @@ export default function FilterCardShell({
   const expandText = showFilters ? '▲ 收起' : '▼ 展開';
 
   return (
-    <div className="bg-white rounded-xl border border-[#E5DCC8] shadow-sm mb-6 overflow-hidden">
-      {/* 1. Search Bar - Premium styling */}
+    <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
+      {/* 1. Search Bar - Primary layer */}
       {onSearchChange && (
         <div className="relative px-4 pt-4">
           <svg 
@@ -88,13 +88,13 @@ export default function FilterCardShell({
         </div>
       )}
 
-      {/* 2. Header with expand/collapse + custom content */}
+      {/* 2. Filter header row - Secondary layer */}
       <div 
-        className="flex items-center justify-between px-4 py-3 cursor-pointer border-t border-[#E5DCC8]"
+        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[#FAF7F2] transition-colors"
         onClick={() => setShowFilters(!showFilters)}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-[#7A5A38]">篩選</span>
+          <span className="text-sm font-medium text-[#7A5A38]">篩選</span>
           {activeFilterCount > 0 && (
             <span className="text-xs bg-[#9B6035] text-white px-2 py-0.5 rounded-full">
               {activeFilterCount}
@@ -102,21 +102,21 @@ export default function FilterCardShell({
           )}
           {headerContent}
         </div>
-        <span className="text-[#9B6035]">{expandText}</span>
+        <span className="text-[#9B6035] text-sm">{expandText}</span>
       </div>
 
-      {/* 3. Filter Sections */}
+      {/* 3. Filter Sections - Content layer */}
       {showFilters && (
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4 pt-2">
           {/* Active count */}
-          <div className="py-2 text-xs font-semibold text-[#C0A080]">
+          <div className="pb-3 text-xs font-medium text-[#B79B7A]">
             {activeFilterCount > 0 ? `已選 ${activeFilterCount} 項` : '所有食譜'}
           </div>
 
           {/* Filter chips in grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
             {filterSections.map(section => (
-              <div key={section.id} className="min-w-0 space-y-1">
+              <div key={section.id} className="min-w-0 space-y-1.5">
                 <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase">
                   {section.title}
                 </div>
