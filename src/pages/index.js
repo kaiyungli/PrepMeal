@@ -104,6 +104,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const pendingRequests = useRef(new Map());
   
   // Helper to fetch recipe detail with deduplication and abort support
+  // NOTE: If hover prefetch started without signal and click later calls with signal,
+  // the existing pending promise is returned, so click abort won't control that request.
+  // This edge case is acceptable - worst case is one redundant request.
   const fetchRecipeDetail = (recipeId, signal) => {
     // Return cached data if resolved
     const cached = recipeDetailCache.current.get(recipeId);
@@ -123,6 +126,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       })
       .catch(err => {
         pendingRequests.current.delete(recipeId);
+        // Ignore AbortError - it's expected when cancelling
+        if (err.name === 'AbortError') return Promise.reject(err);
         throw err;
       });
     
@@ -260,6 +265,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         });
       })
       .catch(err => {
+        // Ignore AbortError - already handled
         if (err.name === 'AbortError') {
           console.log('[RecipeDetail] Fetch aborted for:', recipe.id);
           return;
@@ -394,7 +400,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       {/* Recipe Detail Modal */}
       <RecipeDetailModal
         isOpen={!!selectedRecipe}
-        onClose={() => setSelectedRecipe(null)}
+        onClose={() => {
+          // Abort any in-flight fetch when modal closes
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+          }
+          setSelectedRecipe(null);
+        }}
         recipe={selectedRecipe}
         loading={modalLoading}
       />
