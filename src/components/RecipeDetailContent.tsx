@@ -66,9 +66,17 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
       {/* Hero Image */}
-      <div className="relative h-[400px] overflow-hidden">
+      <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" sizes="(max-width: 900px) 100vw, 900px" onLoad={() => console.log("[RecipeDetail] Image loaded at:", performance.now())} />
+          <Image 
+            src={recipe.image_url} 
+            alt={recipe.name} 
+            fill 
+            className="object-cover"
+            sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 1200px"
+            priority={false}
+            placeholder="blur"
+          />
         ) : (
           <div className="h-full flex items-center justify-center" style={{ backgroundColor: '#C8D49A' }}>
             <span className="text-8xl">🍳</span>
