@@ -87,10 +87,6 @@ export default function RecipesPage({ initialRecipes }) {
 
         {/* Recipe Grid */}
         {sortedRecipes.length > 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-[#9B6035]">載入中...</div>
-          </div>
-        ) : sortedRecipes.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sortedRecipes.map((recipe) => (
               <RecipeCard
