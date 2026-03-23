@@ -100,6 +100,38 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   
   // In-memory cache for recipe details - useRef to avoid rerenders
   const recipeDetailCache = useRef(new Map());
+  // Track pending requests to deduplicate in-flight fetches
+  const pendingRequests = useRef(new Map());
+  
+  // Helper to fetch recipe detail with deduplication and abort support
+  const fetchRecipeDetail = (recipeId, signal) => {
+    // Return cached data if resolved
+    const cached = recipeDetailCache.current.get(recipeId);
+    if (cached) return Promise.resolve(cached);
+    
+    // Return existing pending promise if fetching
+    const pending = pendingRequests.current.get(recipeId);
+    if (pending) return pending;
+    
+    // Start new fetch
+    const fetchPromise = fetch(`/api/recipes/${recipeId}`, { signal })
+      .then(res => res.json())
+      .then(data => {
+        recipeDetailCache.current.set(recipeId, data);
+        pendingRequests.current.delete(recipeId);
+        return data;
+      })
+      .catch(err => {
+        pendingRequests.current.delete(recipeId);
+        throw err;
+      });
+    
+    pendingRequests.current.set(recipeId, fetchPromise);
+    return fetchPromise;
+  };
+  
+  // Abort controller for current fetch
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   // Favorites hook
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
@@ -173,7 +205,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     const startTime = performance.now();
     console.log('[RecipeDetail] Click at:', startTime);
     
-    // Race protection: cancel any stale requests
+    // Abort previous fetch if any
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    
+    // Race protection: mark active recipe
     activeRecipeIdRef.current = recipe.id;
     
     // Immediately show modal with card data (instant)
@@ -194,10 +232,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       return;
     }
     
-    // Fetch full detail in background
+    // Fetch full detail in background with abort support
     const fetchStart = performance.now();
-    fetch(`/api/recipes/${recipe.id}`)
-      .then(res => res.json())
+    fetchRecipeDetail(recipe.id, abortControllerRef.current.signal)
       .then(data => {
         // Race protection: ignore stale responses
         if (activeRecipeIdRef.current !== recipe.id) {
@@ -207,9 +244,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         
         const fetchTime = performance.now() - fetchStart;
         console.log('[RecipeDetail] API completed in:', fetchTime.toFixed(2), 'ms');
-        
-        // Cache the result (useRef)
-        recipeDetailCache.current.set(recipe.id, data);
         
         // Merge full detail into existing recipe
         setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
@@ -226,23 +260,19 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         });
       })
       .catch(err => {
+        if (err.name === 'AbortError') {
+          console.log('[RecipeDetail] Fetch aborted for:', recipe.id);
+          return;
+        }
         console.error('Error:', err);
         setModalLoading(false);
       });
   };
 
-  // Prefetch recipe detail on hover/touch (with pending promise deduplication)
+  // Prefetch recipe detail on hover/touch - uses shared fetch helper with deduplication
   const handleRecipeHover = (recipe) => {
-    // Skip if cached or already pending
-    if (recipeDetailCache.current.has(recipe.id)) return;
-    
-    // Allow browser cache to help
-    fetch(`/api/recipes/${recipe.id}`)
-      .then(res => res.json())
-      .then(data => {
-        recipeDetailCache.current.set(recipe.id, data);
-      })
-      .catch(() => {});
+    // Skip if already cached or pending (fetchRecipeDetail handles deduplication)
+    fetchRecipeDetail(recipe.id).catch(() => {});
   };
 
 
