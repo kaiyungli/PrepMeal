@@ -68,7 +68,10 @@ export async function deleteRecipe(id: number) {
   return res.ok;
 }
 
-// Filter recipes
+/**
+ * @deprecated Use useRecipeFilters hook + recipeMatchesFilters from @/constants/filters instead.
+ * This function is kept for backward compatibility but is no longer used in the application.
+ */
 export function filterRecipes(recipes: any[], filters: {
   cuisine?: string;
   time?: string;

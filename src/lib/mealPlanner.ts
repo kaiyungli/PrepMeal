@@ -1,3 +1,16 @@
+/**
+ * Meal Planner - Recipe selection and scoring
+ * 
+ * Filter values used (should match src/constants/filters.ts):
+ * - cuisine: chinese, western, japanese, korean, thai, fusion
+ * - dish_type: main, side, staple, soup
+ * - method: stir_fry, steamed, fried, boiled, braised, baked
+ * - difficulty: easy, medium, hard
+ * - protein: chicken, pork, beef, egg, tofu, shrimp, fish, mixed (or primary_protein)
+ * - diet: vegetarian, high_protein, low_calorie
+ * - flavor: salty, sweet, sour, spicy
+ * - speed: quick, normal
+ */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
