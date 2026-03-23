@@ -1,4 +1,5 @@
 // Generate page settings - Unified filter system
+import { useState } from 'react';
 import { FilterCardShell } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 
@@ -9,9 +10,21 @@ interface GenerateSettingsProps {
   setDishesPerDay: (v: number) => void;
   servings: number;
   setServings: (v: number) => void;
-  // Filter state from parent
-  filters: Record<string, string[]>;
-  setFilters: (f: Record<string, string[]>) => void;
+  // Legacy props - ignored in unified mode
+  dietMode?: any;
+  exclusions?: any;
+  toggleExclusion?: any;
+  cuisines?: any;
+  toggleCuisine?: any;
+  cookingConstraints?: any;
+  toggleConstraint?: any;
+  ingredientReuse?: any;
+  setIngredientReuse?: any;
+  pantryIngredients?: any;
+  setPantryIngredients?: any;
+  // New unified filter props
+  filters?: Record<string, string[]>;
+  setFilters?: (f: Record<string, string[]>) => void;
   onClearAll?: () => void;
 }
 
@@ -23,25 +36,43 @@ export default function GenerateSettings({
   daysPerWeek, setDaysPerWeek,
   dishesPerDay, setDishesPerDay,
   servings, setServings,
-  filters,
-  setFilters,
+  filters: externalFilters,
+  setFilters: externalSetFilters,
   onClearAll
 }: GenerateSettingsProps) {
   
+  // Use external filters if provided, otherwise use internal state
+  const [internalFilters, setInternalFilters] = useState<Record<string, string[]>>({
+    cuisine: [],
+    dish_type: [],
+    protein: [],
+    method: [],
+    speed: [],
+    difficulty: [],
+    diet: [],
+    flavor: [],
+  });
+  
+  const filters = externalFilters || internalFilters;
+  const setFilters = externalSetFilters || setInternalFilters;
+
   // Build filter sections from unified FILTER_GROUPS
-  const filterSections = FILTER_GROUPS.map(group => ({
-    id: group.key,
-    title: group.label,
-    options: group.options,
-    selected: filters[group.key] || [],
-    onToggle: (value: string) => {
-      const current = filters[group.key] || [];
-      const newValues = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
-      setFilters({ ...filters, [group.key]: newValues });
-    }
-  }));
+  const filterSections = FILTER_GROUPS.map(group => {
+    const groupKey = group.key as string;
+    return {
+      id: group.key,
+      title: group.label,
+      options: group.options,
+      selected: filters[groupKey] || [],
+      onToggle: (value: string) => {
+        const current = filters[groupKey] || [];
+        const newValues = current.includes(value)
+          ? current.filter(v => v !== value)
+          : [...current, value];
+        setFilters({ ...filters, [groupKey]: newValues });
+      }
+    };
+  });
 
   // Count active filters
   const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);

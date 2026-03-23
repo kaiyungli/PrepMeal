@@ -13,8 +13,8 @@ import {
   recipeMatchesFilters 
 } from '@/constants/filters';
 
-export default function useRecipeFilters() {
-  const [filters, setFilters] = useState<Record<string, string[]>>({
+export function useRecipeFilters() {
+  const [filters, setFilters] = useState({
     cuisine: [],
     dish_type: [],
     protein: [],
@@ -35,7 +35,7 @@ export default function useRecipeFilters() {
     title: group.label,
     options: group.options,
     selected: filters[group.key] || [],
-    onToggle: (value: string) => {
+    onToggle: (value) => {
       const current = filters[group.key] || [];
       const newValues = current.includes(value)
         ? current.filter(v => v !== value)
@@ -65,7 +65,7 @@ export default function useRecipeFilters() {
   };
 
   // Filter recipes function
-  const filterRecipes = (recipes: any[]) => {
+  const filterRecipes = (recipes) => {
     if (!hasFilters && !searchQuery) {
       return recipes;
     }
