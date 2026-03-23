@@ -118,13 +118,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   }, [initialRecipes, planLoaded]);
   
-  // Auto-prefetch first 4 visible recipes after mount
+  // Auto-prefetch first 2 visible recipes after mount (delayed to not block initial render)
   useEffect(() => {
     if (initialRecipes.length > 0) {
-      const firstFour = initialRecipes.slice(0, 4);
-      firstFour.forEach(recipe => {
-        handleRecipeHover(recipe);
-      });
+      // Delay prefetch to not block initial page render
+      const timerId = setTimeout(() => {
+        const firstTwo = initialRecipes.slice(0, 2);
+        firstTwo.forEach(recipe => {
+          handleRecipeHover(recipe);
+        });
+      }, 1500); // Wait 1.5s after mount
+      return () => clearTimeout(timerId);
     }
   }, [initialRecipes]);
   
@@ -162,10 +166,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const filteredRecipes = filterRecipes(allRecipes);
   const recipesList = filteredRecipes;
 
-  // Recipe click handler - progressive loading with cache
+  // Recipe click handler - progressive loading with cache and race protection
+  const activeRecipeIdRef = useRef<string | null>(null);
+  
   const handleRecipeClick = (recipe) => {
     const startTime = performance.now();
     console.log('[RecipeDetail] Click at:', startTime);
+    
+    // Race protection: cancel any stale requests
+    activeRecipeIdRef.current = recipe.id;
     
     // Immediately show modal with card data (instant)
     setSelectedRecipe(recipe);
@@ -190,6 +199,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetch(`/api/recipes/${recipe.id}`)
       .then(res => res.json())
       .then(data => {
+        // Race protection: ignore stale responses
+        if (activeRecipeIdRef.current !== recipe.id) {
+          console.log('[RecipeDetail] Stale response ignored for:', recipe.id);
+          return;
+        }
+        
         const fetchTime = performance.now() - fetchStart;
         console.log('[RecipeDetail] API completed in:', fetchTime.toFixed(2), 'ms');
         
@@ -216,8 +231,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       });
   };
 
-  // Prefetch recipe detail on hover/touch
+  // Prefetch recipe detail on hover/touch (with pending promise deduplication)
   const handleRecipeHover = (recipe) => {
+    // Skip if cached or already pending
     if (recipeDetailCache.current.has(recipe.id)) return;
     
     // Allow browser cache to help
@@ -255,7 +271,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               weeklyPlan={weeklyPlan}
               shoppingList={shoppingList}
               onRefreshPlan={() => {
-                const newPlan = generateWeeklyPlan(recipes.length > 0 ? recipes : initialRecipes);
+                const newPlan = generateWeeklyPlan(recipesList.length > 0 ? recipesList : initialRecipes);
                 setWeeklyPlan(newPlan);
               }}
             />

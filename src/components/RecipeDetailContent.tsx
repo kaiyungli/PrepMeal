@@ -43,20 +43,14 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
 
   // Defer heavy sections to reduce initial paint cost on iPad
   const [showHeavySections, setShowHeavySections] = useState(false);
-  const [prevRecipeId, setPrevRecipeId] = useState(recipe?.id);
   
-  // Reset deferred state when recipe changes
+  // Reset and defer heavy sections when recipe changes
   useEffect(() => {
-    if (recipe?.id !== prevRecipeId) {
-      setPrevRecipeId(recipe?.id);
-      setShowHeavySections(false);
-      
-      // Defer heavy sections to next animation frame
-      const id = requestAnimationFrame(() => {
-        setShowHeavySections(true);
-      });
-      return () => cancelAnimationFrame(id);
-    }
+    setShowHeavySections(false);
+    const id = requestAnimationFrame(() => {
+      setShowHeavySections(true);
+    });
+    return () => cancelAnimationFrame(id);
   }, [recipe?.id]);
 
   // Defensive guards for arrays
