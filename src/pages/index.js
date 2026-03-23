@@ -102,9 +102,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
   const { toast, showToast } = useToast();
   
-  // Weekly plan state (homepage specific)
-  const [weeklyPlan, setWeeklyPlan] = useState(() => generateWeeklyPlan(initialRecipes));
+  // Weekly plan state (homepage specific) - initialize as empty, generate in useEffect
+  const [weeklyPlan, setWeeklyPlan] = useState([]);
   const [shoppingList, setShoppingList] = useState([]);
+  const [planLoaded, setPlanLoaded] = useState(false);
+  
+  // Generate weekly plan after mount to avoid hydration mismatch from Math.random()
+  useEffect(() => {
+    if (initialRecipes && initialRecipes.length > 0 && !planLoaded) {
+      setWeeklyPlan(generateWeeklyPlan(initialRecipes));
+      setPlanLoaded(true);
+    }
+  }, [initialRecipes, planLoaded]);
   
   // Fetch shopping list when weeklyPlan changes
   useEffect(() => {
@@ -119,28 +128,26 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetchShoppingList();
   }, [weeklyPlan]);
   
-  // Use shared recipe filters hook
+  // Use shared recipe filters hook (no args)
   const {
-    recipes,
-    loading,
+    filters,
     searchQuery,
     setSearchQuery,
     sortBy,
     setSortBy,
-    showAdvanced,
-    setShowAdvanced,
+    showFilters,
+    setShowFilters,
     recipeFilterSections,
     hasFilters,
     activeFilterCount,
     clearFilters,
-  } = useRecipeFilters(initialRecipes);
+    filterRecipes,
+  } = useRecipeFilters();
 
-  // Toggle function for multi-select (keep for other uses)
-
-  // Filter sections for SharedFilterPanel
-  // Use recipeFilterSections from hook
-  // Ensure recipes is always an array
-  const recipesList = recipes || [];
+  // Filter recipes using the hook
+  const allRecipes = initialRecipes || [];
+  const filteredRecipes = filterRecipes(allRecipes);
+  const recipesList = filteredRecipes;
 
   // Recipe click handler
 
@@ -164,15 +171,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const hasSearch = searchQuery?.trim()?.length > 0;
   
   // Show empty state only if filters applied and no results
-  const showEmptyState = !loading && hasFilters && recipesList.length === 0;
+  const showEmptyState = hasFilters && recipesList.length === 0;
   
-  // Show skeleton when loading with no data
-  const showSkeleton = loading;
+  // No skeleton - use simple loading state
+  const showSkeleton = false;
 
   // Determine recipe count text
-  const recipeCountText = loading ? '載入中...' : 
-    (recipesList.length > 0 ? `${recipesList.length} 個食譜` : 
-    (hasFilters ? '無符合條件既食譜' : '載入緊...'));
+  const recipeCountText = recipesList.length > 0 ? `${recipesList.length} 個食譜` : 
+    (hasFilters ? '無符合條件既食譜' : '載入緊...');
 
   return (
     <Layout>
@@ -208,8 +214,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
             setSortBy={setSortBy}
-            showAdvanced={showAdvanced}
-            setShowAdvanced={setShowAdvanced}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
             recipeFilterSections={recipeFilterSections}
             hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}
