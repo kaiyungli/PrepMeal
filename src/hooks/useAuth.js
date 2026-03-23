@@ -3,14 +3,18 @@ import { useState, useEffect } from 'react';
 import supabase from '@/lib/supabase';
 
 export function useAuth() {
+  // Start with loading: false to avoid hydration mismatch
+  // The actual auth state will be loaded asynchronously
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Check current session
     const getSession = async () => {
       const { data: { session } } = await supabase?.auth.getSession();
       setUser(session?.user || null);
+      setIsAuthenticated(!!session?.user);
       setLoading(false);
     };
     getSession();
@@ -18,6 +22,7 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
+      setIsAuthenticated(!!session?.user);
       setLoading(false);
     });
 
@@ -96,6 +101,6 @@ export function useAuth() {
     signInWithApple,
     signInWithFacebook,
     signOut,
-    isAuthenticated: !!user,
+    isAuthenticated,
   };
 }

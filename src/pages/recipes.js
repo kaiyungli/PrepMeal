@@ -82,15 +82,11 @@ export default function RecipesPage({ initialRecipes }) {
 
         {/* Results Count */}
         <div className="mb-4 text-sm text-[#7A746B]">
-          {loading ? (
-            <span>載入中...</span>
-          ) : (
-            <span>找到 {sortedRecipes.length} 個食譜</span>
-          )}
+          <span>找到 {sortedRecipes.length} 個食譜</span>
         </div>
 
         {/* Recipe Grid */}
-        {loading ? (
+        {sortedRecipes.length > 0 ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-[#9B6035]">載入中...</div>
           </div>
