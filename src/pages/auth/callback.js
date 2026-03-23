@@ -12,7 +12,15 @@ export default function AuthCallback() {
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
-        // Get session from URL hash (Supabase OAuth returns user in hash)
+        // Check for error in URL query (OAuth error)
+        if (router.query.error) {
+          setError(router.query.error_description || router.query.error);
+          setProcessing(false);
+          return;
+        }
+
+        // Supabase OAuth returns session in URL hash (#access_token=...)
+        // getSession() will automatically exchange the code/token for a session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -27,9 +35,9 @@ export default function AuthCallback() {
           const redirect = router.query.redirect || '/my-plans';
           const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
           
-          console.log('OAuth success, redirecting to:', finalUrl);
+          console.log('OAuth success, user:', session.user.email, 'redirecting to:', finalUrl);
           
-          // Small delay to ensure session is fully established
+          // Small delay to ensure session is fully established in browser
           setTimeout(() => {
             router.replace(finalUrl);
           }, 500);
@@ -45,7 +53,10 @@ export default function AuthCallback() {
       }
     };
 
-    handleCallback();
+    // Only run after router is ready
+    if (router.isReady) {
+      handleCallback();
+    }
   }, [router]);
 
   // If still processing, show loading
