@@ -177,7 +177,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       console.log('[RecipeDetail] Cache hit for:', recipe.id, 'Time:', performance.now() - startTime);
       setSelectedRecipe(prev => prev ? { ...prev, ...cached } : cached);
       setModalLoading(false);
-      console.log('[RecipeDetail] Full ready at:', performance.now());
+      
+      // Measure paint time
+      requestAnimationFrame(() => {
+        console.log('[RecipeDetail] Painted at:', performance.now());
+      });
       return;
     }
     
@@ -194,8 +198,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         
         // Merge full detail into existing recipe
         setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
+        
+        // State merge complete
+        const mergeTime = performance.now();
+        console.log('[RecipeDetail] State merged at:', mergeTime);
+        
         setModalLoading(false);
-        console.log('[RecipeDetail] Full ready at:', performance.now());
+        
+        // Measure paint time after React renders
+        requestAnimationFrame(() => {
+          console.log('[RecipeDetail] Painted at:', performance.now());
+        });
       })
       .catch(err => {
         console.error('Error:', err);
