@@ -5,6 +5,8 @@ import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useToast } from '@/components/ui/Toast';
 
 export default function RecipesPage({ initialRecipes }) {
   const { isFavorite, toggleFavorite, isAuthenticated, loading: favLoading } = useFavorites();
