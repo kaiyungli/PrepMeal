@@ -9,28 +9,29 @@ export default function AuthCallback() {
   const [processing, setProcessing] = useState(true);
 
   useEffect(() => {
-    // Handle the OAuth callback
+    // Run callback handler when router is ready
+    if (!router.isReady) return;
+
     const handleCallback = async () => {
       try {
-        // Check for error in URL query (OAuth error from provider)
+        // 1. Check for OAuth error in URL
         if (router.query.error) {
           setError(router.query.error_description || router.query.error);
           setProcessing(false);
           return;
         }
 
-        // Check for auth code in URL (PKCE flow)
+        // 2. PKCE flow: exchange code for session
         const code = router.query.code;
         
         if (code) {
-          // PKCE flow: exchange code for session
           console.log('Exchanging code for session...');
           const { data: { session }, error: exchangeError } = 
             await supabase.auth.exchangeCodeForSession(code);
           
           if (exchangeError) {
             console.error('Code exchange error:', exchangeError);
-            setError('登入驗證失敗，請重試: ' + exchangeError.message);
+            setError('登入驗證失敗: ' + exchangeError.message);
             setProcessing(false);
             return;
           }
@@ -39,14 +40,14 @@ export default function AuthCallback() {
             console.log('PKCE session established, user:', session.user.email);
             const redirect = router.query.redirect || '/my-plans';
             const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-            setTimeout(() => router.replace(finalUrl), 500);
+            router.replace(finalUrl);
             return;
           }
         }
 
-        // Fallback: try getSession() (works for implicit/hybrid flow)
-        // Supabase also stores session in URL hash after OAuth
-        console.log('Trying getSession()...');
+        // 3. Fallback: try getSession() (implicit/hybrid flow)
+        // Supabase stores session in URL hash after OAuth
+        console.log('Trying getSession() fallback...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -57,19 +58,15 @@ export default function AuthCallback() {
         }
 
         if (session?.user) {
-          // Successful login
+          // Successful login - redirect immediately
           const redirect = router.query.redirect || '/my-plans';
           const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
           
           console.log('OAuth success, user:', session.user.email, 'redirecting to:', finalUrl);
-          
-          // Small delay to ensure session is fully established in browser
-          setTimeout(() => {
-            router.replace(finalUrl);
-          }, 500);
+          router.replace(finalUrl);
         } else {
-          // No session established
-          console.log('No session found - code:', code, 'query:', router.query);
+          // No session established - could be missing code or expired
+          console.log('No session - code:', code, 'query:', router.query);
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
         }
@@ -80,13 +77,10 @@ export default function AuthCallback() {
       }
     };
 
-    // Only run after router is ready and has query params
-    if (router.isReady && (router.query.code || router.query.error || router.query.hash)) {
-      handleCallback();
-    }
+    handleCallback();
   }, [router]);
 
-  // If still processing, show loading
+  // Show loading state
   if (processing) {
     return (
       <div style={{
@@ -120,7 +114,7 @@ export default function AuthCallback() {
     );
   }
 
-  // If error, show error message with retry button
+  // Show error state
   return (
     <div style={{
       minHeight: '100vh',
