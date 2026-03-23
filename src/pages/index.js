@@ -136,7 +136,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   };
   
   // Abort controller for current fetch
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortControllerRef = useRef(null);
   
   // Favorites hook
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
@@ -204,7 +204,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const recipesList = filteredRecipes;
 
   // Recipe click handler - progressive loading with cache and race protection
-  const activeRecipeIdRef = useRef<string | null>(null);
+  const activeRecipeIdRef = useRef(null);
   
   const handleRecipeClick = (recipe) => {
     const startTime = performance.now();
