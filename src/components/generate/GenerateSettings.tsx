@@ -1,6 +1,6 @@
-// Generate page settings panel - unified with recipes page design language
+// Generate page settings - Unified filter system
 import { FilterCardShell } from '@/components/filters';
-import { buildFilterSections } from '@/constants/filters';
+import { FILTER_GROUPS } from '@/constants/filters';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -9,18 +9,9 @@ interface GenerateSettingsProps {
   setDishesPerDay: (v: number) => void;
   servings: number;
   setServings: (v: number) => void;
-  dietMode: string;
-  setDietMode: (v: string) => void;
-  exclusions: string[];
-  toggleExclusion: (v: string) => void;
-  cuisine: string[];
-  toggleCuisine: (v: string) => void;
-  cookingConstraints: string[];
-  toggleConstraint: (v: string) => void;
-  ingredientReuse: string;
-  setIngredientReuse: (v: string) => void;
-  pantryIngredients: string[];
-  setPantryIngredients: (v: string[]) => void;
+  // Filter state from parent
+  filters: Record<string, string[]>;
+  setFilters: (f: Record<string, string[]>) => void;
   onClearAll?: () => void;
 }
 
@@ -32,35 +23,28 @@ export default function GenerateSettings({
   daysPerWeek, setDaysPerWeek,
   dishesPerDay, setDishesPerDay,
   servings, setServings,
-  dietMode, setDietMode,
-  exclusions, toggleExclusion,
-  cuisine, toggleCuisine,
-  cookingConstraints, toggleConstraint,
-  ingredientReuse, setIngredientReuse,
-  pantryIngredients, setPantryIngredients,
+  filters,
+  setFilters,
   onClearAll
 }: GenerateSettingsProps) {
-  // Count active filters
-  const activeCount = 
-    (dietMode && dietMode !== 'general' ? 1 : 0) +
-    (ingredientReuse && ingredientReuse !== 'allow' ? 1 : 0) +
-    (cuisine?.length || 0) +
-    cookingConstraints.length +
-    exclusions.length;
+  
+  // Build filter sections from unified FILTER_GROUPS
+  const filterSections = FILTER_GROUPS.map(group => ({
+    id: group.key,
+    title: group.label,
+    options: group.options,
+    selected: filters[group.key] || [],
+    onToggle: (value: string) => {
+      const current = filters[group.key] || [];
+      const newValues = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      setFilters({ ...filters, [group.key]: newValues });
+    }
+  }));
 
-  // Use shared builder
-  const filterSections = buildFilterSections({ context: 'generate',
-    dietMode,
-    setDietMode,
-    ingredientReuse,
-    setIngredientReuse,
-    cuisine,
-    toggleCuisine,
-    cookingConstraints,
-    toggleConstraint,
-    exclusions,
-    toggleExclusion
-  });
+  // Count active filters
+  const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
 
   return (
     <div className="p-4">
@@ -121,13 +105,6 @@ export default function GenerateSettings({
                 ))}
               </select>
             </div>
-
-            {/* Pantry indicator */}
-            {pantryIngredients.length > 0 && (
-              <div className="ml-auto text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                已選 {pantryIngredients.length} 項食材
-              </div>
-            )}
           </div>
         </div>
 

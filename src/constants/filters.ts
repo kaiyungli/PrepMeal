@@ -1,317 +1,260 @@
-// Filter option constants - UI display policy only
-// Values (keys) remain English for API/logic, labels are Chinese for display
+// ============================================
+// UNIFIED FILTER SYSTEM - Single Source of Truth
+// ============================================
+// Only 8 filter groups for recipe filtering:
+// cuisine, dish_type, protein, method, speed, difficulty, diet, flavor
+// NO budget filter
 
-export const DIET_MODES = [
-  { value: 'general', label: '一般' },
-  { value: 'vegetarian', label: '素食' },
-  { value: 'egg_lacto', label: '蛋奶素' },
-  { value: 'high_protein', label: '高蛋白' },
-  { value: 'low_fat', label: '低脂' },
-  { value: 'light', label: '清淡' },
-];
-
-// Canonical diet values (labels defined by context)
-export const DIET_VALUES = [
-  { value: 'general' },
-  { value: 'vegetarian' },
-  { value: 'egg_lacto' },
-  { value: 'high_protein' },
-  { value: 'low_fat' },
-  { value: 'light' },
-];
-
-export const EXCLUSIONS = [
-  { value: 'beef', label: '不牛' },
-  { value: 'pork', label: '不豬' },
-  { value: 'chicken', label: '不雞' },
-  { value: 'seafood', label: '不海鮮' },
-  { value: 'eggs', label: '不蛋' },
-  { value: 'dairy', label: '不奶' },
-  { value: 'spicy', label: '不辣' },
-];
-
-export const CUISINES = [
+// ============================================
+// 1. CUISINE
+// ============================================
+export const CUISINE_OPTIONS = [
   { value: 'chinese', label: '中式' },
+  { value: 'western', label: '西式' },
   { value: 'japanese', label: '日式' },
   { value: 'korean', label: '韓式' },
-  { value: 'western', label: '西式' },
-  { value: 'taiwanese', label: '台式' },
-  { value: 'se_asian', label: '東南亞' },
-];
-
-// Canonical cuisine values (labels defined by context)
-export const CUISINE_VALUES = [
-  { value: 'chinese' },
-  { value: 'western' },
-  { value: 'japanese' },
-  { value: 'korean' },
-  { value: 'taiwanese' },
-  { value: 'se_asian' },
-];
-
-// Legacy: Use GENERATE_TIME_CONSTRAINTS, GENERATE_DIFFICULTY_CONSTRAINTS, GENERATE_EQUIPMENT_CONSTRAINTS instead
-export const COOKING_CONSTRAINTS = [
-  { value: 'under_15', label: '15分鐘內' },
-  { value: 'under_30', label: '30分鐘內' },
-  { value: 'under_45', label: '45分鐘內' },
-  { value: 'easy', label: '簡易' },
-  { value: 'medium', label: '中等' },
-  { value: 'hard', label: '困難' },
-  { value: 'one_pot', label: '一鍋料理' },
-  { value: 'air_fryer', label: '氣炸鍋' },
+  { value: 'thai', label: '泰式' },
+  { value: 'fusion', label: 'Fusion' },
 ];
 
 // ============================================
-// GENERATE-SIDE CONSTRAINT HELPERS
+// 2. DISH_TYPE
 // ============================================
-
-// Time constraints for generate page (under_X format)
-export const GENERATE_TIME_CONSTRAINTS = [
-  { value: 'under_15', label: '15分鐘內' },
-  { value: 'under_30', label: '30分鐘內' },
-  { value: 'under_45', label: '45分鐘內' },
-];
-
-// Difficulty constraints for generate page
-export const GENERATE_DIFFICULTY_CONSTRAINTS = [
-  { value: 'easy', label: '簡易' },
-  { value: 'medium', label: '中等' },
-  { value: 'hard', label: '困難' },
-];
-
-// Equipment/method constraints for generate page
-export const GENERATE_EQUIPMENT_CONSTRAINTS = [
-  { value: 'one_pot', label: '一鍋料理' },
-  { value: 'air_fryer', label: '氣炸鍋' },
-];
-
-// Helper to get grouped constraint options for generate page
-export function getGenerateConstraintGroups() {
-  return [
-    {
-      key: 'time',
-      label: '時間',
-      options: GENERATE_TIME_CONSTRAINTS
-    },
-    {
-      key: 'difficulty',
-      label: '難度',
-      options: GENERATE_DIFFICULTY_CONSTRAINTS
-    },
-    {
-      key: 'equipment',
-      label: '工具',
-      options: GENERATE_EQUIPMENT_CONSTRAINTS
-    }
-  ];
-}
-
-export const BUDGET_OPTIONS = [
-  { value: 'budget', label: '經濟' },
-  { value: 'normal', label: '普通' },
-  { value: 'premium', label: '高級' },
-];
-
-export const INGREDIENT_REUSE = [
-  { value: 'normal', label: '普通' },
-  { value: 'smart', label: '智能重用' },
-];
-
-// Homepage filter specific constants
-export const DISH_TYPE = [
+export const DISH_TYPE_OPTIONS = [
   { value: 'main', label: '主菜' },
   { value: 'side', label: '配菜' },
-  { value: 'soup', label: '湯' },
   { value: 'staple', label: '主食' },
-  { value: 'snack', label: '小食' },
+  { value: 'soup', label: '湯' },
 ];
 
-export const COOKING_METHODS = [
+// ============================================
+// 3. PROTEIN
+// ============================================
+export const PROTEIN_OPTIONS = [
+  { value: 'chicken', label: '雞' },
+  { value: 'pork', label: '豬' },
+  { value: 'beef', label: '牛' },
+  { value: 'egg', label: '蛋' },
+  { value: 'tofu', label: '豆腐' },
+  { value: 'shrimp', label: '蝦' },
+  { value: 'fish', label: '魚' },
+  { value: 'mixed', label: '混合蛋白' },
+];
+
+// ============================================
+// 4. METHOD
+// ============================================
+export const METHOD_OPTIONS = [
   { value: 'stir_fry', label: '炒' },
   { value: 'steamed', label: '蒸' },
-  { value: 'fried', label: '煎/炸' },
-  { value: 'braised', label: '燜/紅燒' },
-  { value: 'boiled', label: '煮/湯' },
+  { value: 'fried', label: '煎' },
+  { value: 'boiled', label: '煮' },
+  { value: 'braised', label: '燜' },
   { value: 'baked', label: '焗' },
 ];
 
-export const PROTEIN_TYPES = [
-  { value: 'chicken', label: '雞' },
-  { value: 'beef', label: '牛' },
-  { value: 'pork', label: '豬' },
-  { value: 'fish', label: '魚' },
-  { value: 'shrimp', label: '蝦' },
-  { value: 'tofu', label: '豆腐' },
-  { value: 'egg', label: '蛋' },
-  { value: 'vegetarian', label: '素' },
-  { value: 'mixed', label: '混合' },
-];
-
-export const TIME_OPTIONS = [
-  { value: '15', label: '15分鐘內' },
-  { value: '30', label: '30分鐘內' },
-  { value: '60', label: '60分鐘內' },
-];
-
-// Canonical time values (for recipe page / API)
-// Generate page uses under_X format in COOKING_CONSTRAINTS
-export const TIME_VALUES = [
-  { value: '15' },
-  { value: '30' },
-  { value: '60' },
-];
-
-// Canonical difficulty values (labels defined by context)
-export const DIFFICULTY_VALUES = [
-  { value: 'easy' },
-  { value: 'medium' },
-  { value: 'hard' },
+// ============================================
+// 5. SPEED
+// ============================================
+export const SPEED_OPTIONS = [
+  { value: 'quick', label: '快手' },
+  { value: 'normal', label: '一般' },
 ];
 
 // ============================================
-// RECIPE PAGE OPTION BUILDERS
+// 6. DIFFICULTY
 // ============================================
-
-// Helper to build cuisine options for recipe page (canonical + extensions)
-export function buildRecipeCuisineOptions() {
-  return [
-    ...CUISINE_VALUES.map(c => ({
-      ...c,
-      label: c.value === 'chinese' ? '中式' : c.value === 'western' ? '西式' : c.value === 'japanese' ? '日式' : c.value === 'korean' ? '韓式' : c.value === 'taiwanese' ? '台式' : '東南亞'
-    })),
-    { value: 'thai', label: '泰式' },
-    { value: 'fusion', label: '混合' },
-  ];
-}
-
-// Helper to build time options for recipe page (unified: 15/30/60分鐘內)
-export function buildRecipeTimeOptions() {
-  return TIME_VALUES.map(t => ({
-    ...t,
-    label: t.value === '15' ? '15分鐘內' : t.value === '30' ? '30分鐘內' : '60分鐘內'
-  }));
-}
-
-// Helper to build difficulty options for recipe page (unified with generate: 簡易/中等/困難)
-export function buildRecipeDifficultyOptions() {
-  return DIFFICULTY_VALUES.map(d => ({
-    ...d,
-    label: d.value === 'easy' ? '簡易' : d.value === 'medium' ? '中等' : '困難'
-  }));
-}
-
-// Helper to build diet options for recipe page (canonical + extensions)
-export function buildRecipeDietOptions() {
-  return [
-    ...DIET_VALUES.map(d => ({
-      ...d,
-      label: d.value === 'general' ? '一般' : d.value === 'vegetarian' ? '素食' : d.value === 'egg_lacto' ? '蛋奶素' : d.value === 'high_protein' ? '高蛋白' : d.value === 'low_fat' ? '低脂' : '清淡'
-    })),
-    { value: 'low_calorie', label: '低卡' },
-    { value: 'gluten_free', label: '無麩質' },
-  ];
-}
-
+export const DIFFICULTY_OPTIONS = [
+  { value: 'easy', label: '容易' },
+  { value: 'medium', label: '中等' },
+  { value: 'hard', label: '進階' },
+];
 
 // ============================================
-// UNIFIED FILTER SECTION BUILDER
+// 7. DIET
+// ============================================
+export const DIET_OPTIONS = [
+  { value: 'vegetarian', label: '素食' },
+  { value: 'high_protein', label: '高蛋白' },
+  { value: 'low_calorie', label: '低卡' },
+];
+
+// ============================================
+// 8. FLAVOR
+// ============================================
+export const FLAVOR_OPTIONS = [
+  { value: 'salty', label: '鹹' },
+  { value: 'sweet', label: '甜' },
+  { value: 'sour', label: '酸' },
+  { value: 'spicy', label: '辣' },
+];
+
+// ============================================
+// FILTER GROUPS - Unified for all pages
+// ============================================
+export const FILTER_GROUPS = [
+  { key: 'cuisine', label: '菜系', options: CUISINE_OPTIONS },
+  { key: 'dish_type', label: '類型', options: DISH_TYPE_OPTIONS },
+  { key: 'protein', label: '主要蛋白', options: PROTEIN_OPTIONS },
+  { key: 'method', label: '烹調方式', options: METHOD_OPTIONS },
+  { key: 'speed', label: '所需時間', options: SPEED_OPTIONS },
+  { key: 'difficulty', label: '難度', options: DIFFICULTY_OPTIONS },
+  { key: 'diet', label: '飲食需求', options: DIET_OPTIONS },
+  { key: 'flavor', label: '口味', options: FLAVOR_OPTIONS },
+];
+
+// ============================================
+// DATA COMPATIBILITY HELPERS
+// ============================================
+
+/**
+ * Get effective protein array for filtering
+ * Falls back to primary_protein if protein[] is empty
+ */
+export function getEffectiveProtein(recipe: any): string[] {
+  if (recipe.protein && Array.isArray(recipe.protein) && recipe.protein.length > 0) {
+    return recipe.protein;
+  }
+  // Fallback to primary_protein
+  if (recipe.primary_protein) {
+    return [recipe.primary_protein];
+  }
+  return [];
+}
+
+/**
+ * Get effective diet array for filtering
+ * Returns empty array if null/undefined
+ */
+export function getEffectiveDiet(recipe: any): string[] {
+  if (recipe.diet && Array.isArray(recipe.diet)) {
+    return recipe.diet;
+  }
+  return [];
+}
+
+/**
+ * Get effective flavor array for filtering
+ * Returns empty array if null/undefined
+ */
+export function getEffectiveFlavor(recipe: any): string[] {
+  if (recipe.flavor && Array.isArray(recipe.flavor)) {
+    return recipe.flavor;
+  }
+  return [];
+}
+
+/**
+ * Normalize recipe for filter matching
+ * Consolidates all compatibility logic in one place
+ */
+export function normalizeRecipeForFilter(recipe: any) {
+  return {
+    ...recipe,
+    _effectiveProtein: getEffectiveProtein(recipe),
+    _effectiveDiet: getEffectiveDiet(recipe),
+    _effectiveFlavor: getEffectiveFlavor(recipe),
+  };
+}
+
+// ============================================
+// FILTER MATCHING LOGIC
+// ============================================
+
+/**
+ * Check if recipe matches selected filters
+ * - Same group: OR logic (e.g., chinese OR japanese)
+ * - Different groups: AND logic
+ * - Empty selection: no filter applied
+ */
+export function recipeMatchesFilters(recipe: any, filters: Record<string, string[]>): boolean {
+  const normalized = normalizeRecipeForFilter(recipe);
+  
+  for (const [groupKey, selectedValues] of Object.entries(filters)) {
+    if (!selectedValues || selectedValues.length === 0) {
+      continue; // No filter for this group
+    }
+    
+    let matches = false;
+    
+    switch (groupKey) {
+      case 'cuisine':
+        matches = selectedValues.includes(normalized.cuisine);
+        break;
+      case 'dish_type':
+        matches = selectedValues.includes(normalized.dish_type);
+        break;
+      case 'protein':
+        // Array intersection - recipe.protein[] contains any selected
+        matches = normalized._effectiveProtein.some((p: string) => selectedValues.includes(p));
+        break;
+      case 'method':
+        matches = selectedValues.includes(normalized.method);
+        break;
+      case 'speed':
+        matches = selectedValues.includes(normalized.speed);
+        break;
+      case 'difficulty':
+        matches = selectedValues.includes(normalized.difficulty);
+        break;
+      case 'diet':
+        // Array intersection - recipe.diet[] contains any selected
+        matches = normalized._effectiveDiet.some((d: string) => selectedValues.includes(d));
+        break;
+      case 'flavor':
+        // Array intersection - recipe.flavor[] contains any selected
+        matches = normalized._effectiveFlavor.some((f: string) => selectedValues.includes(f));
+        break;
+    }
+    
+    if (!matches) {
+      return false; // Different groups: AND - one fail = overall fail
+    }
+  }
+  
+  return true;
+}
+
+// ============================================
+// BACKWARD COMPATIBILITY EXPORTS
+// ============================================
+// Keep these for any legacy code that might reference them
+export const CUISINES = CUISINE_OPTIONS;
+export const DISH_TYPE = DISH_TYPE_OPTIONS;
+export const PROTEIN_TYPES = PROTEIN_OPTIONS;
+export const COOKING_METHODS = METHOD_OPTIONS;
+export const TIME_OPTIONS = SPEED_OPTIONS; // Legacy alias
+export const TIME_VALUES = SPEED_OPTIONS;
+export const DIET_MODES = DIET_OPTIONS;
+export const DIET_VALUES = DIET_OPTIONS;
+export const FLAVOR = FLAVOR_OPTIONS;
+
+// Legacy - but marked as not for UI
+export const GENERATE_TIME_CONSTRAINTS = SPEED_OPTIONS;
+export const GENERATE_DIFFICULTY_CONSTRAINTS = DIFFICULTY_OPTIONS;
+export const GENERATE_EQUIPMENT_CONSTRAINTS = []; // No longer used in UI
+export const COOKING_CONSTRAINTS = []; // Legacy - DO NOT USE
+export const EXCLUSIONS = []; // Legacy - DO NOT USE
+export const BUDGET_OPTIONS = []; // Legacy - NOT USED
+export const INGREDIENT_REUSE = [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }];
+
+
+// ============================================
+// UNIFIED FILTER BUILDER
 // ============================================
 
 import type { FilterSectionConfig } from '@/components/filters/FilterCardShell';
 
-export type FilterContext = 'recipe' | 'generate';
-
-interface BaseFilterConfig {
-  context: FilterContext;
-  cuisine: string[];
-  setCuisine: (v: string[]) => void;
-}
-
-interface RecipeFilterConfig extends BaseFilterConfig {
-  context: 'recipe';
-  dishType: string[];
-  setDishType: (v: string[]) => void;
-  time: string[];
-  setTime: (v: string[]) => void;
-  difficulty: string[];
-  setDifficulty: (v: string[]) => void;
-  method: string[];
-  setMethod: (v: string[]) => void;
-  diet: string[];
-  setDiet: (v: string[]) => void;
-  protein: string[];
-  setProtein: (v: string[]) => void;
-}
-
-interface GenerateFilterConfig extends BaseFilterConfig {
-  context: 'generate';
-  dietMode: string;
-  setDietMode: (v: string) => void;
-  ingredientReuse: string;
-  setIngredientReuse: (v: string) => void;
-  cookingConstraints: string[];
-  toggleConstraint: (v: string) => void;
-  exclusions: string[];
-  toggleExclusion: (v: string) => void;
-}
-
-// Single unified builder - DRY source of truth
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildFilterSections(config: any): FilterSectionConfig[] {
-  const { context, cuisine, setCuisine } = config;
-  
-  // Shared toggle helper for multi-select
-  const toggleMulti = (selected: string[], setter: (v: string[]) => void) => (value: string) => {
-    if (selected.includes(value)) {
-      setter(selected.filter(v => v !== value));
-    } else {
-      setter([...selected, value]);
-    }
-  };
-  
-  const sections: FilterSectionConfig[] = [
-    // Cuisine - shared
-    { 
-      id: "cuisine", 
-      title: "菜系", 
-      options: context === 'recipe' ? buildRecipeCuisineOptions() : CUISINES.map(c => ({ value: c.value, label: c.label })), 
-      selected: cuisine, 
-      onToggle: toggleMulti(cuisine, setCuisine) 
-    },
-  ];
-  
-  if (context === 'recipe') {
-    const rc = config as RecipeFilterConfig;
-    // Recipe-specific filters
-    sections.push(
-      { id: "dishType", title: "餐類", options: DISH_TYPE.map(d => ({ value: d.value, label: d.label })), selected: rc.dishType, onToggle: toggleMulti(rc.dishType, rc.setDishType) },
-      { id: "time", title: "時間", options: buildRecipeTimeOptions(), selected: rc.time, onToggle: toggleMulti(rc.time, rc.setTime) },
-      { id: "difficulty", title: "難度", options: buildRecipeDifficultyOptions(), selected: rc.difficulty, onToggle: toggleMulti(rc.difficulty, rc.setDifficulty) },
-      { id: "method", title: "烹調方式", options: COOKING_METHODS.map(m => ({ value: m.value, label: m.label })), selected: rc.method, onToggle: toggleMulti(rc.method, rc.setMethod) },
-      { id: "diet", title: "飲食模式", options: buildRecipeDietOptions(), selected: rc.diet, onToggle: toggleMulti(rc.diet, rc.setDiet) },
-      { id: "protein", title: "主要蛋白", options: PROTEIN_TYPES.map(p => ({ value: p.value, label: p.label })), selected: rc.protein, onToggle: toggleMulti(rc.protein, rc.setProtein) }
-    );
-  } else {
-    const gc = config as GenerateFilterConfig;
-    // Generate-specific filters
-    sections.push(
-      { id: "diet", title: "飲食模式", options: DIET_MODES.map(d => ({ value: d.value, label: d.label })), selected: [gc.dietMode], onToggle: gc.setDietMode },
-      { id: "reuse", title: "食材重用", options: [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }], selected: [gc.ingredientReuse], onToggle: gc.setIngredientReuse },
-      { id: "time", title: "時間", options: GENERATE_TIME_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => c.startsWith('under_')), onToggle: gc.toggleConstraint },
-      { id: "difficulty", title: "難度", options: GENERATE_DIFFICULTY_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => ['easy', 'medium', 'hard'].includes(c)), onToggle: gc.toggleConstraint },
-      { id: "equipment", title: "工具", options: GENERATE_EQUIPMENT_CONSTRAINTS.map(c => ({ value: c.value, label: c.label })), selected: gc.cookingConstraints.filter(c => ['one_pot', 'air_fryer'].includes(c)), onToggle: gc.toggleConstraint },
-      { id: "exclusions", title: "排除", options: EXCLUSIONS.map(e => ({ value: e.value, label: e.label })), selected: gc.exclusions, onToggle: gc.toggleExclusion, variant: 'danger' }
-    );
-  }
-  
-  return sections;
-}
-
-// Keep legacy builders for backward compatibility (deprecated)
-export function buildRecipeFilterSections(config: Omit<RecipeFilterConfig, 'context'>): FilterSectionConfig[] {
-  return buildFilterSections({ ...config, context: 'recipe' } as RecipeFilterConfig);
-}
-
-export function buildGenerateFilterSections(config: Omit<GenerateFilterConfig, 'context'>): FilterSectionConfig[] {
-  return buildFilterSections({ ...config, context: 'generate' } as GenerateFilterConfig);
+/**
+ * Build filter sections for any page
+ * All pages use the same 8 groups
+ */
+export function buildFilterSections(): FilterSectionConfig[] {
+  return FILTER_GROUPS.map(group => ({
+    id: group.key,
+    title: group.label,
+    options: group.options,
+    selected: [],
+    onToggle: () => {}, // Placeholder - will be overridden by caller
+  }));
 }
