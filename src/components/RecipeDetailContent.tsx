@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 interface RecipeDetailContentProps {
   recipe: {
@@ -39,6 +40,24 @@ const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', bo
 
 export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailContentProps) {
   if (!recipe) return null
+
+  // Defer heavy sections to reduce initial paint cost on iPad
+  const [showHeavySections, setShowHeavySections] = useState(false);
+  const [prevRecipeId, setPrevRecipeId] = useState(recipe?.id);
+  
+  // Reset deferred state when recipe changes
+  useEffect(() => {
+    if (recipe?.id !== prevRecipeId) {
+      setPrevRecipeId(recipe?.id);
+      setShowHeavySections(false);
+      
+      // Defer heavy sections to next animation frame
+      const id = requestAnimationFrame(() => {
+        setShowHeavySections(true);
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [recipe?.id]);
 
   // Defensive guards for arrays
   const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : []
@@ -122,10 +141,11 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
           </div>
         )}
 
-        {/* Ingredients Card */}
-        <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材</h3>
-          {isLoading ? (
+        {/* Ingredients Card - Deferred */}
+        {showHeavySections ? (
+          <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材</h3>
+            {isLoading ? (
             <div className="space-y-3">
               <SectionSkeleton height="h-6" />
               <SectionSkeleton height="h-6" />
@@ -144,10 +164,20 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
             <p style={{ color: '#AA7A50' }}>暫無食材資料</p>
           )}
         </div>
+        ) : (
+          <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0', minHeight: '120px' }}>
+            <div className="space-y-3">
+              <SectionSkeleton height="h-6" />
+              <SectionSkeleton height="h-6" />
+              <SectionSkeleton height="h-6" />
+            </div>
+          </div>
+        )}
 
-        {/* Steps Card */}
-        <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>👨‍🍳 烹飪步驟</h3>
+        {/* Steps Card - Deferred */}
+        {showHeavySections ? (
+          <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
+            <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>👨‍🍳 烹飪步驟</h3>
           {isLoading ? (
             <div className="space-y-4">
               <SectionSkeleton height="h-16" />
@@ -176,8 +206,16 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
             <p style={{ color: '#AA7A50' }}>暫無步驟資料</p>
           )}
         </div>
+        ) : (
+          <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0', minHeight: '120px' }}>
+            <div className="space-y-4">
+              <SectionSkeleton height="h-16" />
+              <SectionSkeleton height="h-16" />
+            </div>
+          </div>
+        )}
 
-        {/* Nutrition Card */}
+        {/* Nutrition Card - Keep immediate for now (lightweight) */}
         <div className="rounded-2xl p-6 border-2" style={{ backgroundColor: '#FFF9E6', borderColor: '#F0A060' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>📊 營養資料</h3>
           <div className="grid grid-cols-2 gap-3">
