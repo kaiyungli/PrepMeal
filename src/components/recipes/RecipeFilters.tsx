@@ -6,8 +6,8 @@ interface RecipeFiltersProps {
   setSearchQuery: (v: string) => void;
   sortBy: string;
   setSortBy: (v: string) => void;
-  showAdvanced: boolean;
-  setShowAdvanced: (v: boolean) => void;
+  showFilters: boolean;
+  setShowFilters: (v: boolean) => void;
   recipeFilterSections: FilterSectionConfig[];
   hasFilters: boolean;
   activeFilterCount: number;
@@ -19,8 +19,8 @@ export default function RecipeFilters({
   setSearchQuery,
   sortBy,
   setSortBy,
-  showAdvanced,
-  setShowAdvanced,
+  showFilters,
+  setShowFilters,
   recipeFilterSections,
   hasFilters,
   activeFilterCount,
@@ -36,7 +36,7 @@ export default function RecipeFilters({
         filterSections={recipeFilterSections}
         activeFilterCount={activeFilterCount}
         onClear={clearFilters}
-        defaultExpanded={showAdvanced}
+        defaultExpanded={showFilters}
         headerContent={
           <select
             value={sortBy}

@@ -14,27 +14,30 @@ export default function RecipesPage({ initialRecipes }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
-  // Use shared recipe filters hook
+  // Use shared recipe filters hook (no args)
   const {
-    recipes,
-    loading,
+    filters,
     searchQuery,
     setSearchQuery,
     sortBy,
     setSortBy,
-    showAdvanced,
-    setShowAdvanced,
+    showFilters,
+    setShowFilters,
     recipeFilterSections,
     hasFilters,
     activeFilterCount,
     clearFilters,
-  } = useRecipeFilters(initialRecipes);
+    filterRecipes,
+  } = useRecipeFilters();
 
-  // Sort recipes client-side
-  const sortedRecipes = [...(recipes || [])].sort((a, b) => {
+  // Filter and sort recipes client-side
+  const allRecipes = initialRecipes || [];
+  const filteredRecipes = filterRecipes(allRecipes);
+  
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
     switch (sortBy) {
       case 'popular':
-        return 0; // No popularity data yet
+        return 0;
       case 'calories_low':
         return (a.calories_per_serving || 0) - (b.calories_per_serving || 0);
       case 'calories_high':
@@ -69,8 +72,8 @@ export default function RecipesPage({ initialRecipes }) {
           setSearchQuery={setSearchQuery}
           sortBy={sortBy}
           setSortBy={setSortBy}
-          showAdvanced={showAdvanced}
-          setShowAdvanced={setShowAdvanced}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
           recipeFilterSections={recipeFilterSections}
           hasFilters={hasFilters}
           activeFilterCount={activeFilterCount}
