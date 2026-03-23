@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 
 
@@ -98,8 +98,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
-  // In-memory cache for recipe details
-  const [recipeDetailCache, setRecipeDetailCache] = useState({});
+  // In-memory cache for recipe details - useRef to avoid rerenders
+  const recipeDetailCache = useRef(new Map());
   
   // Favorites hook
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
@@ -117,6 +117,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       setPlanLoaded(true);
     }
   }, [initialRecipes, planLoaded]);
+  
+  // Auto-prefetch first 4 visible recipes after mount
+  useEffect(() => {
+    if (initialRecipes.length > 0) {
+      const firstFour = initialRecipes.slice(0, 4);
+      firstFour.forEach(recipe => {
+        handleRecipeHover(recipe);
+      });
+    }
+  }, [initialRecipes]);
   
   // Fetch shopping list when weeklyPlan changes
   useEffect(() => {
@@ -161,12 +171,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     setSelectedRecipe(recipe);
     setModalLoading(true);
     
-    // Check cache first
-    const cached = recipeDetailCache[recipe.id];
+    // Check cache first (useRef)
+    const cached = recipeDetailCache.current.get(recipe.id);
     if (cached) {
       console.log('[RecipeDetail] Cache hit for:', recipe.id, 'Time:', performance.now() - startTime);
       setSelectedRecipe(prev => prev ? { ...prev, ...cached } : cached);
       setModalLoading(false);
+      console.log('[RecipeDetail] Full ready at:', performance.now());
       return;
     }
     
@@ -176,14 +187,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       .then(res => res.json())
       .then(data => {
         const fetchTime = performance.now() - fetchStart;
-        console.log('[RecipeDetail] Fetch completed in:', fetchTime.toFixed(2), 'ms');
+        console.log('[RecipeDetail] API completed in:', fetchTime.toFixed(2), 'ms');
         
-        // Cache the result
-        setRecipeDetailCache(prev => ({ ...prev, [recipe.id]: data }));
+        // Cache the result (useRef)
+        recipeDetailCache.current.set(recipe.id, data);
         
         // Merge full detail into existing recipe
         setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
         setModalLoading(false);
+        console.log('[RecipeDetail] Full ready at:', performance.now());
       })
       .catch(err => {
         console.error('Error:', err);
@@ -191,14 +203,15 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       });
   };
 
-  // Prefetch recipe detail on hover
+  // Prefetch recipe detail on hover/touch
   const handleRecipeHover = (recipe) => {
-    if (recipeDetailCache[recipe.id]) return;
+    if (recipeDetailCache.current.has(recipe.id)) return;
     
-    fetch(`/api/recipes/${recipe.id}`, { cache: 'no-store' })
+    // Allow browser cache to help
+    fetch(`/api/recipes/${recipe.id}`)
       .then(res => res.json())
       .then(data => {
-        setRecipeDetailCache(prev => ({ ...prev, [recipe.id]: data }));
+        recipeDetailCache.current.set(recipe.id, data);
       })
       .catch(() => {});
   };
@@ -282,6 +295,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   key={recipe.id} 
                   className="col-span-12 sm:col-span-6 md:col-span-4"
                   onMouseEnter={() => handleRecipeHover(recipe)}
+                  onTouchStart={() => handleRecipeHover(recipe)}
                 >
                   <RecipeCard
                     recipe={recipe}
