@@ -25,13 +25,19 @@ interface RecipeDetailContentProps {
     }>
     steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
   }
+  isLoading?: boolean
+}
+
+// Skeleton component for loading sections
+function SectionSkeleton({ height = 'h-4' }: { height?: string }) {
+  return <div className={`${height} w-full bg-[#E5DCC8] animate-pulse rounded`} />
 }
 
 const difficultyLabels: Record<string, string> = { easy: '易', medium: '中', hard: '難', 易: '易', 中: '中', 難: '難' }
 const speedLabels: Record<string, string> = { quick: '快', normal: '中', slow: '慢', 快: '快', 中: '中', 慢: '慢' }
 const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒', fried: '炸', 炒: '炒', 蒸: '蒸', 煮: '煮', 焗: '焗', 炆: '炆', 燒: '燒' }
 
-export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps) {
+export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailContentProps) {
   if (!recipe) return null
 
   // Defensive guards for arrays
@@ -43,7 +49,7 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
       {/* Hero Image */}
       <div className="relative h-[400px] overflow-hidden">
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" priority />
+          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
         ) : (
           <div className="h-full flex items-center justify-center" style={{ backgroundColor: '#C8D49A' }}>
             <span className="text-8xl">🍳</span>
@@ -119,7 +125,13 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
         {/* Ingredients Card */}
         <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材</h3>
-          {ingredients.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              <SectionSkeleton height="h-6" />
+              <SectionSkeleton height="h-6" />
+              <SectionSkeleton height="h-6" />
+            </div>
+          ) : ingredients.length > 0 ? (
             <ul className="space-y-3">
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
@@ -136,7 +148,13 @@ export default function RecipeDetailContent({ recipe }: RecipeDetailContentProps
         {/* Steps Card */}
         <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>👨‍🍳 烹飪步驟</h3>
-          {steps.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-4">
+              <SectionSkeleton height="h-16" />
+              <SectionSkeleton height="h-16" />
+              <SectionSkeleton height="h-16" />
+            </div>
+          ) : steps.length > 0 ? (
             <ol className="space-y-4">
               {steps.map((step: any, i: number) => (
                 <li key={i} className="flex gap-4">

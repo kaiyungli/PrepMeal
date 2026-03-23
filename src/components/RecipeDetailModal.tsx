@@ -11,12 +11,8 @@ interface RecipeDetailModalProps {
 export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: RecipeDetailModalProps) {
   return (
     <Modal isOpen={isOpen} title="" onClose={onClose} maxWidth="900px">
-      {loading ? (
-        <div className="flex items-center justify-center py-10">
-          <div style={{ color: '#AA7A50' }}>載入中...</div>
-        </div>
-      ) : recipe ? (
-        <RecipeDetailContent recipe={recipe} />
+      {recipe ? (
+        <RecipeDetailContent recipe={recipe} isLoading={loading} />
       ) : (
         <div className="flex items-center justify-center py-10">
           <div style={{ color: '#AA7A50' }}>找不到食譜</div>

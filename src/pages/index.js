@@ -149,16 +149,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const filteredRecipes = filterRecipes(allRecipes);
   const recipesList = filteredRecipes;
 
-  // Recipe click handler
-
-
-
+  // Recipe click handler - progressive loading
   const handleRecipeClick = (recipe) => {
+    // Immediately show modal with card data (instant)
+    setSelectedRecipe(recipe);
     setModalLoading(true);
+    
+    // Fetch full detail in background
     fetch(`/api/recipes/${recipe.id}`)
       .then(res => res.json())
       .then(data => {
-        setSelectedRecipe(data);
+        // Merge full detail into existing recipe
+        setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
         setModalLoading(false);
       })
       .catch(err => {
