@@ -90,14 +90,16 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
   const recipeDifficulty = recipe?.difficulty || ''
   const recipeMethod = recipe?.method || ''
   const recipeCalories = recipe?.calories_per_serving || null
-  const recipeProtein = recipe?.primary_protein || ''
+  // protein_g is the numeric protein amount, primary_protein is the protein type (fish, beef, etc.)
+  const recipeProteinGrams = recipe?.protein_g ?? null
+  const recipePrimaryProtein = recipe?.primary_protein || ''
   const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : []
   const recipeDishType = recipe?.dish_type || ''
   
-  // Build tags: protein + dish_type
+  // Build tags: primary_protein (as category label) + dish_type
   const tags: string[] = []
-  if (recipeProtein && proteinLabels[recipeProtein]) {
-    tags.push(proteinLabels[recipeProtein])
+  if (recipePrimaryProtein && proteinLabels[recipePrimaryProtein]) {
+    tags.push(proteinLabels[recipePrimaryProtein])
   }
   if (recipeDishType && dishTypeLabels[recipeDishType]) {
     tags.push(dishTypeLabels[recipeDishType])
@@ -178,13 +180,13 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
               <span>{recipeCalories}卡</span>
             </span>
           )}
-          {recipeProtein && (
+          {recipeProteinGrams && (
             <span className="flex items-center gap-1">
               <span>💪</span>
-              <span>{recipeProtein}g蛋白</span>
+              <span>{recipeProteinGrams}g蛋白</span>
             </span>
           )}
-          {recipeDiet.length > 0 && !recipeProtein && (
+          {recipeDiet.length > 0 && !recipeProteinGrams && (
             <span className="flex items-center gap-1">
               <span>🥗</span>
               <span>{dietLabels[recipeDiet[0]] || recipeDiet[0]}</span>
