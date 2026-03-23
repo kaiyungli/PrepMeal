@@ -111,14 +111,15 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
       {/* Image - Fixed aspect ratio with zoomed out presentation */}
       <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
         {/* Inner container with padding to show more of the dish */}
-        <div className="absolute inset-0 p-3">
+        <div className="absolute inset-0 p-3 flex items-center justify-center">
           {recipeImage ? (
             <Image 
               src={recipeImage} 
               alt={recipeName} 
-              fill 
-              className="object-cover rounded-xl" 
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw" 
+              width={500}
+              height={400}
+              className="object-contain rounded-xl" 
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           ) : (
             <div className="flex items-center justify-center h-full bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl">
