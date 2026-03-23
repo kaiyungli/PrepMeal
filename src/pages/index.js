@@ -98,6 +98,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
+  // In-memory cache for recipe details
+  const [recipeDetailCache, setRecipeDetailCache] = useState({});
+  
   // Favorites hook
   const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
   const { toast, showToast } = useToast();
@@ -149,16 +152,35 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const filteredRecipes = filterRecipes(allRecipes);
   const recipesList = filteredRecipes;
 
-  // Recipe click handler - progressive loading
+  // Recipe click handler - progressive loading with cache
   const handleRecipeClick = (recipe) => {
+    const startTime = performance.now();
+    console.log('[RecipeDetail] Click at:', startTime);
+    
     // Immediately show modal with card data (instant)
     setSelectedRecipe(recipe);
     setModalLoading(true);
     
+    // Check cache first
+    const cached = recipeDetailCache[recipe.id];
+    if (cached) {
+      console.log('[RecipeDetail] Cache hit for:', recipe.id, 'Time:', performance.now() - startTime);
+      setSelectedRecipe(prev => prev ? { ...prev, ...cached } : cached);
+      setModalLoading(false);
+      return;
+    }
+    
     // Fetch full detail in background
+    const fetchStart = performance.now();
     fetch(`/api/recipes/${recipe.id}`)
       .then(res => res.json())
       .then(data => {
+        const fetchTime = performance.now() - fetchStart;
+        console.log('[RecipeDetail] Fetch completed in:', fetchTime.toFixed(2), 'ms');
+        
+        // Cache the result
+        setRecipeDetailCache(prev => ({ ...prev, [recipe.id]: data }));
+        
         // Merge full detail into existing recipe
         setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
         setModalLoading(false);
@@ -167,6 +189,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         console.error('Error:', err);
         setModalLoading(false);
       });
+  };
+
+  // Prefetch recipe detail on hover
+  const handleRecipeHover = (recipe) => {
+    if (recipeDetailCache[recipe.id]) return;
+    
+    fetch(`/api/recipes/${recipe.id}`, { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        setRecipeDetailCache(prev => ({ ...prev, [recipe.id]: data }));
+      })
+      .catch(() => {});
   };
 
 
@@ -244,7 +278,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           {!showSkeleton && recipesList.length > 0 && (
             <div className="grid grid-cols-12 gap-6">
               {recipesList.map(recipe => (
-                <div key={recipe.id} className="col-span-12 sm:col-span-6 md:col-span-4">
+                <div 
+                  key={recipe.id} 
+                  className="col-span-12 sm:col-span-6 md:col-span-4"
+                  onMouseEnter={() => handleRecipeHover(recipe)}
+                >
                   <RecipeCard
                     recipe={recipe}
                     onClick={() => handleRecipeClick(recipe)}

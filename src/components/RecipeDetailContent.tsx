@@ -49,7 +49,7 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
       {/* Hero Image */}
       <div className="relative h-[400px] overflow-hidden">
         {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
+          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" sizes="(max-width: 900px) 100vw, 900px" />
         ) : (
           <div className="h-full flex items-center justify-center" style={{ backgroundColor: '#C8D49A' }}>
             <span className="text-8xl">🍳</span>
