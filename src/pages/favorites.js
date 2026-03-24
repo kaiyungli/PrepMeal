@@ -12,7 +12,7 @@ import { Toast, useToast } from '@/components/ui/Toast';
 
 export default function FavoritesPage() {
   const router = useRouter();
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const [recipes, setRecipes] = useState([]);
   const [toast, setToast] = useState(null);
@@ -37,7 +37,10 @@ export default function FavoritesPage() {
     const fetchFavoriteRecipes = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/user/favorites/recipes');
+        const token = await getAccessToken();
+        const res = await fetch('/api/user/favorites/recipes', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         const data = await res.json();
         // API returns { success: true, data: { recipes: [...] } }
         const recipesData = data?.data?.recipes || data?.recipes || [];
@@ -52,7 +55,7 @@ export default function FavoritesPage() {
     };
 
     fetchFavoriteRecipes();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, favorites.length, getAccessToken]);
 
   if (authLoading || !isAuthenticated) {
     return (

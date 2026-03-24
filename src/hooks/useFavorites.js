@@ -67,7 +67,7 @@ export function useFavorites() {
     const favoritesData = data?.data?.favorites || data?.favorites || [];
     const ids = favoritesData.map(id => normalizeId(id));
     setFavorites(ids);
-    console.log('[useFavorites] refreshFavorites result:', ids.length, 'favorites');
+    
   }, [getAccessToken]);
 
   const toggleFavorite = useCallback(async (recipeId) => {
@@ -82,7 +82,7 @@ export function useFavorites() {
       const token = await getAccessToken();
       
       if (!token) {
-        console.log('[useFavorites] No token - returning false');
+        
         return false;
       }
       
@@ -107,12 +107,13 @@ export function useFavorites() {
         });
       }
       
-      console.log('[useFavorites] API response:', res.status, res.ok);
+      
       
       if (res.ok) {
-        // Refetch from server to ensure state consistency
-        await refreshFavorites();
-        console.log('[useFavorites] favorites state after toggle:', favorites.length);
+        // Optimistic update immediately
+        setFavorites(prev => isFav ? prev.filter(id => id !== normalizedId) : [...prev, normalizedId]);
+        // Background refresh without awaiting
+        refreshFavorites().catch(() => {});
         return true;
       }
       return false;
