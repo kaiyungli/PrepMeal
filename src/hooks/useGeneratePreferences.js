@@ -8,7 +8,8 @@
  * TODO: Refactor generate.js to use unified filter state from useRecipeFilters
  * and pass to server via the same recipeMatchesFilters-compatible params.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { buildGenerateFiltersFromLegacy } from '@/utils/generateFilterAdapter';
 
 export function useGeneratePreferences() {
   // Planning settings
@@ -62,6 +63,16 @@ export function useGeneratePreferences() {
     setCookingConstraints([]);
   }, []);
 
+  // Derived unified filters - built from legacy state
+  const filters = useMemo(() => 
+    buildGenerateFiltersFromLegacy({
+      cuisines,
+      cookingConstraints,
+      dietMode
+    }), 
+    [cuisines, cookingConstraints, dietMode]
+  );
+
   return {
     // Planning
     daysPerWeek, setDaysPerWeek,
@@ -80,5 +91,7 @@ export function useGeneratePreferences() {
     toggleCuisine,
     toggleConstraint,
     clearFilters,
+    // Derived unified filters
+    filters,
   };
 }
