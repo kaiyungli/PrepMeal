@@ -45,9 +45,10 @@ export function useFavorites() {
         const data = await res.json();
         console.log('[useFavorites] GET response:', data);
         
-        if (data.favorites) {
-          // Normalize to strings for consistent comparison
-          setFavorites(data.favorites.map(id => normalizeId(id)));
+        // API returns { success: true, data: { favorites: [...] } }
+        const favoritesData = data?.data?.favorites || data?.favorites || [];
+        if (favoritesData) {
+          setFavorites(favoritesData.map(id => normalizeId(id)));
         }
       } catch (err) {
         console.error('[useFavorites] Failed to load favorites:', err);
