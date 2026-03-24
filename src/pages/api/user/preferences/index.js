@@ -1,8 +1,18 @@
 // User Preferences API - GET, PUT
-// Unified contract using _auth helper
+// Unified contract using _auth helper with lazy create
 
 import supabase from '@/lib/supabase';
 import { requireAuth, ApiResponse } from '../_auth';
+
+// Default preferences for new users
+const DEFAULT_PREFERENCES = {
+  default_servings: 1,
+  preferred_cuisines: [],
+  preferred_proteins: [],
+  excluded_ingredients: [],
+  max_cook_time: null,
+  difficulty_level: null
+};
 
 export default async function handler(req, res) {
   // Require auth for all methods
@@ -14,28 +24,44 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     console.log('[Preferences] GET - querying user_preferences');
     
-    const { data, error } = await supabase
+    // First try to get existing preferences
+    const { data: existing, error: getError } = await supabase
       .from('user_preferences')
       .select('*')
       .eq('user_id', userId)
       .single();
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('[Preferences] GET error:', error);
-      return res.status(500).json(ApiResponse.error(error.message));
+    if (getError && getError.code !== 'PGRST116') {
+      console.error('[Preferences] GET error:', getError);
+      return res.status(500).json(ApiResponse.error(getError.message));
     }
     
-    // Return defaults if no preferences exist
-    const preferences = data || {
-      user_id: userId,
-      default_servings: 2,
-      default_days: 7,
-      notifications_enabled: true,
-      theme: 'light'
-    };
+    // If no row exists, lazy create with defaults
+    if (!existing) {
+      console.log('[Preferences] No row found - lazy creating with defaults');
+      
+      const createPayload = {
+        user_id: userId,
+        ...DEFAULT_PREFERENCES
+      };
+      
+      const { data: created, error: createError } = await supabase
+        .from('user_preferences')
+        .insert(createPayload)
+        .select()
+        .single();
+      
+      if (createError) {
+        console.error('[Preferences] Lazy create error:', createError);
+        return res.status(500).json(ApiResponse.error(createError.message));
+      }
+      
+      console.log('[Preferences] Lazy created preferences');
+      return res.status(200).json(ApiResponse.success({ preferences: created }));
+    }
     
-    console.log('[Preferences] GET data:', preferences ? 'found' : 'defaults');
-    return res.status(200).json(ApiResponse.success({ preferences }));
+    console.log('[Preferences] GET found existing row');
+    return res.status(200).json(ApiResponse.success({ preferences: existing }));
   }
 
   if (req.method === 'PUT' || req.method === 'POST') {
@@ -47,16 +73,21 @@ export default async function handler(req, res) {
 
     console.log('[Preferences] PUT - updating preferences');
     
-    // Build update payload (only allow specific fields)
+    // Allowed fields for update
     const allowedFields = [
       'default_servings',
-      'default_days', 
+      'preferred_cuisines',
+      'preferred_proteins',
+      'excluded_ingredients',
+      'max_cook_time',
+      'difficulty_level',
       'notifications_enabled',
       'theme',
       'diet_preference',
       'allergies'
     ];
     
+    // Build update payload
     const updatePayload = { user_id: userId };
     
     for (const field of allowedFields) {
@@ -65,6 +96,7 @@ export default async function handler(req, res) {
       }
     }
 
+    // Upsert - creates if not exists, updates if exists
     const { data, error } = await supabase
       .from('user_preferences')
       .upsert(updatePayload, { onConflict: 'user_id' })
