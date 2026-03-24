@@ -79,13 +79,23 @@ export function useFavorites() {
     }
 
     const normalizedId = normalizeId(recipeId);
-    const isFav = favorites.includes(normalizedId);
+    const isFav = favoriteSet.has(normalizedId);
+    
+    // Store previous favorites for rollback
+    const prevFavorites = favorites;
+
+    // Optimistic update BEFORE fetch
+    setFavorites(prev => isFav 
+      ? prev.filter(id => id !== normalizedId) 
+      : [...prev, normalizedId]
+    );
 
     try {
       const token = await getAccessToken();
       
       if (!token) {
-        
+        // Rollback on no token
+        setFavorites(prevFavorites);
         return false;
       }
       
@@ -110,20 +120,21 @@ export function useFavorites() {
         });
       }
       
-      
-      
       if (res.ok) {
-        // Optimistic update immediately
-        setFavorites(prev => isFav ? prev.filter(id => id !== normalizedId) : [...prev, normalizedId]);
         // Background refresh without awaiting
         refreshFavorites().catch(() => {});
         return true;
       }
+      
+      // Rollback on API failure
+      setFavorites(prevFavorites);
       return false;
     } catch (err) {
+      // Rollback on error
+      setFavorites(prevFavorites);
       return false;
     }
-  }, [isAuthenticated, favorites, getAccessToken, refreshFavorites]);
+  }, [isAuthenticated, favorites, getAccessToken, refreshFavorites, favoriteSet]);
 
   const isFavorite = useCallback((recipeId) => {
     const normalizedId = normalizeId(recipeId);
