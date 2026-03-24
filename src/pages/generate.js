@@ -104,10 +104,9 @@ export default function GeneratePage() {
     // Keep exclusions separate - not mapped to protein (semantic difference: avoid vs include)
     if (exclusions.length > 0) params.set('exclusions', exclusions.join(','));
     
-    // Legacy: cookingConstraints still used for method filtering (API support)
-    if (cookingConstraints.length > 0) {
-      const method = cookingConstraints.find(c => ['stir_fry', 'steamed', 'fried', 'boiled', 'braised', 'baked'].includes(c));
-      if (method) params.set('method', method);
+    // Use unified filters.method for method filtering
+    if (filters.method.length > 0) {
+      params.set('method', filters.method.join(','));
     }
     
     fetch('/api/recipes?' + params.toString())
