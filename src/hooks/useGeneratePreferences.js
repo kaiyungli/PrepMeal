@@ -73,6 +73,45 @@ export function useGeneratePreferences() {
     [cuisines, cookingConstraints, dietMode]
   );
 
+  // Set unified filters - maps back to legacy state for backward compatibility
+  // This allows parent components to control filters while keeping legacy state in sync
+  const setFilters = useCallback((nextFilters) => {
+    // Map filters.cuisine -> cuisines
+    if (nextFilters.cuisine) {
+      setCuisines(nextFilters.cuisine);
+    }
+    
+    // Map filters.diet -> dietMode (pick first, or 'general' if empty)
+    if (nextFilters.diet && nextFilters.diet.length > 0) {
+      setDietMode(nextFilters.diet[0]); // dietMode is single-value in legacy
+    } else if (!nextFilters.diet || nextFilters.diet.length === 0) {
+      setDietMode('general');
+    }
+    
+    // Map filters.method / filters.speed / filters.difficulty -> cookingConstraints
+    const newConstraints = [];
+    
+    // Add difficulty values
+    if (nextFilters.difficulty) {
+      newConstraints.push(...nextFilters.difficulty);
+    }
+    // Add method values
+    if (nextFilters.method) {
+      newConstraints.push(...nextFilters.method);
+    }
+    // Add speed values (convert to legacy format)
+    if (nextFilters.speed) {
+      for (const speed of nextFilters.speed) {
+        if (speed === 'quick') newConstraints.push('under_15');
+        else if (speed === 'normal') newConstraints.push('under_60');
+      }
+    }
+    
+    setCookingConstraints(newConstraints);
+    
+    // NOTE: exclusions NOT mapped - they remain separate (avoid vs include semantic difference)
+  }, []);
+
   return {
     // Planning
     daysPerWeek, setDaysPerWeek,
@@ -93,5 +132,6 @@ export function useGeneratePreferences() {
     clearFilters,
     // Derived unified filters
     filters,
+    setFilters, // Allow external control while syncing with legacy state
   };
 }
