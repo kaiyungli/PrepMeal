@@ -1,5 +1,5 @@
 // Simple auth hook for Google OAuth
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import supabase from '@/lib/supabase';
 
 export function useAuth() {
@@ -36,18 +36,18 @@ export function useAuth() {
     return () => subscription?.unsubscribe();
   }, []);
 
-  // Get current access token for API calls
-  const getAccessToken = async () => {
+  // Get current access token for API calls - stable reference
+  const getAccessToken = useCallback(async () => {
     try {
       const { data: { session } } = await supabase?.auth.getSession();
       return session?.access_token || null;
     } catch {
       return null;
     }
-  };
+  }, []);
 
   const signInWithGoogle = async () => {
-    console.log('🔥 signInWithGoogle called');
+    
     
     // Use callback page for OAuth redirect
     const redirectParam = typeof window !== 'undefined' 
@@ -57,18 +57,18 @@ export function useAuth() {
       ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
       : `${window.location.origin}/auth/callback`;
     
-    console.log('🔥 redirectTo =', redirectTo);
+    
     
     if (!supabase) throw new Error("Supabase not initialized");
     
-    console.log('🔥 Calling supabase.auth.signInWithOAuth...');
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
     
-    console.log('🔥 OAuth result =', data);
-    console.error('🔥 OAuth error =', error);
+    
+    
     
     if (error) throw error;
     return data;

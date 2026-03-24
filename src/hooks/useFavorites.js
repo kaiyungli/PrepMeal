@@ -51,7 +51,7 @@ export function useFavorites() {
     };
 
     fetchFavorites();
-  }, [isAuthenticated, user, getAccessToken]);
+  }, [isAuthenticated, user?.id]);
 
   const toggleFavorite = useCallback(async (recipeId) => {
     if (!isAuthenticated) {
