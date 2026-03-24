@@ -215,9 +215,18 @@ export async function getServerSideProps({ params }) {
     }
     
     const data = await res.json();
-    const recipe = data.recipes?.[0];
+    
+    // Support both { recipes: [...] } and legacy { ...recipe } response shapes
+    let recipe = null;
+    if (data.recipes && Array.isArray(data.recipes)) {
+      recipe = data.recipes[0];
+    } else if (data.id) {
+      // Legacy single object format fallback
+      recipe = data;
+    }
     
     if (!recipe) {
+      console.error('Recipe not found - API response:', JSON.stringify(data).slice(0, 200));
       return { props: { recipe: null, error: 'Not found' } };
     }
     
