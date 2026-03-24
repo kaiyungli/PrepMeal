@@ -58,9 +58,9 @@ export default function FilterCardShell({
     <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
       {/* 1. Search Bar - Primary layer */}
       {onSearchChange && (
-        <div className="flex items-center px-4 py-4">
+        <div className="relative px-4 py-4">
           <svg 
-            className="w-5 h-5 text-[#B79B7A] flex-shrink-0 ml-2 mr-3" 
+            className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor" 
@@ -73,12 +73,12 @@ export default function FilterCardShell({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder}
-            className="flex-1 h-14 px-4 py-4 rounded-2xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C] transition-all"
+            className="w-full h-14 pl-12 pr-12 rounded-2xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C] transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
-              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-[#B79B7A] hover:bg-[#F5EDE3] transition-colors ml-2"
+              className="absolute right-7 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full text-[#B79B7A] hover:bg-[#F5EDE3] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
