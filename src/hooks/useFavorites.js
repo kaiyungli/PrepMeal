@@ -82,20 +82,13 @@ export function useFavorites() {
     const isFav = favoriteSet.has(normalizedId);
     
     // Store previous favorites for rollback
-    const prevFavorites = favorites;
-
-    // Optimistic update BEFORE fetch
-    setFavorites(prev => isFav 
-      ? prev.filter(id => id !== normalizedId) 
-      : [...prev, normalizedId]
-    );
+    // Only do network call, let background refresh update global state
+  // FavoriteButton handles immediate UI via local optimisticOverride
 
     try {
       const token = await getAccessToken();
       
       if (!token) {
-        // Rollback on no token
-        setFavorites(prevFavorites);
         return false;
       }
       
@@ -126,12 +119,10 @@ export function useFavorites() {
         return true;
       }
       
-      // Rollback on API failure
-      setFavorites(prevFavorites);
+      // API failed - return false for FavoriteButton to handle rollback
       return false;
     } catch (err) {
-      // Rollback on error
-      setFavorites(prevFavorites);
+      // Error - return false for FavoriteButton to handle rollback
       return false;
     }
   }, [isAuthenticated, favorites, getAccessToken, refreshFavorites, favoriteSet]);
