@@ -90,14 +90,24 @@ export default function GeneratePage() {
     const params = new URLSearchParams();
     params.set('limit', '100');
     
-    if (cuisines.length > 0) params.set('cuisine', cuisines.join(','));
-    if (cookingConstraints.length > 0) {
-      const difficulty = cookingConstraints.find(c => ['easy', 'medium', 'hard'].includes(c));
-      if (difficulty) params.set('difficulty', difficulty);
-      const time = cookingConstraints.find(c => c.startsWith('under_'));
-      if (time) params.set('maxTime', time.split('_')[1]);
+    // Use unified filters for API params where supported
+    if (filters.cuisine.length > 0) params.set('cuisine', filters.cuisine.join(','));
+    if (filters.difficulty.length > 0) params.set('difficulty', filters.difficulty[0]); // API takes single value
+    if (filters.speed.length > 0) {
+      // Map speed to maxTime: quick -> 15, normal -> 60
+      const maxTime = filters.speed.includes('quick') ? '15' : '60';
+      params.set('maxTime', maxTime);
     }
+    if (filters.diet.length > 0) params.set('diet', filters.diet.join(','));
+    
+    // Keep exclusions separate - not mapped to protein (semantic difference: avoid vs include)
     if (exclusions.length > 0) params.set('exclusions', exclusions.join(','));
+    
+    // Legacy: cookingConstraints still used for method filtering (API support)
+    if (cookingConstraints.length > 0) {
+      const method = cookingConstraints.find(c => ['stir_fry', 'steamed', 'fried', 'boiled', 'braised', 'baked'].includes(c));
+      if (method) params.set('method', method);
+    }
     
     fetch('/api/recipes?' + params.toString())
       .then(res => res.json())
