@@ -6,102 +6,58 @@
 // NO budget filter
 
 // ============================================
-// 1. CUISINE
+// IMPORTS FROM CENTRALIZED CONSTANTS
 // ============================================
-export const CUISINE_OPTIONS = [
-  { value: 'chinese', label: '中式' },
-  { value: 'western', label: '西式' },
-  { value: 'japanese', label: '日式' },
-  { value: 'korean', label: '韓式' },
-  { value: 'thai', label: '泰式' },
-  { value: 'fusion', label: 'Fusion' },
-];
+import { 
+  CUISINE_OPTIONS, 
+  DISH_TYPE_OPTIONS, 
+  PROTEIN_OPTIONS, 
+  METHOD_OPTIONS, 
+  SPEED_OPTIONS, 
+  DIFFICULTY_OPTIONS, 
+  DIET_OPTIONS, 
+  FLAVOR_OPTIONS,
+  CUISINE_MAP,
+  DISH_TYPE_MAP,
+  PROTEIN_MAP,
+  METHOD_MAP,
+  SPEED_MAP,
+  DIFFICULTY_MAP,
+  DIET_MAP,
+  FLAVOR_MAP,
+  getLabel as getLabelTaxonomy,
+} from './taxonomy';
+
+import { RECIPE_FILTER_GROUPS } from './filterGroups';
 
 // ============================================
-// 2. DISH_TYPE
+// RE-EXPORT OPTIONS FOR BACKWARD COMPATIBILITY
 // ============================================
-export const DISH_TYPE_OPTIONS = [
-  { value: 'main', label: '主菜' },
-  { value: 'side', label: '配菜' },
-  { value: 'staple', label: '主食' },
-  { value: 'soup', label: '湯' },
-];
-
-// ============================================
-// 3. PROTEIN
-// ============================================
-export const PROTEIN_OPTIONS = [
-  { value: 'chicken', label: '雞' },
-  { value: 'pork', label: '豬' },
-  { value: 'beef', label: '牛' },
-  { value: 'egg', label: '蛋' },
-  { value: 'tofu', label: '豆腐' },
-  { value: 'shrimp', label: '蝦' },
-  { value: 'fish', label: '魚' },
-  { value: 'mixed', label: '混合蛋白' },
-];
-
-// ============================================
-// 4. METHOD
-// ============================================
-export const METHOD_OPTIONS = [
-  { value: 'stir_fry', label: '炒' },
-  { value: 'steamed', label: '蒸' },
-  { value: 'fried', label: '煎' },
-  { value: 'boiled', label: '煮' },
-  { value: 'braised', label: '燜' },
-  { value: 'baked', label: '焗' },
-];
-
-// ============================================
-// 5. SPEED
-// ============================================
-export const SPEED_OPTIONS = [
-  { value: 'quick', label: '快手' },
-  { value: 'normal', label: '一般' },
-];
-
-// ============================================
-// 6. DIFFICULTY
-// ============================================
-export const DIFFICULTY_OPTIONS = [
-  { value: 'easy', label: '容易' },
-  { value: 'medium', label: '中等' },
-  { value: 'hard', label: '進階' },
-];
-
-// ============================================
-// 7. DIET
-// ============================================
-export const DIET_OPTIONS = [
-  { value: 'vegetarian', label: '素食' },
-  { value: 'high_protein', label: '高蛋白' },
-  { value: 'low_calorie', label: '低卡' },
-];
-
-// ============================================
-// 8. FLAVOR
-// ============================================
-export const FLAVOR_OPTIONS = [
-  { value: 'salty', label: '鹹' },
-  { value: 'sweet', label: '甜' },
-  { value: 'sour', label: '酸' },
-  { value: 'spicy', label: '辣' },
-];
+export { 
+  CUISINE_OPTIONS, 
+  DISH_TYPE_OPTIONS, 
+  PROTEIN_OPTIONS, 
+  METHOD_OPTIONS, 
+  SPEED_OPTIONS, 
+  DIFFICULTY_OPTIONS, 
+  DIET_OPTIONS, 
+  FLAVOR_OPTIONS,
+  CUISINE_MAP,
+  DISH_TYPE_MAP,
+  PROTEIN_MAP,
+  METHOD_MAP,
+  SPEED_MAP,
+  DIFFICULTY_MAP,
+  DIET_MAP,
+  FLAVOR_MAP,
+  getLabel as getLabelTaxonomy,
+} from './taxonomy';
 
 // ============================================
 // FILTER GROUPS - Unified for all pages
 // ============================================
-export const FILTER_GROUPS = [
-  { key: 'cuisine', label: '菜系', options: CUISINE_OPTIONS },
-  { key: 'dish_type', label: '類型', options: DISH_TYPE_OPTIONS },
-  { key: 'protein', label: '主要蛋白', options: PROTEIN_OPTIONS },
-  { key: 'method', label: '烹調方式', options: METHOD_OPTIONS },
-  { key: 'speed', label: '所需時間', options: SPEED_OPTIONS },
-  { key: 'difficulty', label: '難度', options: DIFFICULTY_OPTIONS },
-  { key: 'diet', label: '飲食需求', options: DIET_OPTIONS },
-  { key: 'flavor', label: '口味', options: FLAVOR_OPTIONS },
-];
+// Now points to centralized RECIPE_FILTER_GROUPS
+export const FILTER_GROUPS = RECIPE_FILTER_GROUPS;
 
 // ============================================
 // DATA COMPATIBILITY HELPERS
@@ -223,38 +179,21 @@ export const CUISINES = CUISINE_OPTIONS;
 export const DISH_TYPE = DISH_TYPE_OPTIONS;
 export const PROTEIN_TYPES = PROTEIN_OPTIONS;
 export const COOKING_METHODS = METHOD_OPTIONS;
-export const TIME_OPTIONS = SPEED_OPTIONS; // Legacy alias
+export const TIME_OPTIONS = SPEED_OPTIONS;
 export const TIME_VALUES = SPEED_OPTIONS;
 export const DIET_MODES = DIET_OPTIONS;
 export const DIET_VALUES = DIET_OPTIONS;
 export const FLAVOR = FLAVOR_OPTIONS;
 
-// Legacy - but marked as not for UI
+// Legacy generation constraints
 export const GENERATE_TIME_CONSTRAINTS = SPEED_OPTIONS;
 export const GENERATE_DIFFICULTY_CONSTRAINTS = DIFFICULTY_OPTIONS;
-export const GENERATE_EQUIPMENT_CONSTRAINTS = []; // No longer used in UI
-export const COOKING_CONSTRAINTS = []; // Legacy - DO NOT USE
-export const EXCLUSIONS = []; // Legacy - DO NOT USE
-export const BUDGET_OPTIONS = []; // Legacy - NOT USED
+export const GENERATE_EQUIPMENT_CONSTRAINTS = [];
+export const COOKING_CONSTRAINTS = [];
+export const EXCLUSIONS = [];
+export const BUDGET_OPTIONS = [];
+
+// ============================================
+// UNUSED LEGACY - KEPT FOR COMPATIBILITY
+// ============================================
 export const INGREDIENT_REUSE = [{ value: 'allow', label: '允許' }, { value: 'avoid', label: '避免' }];
-
-
-// ============================================
-// UNIFIED FILTER BUILDER
-// ============================================
-
-import type { FilterSectionConfig } from '@/components/filters/FilterCardShell';
-
-/**
- * Build filter sections for any page
- * All pages use the same 8 groups
- */
-export function buildFilterSections(): FilterSectionConfig[] {
-  return FILTER_GROUPS.map(group => ({
-    id: group.key,
-    title: group.label,
-    options: group.options,
-    selected: [],
-    onToggle: () => {}, // Placeholder - will be overridden by caller
-  }));
-}
