@@ -23,11 +23,11 @@ export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: 
     <span className="text-xs text-[#AA7A50] bg-[#FFF9E6] px-2 py-0.5 rounded">預覽模式</span>
   )
   
-  // Floating CTA button in footer
-  const modalFooter = (
+  // Floating CTA button - positioned absolutely in modal
+  const floatingButton = (
     <button 
       onClick={handleViewFullRecipe}
-      className="w-full bg-[#9B6035] hover:bg-[#8a5530] text-white px-4 py-3 rounded-full font-medium cursor-pointer transition-colors shadow-lg flex items-center justify-center gap-2"
+      className="bg-[#9B6035] hover:bg-[#8a5530] text-white px-4 py-2.5 rounded-full font-medium cursor-pointer transition-colors shadow-lg flex items-center gap-2"
       style={{
         boxShadow: '0 4px 20px rgba(155, 96, 53, 0.4)'
       }}
@@ -46,7 +46,7 @@ export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: 
       onClose={onClose} 
       maxWidth="900px"
       header={modalHeader}
-      footer={modalFooter}
+      floating={floatingButton}
     >
       <RecipeDetailContent recipe={recipe} isLoading={loading} />
     </Modal>

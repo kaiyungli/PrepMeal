@@ -7,7 +7,7 @@ interface ModalProps {
   onClose: () => void;
   maxWidth?: string;
   header?: React.ReactNode;
-  footer?: React.ReactNode;
+  floating?: React.ReactNode;
 }
 
 const colors = {
@@ -21,7 +21,7 @@ export default function Modal({
   onClose,
   maxWidth = '500px',
   header,
-  footer
+  floating
 }: ModalProps) {
   // ESC key to close
   useEffect(() => {
@@ -75,7 +75,8 @@ export default function Modal({
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          position: 'relative'
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
         {/* Close button - fixed at top right */}
@@ -106,6 +107,7 @@ export default function Modal({
         {title && (
           <div style={{
             padding: '20px 24px 0 24px',
+            flexShrink: 0
           }}>
             <h2 style={{
               fontSize: '20px',
@@ -120,7 +122,10 @@ export default function Modal({
         
         {/* Custom header */}
         {header && (
-          <div style={{ padding: '16px 24px 0 24px' }}>
+          <div style={{ 
+            padding: '16px 24px 0 24px',
+            flexShrink: 0
+          }}>
             {header}
           </div>
         )}
@@ -129,18 +134,20 @@ export default function Modal({
         <div style={{
           flex: 1,
           overflow: 'auto',
-          padding: '16px 24px 24px 24px'
+          padding: '16px 24px'
         }}>
           {children}
         </div>
         
-        {/* Footer - fixed at bottom (for floating buttons) */}
-        {footer && (
+        {/* Floating element - absolute positioned at bottom right */}
+        {floating && (
           <div style={{
-            padding: '0 24px 16px 24px',
-            flexShrink: 0
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 10
           }}>
-            {footer}
+            {floating}
           </div>
         )}
       </div>
