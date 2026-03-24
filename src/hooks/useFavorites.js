@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 
 export function useFavorites() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -18,12 +18,19 @@ export function useFavorites() {
       setLoading(true);
       try {
         const res = await fetch('/api/user/favorites');
+        console.log('[useFavorites] GET status:', res.status);
+        
+        if (!res.ok) {
+          console.error('[useFavorites] GET failed:', res.status);
+          return;
+        }
+        
         const data = await res.json();
         if (data.favorites) {
           setFavorites(data.favorites);
         }
       } catch (err) {
-        console.error('Failed to load favorites:', err);
+        console.error('[useFavorites] Failed to load favorites:', err);
       } finally {
         setLoading(false);
       }
@@ -34,30 +41,46 @@ export function useFavorites() {
 
   const toggleFavorite = useCallback(async (recipeId) => {
     if (!isAuthenticated) {
+      console.log('[useFavorites] Not authenticated, skipping');
       return false;
     }
 
     const isFavorite = favorites.includes(recipeId);
+    console.log('[useFavorites] Toggling:', recipeId, 'isFavorite:', isFavorite);
 
     try {
+      let res;
+      
       if (isFavorite) {
         // Remove favorite
-        await fetch(`/api/user/favorites?recipe_id=${recipeId}`, {
+        res = await fetch(`/api/user/favorites?recipe_id=${recipeId}`, {
           method: 'DELETE',
         });
-        setFavorites(prev => prev.filter(id => id !== recipeId));
       } else {
         // Add favorite
-        await fetch('/api/user/favorites', {
+        res = await fetch('/api/user/favorites', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ recipe_id: recipeId }),
         });
-        setFavorites(prev => [...prev, recipeId]);
       }
-      return true;
+      
+      console.log('[useFavorites] Response status:', res.status);
+      
+      // Only update state if request was successful
+      if (res.ok) {
+        if (isFavorite) {
+          setFavorites(prev => prev.filter(id => id !== recipeId));
+        } else {
+          setFavorites(prev => [...prev, recipeId]);
+        }
+        return true;
+      } else {
+        console.error('[useFavorites] Failed:', await res.text());
+        return false;
+      }
     } catch (err) {
-      console.error('Failed to toggle favorite:', err);
+      console.error('[useFavorites] Error:', err);
       return false;
     }
   }, [isAuthenticated, favorites]);

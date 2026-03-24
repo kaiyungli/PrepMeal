@@ -1,11 +1,23 @@
 // Favorites API - GET, POST, DELETE
-import supabase from '@/lib/supabase';
+import { supabaseServer } from '@/lib/supabaseServer';
 
 export default async function handler(req, res) {
-  // Get user from session
-  const { data: { user }, error: authError } = await supabase?.auth.getUser();
+  // Use server-side supabase client for proper session handling
+  const supabase = supabaseServer;
+  
+  if (!supabase) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+
+  // Get user from session using server client
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  console.log('[Favorites API] Method:', req.method);
+  console.log('[Favorites API] Auth error:', authError);
+  console.log('[Favorites API] User:', user?.id);
   
   if (authError || !user) {
+    console.log('[Favorites API] Unauthorized - returning 401');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -17,6 +29,8 @@ export default async function handler(req, res) {
       .from('user_favorites')
       .select('recipe_id')
       .eq('user_id', userId);
+    
+    console.log('[Favorites API] GET error:', error);
     
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -34,9 +48,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'recipe_id required' });
     }
     
+    console.log('[Favorites API] POST - adding:', recipe_id);
+    
     const { error } = await supabase
       .from('user_favorites')
       .insert({ user_id: userId, recipe_id });
+    
+    console.log('[Favorites API] POST error:', error);
     
     if (error) {
       // Ignore duplicate errors
@@ -57,11 +75,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'recipe_id required' });
     }
     
+    console.log('[Favorites API] DELETE - removing:', recipe_id);
+    
     const { error } = await supabase
       .from('user_favorites')
       .delete()
       .eq('user_id', userId)
       .eq('recipe_id', recipe_id);
+    
+    console.log('[Favorites API] DELETE error:', error);
     
     if (error) {
       return res.status(500).json({ error: error.message });
