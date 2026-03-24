@@ -16,9 +16,7 @@ export default async function handler(req, res) {
     const formattedIngredients = ingredients.map(formatIngredientForUI)
     
     res.status(200).json({
-      ...recipe,
-      ingredients: formattedIngredients,
-      steps
+      recipes: [{ ...recipe, ingredients: formattedIngredients, steps }]
     })
     
   } catch (error) {
