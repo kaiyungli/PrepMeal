@@ -44,6 +44,7 @@ export default function GeneratePage() {
     toggleCuisine,
     toggleConstraint,
     filters, // NEW: derived unified filters
+    setFilters, // NEW: setter for unified filters
   } = useGeneratePreferences();
   
   // Recipe State
@@ -348,12 +349,8 @@ const CONFIG = {
           daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
           dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay}
           servings={servings} setServings={setServings}
-          dietMode={dietMode} setDietMode={setDietMode}
-          exclusions={exclusions} toggleExclusion={toggleExclusion}
-          cuisines={cuisines} toggleCuisine={toggleCuisine}
-          cookingConstraints={cookingConstraints} toggleConstraint={toggleConstraint}
-          ingredientReuse={ingredientReuse} setIngredientReuse={setIngredientReuse}
-          pantryIngredients={pantryIngredients} setPantryIngredients={setPantryIngredients}
+          filters={filters}
+          setFilters={setFilters}
           onClearAll={clearAll}
         />
 
