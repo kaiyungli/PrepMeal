@@ -56,13 +56,22 @@ export default function GenerateSettings({
   const filters = externalFilters || internalFilters;
   const setFilters = externalSetFilters || setInternalFilters;
 
-  // Build filter sections from unified FILTER_GROUPS
+  // Build filter sections from unified FILTER_GROUPS with defensive dedupe
   const filterSections = FILTER_GROUPS.map(group => {
     const groupKey = group.key as string;
+    
+    // Defensive dedupe by value - ensure no duplicate options in UI
+    const seen = new Set<string>();
+    const dedupedOptions = (group.options || []).filter(opt => {
+      if (!opt || !opt.value || seen.has(opt.value)) return false;
+      seen.add(opt.value);
+      return true;
+    });
+    
     return {
       id: group.key,
       title: group.label,
-      options: group.options,
+      options: dedupedOptions,
       selected: filters[groupKey] || [],
       onToggle: (value: string) => {
         const current = filters[groupKey] || [];

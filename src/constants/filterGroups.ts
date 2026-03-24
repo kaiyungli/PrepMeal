@@ -129,13 +129,23 @@ export function buildFilterSections(
   selected: string[];
   onToggle: (value: string) => void;
 }> {
-  return groups.map(group => ({
-    id: group.key,
-    title: group.label,
-    options: group.options,
-    selected: selected[group.key] || [],
-    onToggle: (value: string) => onToggle(group.key, value),
-  }));
+  return groups.map(group => {
+    // Defensive dedupe by value - ensure no duplicate options in UI
+    const seen = new Set<string>();
+    const dedupedOptions = (group.options || []).filter(opt => {
+      if (!opt || !opt.value || seen.has(opt.value)) return false;
+      seen.add(opt.value);
+      return true;
+    });
+    
+    return {
+      id: group.key,
+      title: group.label,
+      options: dedupedOptions,
+      selected: selected[group.key] || [],
+      onToggle: (value: string) => onToggle(group.key, value),
+    };
+  });
 }
 
 // ============================================

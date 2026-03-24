@@ -7,6 +7,7 @@
 // ============================================
 // CUISINE MAP
 // ============================================
+// Only primary values - no legacy duplicates
 export const CUISINE_MAP: Record<string, string> = {
   chinese: '中式',
   western: '西式',
@@ -14,40 +15,32 @@ export const CUISINE_MAP: Record<string, string> = {
   korean: '韓式',
   thai: '泰式',
   fusion: 'Fusion',
-  // Legacy/alt values
-  中式: '中式',
-  西式: '西式',
-  日式: '日式',
-  韓式: '韓式',
-  泰式: '泰式',
 };
 
-export const CUISINE_OPTIONS = Object.entries(CUISINE_MAP)
-  .filter(([key]) => !key.includes('中式') && !key.includes('西式') && !key.includes('日式') && !key.includes('韓式') && !key.includes('泰式'))
-  .map(([value, label]) => ({ value, label }));
+// Use primary keys only - no duplicates
+export const CUISINE_OPTIONS = Object.keys(CUISINE_MAP)
+  .filter(key => !key.includes('中') && !key.includes('西') && !key.includes('日') && !key.includes('韓') && !key.includes('泰'))
+  .map(value => ({ value, label: CUISINE_MAP[value] }));
 
 // ============================================
 // DISH TYPE MAP
 // ============================================
+// Only primary values - no legacy duplicates
 export const DISH_TYPE_MAP: Record<string, string> = {
   main: '主菜',
   side: '配菜',
   staple: '主食',
   soup: '湯',
-  // Legacy/alt values
-  主菜: '主菜',
-  配菜: '配菜',
-  主食: '主食',
-  湯: '湯',
 };
 
-export const DISH_TYPE_OPTIONS = Object.entries(DISH_TYPE_MAP)
-  .filter(([key]) => !key.includes('主') && !key.includes('配') && !key.includes('湯'))
-  .map(([value, label]) => ({ value, label }));
+// Use primary keys only - no duplicates
+export const DISH_TYPE_OPTIONS = Object.keys(DISH_TYPE_MAP)
+  .map(value => ({ value, label: DISH_TYPE_MAP[value] }));
 
 // ============================================
 // PROTEIN MAP
 // ============================================
+// Only primary values - no legacy duplicates
 export const PROTEIN_MAP: Record<string, string> = {
   chicken: '雞',
   pork: '豬',
@@ -57,19 +50,12 @@ export const PROTEIN_MAP: Record<string, string> = {
   shrimp: '蝦',
   fish: '魚',
   mixed: '混合蛋白',
-  // Legacy/alt values
-  雞: '雞',
-  豬: '豬',
-  牛: '牛',
-  蛋: '蛋',
-  豆腐: '豆腐',
-  蝦: '蝦',
-  魚: '魚',
 };
 
-export const PROTEIN_OPTIONS = Object.entries(PROTEIN_MAP)
-  .filter(([key]) => key.length <= 6 && !key.includes('混合'))
-  .map(([value, label]) => ({ value, label }));
+// Use primary keys only - no duplicates
+export const PROTEIN_OPTIONS = Object.keys(PROTEIN_MAP)
+  .filter(key => key.length <= 10)
+  .map(value => ({ value, label: PROTEIN_MAP[value] }));
 
 // ============================================
 // METHOD MAP
