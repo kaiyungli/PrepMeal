@@ -18,19 +18,31 @@ export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: 
     }
   }
   
+  // Custom header with close and CTA
+  const modalHeader = (
+    <div className="flex items-center justify-end w-full">
+      <button 
+        onClick={handleViewFullRecipe}
+        className="text-[#9B6035] hover:text-[#8a5530] font-medium cursor-pointer transition-colors text-sm flex items-center gap-1 bg-transparent border-none"
+      >
+        完整食譜 ↗
+      </button>
+    </div>
+  )
+  
   return (
-    <Modal isOpen={isOpen} title="" onClose={onClose} maxWidth="900px">
+    <Modal 
+      isOpen={isOpen} 
+      title="" 
+      onClose={onClose} 
+      maxWidth="900px"
+      header={modalHeader}
+    >
       {recipe ? (
         <>
-          {/* Preview Header with CTA */}
-          <div className="mb-4 pb-3 border-b border-[#DDD0B0] flex items-center justify-between">
-            <span className="text-sm text-[#AA7A50]">這是食譜預覽</span>
-            <button 
-              onClick={handleViewFullRecipe}
-              className="text-[#9B6035] hover:text-[#8a5530] font-medium cursor-pointer transition-colors text-sm flex items-center gap-1 bg-transparent border-none"
-            >
-              前往完整食譜頁 →
-            </button>
+          {/* Recipe Title with Preview Badge */}
+          <div className="mb-2">
+            <span className="text-xs text-[#AA7A50] bg-[#FFF9E6] px-2 py-0.5 rounded">預覽模式</span>
           </div>
           
           <RecipeDetailContent recipe={recipe} isLoading={loading} />

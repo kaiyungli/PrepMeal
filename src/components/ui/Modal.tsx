@@ -6,6 +6,7 @@ interface ModalProps {
   children: React.ReactNode;
   onClose: () => void;
   maxWidth?: string;
+  header?: React.ReactNode;
 }
 
 const colors = {
@@ -17,7 +18,8 @@ export default function Modal({
   title, 
   children, 
   onClose,
-  maxWidth = '500px'
+  maxWidth = '500px',
+  header
 }: ModalProps) {
   // ESC key to close
   useEffect(() => {
@@ -84,6 +86,14 @@ export default function Modal({
             {title}
           </h2>
         )}
+        
+        {/* Custom header - e.g., for preview modal */}
+        {header && (
+          <div className="mb-4">
+            {header}
+          </div>
+        )}
+        
         <button
           onClick={onClose}
           style={{
