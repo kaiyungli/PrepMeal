@@ -1,6 +1,5 @@
 import Modal from '@/components/ui/Modal'
 import RecipeDetailContent from './RecipeDetailContent'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 
 interface RecipeDetailModalProps {
@@ -18,19 +17,23 @@ export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: 
       router.push(`/recipes/${recipe.id}`)
     }
   }
+  
   return (
     <Modal isOpen={isOpen} title="" onClose={onClose} maxWidth="900px">
       {recipe ? (
         <>
-          <RecipeDetailContent recipe={recipe} isLoading={loading} />
-          <div className="mt-4 pt-4 border-t border-[#DDD0B0]">
+          {/* Preview Header with CTA */}
+          <div className="mb-4 pb-3 border-b border-[#DDD0B0] flex items-center justify-between">
+            <span className="text-sm text-[#AA7A50]">這是食譜預覽</span>
             <button 
               onClick={handleViewFullRecipe}
-              className="w-full py-3 bg-[#9B6035] text-white border-none rounded-xl text-base font-semibold cursor-pointer hover:bg-[#8a5530] transition-colors"
+              className="text-[#9B6035] hover:text-[#8a5530] font-medium cursor-pointer transition-colors text-sm flex items-center gap-1 bg-transparent border-none"
             >
-              查看完整食譜 →
+              前往完整食譜頁 →
             </button>
           </div>
+          
+          <RecipeDetailContent recipe={recipe} isLoading={loading} />
         </>
       ) : (
         <div className="flex items-center justify-center py-10">
