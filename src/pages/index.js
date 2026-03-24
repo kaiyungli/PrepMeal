@@ -36,7 +36,7 @@ function generateWeeklyPlan(recipes) {
 
 // Helper to generate shopping list from weekly plan using the real API
 async function generateShoppingListFromPlan(weeklyPlan) {
-  console.log('[ShoppingList] Input weeklyPlan:', JSON.stringify(weeklyPlan));
+  
   
   if (!weeklyPlan || weeklyPlan.length === 0) {
 
@@ -64,7 +64,7 @@ async function generateShoppingListFromPlan(weeklyPlan) {
     
     const data = await response.json();
 
-    console.log('[ShoppingList] API response:', JSON.stringify(data).substring(0, 500));
+    
     
     // Use the toBuy items from the real API
     // Format quantity with unit properly
@@ -220,7 +220,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     // Check cache first (useRef)
     const cached = recipeDetailCache.current.get(recipe.id);
     if (cached) {
-      console.log('[RecipeDetail] Cache hit for:', recipe.id, 'Time:', performance.now() - startTime);
+      
       // Support both { recipes: [...] } and legacy flat object
       const fullRecipe = cached.recipes?.[0] || cached;
       setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
@@ -228,7 +228,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       
       // Measure paint time
       requestAnimationFrame(() => {
-        console.log('[RecipeDetail] Painted at:', performance.now());
+        
       });
       return;
     }
@@ -244,7 +244,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         }
         
         const fetchTime = performance.now() - fetchStart;
-        console.log('[RecipeDetail] API completed in:', fetchTime.toFixed(2), 'ms');
+        
         
         // Merge full detail into existing recipe
         // Support both { recipes: [...] } and legacy flat object
@@ -258,7 +258,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         
         // Measure paint time after React renders
         requestAnimationFrame(() => {
-          console.log('[RecipeDetail] Painted at:', performance.now());
+          
         });
       })
       .catch(err => {
@@ -360,9 +360,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                         return;
                       }
-                      console.log('[Homepage] Favorite click:', recipe.id, 'isFav:', isFavorite(recipe.id));
+                      
                       const result = await toggleFavorite(recipe.id);
-                      console.log('[Homepage] toggleFavorite result:', result);
+                      
                       if (!result) {
                         showToast('收藏失敗，請再試一次', 'error');
                       }
@@ -412,9 +412,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             return;
           }
           if (selectedRecipe?.id) {
-            console.log('[Homepage] Modal Favorite click:', selectedRecipe.id);
+            
             const result = await toggleFavorite(selectedRecipe.id);
-            console.log('[Homepage] Modal toggleFavorite result:', result);
+            
             if (!result) {
               showToast('收藏失敗，請再試一次', 'error');
             }
