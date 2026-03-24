@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
 
 /**
  * RecipeCard - displays a single recipe card
@@ -48,36 +49,6 @@ interface RecipeCardProps {
   className?: string;
 }
 
-// Label mappings
-const cuisineLabels: Record<string, string> = {
-  chinese: '中式', western: '西式', japanese: '日式', korean: '韓式', taiwanese: '台式', fusion: '混合'
-}
-const difficultyLabels: Record<string, string> = { easy: '簡單', medium: '中等', hard: '複雜' }
-const methodLabels: Record<string, string> = { 
-  stir_fry: '炒', 
-  steamed: '蒸', 
-  boiled: '煮/湯',
-  baked: '焗', 
-  fried: '煎/炸',
-  braised: '燜',
-}
-const proteinLabels: Record<string, string> = {
-  chicken: "雞", beef: "牛", pork: "豬", shrimp: "蝦", fish: "魚", tofu: "豆腐", egg: "蛋", vegetarian: "素", mixed: "混合"
-}
-const dishTypeLabels: Record<string, string> = {
-  main: '主菜', side: '配菜', staple: '主食', soup: '湯', snack: '小食'
-}
-
-const dietLabels: Record<string, string> = {
-  vegetarian: '素食',
-  egg_lacto: '蛋奶素',
-  high_protein: '高蛋白',
-  low_fat: '低脂',
-  low_calorie: '低卡',
-  light: '清淡',
-  gluten_free: '無麩質'
-}
-
 export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, className = '' }: RecipeCardProps) {
   // Safely extract recipe fields
   const recipeId = recipe?.id
@@ -98,11 +69,11 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
   
   // Build tags: primary_protein (as category label) + dish_type
   const tags: string[] = []
-  if (recipePrimaryProtein && proteinLabels[recipePrimaryProtein]) {
-    tags.push(proteinLabels[recipePrimaryProtein])
+  if (recipePrimaryProtein) {
+    tags.push(getLabel(PROTEIN_MAP, recipePrimaryProtein))
   }
-  if (recipeDishType && dishTypeLabels[recipeDishType]) {
-    tags.push(dishTypeLabels[recipeDishType])
+  if (recipeDishType) {
+    tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
   
   // Card content
@@ -165,20 +136,20 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
             </span>
           )}
           {recipeTime && recipeDifficulty && <span>·</span>}
-          {recipeDifficulty && difficultyLabels[recipeDifficulty] && (
+          {recipeDifficulty && getLabel(DIFFICULTY_MAP, recipeDifficulty) && (
             <span className="flex items-center gap-1">
               <span className={`w-2 h-2 rounded-full ${
                 recipeDifficulty === 'easy' ? 'bg-green-400' : 
                 recipeDifficulty === 'medium' ? 'bg-yellow-400' : 'bg-red-400'
               }`}></span>
-              <span>{difficultyLabels[recipeDifficulty]}</span>
+              <span>{getLabel(DIFFICULTY_MAP, recipeDifficulty)}</span>
             </span>
           )}
-          {(recipeTime || recipeDifficulty) && recipeMethod && methodLabels[recipeMethod] && <span>·</span>}
-          {recipeMethod && methodLabels[recipeMethod] && (
+          {(recipeTime || recipeDifficulty) && recipeMethod && getLabel(METHOD_MAP, recipeMethod) && <span>·</span>}
+          {recipeMethod && getLabel(METHOD_MAP, recipeMethod) && (
             <span className="flex items-center gap-1">
               <span>🥘</span>
-              <span>{methodLabels[recipeMethod]}</span>
+              <span>{getLabel(METHOD_MAP, recipeMethod)}</span>
             </span>
           )}
         </div>
@@ -211,7 +182,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
           {recipeDiet.length > 0 && !recipeProteinGrams && (
             <span className="flex items-center gap-1">
               <span>🥗</span>
-              <span>{dietLabels[recipeDiet[0]] || recipeDiet[0]}</span>
+              <span>{getLabel(DIET_MAP, recipeDiet[0]) || recipeDiet[0]}</span>
             </span>
           )}
         </div>
