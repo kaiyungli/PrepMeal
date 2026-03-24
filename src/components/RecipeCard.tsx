@@ -54,7 +54,7 @@ interface RecipeCardProps {
   className?: string;
 }
 
-export default React.memo(function RecipeCard({ 
+function RecipeCard({ 
   recipe, 
   onClick, 
   onFavorite, 
@@ -222,4 +222,5 @@ export default React.memo(function RecipeCard({
   );
 }
 
-)
+
+export default React.memo(RecipeCard);

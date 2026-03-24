@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 interface FavoriteButtonProps {
   recipeId?: string | number;
@@ -26,6 +26,11 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sync local state with prop when it changes
+  useEffect(() => {
+    setLocalFav(initialIsFavorite);
+  }, [initialIsFavorite]);
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
