@@ -356,20 +356,13 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <RecipeCard
                     recipe={recipe}
                     onClick={() => handleRecipeClick(recipe)}
-                    onFavorite={async () => {
-                      if (!isAuthenticated) {
-                        showToast('請先登入以收藏食譜', 'info');
-                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-                        return;
-                      }
-                      
-                      const result = await toggleFavorite(recipe.id);
-                      
-                      if (!result) {
-                        showToast('收藏失敗，請再試一次', 'error');
-                      }
-                    }}
+                    toggleFavorite={toggleFavorite}
                     isFavorite={favoriteSet.has(recipe.id)}
+                    isAuthenticated={isAuthenticated}
+                    onAuthRequired={() => {
+                      showToast('請先登入以收藏食譜', 'info');
+                      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    }}
                   />
                 </div>
               ))}
@@ -407,20 +400,11 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         recipe={selectedRecipe}
         loading={modalLoading}
         isFavorite={selectedRecipe ? favoriteSet.has(selectedRecipe.id) : false}
-        onFavorite={async () => {
-          if (!isAuthenticated) {
-            showToast('請先登入以收藏食譜', 'info');
-            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-            return;
-          }
-          if (selectedRecipe?.id) {
-            
-            const result = await toggleFavorite(selectedRecipe.id);
-            
-            if (!result) {
-              showToast('收藏失敗，請再試一次', 'error');
-            }
-          }
+        toggleFavorite={toggleFavorite}
+        isAuthenticated={isAuthenticated}
+        onAuthRequired={() => {
+          showToast('請先登入以收藏食譜', 'info');
+          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         }}
       />
     </Layout>

@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image'
 import Link from 'next/link'
 import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
+import FavoriteButton from './FavoriteButton';
 
 /**
  * RecipeCard - displays a single recipe card
@@ -45,12 +46,24 @@ interface RecipeCardProps {
     diet?: string[];
   };
   onClick?: () => void;
-  onFavorite?: () => void;
+  onFavorite?: () => void;  // Legacy - still used for backward compatibility
   isFavorite?: boolean;
+  toggleFavorite?: (recipeId: string | number) => Promise<boolean>;  // New FavoriteButton pattern
+  isAuthenticated?: boolean;
+  onAuthRequired?: () => void;
   className?: string;
 }
 
-export default React.memo(function RecipeCard({ recipe, onClick, onFavorite, isFavorite, className = '' }: RecipeCardProps) {
+export default React.memo(function RecipeCard({ 
+  recipe, 
+  onClick, 
+  onFavorite, 
+  isFavorite, 
+  toggleFavorite,
+  isAuthenticated,
+  onAuthRequired,
+  className = '' 
+}: RecipeCardProps) {
   // Safely extract recipe fields
   const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'
@@ -104,24 +117,14 @@ export default React.memo(function RecipeCard({ recipe, onClick, onFavorite, isF
             </div>
           )}
         </div>
-        {onFavorite && (
-          <button 
-            onClick={(e) => { 
-              e.preventDefault(); 
-              e.stopPropagation(); 
-              onFavorite(); 
-            }} 
-            className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-auto transition-all duration-200 hover:scale-110 ${
-              isFavorite 
-                ? 'bg-rose-500 text-white' 
-                : 'bg-white/80 text-rose-400 hover:bg-white'
-            }`}
-            aria-label={isFavorite ? "取消收藏" : "收藏"}
-          >
-            <svg className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
-            </svg>
-          </button>
+        {(onFavorite || toggleFavorite) && (
+          <FavoriteButton
+            recipeId={recipe?.id}
+            initialIsFavorite={isFavorite}
+            toggleFavorite={toggleFavorite || (async () => { onFavorite?.(); return true; })}
+            isAuthenticated={isAuthenticated}
+            onAuthRequired={onAuthRequired}
+          />
         )}
       </div>
       
