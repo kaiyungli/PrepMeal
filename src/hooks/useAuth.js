@@ -47,6 +47,8 @@ export function useAuth() {
   };
 
   const signInWithGoogle = async () => {
+    console.log('🔥 signInWithGoogle called');
+    
     // Use callback page for OAuth redirect
     const redirectParam = typeof window !== 'undefined' 
       ? new URLSearchParams(window.location.search).get('redirect') 
@@ -55,10 +57,19 @@ export function useAuth() {
       ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
       : `${window.location.origin}/auth/callback`;
     
-    if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
+    console.log('🔥 redirectTo =', redirectTo);
+    
+    if (!supabase) throw new Error("Supabase not initialized");
+    
+    console.log('🔥 Calling supabase.auth.signInWithOAuth...');
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
+    
+    console.log('🔥 OAuth result =', data);
+    console.error('🔥 OAuth error =', error);
+    
     if (error) throw error;
     return data;
   };

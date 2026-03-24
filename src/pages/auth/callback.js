@@ -13,9 +13,13 @@ export default function AuthCallback() {
     if (!router.isReady) return;
 
     const handleCallback = async () => {
+      console.log('[AuthCallback] Starting callback处理');
+      console.log('[AuthCallback] Query params:', router.query);
+      
       try {
         // 1. Check for OAuth error in URL
         if (router.query.error) {
+          console.log('[AuthCallback] OAuth error:', router.query.error);
           setError(router.query.error_description || router.query.error);
           setProcessing(false);
           return;
@@ -25,53 +29,52 @@ export default function AuthCallback() {
         const code = router.query.code;
         
         if (code) {
-          console.log('Exchanging code for session...');
-          const { data: { session }, error: exchangeError } = 
-            await supabase.auth.exchangeCodeForSession(code);
+          console.log('[AuthCallback] Exchanging code for session...');
+          const result = await supabase.auth.exchangeCodeForSession(code);
+          const { data: session, error: exchangeError } = result;
           
           if (exchangeError) {
-            console.error('Code exchange error:', exchangeError);
+            console.error('[AuthCallback] Code exchange error:', exchangeError);
             setError('登入驗證失敗: ' + exchangeError.message);
             setProcessing(false);
             return;
           }
 
           if (session?.user) {
-            console.log('PKCE session established, user:', session.user.email);
+            console.log('[AuthCallback] PKCE session established, user:', session.user.email);
             const redirect = router.query.redirect || '/my-plans';
             const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
+            console.log('[AuthCallback] Redirecting to:', finalUrl);
             router.replace(finalUrl);
             return;
           }
         }
 
         // 3. Fallback: try getSession() (implicit/hybrid flow)
-        // Supabase stores session in URL hash after OAuth
-        console.log('Trying getSession() fallback...');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('[AuthCallback] Trying getSession() fallback...');
+        const sessionResult = await supabase.auth.getSession();
+        const { data: session, error: sessionError } = sessionResult;
         
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          console.error('[AuthCallback] Session error:', sessionError);
           setError('登入驗證失敗，請重試');
           setProcessing(false);
           return;
         }
 
         if (session?.user) {
-          // Successful login - redirect immediately
+          console.log('[AuthCallback] OAuth success, user:', session.user.email);
           const redirect = router.query.redirect || '/my-plans';
           const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-          
-          console.log('OAuth success, user:', session.user.email, 'redirecting to:', finalUrl);
+          console.log('[AuthCallback] Redirecting to:', finalUrl);
           router.replace(finalUrl);
         } else {
-          // No session established - could be missing code or expired
-          console.log('No session - code:', code, 'query:', router.query);
+          console.log('[AuthCallback] No session - code:', code, 'query:', router.query);
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
         }
       } catch (err) {
-        console.error('Callback error:', err);
+        console.error('[AuthCallback] Callback error:', err);
         setError('處理登入時發生錯誤: ' + err.message);
         setProcessing(false);
       }
