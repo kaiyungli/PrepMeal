@@ -62,9 +62,14 @@ export function useFavorites() {
 
   const toggleFavorite = useCallback(async (recipeId) => {
     console.log('[useFavorites] toggleFavorite called', { recipeId, isAuthenticated });
+    console.log('[useFavorites] auth state', { 
+      isAuthenticated, 
+      userId: user?.id || null, 
+      favoritesCount: favorites.length 
+    });
     
     if (!isAuthenticated) {
-      console.log('[useFavorites] Not authenticated');
+      console.log('[useFavorites] Not authenticated - returning false');
       return false;
     }
 
