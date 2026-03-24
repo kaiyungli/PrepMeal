@@ -63,14 +63,14 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, onF
     <div className="min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
       {/* Hero Image */}
       <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
-        {/* Favorite Button - top right */}
+        {/* Favorite Button - top right, offset from close button */}
         {onFavorite && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onFavorite();
             }}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-colors"
+            className="absolute top-4 right-14 z-10 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-colors"
           >
             <svg 
               className={`w-6 h-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}

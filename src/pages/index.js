@@ -415,7 +415,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         isFavorite={selectedRecipe ? isFavorite(selectedRecipe.id) : false}
         onFavorite={() => {
           if (!isAuthenticated) {
-            showToast('請先登入以收藏食譜', 'warning');
+            showToast('請先登入以收藏食譜', 'info');
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
             return;
           }
           if (selectedRecipe?.id) {
