@@ -144,12 +144,14 @@ export default function RecipeDetail({ recipe, error }) {
             )}
           </div>
 
-          {/* Tips Card */}
+          {/* Tips Card - dynamic based on recipe */}
           <div className='bg-[#FFF9E6] rounded-xl p-5 border border-[#F0A060]'>
             <h3 className='text-base font-bold text-[#3A2010] mb-3'>💡 小貼士</h3>
-            <p className='text-[#AA7A50] leading-relaxed'>
-              蕃茄炒蛋關鍵在於控制火候，雞蛋不宜過熟，保持嫩滑口感。蕃茄選擇較熟的會更甜更多汁。
-            </p>
+            {recipe.tips ? (
+              <p className='text-[#AA7A50] leading-relaxed'>{recipe.tips}</p>
+            ) : (
+              <p className='text-[#AA7A50] leading-relaxed'>暫無小貼士</p>
+            )}
           </div>
 
         </div>
