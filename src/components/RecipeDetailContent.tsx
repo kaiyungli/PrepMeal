@@ -27,6 +27,8 @@ interface RecipeDetailContentProps {
     steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
   }
   isLoading?: boolean
+  isFavorite?: boolean
+  onFavorite?: () => void
 }
 
 // Skeleton component for loading sections
@@ -38,7 +40,7 @@ const difficultyLabels: Record<string, string> = { easy: '易', medium: '中', h
 const speedLabels: Record<string, string> = { quick: '快', normal: '中', slow: '慢', 快: '快', 中: '中', 慢: '慢' }
 const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒', fried: '炸', 炒: '炒', 蒸: '蒸', 煮: '煮', 焗: '焗', 炆: '炆', 燒: '燒' }
 
-export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailContentProps) {
+export default function RecipeDetailContent({ recipe, isLoading, isFavorite, onFavorite }: RecipeDetailContentProps) {
   if (!recipe) return null
 
   // Defer heavy sections to reduce initial paint cost on iPad
@@ -61,6 +63,26 @@ export default function RecipeDetailContent({ recipe, isLoading }: RecipeDetailC
     <div className="min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
       {/* Hero Image */}
       <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
+        {/* Favorite Button - top right */}
+        {onFavorite && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onFavorite();
+            }}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-colors"
+          >
+            <svg 
+              className={`w-6 h-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
+              viewBox="0 0 24 24" 
+              stroke={isFavorite ? 'currentColor' : 'currentColor'} 
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        )}
+        
         {recipe.image_url ? (
           <Image 
             src={recipe.image_url} 

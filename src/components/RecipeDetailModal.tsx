@@ -7,9 +7,18 @@ interface RecipeDetailModalProps {
   onClose: () => void
   recipe?: any
   loading?: boolean
+  isFavorite?: boolean
+  onFavorite?: () => void
 }
 
-export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: RecipeDetailModalProps) {
+export default function RecipeDetailModal({ 
+  isOpen, 
+  onClose, 
+  recipe, 
+  loading,
+  isFavorite = false,
+  onFavorite
+}: RecipeDetailModalProps) {
   const router = useRouter()
   
   const handleViewFullRecipe = () => {
@@ -48,7 +57,12 @@ export default function RecipeDetailModal({ isOpen, onClose, recipe, loading }: 
       header={modalHeader}
       floating={floatingButton}
     >
-      <RecipeDetailContent recipe={recipe} isLoading={loading} />
+      <RecipeDetailContent 
+        recipe={recipe} 
+        isLoading={loading} 
+        isFavorite={isFavorite}
+        onFavorite={onFavorite}
+      />
     </Modal>
   )
 }

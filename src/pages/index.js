@@ -412,6 +412,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         }}
         recipe={selectedRecipe}
         loading={modalLoading}
+        isFavorite={selectedRecipe ? isFavorite(selectedRecipe.id) : false}
+        onFavorite={() => {
+          if (!isAuthenticated) {
+            showToast('請先登入以收藏食譜', 'warning');
+            return;
+          }
+          if (selectedRecipe?.id) {
+            toggleFavorite(selectedRecipe.id);
+          }
+        }}
       />
     </Layout>
   );
