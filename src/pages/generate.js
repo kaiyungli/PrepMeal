@@ -18,6 +18,7 @@ import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
 import { planWeekAdvanced } from '@/lib/mealPlanner';
+import { getMaxTimeFromSpeedFilters } from '@/utils/generateTimeMapping';
 
 
 
@@ -94,9 +95,9 @@ export default function GeneratePage() {
     if (filters.cuisine.length > 0) params.set('cuisine', filters.cuisine.join(','));
     if (filters.difficulty.length > 0) params.set('difficulty', filters.difficulty[0]); // API takes single value
     if (filters.speed.length > 0) {
-      // Map speed to maxTime: quick -> 15, normal -> 60
-      const maxTime = filters.speed.includes('quick') ? '15' : '60';
-      params.set('maxTime', maxTime);
+      // Map speed to maxTime using centralized helper
+    const maxTime = getMaxTimeFromSpeedFilters(filters.speed);
+    if (maxTime) params.set('maxTime', maxTime);
     }
     if (filters.diet.length > 0) params.set('diet', filters.diet.join(','));
     
