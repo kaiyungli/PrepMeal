@@ -1,11 +1,14 @@
 // Favorites hook - manages user favorites
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 
 export function useFavorites() {
   const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Use Set for O(1) lookups instead of array.includes O(n)
+  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
   // Normalize ID to string for comparison
   const normalizeId = (id) => {
@@ -124,8 +127,8 @@ export function useFavorites() {
 
   const isFavorite = useCallback((recipeId) => {
     const normalizedId = normalizeId(recipeId);
-    return favorites.includes(normalizedId);
-  }, [favorites]);
+    return favoriteSet.has(normalizedId);
+  }, [favoriteSet]);
 
   return {
     favorites,

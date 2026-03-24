@@ -1,3 +1,4 @@
+import React from 'react';
 import Image from 'next/image'
 import Link from 'next/link'
 import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
@@ -49,7 +50,7 @@ interface RecipeCardProps {
   className?: string;
 }
 
-export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, className = '' }: RecipeCardProps) {
+export default React.memo(function RecipeCard({ recipe, onClick, onFavorite, isFavorite, className = '' }: RecipeCardProps) {
   // Safely extract recipe fields
   const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'
@@ -215,5 +216,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
     >
       {cardContent}
     </div>
-  )
+  );
 }
+
+)
