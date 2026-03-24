@@ -60,9 +60,8 @@ export default function RecipesPage({ initialRecipes }) {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Page Heading */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#3D3D3D] mb-2">食譜</h1>
-          <p className="text-[#7A746B]">瀏覽全部食譜，或用條件快速篩選</p>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-[#3D3D3D]">食譜</h1>
         </div>
 
         {/* Reusable Filters */}
@@ -79,11 +78,6 @@ export default function RecipesPage({ initialRecipes }) {
           activeFilterCount={activeFilterCount}
           clearFilters={clearFilters}
         />
-
-        {/* Results Count */}
-        <div className="mb-4 text-sm text-[#7A746B]">
-          <span>找到 {sortedRecipes.length} 個食譜</span>
-        </div>
 
         {/* Recipe Grid */}
         {sortedRecipes.length > 0 ? (
