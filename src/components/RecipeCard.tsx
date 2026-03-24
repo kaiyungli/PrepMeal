@@ -108,8 +108,6 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
             onClick={(e) => { 
               e.preventDefault(); 
               e.stopPropagation(); 
-              console.log('[RecipeCard] Favorite click:', recipe?.id);
-              alert('favorite clicked for: ' + recipe?.id); // DEBUG
               onFavorite(); 
             }} 
             className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-auto transition-all duration-200 hover:scale-110 ${
