@@ -12,7 +12,7 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 export default function PlanDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [plan, setPlan] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,14 +29,19 @@ export default function PlanDetailPage() {
     const fetchPlan = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/user/menus/${id}`);
+        const token = await getAccessToken();
+        const res = await fetch(`/api/user/menus/${id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         const data = await res.json();
-        if (data.error) {
+        
+        // Handle both old and new response format
+        if (data.success === false && data.error) {
           alert(data.error);
           router.push('/my-plans');
         } else {
-          setPlan(data.plan);
-          setItems(data.items || []);
+          setPlan(data.data?.plan || data.plan);
+          setItems(data.data?.items || data.items || []);
         }
       } catch (err) {
         console.error('Failed to load plan:', err);

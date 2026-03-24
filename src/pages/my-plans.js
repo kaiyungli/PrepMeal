@@ -37,8 +37,11 @@ export default function MyPlansPage() {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         const data = await res.json();
-        if (data.plans) {
-          setPlans(data.plans);
+        
+        // API returns { success: true, data: { plans: [...] } }
+        const plansData = data?.data?.plans || data?.plans || [];
+        if (plansData) {
+          setPlans(plansData);
         } else if (data.error) {
           showToast('載入失敗: ' + data.error, 'error');
         }
@@ -64,9 +67,10 @@ export default function MyPlansPage() {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       const data = await res.json();
-      if (data.error) {
+      // Handle both old and new response format
+      if (data.success === false && data.error) {
         showToast('刪除失敗: ' + data.error, 'error');
-      } else {
+      } else if (data.success !== false) {
         setPlans(plans.filter(p => p.id !== planId));
       }
     } catch (err) {

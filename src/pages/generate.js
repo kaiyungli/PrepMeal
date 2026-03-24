@@ -406,7 +406,7 @@ const CONFIG = {
                 })
               });
               const data = await res.json();
-              if (data.error) throw new Error(data.error);
+              if (data.success === false && data.error) throw new Error(data.error);
               showToast('已保存餐單！', 'success');
             } catch (e) {
               showToast('保存失敗: ' + e.message, 'error');
