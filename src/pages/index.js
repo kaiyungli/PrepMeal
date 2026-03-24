@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 
-
 import { Toast, useToast } from '@/components/ui/Toast';
 import Head from 'next/head';
 import { Layout } from '@/components';
@@ -163,18 +162,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   }, [initialRecipes]);
   
-  // Fetch shopping list when weeklyPlan changes
-  useEffect(() => {
-    async function fetchShoppingList() {
-      if (weeklyPlan.length === 0) {
-        setShoppingList([]);
-        return;
-      }
-      const list = await generateShoppingListFromPlan(weeklyPlan);
-      setShoppingList(list);
-    }
-    fetchShoppingList();
-  }, [weeklyPlan]);
+  // AUTO SHOPPING LIST DISABLED
+  // useEffect(() => {
+  //   async function fetchShoppingList() {
+  //     if (weeklyPlan.length === 0) {
+  //       setShoppingList([]);
+  //       return;
+  //     }
+  //     const list = await generateShoppingListFromPlan(weeklyPlan);
+  //       setShoppingList(list);
+  //   }
+  //   fetchShoppingList();
+  // }, [weeklyPlan]);
   
   // Use shared recipe filters hook (no args)
   const {
@@ -279,7 +278,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     fetchRecipeDetail(recipe.id).catch(() => {});
   };
 
-
   const hasSearch = searchQuery?.trim()?.length > 0;
   
   // Show empty state only if filters applied and no results
@@ -287,8 +285,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   
   // No skeleton - use simple loading state
   const showSkeleton = false;
-
-
 
   return (
     <Layout>
@@ -353,8 +349,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 <div 
                   key={recipe.id} 
                   className="col-span-12 sm:col-span-6 md:col-span-4"
-                  onMouseEnter={() => handleRecipeHover(recipe)}
-                  onTouchStart={() => handleRecipeHover(recipe)}
+                  
                 >
                   <RecipeCard
                     recipe={recipe}
@@ -435,20 +430,17 @@ export async function getServerSideProps() {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Use simpler query first to debug
-    const { data: recipes, error, count } = await supabase
+    const { data: recipes, error } = await supabase
       .from('recipes')
-      .select('*', { count: 'exact' })
+      .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,primary_protein,dish_type,diet,is_public,created_at')
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .limit(100);
-
-    });
+      .limit(24);
     
     if (error) {
 
       return { props: { initialRecipes: [], ssrError: error.message } };
     }
-
 
     return { props: { initialRecipes: recipes || [], ssrError: null } };
   } catch (e) {
