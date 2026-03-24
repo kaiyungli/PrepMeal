@@ -207,6 +207,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const activeRecipeIdRef = useRef(null);
   
   const handleRecipeClick = (recipe) => {
+    console.log('[INDEX] handleRecipeClick called for:', recipe?.id, recipe?.name);
     const startTime = performance.now();
     console.log('[RecipeDetail] Click at:', startTime);
     
@@ -220,6 +221,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     activeRecipeIdRef.current = recipe.id;
     
     // Immediately show modal with card data (instant)
+    console.log('[INDEX] Setting selectedRecipe, opening modal');
     setSelectedRecipe(recipe);
     setModalLoading(true);
     

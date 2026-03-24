@@ -190,12 +190,12 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
     </>
   )
 
-  // If we have an ID, wrap with Link
-  if (recipeId) {
+  // If we have an ID and NO onClick, wrap with Link for direct navigation
+  // If onClick is provided, don't navigate - let parent handle (e.g., open modal first)
+  if (recipeId && !onClick) {
     return (
       <Link 
         href={`/recipes/${recipeId}`}
-        onClick={onClick}
         className={`block cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
       >
         {cardContent}
@@ -203,7 +203,7 @@ export default function RecipeCard({ recipe, onClick, onFavorite, isFavorite, cl
     )
   }
 
-  // Fallback: just clickable div
+  // With onClick - just clickable div, no navigation (parent decides what to do)
   return (
     <div 
       onClick={onClick}
