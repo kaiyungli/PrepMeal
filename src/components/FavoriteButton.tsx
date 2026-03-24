@@ -55,19 +55,19 @@ function FavoriteButton({
     setOptimisticOverride(nextValue);
     setIsLoading(true);
 
-    try {
-      const success = await toggleFavorite(recipeId);
-      
-      if (!success) {
-        // Rollback on failure
+    // Fire and forget - don't block UI
+    toggleFavorite(recipeId)
+      .then(success => {
+        if (!success) {
+          setOptimisticOverride(null);
+        }
+      })
+      .catch(() => {
         setOptimisticOverride(null);
-      }
-    } catch (err) {
-      // Rollback on error
-      setOptimisticOverride(null);
-    } finally {
-      setIsLoading(false);
-    }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [recipeId, toggleFavorite, isAuthenticated, onAuthRequired, displayFav, isLoading]);
 
   return (
