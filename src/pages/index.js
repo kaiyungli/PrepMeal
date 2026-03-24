@@ -290,9 +290,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   // No skeleton - use simple loading state
   const showSkeleton = false;
 
-  // Determine recipe count text
-  const recipeCountText = recipesList.length > 0 ? `${recipesList.length} 個食譜` : 
-    (hasFilters ? '無符合條件既食譜' : '載入緊...');
+
 
   return (
     <Layout>
@@ -316,10 +314,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
           {/* 1. Centered Heading */}
-          <div className="text-center mb-8">
-            <div className="text-xs font-extrabold text-[#F0A060] uppercase tracking-widest mb-3">⭐ 食譜庫</div>
-            <h2 className="text-[1.5rem] md:text-[2.25rem] font-black text-[#3A2010] mb-2">食譜</h2>
-            <p className="text-sm font-semibold text-[#C0A080]">{recipeCountText}</p>
+          <div className="text-center mb-6">
+            <h2 className="text-[1.5rem] md:text-[2.25rem] font-black text-[#3A2010]">食譜</h2>
           </div>
 
           {/* Shared Filter Component */}
