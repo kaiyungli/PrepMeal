@@ -7,6 +7,12 @@ export function useFavorites() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Normalize ID to string for comparison
+  const normalizeId = (id) => {
+    if (id === undefined || id === null) return '';
+    return String(id);
+  };
+
   // Load favorites when user is authenticated
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -21,8 +27,13 @@ export function useFavorites() {
         const token = await getAccessToken();
         console.log('[useFavorites] Token available:', !!token);
         
+        if (!token) {
+          console.error('[useFavorites] No token - user may need to re-login');
+          return;
+        }
+        
         const res = await fetch('/api/user/favorites', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          headers: { Authorization: `Bearer ${token}` }
         });
         console.log('[useFavorites] GET status:', res.status);
         
@@ -32,8 +43,11 @@ export function useFavorites() {
         }
         
         const data = await res.json();
+        console.log('[useFavorites] GET response:', data);
+        
         if (data.favorites) {
-          setFavorites(data.favorites);
+          // Normalize to strings for consistent comparison
+          setFavorites(data.favorites.map(id => normalizeId(id)));
         }
       } catch (err) {
         console.error('[useFavorites] Failed to load favorites:', err);
@@ -46,51 +60,66 @@ export function useFavorites() {
   }, [isAuthenticated, user, getAccessToken]);
 
   const toggleFavorite = useCallback(async (recipeId) => {
+    console.log('[useFavorites] toggleFavorite called', { recipeId, isAuthenticated });
+    
     if (!isAuthenticated) {
-      console.log('[useFavorites] Not authenticated, skipping');
+      console.log('[useFavorites] Not authenticated');
       return false;
     }
 
-    const isFavorite = favorites.includes(recipeId);
-    console.log('[useFavorites] Toggling:', recipeId, 'isFavorite:', isFavorite);
+    // Normalize ID to string
+    const normalizedId = normalizeId(recipeId);
+    const isFav = favorites.includes(normalizedId);
+    console.log('[useFavorites] Toggling:', normalizedId, 'isFavorite:', isFav, 'favorites:', favorites);
 
     try {
-      // Get access token for Authorization header
       const token = await getAccessToken();
+      console.log('[useFavorites] Token:', !!token);
+      
+      if (!token) {
+        console.error('[useFavorites] Missing token - need re-login');
+        return false;
+      }
       
       let res;
+      const headers = { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      };
       
-      if (isFavorite) {
+      if (isFav) {
         // Remove favorite
-        res = await fetch(`/api/user/favorites?recipe_id=${recipeId}`, {
+        console.log('[useFavorites] DELETE request');
+        res = await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
           method: 'DELETE',
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          headers
         });
       } else {
         // Add favorite
+        console.log('[useFavorites] POST request');
         res = await fetch('/api/user/favorites', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
-          body: JSON.stringify({ recipe_id: recipeId }),
+          headers,
+          body: JSON.stringify({ recipe_id: normalizedId }),
         });
       }
       
       console.log('[useFavorites] Response status:', res.status);
+      const responseBody = await res.text();
+      console.log('[useFavorites] Response body:', responseBody);
       
       // Only update state if request was successful
       if (res.ok) {
-        if (isFavorite) {
-          setFavorites(prev => prev.filter(id => id !== recipeId));
+        if (isFav) {
+          setFavorites(prev => prev.filter(id => id !== normalizedId));
+          console.log('[useFavorites] Removed from favorites');
         } else {
-          setFavorites(prev => [...prev, recipeId]);
+          setFavorites(prev => [...prev, normalizedId]);
+          console.log('[useFavorites] Added to favorites');
         }
         return true;
       } else {
-        const errorText = await res.text();
-        console.error('[useFavorites] Failed:', errorText);
+        console.error('[useFavorites] Failed:', responseBody);
         return false;
       }
     } catch (err) {
@@ -100,7 +129,10 @@ export function useFavorites() {
   }, [isAuthenticated, favorites, getAccessToken]);
 
   const isFavorite = useCallback((recipeId) => {
-    return favorites.includes(recipeId);
+    const normalizedId = normalizeId(recipeId);
+    const result = favorites.includes(normalizedId);
+    console.log('[useFavorites] isFavorite check:', normalizedId, 'result:', result, 'favorites:', favorites);
+    return result;
   }, [favorites]);
 
   return {
