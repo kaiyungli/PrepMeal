@@ -27,10 +27,12 @@ function FavoriteButton({
   const [localFav, setLocalFav] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync local state with prop when it changes
+  // Sync local state with prop when it changes (but not while request in flight)
   useEffect(() => {
-    setLocalFav(initialIsFavorite);
-  }, [initialIsFavorite]);
+    if (!isLoading) {
+      setLocalFav(initialIsFavorite);
+    }
+  }, [initialIsFavorite, isLoading]);
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -69,7 +71,7 @@ function FavoriteButton({
     <button 
       onClick={handleClick}
       disabled={isLoading}
-      className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-auto transition-all duration-200 hover:scale-110 disabled:opacity-50 ${
+      className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-auto hover:scale-110 disabled:opacity-50 ${
         localFav 
           ? 'bg-rose-500 text-white' 
           : 'bg-white/80 text-rose-400 hover:bg-white'
