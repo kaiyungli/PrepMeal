@@ -1,17 +1,7 @@
 // Recipe filters hook - unified filter system
 import { useState, useMemo } from 'react';
-import { 
-  FILTER_GROUPS, 
-  CUISINE_OPTIONS, 
-  DISH_TYPE_OPTIONS, 
-  PROTEIN_OPTIONS, 
-  METHOD_OPTIONS, 
-  SPEED_OPTIONS, 
-  DIFFICULTY_OPTIONS, 
-  DIET_OPTIONS, 
-  FLAVOR_OPTIONS,
-  recipeMatchesFilters 
-} from '@/constants/filters';
+import { recipeMatchesFilters } from '@/constants/filters';
+import { RECIPE_FILTER_GROUPS, buildFilterSections } from '@/constants/filterGroups';
 
 export function useRecipeFilters() {
   const [filters, setFilters] = useState({
@@ -29,20 +19,18 @@ export function useRecipeFilters() {
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(true);
 
-  // Build filter sections for UI - all use same FILTER_GROUPS
-  const recipeFilterSections = FILTER_GROUPS.map(group => ({
-    id: group.key,
-    title: group.label,
-    options: group.options,
-    selected: filters[group.key] || [],
-    onToggle: (value) => {
-      const current = filters[group.key] || [];
+  // Build filter sections using centralized config
+  const recipeFilterSections = buildFilterSections(
+    RECIPE_FILTER_GROUPS,
+    filters,
+    (groupKey, value) => {
+      const current = filters[groupKey] || [];
       const newValues = current.includes(value)
         ? current.filter(v => v !== value)
         : [...current, value];
-      setFilters({ ...filters, [group.key]: newValues });
+      setFilters({ ...filters, [groupKey]: newValues });
     }
-  }));
+  );
 
   const hasFilters = Object.values(filters).some(arr => arr && arr.length > 0);
   
