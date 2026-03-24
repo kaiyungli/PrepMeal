@@ -53,6 +53,23 @@ export function useFavorites() {
     fetchFavorites();
   }, [isAuthenticated, user?.id]);
 
+  const refreshFavorites = useCallback(async () => {
+    const token = await getAccessToken();
+    if (!token) return;
+    
+    const res = await fetch('/api/user/favorites', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    if (!res.ok) return;
+    
+    const data = await res.json();
+    const favoritesData = data?.data?.favorites || data?.favorites || [];
+    const ids = favoritesData.map(id => normalizeId(id));
+    setFavorites(ids);
+    console.log('[useFavorites] refreshFavorites result:', ids.length, 'favorites');
+  }, [getAccessToken]);
+
   const toggleFavorite = useCallback(async (recipeId) => {
     if (!isAuthenticated) {
       return false;
@@ -93,18 +110,16 @@ export function useFavorites() {
       console.log('[useFavorites] API response:', res.status, res.ok);
       
       if (res.ok) {
-        if (isFav) {
-          setFavorites(prev => prev.filter(id => id !== normalizedId));
-        } else {
-          setFavorites(prev => [...prev, normalizedId]);
-        }
+        // Refetch from server to ensure state consistency
+        await refreshFavorites();
+        console.log('[useFavorites] favorites state after toggle:', favorites.length);
         return true;
       }
       return false;
     } catch (err) {
       return false;
     }
-  }, [isAuthenticated, favorites, getAccessToken]);
+  }, [isAuthenticated, favorites, getAccessToken, refreshFavorites]);
 
   const isFavorite = useCallback((recipeId) => {
     const normalizedId = normalizeId(recipeId);
