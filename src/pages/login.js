@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase?.auth.getUser();
+      const result = await supabase?.auth.getUser(); const user = result?.data?.user;
       if (user) {
         const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
         router.push(redirectUrl);
@@ -47,17 +47,21 @@ export default function LoginPage() {
   const { signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
 
   const handleGoogleLogin = async () => {
+    console.log('🔥 Google login clicked');
     setLoading(true);
     setError('');
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError(err.message);
+      console.error('Google login error:', err);
+      setError(err.message || 'Google 登入失敗');
+    } finally {
       setLoading(false);
     }
   };
 
   const handleAppleLogin = async () => {
+    console.log('🔥 Apple login clicked');
     setLoading(true);
     setError('');
     try {

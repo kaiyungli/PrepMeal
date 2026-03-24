@@ -55,7 +55,7 @@ export function useAuth() {
       ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
       : `${window.location.origin}/auth/callback`;
     
-    const { data, error } = await supabase?.auth.signInWithOAuth({
+    if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
@@ -72,7 +72,7 @@ export function useAuth() {
       : `${window.location.origin}/auth/callback`;
     
     try {
-      const { data, error } = await supabase?.auth.signInWithOAuth({
+      if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: { redirectTo },
       });
@@ -92,7 +92,7 @@ export function useAuth() {
       : `${window.location.origin}/auth/callback`;
     
     try {
-      const { data, error } = await supabase?.auth.signInWithOAuth({
+      if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo },
       });
