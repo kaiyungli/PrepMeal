@@ -7,6 +7,7 @@ interface ModalProps {
   onClose: () => void;
   maxWidth?: string;
   header?: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 const colors = {
@@ -19,7 +20,8 @@ export default function Modal({
   children, 
   onClose,
   maxWidth = '500px',
-  header
+  header,
+  footer
 }: ModalProps) {
   // ESC key to close
   useEffect(() => {
@@ -71,48 +73,76 @@ export default function Modal({
           maxWidth,
           width: '100%',
           maxHeight: '90vh',
-          overflow: 'auto',
-          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
           position: 'relative'
         }}
       >
-        {title && (
-          <h2 style={{
-            fontSize: '20px',
-            fontWeight: 700,
-            color: colors.brown,
-            marginBottom: '20px'
-          }}>
-            {title}
-          </h2>
-        )}
-        
-        {/* Custom header - e.g., for preview modal */}
-        {header && (
-          <div className="mb-4">
-            {header}
-          </div>
-        )}
-        
+        {/* Close button - fixed at top right */}
         <button
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: '16px',
-            right: '16px',
+            top: '12px',
+            right: '12px',
             background: 'white',
             border: 'none',
             borderRadius: '50%',
-            width: '36px',
-            height: '36px',
-            fontSize: '18px',
+            width: '32px',
+            height: '32px',
+            fontSize: '16px',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           ✕
         </button>
-        {children}
+        
+        {/* Header - fixed */}
+        {title && (
+          <div style={{
+            padding: '20px 24px 0 24px',
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: colors.brown,
+              marginBottom: '16px'
+            }}>
+              {title}
+            </h2>
+          </div>
+        )}
+        
+        {/* Custom header */}
+        {header && (
+          <div style={{ padding: '16px 24px 0 24px' }}>
+            {header}
+          </div>
+        )}
+        
+        {/* Scrollable content */}
+        <div style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px 24px 24px 24px'
+        }}>
+          {children}
+        </div>
+        
+        {/* Footer - fixed at bottom (for floating buttons) */}
+        {footer && (
+          <div style={{
+            padding: '0 24px 16px 24px',
+            flexShrink: 0
+          }}>
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
