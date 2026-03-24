@@ -67,18 +67,23 @@ export default function LoginPage() {
     try {
       await signInWithApple();
     } catch (err) {
-      setError(err.message);
+      console.error('Apple login error:', err);
+      setError(err.message || 'Apple 登入失敗');
+    } finally {
       setLoading(false);
     }
   };
 
   const handleFacebookLogin = async () => {
+    console.log('🔥 Facebook login clicked');
     setLoading(true);
     setError('');
     try {
       await signInWithFacebook();
     } catch (err) {
-      setError(err.message);
+      console.error('Facebook login error:', err);
+      setError(err.message || 'Facebook 登入失敗');
+    } finally {
       setLoading(false);
     }
   };
