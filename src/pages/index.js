@@ -229,7 +229,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     const cached = recipeDetailCache.current.get(recipe.id);
     if (cached) {
       console.log('[RecipeDetail] Cache hit for:', recipe.id, 'Time:', performance.now() - startTime);
-      setSelectedRecipe(prev => prev ? { ...prev, ...cached } : cached);
+      // Support both { recipes: [...] } and legacy flat object
+      const fullRecipe = cached.recipes?.[0] || cached;
+      setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
       setModalLoading(false);
       
       // Measure paint time
@@ -253,7 +255,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         console.log('[RecipeDetail] API completed in:', fetchTime.toFixed(2), 'ms');
         
         // Merge full detail into existing recipe
-        setSelectedRecipe(prev => prev ? { ...prev, ...data } : data);
+        // Support both { recipes: [...] } and legacy flat object
+        const fullRecipe = data.recipes?.[0] || data;
+        setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
         
         // State merge complete
         const mergeTime = performance.now();
