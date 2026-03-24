@@ -12,8 +12,6 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 
-console.log('[CLIENT] Module loaded');
-
 const sortOptions = [
   { value: 'newest', label: '最新' },
   { value: 'popular', label: '最受歡迎' },
@@ -42,20 +40,17 @@ async function generateShoppingListFromPlan(weeklyPlan) {
   console.log('[ShoppingList] Input weeklyPlan:', JSON.stringify(weeklyPlan));
   
   if (!weeklyPlan || weeklyPlan.length === 0) {
-    console.log('[ShoppingList] Empty weeklyPlan, returning []');
+
     return [];
   }
   
   const recipeIds = weeklyPlan.map(item => item.recipe?.id).filter(Boolean);
-  console.log('[ShoppingList] Extracted recipeIds:', recipeIds);
-  
+
   if (recipeIds.length === 0) {
-    console.log('[ShoppingList] No recipeIds found, returning []');
+
     return [];
   }
-  
-  console.log('[ShoppingList] Generating for recipe IDs:', recipeIds);
-  
+
   try {
     // Use the real shopping list API
     const response = await fetch('/api/shopping-list', {
@@ -69,7 +64,7 @@ async function generateShoppingListFromPlan(weeklyPlan) {
     });
     
     const data = await response.json();
-    console.log('[ShoppingList] API response status:', response.status);
+
     console.log('[ShoppingList] API response:', JSON.stringify(data).substring(0, 500));
     
     // Use the toBuy items from the real API
@@ -85,11 +80,10 @@ async function generateShoppingListFromPlan(weeklyPlan) {
       name: item.display_name || item.name || item.ingredient_name || '食材',
       qty: formatQty(item)
     }));
-    
-    console.log('[ShoppingList] Final list:', list);
+
     return list;
   } catch (e) {
-    console.error('[ShoppingList] Error:', e);
+
     return [];
   }
 }
@@ -207,10 +201,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const activeRecipeIdRef = useRef(null);
   
   const handleRecipeClick = (recipe) => {
-    console.log('[INDEX] handleRecipeClick called for:', recipe?.id, recipe?.name);
+
     const startTime = performance.now();
-    console.log('[RecipeDetail] Click at:', startTime);
-    
+
     // Abort previous fetch if any
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -221,7 +214,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     activeRecipeIdRef.current = recipe.id;
     
     // Immediately show modal with card data (instant)
-    console.log('[INDEX] Setting selectedRecipe, opening modal');
+
     setSelectedRecipe(recipe);
     setModalLoading(true);
     
@@ -247,7 +240,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       .then(data => {
         // Race protection: ignore stale responses
         if (activeRecipeIdRef.current !== recipe.id) {
-          console.log('[RecipeDetail] Stale response ignored for:', recipe.id);
+
           return;
         }
         
@@ -261,8 +254,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         
         // State merge complete
         const mergeTime = performance.now();
-        console.log('[RecipeDetail] State merged at:', mergeTime);
-        
+
         setModalLoading(false);
         
         // Measure paint time after React renders
@@ -273,10 +265,10 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       .catch(err => {
         // Ignore AbortError - already handled
         if (err.name === 'AbortError') {
-          console.log('[RecipeDetail] Fetch aborted for:', recipe.id);
+
           return;
         }
-        console.error('Error:', err);
+
         setModalLoading(false);
       });
   };
@@ -429,23 +421,19 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 }
 
 export async function getServerSideProps() {
-  console.log('[SSR] ====== START ======');
+
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    console.log('[SSR] 1. Env check:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
-    
+
     if (!supabaseUrl || !supabaseKey) {
-      console.error('[SSR] 2. Missing env vars - returning empty');
+
       return { props: { initialRecipes: [], ssrError: 'Missing env vars' } };
     }
     
     const { createClient } = require('@supabase/supabase-js');
     const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    console.log('[SSR] 3. Client created, executing query...');
-    
+
     // Use simpler query first to debug
     const { data: recipes, error, count } = await supabase
       .from('recipes')
@@ -453,24 +441,18 @@ export async function getServerSideProps() {
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(100);
-    
-    console.log('[SSR] 4. Query executed:', { 
-      error: error?.message, 
-      count: count,
-      recipesLength: recipes?.length,
-      errorDetails: JSON.stringify(error)
+
     });
     
     if (error) {
-      console.error('[SSR] 5. Supabase error:', error.message, error.details, error.hint);
+
       return { props: { initialRecipes: [], ssrError: error.message } };
     }
-    
-    console.log('[SSR] 6. Success, returning', recipes?.length || 0, 'recipes');
-    console.log('[SSR] ====== END ======');
+
+
     return { props: { initialRecipes: recipes || [], ssrError: null } };
   } catch (e) {
-    console.error('[SSR] 7. Fatal error:', e.message, e.stack);
+
     return { props: { initialRecipes: [], ssrError: e.message } };
   }
 }
