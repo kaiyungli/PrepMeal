@@ -65,20 +65,20 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, onF
       <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
         {/* Favorite Button - top right, offset from close button */}
         {onFavorite && (
-          <button
+          <button 
             onClick={(e) => {
               e.stopPropagation();
               onFavorite();
-            }}
-            className="absolute top-4 right-14 z-10 p-2 rounded-full bg-white/80 hover:bg-white shadow-md transition-colors"
+            }} 
+            className={`absolute top-4 right-14 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-10 transition-all duration-200 hover:scale-110 ${
+              isFavorite 
+                ? 'bg-rose-500 text-white' 
+                : 'bg-white/80 text-rose-400 hover:bg-white'
+            }`}
+            aria-label={isFavorite ? "取消收藏" : "收藏"}
           >
-            <svg 
-              className={`w-6 h-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-400'}`}
-              viewBox="0 0 24 24" 
-              stroke={isFavorite ? 'currentColor' : 'currentColor'} 
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            <svg className="w-5 h-5" fill={isFavorite ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
             </svg>
           </button>
         )}
