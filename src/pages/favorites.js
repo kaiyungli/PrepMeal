@@ -39,8 +39,10 @@ export default function FavoritesPage() {
       try {
         const res = await fetch('/api/user/favorites/recipes');
         const data = await res.json();
-        if (data.recipes) {
-          setRecipes(data.recipes);
+        // API returns { success: true, data: { recipes: [...] } }
+        const recipesData = data?.data?.recipes || data?.recipes || [];
+        if (recipesData) {
+          setRecipes(recipesData);
         }
       } catch (err) {
         console.error('Failed to load favorite recipes:', err);
