@@ -10,9 +10,9 @@ interface FavoriteButtonProps {
 }
 
 /**
- * FavoriteButton - isolated favorite toggle with local state for instant UI
+ * FavoriteButton - isolated favorite toggle with optimistic override
  * - Wrapped in React.memo to prevent unnecessary re-renders
- * - Updates UI immediately on click (optimistic)
+ * - Uses optimisticOverride to show instant UI without syncing local state
  * - Rolls back on API failure
  * - Syncs with global state in background
  */
@@ -24,15 +24,18 @@ function FavoriteButton({
   onAuthRequired,
   className = '' 
 }: FavoriteButtonProps) {
-  const [localFav, setLocalFav] = useState(initialIsFavorite);
   const [isLoading, setIsLoading] = useState(false);
+  const [optimisticOverride, setOptimisticOverride] = useState<boolean | null>(null);
+  
+  // Display value: use optimistic override if set, otherwise use prop
+  const displayFav = optimisticOverride ?? initialIsFavorite;
 
-  // Sync local state with prop when it changes (but not while request in flight)
+  // Clear override when parent prop catches up to the optimistic value
   useEffect(() => {
-    if (!isLoading) {
-      setLocalFav(initialIsFavorite);
+    if (optimisticOverride !== null && initialIsFavorite === optimisticOverride) {
+      setOptimisticOverride(null);
     }
-  }, [initialIsFavorite, isLoading]);
+  }, [initialIsFavorite, optimisticOverride]);
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -47,9 +50,9 @@ function FavoriteButton({
       return;
     }
     
-    // Immediate UI update (optimistic)
-    const previousState = localFav;
-    setLocalFav(!localFav);
+    // Immediate optimistic UI update
+    const nextValue = !displayFav;
+    setOptimisticOverride(nextValue);
     setIsLoading(true);
 
     try {
@@ -57,28 +60,28 @@ function FavoriteButton({
       
       if (!success) {
         // Rollback on failure
-        setLocalFav(previousState);
+        setOptimisticOverride(null);
       }
     } catch (err) {
       // Rollback on error
-      setLocalFav(previousState);
+      setOptimisticOverride(null);
     } finally {
       setIsLoading(false);
     }
-  }, [recipeId, toggleFavorite, isAuthenticated, onAuthRequired, localFav, isLoading]);
+  }, [recipeId, toggleFavorite, isAuthenticated, onAuthRequired, displayFav, isLoading]);
 
   return (
     <button 
       onClick={handleClick}
       disabled={isLoading}
       className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-auto hover:scale-110 disabled:opacity-50 ${
-        localFav 
+        displayFav 
           ? 'bg-rose-500 text-white' 
           : 'bg-white/80 text-rose-400 hover:bg-white'
       } ${className}`}
-      aria-label={localFav ? "取消收藏" : "收藏"}
+      aria-label={displayFav ? "取消收藏" : "收藏"}
     >
-      <svg className="w-5 h-5" fill={localFav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="w-5 h-5" fill={displayFav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
       </svg>
     </button>
