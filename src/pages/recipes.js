@@ -87,13 +87,16 @@ export default function RecipesPage({ initialRecipes }) {
                 key={recipe.id}
                 recipe={recipe}
                 onClick={() => setSelectedRecipe(recipe)}
-                onFavorite={() => {
+                onFavorite={async () => {
                   if (!isAuthenticated) {
                     showToast('請先登入以收藏食譜', 'info');
-                      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                     return;
                   }
-                  toggleFavorite(recipe.id);
+                  const result = await toggleFavorite(recipe.id);
+                  if (!result) {
+                    showToast('收藏失敗，請再試一次', 'error');
+                  }
                 }}
                 isFavorite={isFavorite(recipe.id)}
               />
