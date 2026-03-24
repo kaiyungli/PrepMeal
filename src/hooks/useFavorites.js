@@ -65,6 +65,7 @@ export function useFavorites() {
       const token = await getAccessToken();
       
       if (!token) {
+        console.log('[useFavorites] No token - returning false');
         return false;
       }
       
@@ -88,6 +89,8 @@ export function useFavorites() {
           body: JSON.stringify({ recipe_id: normalizedId }),
         });
       }
+      
+      console.log('[useFavorites] API response:', res.status, res.ok);
       
       if (res.ok) {
         if (isFav) {

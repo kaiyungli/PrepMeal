@@ -354,13 +354,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                   <RecipeCard
                     recipe={recipe}
                     onClick={() => handleRecipeClick(recipe)}
-                    onFavorite={() => {
+                    onFavorite={async () => {
                       if (!isAuthenticated) {
                         showToast('請先登入以收藏食譜', 'info');
-                      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+                        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
                         return;
                       }
-                      toggleFavorite(recipe.id);
+                      console.log('[Homepage] Favorite click:', recipe.id, 'isFav:', isFavorite(recipe.id));
+                      const result = await toggleFavorite(recipe.id);
+                      console.log('[Homepage] toggleFavorite result:', result);
+                      if (!result) {
+                        showToast('收藏失敗，請再試一次', 'error');
+                      }
                     }}
                     isFavorite={isFavorite(recipe.id)}
                   />
@@ -400,14 +405,19 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         recipe={selectedRecipe}
         loading={modalLoading}
         isFavorite={selectedRecipe ? isFavorite(selectedRecipe.id) : false}
-        onFavorite={() => {
+        onFavorite={async () => {
           if (!isAuthenticated) {
             showToast('請先登入以收藏食譜', 'info');
             window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
             return;
           }
           if (selectedRecipe?.id) {
-            toggleFavorite(selectedRecipe.id);
+            console.log('[Homepage] Modal Favorite click:', selectedRecipe.id);
+            const result = await toggleFavorite(selectedRecipe.id);
+            console.log('[Homepage] Modal toggleFavorite result:', result);
+            if (!result) {
+              showToast('收藏失敗，請再試一次', 'error');
+            }
           }
         }}
       />
