@@ -12,6 +12,7 @@
  * - speed: quick, normal
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
+import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner'
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
 function getRecipeSearchText(recipe: Recipe): string {
@@ -35,7 +36,7 @@ function getRecipeCanonicalSet(recipe: Recipe): Set<string> {
 
 
 // Randomness factor for variety (±20% score variation)
-const RANDOM_FACTOR = 0.2;
+const RANDOM_FACTOR = PLANNER_WEIGHTS.RANDOM_FACTOR;
 
 // Helper to apply recipe selection and update state
 // Unified state update for locked / perfect match / normal selection
@@ -67,42 +68,8 @@ interface Recipe {
   [key: string]: any
 }
 
-// Weight configuration
-const WEIGHTS = {
-  // Repeat penalty
-  REPEAT_PENALTY: -3,
-  
-  // Protein diversity
-  PROTEIN_SAME_DAY: -2,
-  PROTEIN_WITHIN_2_DAYS: -1,
-  PROTEIN_NEW: 2,
-  
-  // Method diversity
-  METHOD_SAME_DAY: -1,
-  METHOD_NEW: 1,
-  
-  // Pantry (uses normalized ingredients) - strong bonus
-  PANTRY_MATCH: 12,
-  
-  // Speed bias (weekday)
-  SPEED_QUICK: 1,
-  SPEED_NORMAL: 0.5,
-  SPEED_SLOW: -1,
-  
-  // Difficulty bias
-  DIFFICULTY_EASY: 1,
-  DIFFICULTY_MEDIUM: 0,
-  DIFFICULTY_HARD: -0.5,
-  
-  // Variety bonus (new cuisine)
-  VARIETY_NEW_CUISINE: 0.5,
-  
-  // Missing penalty
-  MISSING_PENALTY: 0.1,
-  
-  // Base
-  BASE_SCORE: 5,
-}
+// Use centralized PLANNER_WEIGHTS constants
+const WEIGHTS = PLANNER_WEIGHTS;
 
 /**
  * Calculate protein diversity score
@@ -348,10 +315,10 @@ export function planWeekAdvanced(
         // Protein diversity
         const protein = r.primary_protein || r.protein?.[0];
         if (protein && recentProteins.length > 0) {
-          if (!recentProteins.slice(-3).includes(protein)) {
-            score += 2;
+          if (!recentProteins.slice(-PLANNER_RULES.PROTEIN_LOOKBACK.WITHIN_2_DAYS).includes(protein)) {
+            score += PLANNER_WEIGHTS.PROTEIN_NEW;
           } else {
-            score -= 1;
+            score += PLANNER_WEIGHTS.PROTEIN_SAME_DAY;
           }
         }
         
@@ -361,7 +328,7 @@ export function planWeekAdvanced(
           if (!recentMethods.slice(-2).includes(method)) {
             score += 1;
           } else {
-            score -= 1;
+            score += PLANNER_WEIGHTS.PROTEIN_SAME_DAY;
           }
         }
         
