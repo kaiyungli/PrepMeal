@@ -1,99 +1,65 @@
 // Favorites API - GET, POST, DELETE
-// Token-based auth (same as /api/user/menus)
-import supabase from '@/lib/supabase';
+// Unified contract using _auth helper
+
+import { requireAuth, ApiResponse } from '../_auth';
 
 export default async function handler(req, res) {
-  let userId = null;
-
-  // Only accept Authorization header (token-based auth)
-  const authHeader = req.headers.authorization;
-  console.log('[Favorites API] Method:', req.method);
-  console.log('[Favorites API] Has auth header:', !!authHeader);
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('[Favorites API] No token');
-    return res.status(401).json({ error: 'Unauthorized - please log in' });
-  }
-
-  const token = authHeader.substring(7);
-  console.log('[Favorites API] Token length:', token?.length);
-
-  // Verify token like menus API does
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-      console.log('[Favorites API] getUser error:', error);
-      console.log('[Favorites API] User:', user?.id);
-      if (!error && user) {
-        userId = user.id;
-      }
-    } catch (err) {
-      console.error('[Favorites API] Token verification error:', err);
-    }
-  }
-
-  // No token = no access
-  if (!userId) {
-    console.log('[Favorites API] Invalid token - returning 401');
-    return res.status(401).json({ error: 'Unauthorized - invalid token' });
-  }
-
-  console.log('[Favorites API] Authenticated user:', userId);
+  // Require auth for all methods
+  const userId = await requireAuth(req, res);
+  if (!userId) return;
+  
+  console.log('[Favorites] UserId:', userId);
 
   if (req.method === 'GET') {
-    // Get user's favorites
-    console.log('[Favorites API] GET - querying user_favorites');
+    console.log('[Favorites] GET - querying user_favorites');
+    
     const { data, error } = await supabase
       .from('user_favorites')
       .select('recipe_id')
       .eq('user_id', userId);
     
-    console.log('[Favorites API] GET data:', data?.length, 'records');
-    console.log('[Favorites API] GET error:', error);
-    
     if (error) {
-      console.error('[Favorites API] GET query error:', error);
-      return res.status(500).json({ error: error.message });
+      console.error('[Favorites] GET error:', error);
+      return res.status(500).json(ApiResponse.error(error.message));
     }
     
-    const favoriteIds = (data || []).map(f => f.recipe_id);
-    return res.status(200).json({ favorites: favoriteIds });
+    const favorites = (data || []).map(f => f.recipe_id);
+    console.log('[Favorites] GET data:', favorites.length, 'records');
+    return res.status(200).json(ApiResponse.success({ favorites }));
   }
 
   if (req.method === 'POST') {
     const { recipe_id } = req.body;
     
     if (!recipe_id) {
-      return res.status(400).json({ error: 'recipe_id required' });
+      return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
     }
     
-    console.log('[Favorites API] POST - adding:', recipe_id);
+    console.log('[Favorites] POST - adding:', recipe_id);
     
     const { error } = await supabase
       .from('user_favorites')
       .insert({ user_id: userId, recipe_id });
     
-    console.log('[Favorites API] POST error:', error);
-    
     if (error) {
-      console.error('[Favorites API] POST insert error:', error);
+      console.error('[Favorites] POST error:', error);
       if (error.code === '23505') {
-        return res.status(200).json({ success: true, message: 'Already favorited' });
+        return res.status(200).json(ApiResponse.success({ message: 'Already favorited' }));
       }
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json(ApiResponse.error(error.message));
     }
     
-    return res.status(200).json({ success: true });
+    return res.status(201).json(ApiResponse.created({ recipe_id }));
   }
 
   if (req.method === 'DELETE') {
     const { recipe_id } = req.query;
     
     if (!recipe_id) {
-      return res.status(400).json({ error: 'recipe_id required' });
+      return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
     }
     
-    console.log('[Favorites API] DELETE - removing:', recipe_id);
+    console.log('[Favorites] DELETE - removing:', recipe_id);
     
     const { error } = await supabase
       .from('user_favorites')
@@ -101,15 +67,13 @@ export default async function handler(req, res) {
       .eq('user_id', userId)
       .eq('recipe_id', recipe_id);
     
-    console.log('[Favorites API] DELETE error:', error);
-    
     if (error) {
-      console.error('[Favorites API] DELETE error:', error);
-      return res.status(500).json({ error: error.message });
+      console.error('[Favorites] DELETE error:', error);
+      return res.status(500).json(ApiResponse.error(error.message));
     }
     
-    return res.status(200).json({ success: true });
+    return res.status(200).json(ApiResponse.success({ recipe_id }));
   }
 
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).json(ApiResponse.methodNotAllowed());
 }

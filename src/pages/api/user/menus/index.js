@@ -1,34 +1,42 @@
-// Save menu plan API - token-based auth only
+// Menu Plans API - GET, POST
+// Unified contract using _auth helper
+
 import supabase from '@/lib/supabase';
+import { requireAuth, ApiResponse } from '../_auth';
 
 export default async function handler(req, res) {
-  let userId = null;
+  // Require auth for all methods
+  const userId = await requireAuth(req, res);
+  if (!userId) return;
+  
+  console.log('[Menus] UserId:', userId);
 
-  // Only accept Authorization header (token-based auth)
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-      if (!error && user) {
-        userId = user.id;
-      }
-    } catch (err) {
-      console.error('Token verification error:', err);
+  if (req.method === 'GET') {
+    console.log('[Menus] GET - querying saved_menu_plans');
+    
+    const { data, error } = await supabase
+      .from('saved_menu_plans')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('[Menus] GET error:', error);
+      return res.status(500).json(ApiResponse.error(error.message));
     }
-  }
-
-  // No token = no access
-  if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized - please log in' });
+    
+    console.log('[Menus] GET data:', (data || []).length, 'plans');
+    return res.status(200).json(ApiResponse.success({ plans: data || [] }));
   }
 
   if (req.method === 'POST') {
     const { name, week_start_date, days_count, items, notes } = req.body;
     
     if (!name || !week_start_date || !items || !Array.isArray(items)) {
-      return res.status(400).json({ error: 'name, week_start_date, and items are required' });
+      return res.status(400).json(ApiResponse.badRequest('name, week_start_date, and items are required'));
     }
+
+    console.log('[Menus] POST - creating plan:', name);
 
     try {
       // Insert parent plan
@@ -44,7 +52,10 @@ export default async function handler(req, res) {
         .select()
         .single();
       
-      if (planError) throw planError;
+      if (planError) {
+        console.error('[Menus] POST plan error:', planError);
+        throw planError;
+      }
 
       // Insert items
       const itemsToInsert = items.map(item => ({
@@ -59,29 +70,18 @@ export default async function handler(req, res) {
         .from('saved_menu_plan_items')
         .insert(itemsToInsert);
       
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('[Menus] POST items error:', itemsError);
+        throw itemsError;
+      }
 
-      return res.status(200).json({ success: true, plan_id: plan.id });
+      console.log('[Menus] POST success - plan_id:', plan.id);
+      return res.status(201).json(ApiResponse.created({ plan_id: plan.id }));
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      console.error('[Menus] POST error:', err);
+      return res.status(500).json(ApiResponse.error(err.message));
     }
   }
 
-  if (req.method === 'GET') {
-    try {
-      const { data: plans, error } = await supabase
-        .from('saved_menu_plans')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      return res.status(200).json({ plans: plans || [] });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-
-  return res.status(405).json({ error: 'Method not allowed' });
+  return res.status(405).json(ApiResponse.methodNotAllowed());
 }
