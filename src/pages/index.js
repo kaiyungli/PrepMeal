@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 
 import { Toast, useToast } from '@/components/ui/Toast';
@@ -132,7 +132,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const abortControllerRef = useRef(null);
   
   // Favorites hook
-  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
+  // Use Set for O(1) lookups to avoid full grid re-render
+  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
   const { toast, showToast } = useToast();
   
   // Weekly plan state (homepage specific) - initialize as empty, generate in useEffect
@@ -367,7 +369,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                         showToast('收藏失敗，請再試一次', 'error');
                       }
                     }}
-                    isFavorite={isFavorite(recipe.id)}
+                    isFavorite={favoriteSet.has(recipe.id)}
                   />
                 </div>
               ))}
@@ -404,7 +406,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         }}
         recipe={selectedRecipe}
         loading={modalLoading}
-        isFavorite={selectedRecipe ? isFavorite(selectedRecipe.id) : false}
+        isFavorite={selectedRecipe ? favoriteSet.has(selectedRecipe.id) : false}
         onFavorite={async () => {
           if (!isAuthenticated) {
             showToast('請先登入以收藏食譜', 'info');
