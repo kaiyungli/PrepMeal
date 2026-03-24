@@ -1,92 +1,18 @@
 'use client';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFavorites } from '@/hooks/useFavorites';
 
 import { Toast, useToast } from '@/components/ui/Toast';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
+import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 
-const sortOptions = [
-  { value: 'newest', label: '最新' },
-  { value: 'popular', label: '最受歡迎' },
-  { value: 'quick', label: '最快完成' },
-  { value: 'high_protein', label: '高蛋白' },
-];
-
-// Helper to generate weekly plan from recipes
-function generateWeeklyPlan(recipes) {
-  if (!recipes || recipes.length === 0) return [];
-  
-  // Shuffle and pick 5 unique recipes
-  const shuffled = [...recipes].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 5);
-  const days = ['週一', '週二', '週三', '週四', '週五'];
-  
-  return selected.map((recipe, index) => ({
-    day: days[index],
-    recipe: recipe,
-    done: index < 2 // First 2 days marked as done for demo
-  }));
-}
-
-// Helper to generate shopping list from weekly plan using the real API
-async function generateShoppingListFromPlan(weeklyPlan) {
-  
-  
-  if (!weeklyPlan || weeklyPlan.length === 0) {
-
-    return [];
-  }
-  
-  const recipeIds = weeklyPlan.map(item => item.recipe?.id).filter(Boolean);
-
-  if (recipeIds.length === 0) {
-
-    return [];
-  }
-
-  try {
-    // Use the real shopping list API
-    const response = await fetch('/api/shopping-list', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        recipeIds,
-        pantryIngredients: [],
-        servings: 1
-      })
-    });
-    
-    const data = await response.json();
-
-    
-    
-    // Use the toBuy items from the real API
-    // Format quantity with unit properly
-    const formatQty = (item) => {
-      const qty = item.quantity;
-      const unit = item.unit || item.unit_name || item.unit_code || '';
-      if (!qty) return '';
-      return unit ? `${qty}${unit}` : `${qty}`;
-    };
-    
-    const list = (data.toBuy || data.items || []).slice(0, 5).map(item => ({
-      name: item.display_name || item.name || item.ingredient_name || '食材',
-      qty: formatQty(item)
-    }));
-
-    return list;
-  } catch (e) {
-
-    return [];
-  }
-}
-
+// Main Homepage Component
 export default function Home({ initialRecipes = [], ssrError = null }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
@@ -150,19 +76,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     }
   }, [initialRecipes, planLoaded]);
   
-  // Auto-prefetch first 2 visible recipes after mount (delayed to not block initial render)
-  useEffect(() => {
-    if (initialRecipes.length > 0) {
-      // Delay prefetch to not block initial page render
-      const timerId = setTimeout(() => {
-        const firstTwo = initialRecipes.slice(0, 2);
-        firstTwo.forEach(recipe => {
-          handleRecipeHover(recipe);
-        });
-      }, 1500); // Wait 1.5s after mount
-      return () => clearTimeout(timerId);
-    }
-  }, [initialRecipes]);
+  // AUTO-PREFETCH DISABLED - only fetch on actual click
+  // useEffect(() => {
+  //   if (initialRecipes.length > 0) {
+  //     const timerId = setTimeout(() => {
+  //       const firstTwo = initialRecipes.slice(0, 2);
+  //       firstTwo.forEach(recipe => {
+  //         handleRecipeHover(recipe);
+  //       });
+  //     }, 1500);
+  //     return () => clearTimeout(timerId);
+  //   }
+  // }, [initialRecipes]);
   
   // AUTO SHOPPING LIST DISABLED
   // useEffect(() => {
@@ -193,13 +118,12 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     filterRecipes,
   } = useRecipeFilters();
 
-  // Filter recipes using the hook
+  // Filter recipes using the hook - memoize to avoid recompute
   const allRecipes = initialRecipes || [];
   const filteredRecipes = filterRecipes(allRecipes);
-  const recipesList = filteredRecipes;
+  const recipesList = useMemo(() => filteredRecipes, [filteredRecipes]);
 
-  // Recipe click handler - progressive loading with cache and race protection
-  const activeRecipeIdRef = useRef(null);
+  // PREFETCH DISABLED - only fetch on actual click
   
   const handleRecipeClick = (recipe) => {
 
@@ -274,11 +198,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       });
   };
 
-  // Prefetch recipe detail on hover/touch - uses shared fetch helper with deduplication
-  const handleRecipeHover = (recipe) => {
-    // Skip if already cached or pending (fetchRecipeDetail handles deduplication)
-    fetchRecipeDetail(recipe.id).catch(() => {});
-  };
+  // PREFETCH DISABLED - only fetch recipe detail on actual click
+  // const handleRecipeHover = (recipe) => { fetchRecipeDetail(recipe.id).catch(() => {}); };
 
   const hasSearch = searchQuery?.trim()?.length > 0;
   
@@ -346,27 +267,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           )}
 
           {!showSkeleton && recipesList.length > 0 && (
-            <div className="grid grid-cols-12 gap-6">
-              {recipesList.map(recipe => (
-                <div 
-                  key={recipe.id} 
-                  className="col-span-12 sm:col-span-6 md:col-span-4"
-                  
-                >
-                  <RecipeCard
-                    recipe={recipe}
-                    onClick={() => handleRecipeClick(recipe)}
-                    toggleFavorite={toggleFavorite}
-                    isFavorite={favoriteSet.has(recipe.id)}
-                    isAuthenticated={isAuthenticated}
-                    onAuthRequired={() => {
-                      showToast('請先登入以收藏食譜', 'info');
-                      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+            <HomeRecipeGrid
+              recipes={recipesList}
+              favoriteSet={favoriteSet}
+              toggleFavorite={toggleFavorite}
+              isAuthenticated={isAuthenticated}
+              onAuthRequired={() => {
+                showToast('請先登入以收藏食譜', 'info');
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+              }}
+              onRecipeClick={handleRecipeClick}
+            />
           )}
 
           {!showSkeleton && recipesList.length === 0 && hasFilters && (
