@@ -17,7 +17,13 @@ export function useFavorites() {
     const fetchFavorites = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/user/favorites');
+        // Get access token for Authorization header
+        const token = await getAccessToken();
+        console.log('[useFavorites] Token available:', !!token);
+        
+        const res = await fetch('/api/user/favorites', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         console.log('[useFavorites] GET status:', res.status);
         
         if (!res.ok) {
@@ -37,7 +43,7 @@ export function useFavorites() {
     };
 
     fetchFavorites();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, getAccessToken]);
 
   const toggleFavorite = useCallback(async (recipeId) => {
     if (!isAuthenticated) {
@@ -49,18 +55,25 @@ export function useFavorites() {
     console.log('[useFavorites] Toggling:', recipeId, 'isFavorite:', isFavorite);
 
     try {
+      // Get access token for Authorization header
+      const token = await getAccessToken();
+      
       let res;
       
       if (isFavorite) {
         // Remove favorite
         res = await fetch(`/api/user/favorites?recipe_id=${recipeId}`, {
           method: 'DELETE',
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
       } else {
         // Add favorite
         res = await fetch('/api/user/favorites', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
           body: JSON.stringify({ recipe_id: recipeId }),
         });
       }
@@ -76,14 +89,15 @@ export function useFavorites() {
         }
         return true;
       } else {
-        console.error('[useFavorites] Failed:', await res.text());
+        const errorText = await res.text();
+        console.error('[useFavorites] Failed:', errorText);
         return false;
       }
     } catch (err) {
       console.error('[useFavorites] Error:', err);
       return false;
     }
-  }, [isAuthenticated, favorites]);
+  }, [isAuthenticated, favorites, getAccessToken]);
 
   const isFavorite = useCallback((recipeId) => {
     return favorites.includes(recipeId);

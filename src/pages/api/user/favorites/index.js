@@ -1,24 +1,40 @@
 // Favorites API - GET, POST, DELETE
-import { supabaseServer } from '@/lib/supabaseServer';
+// Token-based auth (like /api/user/menus)
 
 export default async function handler(req, res) {
-  // Use server-side supabase client for proper session handling
-  const supabase = supabaseServer;
-  
-  if (!supabase) {
-    return res.status(500).json({ error: 'Server not configured' });
-  }
-
-  // Get user from session using server client
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  // Get user from Authorization header (Bearer token)
+  const authHeader = req.headers.authorization;
   
   console.log('[Favorites API] Method:', req.method);
+  console.log('[Favorites API] Auth header:', authHeader?.substring(0, 20) + '...');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('[Favorites API] No token - returning 401');
+    return res.status(401).json({ error: 'Unauthorized - please log in' });
+  }
+
+  const token = authHeader.substring(7);
+  
+  // Import here to avoid issues
+  const { createClient } = require('@supabase/supabase-js');
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  
+  // Verify token and get user
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  
   console.log('[Favorites API] Auth error:', authError);
   console.log('[Favorites API] User:', user?.id);
   
   if (authError || !user) {
-    console.log('[Favorites API] Unauthorized - returning 401');
-    return res.status(401).json({ error: 'Unauthorized' });
+    console.log('[Favorites API] Invalid token - returning 401');
+    return res.status(401).json({ error: 'Unauthorized - invalid token' });
   }
 
   const userId = user.id;
