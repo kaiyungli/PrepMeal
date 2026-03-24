@@ -42,6 +42,7 @@ export default function GeneratePage() {
     toggleExclusion,
     toggleCuisine,
     toggleConstraint,
+    filters, // NEW: derived unified filters
   } = useGeneratePreferences();
   
   // Recipe State
@@ -74,6 +75,9 @@ export default function GeneratePage() {
   // Recipe detail cache (optimization)
   const recipeCache = useRef(new Map());
 
+  // Derived: check if any unified filters are active (for UI/analytics)
+  const hasActiveFilters = Object.values(filters).some(arr => Array.isArray(arr) && arr.length > 0);
+
   // Lazy load shopping list when modal opens
   useEffect(() => {
     if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
@@ -102,7 +106,7 @@ export default function GeneratePage() {
         setAllRecipes(recipes);
       })
       .catch(() => {});
-  }, [cuisines, cookingConstraints, exclusions]);
+  }, [cuisines, cookingConstraints, exclusions, filters]);
 
   // Read pantry ingredients from URL
   useEffect(() => {
