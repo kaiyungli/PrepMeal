@@ -1,4 +1,5 @@
 // Favorites hook - manages user favorites
+// Designed to not block initial page render
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 
@@ -6,8 +7,9 @@ export function useFavorites() {
   const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  // Use Set for O(1) lookups instead of array.includes O(n)
+  // Use Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
   // Normalize ID to string for comparison
@@ -16,19 +18,19 @@ export function useFavorites() {
     return String(id);
   };
 
-  // Load favorites when user is authenticated
+  // Load favorites after a delay - don't block initial page paint
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      setFavorites([]);
+    if (!isAuthenticated || !user || initialized) {
       return;
     }
 
-    const fetchFavorites = async () => {
+    // Delay initial fetch to not block first paint
+    const timerId = setTimeout(async () => {
       setLoading(true);
       try {
         const token = await getAccessToken();
-        
         if (!token) {
+          setInitialized(true);
           return;
         }
         
@@ -37,11 +39,11 @@ export function useFavorites() {
         });
         
         if (!res.ok) {
+          setInitialized(true);
           return;
         }
         
         const data = await res.json();
-        // API returns { success: true, data: { favorites: [...] } }
         const favoritesData = data?.data?.favorites || data?.favorites || [];
         if (favoritesData) {
           setFavorites(favoritesData.map(id => normalizeId(id)));
@@ -50,11 +52,12 @@ export function useFavorites() {
         // Silent fail
       } finally {
         setLoading(false);
+        setInitialized(true);
       }
-    };
+    }, 2000); // 2s delay - let homepage render first
 
-    fetchFavorites();
-  }, [isAuthenticated, user?.id]);
+    return () => clearTimeout(timerId);
+  }, [isAuthenticated, user, getAccessToken, initialized]);
 
   const refreshFavorites = useCallback(async () => {
     const token = await getAccessToken();
@@ -70,7 +73,6 @@ export function useFavorites() {
     const favoritesData = data?.data?.favorites || data?.favorites || [];
     const ids = favoritesData.map(id => normalizeId(id));
     setFavorites(ids);
-    
   }, [getAccessToken]);
 
   const toggleFavorite = useCallback(async (recipeId) => {
@@ -80,32 +82,25 @@ export function useFavorites() {
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
-    
-    // Store previous favorites for rollback
-    // Only do network call, let background refresh update global state
-  // FavoriteButton handles immediate UI via local optimisticOverride
 
     try {
       const token = await getAccessToken();
-      
       if (!token) {
         return false;
       }
       
-      let res;
       const headers = { 
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       };
       
+      let res;
       if (isFav) {
-        // Remove favorite
         res = await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
           method: 'DELETE',
           headers
         });
       } else {
-        // Add favorite
         res = await fetch('/api/user/favorites', {
           method: 'POST',
           headers,
@@ -114,18 +109,16 @@ export function useFavorites() {
       }
       
       if (res.ok) {
-        // Background refresh without awaiting
-        refreshFavorites().catch(() => {});
+        // Don't refresh immediately - FavoriteButton handles UI, global state syncs later
+        // Optionally trigger background refresh after a delay
+        setTimeout(() => refreshFavorites().catch(() => {}), 3000);
         return true;
       }
-      
-      // API failed - return false for FavoriteButton to handle rollback
       return false;
     } catch (err) {
-      // Error - return false for FavoriteButton to handle rollback
       return false;
     }
-  }, [isAuthenticated, favorites, getAccessToken, refreshFavorites, favoriteSet]);
+  }, [isAuthenticated, getAccessToken, favoriteSet, refreshFavorites]);
 
   const isFavorite = useCallback((recipeId) => {
     const normalizedId = normalizeId(recipeId);
@@ -135,6 +128,7 @@ export function useFavorites() {
   return {
     favorites,
     loading: loading || authLoading,
+    favoritesReady: initialized,
     toggleFavorite,
     isFavorite,
     isAuthenticated,
