@@ -13,13 +13,10 @@ export default function AuthCallback() {
     if (!router.isReady) return;
 
     const handleCallback = async () => {
-      console.log('[AuthCallback] Starting callback处理');
-      console.log('[AuthCallback] Query params:', router.query);
       
       try {
         // 1. Check for OAuth error in URL
         if (router.query.error) {
-          console.log('[AuthCallback] OAuth error:', router.query.error);
           setError(router.query.error_description || router.query.error);
           setProcessing(false);
           return;
@@ -29,7 +26,6 @@ export default function AuthCallback() {
         const code = router.query.code;
         
         if (code) {
-          console.log('[AuthCallback] Exchanging code for session...');
           const result = await supabase.auth.exchangeCodeForSession(code);
           const { data: session, error: exchangeError } = result;
           
@@ -41,17 +37,14 @@ export default function AuthCallback() {
           }
 
           if (session?.user) {
-            console.log('[AuthCallback] PKCE session established, user:', session.user.email);
             const redirect = router.query.redirect || '/my-plans';
             const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-            console.log('[AuthCallback] Redirecting to:', finalUrl);
             router.replace(finalUrl);
             return;
           }
         }
 
         // 3. Fallback: try getSession() (implicit/hybrid flow)
-        console.log('[AuthCallback] Trying getSession() fallback...');
         const sessionResult = await supabase.auth.getSession();
         const { data: session, error: sessionError } = sessionResult;
         
@@ -63,13 +56,10 @@ export default function AuthCallback() {
         }
 
         if (session?.user) {
-          console.log('[AuthCallback] OAuth success, user:', session.user.email);
           const redirect = router.query.redirect || '/my-plans';
           const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-          console.log('[AuthCallback] Redirecting to:', finalUrl);
           router.replace(finalUrl);
         } else {
-          console.log('[AuthCallback] No session - code:', code, 'query:', router.query);
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
         }
