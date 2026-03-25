@@ -3,15 +3,15 @@ import { useState, useEffect, useCallback } from 'react';
 import supabase from '@/lib/supabase';
 
 export function useAuth() {
-  // Start with loading: true to avoid premature auth checks during SSR/initial load
-  // The actual auth state will be loaded asynchronously via getSession
+  // Start with loading: true - but don't block on it
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    // Check current session
-    const getSession = async () => {
+    // Lazy load session AFTER first paint - don't block
+    const loadSession = async () => {
       try {
         const { data: { session } } = await supabase?.auth.getSession();
         setUser(session?.user || null);
@@ -22,12 +22,16 @@ export function useAuth() {
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
+        setHydrated(true);
       }
     };
     
-    const start = Date.now();
-    getSession().then(() => {
-      console.log('[Perf] Auth ready:', Date.now() - start, 'ms');
+    // Schedule for after first paint
+    const timerId = requestAnimationFrame(() => {
+      const start = Date.now();
+      loadSession().then(() => {
+        console.log('[Perf] Auth ready:', Date.now() - start, 'ms');
+      });
     });
 
     // Listen for auth changes
@@ -37,7 +41,10 @@ export function useAuth() {
       setLoading(false);
     });
 
-    return () => subscription?.unsubscribe();
+    return () => {
+      cancelAnimationFrame(timerId);
+      subscription?.unsubscribe();
+    };
   }, []);
 
   // Get current access token for API calls - stable reference
@@ -51,8 +58,6 @@ export function useAuth() {
   }, []);
 
   const signInWithGoogle = async () => {
-    
-    
     // Use callback page for OAuth redirect
     const redirectParam = typeof window !== 'undefined' 
       ? new URLSearchParams(window.location.search).get('redirect') 
@@ -61,18 +66,12 @@ export function useAuth() {
       ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
       : `${window.location.origin}/auth/callback`;
     
-    
-    
     if (!supabase) throw new Error("Supabase not initialized");
-    
     
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
-    
-    
-    
     
     if (error) throw error;
     return data;
@@ -87,7 +86,8 @@ export function useAuth() {
       : `${window.location.origin}/auth/callback`;
     
     try {
-      if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
+      if (!supabase) throw new Error("Supabase not initialized"); 
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: { redirectTo },
       });
@@ -107,7 +107,8 @@ export function useAuth() {
       : `${window.location.origin}/auth/callback`;
     
     try {
-      if (!supabase) throw new Error("Supabase not initialized"); const { data, error } = await supabase.auth.signInWithOAuth({
+      if (!supabase) throw new Error("Supabase not initialized"); 
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: { redirectTo },
       });
@@ -128,6 +129,7 @@ export function useAuth() {
   return {
     user,
     loading,
+    authHydrated: hydrated,
     signInWithGoogle,
     signInWithApple,
     signInWithFacebook,
