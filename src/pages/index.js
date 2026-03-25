@@ -38,7 +38,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
   // Favorites - lazy loaded, doesn't block first paint
   const { favorites, toggleFavorite, isAuthenticated, favoritesHydrated } = useFavorites();
-  const favoriteSet = useMemo(() => new Set(favorites.map(String)), [favorites]);
+  const favoriteSet = useMemo(() => new Set((favorites || []).map(String)), [favorites]);
 
   // Filters
   const { filters, searchQuery, setSearchQuery, sortBy, setSortBy, showFilters, setShowFilters, recipeFilterSections, hasFilters, activeFilterCount, clearFilters, filterRecipes } = useRecipeFilters();
@@ -120,7 +120,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 setSortBy={setSortBy}
                 showFilters={showFilters}
                 setShowFilters={setShowFilters}
-                recipeFilterSections={recipeFilterSections}
+                recipeFilterSections={recipeFilterSections || []}
                 hasFilters={hasFilters}
                 activeFilterCount={activeFilterCount}
                 clearFilters={clearFilters}

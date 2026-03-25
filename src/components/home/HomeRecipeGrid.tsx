@@ -23,9 +23,10 @@ function HomeRecipeGrid({
   onAuthRequired, 
   onRecipeClick 
 }: HomeRecipeGridProps) {
+  const safeRecipes = recipes || [];
   return (
     <div className="grid grid-cols-12 gap-4">
-      {recipes.map(recipe => (
+      {safeRecipes.map(recipe => (
         <div 
           key={recipe.id} 
           className="col-span-12 sm:col-span-6 md:col-span-4"
