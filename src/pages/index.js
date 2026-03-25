@@ -125,7 +125,18 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           {/* Filters */}
           {showFilters && (
             <div className="mb-6">
-              <RecipeFilters sections={recipeFilterSections} />
+              <RecipeFilters
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
+                recipeFilterSections={recipeFilterSections}
+                hasFilters={hasFilters}
+                activeFilterCount={activeFilterCount}
+                clearFilters={clearFilters}
+              />
             </div>
           )}
 
