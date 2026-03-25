@@ -38,8 +38,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     console.log('[Perf] Home mount');
   }, []);
 
-// Homepage does NOT use useFavorites - avoids duplicate init and slow first paint
-  // Hearts are rendered via LazyFavoriteButton which doesn't fetch on mount
+// Homepage does NOT use favorites - pure static page for fast load
+  // Favorites only work on /recipes and /favorites pages
   
   // Filters
   const { filters, searchQuery, setSearchQuery, sortBy, setSortBy, showFilters, setShowFilters, recipeFilterSections, hasFilters, activeFilterCount, clearFilters, filterRecipes } = useRecipeFilters();
