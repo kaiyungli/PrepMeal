@@ -28,7 +28,9 @@ interface RecipeDetailContentProps {
   }
   isLoading?: boolean
   isFavorite?: boolean
-  onFavorite?: () => void
+  toggleFavorite?: (recipeId: string | number) => Promise<boolean>
+  isAuthenticated?: boolean
+  onAuthRequired?: () => void
 }
 
 // Skeleton component for loading sections
@@ -40,7 +42,7 @@ const difficultyLabels: Record<string, string> = { easy: '易', medium: '中', h
 const speedLabels: Record<string, string> = { quick: '快', normal: '中', slow: '慢', 快: '快', 中: '中', 慢: '慢' }
 const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒', fried: '炸', 炒: '炒', 蒸: '蒸', 煮: '煮', 焗: '焗', 炆: '炆', 燒: '燒' }
 
-export default function RecipeDetailContent({ recipe, isLoading, isFavorite, onFavorite }: RecipeDetailContentProps) {
+export default function RecipeDetailContent({ recipe, isLoading, isFavorite, toggleFavorite, isAuthenticated, onAuthRequired }: RecipeDetailContentProps) {
   if (!recipe) return null
 
   // Defer heavy sections to reduce initial paint cost on iPad
@@ -64,13 +66,19 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, onF
       {/* Hero Image */}
       <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
         {/* Favorite Button - top right, offset from close button */}
-        {onFavorite && (
+        {(toggleFavorite || onAuthRequired) && (
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              onFavorite();
+              if (!isAuthenticated && onAuthRequired) {
+                onAuthRequired();
+                return;
+              }
+              if (toggleFavorite && recipe?.id) {
+                toggleFavorite(recipe.id);
+              }
             }} 
-            className={`absolute top-4 right-14 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-10 transition-all duration-200 hover:scale-110 ${
+            className={`absolute top-4 right-14 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-10 hover:scale-110 ${
               isFavorite 
                 ? 'bg-rose-500 text-white' 
                 : 'bg-white/80 text-rose-400 hover:bg-white'

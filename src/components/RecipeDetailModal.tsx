@@ -8,7 +8,9 @@ interface RecipeDetailModalProps {
   recipe?: any
   loading?: boolean
   isFavorite?: boolean
-  onFavorite?: () => void
+  toggleFavorite?: (recipeId: string | number) => Promise<boolean>
+  isAuthenticated?: boolean
+  onAuthRequired?: () => void
 }
 
 export default function RecipeDetailModal({ 
@@ -17,7 +19,9 @@ export default function RecipeDetailModal({
   recipe, 
   loading,
   isFavorite = false,
-  onFavorite
+  toggleFavorite,
+  isAuthenticated,
+  onAuthRequired
 }: RecipeDetailModalProps) {
   const router = useRouter()
   
@@ -61,7 +65,9 @@ export default function RecipeDetailModal({
         recipe={recipe} 
         isLoading={loading} 
         isFavorite={isFavorite}
-        onFavorite={onFavorite}
+        toggleFavorite={toggleFavorite}
+        isAuthenticated={isAuthenticated}
+        onAuthRequired={onAuthRequired}
       />
     </Modal>
   )

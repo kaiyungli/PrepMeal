@@ -1,213 +1,87 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
-import { useFavorites } from '@/hooks/useFavorites';
 
-import { Toast, useToast } from '@/components/ui/Toast';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
-import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
+import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useFavorites } from '@/hooks/useFavorites';
+import Toast, { useToast } from '@/components/ui/Toast';
 
-// Main Homepage Component
+// Fetch recipe detail with cache
+const recipeDetailCache = new Map();
+const fetchRecipeDetail = async (recipeId) => {
+  if (recipeDetailCache.has(recipeId)) {
+    return recipeDetailCache.get(recipeId);
+  }
+  const res = await fetch(`/api/recipes/${recipeId}`);
+  const data = await res.json();
+  const recipes = data?.data?.recipes || data?.recipes || [];
+  recipeDetailCache.set(recipeId, recipes[0] || null);
+  return recipes[0] || null;
+};
+
 export default function Home({ initialRecipes = [], ssrError = null }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
-  
-  // In-memory cache for recipe details - useRef to avoid rerenders
-  const recipeDetailCache = useRef(new Map());
-  // Track pending requests to deduplicate in-flight fetches
-  const pendingRequests = useRef(new Map());
-  
-  // Helper to fetch recipe detail with deduplication and abort support
-  // NOTE: If hover prefetch started without signal and click later calls with signal,
-  // the existing pending promise is returned, so click abort won't control that request.
-  // This edge case is acceptable - worst case is one redundant request.
-  const fetchRecipeDetail = (recipeId, signal) => {
-    // Return cached data if resolved
-    const cached = recipeDetailCache.current.get(recipeId);
-    if (cached) return Promise.resolve(cached);
-    
-    // Return existing pending promise if fetching
-    const pending = pendingRequests.current.get(recipeId);
-    if (pending) return pending;
-    
-    // Start new fetch
-    const fetchPromise = fetch(`/api/recipes/${recipeId}`, { signal })
-      .then(res => res.json())
-      .then(data => {
-        recipeDetailCache.current.set(recipeId, data);
-        pendingRequests.current.delete(recipeId);
-        return data;
-      })
-      .catch(err => {
-        pendingRequests.current.delete(recipeId);
-        // Ignore AbortError - it's expected when cancelling
-        if (err.name === 'AbortError') return Promise.reject(err);
-        throw err;
-      });
-    
-    pendingRequests.current.set(recipeId, fetchPromise);
-    return fetchPromise;
-  };
-  
-  // Abort controller for current fetch
   const abortControllerRef = useRef(null);
-  
-  // Favorites hook
-  const { favorites, isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
-  // Use Set for O(1) lookups to avoid full grid re-render
-  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
   const { toast, showToast } = useToast();
-  
-  // Weekly plan state (homepage specific) - initialize as empty, generate in useEffect
-  const [weeklyPlan, setWeeklyPlan] = useState([]);
-  const [shoppingList, setShoppingList] = useState([]);
-  const [planLoaded, setPlanLoaded] = useState(false);
-  
-  // Generate weekly plan after mount to avoid hydration mismatch from Math.random()
-  useEffect(() => {
-    if (initialRecipes && initialRecipes.length > 0 && !planLoaded) {
-      setWeeklyPlan(generateWeeklyPlan(initialRecipes));
-      setPlanLoaded(true);
-    }
-  }, [initialRecipes, planLoaded]);
-  
-  // AUTO-PREFETCH DISABLED - only fetch on actual click
-  // useEffect(() => {
-  //   if (initialRecipes.length > 0) {
-  //     const timerId = setTimeout(() => {
-  //       const firstTwo = initialRecipes.slice(0, 2);
-  //       firstTwo.forEach(recipe => {
-  //         handleRecipeHover(recipe);
-  //       });
-  //     }, 1500);
-  //     return () => clearTimeout(timerId);
-  //   }
-  // }, [initialRecipes]);
-  
-  // AUTO SHOPPING LIST DISABLED
-  // useEffect(() => {
-  //   async function fetchShoppingList() {
-  //     if (weeklyPlan.length === 0) {
-  //       setShoppingList([]);
-  //       return;
-  //     }
-  //     const list = await generateShoppingListFromPlan(weeklyPlan);
-  //       setShoppingList(list);
-  //   }
-  //   fetchShoppingList();
-  // }, [weeklyPlan]);
-  
-  // Use shared recipe filters hook (no args)
-  const {
-    filters,
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    showFilters,
-    setShowFilters,
-    recipeFilterSections,
-    hasFilters,
-    activeFilterCount,
-    clearFilters,
-    filterRecipes,
-  } = useRecipeFilters();
 
-  // Filter recipes using the hook - memoize to avoid recompute
-  const allRecipes = initialRecipes || [];
-  const filteredRecipes = filterRecipes(allRecipes);
-  const recipesList = useMemo(() => filteredRecipes, [filteredRecipes]);
+  // Favorites
+  const { favorites, toggleFavorite, isAuthenticated } = useFavorites();
+  const favoriteSet = useMemo(() => new Set(favorites.map(String)), [favorites]);
 
-  // PREFETCH DISABLED - only fetch on actual click
-  
-  const handleRecipeClick = (recipe) => {
+  // Filters
+  const { filters, searchQuery, setSearchQuery, sortBy, setSortBy, showFilters, setShowFilters, recipeFilterSections, hasFilters, activeFilterCount, clearFilters, filterRecipes } = useRecipeFilters();
 
-    const startTime = performance.now();
+  // Memoized recipes list - proper pattern
+  const recipesList = useMemo(() => {
+    return filterRecipes(initialRecipes || []);
+  }, [initialRecipes, filterRecipes]);
 
-    // Abort previous fetch if any
+  // Recipe click - progressive loading
+  const handleRecipeClick = useCallback((recipe) => {
+    // Abort previous
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = new AbortController();
-    
-    // Race protection: mark active recipe
-    activeRecipeIdRef.current = recipe.id;
-    
-    // Immediately show modal with card data (instant)
 
-    setSelectedRecipe(recipe);
+    // Set selected immediately with card data
+    setSelectedRecipe({ ...recipe });
     setModalLoading(true);
-    
-    // Check cache first (useRef)
-    const cached = recipeDetailCache.current.get(recipe.id);
-    if (cached) {
-      
-      // Support both { recipes: [...] } and legacy flat object
-      const fullRecipe = cached.recipes?.[0] || cached;
-      setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
-      setModalLoading(false);
-      
-      // Measure paint time
-      requestAnimationFrame(() => {
-        
-      });
-      return;
-    }
-    
-    // Fetch full detail in background with abort support
-    const fetchStart = performance.now();
-    fetchRecipeDetail(recipe.id, abortControllerRef.current.signal)
-      .then(data => {
-        // Race protection: ignore stale responses
-        if (activeRecipeIdRef.current !== recipe.id) {
 
-          return;
+    // Fetch full detail in background
+    fetchRecipeDetail(recipe.id)
+      .then(fullRecipe => {
+        if (fullRecipe) {
+          setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
         }
-        
-        const fetchTime = performance.now() - fetchStart;
-        
-        
-        // Merge full detail into existing recipe
-        // Support both { recipes: [...] } and legacy flat object
-        const fullRecipe = data.recipes?.[0] || data;
-        setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
-        
-        // State merge complete
-        const mergeTime = performance.now();
-
-        setModalLoading(false);
-        
-        // Measure paint time after React renders
-        requestAnimationFrame(() => {
-          
-        });
       })
       .catch(err => {
-        // Ignore AbortError - already handled
-        if (err.name === 'AbortError') {
-
-          return;
+        if (err.name !== 'AbortError') {
+          console.error('Failed to fetch recipe:', err);
         }
-
+      })
+      .finally(() => {
         setModalLoading(false);
       });
-  };
+  }, []);
 
-  // PREFETCH DISABLED - only fetch recipe detail on actual click
-  // const handleRecipeHover = (recipe) => { fetchRecipeDetail(recipe.id).catch(() => {}); };
+  // Close modal
+  const handleCloseModal = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setSelectedRecipe(null);
+  }, []);
 
   const hasSearch = searchQuery?.trim()?.length > 0;
-  
-  // Show empty state only if filters applied and no results
   const showEmptyState = hasFilters && recipesList.length === 0;
-  
-  // No skeleton - use simple loading state
-  const showSkeleton = false;
 
   return (
     <Layout>
@@ -216,57 +90,57 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-            
-        <HomeHero 
-              onPrimaryAction={() => {}} 
-              weeklyPlan={weeklyPlan}
-              shoppingList={shoppingList}
-              onRefreshPlan={() => {
-                const newPlan = generateWeeklyPlan(recipesList.length > 0 ? recipesList : initialRecipes);
-                setWeeklyPlan(newPlan);
-              }}
-            />
+      <HomeHero onPrimaryAction={() => {}} weeklyPlan={[]} shoppingList={[]} onRefreshPlan={() => {}} />
 
-      {/* Recipe Section - Homepage Style */}
+      {/* Recipe Section */}
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
-          {/* 1. Centered Heading */}
-          <div className="text-center mb-6">
-            <h2 className="text-[1.5rem] md:text-[2.25rem] font-black text-[#3A2010]">食譜</h2>
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9B6035]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="搜尋食譜..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-[#E8DCC8] bg-[#FFFDF8] text-[#3A2010] placeholder-[#C0A080] focus:outline-none focus:border-[#9B6035]"
+              />
+            </div>
           </div>
 
-          {/* Shared Filter Component */}
-          <RecipeFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            recipeFilterSections={recipeFilterSections}
-            hasFilters={hasFilters}
-            activeFilterCount={activeFilterCount}
-            clearFilters={clearFilters}
-          />
+          {/* Filter Header */}
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[#E8DCC8] bg-white text-[#3A2010] hover:border-[#9B6035]">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              篩選 {activeFilterCount > 0 && <span className="bg-[#9B6035] text-white px-2 py-0.5 rounded-full text-xs">{activeFilterCount}</span>}
+            </button>
+            {activeFilterCount > 0 && <button onClick={clearFilters} className="text-[#9B6035] text-sm">清除全部</button>}
+          </div>
 
-          {/* 5. Recipe Cards Grid */}
-          {showSkeleton && (
-            <div className="grid grid-cols-12 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="col-span-12 sm:col-span-6 md:col-span-4 animate-pulse">
-                  <div className="bg-[#F8F3E8] rounded-2xl border-2 border-[#DDD0B0] overflow-hidden">
-                    <div className="h-48 bg-gray-200"></div>
-                    <div className="p-6">
-                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {/* Filters */}
+          {showFilters && (
+            <div className="mb-6">
+              <RecipeFilters sections={recipeFilterSections} />
             </div>
           )}
 
-          {!showSkeleton && recipesList.length > 0 && (
+          {/* Empty State */}
+          {showEmptyState && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-2">😕</div>
+              <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
+              <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件，或者清除所有篩選</p>
+              <button onClick={clearFilters} className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">清除篩選</button>
+            </div>
+          )}
+
+          {/* Recipe Grid */}
+          {recipesList.length > 0 && (
             <HomeRecipeGrid
               recipes={recipesList}
               favoriteSet={favoriteSet}
@@ -279,38 +153,16 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
               onRecipeClick={handleRecipeClick}
             />
           )}
-
-          {!showSkeleton && recipesList.length === 0 && hasFilters && (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-2">😕</div>
-              <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
-              <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件，或者清除所有篩選</p>
-              <button
-                onClick={clearFilters}
-                className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95"
-              >
-                清除篩選
-              </button>
-            </div>
-          )}
         </div>
       </section>
 
-      {/* Filter Modal */}
-      {/* Recipe Detail Modal */}
+      {/* Detail Modal */}
       <RecipeDetailModal
         isOpen={!!selectedRecipe}
-        onClose={() => {
-          // Abort any in-flight fetch when modal closes
-          if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-            abortControllerRef.current = null;
-          }
-          setSelectedRecipe(null);
-        }}
+        onClose={handleCloseModal}
         recipe={selectedRecipe}
         loading={modalLoading}
-        isFavorite={selectedRecipe ? favoriteSet.has(selectedRecipe.id) : false}
+        isFavorite={selectedRecipe ? favoriteSet.has(String(selectedRecipe.id)) : false}
         toggleFavorite={toggleFavorite}
         isAuthenticated={isAuthenticated}
         onAuthRequired={() => {
@@ -318,25 +170,24 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         }}
       />
+
+      {/* Toast */}
+      {toast && <Toast toast={toast} />}
     </Layout>
   );
 }
-
 export async function getServerSideProps() {
-
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-
       return { props: { initialRecipes: [], ssrError: 'Missing env vars' } };
     }
     
     const { createClient } = require('@supabase/supabase-js');
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Use simpler query first to debug
     const { data: recipes, error } = await supabase
       .from('recipes')
       .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,primary_protein,dish_type,diet,is_public,created_at')
@@ -345,13 +196,11 @@ export async function getServerSideProps() {
       .limit(24);
     
     if (error) {
-
       return { props: { initialRecipes: [], ssrError: error.message } };
     }
 
     return { props: { initialRecipes: recipes || [], ssrError: null } };
   } catch (e) {
-
     return { props: { initialRecipes: [], ssrError: e.message } };
   }
 }
