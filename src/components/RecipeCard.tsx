@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image'
 import Link from 'next/link'
 import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
-import FavoriteButton from './FavoriteButton';
+import LazyFavoriteButton from './LazyFavoriteButton';
 
 /**
  * RecipeCard - displays a single recipe card
@@ -118,7 +118,7 @@ function RecipeCard({
           )}
         </div>
         {onFavorite && (
-          <FavoriteButton
+          <LazyFavoriteButton
             recipeId={recipe?.id}
             initialIsFavorite={isFavorite}
             toggleFavorite={onFavorite ? async () => { onFavorite(); return true; } : undefined}
