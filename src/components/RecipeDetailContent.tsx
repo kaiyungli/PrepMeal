@@ -97,7 +97,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, tog
             alt={recipe.name} 
             fill 
             className="object-cover"
-            sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 1200px" onLoad={() => console.log("[RecipeDetail] Image loaded at:", performance.now())} />
+            sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 1200px" />
         ) : (
           <div className="h-full flex items-center justify-center" style={{ backgroundColor: '#C8D49A' }}>
             <span className="text-8xl">🍳</span>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import RecipeCard from '@/components/RecipeCard';
 
 interface HomeRecipeGridProps {
@@ -23,10 +23,6 @@ function HomeRecipeGrid({
   onAuthRequired, 
   onRecipeClick 
 }: HomeRecipeGridProps) {
-  useEffect(() => {
-    console.log('[Perf] HomeRecipeGrid render:', recipes.length, 'recipes');
-  }, [recipes.length]);
-  
   return (
     <div className="grid grid-cols-12 gap-4">
       {recipes.map(recipe => (

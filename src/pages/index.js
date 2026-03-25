@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -35,7 +33,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
   // Performance instrumentation
   useEffect(() => {
-    console.log('[Perf] Home mount');
+    // Mount timing
   }, []);
 
   // Favorites - lazy loaded, doesn't block first paint

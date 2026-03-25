@@ -96,7 +96,6 @@ export function useFavorites() {
       };
       
       let res;
-      const start = Date.now();
       if (isFav) {
         res = await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
           method: 'DELETE',
@@ -109,7 +108,6 @@ export function useFavorites() {
           body: JSON.stringify({ recipe_id: normalizedId }),
         });
       }
-      console.log('[Perf] Toggle favorite:', Date.now() - start, 'ms', isFav ? 'DELETE' : 'POST');
       
       if (res.ok) {
         // Background refresh (no await)
