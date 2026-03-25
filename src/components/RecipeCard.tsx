@@ -117,11 +117,11 @@ function RecipeCard({
             </div>
           )}
         </div>
-        {(onFavorite || toggleFavorite) && (
+        {onFavorite && (
           <FavoriteButton
             recipeId={recipe?.id}
             initialIsFavorite={isFavorite}
-            toggleFavorite={toggleFavorite || (async () => { onFavorite?.(); return true; })}
+            toggleFavorite={onFavorite ? async () => { onFavorite(); return true; } : undefined}
             isAuthenticated={isAuthenticated}
             onAuthRequired={onAuthRequired}
           />

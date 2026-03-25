@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 interface FavoriteButtonProps {
   recipeId?: string | number;
   initialIsFavorite?: boolean;
-  toggleFavorite: (recipeId: string | number) => Promise<boolean>;
+  toggleFavorite?: (recipeId: string | number) => Promise<boolean>;
   isAuthenticated?: boolean;
   onAuthRequired?: () => void;
   className?: string;
@@ -24,10 +24,6 @@ function FavoriteButton({
   onAuthRequired,
   className = '' 
 }: FavoriteButtonProps) {
-  useEffect(() => {
-    console.log('[Perf] FavoriteButton mounted for recipeId:', recipeId);
-  }, [recipeId]);
-  
   const [isLoading, setIsLoading] = useState(false);
   const [optimisticOverride, setOptimisticOverride] = useState<boolean | null>(null);
   
@@ -60,18 +56,22 @@ function FavoriteButton({
     setIsLoading(true);
 
     // Fire and forget - don't block UI
-    toggleFavorite(recipeId)
-      .then(success => {
-        if (!success) {
+    if (toggleFavorite) {
+      toggleFavorite(recipeId)
+        .then(success => {
+          if (!success) {
+            setOptimisticOverride(null);
+          }
+        })
+        .catch(() => {
           setOptimisticOverride(null);
-        }
-      })
-      .catch(() => {
-        setOptimisticOverride(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsLoading(false);
+    }
   }, [recipeId, toggleFavorite, isAuthenticated, onAuthRequired, displayFav, isLoading]);
 
   return (
