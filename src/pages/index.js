@@ -37,8 +37,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     console.log('[Perf] Home mount');
   }, []);
 
-  // Favorites
-  const { favorites, toggleFavorite, isAuthenticated } = useFavorites();
+  // Favorites - lazy loaded, doesn't block first paint
+  const { favorites, toggleFavorite, isAuthenticated, favoritesHydrated } = useFavorites();
   const favoriteSet = useMemo(() => new Set(favorites.map(String)), [favorites]);
 
   // Filters

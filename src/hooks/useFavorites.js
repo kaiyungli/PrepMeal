@@ -1,4 +1,5 @@
 // Favorites hook - manages user favorites
+// Does NOT fetch on mount - lazy loads to not block first paint
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 
@@ -6,6 +7,7 @@ export function useFavorites() {
   const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   // Use Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
@@ -16,20 +18,19 @@ export function useFavorites() {
     return String(id);
   };
 
-  // Load favorites when user is authenticated
+  // Lazy load favorites AFTER initial render - don't block first paint
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      setFavorites([]);
+    if (!isAuthenticated || !user || hydrated) {
       return;
     }
 
-    const fetchFavorites = async () => {
+    // Schedule for after paint
+    const timerId = requestAnimationFrame(async () => {
       setLoading(true);
-      const start = Date.now();
       try {
         const token = await getAccessToken();
         if (!token) {
-          console.log('[Perf] Favorites init:', Date.now() - start, 'ms - no token');
+          setHydrated(true);
           setLoading(false);
           return;
         }
@@ -39,7 +40,7 @@ export function useFavorites() {
         });
         
         if (!res.ok) {
-          console.log('[Perf] Favorites init:', Date.now() - start, 'ms - API error');
+          setHydrated(true);
           setLoading(false);
           return;
         }
@@ -49,16 +50,16 @@ export function useFavorites() {
         if (favoritesData) {
           setFavorites(favoritesData.map(id => normalizeId(id)));
         }
-        console.log('[Perf] Favorites init:', Date.now() - start, 'ms -', favoritesData.length, 'favorites');
       } catch (err) {
         // Silent fail
       } finally {
         setLoading(false);
+        setHydrated(true);
       }
-    };
+    });
 
-    fetchFavorites();
-  }, [isAuthenticated, user, getAccessToken]);
+    return () => cancelAnimationFrame(timerId);
+  }, [isAuthenticated, user, getAccessToken, hydrated]);
 
   const refreshFavorites = useCallback(async () => {
     const token = await getAccessToken();
@@ -129,6 +130,7 @@ export function useFavorites() {
   return {
     favorites,
     loading: loading || authLoading,
+    favoritesHydrated: hydrated,
     toggleFavorite,
     isFavorite,
     isAuthenticated,
