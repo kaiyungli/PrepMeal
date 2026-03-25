@@ -25,7 +25,10 @@ export function useAuth() {
       }
     };
     
-    getSession();
+    const start = Date.now();
+    getSession().then(() => {
+      console.log('[Perf] Auth ready:', Date.now() - start, 'ms');
+    });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
