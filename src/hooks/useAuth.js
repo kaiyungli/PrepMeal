@@ -33,7 +33,7 @@ export function useAuth() {
     const timerId = requestAnimationFrame(() => {
       const start = Date.now();
       loadSession().then(() => {
-        console.log('[Perf] Auth ready:', Date.now() - start, 'ms');
+        
       });
     });
 

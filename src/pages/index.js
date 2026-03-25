@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -33,10 +33,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const abortControllerRef = useRef(null);
   const { toast, showToast } = useToast();
 
-  // Performance instrumentation
-  useEffect(() => {
-    console.log('[Perf] Home mount');
-  }, []);
+  // Filters
 
 // Homepage does NOT use favorites - pure static page for fast load
   // Favorites only work on /recipes and /favorites pages
