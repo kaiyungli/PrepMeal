@@ -28,7 +28,10 @@ export function useAuth() {
     
     // Schedule for after first paint
     const timerId = requestAnimationFrame(() => {
-      loadSession();
+      const start = Date.now();
+      loadSession().then(() => {
+        console.log('[Perf] Auth ready:', Date.now() - start, 'ms');
+      });
     });
 
     // Listen for auth changes

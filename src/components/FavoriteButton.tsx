@@ -24,6 +24,10 @@ function FavoriteButton({
   onAuthRequired,
   className = '' 
 }: FavoriteButtonProps) {
+  useEffect(() => {
+    console.log('[Perf] FavoriteButton mounted for recipeId:', recipeId);
+  }, [recipeId]);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [optimisticOverride, setOptimisticOverride] = useState<boolean | null>(null);
   

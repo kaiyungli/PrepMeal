@@ -27,9 +27,11 @@ export function useFavorites() {
     // Schedule for after paint
     const timerId = requestAnimationFrame(async () => {
       setLoading(true);
+      const start = Date.now();
       try {
         const token = await getAccessToken();
         if (!token) {
+          console.log('[Perf] Favorites init:', Date.now() - start, 'ms - no token');
           setHydrated(true);
           setLoading(false);
           return;
@@ -40,6 +42,7 @@ export function useFavorites() {
         });
         
         if (!res.ok) {
+          console.log('[Perf] Favorites init:', Date.now() - start, 'ms - API error');
           setHydrated(true);
           setLoading(false);
           return;
@@ -50,6 +53,7 @@ export function useFavorites() {
         if (favoritesData) {
           setFavorites(favoritesData.map(id => normalizeId(id)));
         }
+        console.log('[Perf] Favorites init:', Date.now() - start, 'ms -', favoritesData.length, 'favorites');
       } catch (err) {
         // Silent fail
       } finally {
@@ -96,6 +100,7 @@ export function useFavorites() {
       };
       
       let res;
+      const start = Date.now();
       if (isFav) {
         res = await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
           method: 'DELETE',
@@ -108,6 +113,7 @@ export function useFavorites() {
           body: JSON.stringify({ recipe_id: normalizedId }),
         });
       }
+      console.log('[Perf] Toggle favorite:', Date.now() - start, 'ms', isFav ? 'DELETE' : 'POST');
       
       if (res.ok) {
         // Background refresh (no await)

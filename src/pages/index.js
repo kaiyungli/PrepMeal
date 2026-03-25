@@ -33,7 +33,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
   // Performance instrumentation
   useEffect(() => {
-    // Mount timing
+    console.log('[Perf] Home mount');
   }, []);
 
   // Favorites - lazy loaded, doesn't block first paint
