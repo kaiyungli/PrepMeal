@@ -11,10 +11,7 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Toast, { useToast } from '@/components/ui/Toast';
 
-// Homepage doesn't use favorites hook - avoids slow initial fetch
-// Favorites only work on /recipes and /favorites pages
-
-// Fetch recipe detail with cache
+// Recipe detail cache
 const recipeDetailCache = new Map();
 const fetchRecipeDetail = async (recipeId) => {
   if (recipeDetailCache.has(recipeId)) {
@@ -27,55 +24,44 @@ const fetchRecipeDetail = async (recipeId) => {
   return recipes[0] || null;
 };
 
-export default function Home({ initialRecipes = [], ssrError = null }) {
+export default function Home({ initialRecipes = [] }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const abortControllerRef = useRef(null);
   const { toast, showToast } = useToast();
 
   // Filters
+  const { 
+    filters, searchQuery, setSearchQuery, sortBy, setSortBy, 
+    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
+    activeFilterCount, clearFilters, filterRecipes 
+  } = useRecipeFilters();
 
-// Homepage does NOT use favorites - pure static page for fast load
-  // Favorites only work on /recipes and /favorites pages
-  
-  // Filters
-  const { filters, searchQuery, setSearchQuery, sortBy, setSortBy, showFilters, setShowFilters, recipeFilterSections, hasFilters, activeFilterCount, clearFilters, filterRecipes } = useRecipeFilters();
-
-  // Memoized recipes list - proper pattern
+  // Memoized recipes list
   const recipesList = useMemo(() => {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
-  // Recipe click - progressive loading
+  // Recipe click handler - progressive loading
   const handleRecipeClick = useCallback((recipe) => {
-    // Abort previous
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     abortControllerRef.current = new AbortController();
 
-    // Set selected immediately with card data
     setSelectedRecipe({ ...recipe });
     setModalLoading(true);
 
-    // Fetch full detail in background
     fetchRecipeDetail(recipe.id)
       .then(fullRecipe => {
         if (fullRecipe) {
           setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
         }
       })
-      .catch(err => {
-        if (err.name !== 'AbortError') {
-          console.error('Failed to fetch recipe:', err);
-        }
-      })
-      .finally(() => {
-        setModalLoading(false);
-      });
+      .catch(() => {})
+      .finally(() => setModalLoading(false));
   }, []);
 
-  // Close modal
   const handleCloseModal = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -96,7 +82,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
 
       <HomeHero onPrimaryAction={() => {}} weeklyPlan={[]} shoppingList={[]} onRefreshPlan={() => {}} />
 
-      {/* Recipe Section */}
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
           <HomeFiltersBar
@@ -108,7 +93,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             clearFilters={clearFilters}
           />
 
-          {/* Filters */}
           {showFilters && (
             <div className="mb-6">
               <RecipeFilters
@@ -116,8 +100,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
                 setSearchQuery={setSearchQuery}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
-                showFilters={showFilters}
-                setShowFilters={setShowFilters}
                 recipeFilterSections={recipeFilterSections || []}
                 hasFilters={hasFilters}
                 activeFilterCount={activeFilterCount}
@@ -126,7 +108,6 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </div>
           )}
 
-          {/* Empty State */}
           {showEmptyState && (
             <div className="text-center py-16">
               <div className="text-6xl mb-2">😕</div>
@@ -136,67 +117,22 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
             </div>
           )}
 
-          {/* Recipe Grid */}
           {recipesList.length > 0 && (
             <HomeRecipeGrid
               recipes={recipesList}
-              favoriteSet={new Set()}
-              toggleFavorite={undefined}
-              isAuthenticated={false}
-              onAuthRequired={() => {
-                showToast('請先登入以收藏食譜', 'info');
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-              }}
               onRecipeClick={handleRecipeClick}
             />
           )}
         </div>
       </section>
 
-      {/* Detail Modal */}
       <HomeModalController
         selectedRecipe={selectedRecipe}
         modalLoading={modalLoading}
-        favoriteSet={new Set()}
-        toggleFavorite={undefined}
-        isAuthenticated={false}
-        onAuthRequired={() => {
-          showToast('請先登入以收藏食譜', 'info');
-          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-        }}
         onClose={handleCloseModal}
       />
 
-      {/* Toast */}
       {toast && <Toast toast={toast} />}
     </Layout>
   );
-}
-export async function getServerSideProps() {
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      return { props: { initialRecipes: [], ssrError: 'Missing env vars' } };
-    }
-    
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { data: recipes, error } = await supabase
-      .from('recipes')
-      .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,primary_protein,dish_type,diet,is_public,created_at')
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-      .limit(24);
-    
-    if (error) {
-      return { props: { initialRecipes: [], ssrError: error.message } };
-    }
-
-    return { props: { initialRecipes: recipes || [], ssrError: null } };
-  } catch (e) {
-    return { props: { initialRecipes: [], ssrError: e.message } };
-  }
 }
