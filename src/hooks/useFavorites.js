@@ -1,35 +1,42 @@
-// Favorites hook - clean state management without auto-fetch
-// Exposes explicit methods only - page decides when to call them
-import { useState, useCallback, useMemo } from 'react';
+// Favorites hook - clean state management
+// No auto-fetch, no optimistic logic (that's in FavoriteButton)
+import { useState, useCallback, useMemo, useRef } from 'react';
 
-// In-memory cache for favorites (persists across component mounts)
-let favoritesCache = [];
-let favoritesLoaded = false;
+// In-memory cache
+let favoritesCache = null;
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState(favoritesLoaded ? favoritesCache : []);
+  const [favorites, setFavorites] = useState(favoritesCache ? favoritesCache : []);
   const [loading, setLoading] = useState(false);
+  const loadedRef = useRef(false);
 
-  // Use Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
-  // Normalize ID to string
   const normalizeId = (id) => {
     if (id === undefined || id === null) return '';
     return String(id);
   };
 
-  // Load favorites explicitly - called by page when needed
+  // Load favorites - returns cached if already loaded
   const loadFavorites = useCallback(async (token) => {
-    if (!token) return;
+    // Return cached if already loaded
+    if (favoritesCache && favoritesCache.length > 0) {
+      return;
+    }
     
+    if (!token) return;
+    if (loadedRef.current) return;
+    
+    loadedRef.current = true;
     setLoading(true);
+    
     try {
       const res = await fetch('/api/user/favorites', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       if (!res.ok) {
+        loadedRef.current = false;
         setLoading(false);
         return;
       }
@@ -40,29 +47,27 @@ export function useFavorites() {
       
       setFavorites(ids);
       favoritesCache = ids;
-      favoritesLoaded = true;
     } catch (err) {
-      // Silent fail
+      loadedRef.current = false;
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Toggle favorite with explicit token - called by page
+  // Toggle - no optimistic here, FavoriteButton handles local state
   const toggleFavorite = useCallback(async (recipeId, token) => {
     if (!token || !recipeId) return false;
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
 
-    // Optimistic update
-    setFavorites(prev => {
-      const next = isFav
-        ? prev.filter(id => id !== normalizedId)
-        : [...prev, normalizedId];
-      favoritesCache = next;
-      return next;
-    });
+    // Update local state
+    const newFavorites = isFav
+      ? favorites.filter(id => id !== normalizedId)
+      : [...favorites, normalizedId];
+    
+    setFavorites(newFavorites);
+    favoritesCache = newFavorites;
 
     try {
       const res = isFav
@@ -76,16 +81,12 @@ export function useFavorites() {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
-      if (res.ok) {
-        return true;
-      }
-      return false;
+      return res.ok;
     } catch (err) {
       return false;
     }
-  }, [favoriteSet]);
+  }, [favoriteSet, favorites]);
 
-  // Check if recipe is favorite
   const isFavorite = useCallback((recipeId) => {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);

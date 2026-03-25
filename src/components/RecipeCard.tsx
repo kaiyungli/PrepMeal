@@ -122,10 +122,8 @@ function RecipeCard({
         {onFavorite ? (
           <FavoriteButton
             recipeId={recipe?.id}
-            initialIsFavorite={isFavorite}
-            toggleFavorite={onFavorite ? async () => { onFavorite(); return true; } : undefined}
-            isAuthenticated={isAuthenticated}
-            onAuthRequired={onAuthRequired}
+            isFavorite={isFavorite}
+            onToggle={onFavorite}
           />
         ) : (
           /* Static visual heart - non-interactive placeholder for homepage */

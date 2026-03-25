@@ -25,15 +25,16 @@ export default function RecipesPage({ initialRecipes }) {
     }
   }, [isAuthenticated]);
   
-  // Handle favorite click - pass token explicitly
-  const handleFavorite = async (recipeId) => {
+  // Handle favorite click - simple wrapper
+  const handleFavorite = (recipeId) => {
     if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       return;
     }
-    const token = await getAccessToken();
-    await toggleFavorite(recipeId, token);
+    getAccessToken().then(token => {
+      if (token) toggleFavorite(recipeId, token);
+    });
   };
   
   // Use shared recipe filters hook (no args)

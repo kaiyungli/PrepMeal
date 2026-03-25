@@ -20,16 +20,10 @@ export default function FavoritesPage() {
   const [loading, setLoading] = useState(true);
 
   // Handle favorite toggle
-  const handleFavorite = async (recipeId) => {
-    const token = await getAccessToken();
-    await toggleFavorite(recipeId, token);
-    // Reload favorites list
-    const res = await fetch('/api/user/favorites/recipes', {
-      headers: { Authorization: `Bearer ${token}` }
+  const handleFavorite = (recipeId) => {
+    getAccessToken().then(token => {
+      if (token) toggleFavorite(recipeId, token);
     });
-    const data = await res.json();
-    const recipesData = data?.data?.recipes || data?.recipes || [];
-    setRecipes(recipesData);
   };
 
   // Redirect if not logged in
