@@ -2,14 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import supabase from '@/lib/supabase';
 
-// Schedule work for idle time
-function scheduleIdleCallback(callback) {
-  if (typeof requestIdleCallback !== 'undefined') {
-    return requestIdleCallback(callback);
-  }
-  return setTimeout(callback, 100);
-}
-
 export function useAuth() {
   // Start with loading: true to avoid premature auth checks during SSR/initial load
   // The actual auth state will be loaded asynchronously via getSession
@@ -18,7 +10,7 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check current session when browser is idle - don't block first paint
+    // Check current session
     const getSession = async () => {
       try {
         const { data: { session } } = await supabase?.auth.getSession();
@@ -33,10 +25,7 @@ export function useAuth() {
       }
     };
     
-    // Schedule auth check for idle time
-    const idleId = scheduleIdleCallback(() => {
-      getSession();
-    });
+    getSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
@@ -45,14 +34,7 @@ export function useAuth() {
       setLoading(false);
     });
 
-    return () => {
-      if (typeof cancelIdleCallback !== 'undefined') {
-        cancelIdleCallback(idleId);
-      } else {
-        clearTimeout(idleId);
-      }
-      subscription?.unsubscribe();
-    };
+    return () => subscription?.unsubscribe();
   }, []);
 
   // Get current access token for API calls - stable reference

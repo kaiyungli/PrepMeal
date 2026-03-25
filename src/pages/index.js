@@ -31,7 +31,7 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
   const { toast, showToast } = useToast();
 
   // Favorites
-  const { favorites, toggleFavorite, isAuthenticated, favoritesReady } = useFavorites();
+  const { favorites, toggleFavorite, isAuthenticated } = useFavorites();
   const favoriteSet = useMemo(() => new Set(favorites.map(String)), [favorites]);
 
   // Filters
