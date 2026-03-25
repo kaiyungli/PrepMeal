@@ -21,26 +21,36 @@ export default async function handler(req, res) {
   }
   
   try {
+    const start = Date.now();
+    
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
+    console.log('[Favorites] Token parse:', Date.now() - start, 'ms');
     
     // Require auth for all methods
+    const authStart = Date.now();
     const userId = await requireAuth(req, res);
+    console.log('[Favorites] requireAuth:', Date.now() - authStart, 'ms');
     if (!userId) return;
     
     console.log('[Favorites] UserId:', userId);
     
     // Create user-scoped client with token for RLS
+    const clientStart = Date.now();
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
+    console.log('[Favorites] Client create:', Date.now() - clientStart, 'ms');
 
     if (req.method === 'GET') {
+      const queryStart = Date.now();
       console.log('[Favorites] GET - querying user_favorites');
       
       const { data, error } = await userSupabase
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
+      
+      console.log('[Favorites] Query execute:', Date.now() - queryStart, 'ms');
       
       if (error) {
         console.error('[Favorites] GET error:', error.message, error.code, error.details);
