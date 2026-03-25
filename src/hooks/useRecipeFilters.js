@@ -1,5 +1,5 @@
 // Recipe filters hook - unified filter system
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
 import { RECIPE_FILTER_GROUPS, buildFilterSections } from '@/constants/filterGroups';
 
@@ -19,8 +19,8 @@ export function useRecipeFilters() {
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(true);
 
-  // Build filter sections using centralized config
-  const recipeFilterSections = buildFilterSections(
+  // Build filter sections using centralized config - memoized
+  const recipeFilterSections = useMemo(() => buildFilterSections(
     RECIPE_FILTER_GROUPS,
     filters,
     (groupKey, value) => {
@@ -30,7 +30,7 @@ export function useRecipeFilters() {
         : [...current, value];
       setFilters({ ...filters, [groupKey]: newValues });
     }
-  );
+  ), [filters]);
 
   const hasFilters = Object.values(filters).some(arr => arr && arr.length > 0);
   
@@ -52,8 +52,8 @@ export function useRecipeFilters() {
     });
   };
 
-  // Filter recipes function
-  const filterRecipes = (recipes) => {
+  // Filter recipes function - memoized for stability
+  const filterRecipes = useCallback((recipes) => {
     if (!hasFilters && !searchQuery) {
       return recipes;
     }
@@ -75,7 +75,7 @@ export function useRecipeFilters() {
     }
     
     return filtered;
-  };
+  }, [hasFilters, searchQuery, filters]);
 
   return {
     // State
