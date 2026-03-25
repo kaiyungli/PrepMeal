@@ -7,7 +7,8 @@ import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
-import RecipeDetailModal from '@/components/RecipeDetailModal';
+import HomeFiltersBar from '@/components/home/HomeFiltersBar';
+import HomeModalController from '@/components/home/HomeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -102,32 +103,14 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       {/* Recipe Section */}
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
-          {/* Search Bar */}
-          <div className="mb-6">
-            <div className="relative">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9B6035]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="搜尋食譜..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-[#E8DCC8] bg-[#FFFDF8] text-[#3A2010] placeholder-[#C0A080] focus:outline-none focus:border-[#9B6035]"
-              />
-            </div>
-          </div>
-
-          {/* Filter Header */}
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[#E8DCC8] bg-white text-[#3A2010] hover:border-[#9B6035]">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              篩選 {activeFilterCount > 0 && <span className="bg-[#9B6035] text-white px-2 py-0.5 rounded-full text-xs">{activeFilterCount}</span>}
-            </button>
-            {activeFilterCount > 0 && <button onClick={clearFilters} className="text-[#9B6035] text-sm">清除全部</button>}
-          </div>
+          <HomeFiltersBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            activeFilterCount={activeFilterCount}
+            clearFilters={clearFilters}
+          />
 
           {/* Filters */}
           {showFilters && (
@@ -175,18 +158,17 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       </section>
 
       {/* Detail Modal */}
-      <RecipeDetailModal
-        isOpen={!!selectedRecipe}
-        onClose={handleCloseModal}
-        recipe={selectedRecipe}
-        loading={modalLoading}
-        isFavorite={selectedRecipe ? favoriteSet.has(String(selectedRecipe.id)) : false}
+      <HomeModalController
+        selectedRecipe={selectedRecipe}
+        modalLoading={modalLoading}
+        favoriteSet={favoriteSet}
         toggleFavorite={toggleFavorite}
         isAuthenticated={isAuthenticated}
         onAuthRequired={() => {
           showToast('請先登入以收藏食譜', 'info');
           window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         }}
+        onClose={handleCloseModal}
       />
 
       {/* Toast */}
