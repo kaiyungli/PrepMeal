@@ -1,5 +1,5 @@
 // Simple auth hook for Google OAuth
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import supabase from '@/lib/supabase';
 
 export function useAuth() {
@@ -8,6 +8,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const initialLoadDone = useRef(false);
 
   useEffect(() => {
     // Lazy load session AFTER first paint - don't block
@@ -16,10 +17,12 @@ export function useAuth() {
         const { data: { session } } = await supabase?.auth.getSession();
         setUser(session?.user || null);
         setIsAuthenticated(!!session?.user);
+        initialLoadDone.current = true;
       } catch (err) {
         console.error('Session check error:', err);
         setUser(null);
         setIsAuthenticated(false);
+        initialLoadDone.current = true;
       } finally {
         setLoading(false);
         setHydrated(true);
@@ -34,8 +37,12 @@ export function useAuth() {
       });
     });
 
-    // Listen for auth changes
+    // Listen for auth changes - but skip initial event to prevent duplicate
     const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
+      // Skip INITIAL_SESSION event - it's duplicate of getSession()
+      if (event === 'INITIAL_SESSION' && initialLoadDone.current === false) {
+        return;
+      }
       setUser(session?.user || null);
       setIsAuthenticated(!!session?.user);
       setLoading(false);

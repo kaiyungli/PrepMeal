@@ -9,7 +9,6 @@ import HomeFiltersBar from '@/components/home/HomeFiltersBar';
 import HomeModalController from '@/components/home/HomeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
-import { useFavorites } from '@/hooks/useFavorites';
 import Toast, { useToast } from '@/components/ui/Toast';
 
 // Homepage doesn't use favorites hook - avoids slow initial fetch
@@ -39,9 +38,8 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
     console.log('[Perf] Home mount');
   }, []);
 
-// Homepage uses favorites - LazyFavoriteButton delays mount
-  const { favorites, toggleFavorite, isAuthenticated } = useFavorites();
-  const favoriteSet = useMemo(() => new Set((favorites || []).map(String)), [favorites]);
+// Homepage does NOT use useFavorites - avoids duplicate init and slow first paint
+  // Hearts are rendered via LazyFavoriteButton which doesn't fetch on mount
   
   // Filters
   const { filters, searchQuery, setSearchQuery, sortBy, setSortBy, showFilters, setShowFilters, recipeFilterSections, hasFilters, activeFilterCount, clearFilters, filterRecipes } = useRecipeFilters();
@@ -145,9 +143,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
           {recipesList.length > 0 && (
             <HomeRecipeGrid
               recipes={recipesList}
-              favoriteSet={favoriteSet}
-              toggleFavorite={toggleFavorite}
-              isAuthenticated={isAuthenticated}
+              favoriteSet={new Set()}
+              toggleFavorite={undefined}
+              isAuthenticated={false}
               onAuthRequired={() => {
                 showToast('請先登入以收藏食譜', 'info');
                 window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
@@ -162,9 +160,9 @@ export default function Home({ initialRecipes = [], ssrError = null }) {
       <HomeModalController
         selectedRecipe={selectedRecipe}
         modalLoading={modalLoading}
-        favoriteSet={favoriteSet}
-        toggleFavorite={toggleFavorite}
-        isAuthenticated={isAuthenticated}
+        favoriteSet={new Set()}
+        toggleFavorite={undefined}
+        isAuthenticated={false}
         onAuthRequired={() => {
           showToast('請先登入以收藏食譜', 'info');
           window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
