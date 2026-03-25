@@ -13,11 +13,24 @@ import { Toast, useToast } from '@/components/ui/Toast';
 export default function FavoritesPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite } = useFavorites();
   const [recipes, setRecipes] = useState([]);
   const [toast, setToast] = useState(null);
   const showToast = (msg, type='info') => { setToast({msg, type}); setTimeout(()=>setToast(null), 3000); };
   const [loading, setLoading] = useState(true);
+
+  // Handle favorite toggle
+  const handleFavorite = async (recipeId) => {
+    const token = await getAccessToken();
+    await toggleFavorite(recipeId, token);
+    // Reload favorites list
+    const res = await fetch('/api/user/favorites/recipes', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    const recipesData = data?.data?.recipes || data?.recipes || [];
+    setRecipes(recipesData);
+  };
 
   // Redirect if not logged in
   useEffect(() => {
@@ -95,7 +108,7 @@ export default function FavoritesPage() {
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
-                  onFavorite={() => toggleFavorite(recipe.id)}
+                  onFavorite={() => handleFavorite(recipe.id)}
                   isFavorite={isFavorite(recipe.id)}
                 />
               ))}

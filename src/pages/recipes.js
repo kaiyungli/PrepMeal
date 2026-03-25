@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
@@ -6,13 +6,35 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 
 export default function RecipesPage({ initialRecipes }) {
-  const { isFavorite, toggleFavorite, isAuthenticated, loading: favLoading } = useFavorites();
+  const { user, isAuthenticated, getAccessToken } = useAuth();
+  const { favorites, isFavorite, toggleFavorite, loading: favLoading, loadFavorites } = useFavorites();
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
+  
+  // Load favorites once when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && !favorites.length) {
+      getAccessToken().then(token => {
+        if (token) loadFavorites(token);
+      });
+    }
+  }, [isAuthenticated]);
+  
+  // Handle favorite click - pass token explicitly
+  const handleFavorite = async (recipeId) => {
+    if (!isAuthenticated) {
+      showToast('請先登入以收藏食譜', 'info');
+      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    const token = await getAccessToken();
+    await toggleFavorite(recipeId, token);
+  };
   
   // Use shared recipe filters hook (no args)
   const {
@@ -87,17 +109,7 @@ export default function RecipesPage({ initialRecipes }) {
                 key={recipe.id}
                 recipe={recipe}
                 onClick={() => setSelectedRecipe(recipe)}
-                onFavorite={async () => {
-                  if (!isAuthenticated) {
-                    showToast('請先登入以收藏食譜', 'info');
-                    window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-                    return;
-                  }
-                  const result = await toggleFavorite(recipe.id);
-                  if (!result) {
-                    showToast('收藏失敗，請再試一次', 'error');
-                  }
-                }}
+                onFavorite={() => handleFavorite(recipe.id)}
                 isFavorite={isFavorite(recipe.id)}
               />
             ))}
