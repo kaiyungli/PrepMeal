@@ -3,22 +3,20 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import RecipeCard from '@/components/RecipeCard';
-import { useAuth } from '@/hooks/useAuth';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useFavorites } from '@/hooks/useFavorites';
 
-import { Toast, useToast } from '@/components/ui/Toast';
-
 export default function FavoritesPage() {
-  // Use centralized auth guard - includes getAccessToken
+  // Use centralized auth guard - provides isAuthenticated, user, getAccessToken
   const { isAuthenticated, loading: authLoading, user, getAccessToken, requireAuth } = useAuthGuard();
+  
+  // useFavorites is canonical source for favorite IDs
   const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
+  
   const [recipes, setRecipes] = useState([]);
-  const [toast, setToast] = useState(null);
-  const showToast = (msg, type='info') => { setToast({msg, type}); setTimeout(()=>setToast(null), 3000); };
   const [loading, setLoading] = useState(true);
 
-  // Handle favorite toggle - use requireAuth for action-level check
+  // Handle favorite toggle - uses canonical toggleFavorite from useFavorites
   const handleFavorite = (recipeId) => {
     if (!requireAuth()) return;
     getAccessToken().then(token => {
@@ -26,7 +24,7 @@ export default function FavoritesPage() {
     });
   };
 
-  // Load favorites when authenticated (useAuthGuard handles redirect)
+  // Load canonical favorite IDs when authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
       getAccessToken().then(token => {
@@ -35,10 +33,10 @@ export default function FavoritesPage() {
     }
   }, [isAuthenticated, user]);
 
-  // Load favorite recipes
+  // Derive full recipe list from canonical favorites - refresh when favorites change
   useEffect(() => {
-    if (!isAuthenticated) {
-      setRecipes([]);
+    if (!isAuthenticated || favorites.length === 0) {
+      setRecipes(favorites.length === 0 ? [] : []);
       setLoading(false);
       return;
     }
@@ -52,9 +50,7 @@ export default function FavoritesPage() {
         });
         const data = await res.json();
         const recipesData = data?.data?.recipes || data?.recipes || [];
-        if (recipesData) {
-          setRecipes(recipesData);
-        }
+        setRecipes(recipesData);
       } catch (err) {
         console.error('Failed to load favorite recipes:', err);
       } finally {
@@ -69,7 +65,6 @@ export default function FavoritesPage() {
     return (
       <>
         <Header />
-      
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
