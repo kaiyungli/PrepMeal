@@ -1,36 +1,28 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
-
-
-import { Toast, useToast } from '@/components/ui/Toast';
+import Toast from '@/components/ui/Toast';
+import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function MyPlansPage() {
-  const router = useRouter();
-  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
+  // Use centralized auth guard - handles redirect automatically
+  const { isAuthenticated, loading: authLoading, requireAuth } = useAuthGuard();
+  const { getAccessToken } = useAuth();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
   const { toast, showToast } = useToast();
 
-  // Redirect if not logged in - only after auth check completes
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login?redirect=/my-plans');
-    }
-  }, [authLoading, isAuthenticated, router]);
-
-  // Load plans - now with token for API auth
+  // Load plans when authenticated (useAuthGuard handles redirect)
   useEffect(() => {
     if (!isAuthenticated) return;
 
     const fetchPlans = async () => {
       setLoading(true);
       try {
-        // Get access token for API authentication
         const token = await getAccessToken();
         
         const res = await fetch('/api/user/menus', {
@@ -38,26 +30,21 @@ export default function MyPlansPage() {
         });
         const data = await res.json();
         
-        // API returns { success: true, data: { plans: [...] } }
-        const plansData = data?.data?.plans || data?.plans || [];
-        if (plansData) {
-          setPlans(plansData);
-        } else if (data.error) {
-          showToast('載入失敗: ' + data.error, 'error');
+        if (data?.success) {
+          setPlans(data?.data?.menus || []);
         }
       } catch (err) {
         console.error('Failed to load plans:', err);
-        showToast('載入失敗', 'error');
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlans();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, getAccessToken]);
 
   const handleDelete = async (planId) => {
-    if (!confirm('確定要刪除呢個餐單嗎？')) return;
+    if (!requireAuth()) return;
     
     setDeleting(planId);
     try {
@@ -66,30 +53,24 @@ export default function MyPlansPage() {
         method: 'DELETE',
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
-      const data = await res.json();
-      // Handle both old and new response format
-      if (data.success === false && data.error) {
-        showToast('刪除失敗: ' + data.error, 'error');
-      } else if (data.success !== false) {
+      
+      if (res.ok) {
         setPlans(plans.filter(p => p.id !== planId));
+        showToast('已刪除', 'success');
+      } else {
+        showToast('刪除失敗', 'error');
       }
     } catch (err) {
-      alert('刪除失敗: ' + err.message);
+      showToast('刪除失敗', 'error');
     } finally {
       setDeleting(null);
     }
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('zh-HK');
   };
 
   if (authLoading || !isAuthenticated) {
     return (
       <>
         <Header />
-      
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
@@ -104,7 +85,12 @@ export default function MyPlansPage() {
       <Head><title>我的餐單 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[1200px] mx-auto px-4">
-          <h1 className="text-2xl font-bold text-[#3A2010] mb-6">我的餐單</h1>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-[#3A2010]">我的餐單</h1>
+            <a href="/generate" className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">
+              生成新餐單
+            </a>
+          </div>
 
           {loading ? (
             <div className="text-center py-20">
@@ -112,44 +98,42 @@ export default function MyPlansPage() {
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-[#7A746B] mb-4">你仲未儲存任何餐單</p>
+              <p className="text-[#7A746B] mb-4">你仲未生成任何餐單</p>
               <a href="/generate" className="text-[#9B6035] font-medium hover:underline">
-                去生成一個餐單 →
+                去生成 →
               </a>
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className="bg-white rounded-xl border border-[#E5DCC8] p-4 shadow-sm"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-[#3A2010]">{plan.name}</h3>
-                      <p className="text-sm text-[#AA7A50] mt-1">
-                        {plan.days_count}天 · 開始日期: {formatDate(plan.week_start_date)}
-                      </p>
-                      <p className="text-xs text-[#7A746B] mt-1">
-                        建立於: {formatDate(plan.created_at)}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleDelete(plan.id)}
-                        disabled={deleting === plan.id}
-                        className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        {deleting === plan.id ? '刪除中...' : '刪除'}
-                      </button>
-                    </div>
+                <div key={plan.id} className="bg-white rounded-2xl p-6 shadow-sm border border-[#DDD0B0]">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-bold text-[#3A2010]">{plan.name || '未命名餐單'}</h3>
+                    <button 
+                      onClick={() => handleDelete(plan.id)}
+                      disabled={deleting === plan.id}
+                      className="text-[#AA7A50] hover:text-red-500 text-sm"
+                    >
+                      {deleting === plan.id ? '刪除中...' : '刪除'}
+                    </button>
                   </div>
+                  <p className="text-sm text-[#AA7A50] mb-4">
+                    {plan.days?.length || 0} 日餐單
+                  </p>
+                  <a 
+                    href={`/my-plans/${plan.id}`}
+                    className="block text-center py-2 rounded-lg bg-[#C8D49A] text-[#3A2010] font-medium hover:bg-[#B8C489]"
+                  >
+                    查看詳情
+                  </a>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {toast && <Toast toast={toast} />}
     </>
   );
 }

@@ -33,18 +33,16 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const result = await supabase?.auth.getUser(); const user = result?.data?.user;
-      if (user) {
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
-        router.push(redirectUrl);
-      }
-    };
-    checkUser();
-  }, [router]);
+  // Use auth state - no need for separate getUser call
+  const { user, isAuthenticated, signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
 
-  const { signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
+      router.push(redirectUrl);
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleGoogleLogin = async () => {
     console.log('🔥 Google login clicked');

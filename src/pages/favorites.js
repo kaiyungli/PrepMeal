@@ -1,39 +1,33 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
 import RecipeCard from '@/components/RecipeCard';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useFavorites } from '@/hooks/useFavorites';
-
 
 import { Toast, useToast } from '@/components/ui/Toast';
 
 export default function FavoritesPage() {
-  const router = useRouter();
-  const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
+  // Use centralized auth guard - handles redirect automatically
+  const { isAuthenticated, loading: authLoading, user, requireAuth } = useAuthGuard();
+  const { getAccessToken } = useAuth();
   const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
   const [recipes, setRecipes] = useState([]);
   const [toast, setToast] = useState(null);
   const showToast = (msg, type='info') => { setToast({msg, type}); setTimeout(()=>setToast(null), 3000); };
   const [loading, setLoading] = useState(true);
 
-  // Handle favorite toggle
+  // Handle favorite toggle - use requireAuth for action-level check
   const handleFavorite = (recipeId) => {
+    if (!requireAuth()) return;
     getAccessToken().then(token => {
       if (token) toggleFavorite(recipeId, token);
     });
   };
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login?redirect=/favorites');
-    }
-  }, [authLoading, isAuthenticated, router]);
-
-  // Load favorites when authenticated
+  // Load favorites when authenticated (useAuthGuard handles redirect)
   useEffect(() => {
     if (isAuthenticated && user) {
       getAccessToken().then(token => {
@@ -58,7 +52,6 @@ export default function FavoritesPage() {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         const data = await res.json();
-        // API returns { success: true, data: { recipes: [...] } }
         const recipesData = data?.data?.recipes || data?.recipes || [];
         if (recipesData) {
           setRecipes(recipesData);

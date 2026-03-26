@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 
 export default function RecipesPage({ initialRecipes }) {
-  const { user, isAuthenticated, getAccessToken } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const { favorites, isFavorite, toggleFavorite, loading: favLoading, loadFavorites } = useFavorites();
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
