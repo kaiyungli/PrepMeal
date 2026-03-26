@@ -13,7 +13,7 @@ import { Toast, useToast } from '@/components/ui/Toast';
 export default function FavoritesPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
-  const { favorites, isFavorite, toggleFavorite } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
   const [recipes, setRecipes] = useState([]);
   const [toast, setToast] = useState(null);
   const showToast = (msg, type='info') => { setToast({msg, type}); setTimeout(()=>setToast(null), 3000); };
@@ -32,6 +32,15 @@ export default function FavoritesPage() {
       router.push('/login?redirect=/favorites');
     }
   }, [authLoading, isAuthenticated, router]);
+
+  // Load favorites when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      getAccessToken().then(token => {
+        if (token) loadFavorites(token, user.id);
+      });
+    }
+  }, [isAuthenticated, user]);
 
   // Load favorite recipes
   useEffect(() => {
