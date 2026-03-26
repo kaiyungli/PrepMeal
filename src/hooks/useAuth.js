@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import supabase from '@/lib/supabase';
 
 export function useAuth() {
-  // Start with loading: true - but don't block on it
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,10 +30,7 @@ export function useAuth() {
     
     // Schedule for after first paint
     const timerId = requestAnimationFrame(() => {
-      const start = Date.now();
-      loadSession().then(() => {
-        
-      });
+      loadSession();
     });
 
     // Listen for auth changes - but skip initial event to prevent duplicate
@@ -65,7 +61,6 @@ export function useAuth() {
   }, []);
 
   const signInWithGoogle = async () => {
-    // Use callback page for OAuth redirect
     const redirectParam = typeof window !== 'undefined' 
       ? new URLSearchParams(window.location.search).get('redirect') 
       : null;
