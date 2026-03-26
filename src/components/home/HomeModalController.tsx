@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 
-// Detail fetch helper - lives here, not in homepage page
-const fetchRecipeDetail = async (recipeId: string | number) => {
-  const res = await fetch(`/api/recipes/${recipeId}`);
+// Detail fetch helper - lives here, with abort signal support
+const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal) => {
+  const res = await fetch(`/api/recipes/${recipeId}`, { signal });
   const data = await res.json();
   const recipes = data?.data?.recipes || data?.recipes || [];
   return recipes[0] || null;
@@ -16,7 +16,7 @@ interface HomeModalControllerProps {
 }
 
 function HomeModalController({ selectedRecipe, onClose }: HomeModalControllerProps) {
-  const [fullRecipe, setFullRecipe] = useState(null);
+  const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -33,14 +33,16 @@ function HomeModalController({ selectedRecipe, onClose }: HomeModalControllerPro
       return;
     }
 
-    // Need to fetch full detail
+    // Need to fetch full detail - clear stale first
+    setFullRecipe(null);
+
     if (abortRef.current) {
       abortRef.current.abort();
     }
     abortRef.current = new AbortController();
 
     setLoading(true);
-    fetchRecipeDetail(selectedRecipe.id)
+    fetchRecipeDetail(selectedRecipe.id, abortRef.current.signal)
       .then(data => {
         if (data) {
           setFullRecipe({ ...selectedRecipe, ...data });
