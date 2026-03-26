@@ -9,6 +9,7 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useToast } from '@/components/ui/Toast';
+import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function RecipesPage({ initialRecipes }) {
   // Use centralized auth guard - includes getAccessToken
@@ -121,14 +122,7 @@ export default function RecipesPage({ initialRecipes }) {
 
 export async function getServerSideProps() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/recipes?limit=24`);
-    let initialRecipes = [];
-    
-    if (res.ok) {
-      const data = await res.json();
-      initialRecipes = data?.data?.recipes || data?.recipes || [];
-    }
-    
+    const initialRecipes = await fetchRecipesForServer(24);
     return { props: { initialRecipes } };
   } catch (err) {
     return { props: { initialRecipes: [] } };
