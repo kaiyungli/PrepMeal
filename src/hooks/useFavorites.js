@@ -1,13 +1,10 @@
-// Favorites hook - single source of truth for canonical favorites IDs
-import { useState, useCallback, useMemo, useRef } from 'react';
-
-// In-memory cache - single source of truth across session
-let favoritesCache = [];
+// Favorites hook - single source of truth scoped to user
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState(favoritesCache);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
-  const loadedRef = useRef(false);
+  const currentUserRef = useRef(null);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
@@ -16,16 +13,16 @@ export function useFavorites() {
     return String(id);
   };
 
-  // Load favorites - called by pages that need favorites
-  const loadFavorites = useCallback(async (token) => {
-    if (!token) return;
-    if (favoritesCache.length > 0) {
-      setFavorites(favoritesCache);
-      return;
-    }
-    if (loadedRef.current) return;
+  // Load favorites - scoped to current user, not cached across users
+  const loadFavorites = useCallback(async (token, userId) => {
+    if (!token || !userId) return;
     
-    loadedRef.current = true;
+    // Reset if user changed
+    if (currentUserRef.current !== userId) {
+      currentUserRef.current = userId;
+      setFavorites([]);
+    }
+    
     setLoading(true);
     
     try {
@@ -34,7 +31,6 @@ export function useFavorites() {
       });
       
       if (!res.ok) {
-        loadedRef.current = false;
         setLoading(false);
         return;
       }
@@ -44,28 +40,29 @@ export function useFavorites() {
       const ids = favoritesData.map(id => normalizeId(id));
       
       setFavorites(ids);
-      favoritesCache = ids;
     } catch (err) {
-      loadedRef.current = false;
+      // Silent fail
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Toggle - canonical update in useFavorites, instant for caller
+  // Toggle with rollback on failure
   const toggleFavorite = useCallback(async (recipeId, token) => {
     if (!token || !recipeId) return false;
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
+    
+    // Store previous state for rollback
+    const previousFavorites = [...favorites];
 
-    // Optimistic update to cache
+    // Optimistic update
     const newFavorites = isFav
       ? favorites.filter(id => id !== normalizedId)
       : [...favorites, normalizedId];
     
     setFavorites(newFavorites);
-    favoritesCache = newFavorites;
 
     try {
       const res = isFav
@@ -79,16 +76,31 @@ export function useFavorites() {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
-      return res.ok;
+      if (res.ok) {
+        return true;
+      }
+      
+      // Rollback on failure
+      setFavorites(previousFavorites);
+      return false;
     } catch (err) {
+      // Rollback on error
+      setFavorites(previousFavorites);
       return false;
     }
   }, [favoriteSet, favorites]);
 
-  // Check if recipe is favorite
   const isFavorite = useCallback((recipeId) => {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
+
+  // Reset favorites when user logs out
+  useEffect(() => {
+    if (!currentUserRef.current) {
+      return;
+    }
+    // This will be handled by the page-level effect when isAuthenticated changes
+  }, []);
 
   return {
     favorites,

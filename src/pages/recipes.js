@@ -16,14 +16,14 @@ export default function RecipesPage({ initialRecipes }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
-  // Load favorites once when user is authenticated
+  // Load favorites once when user is authenticated - pass userId for proper scoping
   useEffect(() => {
-    if (isAuthenticated && !favorites.length) {
+    if (isAuthenticated && user) {
       getAccessToken().then(token => {
-        if (token) loadFavorites(token);
+        if (token) loadFavorites(token, user.id);
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
   
   // Handle favorite click - simple wrapper
   const handleFavorite = (recipeId) => {
