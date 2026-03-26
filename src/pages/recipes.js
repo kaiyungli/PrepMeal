@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeCard from '@/components/RecipeCard';
-import RecipeDetailModal from '@/components/RecipeDetailModal';
+import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -12,11 +12,10 @@ import { useToast } from '@/components/ui/Toast';
 
 export default function RecipesPage({ initialRecipes }) {
   // Use centralized auth guard - includes getAccessToken
-  const { user, isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
-  const { favorites, isFavorite, toggleFavorite, loading: favLoading, loadFavorites } = useFavorites();
+  const { user, isAuthenticated, getAccessToken, requireAuth } = useAuthGuard();
+  const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [modalLoading, setModalLoading] = useState(false);
   
   // Load favorites when authenticated
   useEffect(() => {
@@ -28,7 +27,7 @@ export default function RecipesPage({ initialRecipes }) {
   }, [isAuthenticated, user]);
   
   // Handle favorite click - use requireAuth
-  const handleFavorite = (recipeId) => {
+  const handleFavorite = useCallback((recipeId) => {
     if (!requireAuth()) {
       showToast('請先登入以收藏食譜', 'info');
       return;
@@ -36,17 +35,23 @@ export default function RecipesPage({ initialRecipes }) {
     getAccessToken().then(token => {
       if (token) toggleFavorite(recipeId, token);
     });
-  };
+  }, [requireAuth, getAccessToken, toggleFavorite, showToast]);
   
+  // Recipe click - just set selected, modal controller handles detail fetch
+  const handleRecipeClick = useCallback((recipe) => {
+    setSelectedRecipe({ ...recipe });
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedRecipe(null);
+  }, []);
+
   // Use shared recipe filters hook
   const {
-    filters,
     searchQuery,
     setSearchQuery,
     sortBy,
     setSortBy,
-    showFilters,
-    setShowFilters,
     recipeFilterSections,
     hasFilters,
     activeFilterCount,
@@ -54,28 +59,12 @@ export default function RecipesPage({ initialRecipes }) {
     filterRecipes
   } = useRecipeFilters();
 
-  const handleRecipeClick = (recipe) => {
-    setSelectedRecipe(recipe);
-    setModalLoading(true);
-    
-    fetch(`/api/recipes/${recipe.id}`)
-      .then(res => res.json())
-      .then(data => {
-        const fullRecipe = data?.data?.recipes?.[0] || data?.recipes?.[0];
-        if (fullRecipe) {
-          setSelectedRecipe(prev => ({ ...prev, ...fullRecipe }));
-        }
-      })
-      .catch(() => {})
-      .finally(() => setModalLoading(false));
-  };
+  // Memoized filtered recipes - derived from initialRecipes + filter function
+  const filteredRecipes = useMemo(() => {
+    return filterRecipes(initialRecipes || []);
+  }, [initialRecipes, filterRecipes]);
 
-  const handleCloseModal = () => {
-    setSelectedRecipe(null);
-  };
-
-  const filteredRecipes = filterRecipes(initialRecipes || []);
-  const showEmptyState = (hasFilters || searchQuery) && filteredRecipes.length === 0;
+  const showEmptyState = hasFilters && filteredRecipes.length === 0;
 
   return (
     <Layout>
@@ -120,11 +109,9 @@ export default function RecipesPage({ initialRecipes }) {
         </div>
       </div>
 
-      <RecipeDetailModal
-        isOpen={!!selectedRecipe}
+      <RecipeModalController
+        selectedRecipe={selectedRecipe}
         onClose={handleCloseModal}
-        recipe={selectedRecipe}
-        loading={modalLoading}
       />
 
       {toast && <Toast toast={toast} />}
