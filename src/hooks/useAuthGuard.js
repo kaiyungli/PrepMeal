@@ -4,11 +4,12 @@ import { useAuth } from './useAuth';
 import { useRouter } from 'next/router';
 
 /**
- * useAuthGuard - standardized auth protection for pages
+ * useAuthGuard - standardized auth protection + token helper for pages
  * Usage: call useAuthGuard() at top of protected page component
+ * Returns both auth state and getAccessToken for convenience
  */
 export function useAuthGuard() {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading, user, getAccessToken } = useAuth();
   const router = useRouter();
 
   // Standard redirect - use this in pages that need protection
@@ -49,6 +50,7 @@ export function useAuthGuard() {
     isAuthenticated,
     loading,
     user,
+    getAccessToken, // Also provide token getter for convenience
     requireAuth,
     requireAuthWithAlert,
   };

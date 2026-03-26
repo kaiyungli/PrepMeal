@@ -10,9 +10,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { Toast, useToast } from '@/components/ui/Toast';
 
 export default function FavoritesPage() {
-  // Use centralized auth guard - handles redirect automatically
-  const { isAuthenticated, loading: authLoading, user, requireAuth } = useAuthGuard();
-  const { getAccessToken } = useAuth();
+  // Use centralized auth guard - includes getAccessToken
+  const { isAuthenticated, loading: authLoading, user, getAccessToken, requireAuth } = useAuthGuard();
   const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
   const [recipes, setRecipes] = useState([]);
   const [toast, setToast] = useState(null);
