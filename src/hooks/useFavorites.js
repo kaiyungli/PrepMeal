@@ -1,12 +1,11 @@
-// Favorites hook - clean state management
-// No auto-fetch, no optimistic logic (that's in FavoriteButton)
+// Favorites hook - single source of truth for canonical favorites IDs
 import { useState, useCallback, useMemo, useRef } from 'react';
 
-// In-memory cache
-let favoritesCache = null;
+// In-memory cache - single source of truth across session
+let favoritesCache = [];
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState(favoritesCache ? favoritesCache : []);
+  const [favorites, setFavorites] = useState(favoritesCache);
   const [loading, setLoading] = useState(false);
   const loadedRef = useRef(false);
 
@@ -17,14 +16,13 @@ export function useFavorites() {
     return String(id);
   };
 
-  // Load favorites - returns cached if already loaded
+  // Load favorites - called by pages that need favorites
   const loadFavorites = useCallback(async (token) => {
-    // Return cached if already loaded
-    if (favoritesCache && favoritesCache.length > 0) {
+    if (!token) return;
+    if (favoritesCache.length > 0) {
+      setFavorites(favoritesCache);
       return;
     }
-    
-    if (!token) return;
     if (loadedRef.current) return;
     
     loadedRef.current = true;
@@ -54,14 +52,14 @@ export function useFavorites() {
     }
   }, []);
 
-  // Toggle - no optimistic here, FavoriteButton handles local state
+  // Toggle - canonical update in useFavorites, instant for caller
   const toggleFavorite = useCallback(async (recipeId, token) => {
     if (!token || !recipeId) return false;
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
 
-    // Update local state
+    // Optimistic update to cache
     const newFavorites = isFav
       ? favorites.filter(id => id !== normalizedId)
       : [...favorites, normalizedId];
@@ -87,6 +85,7 @@ export function useFavorites() {
     }
   }, [favoriteSet, favorites]);
 
+  // Check if recipe is favorite
   const isFavorite = useCallback((recipeId) => {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
