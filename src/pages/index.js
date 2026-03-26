@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
@@ -11,28 +11,13 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Toast, { useToast } from '@/components/ui/Toast';
 
-// Recipe detail cache
-const recipeDetailCache = new Map();
-const fetchRecipeDetail = async (recipeId) => {
-  if (recipeDetailCache.has(recipeId)) {
-    return recipeDetailCache.get(recipeId);
-  }
-  const res = await fetch(`/api/recipes/${recipeId}`);
-  const data = await res.json();
-  const recipes = data?.data?.recipes || data?.recipes || [];
-  recipeDetailCache.set(recipeId, recipes[0] || null);
-  return recipes[0] || null;
-};
-
 export default function Home({ initialRecipes = [] }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [modalLoading, setModalLoading] = useState(false);
-  const abortControllerRef = useRef(null);
   const { toast, showToast } = useToast();
 
   // Filters
   const { 
-    filters, searchQuery, setSearchQuery, sortBy, setSortBy, 
+    searchQuery, setSearchQuery, sortBy, setSortBy, 
     showFilters, setShowFilters, recipeFilterSections, hasFilters, 
     activeFilterCount, clearFilters, filterRecipes 
   } = useRecipeFilters();
@@ -42,35 +27,15 @@ export default function Home({ initialRecipes = [] }) {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
-  // Recipe click handler - progressive loading
+  // Recipe click - just set selected, detail fetch is in HomeModalController
   const handleRecipeClick = useCallback((recipe) => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    abortControllerRef.current = new AbortController();
-
     setSelectedRecipe({ ...recipe });
-    setModalLoading(true);
-
-    fetchRecipeDetail(recipe.id)
-      .then(fullRecipe => {
-        if (fullRecipe) {
-          setSelectedRecipe(prev => prev ? { ...prev, ...fullRecipe } : fullRecipe);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setModalLoading(false));
   }, []);
 
   const handleCloseModal = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
     setSelectedRecipe(null);
   }, []);
 
-  const hasSearch = searchQuery?.trim()?.length > 0;
   const showEmptyState = hasFilters && recipesList.length === 0;
 
   return (
@@ -128,7 +93,6 @@ export default function Home({ initialRecipes = [] }) {
 
       <HomeModalController
         selectedRecipe={selectedRecipe}
-        modalLoading={modalLoading}
         onClose={handleCloseModal}
       />
 
