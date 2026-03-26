@@ -3,24 +3,17 @@ import RecipeCard from '@/components/RecipeCard';
 
 interface HomeRecipeGridProps {
   recipes: any[];
-  favoriteSet: Set<string>;
-  toggleFavorite: (recipeId: string | number) => Promise<boolean>;
-  isAuthenticated: boolean;
-  onAuthRequired: () => void;
   onRecipeClick: (recipe: any) => void;
 }
 
 /**
- * HomeRecipeGrid - isolated recipe grid for homepage
+ * HomeRecipeGrid - display-only recipe grid for homepage
+ * - Homepage is display-first, no favorites orchestration
+ * - Only requires recipes and onRecipeClick
  * - Memoized to prevent re-renders from parent state changes
- * - Only re-renders when recipes, favoriteSet, or handlers change
  */
 function HomeRecipeGrid({ 
   recipes, 
-  favoriteSet, 
-  toggleFavorite, 
-  isAuthenticated, 
-  onAuthRequired, 
   onRecipeClick 
 }: HomeRecipeGridProps) {
   const safeRecipes = recipes || [];
@@ -34,10 +27,6 @@ function HomeRecipeGrid({
           <RecipeCard
             recipe={recipe}
             onClick={() => onRecipeClick(recipe)}
-            toggleFavorite={toggleFavorite}
-            isFavorite={favoriteSet.has(String(recipe.id))}
-            isAuthenticated={isAuthenticated}
-            onAuthRequired={onAuthRequired}
           />
         </div>
       ))}
