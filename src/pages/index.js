@@ -35,7 +35,7 @@ export default function Home({ initialRecipes = [] }) {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
-  // Build weekly plan from recipes
+  // Build weekly plan from recipes - preserve ingredients for shopping list
   const buildWeeklyPlan = useCallback((recipes) => {
     if (!recipes || recipes.length === 0) return [];
     
@@ -48,6 +48,7 @@ export default function Home({ initialRecipes = [] }) {
         id: recipe.id,
         name: recipe.name,
         image_url: recipe.image_url,
+        ingredients: recipe.ingredients || null,
       }
     }));
   }, []);
@@ -61,7 +62,7 @@ export default function Home({ initialRecipes = [] }) {
     for (const item of plan) {
       const recipe = item.recipe;
       
-      // Check if recipe has ingredients (from initialRecipes)
+      // Check if recipe has ingredients
       if (recipe && recipe.ingredients) {
         try {
           const ingredients = typeof recipe.ingredients === 'string' 
@@ -71,14 +72,23 @@ export default function Home({ initialRecipes = [] }) {
           if (Array.isArray(ingredients)) {
             for (const ing of ingredients) {
               const name = ing.name || ing.item || '未知食材';
-              const qty = ing.qty || ing.amount || ing.quantity || '1';
+              const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
+              
+              // Try to parse as number for summation
+              const qtyNum = parseFloat(qtyRaw);
               
               if (ingredientMap.has(name)) {
-                // Append quantity
                 const existing = ingredientMap.get(name);
-                ingredientMap.set(name, `${existing}+${qty}`);
+                if (typeof existing === 'number' && !isNaN(qtyNum)) {
+                  // Sum numeric quantities
+                  ingredientMap.set(name, existing + qtyNum);
+                } else {
+                  // Append as string fallback
+                  ingredientMap.set(name, `${existing}+${qtyRaw}`);
+                }
               } else {
-                ingredientMap.set(name, String(qty));
+                // Store as number if possible
+                ingredientMap.set(name, !isNaN(qtyNum) ? qtyNum : qtyRaw);
               }
             }
           }
@@ -88,10 +98,10 @@ export default function Home({ initialRecipes = [] }) {
       }
     }
     
-    // Convert to array
+    // Convert to array with string qty
     return Array.from(ingredientMap.entries()).map(([name, qty]) => ({
       name,
-      qty
+      qty: typeof qty === 'number' ? String(qty) : qty
     }));
   }, []);
 
