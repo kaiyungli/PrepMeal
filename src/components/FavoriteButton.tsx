@@ -12,7 +12,7 @@ interface FavoriteButtonProps {
  * FavoriteButton - local optimistic visual state for instant UI
  * - Position: absolute, outside clickable area
  * - Explicit hit area (44x44 min)
- * - stopPropagation on all event types to prevent bubble up
+ * - Proper error handling - no silent failures
  */
 function FavoriteButton({ 
   recipeId, 
@@ -31,7 +31,15 @@ function FavoriteButton({
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation?.();
 
-    if (!onToggle || !recipeId) return;
+    // Fail explicitly if missing props - no silent return
+    if (!onToggle) {
+      console.error('[FavoriteButton] Error: onToggle is undefined');
+      return;
+    }
+    if (!recipeId) {
+      console.error('[FavoriteButton] Error: recipeId is undefined');
+      return;
+    }
     
     const previousValue = localFav;
     const nextValue = !localFav;
@@ -43,10 +51,12 @@ function FavoriteButton({
       if (result && typeof result.then === 'function') {
         const success = await result;
         if (!success) {
+          console.warn('[FavoriteButton] Toggle failed, rolling back');
           setLocalFav(previousValue);
         }
       }
     } catch (err) {
+      console.error('[FavoriteButton] Toggle error:', err);
       setLocalFav(previousValue);
     }
   }, [localFav, onToggle, recipeId]);
