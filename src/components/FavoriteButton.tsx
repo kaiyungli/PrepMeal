@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 interface FavoriteButtonProps {
   recipeId?: string | number;
   isFavorite?: boolean;
-  onToggle?: (recipeId: string | number) => Promise<boolean> | void;
+  onToggle?: (recipeId: string | number) => void | Promise<boolean>;
   className?: string;
 }
 
@@ -12,7 +12,7 @@ interface FavoriteButtonProps {
  * FavoriteButton - local optimistic visual state for instant UI
  * - Position: absolute, outside clickable area
  * - Explicit hit area (44x44 min)
- * - Proper error handling - no silent failures
+ * - Always awaits onToggle, simple rollback on failure
  */
 function FavoriteButton({ 
   recipeId, 
@@ -22,6 +22,7 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(isFavorite);
 
+  // Sync local state when prop changes
   React.useEffect(() => {
     setLocalFav(isFavorite);
   }, [isFavorite]);
@@ -31,13 +32,8 @@ function FavoriteButton({
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation?.();
 
-    // Fail explicitly if missing props - no silent return
-    if (!onToggle) {
-      console.error('[FavoriteButton] Error: onToggle is undefined');
-      return;
-    }
-    if (!recipeId) {
-      console.error('[FavoriteButton] Error: recipeId is undefined');
+    if (!onToggle || !recipeId) {
+      console.error('[FavoriteButton] Missing onToggle or recipeId');
       return;
     }
     
@@ -48,10 +44,11 @@ function FavoriteButton({
     try {
       const result = onToggle(recipeId);
       
+      // Handle both sync void and async Promise
       if (result && typeof result.then === 'function') {
         const success = await result;
-        if (!success) {
-          console.warn('[FavoriteButton] Toggle failed, rolling back');
+        if (success === false) {
+          console.warn('[FavoriteButton] Toggle returned false, rolling back');
           setLocalFav(previousValue);
         }
       }

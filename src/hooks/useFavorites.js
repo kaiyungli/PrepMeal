@@ -25,9 +25,10 @@ const favoritesFetcher = async ([url, token]) => {
 /**
  * useFavorites - SWR-based favorites hook with per-recipe locking
  * @param {string} token - Access token for authorization (pass from page)
+ * 
+ * IMPORTANT: toggleFavorite always returns Promise<boolean>
  */
 export function useFavorites(token) {
-  // SWR key is null when no token - won't fetch
   const swrKey = token ? ['/api/user/favorites', token] : null;
   
   const { data: favorites = [], error, isLoading, isValidating } = useSWR(
@@ -40,37 +41,39 @@ export function useFavorites(token) {
     }
   );
 
-  // Per-recipe locking to prevent race conditions
   const togglingMapRef = useRef({});
-
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
-  // Check if a recipe is favorite - O(1) lookup via Set
   const isFavorite = useCallback((recipeId) => {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
 
-  // Toggle favorite with SWR optimistic update + per-recipe locking
+  // toggleFavorite always returns Promise<boolean>
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
-    // Per-recipe lock - don't allow simultaneous toggles for same recipe
-    if (togglingMapRef.current[normalizedId] || !token) return false;
+    if (!token) {
+      return false;
+    }
     
-    // Mark this recipe as being toggled
+    // Per-recipe lock
+    if (togglingMapRef.current[normalizedId]) {
+      return false;
+    }
+    
     togglingMapRef.current[normalizedId] = true;
     
-    const isFav = favoriteSet.has(normalizedId);
-    const previousFavorites = [...favorites];
-    
-    // Optimistic update - immediately update UI
-    const newFavorites = isFav
-      ? favorites.filter(id => id !== normalizedId)
-      : [...favorites, normalizedId];
-    
-    mutate(swrKey, newFavorites, false);
-
     try {
+      const isFav = favoriteSet.has(normalizedId);
+      const previousFavorites = [...favorites];
+      
+      // Optimistic update
+      const newFavorites = isFav
+        ? favorites.filter(id => id !== normalizedId)
+        : [...favorites, normalizedId];
+      
+      mutate(swrKey, newFavorites, false);
+
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
@@ -83,21 +86,19 @@ export function useFavorites(token) {
           });
 
       if (res.ok) {
-        // Success - revalidate to sync with server state
         mutate(swrKey);
-        delete togglingMapRef.current[normalizedId];
         return true;
       }
       
-      // API failed - rollback
+      // Rollback on failure
       mutate(swrKey, previousFavorites, false);
-      delete togglingMapRef.current[normalizedId];
       return false;
     } catch (err) {
-      // Error - rollback
-      mutate(swrKey, previousFavorites, false);
-      delete togglingMapRef.current[normalizedId];
+      // Rollback on error
+      mutate(swrKey, favorites, false);
       return false;
+    } finally {
+      delete togglingMapRef.current[normalizedId];
     }
   }, [token, swrKey, favoriteSet, favorites]);
 
