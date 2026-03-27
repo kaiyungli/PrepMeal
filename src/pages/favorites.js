@@ -9,10 +9,17 @@ import { useFavorites } from '@/hooks/useFavorites';
 export default function FavoritesPage() {
   // Use centralized auth guard - provides isAuthenticated, user, getAccessToken
   const { isAuthenticated, loading: authLoading, user, getAccessToken, requireAuth } = useAuthGuard();
-  
-  // useFavorites is canonical source for favorite IDs
-  const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
-  
+
+  // Get token for SWR
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    getAccessToken().then(t => setToken(t));
+  }, [getAccessToken]);
+
+  // useFavorites is canonical source for favorite IDs - now SWR-based
+  const { favorites, isFavorite, toggleFavorite } = useFavorites(token);
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,15 +31,8 @@ export default function FavoritesPage() {
     });
   };
 
-  // Load canonical favorite IDs when authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      getAccessToken().then(token => {
-        if (token) loadFavorites(token, user.id);
-      });
-    }
-  }, [isAuthenticated, user]);
-
+  // Favorites load automatically via SWR when token is available
+  
   // Derive full recipe list from canonical favorites - refresh when favorites change
   useEffect(() => {
     if (!isAuthenticated || favorites.length === 0) {
@@ -75,7 +75,7 @@ export default function FavoritesPage() {
   return (
     <>
       <Header />
-      
+
       <Head><title>我的收藏 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[1200px] mx-auto px-4">

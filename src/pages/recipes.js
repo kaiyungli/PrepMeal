@@ -14,18 +14,19 @@ import { fetchRecipesForServer } from '@/lib/recipesServer';
 export default function RecipesPage({ initialRecipes }) {
   // Use centralized auth guard - includes getAccessToken
   const { user, isAuthenticated, getAccessToken, requireAuth } = useAuthGuard();
-  const { favorites, isFavorite, toggleFavorite, loadFavorites } = useFavorites();
+  
+  // Get token for SWR
+  const [token, setToken] = useState(null);
+  
+  useEffect(() => {
+    getAccessToken().then(t => setToken(t));
+  }, [getAccessToken]);
+  
+  const { favorites, isFavorite, toggleFavorite } = useFavorites(token);
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   
-  // Load favorites when authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      getAccessToken().then(token => {
-        if (token) loadFavorites(token, user.id);
-      });
-    }
-  }, [isAuthenticated, user]);
+  // Favorites load automatically via SWR when token is available
   
   // Handle favorite click - use requireAuth
   const handleFavorite = useCallback((recipeId) => {

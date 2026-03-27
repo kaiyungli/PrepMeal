@@ -1,6 +1,6 @@
 // Favorites hook - canonical favorite IDs owned by SWR
 import useSWR, { mutate } from 'swr';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
 const normalizeId = (id) => {
   if (id === undefined || id === null) return '';
@@ -10,7 +10,7 @@ const normalizeId = (id) => {
 // Fetcher for SWR - loads favorite IDs from API
 const favoritesFetcher = async ([url, token]) => {
   const res = await fetch(url, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+    headers: { Authorization: `Bearer ${token}` }
   });
   
   if (!res.ok) {
@@ -22,24 +22,23 @@ const favoritesFetcher = async ([url, token]) => {
   return favoritesData.map(id => normalizeId(id));
 };
 
-export function useFavorites() {
-  const tokenRef = useRef(null);
+/**
+ * useFavorites - SWR-based favorites hook
+ * @param {string} token - Access token for authorization (pass from page)
+ */
+export function useFavorites(token) {
+  // SWR key is null when no token - won't fetch
+  const swrKey = token ? ['/api/user/favorites', token] : null;
   
-  // SWR for canonical favorite IDs
-  // Key is null when no token - SWR won't fetch
   const { data: favorites = [], error, isLoading, isValidating } = useSWR(
-    tokenRef.current ? ['/api/user/favorites', tokenRef.current] : null,
+    swrKey,
     favoritesFetcher,
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
+      fallbackData: [],
     }
   );
-
-  // Helper to set token for SWR key
-  const setToken = useCallback((token) => {
-    tokenRef.current = token;
-  }, []);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
@@ -49,8 +48,8 @@ export function useFavorites() {
   }, [favoriteSet]);
 
   // Toggle favorite with SWR optimistic update
-  const toggleFavorite = useCallback(async (recipeId, token) => {
-    if (!token || !recipeId) return false;
+  const toggleFavorite = useCallback(async (recipeId, authToken) => {
+    if (!authToken || !recipeId) return false;
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
@@ -64,20 +63,20 @@ export function useFavorites() {
     
     // Mutate SWR cache optimistically
     mutate(
-      ['/api/user/favorites', token],
+      ['/api/user/favorites', authToken],
       newFavorites,
-      false // don't revalidate immediately
+      false
     );
 
     try {
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${authToken}` }
           })
         : await fetch('/api/user/favorites', {
             method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
@@ -86,38 +85,21 @@ export function useFavorites() {
       }
       
       // Rollback on failure
-      mutate(
-        ['/api/user/favorites', token],
-        previousFavorites,
-        false
-      );
+      mutate(['/api/user/favorites', authToken], previousFavorites, false);
       return false;
     } catch (err) {
       // Rollback on error
-      mutate(
-        ['/api/user/favorites', token],
-        previousFavorites,
-        false
-      );
+      mutate(['/api/user/favorites', authToken], previousFavorites, false);
       return false;
     }
   }, [favoriteSet, favorites]);
-
-  // Keep loadFavorites for backward compat - triggers SWR revalidation
-  const loadFavorites = useCallback(async (token) => {
-    if (!token) return;
-    tokenRef.current = token;
-    await mutate(['/api/user/favorites', token]);
-  }, []);
 
   return {
     favorites,
     loading: isLoading,
     validating: isValidating,
     error,
-    loadFavorites,
     toggleFavorite,
     isFavorite,
-    setToken,
   };
 }
