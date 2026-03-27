@@ -30,10 +30,10 @@ interface RecipeCardProps {
 }
 
 /**
- * RecipeCard - clean three-layer structure
- * Layer 1: Outer container (layout only)
- * Layer 2: Action layer - FavoriteButton (independent, absolute overlay)
- * Layer 3: Clickable content - div with onClick for detail navigation
+ * RecipeCard - clean structure with separated clickable areas
+ * - Image section: NOT clickable (pointer-events-none)
+ * - Content body: clickable
+ * - FavoriteButton: separate absolute layer, NOT part of clickable area
  */
 function RecipeCard({ 
   recipe, 
@@ -65,7 +65,19 @@ function RecipeCard({
     tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger if clicking on the top-right heart area
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const cardRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const clickX = e.clientX - cardRect.left;
+    const clickY = e.clientY - cardRect.top;
+    
+    // If click is in top-right 60px zone (where heart is), ignore
+    const cardWidth = cardRect.width;
+    if (clickX >= cardWidth - 60 && clickY <= 60) {
+      return;
+    }
+    
     if (onClick) {
       onClick();
     } else if (recipeSlug) {
@@ -73,7 +85,7 @@ function RecipeCard({
     }
   };
 
-  // Image section
+  // Image section - NOT clickable
   const imageSection = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
       <div className="absolute inset-0 p-3 flex items-center justify-center pointer-events-none">
@@ -100,6 +112,7 @@ function RecipeCard({
     </div>
   );
 
+  // Content body - clickable
   const contentBody = (
     <div className="p-4">
       <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
@@ -165,16 +178,12 @@ function RecipeCard({
     </div>
   )
 
-  // Clean three-layer structure
-  // Layer 1: Outer container (layout only)
-  // Layer 2: Action layer - FavoriteButton (independent, absolute overlay)
-  // Layer 3: Clickable content - div with onClick (NO Link wrapper)
   return (
     <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
       
-      {/* LAYER 2: Action layer - FavoriteButton (absolute, independent) */}
+      {/* FavoriteButton - absolute, top-right, z-50 */}
       {onFavorite && (
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-3 right-3 z-50">
           <FavoriteButton
             recipeId={recipe?.id}
             isFavorite={isFavorite}
@@ -183,18 +192,20 @@ function RecipeCard({
         </div>
       )}
 
-      {/* Static heart for homepage (no favorites) */}
+      {/* Static heart for homepage */}
       {!onFavorite && (
-        <div className="absolute top-3 right-3 z-10 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
+        <div className="absolute top-3 right-3 z-50 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
           </svg>
         </div>
       )}
 
-      {/* LAYER 3: Clickable content - div with onClick (no Link wrapper) */}
+      {/* Image - NOT clickable (pointer-events-none) */}
+      {imageSection}
+
+      {/* Content body - clickable */}
       <div onClick={handleCardClick} className="cursor-pointer">
-        {imageSection}
         {contentBody}
       </div>
     </div>
