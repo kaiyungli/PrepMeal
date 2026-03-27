@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
-import RecipeCard from '@/components/RecipeCard';
+import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -93,16 +93,11 @@ export default function FavoritesPage() {
               </a>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {recipes.map((recipe) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  onFavorite={() => handleFavorite(recipe.id)}
-                  isFavorite={isFavorite(recipe.id)}
-                />
-              ))}
-            </div>
+            <RecipeList
+              recipes={recipes}
+              onFavorite={handleFavorite}
+              isFavorite={isFavorite}
+            />
           )}
         </div>
       </div>

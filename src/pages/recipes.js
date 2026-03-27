@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
-import RecipeCard from '@/components/RecipeCard';
+import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
@@ -94,18 +94,13 @@ export default function RecipesPage({ initialRecipes }) {
           )}
 
           {!showEmptyState && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredRecipes.map((recipe) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  onClick={() => handleRecipeClick(recipe)}
-                  onFavorite={() => handleFavorite(recipe.id)}
-                  isFavorite={isFavorite(recipe.id)}
-                  isAuthenticated={isAuthenticated}
-                />
-              ))}
-            </div>
+            <RecipeList
+              recipes={filteredRecipes}
+              onRecipeClick={handleRecipeClick}
+              onFavorite={handleFavorite}
+              isFavorite={isFavorite}
+              isAuthenticated={isAuthenticated}
+            />
           )}
         </div>
       </div>
