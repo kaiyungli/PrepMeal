@@ -30,10 +30,7 @@ interface RecipeCardProps {
 }
 
 /**
- * RecipeCard - simplified structure with image as base layer
- * - Image container is relative (base layer)
- * - FavoriteButton is absolute within image container (same stacking)
- * - Content body is separate, clickable
+ * RecipeCard - simplified without overlay
  */
 function RecipeCard({ 
   recipe, 
@@ -83,10 +80,10 @@ function RecipeCard({
     }
   };
 
-  // Image container - base layer with relative positioning
+  // Image container - base layer with relative
   const imageContainer = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
-      {/* FavoriteButton INSIDE image container - same stacking context */}
+      {/* FavoriteButton - absolute top-right */}
       {onFavorite && (
         <div className="absolute top-3 right-3 z-50">
           <FavoriteButton
@@ -106,9 +103,9 @@ function RecipeCard({
         </div>
       )}
 
-      {/* Image - pointer-events-none to allow click through to button */}
-      <div className="absolute inset-0 p-3 flex items-center justify-center pointer-events-none">
-        {recipeImage ? (
+      {/* Image - direct render, no overlay */}
+      {recipeImage ? (
+        <div className="absolute inset-0 p-3">
           <Image 
             src={recipeImage} 
             alt={recipeName} 
@@ -117,17 +114,17 @@ function RecipeCard({
             className="object-contain rounded-xl" 
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
-        ) : (
-          <div className="flex items-center justify-center h-full bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl">
-            <div className="flex flex-col items-center gap-2">
-              <svg className="w-12 h-12 text-[#D4C4A8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.37c-2.032 0-4.034.125-6 .37m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.17c0 .62-.504 1.124-1.125 1.124H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265zm-3 0a.375.375 0 11-.53 0L9 2.845l.265.265zm6 0a.375.375 0 11-.53 0L15 2.845l.265.265z" />
-              </svg>
-              <span className="text-xs text-[#C0A080] font-medium">暂无图片</span>
-            </div>
+        </div>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
+          <div className="flex flex-col items-center gap-2">
+            <svg className="w-12 h-12 text-[#D4C4A8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.37c-2.032 0-4.034.125-6 .37m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.17c0 .62-.504 1.124-1.125 1.124H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265zm-3 0a.375.375 0 11-.53 0L9 2.845l.265.265zm6 0a.375.375 0 11-.53 0L15 2.845l.265.265z" />
+            </svg>
+            <span className="text-xs text-[#C0A080] font-medium">暂无图片</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 
@@ -198,11 +195,7 @@ function RecipeCard({
 
   return (
     <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
-      
-      {/* Image container - base layer */}
       {imageContainer}
-
-      {/* Content body - separate clickable layer */}
       <div onClick={handleCardClick} className="cursor-pointer">
         {contentBody}
       </div>
