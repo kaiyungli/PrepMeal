@@ -10,6 +10,9 @@ interface FavoriteButtonProps {
 
 /**
  * FavoriteButton - local optimistic visual state for instant UI
+ * - Position: absolute, outside clickable area
+ * - Explicit hit area (44x44 min)
+ * - stopPropagation as fallback to prevent event bubble up
  */
 function FavoriteButton({ 
   recipeId, 
@@ -25,7 +28,10 @@ function FavoriteButton({
   }, [isFavorite]);
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
+    // Fallback: stop all propagation
     e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation?.();
     
     // DEBUG: log on click
     console.log('[FavoriteButton] clicked', { recipeId, hasOnToggle: !!onToggle });
@@ -58,12 +64,15 @@ function FavoriteButton({
   return (
     <button 
       onClick={handleClick}
-      className={`rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 transition-transform ${
+      // Explicit minimum hit area 44x44
+      style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
+      className={`rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 transition-transform ${
         isFav 
           ? 'bg-rose-500 text-white' 
           : 'bg-white/80 text-rose-400 hover:bg-white'
       } ${className}`}
       aria-label={isFav ? "取消收藏" : "收藏"}
+      type="button"
     >
       <svg 
         className="w-5 h-5" 

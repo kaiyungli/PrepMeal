@@ -33,8 +33,8 @@ interface RecipeCardProps {
  * RecipeCard - displays a single recipe card
  * Structure:
  * - Outer container (relative)
- * - FavoriteButton (absolute, top-right, outside Link)
- * - Link (contains card content, for detail navigation)
+ * - FavoriteButton (absolute, top-right, outside clickable area)
+ * - Link or clickable div (card content)
  */
 function RecipeCard({ 
   recipe, 
@@ -65,7 +65,7 @@ function RecipeCard({
     tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
 
-  // Card content without favorite button - goes inside Link
+  // Card content without favorite button - goes inside clickable area
   const cardContent = (
     <>
       {/* Image */}
@@ -160,12 +160,13 @@ function RecipeCard({
   )
 
   // Outer container with relative positioning
-  // FavoriteButton is OUTSIDE the Link - sits on top as sibling
+  // FavoriteButton is OUTSIDE the clickable area - sits on top as sibling
   return (
     <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
-      {/* FavoriteButton - absolute positioned, NOT inside Link */}
+      {/* FavoriteButton - absolute positioned, OUTSIDE clickable area */}
+      {/* Higher z-index, explicit pointer-events, proper hit area */}
       {onFavorite && (
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-3 right-3 z-[60]">
           <FavoriteButton
             recipeId={recipe?.id}
             isFavorite={isFavorite}
@@ -176,7 +177,7 @@ function RecipeCard({
 
       {/* Static heart for homepage (no favorites) */}
       {!onFavorite && (
-        <div className="absolute top-3 right-3 z-10 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
+        <div className="absolute top-3 right-3 z-[60] rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
           </svg>
@@ -184,6 +185,7 @@ function RecipeCard({
       )}
 
       {/* Link wraps only the card content - click goes to detail */}
+      {/* Do NOT cover the heart area - use pointer-events-none on image to prevent overlap */}
       {recipeId && !onClick && recipeSlug && (
         <Link 
           href={`/recipes/${recipeSlug}`}
@@ -194,6 +196,7 @@ function RecipeCard({
       )}
 
       {/* With onClick - clickable div, no Link */}
+      {/* Use pointer-events-none on image to ensure heart area is clickable */}
       {onClick && (
         <div onClick={onClick} className="cursor-pointer">
           {cardContent}
