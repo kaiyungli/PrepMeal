@@ -23,8 +23,9 @@ interface RecipeCardProps {
     diet?: string[];
   };
   onClick?: () => void;
-  onFavorite?: (recipeId: string | number) => Promise<boolean>;
   isFavorite?: boolean;
+  favoriteLoading?: boolean;
+  onFavoriteClick?: () => void | Promise<void>;
   isAuthenticated?: boolean;
   className?: string;
 }
@@ -35,8 +36,9 @@ interface RecipeCardProps {
 function RecipeCard({ 
   recipe, 
   onClick, 
-  onFavorite, 
   isFavorite, 
+  favoriteLoading,
+  onFavoriteClick, 
   isAuthenticated,
   className = '' 
 }: RecipeCardProps) {
@@ -84,11 +86,12 @@ function RecipeCard({
   const imageContainer = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
       {/* FavoriteButton - absolute top-right */}
-      {onFavorite && (
+      {onFavoriteClick && (
         <div className="absolute top-3 right-3 z-50">
           <FavoriteButton
             active={isFavorite}
-            onClick={() => onFavorite(recipe?.id)}
+            loading={favoriteLoading}
+            onClick={onFavoriteClick}
           />
         </div>
       )}

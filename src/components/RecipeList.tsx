@@ -4,8 +4,9 @@ import RecipeCard from '@/components/RecipeCard';
 interface RecipeListProps {
   recipes: any[];
   onRecipeClick?: (recipe: any) => void;
-  onFavorite?: (recipeId: string | number) => Promise<boolean>;
   isFavorite?: (recipeId: string | number) => boolean;
+  isPending?: (recipeId: string | number) => boolean;
+  onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
   isAuthenticated?: boolean;
   emptyMessage?: string;
   emptyLink?: string;
@@ -13,12 +14,14 @@ interface RecipeListProps {
 
 /**
  * RecipeList - shared component for rendering recipe card grids
+ * Prepares per-recipe favorite props before passing to cards
  */
 function RecipeList({
   recipes,
   onRecipeClick,
-  onFavorite,
   isFavorite,
+  isPending,
+  onFavoriteClick,
   isAuthenticated,
   emptyMessage = '暫時未有食譜',
   emptyLink,
@@ -43,8 +46,9 @@ function RecipeList({
           key={recipe.id}
           recipe={recipe}
           onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
-          onFavorite={onFavorite ? () => onFavorite(recipe.id) : undefined}
           isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
+          favoriteLoading={isPending ? isPending(recipe.id) : undefined}
+          onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
           isAuthenticated={isAuthenticated}
         />
       ))}
