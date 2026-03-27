@@ -10,6 +10,7 @@ import HomeModalController from '@/components/home/HomeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Toast, { useToast } from '@/components/ui/Toast';
+import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [] }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -99,4 +100,13 @@ export default function Home({ initialRecipes = [] }) {
       {toast && <Toast toast={toast} />}
     </Layout>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const initialRecipes = await fetchRecipesForServer(24);
+    return { props: { initialRecipes } };
+  } catch (err) {
+    return { props: { initialRecipes: [] } };
+  }
 }
