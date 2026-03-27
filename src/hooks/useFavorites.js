@@ -1,4 +1,4 @@
-// Favorites hook - canonical favorite IDs owned by SWR with per-recipe locking
+// Favorites hook - single source of truth for favorite IDs
 import useSWR, { mutate } from 'swr';
 import { useCallback, useMemo, useRef } from 'react';
 
@@ -9,12 +9,14 @@ const normalizeId = (id) => {
 
 // Fetcher for SWR - loads favorite IDs from API
 const favoritesFetcher = async ([url, token]) => {
+  if (!token) return [];
+  
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
   
   if (!res.ok) {
-    throw new Error('Failed to load favorites');
+    return [];
   }
   
   const data = await res.json();
@@ -23,15 +25,22 @@ const favoritesFetcher = async ([url, token]) => {
 };
 
 /**
- * useFavorites - SWR-based favorites hook with per-recipe locking
- * @param {string} token - Access token for authorization (pass from page)
+ * useFavorites - single source of truth for favorites
+ * @param {string} token - Access token (from page)
  * 
- * IMPORTANT: toggleFavorite always returns Promise<boolean>
+ * Returns:
+ * - favorites: string[] - canonical list of favorite recipe IDs
+ * - isFavorite(recipeId): boolean - check if recipe is favorite
+ * - toggleFavorite(recipeId): Promise<boolean> - add/remove favorite
+ * - loading: boolean - initial load in progress
+ * - error: any - any fetch error
+ * - isPending(recipeId): boolean - whether this recipe is being toggled
  */
 export function useFavorites(token) {
   const swrKey = token ? ['/api/user/favorites', token] : null;
   
-  const { data: favorites = [], error, isLoading, isValidating } = useSWR(
+  // SWR for canonical favorites data
+  const { data: favorites = [], error, isLoading } = useSWR(
     swrKey,
     favoritesFetcher,
     {
@@ -41,73 +50,94 @@ export function useFavorites(token) {
     }
   );
 
-  const togglingMapRef = useRef({});
+  // Per-recipe pending state to prevent double-clicks
+  const pendingRef = useRef(new Set());
+
+  // Derived Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
+  // Check if a specific recipe is favorite - O(1)
   const isFavorite = useCallback((recipeId) => {
+    if (!recipeId) return false;
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
 
-  // toggleFavorite always returns Promise<boolean>
+  // Check if a specific recipe is currently being toggled
+  const isPending = useCallback((recipeId) => {
+    if (!recipeId) return false;
+    return pendingRef.current.has(normalizeId(recipeId));
+  }, []);
+
+  // Toggle favorite - optimistic update with rollback
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
+    // Guard: no token = can't toggle
     if (!token) {
       return false;
     }
     
-    // Per-recipe lock
-    if (togglingMapRef.current[normalizedId]) {
+    // Guard: already pending = prevent double-click
+    if (pendingRef.current.has(normalizedId)) {
       return false;
     }
     
-    togglingMapRef.current[normalizedId] = true;
+    // Mark as pending
+    pendingRef.current.add(normalizedId);
     
-    try {
-      const isFav = favoriteSet.has(normalizedId);
-      const previousFavorites = [...favorites];
-      
-      // Optimistic update
-      const newFavorites = isFav
-        ? favorites.filter(id => id !== normalizedId)
-        : [...favorites, normalizedId];
-      
-      mutate(swrKey, newFavorites, false);
+    const isFav = favoriteSet.has(normalizedId);
+    const previousFavorites = [...favorites];
+    
+    // Optimistic update - immediately reflect in UI
+    const newFavorites = isFav
+      ? favorites.filter(id => id !== normalizedId)
+      : [...favorites, normalizedId];
+    
+    mutate(swrKey, newFavorites, false);
 
+    try {
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           })
         : await fetch('/api/user/favorites', {
             method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
       if (res.ok) {
+        // Success - revalidate to sync with server
         mutate(swrKey);
         return true;
       }
       
-      // Rollback on failure
+      // API returned error - rollback to previous
       mutate(swrKey, previousFavorites, false);
       return false;
     } catch (err) {
-      // Rollback on error
-      mutate(swrKey, favorites, false);
+      // Network error - rollback to previous
+      mutate(swrKey, previousFavorites, false);
       return false;
     } finally {
-      delete togglingMapRef.current[normalizedId];
+      // Always clear pending state
+      pendingRef.current.delete(normalizedId);
     }
   }, [token, swrKey, favoriteSet, favorites]);
 
   return {
     favorites,
     loading: isLoading,
-    validating: isValidating,
     error,
-    toggleFavorite,
     isFavorite,
+    isPending,
+    toggleFavorite,
   };
 }
