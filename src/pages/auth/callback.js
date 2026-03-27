@@ -69,7 +69,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [router.isReady, router.query]);
+  }, [router.isReady, router.query.code, router.query.redirect, router.query.error, router.query.error_description]);
 
   // Show loading state
   if (processing) {

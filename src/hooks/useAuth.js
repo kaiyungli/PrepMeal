@@ -1,6 +1,7 @@
 // Simple auth hook for Google OAuth
 import { useState, useEffect, useCallback, useRef } from 'react';
 import supabase from '@/lib/supabase';
+import { buildOAuthRedirectUrl } from '@/lib/authRedirect';
 
 export function useAuth() {
   const [user, setUser] = useState(null);
@@ -61,12 +62,7 @@ export function useAuth() {
   }, []);
 
   const signInWithGoogle = async () => {
-    const redirectParam = typeof window !== 'undefined' 
-      ? new URLSearchParams(window.location.search).get('redirect') 
-      : null;
-    const redirectTo = redirectParam 
-      ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
-      : `${window.location.origin}/auth/callback`;
+    const redirectTo = buildOAuthRedirectUrl();
     
     if (!supabase) throw new Error("Supabase not initialized");
     
@@ -80,12 +76,7 @@ export function useAuth() {
   };
 
   const signInWithApple = async () => {
-    const redirectParam = typeof window !== 'undefined' 
-      ? new URLSearchParams(window.location.search).get('redirect') 
-      : null;
-    const redirectTo = redirectParam 
-      ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
-      : `${window.location.origin}/auth/callback`;
+    const redirectTo = buildOAuthRedirectUrl();
     
     try {
       if (!supabase) throw new Error("Supabase not initialized"); 
@@ -101,12 +92,7 @@ export function useAuth() {
   };
 
   const signInWithFacebook = async () => {
-    const redirectParam = typeof window !== 'undefined' 
-      ? new URLSearchParams(window.location.search).get('redirect') 
-      : null;
-    const redirectTo = redirectParam 
-      ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}` 
-      : `${window.location.origin}/auth/callback`;
+    const redirectTo = buildOAuthRedirectUrl();
     
     try {
       if (!supabase) throw new Error("Supabase not initialized"); 

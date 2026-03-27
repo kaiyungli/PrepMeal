@@ -40,21 +40,24 @@ export function getRedirectUrl(options: RedirectOptions = {}) {
 }
 
 /**
- * Build redirect URL for OAuth (used in useAuth hook)
+ * Build OAuth redirect URL for Supabase OAuth flow
+ * Returns the full callback URL with redirect param
  */
-export function buildOAuthRedirectUrl(redirectPath = '/my-plans') {
+export function buildOAuthRedirectUrl(callbackPath = '/auth/callback') {
   if (typeof window === 'undefined') {
-    return redirectPath;
+    return callbackPath;
   }
   
+  const origin = window.location.origin;
   const searchParams = new URLSearchParams(window.location.search);
-  const fromParam = searchParams.get('redirect');
+  const redirectParam = searchParams.get('redirect');
   
-  // If there's a redirect param, use that
-  if (fromParam) {
-    return fromParam.startsWith('/') ? fromParam : '/' + fromParam;
+  const baseUrl = `${origin}${callbackPath}`;
+  
+  // If there's a redirect param, append it
+  if (redirectParam) {
+    return `${baseUrl}?redirect=${encodeURIComponent(redirectParam)}`;
   }
   
-  // Otherwise use the provided path
-  return redirectPath;
+  return baseUrl;
 }
