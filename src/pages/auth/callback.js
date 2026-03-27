@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import supabase from '@/lib/supabase';
+import { getRedirectUrl } from '@/lib/authRedirect';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -13,7 +14,6 @@ export default function AuthCallback() {
     if (!router.isReady) return;
 
     const handleCallback = async () => {
-      
       try {
         // 1. Check for OAuth error in URL
         if (router.query.error) {
@@ -37,9 +37,8 @@ export default function AuthCallback() {
           }
 
           if (session?.user) {
-            const redirect = router.query.redirect || '/my-plans';
-            const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-            router.replace(finalUrl);
+            const redirectUrl = getRedirectUrl({ windowOrRouter: router });
+            router.replace(redirectUrl);
             return;
           }
         }
@@ -56,9 +55,8 @@ export default function AuthCallback() {
         }
 
         if (session?.user) {
-          const redirect = router.query.redirect || '/my-plans';
-          const finalUrl = redirect.startsWith('/') ? redirect : '/my-plans';
-          router.replace(finalUrl);
+          const redirectUrl = getRedirectUrl({ windowOrRouter: router });
+          router.replace(redirectUrl);
         } else {
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
@@ -71,7 +69,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [router]);
+  }, [router.isReady, router.query]);
 
   // Show loading state
   if (processing) {

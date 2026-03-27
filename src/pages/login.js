@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { Button } from '@/components';
 import supabase from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { getRedirectUrl } from '@/lib/authRedirect';
 
 const colors = {
   background: '#F8F3E8',
@@ -29,66 +29,70 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  // Use auth state - no need for separate getUser call
-  const { user, isAuthenticated, signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
+  // Use auth state with loading indicator
+  const { user, isAuthenticated, loading: authLoading, signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
 
-  // Redirect if already logged in
+  // Redirect if already logged in - only after auth hydration is complete
   useEffect(() => {
+    // Wait for auth to finish hydrating
+    if (authLoading) return;
+    
+    // Only redirect if actually authenticated
     if (isAuthenticated && user) {
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
+      const redirectUrl = getRedirectUrl({ windowOrRouter: router });
       router.push(redirectUrl);
     }
-  }, [isAuthenticated, user, router]);
+  }, [authLoading, isAuthenticated, user, router]);
 
   const handleGoogleLogin = async () => {
     console.log('🔥 Google login clicked');
-    setLoading(true);
+    setLocalLoading(true);
     setError('');
     try {
       await signInWithGoogle();
+      // OAuth triggers redirect, don't reset loading here
     } catch (err) {
       console.error('Google login error:', err);
       setError(err.message || 'Google 登入失敗');
-    } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
   const handleAppleLogin = async () => {
     console.log('🔥 Apple login clicked');
-    setLoading(true);
+    setLocalLoading(true);
     setError('');
     try {
       await signInWithApple();
+      // OAuth triggers redirect, don't reset loading here
     } catch (err) {
       console.error('Apple login error:', err);
       setError(err.message || 'Apple 登入失敗');
-    } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
   const handleFacebookLogin = async () => {
     console.log('🔥 Facebook login clicked');
-    setLoading(true);
+    setLocalLoading(true);
     setError('');
     try {
       await signInWithFacebook();
+      // OAuth triggers redirect, don't reset loading here
     } catch (err) {
       console.error('Facebook login error:', err);
       setError(err.message || 'Facebook 登入失敗');
-    } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLocalLoading(true);
     setError('');
     setMessage('');
 
@@ -106,24 +110,27 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/my-plans';
+        const redirectUrl = getRedirectUrl({ windowOrRouter: router });
         router.push(redirectUrl);
       }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
+
+  const loading = localLoading || authLoading;
 
   return (
     <>
       <Header />
       <Head><title>登入 - 今晚食乜</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
-        {/* Header */}{/* Login Form */}
+        {/* Header */}
+        {/* Login Form */}
         <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: colors.brown, marginBottom: '8px', textAlign: 'center' }}>
             {isSignUp ? '註冊' : '登入'}
           </h1>
           <p style={{ textAlign: 'center', color: colors.textLight, marginBottom: '32px' }}>
@@ -214,7 +221,7 @@ export default function LoginPage() {
             {isSignUp ? '已經有帳戶？' : '未有任何帳戶？'}
             <button
               onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage(''); }}
-              style={{ background: 'none', border: 'none', color: colors.yellow, cursor: 'pointer', fontWeight: 600, marginLeft: '4px' }}
+              style={{ background: 'none', border: 'none', color: colors.yellow, cursor: 'pointer', fontWeight: '600', marginLeft: '4px' }}
             >
               {isSignUp ? '登入' : '註冊'}
             </button>
