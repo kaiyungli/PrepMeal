@@ -16,6 +16,15 @@ export default function AuthCallback() {
 
     const handleCallback = async () => {
       try {
+        // === DIAGNOSTICS START ===
+        console.log('[AuthCallback] ===== DIAGNOSTICS =====');
+        console.log('[AuthCallback] window.location.href:', window.location.href);
+        console.log('[AuthCallback] router.query:', JSON.stringify(router.query));
+        console.log('[AuthCallback] Has code:', !!router.query.code);
+        console.log('[AuthCallback] Has error:', !!router.query.error);
+        console.log('[AuthCallback] Has error_description:', !!router.query.error_description);
+        // === DIAGNOSTICS END ===
+
         // 1. Check for OAuth error in URL
         if (router.query.error) {
           setError(router.query.error_description || router.query.error);
@@ -25,7 +34,19 @@ export default function AuthCallback() {
 
         // 2. Let Supabase auto-detect session from URL (detectSessionInUrl handles PKCE)
         // No manual exchangeCodeForSession needed - that would cause double-consumption
+        console.log('[AuthCallback] Calling getSession()...');
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        // === DIAGNOSTICS START ===
+        console.log('[AuthCallback] getSession result:', { sessionData, sessionError });
+        console.log('[AuthCallback] sessionData.session exists:', !!sessionData?.session);
+        console.log('[AuthCallback] sessionData.session?.user exists:', !!sessionData?.session?.user);
+        
+        // Also try getUser to see if there's a user without session
+        console.log('[AuthCallback] Calling getUser()...');
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        console.log('[AuthCallback] getUser result:', { userData, userError });
+        // === DIAGNOSTICS END ===
         
         if (sessionError) {
           console.error('[AuthCallback] Session error:', sessionError);
