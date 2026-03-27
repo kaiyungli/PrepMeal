@@ -7,13 +7,13 @@ import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function RecipesPage({ initialRecipes }) {
-  // Use centralized auth guard - includes getAccessToken
-  const { user, isAuthenticated, getAccessToken, requireAuth } = useAuthGuard();
+  // Public page - use useAuth for auth-aware features (not useAuthGuard which forces auth)
+  const { isAuthenticated, getAccessToken, user } = useAuth();
   
   // Get token for SWR
   const [token, setToken] = useState(null);
@@ -22,20 +22,28 @@ export default function RecipesPage({ initialRecipes }) {
     getAccessToken().then(t => setToken(t));
   }, [getAccessToken]);
   
-  const { favorites, isFavorite, toggleFavorite } = useFavorites(token);
+  // Single source of truth for favorites
+  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   
-  // Favorites load automatically via SWR when token is available
-  
-  // Handle favorite click - use requireAuth
-  const handleFavorite = useCallback((recipeId) => {
-    if (!requireAuth()) {
+  // Handle favorite click - auth check happens on click only
+  const handleFavoriteClick = useCallback(() => {
+    if (!isAuthenticated) {
+      showToast('請先登入以收藏食譜', 'info');
+      return;
+    }
+    // toggleFavorite will be called with recipeId from the card
+  }, [isAuthenticated, showToast]);
+
+  // Wrapper that checks auth before toggling
+  const handleFavoriteToggle = useCallback((recipeId) => {
+    if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
       return Promise.resolve(false);
     }
     return toggleFavorite(recipeId);
-  }, [requireAuth, toggleFavorite, showToast]);
+  }, [isAuthenticated, toggleFavorite, showToast]);
   
   // Recipe click - just set selected, modal controller handles detail fetch
   const handleRecipeClick = useCallback((recipe) => {
@@ -45,6 +53,19 @@ export default function RecipesPage({ initialRecipes }) {
   const handleCloseModal = useCallback(() => {
     setSelectedRecipe(null);
   }, []);
+
+  // Get favorite state for the currently selected recipe in modal
+  const modalIsFavorite = selectedRecipe ? isFavorite(selectedRecipe.id) : false;
+  const modalIsPending = selectedRecipe ? isPending(selectedRecipe.id) : false;
+  const handleModalFavoriteClick = useCallback(() => {
+    if (!isAuthenticated) {
+      showToast('請先登入以收藏食譜', 'info');
+      return;
+    }
+    if (selectedRecipe?.id) {
+      toggleFavorite(selectedRecipe.id);
+    }
+  }, [isAuthenticated, selectedRecipe, toggleFavorite, showToast]);
 
   // Use shared recipe filters hook
   const {
@@ -96,9 +117,9 @@ export default function RecipesPage({ initialRecipes }) {
             <RecipeList
               recipes={filteredRecipes}
               onRecipeClick={handleRecipeClick}
-              onFavorite={handleFavorite}
               isFavorite={isFavorite}
-              isAuthenticated={isAuthenticated}
+              isPending={isPending}
+              onFavoriteClick={handleFavoriteToggle}
             />
           )}
         </div>
@@ -107,6 +128,9 @@ export default function RecipesPage({ initialRecipes }) {
       <RecipeModalController
         selectedRecipe={selectedRecipe}
         onClose={handleCloseModal}
+        isFavorite={modalIsFavorite}
+        favoriteLoading={modalIsPending}
+        onFavoriteClick={handleModalFavoriteClick}
       />
 
       {toast && <Toast toast={toast} />}

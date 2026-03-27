@@ -1,14 +1,14 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import RecipeList from '@/components/RecipeList';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
 
 export default function FavoritesPage() {
-  // Use centralized auth guard - provides isAuthenticated, user, getAccessToken
-  const { isAuthenticated, loading: authLoading, user, getAccessToken, requireAuth } = useAuthGuard();
+  // Use useAuth (not useAuthGuard) - this page requires auth so it's appropriate here
+  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
 
   // Get token for SWR
   const [token, setToken] = useState(null);
@@ -17,21 +17,19 @@ export default function FavoritesPage() {
     getAccessToken().then(t => setToken(t));
   }, [getAccessToken]);
 
-  // useFavorites is canonical source for favorite IDs - now SWR-based
-  const { favorites, isFavorite, toggleFavorite } = useFavorites(token);
+  // Single source of truth for favorites - SWR-based
+  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Handle favorite toggle - uses canonical toggleFavorite from useFavorites
-  const handleFavorite = (recipeId) => {
-    if (!requireAuth()) return false;
+  const handleFavoriteClick = useCallback((recipeId) => {
     return toggleFavorite(recipeId);
-  };
+  }, [toggleFavorite]);
 
-  // Favorites load automatically via SWR when token is available
-  
-  // Derive full recipe list from canonical favorites - refresh when favorites change
+  // Derive full recipe list from canonical favorites - refresh when favorites CHANGE (not just length)
+  // Using JSON.stringify of sorted favorites ensures we detect any change
   useEffect(() => {
     if (!isAuthenticated || favorites.length === 0) {
       setRecipes([]);
@@ -57,7 +55,7 @@ export default function FavoritesPage() {
     };
 
     fetchFavoriteRecipes();
-  }, [isAuthenticated, favorites.length, getAccessToken]);
+  }, [isAuthenticated, favorites, getAccessToken]);
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -93,8 +91,9 @@ export default function FavoritesPage() {
           ) : (
             <RecipeList
               recipes={recipes}
-              onFavorite={handleFavorite}
               isFavorite={isFavorite}
+              isPending={isPending}
+              onFavoriteClick={handleFavoriteClick}
             />
           )}
         </div>
