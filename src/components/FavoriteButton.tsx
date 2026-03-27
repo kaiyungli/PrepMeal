@@ -22,7 +22,7 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(isFavorite);
 
-  // Sync local state when prop changes
+  // Sync local state when prop changes - ensures consistency with SWR revalidation
   React.useEffect(() => {
     setLocalFav(isFavorite);
   }, [isFavorite]);
@@ -37,23 +37,17 @@ function FavoriteButton({
       return;
     }
     
+    // Optimistic update immediately
     const previousValue = localFav;
     const nextValue = !localFav;
     setLocalFav(nextValue);
 
     try {
-      const result = onToggle(recipeId);
-      
-      // Handle both sync void and async Promise
-      if (result && typeof result.then === 'function') {
-        const success = await result;
-        if (success === false) {
-          console.warn('[FavoriteButton] Toggle returned false, rolling back');
-          setLocalFav(previousValue);
-        }
-      }
+      // Always await - simple and consistent
+      await onToggle(recipeId);
     } catch (err) {
       console.error('[FavoriteButton] Toggle error:', err);
+      // Rollback on error
       setLocalFav(previousValue);
     }
   }, [localFav, onToggle, recipeId]);
