@@ -36,7 +36,7 @@ export default function FavoritesPage() {
   // Derive full recipe list from canonical favorites - refresh when favorites change
   useEffect(() => {
     if (!isAuthenticated || favorites.length === 0) {
-      setRecipes(favorites.length === 0 ? [] : []);
+      setRecipes([]);
       setLoading(false);
       return;
     }

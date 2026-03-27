@@ -35,24 +35,12 @@ export function useAuthGuard() {
     return true;
   };
 
-  // Alert + redirect - for when you want to inform user first
-  const requireAuthWithAlert = (message = '請先登入') => {
-    if (!isAuthenticated) {
-      alert(message);
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
-      return false;
-    }
-    return true;
-  };
-
   return {
     isAuthenticated,
     loading,
     user,
-    getAccessToken, // Also provide token getter for convenience
+    getAccessToken,
     requireAuth,
-    requireAuthWithAlert,
   };
 }
 
