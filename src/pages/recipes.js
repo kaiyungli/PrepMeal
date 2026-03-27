@@ -32,7 +32,7 @@ export default function RecipesPage({ initialRecipes }) {
   const handleFavorite = useCallback((recipeId) => {
     if (!requireAuth()) {
       showToast('請先登入以收藏食譜', 'info');
-      return false;
+      return Promise.resolve(false);
     }
     return toggleFavorite(recipeId);
   }, [requireAuth, toggleFavorite, showToast]);
