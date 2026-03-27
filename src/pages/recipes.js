@@ -27,15 +27,6 @@ export default function RecipesPage({ initialRecipes }) {
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   
-  // Handle favorite click - auth check happens on click only
-  const handleFavoriteClick = useCallback(() => {
-    if (!isAuthenticated) {
-      showToast('請先登入以收藏食譜', 'info');
-      return;
-    }
-    // toggleFavorite will be called with recipeId from the card
-  }, [isAuthenticated, showToast]);
-
   // Wrapper that checks auth before toggling
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {

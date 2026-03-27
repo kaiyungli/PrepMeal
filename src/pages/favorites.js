@@ -3,12 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import RecipeList from '@/components/RecipeList';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useFavorites } from '@/hooks/useFavorites';
 
 export default function FavoritesPage() {
-  // Use useAuth (not useAuthGuard) - this page requires auth so it's appropriate here
-  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
+  // Protected page - useAuthGuard handles redirect to login
+  const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
 
   // Get token for SWR
   const [token, setToken] = useState(null);
