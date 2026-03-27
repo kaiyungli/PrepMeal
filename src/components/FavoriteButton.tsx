@@ -12,7 +12,6 @@ interface FavoriteButtonProps {
  * FavoriteButton - local optimistic visual state for instant UI
  * - Position: absolute, outside clickable area
  * - Explicit hit area (44x44 min)
- * - Always awaits onToggle, simple rollback on failure
  */
 function FavoriteButton({ 
   recipeId, 
@@ -22,7 +21,7 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(isFavorite);
 
-  // Sync local state when prop changes - ensures consistency with SWR revalidation
+  // Sync local state when prop changes
   React.useEffect(() => {
     setLocalFav(isFavorite);
   }, [isFavorite]);
@@ -32,22 +31,14 @@ function FavoriteButton({
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation?.();
 
-    if (!onToggle || !recipeId) {
-      console.error('[FavoriteButton] Missing onToggle or recipeId');
-      return;
-    }
+    if (!onToggle || !recipeId) return;
     
-    // Optimistic update immediately
     const previousValue = localFav;
-    const nextValue = !localFav;
-    setLocalFav(nextValue);
+    setLocalFav(!localFav);
 
     try {
-      // Always await - simple and consistent
       await onToggle(recipeId);
     } catch (err) {
-      console.error('[FavoriteButton] Toggle error:', err);
-      // Rollback on error
       setLocalFav(previousValue);
     }
   }, [localFav, onToggle, recipeId]);
