@@ -138,7 +138,8 @@ export default function Home({ initialRecipes = [] }) {
     setWeeklyPlan(buildWeeklyPlan(recipesList));
   }, [recipesList, buildWeeklyPlan]);
 
-  const showEmptyState = hasFilters && recipesList.length === 0;
+  const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
+  const showEmptyState = recipesList.length === 0;
 
   return (
     <Layout>
@@ -182,14 +183,22 @@ export default function Home({ initialRecipes = [] }) {
 
           {showEmptyState && (
             <div className="text-center py-16">
-              <div className="text-6xl mb-2">😕</div>
-              <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
-              <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件，或者清除所有篩選</p>
-              <button onClick={clearFilters} className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">清除篩選</button>
+              <div className="text-6xl mb-2">{hasSearchOrFilters ? '😕' : '🍽️'}</div>
+              <h3 className="text-xl font-bold text-[#3A2010] mb-2">
+                {hasSearchOrFilters ? '暫時冇符合條件嘅食譜' : '暫時未有食譜'}
+              </h3>
+              <p className="text-sm text-[#C0A080] mb-6">
+                {hasSearchOrFilters 
+                  ? '試下調整篩選條件，或者清除所有篩選' 
+                  : '請稍後再嚟，或者尝试刷新页面'}
+              </p>
+              {hasSearchOrFilters && (
+                <button onClick={clearFilters} className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">清除篩選</button>
+              )}
             </div>
           )}
 
-          {recipesList.length > 0 && (
+          {!showEmptyState && (
             <HomeRecipeGrid
               recipes={recipesList}
               onRecipeClick={handleRecipeClick}
