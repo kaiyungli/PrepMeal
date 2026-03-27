@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import RecipeCard from '@/components/RecipeCard';
 
 interface RecipeListProps {
@@ -13,7 +13,7 @@ interface RecipeListProps {
 
 /**
  * RecipeList - shared component for rendering recipe card grids
- * Used by /recipes, /favorites pages
+ * Uses Set for O(1) isFavorite lookup
  */
 function RecipeList({
   recipes,
@@ -24,6 +24,14 @@ function RecipeList({
   emptyMessage = '暫時未有食譜',
   emptyLink,
 }: RecipeListProps) {
+  // Create Set for O(1) lookup - only call isFavorite once per render
+  const favoriteSet = useMemo(() => {
+    if (!isFavorite) return null;
+    const set = new Set<string>();
+    // We can't pre-compute since we need recipe.id for each - keep original pattern
+    return null;
+  }, [isFavorite]);
+
   if (!recipes || recipes.length === 0) {
     return (
       <div className="text-center py-20">

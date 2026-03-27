@@ -1,4 +1,4 @@
-// FavoriteButton - leaf component with true local optimistic visual state
+// FavoriteButton - simple toggle button, NOT inside a Link
 import React, { useState, useCallback } from 'react';
 
 interface FavoriteButtonProps {
@@ -10,10 +10,9 @@ interface FavoriteButtonProps {
 
 /**
  * FavoriteButton - local optimistic visual state for instant UI
- * - Shows local visual immediately on click
- * - Calls onToggle which returns Promise
- * - On failure: rolls back visual state
- * - Stops all event propagation to prevent parent click handlers
+ * - Position: absolute, outside Link
+ * - onClick: just calls onToggle, no need for stopPropagation
+ * - Shows different UI for isFavorite: true vs false
  */
 function FavoriteButton({ 
   recipeId, 
@@ -23,24 +22,16 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(isFavorite);
 
-  // Sync with prop when prop changes (not during interaction)
+  // Sync with prop when prop changes
   React.useEffect(() => {
     setLocalFav(isFavorite);
   }, [isFavorite]);
 
-  // Stop all event propagation - critical for iPad Safari / touch devices
-  const stopPropagation = useCallback((e: React.SyntheticEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent?.stopImmediatePropagation?.();
-  }, []);
-
   const handleClick = useCallback(async (e: React.MouseEvent) => {
-    stopPropagation(e);
+    e.preventDefault();
     
     if (!onToggle || !recipeId) return;
     
-    // Instant visual feedback - toggle locally
     const previousValue = localFav;
     const nextValue = !localFav;
     setLocalFav(nextValue);
@@ -57,22 +48,28 @@ function FavoriteButton({
     } catch (err) {
       setLocalFav(previousValue);
     }
-  }, [localFav, onToggle, recipeId, stopPropagation]);
+  }, [localFav, onToggle, recipeId]);
 
+  // Different UI based on isFavorite state
+  const isFav = localFav;
+  
   return (
     <button 
       onClick={handleClick}
-      onTouchStart={stopPropagation}
-      onPointerDown={stopPropagation}
-      onMouseDown={stopPropagation}
-      className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 ${
-        localFav 
+      className={`rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 transition-transform ${
+        isFav 
           ? 'bg-rose-500 text-white' 
           : 'bg-white/80 text-rose-400 hover:bg-white'
       } ${className}`}
-      aria-label={localFav ? "取消收藏" : "收藏"}
+      aria-label={isFav ? "取消收藏" : "收藏"}
     >
-      <svg className="w-5 h-5" fill={localFav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg 
+        className="w-5 h-5" 
+        fill={isFav ? "currentColor" : "none"} 
+        viewBox="0 0 24 24" 
+        stroke="currentColor" 
+        strokeWidth={2}
+      >
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
       </svg>
     </button>

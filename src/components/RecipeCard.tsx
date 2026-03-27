@@ -4,29 +4,6 @@ import Link from 'next/link'
 import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
 import FavoriteButton from './FavoriteButton';
 
-/**
- * RecipeCard - displays a single recipe card
- * 
- * DATA PROPS:
- *   recipe: Object              - recipe data (many optional fields)
- *   recipe.id                   - recipe ID
- *   recipe.name                 - recipe name
- *   recipe.image_url           - optional image
- *   recipe.cuisine             - cuisine type
- *   recipe.difficulty          - easy/medium/hard
- *   recipe.method              - cooking method
- *   recipe.total_time_minutes  - total time
- *   recipe.calories_per_serving - calories
- *   recipe.protein_g           - protein grams
- *   recipe.primary_protein     - main protein type
- *   recipe.dish_type          - main/side/soup/etc
- *   recipe.diet               - dietary tags array
- * 
- * OPTIONAL PROPS:
- *   onClick?: () => void       - click handler
- *   onFavorite?: () => void   - favorite button handler
- *   className?: string         - additional CSS classes
- */
 interface RecipeCardProps {
   recipe: {
     id?: string | number;
@@ -46,42 +23,40 @@ interface RecipeCardProps {
     diet?: string[];
   };
   onClick?: () => void;
-  onFavorite?: () => void;  // Legacy - still used for backward compatibility
+  onFavorite?: () => void;
   isFavorite?: boolean;
-  toggleFavorite?: (recipeId: string | number) => Promise<boolean>;  // New FavoriteButton pattern
   isAuthenticated?: boolean;
-  onAuthRequired?: () => void;
   className?: string;
 }
 
+/**
+ * RecipeCard - displays a single recipe card
+ * Structure:
+ * - Outer container (relative)
+ * - FavoriteButton (absolute, top-right, outside Link)
+ * - Link (contains card content, for detail navigation)
+ */
 function RecipeCard({ 
   recipe, 
   onClick, 
   onFavorite, 
   isFavorite, 
-  toggleFavorite,
   isAuthenticated,
-  onAuthRequired,
   className = '' 
 }: RecipeCardProps) {
-  // Safely extract recipe fields
   const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'
   const recipeImage = recipe?.image_url || null
-  
-  // Time: prefer total_time_minutes, then cook_time_minutes
+  const recipeSlug = recipe?.slug || recipeId
   const recipeTime = recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null
-  
   const recipeDifficulty = recipe?.difficulty || ''
   const recipeMethod = recipe?.method || ''
   const recipeCalories = recipe?.calories_per_serving || null
-  // protein_g is the numeric protein amount, primary_protein is the protein type (fish, beef, etc.)
   const recipeProteinGrams = recipe?.protein_g ?? null
   const recipePrimaryProtein = recipe?.primary_protein || ''
   const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : []
   const recipeDishType = recipe?.dish_type || ''
   
-  // Build tags: primary_protein (as category label) + dish_type
   const tags: string[] = []
   if (recipePrimaryProtein) {
     tags.push(getLabel(PROTEIN_MAP, recipePrimaryProtein))
@@ -89,13 +64,12 @@ function RecipeCard({
   if (recipeDishType) {
     tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
-  
-  // Card content
+
+  // Card content without favorite button - goes inside Link
   const cardContent = (
     <>
-      {/* Image - Fixed aspect ratio with zoomed out presentation */}
+      {/* Image */}
       <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
-        {/* Inner container with padding to show more of the dish */}
         <div className="absolute inset-0 p-3 flex items-center justify-center">
           {recipeImage ? (
             <Image 
@@ -117,32 +91,14 @@ function RecipeCard({
             </div>
           )}
         </div>
-        
-        {/* Interactive favorite button - only on pages with favorites enabled */}
-        {onFavorite ? (
-          <FavoriteButton
-            recipeId={recipe?.id}
-            isFavorite={isFavorite}
-            onToggle={onFavorite}
-          />
-        ) : (
-          /* Static visual heart - non-interactive placeholder for homepage */
-          <div className="absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 pointer-events-none bg-white/80 text-rose-400">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
-            </svg>
-          </div>
-        )}
       </div>
       
       {/* Content */}
       <div className="p-4">
-        {/* Title - max 2 lines */}
         <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
           {recipeName}
         </h3>
         
-        {/* Metadata row: Time · Difficulty · Method */}
         <div className="flex items-center gap-2 text-xs text-[#7A746B] mb-3">
           {recipeTime && (
             <span className="flex items-center gap-1">
@@ -169,7 +125,6 @@ function RecipeCard({
           )}
         </div>
         
-        {/* Tags row */}
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {tags.map((tag, i) => (
@@ -180,7 +135,6 @@ function RecipeCard({
           </div>
         )}
         
-        {/* Nutrition row - optional, show 1-2 key info */}
         <div className="flex items-center gap-3 text-xs text-[#AA7A50]">
           {recipeCalories && (
             <span className="flex items-center gap-1">
@@ -205,29 +159,48 @@ function RecipeCard({
     </>
   )
 
-  // If we have an ID and NO onClick, wrap with Link for direct navigation
-  // If onClick is provided, don't navigate - let parent handle (e.g., open modal first)
-  if (recipeId && !onClick) {
-    return (
-      <Link 
-        href={`/recipes/${recipeId}`}
-        className={`block cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
-      >
-        {cardContent}
-      </Link>
-    )
-  }
-
-  // With onClick - just clickable div, no navigation (parent decides what to do)
+  // Outer container with relative positioning
+  // FavoriteButton is OUTSIDE the Link - sits on top as sibling
   return (
-    <div 
-      onClick={onClick}
-      className={`cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
-    >
-      {cardContent}
+    <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
+      {/* FavoriteButton - absolute positioned, NOT inside Link */}
+      {onFavorite && (
+        <div className="absolute top-3 right-3 z-10">
+          <FavoriteButton
+            recipeId={recipe?.id}
+            isFavorite={isFavorite}
+            onToggle={onFavorite}
+          />
+        </div>
+      )}
+
+      {/* Static heart for homepage (no favorites) */}
+      {!onFavorite && (
+        <div className="absolute top-3 right-3 z-10 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
+          </svg>
+        </div>
+      )}
+
+      {/* Link wraps only the card content - click goes to detail */}
+      {recipeId && !onClick && recipeSlug && (
+        <Link 
+          href={`/recipes/${recipeSlug}`}
+          className="block"
+        >
+          {cardContent}
+        </Link>
+      )}
+
+      {/* With onClick - clickable div, no Link */}
+      {onClick && (
+        <div onClick={onClick} className="cursor-pointer">
+          {cardContent}
+        </div>
+      )}
     </div>
   );
 }
-
 
 export default React.memo(RecipeCard);

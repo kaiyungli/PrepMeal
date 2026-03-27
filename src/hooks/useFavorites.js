@@ -1,4 +1,4 @@
-// Favorites hook - canonical favorite IDs owned by SWR
+// Favorites hook - canonical favorite IDs owned by SWR with per-recipe locking
 import useSWR, { mutate } from 'swr';
 import { useCallback, useMemo, useRef } from 'react';
 
@@ -23,7 +23,7 @@ const favoritesFetcher = async ([url, token]) => {
 };
 
 /**
- * useFavorites - SWR-based favorites hook
+ * useFavorites - SWR-based favorites hook with per-recipe locking
  * @param {string} token - Access token for authorization (pass from page)
  */
 export function useFavorites(token) {
@@ -40,28 +40,27 @@ export function useFavorites(token) {
     }
   );
 
-  // Pending state to prevent race conditions
-  const togglingRef = useRef(false);
+  // Per-recipe locking to prevent race conditions
+  const togglingMapRef = useRef({});
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
-  // Check if a recipe is favorite
+  // Check if a recipe is favorite - O(1) lookup via Set
   const isFavorite = useCallback((recipeId) => {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
 
-  // Toggle favorite with SWR optimistic update + revalidate after success
+  // Toggle favorite with SWR optimistic update + per-recipe locking
   const toggleFavorite = useCallback(async (recipeId) => {
-    // Prevent race condition - don't allow multiple simultaneous toggles
-    if (togglingRef.current || !token) return false;
-    
     const normalizedId = normalizeId(recipeId);
+    
+    // Per-recipe lock - don't allow simultaneous toggles for same recipe
+    if (togglingMapRef.current[normalizedId] || !token) return false;
+    
+    // Mark this recipe as being toggled
+    togglingMapRef.current[normalizedId] = true;
+    
     const isFav = favoriteSet.has(normalizedId);
-    
-    // Mark as toggling to prevent race conditions
-    togglingRef.current = true;
-    
-    // Store previous state for rollback
     const previousFavorites = [...favorites];
     
     // Optimistic update - immediately update UI
@@ -86,18 +85,18 @@ export function useFavorites(token) {
       if (res.ok) {
         // Success - revalidate to sync with server state
         mutate(swrKey);
-        togglingRef.current = false;
+        delete togglingMapRef.current[normalizedId];
         return true;
       }
       
-      // API failed - rollback to previous state
+      // API failed - rollback
       mutate(swrKey, previousFavorites, false);
-      togglingRef.current = false;
+      delete togglingMapRef.current[normalizedId];
       return false;
     } catch (err) {
-      // Error - rollback to previous state
+      // Error - rollback
       mutate(swrKey, previousFavorites, false);
-      togglingRef.current = false;
+      delete togglingMapRef.current[normalizedId];
       return false;
     }
   }, [token, swrKey, favoriteSet, favorites]);
