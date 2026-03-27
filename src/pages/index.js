@@ -63,17 +63,19 @@ export default function Home({ initialRecipes = [] }) {
     }));
   }, []);
 
-  // Generate shopping list from weekly plan
+  // Shopping list from weekly plan
   const shoppingList = useMemo(() => {
     return buildShoppingList(weeklyPlan);
   }, [weeklyPlan, buildShoppingList]);
 
-  // Generate weekly plan when recipesList changes
+  // Regenerate weekly plan when recipesList changes
   useEffect(() => {
-    if (recipesList && recipesList.length > 0 && weeklyPlan.length === 0) {
+    if (!recipesList || recipesList.length === 0) {
+      setWeeklyPlan([]);
+    } else {
       setWeeklyPlan(buildWeeklyPlan(recipesList));
     }
-  }, [recipesList, weeklyPlan.length, buildWeeklyPlan]);
+  }, [recipesList, buildWeeklyPlan]);
 
   // Recipe click - just set selected, detail fetch is in HomeModalController
   const handleRecipeClick = useCallback((recipe) => {
