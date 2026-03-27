@@ -10,12 +10,19 @@ export default function FavoritesPage() {
   // Protected page - useAuthGuard handles redirect to login
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
 
-  // Get token for SWR
+  // Get token for SWR - load when auth becomes ready
   const [token, setToken] = useState(null);
 
+  // Load token when auth state is ready and user is authenticated
   useEffect(() => {
-    getAccessToken().then(t => setToken(t));
-  }, [getAccessToken]);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        getAccessToken().then(t => setToken(t));
+      } else {
+        setToken(null);
+      }
+    }
+  }, [authLoading, isAuthenticated, getAccessToken]);
 
   // Single source of truth for favorites - SWR-based
   const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);

@@ -13,14 +13,21 @@ import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function RecipesPage({ initialRecipes }) {
   // Public page - use useAuth for auth-aware features (not useAuthGuard which forces auth)
-  const { isAuthenticated, getAccessToken, user } = useAuth();
+  const { isAuthenticated, getAccessToken, user, loading: authLoading } = useAuth();
   
-  // Get token for SWR
+  // Get token for SWR - load when auth becomes ready
   const [token, setToken] = useState(null);
   
+  // Load token when auth state is ready and user is authenticated
   useEffect(() => {
-    getAccessToken().then(t => setToken(t));
-  }, [getAccessToken]);
+    if (!authLoading) {
+      if (isAuthenticated) {
+        getAccessToken().then(t => setToken(t));
+      } else {
+        setToken(null);
+      }
+    }
+  }, [authLoading, isAuthenticated, getAccessToken]);
   
   // Single source of truth for favorites
   const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
