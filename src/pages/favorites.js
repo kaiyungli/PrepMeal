@@ -26,9 +26,8 @@ export default function FavoritesPage() {
   // Handle favorite toggle - uses canonical toggleFavorite from useFavorites
   const handleFavorite = (recipeId) => {
     if (!requireAuth()) return;
-    getAccessToken().then(token => {
-      if (token) toggleFavorite(recipeId, token);
-    });
+    // toggleFavorite now uses hook's token internally
+    toggleFavorite(recipeId);
   };
 
   // Favorites load automatically via SWR when token is available

@@ -34,10 +34,9 @@ export default function RecipesPage({ initialRecipes }) {
       showToast('請先登入以收藏食譜', 'info');
       return;
     }
-    getAccessToken().then(token => {
-      if (token) toggleFavorite(recipeId, token);
-    });
-  }, [requireAuth, getAccessToken, toggleFavorite, showToast]);
+    // toggleFavorite now uses hook's token internally
+    toggleFavorite(recipeId);
+  }, [requireAuth, toggleFavorite, showToast]);
   
   // Recipe click - just set selected, modal controller handles detail fetch
   const handleRecipeClick = useCallback((recipe) => {

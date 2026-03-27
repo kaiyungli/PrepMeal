@@ -1,6 +1,6 @@
 // Favorites hook - canonical favorite IDs owned by SWR
 import useSWR, { mutate } from 'swr';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 const normalizeId = (id) => {
   if (id === undefined || id === null) return '';
@@ -40,6 +40,9 @@ export function useFavorites(token) {
     }
   );
 
+  // Pending state to prevent race conditions
+  const togglingRef = useRef(false);
+
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
   // Check if a recipe is favorite
@@ -47,52 +50,57 @@ export function useFavorites(token) {
     return favoriteSet.has(normalizeId(recipeId));
   }, [favoriteSet]);
 
-  // Toggle favorite with SWR optimistic update
-  const toggleFavorite = useCallback(async (recipeId, authToken) => {
-    if (!authToken || !recipeId) return false;
-
+  // Toggle favorite with SWR optimistic update + revalidate after success
+  const toggleFavorite = useCallback(async (recipeId) => {
+    // Prevent race condition - don't allow multiple simultaneous toggles
+    if (togglingRef.current || !token) return false;
+    
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
     
-    // Optimistic update via mutate
+    // Mark as toggling to prevent race conditions
+    togglingRef.current = true;
+    
+    // Store previous state for rollback
     const previousFavorites = [...favorites];
     
+    // Optimistic update - immediately update UI
     const newFavorites = isFav
       ? favorites.filter(id => id !== normalizedId)
       : [...favorites, normalizedId];
     
-    // Mutate SWR cache optimistically
-    mutate(
-      ['/api/user/favorites', authToken],
-      newFavorites,
-      false
-    );
+    mutate(swrKey, newFavorites, false);
 
     try {
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
-            headers: { Authorization: `Bearer ${authToken}` }
+            headers: { Authorization: `Bearer ${token}` }
           })
         : await fetch('/api/user/favorites', {
             method: 'POST',
-            headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
       if (res.ok) {
+        // Success - revalidate to sync with server state
+        mutate(swrKey);
+        togglingRef.current = false;
         return true;
       }
       
-      // Rollback on failure
-      mutate(['/api/user/favorites', authToken], previousFavorites, false);
+      // API failed - rollback to previous state
+      mutate(swrKey, previousFavorites, false);
+      togglingRef.current = false;
       return false;
     } catch (err) {
-      // Rollback on error
-      mutate(['/api/user/favorites', authToken], previousFavorites, false);
+      // Error - rollback to previous state
+      mutate(swrKey, previousFavorites, false);
+      togglingRef.current = false;
       return false;
     }
-  }, [favoriteSet, favorites]);
+  }, [token, swrKey, favoriteSet, favorites]);
 
   return {
     favorites,
