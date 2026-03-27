@@ -52,14 +52,46 @@ export default function Home({ initialRecipes = [] }) {
     }));
   }, []);
 
-  // Build shopping list from weekly plan
+  // Build shopping list from weekly plan - aggregates real ingredients
   const buildShoppingList = useCallback((plan) => {
     if (!plan || plan.length === 0) return [];
     
-    // Simple - each recipe counts as 1 item with qty=1
-    return plan.map(item => ({
-      name: item.recipe.name,
-      qty: '1'
+    const ingredientMap = new Map();
+    
+    for (const item of plan) {
+      const recipe = item.recipe;
+      
+      // Check if recipe has ingredients (from initialRecipes)
+      if (recipe && recipe.ingredients) {
+        try {
+          const ingredients = typeof recipe.ingredients === 'string' 
+            ? JSON.parse(recipe.ingredients) 
+            : recipe.ingredients;
+            
+          if (Array.isArray(ingredients)) {
+            for (const ing of ingredients) {
+              const name = ing.name || ing.item || '未知食材';
+              const qty = ing.qty || ing.amount || ing.quantity || '1';
+              
+              if (ingredientMap.has(name)) {
+                // Append quantity
+                const existing = ingredientMap.get(name);
+                ingredientMap.set(name, `${existing}+${qty}`);
+              } else {
+                ingredientMap.set(name, String(qty));
+              }
+            }
+          }
+        } catch (e) {
+          // Skip invalid ingredients
+        }
+      }
+    }
+    
+    // Convert to array
+    return Array.from(ingredientMap.entries()).map(([name, qty]) => ({
+      name,
+      qty
     }));
   }, []);
 

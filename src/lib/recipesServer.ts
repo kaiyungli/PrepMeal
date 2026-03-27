@@ -30,7 +30,8 @@ export async function fetchRecipesForServer(limit = 24) {
         budget_level,
         is_complete_meal,
         method,
-        created_at
+        created_at,
+        ingredients
       `)
       .eq('is_public', true)
       .order('created_at', { ascending: false })
