@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
@@ -13,6 +14,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [] }) {
+  const router = useRouter();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const { toast, showToast } = useToast();
 
@@ -28,6 +30,35 @@ export default function Home({ initialRecipes = [] }) {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
+  // Generate weekly plan from recipes
+  const weeklyPlan = useMemo(() => {
+    if (!recipesList || recipesList.length === 0) return [];
+    
+    // Pick up to 5 random recipes for weekly plan
+    const shuffled = [...recipesList].sort(() => 0.5 - Math.random());
+    const planRecipes = shuffled.slice(0, 5);
+    
+    return planRecipes.map((recipe, index) => ({
+      day: ['MON', 'TUE', 'WED', 'THU', 'FRI'][index] || `DAY${index + 1}`,
+      recipe: {
+        id: recipe.id,
+        name: recipe.name,
+        image_url: recipe.image_url,
+      }
+    }));
+  }, [recipesList]);
+
+  // Generate shopping list from weekly plan
+  const shoppingList = useMemo(() => {
+    if (!weeklyPlan || weeklyPlan.length === 0) return [];
+    
+    // Simple aggregation - just count recipes
+    return weeklyPlan.map(item => ({
+      recipeName: item.recipe.name,
+      ingredients: 1 // placeholder - real implementation would parse recipe.ingredients
+    }));
+  }, [weeklyPlan]);
+
   // Recipe click - just set selected, detail fetch is in HomeModalController
   const handleRecipeClick = useCallback((recipe) => {
     setSelectedRecipe({ ...recipe });
@@ -35,6 +66,17 @@ export default function Home({ initialRecipes = [] }) {
 
   const handleCloseModal = useCallback(() => {
     setSelectedRecipe(null);
+  }, []);
+
+  // Navigate to /generate
+  const handlePrimaryAction = useCallback(() => {
+    router.push('/generate');
+  }, [router]);
+
+  // Refresh plan (re-generate)
+  const handleRefreshPlan = useCallback(() => {
+    // Force re-render to generate new random plan
+    setSelectedRecipe({ _refresh: Date.now() });
   }, []);
 
   const showEmptyState = hasFilters && recipesList.length === 0;
@@ -46,7 +88,12 @@ export default function Home({ initialRecipes = [] }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-      <HomeHero onPrimaryAction={() => {}} weeklyPlan={[]} shoppingList={[]} onRefreshPlan={() => {}} />
+      <HomeHero 
+        onPrimaryAction={handlePrimaryAction} 
+        weeklyPlan={weeklyPlan} 
+        shoppingList={shoppingList} 
+        onRefreshPlan={handleRefreshPlan}
+      />
 
       <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
         <div className="max-w-[1200px] mx-auto px-4">
