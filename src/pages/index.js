@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Layout } from '@/components';
@@ -13,10 +13,15 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
+const DAYS = ['週一', '週二', '週三', '週四', '週五'];
+
 export default function Home({ initialRecipes = [] }) {
   const router = useRouter();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const { toast, showToast } = useToast();
+
+  // Weekly plan state - separate from selectedRecipe
+  const [weeklyPlan, setWeeklyPlan] = useState([]);
 
   // Filters
   const { 
@@ -30,34 +35,45 @@ export default function Home({ initialRecipes = [] }) {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
-  // Generate weekly plan from recipes
-  const weeklyPlan = useMemo(() => {
-    if (!recipesList || recipesList.length === 0) return [];
+  // Build weekly plan from recipes
+  const buildWeeklyPlan = useCallback((recipes) => {
+    if (!recipes || recipes.length === 0) return [];
     
-    // Pick up to 5 random recipes for weekly plan
-    const shuffled = [...recipesList].sort(() => 0.5 - Math.random());
+    const shuffled = [...recipes].sort(() => 0.5 - Math.random());
     const planRecipes = shuffled.slice(0, 5);
     
     return planRecipes.map((recipe, index) => ({
-      day: ['MON', 'TUE', 'WED', 'THU', 'FRI'][index] || `DAY${index + 1}`,
+      day: DAYS[index] || `DAY${index + 1}`,
       recipe: {
         id: recipe.id,
         name: recipe.name,
         image_url: recipe.image_url,
       }
     }));
-  }, [recipesList]);
+  }, []);
+
+  // Build shopping list from weekly plan
+  const buildShoppingList = useCallback((plan) => {
+    if (!plan || plan.length === 0) return [];
+    
+    // Simple - each recipe counts as 1 item with qty=1
+    return plan.map(item => ({
+      name: item.recipe.name,
+      qty: '1'
+    }));
+  }, []);
 
   // Generate shopping list from weekly plan
   const shoppingList = useMemo(() => {
-    if (!weeklyPlan || weeklyPlan.length === 0) return [];
-    
-    // Simple aggregation - just count recipes
-    return weeklyPlan.map(item => ({
-      recipeName: item.recipe.name,
-      ingredients: 1 // placeholder - real implementation would parse recipe.ingredients
-    }));
-  }, [weeklyPlan]);
+    return buildShoppingList(weeklyPlan);
+  }, [weeklyPlan, buildShoppingList]);
+
+  // Generate weekly plan when recipesList changes
+  useEffect(() => {
+    if (recipesList && recipesList.length > 0 && weeklyPlan.length === 0) {
+      setWeeklyPlan(buildWeeklyPlan(recipesList));
+    }
+  }, [recipesList, weeklyPlan.length, buildWeeklyPlan]);
 
   // Recipe click - just set selected, detail fetch is in HomeModalController
   const handleRecipeClick = useCallback((recipe) => {
@@ -73,11 +89,10 @@ export default function Home({ initialRecipes = [] }) {
     router.push('/generate');
   }, [router]);
 
-  // Refresh plan (re-generate)
+  // Regenerate weekly plan - does NOT touch selectedRecipe
   const handleRefreshPlan = useCallback(() => {
-    // Force re-render to generate new random plan
-    setSelectedRecipe({ _refresh: Date.now() });
-  }, []);
+    setWeeklyPlan(buildWeeklyPlan(recipesList));
+  }, [recipesList, buildWeeklyPlan]);
 
   const showEmptyState = hasFilters && recipesList.length === 0;
 
