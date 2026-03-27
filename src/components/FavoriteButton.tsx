@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 interface FavoriteButtonProps {
   recipeId?: string | number;
   isFavorite?: boolean;
-  onToggle?: (recipeId: string | number) => boolean | Promise<boolean>;
+  onToggle?: (recipeId: string | number) => Promise<boolean>;
   className?: string;
 }
 

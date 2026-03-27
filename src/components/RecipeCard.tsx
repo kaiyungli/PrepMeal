@@ -23,7 +23,7 @@ interface RecipeCardProps {
     diet?: string[];
   };
   onClick?: () => void;
-  onFavorite?: (recipeId: string | number) => Promise<boolean> | boolean;
+  onFavorite?: (recipeId: string | number) => Promise<boolean>;
   isFavorite?: boolean;
   isAuthenticated?: boolean;
   className?: string;
