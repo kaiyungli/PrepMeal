@@ -13,7 +13,7 @@ interface FavoriteButtonProps {
  * - Shows local visual immediately on click
  * - Calls onToggle which returns Promise
  * - On failure: rolls back visual state
- * - No permanent local truth - syncs with prop on mount
+ * - Stops all event propagation to prevent parent click handlers
  */
 function FavoriteButton({ 
   recipeId, 
@@ -28,9 +28,15 @@ function FavoriteButton({
     setLocalFav(isFavorite);
   }, [isFavorite]);
 
-  const handleClick = useCallback(async (e: React.MouseEvent) => {
+  // Stop all event propagation - critical for iPad Safari / touch devices
+  const stopPropagation = useCallback((e: React.SyntheticEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent?.stopImmediatePropagation?.();
+  }, []);
+
+  const handleClick = useCallback(async (e: React.MouseEvent) => {
+    stopPropagation(e);
     
     if (!onToggle || !recipeId) return;
     
@@ -40,27 +46,25 @@ function FavoriteButton({
     setLocalFav(nextValue);
 
     try {
-      // Call onToggle - could be async
       const result = onToggle(recipeId);
       
-      // If it's a Promise, handle result
       if (result && typeof result.then === 'function') {
         const success = await result;
         if (!success) {
-          // Rollback on failure
           setLocalFav(previousValue);
         }
       }
-      // If not a Promise, assume success (fire and forget)
     } catch (err) {
-      // Rollback on error
       setLocalFav(previousValue);
     }
-  }, [localFav, onToggle, recipeId]);
+  }, [localFav, onToggle, recipeId, stopPropagation]);
 
   return (
     <button 
       onClick={handleClick}
+      onTouchStart={stopPropagation}
+      onPointerDown={stopPropagation}
+      onMouseDown={stopPropagation}
       className={`absolute top-4 right-4 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 ${
         localFav 
           ? 'bg-rose-500 text-white' 
