@@ -16,7 +16,7 @@ const favoritesFetcher = async ([url, token]) => {
   });
   
   if (!res.ok) {
-    return [];
+    throw new Error(`Failed to load favorites: ${res.status} ${res.statusText}`);
   }
   
   const data = await res.json();
