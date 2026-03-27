@@ -114,13 +114,13 @@ export default function FilterCardShell({
           </div>
 
           {/* Filter chips in grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 max-h-[300px] overflow-y-auto pr-2">
             {filterSections.map(section => (
               <div key={section.id} className="min-w-0 space-y-1.5">
-                <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase">
+                <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase sticky top-0 bg-white py-1">
                   {section.title}
                 </div>
-                <div className="flex flex-nowrap overflow-x-auto gap-1.5 pb-2 pr-2">
+                <div className="flex flex-wrap gap-1.5 pb-2 pr-2">
                   {section.options.map(option => {
                     const isSelected = section.selected?.includes(option.value);
                     const isDanger = section.variant === 'danger';

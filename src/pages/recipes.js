@@ -105,13 +105,15 @@ export default function RecipesPage({ initialRecipes }) {
           )}
 
           {!showEmptyState && (
-            <RecipeList
-              recipes={filteredRecipes}
-              onRecipeClick={handleRecipeClick}
-              isFavorite={isFavorite}
-              isPending={isPending}
-              onFavoriteClick={handleFavoriteToggle}
-            />
+            <div className="mt-6">
+              <RecipeList
+                recipes={filteredRecipes}
+                onRecipeClick={handleRecipeClick}
+                isFavorite={isFavorite}
+                isPending={isPending}
+                onFavoriteClick={handleFavoriteToggle}
+              />
+            </div>
           )}
         </div>
       </div>
