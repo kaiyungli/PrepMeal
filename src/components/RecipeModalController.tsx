@@ -13,13 +13,16 @@ const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal
 interface RecipeModalControllerProps {
   selectedRecipe: any;
   onClose: () => void;
+  isFavorite?: boolean;
+  favoriteLoading?: boolean;
+  onFavoriteClick?: () => void | Promise<void>;
 }
 
 /**
  * RecipeModalController - handles modal + detail fetch
  * Used by both homepage and recipes page for consistent behavior
  */
-function RecipeModalController({ selectedRecipe, onClose }: RecipeModalControllerProps) {
+function RecipeModalController({ selectedRecipe, onClose, isFavorite, favoriteLoading, onFavoriteClick }: RecipeModalControllerProps) {
   const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -71,6 +74,9 @@ function RecipeModalController({ selectedRecipe, onClose }: RecipeModalControlle
       onClose={handleClose}
       recipe={recipe}
       loading={loading}
+      isFavorite={isFavorite}
+      favoriteLoading={favoriteLoading}
+      onFavoriteClick={onFavoriteClick}
     />
   );
 }

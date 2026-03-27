@@ -13,9 +13,12 @@ const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal
 interface HomeModalControllerProps {
   selectedRecipe: any;
   onClose: () => void;
+  isFavorite?: boolean;
+  favoriteLoading?: boolean;
+  onFavoriteClick?: () => void | Promise<void>;
 }
 
-function HomeModalController({ selectedRecipe, onClose }: HomeModalControllerProps) {
+function HomeModalController({ selectedRecipe, onClose, isFavorite, favoriteLoading, onFavoriteClick }: HomeModalControllerProps) {
   const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -67,6 +70,9 @@ function HomeModalController({ selectedRecipe, onClose }: HomeModalControllerPro
       onClose={handleClose}
       recipe={recipe}
       loading={loading}
+      isFavorite={isFavorite}
+      favoriteLoading={favoriteLoading}
+      onFavoriteClick={onFavoriteClick}
     />
   );
 }
