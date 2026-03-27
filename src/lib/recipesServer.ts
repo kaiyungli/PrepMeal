@@ -6,10 +6,15 @@ import { supabaseServer } from '@/lib/supabaseServer';
  * Queries Supabase directly instead of self-fetching API route
  */
 export async function fetchRecipesForServer(limit = 24) {
+  // Diagnostic: Check if supabaseServer is configured
   if (!supabaseServer) {
-    console.error('Supabase server client not configured');
+    console.error('[SSR] Supabase server client NOT configured');
+    console.error('[SSR] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'NOT set');
+    console.error('[SSR] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'NOT set');
     return [];
   }
+
+  console.log('[SSR] Supabase server client configured, fetching recipes...');
 
   try {
     const { data, error } = await supabaseServer
@@ -38,13 +43,14 @@ export async function fetchRecipesForServer(limit = 24) {
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching recipes:', error);
+      console.error('[SSR] Error fetching recipes:', error);
       return [];
     }
 
+    console.log('[SSR] Fetched recipes count:', data?.length || 0);
     return data || [];
   } catch (err) {
-    console.error('Exception fetching recipes:', err);
+    console.error('[SSR] Exception fetching recipes:', err);
     return [];
   }
 }
