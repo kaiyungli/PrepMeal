@@ -1,4 +1,5 @@
-// OAuth callback page - handles session after OAuth redirect (PKCE flow)
+// OAuth callback page - handles session after OAuth redirect
+// Uses Supabase's auto detectSessionInUrl - no manual code exchange needed
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import supabase from '@/lib/supabase';
@@ -22,30 +23,9 @@ export default function AuthCallback() {
           return;
         }
 
-        // 2. PKCE flow: exchange code for session
-        const code = router.query.code;
-        
-        if (code) {
-          const result = await supabase.auth.exchangeCodeForSession(code);
-          const { data: session, error: exchangeError } = result;
-          
-          if (exchangeError) {
-            console.error('[AuthCallback] Code exchange error:', exchangeError);
-            setError('登入驗證失敗: ' + exchangeError.message);
-            setProcessing(false);
-            return;
-          }
-
-          if (session?.user) {
-            const redirectUrl = getRedirectUrl({ windowOrRouter: router });
-            router.replace(redirectUrl);
-            return;
-          }
-        }
-
-        // 3. Fallback: try getSession() (implicit/hybrid flow)
-        const sessionResult = await supabase.auth.getSession();
-        const { data: session, error: sessionError } = sessionResult;
+        // 2. Let Supabase auto-detect session from URL (detectSessionInUrl handles PKCE)
+        // No manual exchangeCodeForSession needed - that would cause double-consumption
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('[AuthCallback] Session error:', sessionError);
@@ -54,10 +34,11 @@ export default function AuthCallback() {
           return;
         }
 
-        if (session?.user) {
+        if (sessionData?.session?.user) {
           const redirectUrl = getRedirectUrl({ windowOrRouter: router });
           router.replace(redirectUrl);
         } else {
+          // No session found - OAuth flow failed or session expired
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
         }
