@@ -12,7 +12,7 @@ interface FavoriteButtonProps {
  * FavoriteButton - local optimistic visual state for instant UI
  * - Position: absolute, outside clickable area
  * - Explicit hit area (44x44 min)
- * - stopPropagation as fallback to prevent event bubble up
+ * - stopPropagation on all event types to prevent bubble up
  */
 function FavoriteButton({ 
   recipeId, 
@@ -28,18 +28,11 @@ function FavoriteButton({
   }, [isFavorite]);
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
-    // Fallback: stop all propagation
     e.preventDefault();
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation?.();
-    
-    // DEBUG: log on click
-    console.log('[FavoriteButton] clicked', { recipeId, hasOnToggle: !!onToggle });
-    
-    if (!onToggle || !recipeId) {
-      console.log('[FavoriteButton] early return - missing prop', { recipeId, onToggle: !!onToggle });
-      return;
-    }
+
+    if (!onToggle || !recipeId) return;
     
     const previousValue = localFav;
     const nextValue = !localFav;
@@ -64,6 +57,9 @@ function FavoriteButton({
   return (
     <button 
       onClick={handleClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
       // Explicit minimum hit area 44x44
       style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
       className={`rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 transition-transform ${
