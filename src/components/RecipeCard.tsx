@@ -30,11 +30,10 @@ interface RecipeCardProps {
 }
 
 /**
- * RecipeCard - displays a single recipe card
- * Structure:
- * - Outer container (relative)
- * - FavoriteButton (absolute, top-right, z-[60])
- * - Clickable area (with pointer-events-none in heart zone)
+ * RecipeCard - clean three-layer structure
+ * Layer 1: Outer container (layout only)
+ * Layer 2: Action layer - FavoriteButton (independent, absolute overlay)
+ * Layer 3: Clickable content - Link/div for detail navigation
  */
 function RecipeCard({ 
   recipe, 
@@ -65,10 +64,10 @@ function RecipeCard({
     tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
 
-  // Card content - separate image section for pointer-events control
-  const cardImageSection = (
+  // Image section - pointer-events-none, not clickable
+  const imageSection = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
-      <div className="absolute inset-0 p-3 flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 p-3 flex items-center justify-center">
         {recipeImage ? (
           <Image 
             src={recipeImage} 
@@ -92,7 +91,8 @@ function RecipeCard({
     </div>
   );
 
-  const cardContentBody = (
+  // Content body - clickable for detail
+  const contentBody = (
     <div className="p-4">
       <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
         {recipeName}
@@ -157,12 +157,17 @@ function RecipeCard({
     </div>
   )
 
+  // Clean three-layer structure
+  // Layer 1: Outer container (layout only)
+  // Layer 2: Action layer - FavoriteButton (independent, does NOT overlap with clickable)
+  // Layer 3: Clickable content - for detail navigation
   return (
     <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
-      {/* FavoriteButton - absolute positioned, TOPMOST layer with highest z-index */}
-      {/* z-[70] to ensure it's above everything */}
+      
+      {/* LAYER 2: Action layer - FavoriteButton (absolute, independent) */}
+      {/* Positioned top-right, does NOT overlap with clickable content */}
       {onFavorite && (
-        <div className="absolute top-3 right-3 z-[70] pointer-events-auto">
+        <div className="absolute top-3 right-3 z-10">
           <FavoriteButton
             recipeId={recipe?.id}
             isFavorite={isFavorite}
@@ -173,31 +178,27 @@ function RecipeCard({
 
       {/* Static heart for homepage (no favorites) */}
       {!onFavorite && (
-        <div className="absolute top-3 right-3 z-[70] rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
+        <div className="absolute top-3 right-3 z-10 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
           </svg>
         </div>
       )}
 
-      {/* Clickable card body - image is pointer-events-none to allow heart click */}
-      {/* Only the text content below is clickable */}
+      {/* LAYER 3: Clickable content - for detail navigation */}
+      {/* Uses onClick (modal) OR Link (direct navigation) */}
+      {/* Content is separate from FavoriteButton - no overlap */}
       {recipeId && !onClick && recipeSlug && (
         <Link href={`/recipes/${recipeSlug}`} className="block">
-          {cardImageSection}
-          {cardContentBody}
+          {imageSection}
+          {contentBody}
         </Link>
       )}
 
-      {/* With onClick - image is pointer-events-none, only body is clickable */}
       {onClick && (
-        <div>
-          <div className="pointer-events-none">
-            {cardImageSection}
-          </div>
-          <div onClick={onClick} className="cursor-pointer">
-            {cardContentBody}
-          </div>
+        <div onClick={onClick} className="cursor-pointer">
+          {imageSection}
+          {contentBody}
         </div>
       )}
     </div>
