@@ -4,7 +4,7 @@ import RecipeCard from '@/components/RecipeCard';
 interface RecipeListProps {
   recipes: any[];
   onRecipeClick?: (recipe: any) => void;
-  onFavorite?: (recipeId: string | number) => void;
+  onFavorite?: (recipeId: string | number) => Promise<boolean>;
   isFavorite?: (recipeId: string | number) => boolean;
   isAuthenticated?: boolean;
   emptyMessage?: string;
