@@ -1,8 +1,8 @@
 import React from 'react';
 import Image from 'next/image'
-import Link from 'next/link'
 import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
 import FavoriteButton from './FavoriteButton';
+import { useRouter } from 'next/router';
 
 interface RecipeCardProps {
   recipe: {
@@ -33,7 +33,7 @@ interface RecipeCardProps {
  * RecipeCard - clean three-layer structure
  * Layer 1: Outer container (layout only)
  * Layer 2: Action layer - FavoriteButton (independent, absolute overlay)
- * Layer 3: Clickable content - Link/div for detail navigation
+ * Layer 3: Clickable content - div with onClick for detail navigation
  */
 function RecipeCard({ 
   recipe, 
@@ -43,6 +43,7 @@ function RecipeCard({
   isAuthenticated,
   className = '' 
 }: RecipeCardProps) {
+  const router = useRouter();
   const recipeId = recipe?.id
   const recipeName = recipe?.name || '無名食譜'
   const recipeImage = recipe?.image_url || null
@@ -64,10 +65,18 @@ function RecipeCard({
     tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
   }
 
-  // Image section - pointer-events-none, not clickable
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else if (recipeSlug) {
+      router.push(`/recipes/${recipeSlug}`);
+    }
+  };
+
+  // Image section
   const imageSection = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
-      <div className="absolute inset-0 p-3 flex items-center justify-center">
+      <div className="absolute inset-0 p-3 flex items-center justify-center pointer-events-none">
         {recipeImage ? (
           <Image 
             src={recipeImage} 
@@ -91,7 +100,6 @@ function RecipeCard({
     </div>
   );
 
-  // Content body - clickable for detail
   const contentBody = (
     <div className="p-4">
       <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
@@ -159,13 +167,12 @@ function RecipeCard({
 
   // Clean three-layer structure
   // Layer 1: Outer container (layout only)
-  // Layer 2: Action layer - FavoriteButton (independent, does NOT overlap with clickable)
-  // Layer 3: Clickable content - for detail navigation
+  // Layer 2: Action layer - FavoriteButton (independent, absolute overlay)
+  // Layer 3: Clickable content - div with onClick (NO Link wrapper)
   return (
     <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
       
       {/* LAYER 2: Action layer - FavoriteButton (absolute, independent) */}
-      {/* Positioned top-right, does NOT overlap with clickable content */}
       {onFavorite && (
         <div className="absolute top-3 right-3 z-10">
           <FavoriteButton
@@ -185,22 +192,11 @@ function RecipeCard({
         </div>
       )}
 
-      {/* LAYER 3: Clickable content - for detail navigation */}
-      {/* Uses onClick (modal) OR Link (direct navigation) */}
-      {/* Content is separate from FavoriteButton - no overlap */}
-      {recipeId && !onClick && recipeSlug && (
-        <Link href={`/recipes/${recipeSlug}`} className="block">
-          {imageSection}
-          {contentBody}
-        </Link>
-      )}
-
-      {onClick && (
-        <div onClick={onClick} className="cursor-pointer">
-          {imageSection}
-          {contentBody}
-        </div>
-      )}
+      {/* LAYER 3: Clickable content - div with onClick (no Link wrapper) */}
+      <div onClick={handleCardClick} className="cursor-pointer">
+        {imageSection}
+        {contentBody}
+      </div>
     </div>
   );
 }
