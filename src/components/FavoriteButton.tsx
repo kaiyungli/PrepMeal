@@ -10,9 +10,6 @@ interface FavoriteButtonProps {
 
 /**
  * FavoriteButton - local optimistic visual state for instant UI
- * - Position: absolute, outside Link
- * - onClick: just calls onToggle, no need for stopPropagation
- * - Shows different UI for isFavorite: true vs false
  */
 function FavoriteButton({ 
   recipeId, 
@@ -30,7 +27,13 @@ function FavoriteButton({
   const handleClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     
-    if (!onToggle || !recipeId) return;
+    // DEBUG: log on click
+    console.log('[FavoriteButton] clicked', { recipeId, hasOnToggle: !!onToggle });
+    
+    if (!onToggle || !recipeId) {
+      console.log('[FavoriteButton] early return - missing prop', { recipeId, onToggle: !!onToggle });
+      return;
+    }
     
     const previousValue = localFav;
     const nextValue = !localFav;
@@ -50,7 +53,6 @@ function FavoriteButton({
     }
   }, [localFav, onToggle, recipeId]);
 
-  // Different UI based on isFavorite state
   const isFav = localFav;
   
   return (
