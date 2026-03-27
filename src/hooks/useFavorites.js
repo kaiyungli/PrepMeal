@@ -1,68 +1,73 @@
-// Favorites hook - single source of truth scoped to user
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+// Favorites hook - canonical favorite IDs owned by SWR
+import useSWR, { mutate } from 'swr';
+import { useCallback, useMemo, useRef } from 'react';
+
+const normalizeId = (id) => {
+  if (id === undefined || id === null) return '';
+  return String(id);
+};
+
+// Fetcher for SWR - loads favorite IDs from API
+const favoritesFetcher = async ([url, token]) => {
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  
+  if (!res.ok) {
+    throw new Error('Failed to load favorites');
+  }
+  
+  const data = await res.json();
+  const favoritesData = data?.data?.favorites || data?.favorites || [];
+  return favoritesData.map(id => normalizeId(id));
+};
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const currentUserRef = useRef(null);
+  const tokenRef = useRef(null);
+  
+  // SWR for canonical favorite IDs
+  // Key is null when no token - SWR won't fetch
+  const { data: favorites = [], error, isLoading, isValidating } = useSWR(
+    tokenRef.current ? ['/api/user/favorites', tokenRef.current] : null,
+    favoritesFetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+    }
+  );
+
+  // Helper to set token for SWR key
+  const setToken = useCallback((token) => {
+    tokenRef.current = token;
+  }, []);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
-  const normalizeId = (id) => {
-    if (id === undefined || id === null) return '';
-    return String(id);
-  };
+  // Check if a recipe is favorite
+  const isFavorite = useCallback((recipeId) => {
+    return favoriteSet.has(normalizeId(recipeId));
+  }, [favoriteSet]);
 
-  // Load favorites - scoped to current user, not cached across users
-  const loadFavorites = useCallback(async (token, userId) => {
-    if (!token || !userId) return;
-    
-    // Reset if user changed
-    if (currentUserRef.current !== userId) {
-      currentUserRef.current = userId;
-      setFavorites([]);
-    }
-    
-    setLoading(true);
-    
-    try {
-      const res = await fetch('/api/user/favorites', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (!res.ok) {
-        setLoading(false);
-        return;
-      }
-      
-      const data = await res.json();
-      const favoritesData = data?.data?.favorites || data?.favorites || [];
-      const ids = favoritesData.map(id => normalizeId(id));
-      
-      setFavorites(ids);
-    } catch (err) {
-      // Silent fail
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Toggle with rollback on failure
+  // Toggle favorite with SWR optimistic update
   const toggleFavorite = useCallback(async (recipeId, token) => {
     if (!token || !recipeId) return false;
 
     const normalizedId = normalizeId(recipeId);
     const isFav = favoriteSet.has(normalizedId);
     
-    // Store previous state for rollback
+    // Optimistic update via mutate
     const previousFavorites = [...favorites];
-
-    // Optimistic update
+    
     const newFavorites = isFav
       ? favorites.filter(id => id !== normalizedId)
       : [...favorites, normalizedId];
     
-    setFavorites(newFavorites);
+    // Mutate SWR cache optimistically
+    mutate(
+      ['/api/user/favorites', token],
+      newFavorites,
+      false // don't revalidate immediately
+    );
 
     try {
       const res = isFav
@@ -81,32 +86,38 @@ export function useFavorites() {
       }
       
       // Rollback on failure
-      setFavorites(previousFavorites);
+      mutate(
+        ['/api/user/favorites', token],
+        previousFavorites,
+        false
+      );
       return false;
     } catch (err) {
       // Rollback on error
-      setFavorites(previousFavorites);
+      mutate(
+        ['/api/user/favorites', token],
+        previousFavorites,
+        false
+      );
       return false;
     }
   }, [favoriteSet, favorites]);
 
-  const isFavorite = useCallback((recipeId) => {
-    return favoriteSet.has(normalizeId(recipeId));
-  }, [favoriteSet]);
-
-  // Reset favorites when user logs out
-  useEffect(() => {
-    if (!currentUserRef.current) {
-      return;
-    }
-    // This will be handled by the page-level effect when isAuthenticated changes
+  // Keep loadFavorites for backward compat - triggers SWR revalidation
+  const loadFavorites = useCallback(async (token) => {
+    if (!token) return;
+    tokenRef.current = token;
+    await mutate(['/api/user/favorites', token]);
   }, []);
 
   return {
     favorites,
-    loading,
+    loading: isLoading,
+    validating: isValidating,
+    error,
     loadFavorites,
     toggleFavorite,
     isFavorite,
+    setToken,
   };
 }
