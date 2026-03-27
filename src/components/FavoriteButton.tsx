@@ -22,7 +22,6 @@ function FavoriteButton({
 }: FavoriteButtonProps) {
   const [localFav, setLocalFav] = useState(isFavorite);
 
-  // Sync with prop when prop changes
   React.useEffect(() => {
     setLocalFav(isFavorite);
   }, [isFavorite]);
@@ -60,7 +59,6 @@ function FavoriteButton({
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
-      // Explicit minimum hit area 44x44
       style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
       className={`rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 z-50 hover:scale-110 transition-transform ${
         isFav 

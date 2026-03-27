@@ -162,7 +162,7 @@ function RecipeCard({
       {/* FavoriteButton - absolute positioned, TOPMOST layer with highest z-index */}
       {/* z-[70] to ensure it's above everything */}
       {onFavorite && (
-        <div className="absolute top-3 right-3 z-[70]">
+        <div className="absolute top-3 right-3 z-[70] pointer-events-auto">
           <FavoriteButton
             recipeId={recipe?.id}
             isFavorite={isFavorite}
