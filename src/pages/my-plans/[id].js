@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
+import { UI } from '@/styles/ui';
 
 const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
 const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
@@ -115,7 +116,7 @@ export default function PlanDetailPage() {
           ) : (
             <>
               {/* Plan header */}
-              <div className="bg-white rounded-xl border border-[#E5DCC8] p-6 mb-6">
+              <div className={UI.card + " p-6 mb-6"}>
                 <h1 className="text-2xl font-bold text-[#3A2010]">{plan.name}</h1>
                 <p className="text-sm text-[#AA7A50] mt-2">
                   {plan.days_count}天 · 開始日期: {formatDate(plan.week_start_date)}
