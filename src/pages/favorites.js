@@ -4,39 +4,31 @@ import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useFavorites } from '@/hooks/useFavorites';
+import { useUserState } from '@/hooks/useUserState';
 
 export default function FavoritesPage() {
   // Protected page - useAuthGuard handles redirect to login
-  const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
+  const { loading: authLoading } = useAuthGuard();
 
-  // Get token for SWR - load when auth becomes ready
-  const [token, setToken] = useState(null);
-
-  // Load token when auth state is ready and user is authenticated
-  useEffect(() => {
-    if (!authLoading) {
-      if (isAuthenticated) {
-        getAccessToken().then(t => setToken(t));
-      } else {
-        setToken(null);
-      }
-    }
-  }, [authLoading, isAuthenticated, getAccessToken]);
-
-  // Single source of truth for favorites - SWR-based
-  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
+  // Central user state
+  const { 
+    favorites,
+    isAuthenticated,
+    getAccessToken,
+    isFavorite,
+    isPending,
+    toggleFavorite,
+  } = useUserState();
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Handle favorite toggle - uses canonical toggleFavorite from useFavorites
+  // Handle favorite toggle
   const handleFavoriteClick = useCallback((recipeId) => {
     return toggleFavorite(recipeId);
   }, [toggleFavorite]);
 
   // Derive full recipe list from canonical favorites - refresh when favorites CHANGE (not just length)
-  // Using JSON.stringify of sorted favorites ensures we detect any change
   useEffect(() => {
     if (!isAuthenticated || favorites.length === 0) {
       setRecipes([]);
