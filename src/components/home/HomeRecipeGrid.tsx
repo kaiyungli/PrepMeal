@@ -10,8 +10,47 @@ interface HomeRecipeGridProps {
 }
 
 /**
+ * RecipeGridItem - memoized individual card wrapper
+ * Isolates inline callback creation to prevent grid re-renders
+ */
+function RecipeGridItem({ 
+  recipe, 
+  onRecipeClick,
+  isFavorite,
+  isPending,
+  onFavoriteClick 
+}: { 
+  recipe: any;
+  onRecipeClick: (recipe: any) => void;
+  isFavorite?: boolean;
+  isPending?: boolean;
+  onFavoriteClick?: () => void | Promise<void>;
+}) {
+  return (
+    <div className="col-span-12 sm:col-span-6 md:col-span-4">
+      <RecipeCard
+        recipe={recipe}
+        onClick={() => onRecipeClick(recipe)}
+        isFavorite={isFavorite}
+        favoriteLoading={isPending}
+        onFavoriteClick={onFavoriteClick}
+      />
+    </div>
+  );
+}
+
+// Memoize to prevent re-renders when parent props unchanged
+const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
+  return prev.recipe?.id === next.recipe?.id &&
+    prev.onRecipeClick === next.onRecipeClick &&
+    prev.isFavorite === next.isFavorite &&
+    prev.isPending === next.isPending &&
+    prev.onFavoriteClick === next.onFavoriteClick;
+});
+
+/**
  * HomeRecipeGrid - recipe grid for homepage with favorites support
- * - Memoized to prevent re-renders from parent state changes
+ * - Uses memoized item component to isolate callback creation
  */
 function HomeRecipeGrid({ 
   recipes, 
@@ -24,18 +63,14 @@ function HomeRecipeGrid({
   return (
     <div className="grid grid-cols-12 gap-4">
       {safeRecipes.map(recipe => (
-        <div 
-          key={recipe.id} 
-          className="col-span-12 sm:col-span-6 md:col-span-4"
-        >
-          <RecipeCard
-            recipe={recipe}
-            onClick={() => onRecipeClick(recipe)}
-            isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
-            favoriteLoading={isPending ? isPending(recipe.id) : undefined}
-            onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
-          />
-        </div>
+        <MemoizedGridItem
+          key={recipe.id}
+          recipe={recipe}
+          onRecipeClick={onRecipeClick}
+          isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
+          isPending={isPending ? isPending(recipe.id) : undefined}
+          onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
+        />
       ))}
     </div>
   );
