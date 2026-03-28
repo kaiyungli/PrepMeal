@@ -381,7 +381,6 @@ const CONFIG = {
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
-            setIsSaving(true);
             const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
             if (!name) return;
             
@@ -419,6 +418,7 @@ const CONFIG = {
             }
             
             try {
+              setIsSaving(true);
               const res = await fetch('/api/user/menus', {
                 method: 'POST',
                 headers: { 
