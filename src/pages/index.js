@@ -117,7 +117,19 @@ export default function Home({ initialRecipes = [] }) {
     return buildShoppingList(weeklyPlan);
   }, [weeklyPlan, buildShoppingList]);
 
-  // Regenerate weekly plan when recipesList changes
+  // Filters - stay in index.js
+  const { 
+    searchQuery, setSearchQuery, sortBy, setSortBy, 
+    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
+    activeFilterCount, clearFilters, filterRecipes 
+  } = useRecipeFilters();
+
+  // Memoized recipes list - MUST be declared before useEffect/callbacks that use it
+  const recipesList = useMemo(() => {
+    return filterRecipes(initialRecipes || []);
+  }, [initialRecipes, filterRecipes]);
+
+  // Regenerate weekly plan when recipesList changes - AFTER recipesList declared
   useEffect(() => {
     if (!recipesList || recipesList.length === 0) {
       setWeeklyPlan([]);
@@ -126,24 +138,12 @@ export default function Home({ initialRecipes = [] }) {
     }
   }, [recipesList, buildWeeklyPlan]);
 
-  // Filters - stay in index.js
-  const { 
-    searchQuery, setSearchQuery, sortBy, setSortBy, 
-    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
-    activeFilterCount, clearFilters, filterRecipes 
-  } = useRecipeFilters();
-
-  // Memoized recipes list
-  const recipesList = useMemo(() => {
-    return filterRecipes(initialRecipes || []);
-  }, [initialRecipes, filterRecipes]);
-
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
     router.push('/generate');
   }, [router]);
 
-  // Regenerate weekly plan
+  // Regenerate weekly plan - AFTER recipesList declared
   const handleRefreshPlan = useCallback(() => {
     setWeeklyPlan(buildWeeklyPlan(recipesList));
   }, [recipesList, buildWeeklyPlan]);
