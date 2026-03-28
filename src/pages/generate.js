@@ -489,8 +489,11 @@ const CONFIG = {
 
         <Footer />
         {saveNotice && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[var(--color-success)] text-[var(--color-success-foreground)] px-6 py-3 rounded-lg shadow-lg font-medium">
-            {saveNotice}
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+            <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-3 shadow-sm">
+              <span className="text-[var(--color-primary)]">✓</span>
+              <span className="font-medium text-[var(--color-text-primary)]">{saveNotice}</span>
+            </div>
           </div>
         )}
 
