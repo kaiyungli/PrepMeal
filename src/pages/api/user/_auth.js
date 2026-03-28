@@ -41,6 +41,8 @@ export async function getUserIdFromRequest(req) {
   
   const token = authHeader.substring(7);
   
+  console.log('[Auth] Token exists:', !!token, 'Token length:', token?.length);
+  
   if (!token) {
     return null;
   }
@@ -54,12 +56,16 @@ export async function getUserIdFromRequest(req) {
     
     const { data: { user }, error } = await authClient.auth.getUser();
     
+    console.log('[Auth] getUser error:', error);
+    console.log('[Auth] getUser success, user id:', user?.id);
+    
     if (error || !user) {
       return null;
     }
     
     return user.id;
   } catch (err) {
+    console.error('[Auth] Token verification exception:', err);
     return null;
   }
 }
@@ -102,6 +108,8 @@ export const ApiResponse = {
  */
 export async function requireAuth(req, res) {
   const userId = await getUserIdFromRequest(req);
+  
+  console.log('[Auth] requireAuth resolved userId:', userId);
   
   if (!userId) {
     res.status(401).json(ApiResponse.unauthorized());
