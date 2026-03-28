@@ -9,23 +9,33 @@ const normalizeId = (id) => {
 
 // Fetcher for SWR - loads favorite IDs from API
 const favoritesFetcher = async ([url, token]) => {
+  // === DIAGNOSTICS ===
+  console.log('[useFavorites] FETCHER: Starting favorites fetch');
+  console.log('[useFavorites] FETCHER: Token present:', !!token);
+  
   if (!token) return [];
   
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
   
+  // === DIAGNOSTICS ===
+  console.log('[useFavorites] FETCHER: Response status:', res.status);
+  
   if (!res.ok) {
+    const errorBody = await res.text();
+    console.error('[useFavorites] FETCHER: Error response:', errorBody);
     throw new Error(`Failed to load favorites: ${res.status} ${res.statusText}`);
   }
   
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
+  console.log('[useFavorites] FETCHER: Parsed favorites:', favoritesData.length);
   return favoritesData.map(id => normalizeId(id));
 };
 
 /**
- * useFavorites - single source of truth for favorites
+ * useFavorites - single source of truth for favorite IDs
  * @param {string} token - Access token (from page)
  * 
  * Returns:
@@ -72,13 +82,19 @@ export function useFavorites(token) {
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
+    // === DIAGNOSTICS ===
+    console.log('[useFavorites] TOGGLE: recipeId:', normalizedId);
+    console.log('[useFavorites] TOGGLE: Token present:', !!token);
+    
     // Guard: no token = can't toggle
     if (!token) {
+      console.log('[useFavorites] TOGGLE: No token, returning false');
       return false;
     }
     
     // Guard: already pending = prevent double-click
     if (pendingRef.current.has(normalizedId)) {
+      console.log('[useFavorites] TOGGLE: Already pending, returning false');
       return false;
     }
     
@@ -87,6 +103,9 @@ export function useFavorites(token) {
     
     const isFav = favoriteSet.has(normalizedId);
     const previousFavorites = [...favorites];
+    
+    // === DIAGNOSTICS ===
+    console.log('[useFavorites] TOGGLE: isFav:', isFav, '- using method:', isFav ? 'DELETE' : 'POST');
     
     // Optimistic update - immediately reflect in UI
     const newFavorites = isFav
@@ -113,6 +132,14 @@ export function useFavorites(token) {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
+      // === DIAGNOSTICS ===
+      console.log('[useFavorites] TOGGLE: Response status:', res.status);
+      
+      if (!res.ok) {
+        const errorBody = await res.text();
+        console.error('[useFavorites] TOGGLE: Error response:', errorBody);
+      }
+
       if (res.ok) {
         // Success - revalidate to sync with server
         mutate(swrKey);
@@ -124,6 +151,7 @@ export function useFavorites(token) {
       return false;
     } catch (err) {
       // Network error - rollback to previous
+      console.error('[useFavorites] TOGGLE: Catch error:', err);
       mutate(swrKey, previousFavorites, false);
       return false;
     } finally {
