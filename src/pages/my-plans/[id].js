@@ -12,16 +12,16 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 export default function PlanDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { isAuthenticated, loading, getAccessToken } = useAuth();
+  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
   const [plan, setPlan] = useState(null);
   const [items, setItems] = useState([]);
-  const [loading: dataLoading, setDataLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [loading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     if (!isAuthenticated || !id) return;
@@ -65,7 +65,7 @@ export default function PlanDetailPage() {
   const startDate = plan?.start_date ? new Date(plan.start_date) : null;
   const groupedItems = {};
   
-  Array.isArray(items) ? items.forEach((item) => {
+  if (Array.isArray(items)) items.forEach((item) => {
     const itemDate = new Date(item.date);
     const diffDays = startDate ? Math.floor((itemDate - startDate) / (1000 * 60 * 60 * 24)) : 0;
     const dayIndex = diffDays >= 0 ? diffDays : 0;
@@ -74,7 +74,7 @@ export default function PlanDetailPage() {
     groupedItems[dayIndex].push(item);
   });
 
-  if (loading || !isAuthenticated) {
+  if (authLoading || !isAuthenticated) {
     return (
       <>
         <Header />
