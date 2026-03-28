@@ -39,20 +39,20 @@ export default function GenerateActions({
         <button
           onClick={onShoppingList}
           disabled={!hasRecipes}
-          className={UI.buttonAccent + " text-sm font-semibold disabled:opacity-50 cursor-pointer"}
+          className={UI.buttonAccent + " disabled:opacity-50"}
         >
           🛒 購物清單
         </button>
         <button
           onClick={onGenerate}
-          className={UI.buttonPrimary + " text-sm font-semibold cursor-pointer"}
+          className={UI.buttonPrimary}
         >
           ✨ 一鍵生成
         </button>
         <button
           onClick={onSave}
           disabled={!hasRecipes || isSaving}
-          className={UI.buttonPrimary + " text-sm font-semibold cursor-pointer"}
+          className={UI.buttonPrimary}
         >
           {isSaving ? '保存中...' : '💾 保存'}
         </button>
