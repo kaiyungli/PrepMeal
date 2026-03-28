@@ -4,17 +4,21 @@ import RecipeCard from '@/components/RecipeCard';
 interface HomeRecipeGridProps {
   recipes: any[];
   onRecipeClick: (recipe: any) => void;
+  isFavorite?: (recipeId: string | number) => boolean;
+  isPending?: (recipeId: string | number) => boolean;
+  onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
 }
 
 /**
- * HomeRecipeGrid - display-only recipe grid for homepage
- * - Homepage is display-first, no favorites orchestration
- * - Only requires recipes and onRecipeClick
+ * HomeRecipeGrid - recipe grid for homepage with favorites support
  * - Memoized to prevent re-renders from parent state changes
  */
 function HomeRecipeGrid({ 
   recipes, 
-  onRecipeClick 
+  onRecipeClick,
+  isFavorite,
+  isPending,
+  onFavoriteClick,
 }: HomeRecipeGridProps) {
   const safeRecipes = recipes || [];
   return (
@@ -27,6 +31,9 @@ function HomeRecipeGrid({
           <RecipeCard
             recipe={recipe}
             onClick={() => onRecipeClick(recipe)}
+            isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
+            favoriteLoading={isPending ? isPending(recipe.id) : undefined}
+            onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
           />
         </div>
       ))}

@@ -10,6 +10,8 @@ import HomeFiltersBar from '@/components/home/HomeFiltersBar';
 import HomeModalController from '@/components/home/HomeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useAuth } from '@/hooks/useAuth';
+import { useFavorites } from '@/hooks/useFavorites';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
@@ -19,6 +21,44 @@ export default function Home({ initialRecipes = [] }) {
   const router = useRouter();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const { toast, showToast } = useToast();
+
+  // Auth for favorites - same pattern as /recipes
+  const { isAuthenticated, getAccessToken, loading: authLoading } = useAuth();
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (isAuthenticated) {
+        getAccessToken().then(t => setToken(t));
+      } else {
+        setToken(null);
+      }
+    }
+  }, [authLoading, isAuthenticated, getAccessToken]);
+
+  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
+
+  // Favorite toggle handler with auth check
+  const handleFavoriteToggle = useCallback((recipeId) => {
+    if (!isAuthenticated) {
+      showToast('請先登入以收藏食譜', 'info');
+      return Promise.resolve(false);
+    }
+    return toggleFavorite(recipeId);
+  }, [isAuthenticated, toggleFavorite, showToast]);
+
+  // Modal favorite state
+  const modalIsFavorite = selectedRecipe ? isFavorite(selectedRecipe.id) : false;
+  const modalIsPending = selectedRecipe ? isPending(selectedRecipe.id) : false;
+  const handleModalFavoriteClick = useCallback(() => {
+    if (!isAuthenticated) {
+      showToast('請先登入以收藏食譜', 'info');
+      return;
+    }
+    if (selectedRecipe?.id) {
+      toggleFavorite(selectedRecipe.id);
+    }
+  }, [isAuthenticated, selectedRecipe, toggleFavorite, showToast]);
 
   // Weekly plan state - separate from selectedRecipe
   const [weeklyPlan, setWeeklyPlan] = useState([]);
@@ -202,6 +242,9 @@ export default function Home({ initialRecipes = [] }) {
             <HomeRecipeGrid
               recipes={recipesList}
               onRecipeClick={handleRecipeClick}
+              isFavorite={isFavorite}
+              isPending={isPending}
+              onFavoriteClick={handleFavoriteToggle}
             />
           )}
         </div>
@@ -210,6 +253,9 @@ export default function Home({ initialRecipes = [] }) {
       <HomeModalController
         selectedRecipe={selectedRecipe}
         onClose={handleCloseModal}
+        isFavorite={modalIsFavorite}
+        favoriteLoading={modalIsPending}
+        onFavoriteClick={handleModalFavoriteClick}
       />
 
       {toast && <Toast toast={toast} />}
