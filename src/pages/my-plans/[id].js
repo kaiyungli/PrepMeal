@@ -100,7 +100,7 @@ export default function PlanDetailPage() {
           {/* Back button */}
           <Link
             href="/my-plans"
-            className="inline-flex items-center gap-1 text-[#9B6035] font-medium mb-4 hover:underline"
+            className={UI.textSubtleAction}
           >
             ← 返回我的餐單
           </Link>
