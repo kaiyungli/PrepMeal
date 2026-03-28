@@ -105,7 +105,7 @@ export function useFavorites(token) {
     // Mark as pending
     pendingRef.current.add(normalizedId);
     
-    const isFav = favoriteSet.has(normalizedId);
+    const isFav = favorites.includes(normalizedId);
     const previousFavorites = [...favorites];
     
     console.log('[fav-perf]', performance.now().toFixed(2), 'optimistic_update_applied', isFav ? 'unfavorite' : 'favorite');
