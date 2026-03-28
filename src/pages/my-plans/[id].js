@@ -128,7 +128,7 @@ export default function PlanDetailPage() {
 
               {/* Days */}
               {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
-                <div key={dayIndex} className="bg-white rounded-xl border border-[#E5DCC8] p-4 mb-4">
+                <div key={dayIndex} className={UI.card + " p-4 mb-4"}>
                   <h3 className="text-lg font-semibold text-[#9B6035] mb-3">
                     {DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`}
                   </h3>
