@@ -6,6 +6,7 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
 import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { UI } from '@/styles/ui';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -490,7 +491,7 @@ const CONFIG = {
         <Footer />
         {saveNotice && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-            <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-3 shadow-sm">
+            <div className={UI.notice}>
               <span className="text-[var(--color-primary)]">✓</span>
               <span className="font-medium text-[var(--color-text-primary)]">{saveNotice}</span>
             </div>
