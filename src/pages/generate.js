@@ -8,6 +8,7 @@ import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/ui/Toast';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -50,6 +51,7 @@ export default function GeneratePage() {
   
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
+  const { toast, showToast } = useToast();
   
   // Explicit day index mapping for deterministic day_index
   const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
@@ -428,12 +430,7 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.success === false && data.error) throw new Error(data.error);
-              const planId = data?.data?.plan_id || data?.plan_id;
-              if (planId) {
-                router.push(`/my-plans/${planId}`);
-              } else {
-                alert('已保存餐單！');
-              }
+              showToast(`✅ 已保存餐單：${name}`);
             } catch (e) {
               alert('保存失敗: ' + e.message);
             }
