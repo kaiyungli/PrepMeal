@@ -12,16 +12,16 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 export default function PlanDetailPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
+  const { isAuthenticated, loading: loading, getAccessToken } = useAuth();
   const [plan, setPlan] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [authLoading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, router]);
 
   useEffect(() => {
     if (!isAuthenticated || !id) return;
@@ -67,7 +67,7 @@ export default function PlanDetailPage() {
     return acc;
   }, {});
 
-  if (authLoading || !isAuthenticated) {
+  if (loading || !isAuthenticated) {
     return (
       <>
         <Header />
