@@ -428,7 +428,7 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.success === false && data.error) throw new Error(data.error);
-              const planId = data.data?.plan?.id;
+              const planId = data?.data?.plan_id || data?.plan_id;
               if (planId) {
                 router.push(`/my-plans/${planId}`);
               } else {
