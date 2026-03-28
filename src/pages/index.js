@@ -5,9 +5,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
-import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
 import HomeFiltersBar from '@/components/home/HomeFiltersBar';
-import HomeModalController from '@/components/home/HomeModalController';
+import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,12 +18,14 @@ const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
 export default function Home({ initialRecipes = [] }) {
   const router = useRouter();
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const { toast, showToast } = useToast();
 
-  // Auth for favorites - same pattern as /recipes
+  // Weekly plan state - separate from selectedRecipe
+  const [weeklyPlan, setWeeklyPlan] = useState([]);
+
+  // Auth for favorites - stays in index.js
   const { isAuthenticated, getAccessToken, loading: authLoading } = useAuth();
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading) {
@@ -36,44 +37,22 @@ export default function Home({ initialRecipes = [] }) {
     }
   }, [authLoading, isAuthenticated, getAccessToken]);
 
-  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
+  // useFavorites stays in index.js
+  const { isFavorite, isPending, toggleFavorite } = token ? useFavorites(token) : { 
+    favorites: [], 
+    isFavorite: () => false, 
+    isPending: () => false, 
+    toggleFavorite: () => Promise.resolve(false) 
+  };
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
-      return Promise.resolve(false);
-    }
-    return toggleFavorite(recipeId);
-  }, [isAuthenticated, toggleFavorite, showToast]);
-
-  // Modal favorite state
-  const modalIsFavorite = selectedRecipe ? isFavorite(selectedRecipe.id) : false;
-  const modalIsPending = selectedRecipe ? isPending(selectedRecipe.id) : false;
-  const handleModalFavoriteClick = useCallback(() => {
-    if (!isAuthenticated) {
-      showToast('請先登入以收藏食譜', 'info');
       return;
     }
-    if (selectedRecipe?.id) {
-      toggleFavorite(selectedRecipe.id);
-    }
-  }, [isAuthenticated, selectedRecipe, toggleFavorite, showToast]);
-
-  // Weekly plan state - separate from selectedRecipe
-  const [weeklyPlan, setWeeklyPlan] = useState([]);
-
-  // Filters
-  const { 
-    searchQuery, setSearchQuery, sortBy, setSortBy, 
-    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
-    activeFilterCount, clearFilters, filterRecipes 
-  } = useRecipeFilters();
-
-  // Memoized recipes list
-  const recipesList = useMemo(() => {
-    return filterRecipes(initialRecipes || []);
-  }, [initialRecipes, filterRecipes]);
+    toggleFavorite(recipeId);
+  }, [isAuthenticated, toggleFavorite, showToast]);
 
   // Build weekly plan from recipes - preserve ingredients for shopping list
   const buildWeeklyPlan = useCallback((recipes) => {
@@ -102,7 +81,6 @@ export default function Home({ initialRecipes = [] }) {
     for (const item of plan) {
       const recipe = item.recipe;
       
-      // Check if recipe has ingredients
       if (recipe && recipe.ingredients) {
         try {
           const ingredients = typeof recipe.ingredients === 'string' 
@@ -113,21 +91,16 @@ export default function Home({ initialRecipes = [] }) {
             for (const ing of ingredients) {
               const name = ing.name || ing.item || '未知食材';
               const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
-              
-              // Try to parse as number for summation
               const qtyNum = parseFloat(qtyRaw);
               
               if (ingredientMap.has(name)) {
                 const existing = ingredientMap.get(name);
                 if (typeof existing === 'number' && !isNaN(qtyNum)) {
-                  // Sum numeric quantities
                   ingredientMap.set(name, existing + qtyNum);
                 } else {
-                  // Append as string fallback
                   ingredientMap.set(name, `${existing}+${qtyRaw}`);
                 }
               } else {
-                // Store as number if possible
                 ingredientMap.set(name, !isNaN(qtyNum) ? qtyNum : qtyRaw);
               }
             }
@@ -138,7 +111,6 @@ export default function Home({ initialRecipes = [] }) {
       }
     }
     
-    // Convert to array with string qty
     return Array.from(ingredientMap.entries()).map(([name, qty]) => ({
       name,
       qty: typeof qty === 'number' ? String(qty) : qty
@@ -152,31 +124,34 @@ export default function Home({ initialRecipes = [] }) {
 
   // Regenerate weekly plan when recipesList changes
   useEffect(() => {
-    if (!recipesList || recipesList.length === 0) {
+    if (!initialRecipes || initialRecipes.length === 0) {
       setWeeklyPlan([]);
     } else {
-      setWeeklyPlan(buildWeeklyPlan(recipesList));
+      setWeeklyPlan(buildWeeklyPlan(initialRecipes));
     }
-  }, [recipesList, buildWeeklyPlan]);
+  }, [initialRecipes, buildWeeklyPlan]);
 
-  // Recipe click - just set selected, detail fetch is in HomeModalController
-  const handleRecipeClick = useCallback((recipe) => {
-    setSelectedRecipe({ ...recipe });
-  }, []);
+  // Filters - stay in index.js
+  const { 
+    searchQuery, setSearchQuery, sortBy, setSortBy, 
+    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
+    activeFilterCount, clearFilters, filterRecipes 
+  } = useRecipeFilters();
 
-  const handleCloseModal = useCallback(() => {
-    setSelectedRecipe(null);
-  }, []);
+  // Memoized recipes list
+  const recipesList = useMemo(() => {
+    return filterRecipes(initialRecipes || []);
+  }, [initialRecipes, filterRecipes]);
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
     router.push('/generate');
   }, [router]);
 
-  // Regenerate weekly plan - does NOT touch selectedRecipe
+  // Regenerate weekly plan
   const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(buildWeeklyPlan(recipesList));
-  }, [recipesList, buildWeeklyPlan]);
+    setWeeklyPlan(buildWeeklyPlan(initialRecipes));
+  }, [initialRecipes, buildWeeklyPlan]);
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showEmptyState = recipesList.length === 0;
@@ -195,8 +170,9 @@ export default function Home({ initialRecipes = [] }) {
         onRefreshPlan={handleRefreshPlan}
       />
 
-      <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
-        <div className="max-w-[1200px] mx-auto px-4">
+      {/* Filters stay in index.js - above grid */}
+      <div className="bg-[#F8F3E8]">
+        <div className="max-w-[1200px] mx-auto px-4 pt-8">
           <HomeFiltersBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -213,6 +189,8 @@ export default function Home({ initialRecipes = [] }) {
                 setSearchQuery={setSearchQuery}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
                 recipeFilterSections={recipeFilterSections || []}
                 hasFilters={hasFilters}
                 activeFilterCount={activeFilterCount}
@@ -237,26 +215,18 @@ export default function Home({ initialRecipes = [] }) {
               )}
             </div>
           )}
-
-          {!showEmptyState && (
-            <HomeRecipeGrid
-              recipes={recipesList}
-              onRecipeClick={handleRecipeClick}
-              isFavorite={isFavorite}
-              isPending={isPending}
-              onFavoriteClick={handleFavoriteToggle}
-            />
-          )}
         </div>
-      </section>
+      </div>
 
-      <HomeModalController
-        selectedRecipe={selectedRecipe}
-        onClose={handleCloseModal}
-        isFavorite={modalIsFavorite}
-        favoriteLoading={modalIsPending}
-        onFavoriteClick={handleModalFavoriteClick}
-      />
+      {/* Grid + modal in separate section */}
+      {!showEmptyState && (
+        <HomeRecipesSection
+          recipes={recipesList}
+          isFavorite={isFavorite}
+          isPending={isPending}
+          onFavoriteClick={handleFavoriteToggle}
+        />
+      )}
 
       {toast && <Toast toast={toast} />}
     </Layout>
