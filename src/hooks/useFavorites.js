@@ -140,8 +140,7 @@ export function useFavorites(token) {
 
       if (res.ok) {
         console.log('[fav-perf]', performance.now().toFixed(2), 'revalidate_finished');
-        // Success - revalidate to sync with server
-        mutate(swrKey);
+        // Already applied optimistic update - no revalidation needed
         return true;
       }
       
