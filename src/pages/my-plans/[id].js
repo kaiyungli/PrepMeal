@@ -65,7 +65,7 @@ export default function PlanDetailPage() {
   const startDate = plan?.start_date ? new Date(plan.start_date) : null;
   const groupedItems = {};
   
-  (items || []).forEach((item) => {
+  Array.isArray(items) ? items.forEach((item) => {
     const itemDate = new Date(item.date);
     const diffDays = startDate ? Math.floor((itemDate - startDate) / (1000 * 60 * 60 * 24)) : 0;
     const dayIndex = diffDays >= 0 ? diffDays : 0;
@@ -129,7 +129,7 @@ export default function PlanDetailPage() {
                   
                   {groupedItems[dayIndex]?.length > 0 ? (
                     <div className="space-y-3">
-                      {groupedItems[dayIndex].map((item) => (
+                      {(groupedItems[dayIndex] || []).map((item) => (
                         <div key={item.id} className="flex items-center gap-3 p-2 bg-[#F8F3E8] rounded-lg">
                           {item.recipe?.image_url ? (
                             <img
