@@ -7,6 +7,7 @@ import GenerateResults from '@/components/generate/GenerateResults';
 import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
+import { useAuth } from '@/hooks/useAuth';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -46,6 +47,9 @@ export default function GeneratePage() {
     filters, // NEW: derived unified filters
     setFilters, // NEW: setter for unified filters
   } = useGeneratePreferences();
+  
+  // Auth for save functionality
+  const { isAuthenticated, getAccessToken } = useAuth();
   
   // Recipe State
   const [allRecipes, setAllRecipes] = useState([]);
@@ -365,7 +369,7 @@ const CONFIG = {
           onSave={async () => {
             // Check auth first
             if (!isAuthenticated) {
-              showToast('請先登入以保存餐單', 'info');
+              alert('請先登入以保存餐單');
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
@@ -373,20 +377,22 @@ const CONFIG = {
             if (!name) return;
             
             // Build normalized items from weeklyPlan
+            // weeklyPlan structure: { mon: [recipe, recipe], tue: [recipe, recipe], ... }
             const items = [];
-            weeklyPlan.forEach((dayPlan, dayIndex) => {
-              if (dayPlan && dayPlan.meals) {
-                dayPlan.meals.forEach((meal) => {
-                  if (meal && meal.recipe && meal.recipe.id) {
-                    items.push({
-                      day_index: dayIndex,
-                      meal_type: meal.mealType || 'dinner',
-                      recipe_id: meal.recipe.id,
-                      servings: servings,
-                    });
-                  }
-                });
-              }
+            const dayKeys = Object.keys(weeklyPlan);
+            dayKeys.forEach((dayKey) => {
+              const dayRecipes = weeklyPlan[dayKey] || [];
+              const dayIndex = dayKeys.indexOf(dayKey);
+              dayRecipes.forEach((recipe) => {
+                if (recipe && recipe.id) {
+                  items.push({
+                    day_index: dayIndex,
+                    meal_type: 'dinner',
+                    recipe_id: recipe.id,
+                    servings: servings,
+                  });
+                }
+              });
             });
             
             if (items.length === 0) {
@@ -395,9 +401,13 @@ const CONFIG = {
             }
             
             try {
+              const token = await getAccessToken();
               const res = await fetch('/api/user/menus', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 body: JSON.stringify({
                   name,
                   week_start_date: new Date().toISOString().split('T')[0],
@@ -407,9 +417,9 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.success === false && data.error) throw new Error(data.error);
-              showToast('已保存餐單！', 'success');
+              alert('已保存餐單！');
             } catch (e) {
-              showToast('保存失敗: ' + e.message, 'error');
+              alert('保存失敗: ' + e.message);
             }
           }}
         />
