@@ -99,7 +99,7 @@ export default function MyPlansPage() {
           ) : plans.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未生成任何餐單</p>
-              <a href="/generate" className="text-[#9B6035] font-medium hover:underline">
+              <a href="/generate" className={UI.textLink}>
                 去生成 →
               </a>
             </div>
