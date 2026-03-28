@@ -58,17 +58,22 @@ export default function PlanDetailPage() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
+    // Safe for YYYY-MM-DD - avoid timezone shift
+    if (dateStr.includes('-') && dateStr.length === 10) {
+      const [y, m, d] = dateStr.split('-');
+      return new Date(y, parseInt(m) - 1, d).toLocaleDateString('zh-HK');
+    }
     return new Date(dateStr).toLocaleDateString('zh-HK');
   };
 
   // Transform items - compute day_index from date
-  const startDate = plan?.start_date ? new Date(plan.start_date) : null;
+  const startDate = plan?.week_start_date ? new Date(plan.week_start_date) : null;
   const groupedItems = {};
   
   if (Array.isArray(items)) items.forEach((item) => {
     const itemDate = new Date(item.date);
     const diffDays = startDate ? Math.floor((itemDate - startDate) / (1000 * 60 * 60 * 24)) : 0;
-    const dayIndex = diffDays >= 0 ? diffDays : 0;
+    const dayIndex = Math.min(Math.max(diffDays >= 0 ? diffDays : 0), (plan?.days_count || 7) - 1);
     
     if (!groupedItems[dayIndex]) groupedItems[dayIndex] = [];
     groupedItems[dayIndex].push(item);
