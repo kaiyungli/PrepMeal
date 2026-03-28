@@ -1,9 +1,19 @@
 // Central user state hook - combines auth + favorites
 // This is an orchestration layer, no logic changes
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/hooks/useFavorites';
+
+/**
+ * Derive favorite recipes from a list
+ * Returns filtered array based on favorites
+ */
+export function getFavoriteRecipes(recipes, favorites) {
+  if (!recipes || !favorites) return [];
+  const favSet = new Set(favorites.map(String));
+  return recipes.filter(r => favSet.has(String(r.id)));
+}
 
 /**
  * useUserState - single hook for all user-related state

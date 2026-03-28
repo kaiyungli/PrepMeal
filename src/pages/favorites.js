@@ -1,10 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useUserState } from '@/hooks/useUserState';
+import { useUserState, getFavoriteRecipes } from '@/hooks/useUserState';
 
 export default function FavoritesPage() {
   // Protected page - useAuthGuard handles redirect to login
@@ -14,13 +14,12 @@ export default function FavoritesPage() {
   const { 
     favorites,
     isAuthenticated,
-    getAccessToken,
     isFavorite,
     isPending,
     toggleFavorite,
   } = useUserState();
 
-  const [recipes, setRecipes] = useState([]);
+  const [allRecipes, setAllRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Handle favorite toggle
@@ -28,33 +27,33 @@ export default function FavoritesPage() {
     return toggleFavorite(recipeId);
   }, [toggleFavorite]);
 
-  // Derive full recipe list from canonical favorites - refresh when favorites CHANGE (not just length)
+  // Fetch recipes once on mount (public recipes)
   useEffect(() => {
-    if (!isAuthenticated || favorites.length === 0) {
-      setRecipes([]);
-      setLoading(false);
-      return;
-    }
+    if (!isAuthenticated) return;
 
-    const fetchFavoriteRecipes = async () => {
+    const fetchRecipes = async () => {
       setLoading(true);
       try {
-        const token = await getAccessToken();
-        const res = await fetch('/api/user/favorites/recipes', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        // Use public recipes endpoint
+        const res = await fetch('/api/recipes?limit=100');
         const data = await res.json();
         const recipesData = data?.data?.recipes || data?.recipes || [];
-        setRecipes(recipesData);
+        setAllRecipes(recipesData);
       } catch (err) {
-        console.error('Failed to load favorite recipes:', err);
+        console.error('Failed to load recipes:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFavoriteRecipes();
-  }, [isAuthenticated, favorites, getAccessToken]);
+    fetchRecipes();
+  }, [isAuthenticated]);
+
+  // Derive favorite recipes from allRecipes + favorites (PURE DERIVED)
+  // Updates INSTANTLY when favorites changes - no additional fetch
+  const favoriteRecipes = useMemo(() => {
+    return getFavoriteRecipes(allRecipes, favorites);
+  }, [allRecipes, favorites]);
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -80,7 +79,7 @@ export default function FavoritesPage() {
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">載入中...</p>
             </div>
-          ) : recipes.length === 0 ? (
+          ) : favoriteRecipes.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未收藏任何食譜</p>
               <a href="/recipes" className="text-[#9B6035] font-medium hover:underline">
@@ -89,7 +88,7 @@ export default function FavoritesPage() {
             </div>
           ) : (
             <RecipeList
-              recipes={recipes}
+              recipes={favoriteRecipes}
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
