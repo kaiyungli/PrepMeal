@@ -52,6 +52,7 @@ export default function GeneratePage() {
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
   const [saveNotice, setSaveNotice] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   
   // Explicit day index mapping for deterministic day_index
   const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
@@ -366,18 +367,21 @@ const CONFIG = {
         {/* Action Bar */}
         
         <GenerateActions 
+          isSaving={isSaving}
           selectedCount={selectedCount}
           hasRecipes={hasRecipes}
           onClear={clearAll}
           onShoppingList={generateShoppingList}
           onGenerate={() => handleGenerate()}
           onSave={async () => {
+            if (isSaving) return;
             // Check auth first
             if (!isAuthenticated) {
               alert('請先登入以保存餐單');
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
+            setIsSaving(true);
             const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
             if (!name) return;
             
@@ -434,6 +438,8 @@ const CONFIG = {
               setTimeout(() => setSaveNotice(''), 3000);
             } catch (e) {
               alert('保存失敗: ' + e.message);
+            } finally {
+              setIsSaving(false);
             }
           }}
         />

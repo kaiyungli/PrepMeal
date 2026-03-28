@@ -1,6 +1,7 @@
 // Generate page action buttons component
 
 interface GenerateActionsProps {
+  isSaving: boolean;
   selectedCount: number;
   hasRecipes: boolean;
   onClear: () => void;
@@ -10,6 +11,7 @@ interface GenerateActionsProps {
 }
 
 export default function GenerateActions({ 
+  isSaving,
   selectedCount,
   hasRecipes,
   onClear,
@@ -48,10 +50,10 @@ export default function GenerateActions({
         </button>
         <button
           onClick={onSave}
-          disabled={!hasRecipes}
+          disabled={!hasRecipes || isSaving}
           className="px-5 py-2.5 bg-[#9B6035] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
         >
-          💾 保存
+          {isSaving ? '保存中...' : '💾 保存'}
         </button>
       </div>
     </div>
