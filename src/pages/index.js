@@ -25,7 +25,7 @@ export default function Home({ initialRecipes = [] }) {
 
   // Auth for favorites - stays in index.js
   const { isAuthenticated, getAccessToken, loading: authLoading } = useAuth();
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     if (!authLoading) {
