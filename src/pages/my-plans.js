@@ -30,7 +30,7 @@ export default function MyPlansPage() {
         const data = await res.json();
         
         if (data?.success) {
-          setPlans(data?.data?.menus || []);
+          setPlans(data?.data?.plans || []);
         }
       } catch (err) {
         console.error('Failed to load plans:', err);
