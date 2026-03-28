@@ -1,165 +1,163 @@
-'use client';
-import { useState, useEffect } from 'react';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import Header from '@/components/layout/Header';
-import { useAuth } from '@/hooks/useAuth';
+// Get single menu plan with items - uses real schema: menu_plans, menu_plan_items
 
-const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
-const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
+import { createClient } from '@supabase/supabase-js';
+import { requireAuth, ApiResponse } from '../_auth';
 
-export default function PlanDetailPage() {
-  const router = useRouter();
-  const { id } = router.query;
-  const { isAuthenticated, loading: loading, getAccessToken } = useAuth();
-  const [plan, setPlan] = useState(null);
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+function createUserClient(supabaseUrl, anonKey, token) {
+  return createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: `Bearer ${token}` } }
+  });
+}
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [loading, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !id) return;
-
-    const fetchPlan = async () => {
-      setLoading(true);
-      try {
-        const token = await getAccessToken();
-        const res = await fetch(`/api/user/menus/${id}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        const data = await res.json();
-        
-        // Handle both old and new response format
-        if (data.success === false && data.error) {
-          alert(data.error);
-          router.push('/my-plans');
-        } else {
-          setPlan(data.data?.plan || data.plan);
-          setItems(data.data?.items || data.items || []);
-        }
-      } catch (err) {
-        console.error('Failed to load plan:', err);
-        router.push('/my-plans');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlan();
-  }, [isAuthenticated, id, router]);
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('zh-HK');
-  };
-
-  // Group items by day
-  const groupedItems = items.reduce((acc, item) => {
-    const day = item.day_index || 0;
-    if (!acc[day]) acc[day] = [];
-    acc[day].push(item);
-    return acc;
-  }, {});
-
-  if (loading || !isAuthenticated) {
-    return (
-      <>
-        <Header />
-        <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
-          <p className="text-[#AA7A50]">載入中...</p>
-        </div>
-      </>
-    );
+export default async function handler(req, res) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return res.status(500).json(ApiResponse.error('Missing Supabase config'));
   }
+  
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.substring(7);
+    
+    const userId = await requireAuth(req, res);
+    if (!userId) return;
+    
+    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
-  return (
-    <>
-      <Header />
-      <Head><title>{plan?.name || '餐單詳情'} - 今晚食乜</title></Head>
-      <div className="min-h-screen bg-[#F8F3E8] py-8">
-        <div className="max-w-[800px] mx-auto px-4">
-          {/* Back button */}
-          <Link
-            href="/my-plans"
-            className="inline-flex items-center gap-1 text-[#9B6035] font-medium mb-4 hover:underline"
-          >
-            ← 返回我的餐單
-          </Link>
+    const planId = req.query.id;
 
-          {loading ? (
-            <div className="text-center py-20">
-              <p className="text-[#AA7A50]">載入中...</p>
-            </div>
-          ) : !plan ? (
-            <div className="text-center py-20">
-              <p className="text-[#7A746B]">搵唔到呢個餐單</p>
-            </div>
-          ) : (
-            <>
-              {/* Plan header */}
-              <div className="bg-white rounded-xl border border-[#E5DCC8] p-6 mb-6">
-                <h1 className="text-2xl font-bold text-[#3A2010]">{plan.name}</h1>
-                <p className="text-sm text-[#AA7A50] mt-2">
-                  {plan.days_count}天 · 開始日期: {formatDate(plan.week_start_date)}
-                </p>
-                <p className="text-xs text-[#7A746B] mt-1">
-                  建立於: {formatDate(plan.created_at)}
-                </p>
-              </div>
+    if (req.method === 'GET') {
+      // Use real table: menu_plans
+      const { data: plan, error: planError } = await userSupabase
+        .from('menu_plans')
+        .select('*')
+        .eq('id', planId)
+        .eq('user_id', userId)
+        .single();
+      
+      if (planError || !plan) {
+        return res.status(404).json(ApiResponse.notFound('Plan not found'));
+      }
+      
+      // Transform DB fields to frontend-safe response
+      const planResponse = {
+        id: plan.id,
+        user_id: plan.user_id,
+        name: plan.title,
+        week_start_date: plan.start_date,
+        days_count: plan.end_date && plan.start_date 
+          ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
+          : 7,
+        notes: null,
+        created_at: plan.created_at,
+      };
+      
+      // Use real table: menu_plan_items
+      const { data: items, error: itemsError } = await userSupabase
+        .from('menu_plan_items')
+        .select('*')
+        .eq('menu_plan_id', planId)
+        .order('item_order', { ascending: true });
+      
+      if (itemsError) {
+        return res.status(500).json(ApiResponse.error(itemsError.message));
+      }
+      
+      // Transform items - compute day_index from date
+      const startDate = new Date(plan.start_date);
+      const itemsByDay = {};
+      
+      (items || []).forEach((item) => {
+        const itemDate = new Date(item.date);
+        const diffDays = Math.floor((itemDate - startDate) / (1000 * 60 * 60 * 24));
+        const dayIndex = diffDays >= 0 ? diffDays : 0;
+        
+        if (!itemsByDay[dayIndex]) itemsByDay[dayIndex] = [];
+        itemsByDay[dayIndex].push(item);
+      });
 
-              {/* Days */}
-              {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
-                <div key={dayIndex} className="bg-white rounded-xl border border-[#E5DCC8] p-4 mb-4">
-                  <h3 className="text-lg font-semibold text-[#9B6035] mb-3">
-                    {DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`}
-                  </h3>
-                  
-                  {groupedItems[dayIndex]?.length > 0 ? (
-                    <div className="space-y-3">
-                      {groupedItems[dayIndex].map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 p-2 bg-[#F8F3E8] rounded-lg">
-                          {item.recipe?.image_url ? (
-                            <img
-                              src={item.recipe.image_url}
-                              alt={item.recipe.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 bg-[#E5DCC8] rounded flex items-center justify-center text-2xl">
-                              🍽️
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-[#3A2010]">
-                              {item.recipe?.name || '未知食譜'}
-                            </p>
-                            <p className="text-sm text-[#AA7A50]">
-                              {MEAL_TYPES[item.meal_type] || item.meal_type} · {item.servings}人份
-                            </p>
-                            {item.recipe && (
-                              <p className="text-xs text-[#7A746B] mt-1">
-                                {item.recipe.total_time_minutes}分鐘 · {item.recipe.calories_per_serving}卡
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-[#AA7A50]">無安排</p>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      </div>
-    </>
-  );
+      // Group by day_index for UI
+      const groupedByDay = Object.keys(itemsByDay).sort((a, b) => Number(a) - Number(b)).map(di => ({
+        dayIndex: Number(di),
+        items: itemsByDay[di],
+      }));
+
+      // Transform to frontend-safe response with day_index computed from date
+      const itemsResponse = groupedByDay.flatMap(group => 
+        group.items.map(item => ({
+          id: item.id,
+          menu_plan_id: item.menu_plan_id,
+          date: item.date,
+          day_index: group.dayIndex,
+          meal_type: item.meal_slot,
+          recipe_id: item.recipe_id,
+          servings: item.servings,
+          item_order: item.item_order,
+          source: item.source,
+        }))
+      );
+      
+      // Get recipe details
+      const recipeIds = itemsResponse.map(i => i.recipe_id).filter(Boolean);
+      let recipesMap = {};
+      
+      if (recipeIds.length > 0) {
+        const { data: recipes } = await userSupabase
+          .from('recipes')
+          .select('id, name, image_url, total_time_minutes, difficulty, method')
+          .in('id', recipeIds);
+        
+        if (recipes) {
+          recipesMap = recipes.reduce((acc, r) => {
+            acc[r.id] = r;
+            return acc;
+          }, {});
+        }
+      }
+      
+      // Attach recipe details
+      const itemsWithRecipes = itemsResponse.map(item => ({
+        ...item,
+        recipe: item.recipe_id ? recipesMap[item.recipe_id] : null,
+      }));
+      
+      return res.status(200).json(ApiResponse.success({ plan: planResponse, items: itemsWithRecipes }));
+    }
+
+    if (req.method === 'DELETE') {
+      // Use real tables: menu_plan_items, menu_plans
+      try {
+        // Delete items first
+        const { error: itemsError } = await userSupabase
+          .from('menu_plan_items')
+          .delete()
+          .eq('menu_plan_id', planId);
+        
+        if (itemsError) {
+          throw itemsError;
+        }
+        
+        // Delete plan
+        const { error: planError } = await userSupabase
+          .from('menu_plans')
+          .delete()
+          .eq('id', planId)
+          .eq('user_id', userId);
+        
+        if (planError) {
+          throw planError;
+        }
+        
+        return res.status(200).json(ApiResponse.success({ deleted: true }));
+      } catch (err) {
+        return res.status(500).json(ApiResponse.error(err.message));
+      }
+    }
+
+    return res.status(405).json(ApiResponse.methodNotAllowed());
+  } catch (err) {
+    return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
+  }
 }
