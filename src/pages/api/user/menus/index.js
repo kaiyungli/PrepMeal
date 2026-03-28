@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('[Menus] GET error:', error);
+        console.error(error);
         return res.status(500).json(ApiResponse.error(error.message));
       }
       

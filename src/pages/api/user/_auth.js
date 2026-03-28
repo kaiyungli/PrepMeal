@@ -12,7 +12,6 @@ function createAuthClient(token) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('[Auth] Missing Supabase env vars');
     return null;
   }
   
@@ -36,41 +35,24 @@ function createAuthClient(token) {
 export async function getUserIdFromRequest(req) {
   const authHeader = req.headers.authorization;
   
-  // === DIAGNOSTICS ===
-  console.log('[Auth] Authorization header exists:', !!authHeader);
-  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.log('[Auth] No valid Bearer token');
     return null;
   }
   
   const token = authHeader.substring(7);
-  
-  // === DIAGNOSTICS ===
-  console.log('[Auth] Token exists:', !!token, 'Token length:', token?.length);
   
   if (!token) {
     return null;
   }
   
   try {
-    // Create client with token as Authorization header
     const authClient = createAuthClient(token);
     
     if (!authClient) {
-      console.error('[Auth] Could not create auth client');
       return null;
     }
     
-    // Call getUser() WITHOUT arguments - uses header for verification
     const { data: { user }, error } = await authClient.auth.getUser();
-    
-    // === DIAGNOSTICS ===
-    if (error) {
-      console.error('[Auth] getUser error:', error);
-    } else {
-      console.log('[Auth] getUser success, user id:', user?.id);
-    }
     
     if (error || !user) {
       return null;
@@ -78,7 +60,6 @@ export async function getUserIdFromRequest(req) {
     
     return user.id;
   } catch (err) {
-    console.error('[Auth] Token verification exception:', err);
     return null;
   }
 }
@@ -121,9 +102,6 @@ export const ApiResponse = {
  */
 export async function requireAuth(req, res) {
   const userId = await getUserIdFromRequest(req);
-  
-  // === DIAGNOSTICS ===
-  console.log('[Auth] requireAuth resolved userId:', userId);
   
   if (!userId) {
     res.status(401).json(ApiResponse.unauthorized());
