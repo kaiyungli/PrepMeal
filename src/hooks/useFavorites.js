@@ -11,12 +11,13 @@ const normalizeId = (id) => {
 const favoritesFetcher = async ([url, token]) => {
   if (!token) return [];
   
+  console.log('[fav-perf]', performance.now().toFixed(2), 'initial_favorites_fetch_start');
+  
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
   
   if (!res.ok) {
-    // Attach status to error for SWR error handling
     const error = new Error(`Failed to load favorites: ${res.status} ${res.statusText}`);
     error.status = res.status;
     throw error;
@@ -24,6 +25,9 @@ const favoritesFetcher = async ([url, token]) => {
   
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
+  
+  console.log('[fav-perf]', performance.now().toFixed(2), 'initial_favorites_fetch_end', favoritesData.length);
+  
   return favoritesData.map(id => normalizeId(id));
 };
 
@@ -86,6 +90,8 @@ export function useFavorites(token) {
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
+    console.log('[fav-perf]', performance.now().toFixed(2), 'toggle_start', normalizedId);
+    
     // Guard: no token = can't toggle
     if (!token) {
       return false;
@@ -102,6 +108,8 @@ export function useFavorites(token) {
     const isFav = favoriteSet.has(normalizedId);
     const previousFavorites = [...favorites];
     
+    console.log('[fav-perf]', performance.now().toFixed(2), 'optimistic_update_applied', isFav ? 'unfavorite' : 'favorite');
+    
     // Optimistic update - immediately reflect in UI
     const newFavorites = isFav
       ? favorites.filter(id => id !== normalizedId)
@@ -110,6 +118,7 @@ export function useFavorites(token) {
     mutate(swrKey, newFavorites, false);
 
     try {
+      console.log('[fav-perf]', performance.now().toFixed(2), 'api_request_start', isFav ? 'DELETE' : 'POST');
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
@@ -127,7 +136,10 @@ export function useFavorites(token) {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
+      console.log('[fav-perf]', performance.now().toFixed(2), 'api_response_received', res.status);
+
       if (res.ok) {
+        console.log('[fav-perf]', performance.now().toFixed(2), 'revalidate_finished');
         // Success - revalidate to sync with server
         mutate(swrKey);
         return true;

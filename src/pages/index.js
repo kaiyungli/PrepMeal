@@ -30,7 +30,10 @@ export default function Home({ initialRecipes = [] }) {
   useEffect(() => {
     if (!authLoading) {
       if (isAuthenticated) {
-        getAccessToken().then(t => setToken(t));
+        getAccessToken().then(t => {
+          setToken(t);
+          console.log('[fav-perf]', performance.now().toFixed(2), 'token_ready', !!t);
+        });
       } else {
         setToken(null);
       }
@@ -46,6 +49,7 @@ export default function Home({ initialRecipes = [] }) {
       showToast('請先登入以收藏食譜', 'info');
       return;
     }
+    console.log('[fav-perf]', performance.now().toFixed(2), 'button_click', recipeId);
     toggleFavorite(recipeId);
   }, [isAuthenticated, toggleFavorite, showToast]);
 
