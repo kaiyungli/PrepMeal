@@ -8,7 +8,7 @@ import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/Toast';
+import Toast, { useToast } from '@/components/ui/Toast';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -481,6 +481,7 @@ const CONFIG = {
         />
 
         <Footer />
+        {toast && <Toast toast={toast} />}
       </div>
     </>
   );
