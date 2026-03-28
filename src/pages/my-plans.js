@@ -87,7 +87,7 @@ export default function MyPlansPage() {
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-[#3A2010]">我的餐單</h1>
-            <a href="/generate" className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">
+            <a href="/generate" className={UI.buttonPrimaryPill}>
               生成新餐單
             </a>
           </div>
