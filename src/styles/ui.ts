@@ -12,5 +12,8 @@ export const UI = {
   textLink: "font-medium text-[var(--color-primary)] hover:underline",
   textSubtleAction: "inline-flex items-center gap-1 font-medium mb-4 text-[var(--color-primary)] hover:underline cursor-pointer",
   buttonPrimaryPill: "inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold cursor-pointer bg-[var(--color-primary)] text-white hover:opacity-90",
+  textMuted: "text-[var(--color-text-muted)]",
+  textPrimary: "text-[var(--color-text-primary)]",
+  textAccent: "text-[var(--color-primary)]",
   input: "w-full rounded-xl px-4 py-2 border border-[var(--color-border)] bg-white text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]",
 };

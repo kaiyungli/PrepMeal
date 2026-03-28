@@ -85,7 +85,7 @@ export default function PlanDetailPage() {
       <>
         <Header />
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
-          <p className="text-[#AA7A50]">載入中...</p>
+          <p className="text-[var(--color-text-muted)]">載入中...</p>
         </div>
       </>
     );
@@ -107,21 +107,21 @@ export default function PlanDetailPage() {
 
           {dataLoading ? (
             <div className="text-center py-20">
-              <p className="text-[#AA7A50]">載入中...</p>
+              <p className="text-[var(--color-text-muted)]">載入中...</p>
             </div>
           ) : !plan ? (
             <div className="text-center py-20">
-              <p className="text-[#7A746B]">搵唔到呢個餐單</p>
+              <p className="text-[var(--color-text-muted)]">搵唔到呢個餐單</p>
             </div>
           ) : (
             <>
               {/* Plan header */}
               <div className={UI.card + " p-6 mb-6"}>
-                <h1 className="text-2xl font-bold text-[#3A2010]">{plan.name}</h1>
-                <p className="text-sm text-[#AA7A50] mt-2">
+                <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{plan.name}</h1>
+                <p className="text-sm text-[var(--color-text-muted)] mt-2">
                   {plan.days_count}天 · 開始日期: {formatDate(plan.week_start_date)}
                 </p>
-                <p className="text-xs text-[#7A746B] mt-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   建立於: {formatDate(plan.created_at)}
                 </p>
               </div>
@@ -129,7 +129,7 @@ export default function PlanDetailPage() {
               {/* Days */}
               {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
                 <div key={dayIndex} className={UI.card + " p-4 mb-4"}>
-                  <h3 className="text-lg font-semibold text-[#9B6035] mb-3">
+                  <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">
                     {DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`}
                   </h3>
                   
@@ -149,14 +149,14 @@ export default function PlanDetailPage() {
                             </div>
                           )}
                           <div className="flex-1">
-                            <p className="font-medium text-[#3A2010]">
+                            <p className="font-medium text-[var(--color-text-primary)]">
                               {item.recipe?.name || '未知食譜'}
                             </p>
-                            <p className="text-sm text-[#AA7A50]">
+                            <p className="text-sm text-[var(--color-text-muted)]">
                               {MEAL_TYPES[item.meal_type] || item.meal_type} · {item.servings}人份
                             </p>
                             {item.recipe && (
-                              <p className="text-xs text-[#7A746B] mt-1">
+                              <p className="text-xs text-[var(--color-text-muted)] mt-1">
                                 {item.recipe.total_time_minutes}分鐘 · {item.recipe.calories_per_serving}卡
                               </p>
                             )}
@@ -165,7 +165,7 @@ export default function PlanDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-[#AA7A50]">無安排</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">無安排</p>
                   )}
                 </div>
               ))}
