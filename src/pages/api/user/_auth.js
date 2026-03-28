@@ -11,6 +11,9 @@ function createAuthClient(token) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
+  console.log('[Auth] Supabase URL:', supabaseUrl);
+  console.log('[Auth] Supabase ANON_KEY set:', !!supabaseAnonKey);
+  
   if (!supabaseUrl || !supabaseAnonKey) {
     return null;
   }
