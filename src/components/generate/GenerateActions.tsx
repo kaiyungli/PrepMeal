@@ -52,7 +52,7 @@ export default function GenerateActions({
         <button
           onClick={onSave}
           disabled={!hasRecipes || isSaving}
-          className="px-5 py-2.5 bg-[#9B6035] text-white border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
+          className={UI.buttonPrimary + " text-sm font-semibold cursor-pointer"}
         >
           {isSaving ? '保存中...' : '💾 保存'}
         </button>
