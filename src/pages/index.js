@@ -37,13 +37,8 @@ export default function Home({ initialRecipes = [] }) {
     }
   }, [authLoading, isAuthenticated, getAccessToken]);
 
-  // useFavorites stays in index.js
-  const { isFavorite, isPending, toggleFavorite } = token ? useFavorites(token) : { 
-    favorites: [], 
-    isFavorite: () => false, 
-    isPending: () => false, 
-    toggleFavorite: () => Promise.resolve(false) 
-  };
+  // useFavorites stays in index.js - always call, hook handles null safely
+  const { isFavorite, isPending, toggleFavorite } = useFavorites(token);
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId) => {
@@ -124,12 +119,12 @@ export default function Home({ initialRecipes = [] }) {
 
   // Regenerate weekly plan when recipesList changes
   useEffect(() => {
-    if (!initialRecipes || initialRecipes.length === 0) {
+    if (!recipesList || recipesList.length === 0) {
       setWeeklyPlan([]);
     } else {
-      setWeeklyPlan(buildWeeklyPlan(initialRecipes));
+      setWeeklyPlan(buildWeeklyPlan(recipesList));
     }
-  }, [initialRecipes, buildWeeklyPlan]);
+  }, [recipesList, buildWeeklyPlan]);
 
   // Filters - stay in index.js
   const { 
@@ -150,8 +145,8 @@ export default function Home({ initialRecipes = [] }) {
 
   // Regenerate weekly plan
   const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(buildWeeklyPlan(initialRecipes));
-  }, [initialRecipes, buildWeeklyPlan]);
+    setWeeklyPlan(buildWeeklyPlan(recipesList));
+  }, [recipesList, buildWeeklyPlan]);
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showEmptyState = recipesList.length === 0;
