@@ -112,7 +112,7 @@ export default function MyPlansPage() {
                     <button 
                       onClick={() => handleDelete(plan.id)}
                       disabled={deleting === plan.id}
-                      className="text-[#AA7A50] hover:text-red-500 text-sm"
+                      className={UI.textDanger + (deleting === plan.id ? " opacity-50" : "")}
                     >
                       {deleting === plan.id ? '刪除中...' : '刪除'}
                     </button>
