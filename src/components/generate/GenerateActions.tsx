@@ -1,3 +1,4 @@
+import { UI } from '@/styles/ui';
 // Generate page action buttons component
 
 interface GenerateActionsProps {
@@ -38,7 +39,7 @@ export default function GenerateActions({
         <button
           onClick={onShoppingList}
           disabled={!hasRecipes}
-          className="px-5 py-2.5 bg-[#C8D49A] text-[#3A2010] border-none rounded-lg text-sm font-semibold cursor-pointer disabled:opacity-50"
+          className={"px-5 py-2.5 " + UI.buttonAccent + " text-sm font-semibold disabled:opacity-50 cursor-pointer"}
         >
           🛒 購物清單
         </button>
