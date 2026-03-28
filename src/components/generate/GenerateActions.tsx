@@ -39,7 +39,7 @@ export default function GenerateActions({
         <button
           onClick={onShoppingList}
           disabled={!hasRecipes}
-          className={"px-5 py-2.5 " + UI.buttonAccent + " text-sm font-semibold disabled:opacity-50 cursor-pointer"}
+          className={UI.buttonAccent + " text-sm font-semibold disabled:opacity-50 cursor-pointer"}
         >
           🛒 購物清單
         </button>

@@ -1,11 +1,11 @@
 // Reusable UI style constants using design tokens
 
 export const UI = {
-  card: "rounded-xl border border-[#E5DCC8] bg-white shadow-sm",
-  cardElevated: "rounded-xl border border-[#E5DCC8] bg-white shadow-md",
-  notice: "flex items-center gap-2 rounded-2xl border border-[#DDD0B0] bg-[#F8F3E8] px-5 py-3 shadow-sm",
-  buttonPrimary: "bg-[#9B6035] text-white rounded-xl px-4 py-2 font-medium hover:opacity-90",
-  buttonSecondary: "border border-[#DDD0B0] bg-[#F8F3E8] text-[#3A2010] rounded-xl px-4 py-2 hover:bg-[#DDD0B0]/30",
-  buttonAccent: "bg-[#C8D49A] text-[#3A2010] rounded-xl px-4 py-2 font-medium hover:opacity-90",
-  input: "w-full px-4 py-2 rounded-xl border border-[#DDD0B0] bg-white text-[#3A2010] focus:outline-none focus:border-[#9B6035]",
+  card: "rounded-xl border border-[var(--color-border)] bg-white shadow-sm",
+  cardElevated: "rounded-xl border border-[var(--color-border)] bg-white shadow-md",
+  notice: "flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-3 shadow-sm",
+  buttonPrimary: "rounded-xl px-4 py-2 font-medium bg-[var(--color-primary)] text-white hover:opacity-90",
+  buttonSecondary: "rounded-xl px-4 py-2 border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg)]/80",
+  buttonAccent: "rounded-xl px-4 py-2 font-medium bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:opacity-90",
+  input: "w-full rounded-xl px-4 py-2 border border-[var(--color-border)] bg-white text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]",
 };
