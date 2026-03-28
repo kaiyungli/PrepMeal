@@ -1,7 +1,25 @@
 // Unified API helper for /api/user/* endpoints
 // Provides consistent auth, response patterns, and error handling
 
-import supabase from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Dedicated server-side client for auth verification (not browser client)
+function createServerClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[Auth] Missing Supabase env vars for server client');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  });
+}
 
 /**
  * Extract user ID from Authorization Bearer token
@@ -10,27 +28,47 @@ import supabase from '@/lib/supabase';
 export async function getUserIdFromRequest(req) {
   const authHeader = req.headers.authorization;
   
+  // === DIAGNOSTICS ===
+  console.log('[Auth] Authorization header exists:', !!authHeader);
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('[Auth] No valid Bearer token');
     return null;
   }
   
   const token = authHeader.substring(7);
+  
+  // === DIAGNOSTICS ===
+  console.log('[Auth] Token exists:', !!token, 'Token length:', token?.length);
   
   if (!token) {
     return null;
   }
   
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const serverClient = createServerClient();
+    
+    if (!serverClient) {
+      console.error('[Auth] Could not create server client');
+      return null;
+    }
+    
+    const { data: { user }, error } = await serverClient.auth.getUser(token);
+    
+    // === DIAGNOSTICS ===
+    if (error) {
+      console.error('[Auth] getUser error:', error);
+    } else {
+      console.log('[Auth] getUser success, user id:', user?.id);
+    }
     
     if (error || !user) {
-      console.error('[Auth] getUser error:', error);
       return null;
     }
     
     return user.id;
   } catch (err) {
-    console.error('[Auth] Token verification error:', err);
+    console.error('[Auth] Token verification exception:', err);
     return null;
   }
 }
@@ -73,6 +111,9 @@ export const ApiResponse = {
  */
 export async function requireAuth(req, res) {
   const userId = await getUserIdFromRequest(req);
+  
+  // === DIAGNOSTICS ===
+  console.log('[Auth] requireAuth resolved userId:', userId);
   
   if (!userId) {
     res.status(401).json(ApiResponse.unauthorized());
