@@ -51,6 +51,9 @@ export default function GeneratePage() {
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
   
+  // Explicit day index mapping for deterministic day_index
+  const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
+  
   // Recipe State
   const [allRecipes, setAllRecipes] = useState([]);
   
@@ -376,13 +379,14 @@ const CONFIG = {
             const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
             if (!name) return;
             
-            // Build normalized items from weeklyPlan
+            // Build normalized items from weeklyPlan using explicit day mapping
             // weeklyPlan structure: { mon: [recipe, recipe], tue: [recipe, recipe], ... }
             const items = [];
-            const dayKeys = Object.keys(weeklyPlan);
-            dayKeys.forEach((dayKey) => {
+            Object.keys(weeklyPlan).forEach((dayKey) => {
+              const dayIndex = DAY_INDEX_MAP[dayKey];
+              if (dayIndex === undefined) return; // Skip invalid day keys
+              
               const dayRecipes = weeklyPlan[dayKey] || [];
-              const dayIndex = dayKeys.indexOf(dayKey);
               dayRecipes.forEach((recipe) => {
                 if (recipe && recipe.id) {
                   items.push({
@@ -400,8 +404,15 @@ const CONFIG = {
               return;
             }
             
+            // Get token and verify before sending request
+            const token = await getAccessToken();
+            if (!token) {
+              alert('登入狀態已失效，請重新登入');
+              window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+            
             try {
-              const token = await getAccessToken();
               const res = await fetch('/api/user/menus', {
                 method: 'POST',
                 headers: { 
