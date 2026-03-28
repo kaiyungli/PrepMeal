@@ -1,8 +1,8 @@
 // Reusable UI style constants using design tokens
 
 export const UI = {
-  card: "rounded-xl border border-[var(--color-border)] bg-white shadow-sm",
-  cardElevated: "rounded-xl border border-[var(--color-border)] bg-white shadow-md",
+  card: "rounded-2xl border border-[var(--color-border)] bg-white shadow-sm",
+  cardElevated: "rounded-2xl border border-[var(--color-border)] bg-white shadow-md",
   notice: "flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] px-5 py-3 shadow-sm",
   buttonPrimary: "rounded-xl px-5 py-2.5 text-sm font-semibold cursor-pointer bg-[var(--color-primary)] text-white hover:opacity-90",
   buttonSecondary: "rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-primary)] hover:bg-[var(--color-bg)]/80",
