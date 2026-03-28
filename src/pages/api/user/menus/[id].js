@@ -42,6 +42,7 @@ export default async function handler(req, res) {
       }
       
       // Transform DB fields to frontend-safe response
+      // Note: menu_plans does NOT have notes column, return null
       const planResponse = {
         id: plan.id,
         user_id: plan.user_id,
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
         days_count: plan.end_date && plan.start_date 
           ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
           : 7,
-        notes: plan.notes,
+        notes: null,
         created_at: plan.created_at,
       };
       

@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       }
       
       // Transform DB fields to frontend-safe response
+      // Note: menu_plans does NOT have notes column, return null
       const plans = (data || []).map(plan => ({
         id: plan.id,
         user_id: plan.user_id,
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
         days_count: plan.end_date && plan.start_date 
           ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
           : 7,
-        notes: plan.notes,
+        notes: null,
         created_at: plan.created_at,
       }));
       
@@ -71,7 +72,8 @@ export default async function handler(req, res) {
         const end_date = endDate.toISOString().split('T')[0];
 
         // Insert parent plan using real schema: menu_plans
-        // Maps: name → title, week_start_date → start_date, days_count → end_date
+        // Maps: name → title, week_start_date → start_date
+        // Note: menu_plans does NOT have notes column
         const { data: plan, error: planError } = await userSupabase
           .from('menu_plans')
           .insert({
@@ -79,7 +81,6 @@ export default async function handler(req, res) {
             title: name,
             start_date: week_start_date,
             end_date: end_date,
-            notes: notes || null,
           })
           .select()
           .single();
@@ -89,24 +90,33 @@ export default async function handler(req, res) {
         }
 
         // Insert items using real schema: menu_plan_items
-        // Maps:
-        // - day_index + week_start_date → date
-        // - meal_type → meal_slot
-        // - servings → servings
-        // - recipe_id → recipe_id
-        // - add item_order and source
-        const itemsToInsert = items.map((item, index) => {
+        // Compute item_order per (date, meal_slot) group
+        const itemsByGroup = {};
+        items.forEach((item) => {
           const itemDate = new Date(week_start_date);
           itemDate.setDate(itemDate.getDate() + (item.day_index || 0));
-          return {
-            menu_plan_id: plan.id,
-            date: itemDate.toISOString().split('T')[0],
-            meal_slot: item.meal_type || 'dinner',
-            recipe_id: item.recipe_id,
-            servings: item.servings || 1,
-            item_order: index + 1,
-            source: 'generated',
-          };
+          const dateStr = itemDate.toISOString().split('T')[0];
+          const mealSlot = item.meal_type || 'dinner';
+          const key = `${dateStr}_${mealSlot}`;
+          if (!itemsByGroup[key]) itemsByGroup[key] = [];
+          itemsByGroup[key].push(item);
+        });
+        
+        const itemsToInsert = [];
+        Object.values(itemsByGroup).forEach(groupItems => {
+          groupItems.forEach((item, idx) => {
+            const itemDate = new Date(week_start_date);
+            itemDate.setDate(itemDate.getDate() + (item.day_index || 0));
+            itemsToInsert.push({
+              menu_plan_id: plan.id,
+              date: itemDate.toISOString().split('T')[0],
+              meal_slot: item.meal_type || 'dinner',
+              recipe_id: item.recipe_id,
+              servings: item.servings || 1,
+              item_order: idx + 1,  // Restarts at 1 for each date+meal_slot group
+              source: 'generated',
+            });
+          });
         });
 
         const { error: itemsError } = await userSupabase
