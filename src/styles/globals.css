@@ -6,6 +6,11 @@
   --color-primary: #9B6035;
   --color-accent: #F0A060;
   --color-footer: #2A1A08;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-text-primary: #3A2010;
+  --color-text-muted: #AA7A50;
+  --color-border: #DDD0B0;
 }
 
 :root {

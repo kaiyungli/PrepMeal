@@ -489,7 +489,7 @@ const CONFIG = {
 
         <Footer />
         {saveNotice && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium">
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-[var(--color-success)] text-[var(--color-success-foreground)] px-6 py-3 rounded-lg shadow-lg font-medium">
             {saveNotice}
           </div>
         )}
