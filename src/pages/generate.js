@@ -376,7 +376,7 @@ const CONFIG = {
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return;
             }
-            const name = prompt('輸入餐單名稱:', `餐單 ${new Date().toLocaleDateString('zh-HK')}`);
+            const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
             if (!name) return;
             
             // Build normalized items from weeklyPlan using explicit day mapping
@@ -428,7 +428,12 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.success === false && data.error) throw new Error(data.error);
-              alert('已保存餐單！');
+              const planId = data.data?.plan?.id;
+              if (planId) {
+                router.push(`/my-plans/${planId}`);
+              } else {
+                alert('已保存餐單！');
+              }
             } catch (e) {
               alert('保存失敗: ' + e.message);
             }
