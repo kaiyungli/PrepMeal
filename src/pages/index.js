@@ -9,8 +9,7 @@ import HomeFiltersBar from '@/components/home/HomeFiltersBar';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
-import { useAuth } from '@/hooks/useAuth';
-import { useFavorites } from '@/hooks/useFavorites';
+import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
@@ -23,25 +22,13 @@ export default function Home({ initialRecipes = [] }) {
   // Weekly plan state - separate from selectedRecipe
   const [weeklyPlan, setWeeklyPlan] = useState([]);
 
-  // Auth for favorites - stays in index.js
-  const { isAuthenticated, getAccessToken, loading: authLoading } = useAuth();
-  const [token, setToken] = useState(null);
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (isAuthenticated) {
-        getAccessToken().then(t => {
-          setToken(t);
-          console.log('[fav-perf]', performance.now().toFixed(2), 'token_ready', !!t);
-        });
-      } else {
-        setToken(null);
-      }
-    }
-  }, [authLoading, isAuthenticated, getAccessToken]);
-
-  // useFavorites stays in index.js - always call, hook handles null safely
-  const { isFavorite, isPending, toggleFavorite } = useFavorites(token);
+  // Central user state
+  const { 
+    isAuthenticated,
+    isFavorite, 
+    isPending, 
+    toggleFavorite 
+  } = useUserState();
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId) => {
