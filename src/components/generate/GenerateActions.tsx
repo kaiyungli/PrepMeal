@@ -29,7 +29,7 @@ export default function GenerateActions({
         {hasRecipes && (
           <button
             onClick={onClear}
-            className="px-3 py-1.5 bg-transparent border border-[#DDD0B0] rounded-md text-xs text-[#AA7A50] cursor-pointer"
+            className={UI.buttonGhost}
           >
             🗑️ 清空
           </button>
