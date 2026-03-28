@@ -1,36 +1,24 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
-import { useFavorites } from '@/hooks/useFavorites';
-import { useAuth } from '@/hooks/useAuth';
+import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
 export default function RecipesPage({ initialRecipes }) {
-  // Public page - use useAuth for auth-aware features (not useAuthGuard which forces auth)
-  const { isAuthenticated, getAccessToken, user, loading: authLoading } = useAuth();
+  // Central user state
+  const { 
+    isAuthenticated,
+    isFavorite,
+    toggleFavorite,
+    favoritesLoading: isPending,
+  } = useUserState();
   
-  // Get token for SWR - load when auth becomes ready
-  const [token, setToken] = useState(null);
-  
-  // Load token when auth state is ready and user is authenticated
-  useEffect(() => {
-    if (!authLoading) {
-      if (isAuthenticated) {
-        getAccessToken().then(t => setToken(t));
-      } else {
-        setToken(null);
-      }
-    }
-  }, [authLoading, isAuthenticated, getAccessToken]);
-  
-  // Single source of truth for favorites
-  const { favorites, isFavorite, isPending, toggleFavorite } = useFavorites(token);
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   
