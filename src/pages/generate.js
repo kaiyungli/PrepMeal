@@ -8,7 +8,7 @@ import PantryChipInput from '@/components/home/PantryChipInput';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
-import Toast, { useToast } from '@/components/ui/Toast';
+
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -51,7 +51,7 @@ export default function GeneratePage() {
   
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
-  const { toast, showToast } = useToast();
+  const [saveNotice, setSaveNotice] = useState('');
   
   // Explicit day index mapping for deterministic day_index
   const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
@@ -430,7 +430,8 @@ const CONFIG = {
               });
               const data = await res.json();
               if (data.success === false && data.error) throw new Error(data.error);
-              showToast(`✅ 已保存餐單：${name}`);
+              setSaveNotice(`✅ 已保存餐單：${name}`);
+              setTimeout(() => setSaveNotice(''), 3000);
             } catch (e) {
               alert('保存失敗: ' + e.message);
             }
@@ -481,7 +482,12 @@ const CONFIG = {
         />
 
         <Footer />
-        {toast && <Toast toast={toast} />}
+        {saveNotice && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium">
+            {saveNotice}
+          </div>
+        )}
+
       </div>
     </>
   );
