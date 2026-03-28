@@ -6,6 +6,7 @@ import Toast from '@/components/ui/Toast';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { UI } from '@/styles/ui';
 
 export default function MyPlansPage() {
   // Use centralized auth guard - includes getAccessToken
@@ -105,7 +106,7 @@ export default function MyPlansPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {plans.map((plan) => (
-                <div key={plan.id} className="bg-white rounded-2xl p-6 shadow-sm border border-[#DDD0B0]">
+                <div key={plan.id} className={UI.card + " p-6"}>
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-[#3A2010]">{plan.name || '未命名餐單'}</h3>
                     <button 
@@ -121,7 +122,7 @@ export default function MyPlansPage() {
                   </p>
                   <a 
                     href={`/my-plans/${plan.id}`}
-                    className="block text-center py-2 rounded-lg bg-[#C8D49A] text-[#3A2010] font-medium hover:bg-[#B8C489]"
+                    className={"block text-center py-2 " + UI.buttonAccent}
                   >
                     查看詳情
                   </a>
