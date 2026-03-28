@@ -9,7 +9,7 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function MyPlansPage() {
   // Use centralized auth guard - includes getAccessToken
-  const { isAuthenticated, authLoading, getAccessToken, requireAuth } = useAuthGuard();
+  const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(null);
