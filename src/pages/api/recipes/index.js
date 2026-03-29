@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     
     
     // Build query safely - select only fields needed for recipe cards
-    const view = url.searchParams.get('view');
+    const { view } = req.query;
     const isGenerateView = view === 'generate';
     
     // Lightweight fields for generate page / planner
