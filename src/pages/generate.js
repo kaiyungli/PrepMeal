@@ -42,6 +42,7 @@ export default function GeneratePage() {
     toggleExclusion,
     toggleCuisine,
     toggleConstraint,
+    clearFilters,
     filters, // NEW: derived unified filters
     setFilters, // NEW: setter for unified filters
   } = useGeneratePreferences();
