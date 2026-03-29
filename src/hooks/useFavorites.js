@@ -88,6 +88,7 @@ export function useFavorites(token) {
   // Toggle favorite - optimistic update with rollback
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
+    const toggleStart = perfNow();
     
     perfMeasure('useFavorites.toggleFavorite', toggleStart);
     
@@ -117,7 +118,7 @@ export function useFavorites(token) {
     mutate(swrKey, newFavorites, false);
 
     try {
-      console.log('[fav-perf]', performance.now().toFixed(2), 'api_request_start', isFav ? 'DELETE' : 'POST');
+      
       const res = isFav
         ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
             method: 'DELETE',
@@ -135,10 +136,10 @@ export function useFavorites(token) {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
 
-      console.log('[fav-perf]', performance.now().toFixed(2), 'api_response_received', res.status);
+      
 
       if (res.ok) {
-        console.log('[fav-perf]', performance.now().toFixed(2), 'revalidate_finished');
+        
         // Already applied optimistic update - no revalidation needed
         return true;
       }
