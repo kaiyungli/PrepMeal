@@ -52,9 +52,14 @@ export default async function handler(req, res) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
     }
     
-    // Cuisine filter
+    // Cuisine filter - support comma-separated multi-select
     if (cuisine && cuisine !== '' && typeof cuisine === 'string') {
-      query = query.eq('cuisine', cuisine)
+      const cuisineValues = cuisine.split(',').map(v => v.trim()).filter(Boolean);
+      if (cuisineValues.length === 1) {
+        query = query.eq('cuisine', cuisineValues[0]);
+      } else if (cuisineValues.length > 1) {
+        query = query.in('cuisine', cuisineValues);
+      }
     }
     
     // Dish type filter
@@ -62,9 +67,14 @@ export default async function handler(req, res) {
       query = query.eq('dish_type', dish_type)
     }
     
-    // Difficulty filter
+    // Difficulty filter - support comma-separated multi-select
     if (difficulty && difficulty !== '' && typeof difficulty === 'string') {
-      query = query.eq('difficulty', difficulty)
+      const diffValues = difficulty.split(',').map(v => v.trim()).filter(Boolean);
+      if (diffValues.length === 1) {
+        query = query.eq('difficulty', diffValues[0]);
+      } else if (diffValues.length > 1) {
+        query = query.in('difficulty', diffValues);
+      }
     }
     
     // Exclusions filter - exclude recipes with these proteins
@@ -76,14 +86,24 @@ export default async function handler(req, res) {
       }
     }
     
-    // Method filter
+    // Method filter - support comma-separated multi-select
     if (method && method !== '' && typeof method === 'string') {
-      query = query.eq('method', method)
+      const methodValues = method.split(',').map(v => v.trim()).filter(Boolean);
+      if (methodValues.length === 1) {
+        query = query.eq('method', methodValues[0]);
+      } else if (methodValues.length > 1) {
+        query = query.in('method', methodValues);
+      }
     }
     
-    // Protein filter (primary_protein)
+    // Protein filter (primary_protein) - support comma-separated multi-select
     if (protein && protein !== '' && typeof protein === 'string') {
-      query = query.eq('primary_protein', protein)
+      const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);
+      if (proteinValues.length === 1) {
+        query = query.eq('primary_protein', proteinValues[0]);
+      } else if (proteinValues.length > 1) {
+        query = query.in('primary_protein', proteinValues);
+      }
     }
     
     // Budget filter

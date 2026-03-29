@@ -100,7 +100,7 @@ export default function GeneratePage() {
     
     // Use unified filters for API params where supported
     if (filters.cuisine.length > 0) params.set('cuisine', filters.cuisine.join(','));
-    if (filters.difficulty.length > 0) params.set('difficulty', filters.difficulty[0]); // API takes single value
+    if (filters.difficulty.length > 0) params.set('difficulty', filters.difficulty.join(','));
     if (filters.speed.length > 0) {
       // Map speed to maxTime using centralized helper
     const maxTime = getMaxTimeFromSpeedFilters(filters.speed);
@@ -115,6 +115,8 @@ export default function GeneratePage() {
     if (filters.method.length > 0) {
       params.set('method', filters.method.join(','));
     }
+    
+    
     
     const t0 = perfNow();
       fetch('/api/recipes?' + params.toString())
