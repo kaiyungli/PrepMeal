@@ -6,7 +6,7 @@
 -- Updates recipe + replaces all related data in single transaction
 -- ============================================================
 CREATE OR REPLACE FUNCTION admin_update_recipe_atomic(
-  p_recipe_id BIGINT,
+  p_recipe_id UUID,
   p_name TEXT,
   p_slug TEXT,
   p_description TEXT,
@@ -30,7 +30,7 @@ AS $$
 DECLARE
   v_result JSONB;
 BEGIN
-  -- Update recipe row
+  -- Update recipe row (no updated_at - not in schema)
   UPDATE recipes SET
     name = p_name,
     slug = p_slug,
@@ -44,8 +44,7 @@ BEGIN
     image_url = p_image_url,
     calories_per_serving = p_calories_per_serving,
     is_public = p_is_public,
-    tags = p_tags,
-    updated_at = NOW()
+    tags = p_tags
   WHERE id = p_recipe_id;
 
   -- Delete existing ingredients
@@ -56,9 +55,9 @@ BEGIN
     INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_id, is_optional, notes, group_key)
     SELECT 
       p_recipe_id,
-      (j->>'ingredient_id')::BIGINT,
+      (j->>'ingredient_id')::UUID,
       (j->>'quantity')::NUMERIC,
-      (j->>'unit_id')::BIGINT,
+      (j->>'unit_id')::UUID,
       COALESCE((j->>'is_optional')::BOOLEAN, FALSE),
       NULLIF(j->>'notes', ''),
       NULLIF(j->>'group_key', '')
@@ -134,7 +133,7 @@ $$;
 -- Deletes recipe + all related data in single transaction
 -- ============================================================
 CREATE OR REPLACE FUNCTION admin_delete_recipe_atomic(
-  p_recipe_id BIGINT
+  p_recipe_id UUID
 )
 RETURNS JSONB
 LANGUAGE plpgsql

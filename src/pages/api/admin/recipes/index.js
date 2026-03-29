@@ -8,9 +8,6 @@ const isAdmin = (req) => requireAdmin(req)
 const db = supabaseServer || supabase
 const usingServiceRole = !!supabaseServer
 
-// Use anon client for read operations (needs auth)
-const dbRead = supabase
-
 export default async function handler(req, res) {
   const { method, query, body } = req;
   
@@ -264,7 +261,13 @@ export default async function handler(req, res) {
       }
       
       console.log('[ADMIN RECIPES] Recipe updated atomically:', id);
-      return res.status(200).json({ recipe: data.recipe, ingredients: data.ingredients, steps: data.steps });
+      return res.status(200).json({ 
+        recipe: { 
+          ...data.recipe, 
+          ingredients: data.ingredients || [], 
+          steps: data.steps || [] 
+        } 
+      });
     }
     
     // DELETE - Delete recipe
