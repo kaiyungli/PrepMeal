@@ -67,8 +67,8 @@ function HomeRecipeGrid({
           key={recipe.id}
           recipe={recipe}
           onRecipeClick={onRecipeClick}
-          isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
-          isPending={isPending ? isPending(recipe.id) : undefined}
+          isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
+          isPending={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
           onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
         />
       ))}

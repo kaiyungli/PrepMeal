@@ -46,9 +46,9 @@ function RecipeList({
           key={recipe.id}
           recipe={recipe}
           onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
-          isFavorite={isFavorite ? isFavorite(recipe.id) : undefined}
-          favoriteLoading={isPending ? isPending(recipe.id) : undefined}
-          onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
+          isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
+          favoriteLoading={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
+          onFavoriteClick={typeof onFavoriteClick === 'function' ? () => onFavoriteClick(recipe.id) : undefined}
           isAuthenticated={isAuthenticated}
         />
       ))}
