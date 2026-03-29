@@ -116,6 +116,11 @@ export default function GeneratePage() {
       params.set('method', filters.method.join(','));
     }
     
+    // Use unified filters.protein for protein filtering
+    if (filters.protein && filters.protein.length > 0) {
+      params.set('protein', filters.protein.join(','));
+    }
+    
     
     
     const t0 = perfNow();

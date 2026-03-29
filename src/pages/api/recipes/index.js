@@ -125,11 +125,13 @@ export default async function handler(req, res) {
       }
     }
     
-    // Diet filter (array contains)
+    // Diet filter (array contains) - AND semantics
+    // Multiple diet values require recipe to match ALL selected diets
     if (diet && diet !== '' && typeof diet === 'string') {
-      // Diet is an array column, use contains
-      const dietValues = diet.split(',');
-      query = query.contains('diet', dietValues)
+      const dietValues = diet.split(',').map(v => v.trim()).filter(Boolean);
+      if (dietValues.length > 0) {
+        query = query.contains('diet', dietValues)
+      }
     }
     
     // Sorting
