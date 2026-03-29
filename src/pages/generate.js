@@ -95,9 +95,14 @@ export default function GeneratePage() {
   }, [showShoppingList, shoppingListLoaded]);
 
   useEffect(() => {
+    // Debug: log fetch trigger
+    const fetchSeq = (window.__fetchSeq = (window.__fetchSeq || 0) + 1);
+    
     // Build filter params for API (server-side filtering)
     const params = new URLSearchParams();
     params.set('limit', '100');
+    
+    console.log(`[generate] fetch #${fetchSeq} triggered, params:`, params.toString());
     
     // Use unified filters for API params where supported
     if (filters.cuisine.length > 0) params.set('cuisine', filters.cuisine.join(','));
@@ -128,12 +133,14 @@ export default function GeneratePage() {
       fetch('/api/recipes?' + params.toString())
         .then(res => res.json())
         .then(data => {
+          const duration = performance.now() - t0;
+          console.log(`[generate] fetch #${fetchSeq} completed in ${duration.toFixed(2)}ms, count:`, data.recipes?.length);
           perfMeasure('generate.recipesFetch', t0);
           const recipes = data.recipes || [];
           setAllRecipes(recipes);
         })
       .catch(() => {});
-  }, [cuisines, cookingConstraints, exclusions, filters]);
+  }, [filters, exclusions]);
 
   // Read pantry ingredients from URL
   useEffect(() => {
