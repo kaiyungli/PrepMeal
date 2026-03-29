@@ -2,7 +2,6 @@ import { requireAdmin } from '@/lib/adminAuth';
 import { supabaseServer } from '@/lib/supabaseServer';
 
 export default async function handler(req, res) {
-  // Admin auth check
   if (!requireAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -13,14 +12,24 @@ export default async function handler(req, res) {
 
   const { method, query, body } = req;
 
-  // GET - List all ingredients
+  // GET - List all ingredients (optionally search + limit)
   if (method === 'GET') {
     try {
-      const { data, error } = await supabaseServer
+      let queryBuilder = supabaseServer
         .from('ingredients')
-        .select('*')
-        .order('name');
+        .select('id, name, slug, aliases, shopping_category, is_pantry_default')
+        .order('name', { ascending: true });
 
+      // Optional search by name or slug
+      if (query?.search) {
+        queryBuilder = queryBuilder.or(`name.ilike.%${query.search}%,slug.ilike.%${query.search}%`);
+      }
+      // Optional limit
+      if (query?.limit) {
+        queryBuilder = queryBuilder.limit(parseInt(query.limit, 10));
+      }
+
+      const { data, error } = await queryBuilder;
       if (error) throw error;
       return res.status(200).json({ ingredients: data || [] });
     } catch (err) {
@@ -32,34 +41,35 @@ export default async function handler(req, res) {
   if (method === 'POST') {
     const { name, slug, aliases, shopping_category, is_pantry_default } = body;
 
-    if (!name) {
+    if (!name?.trim()) {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    // Generate slug if not provided
-    let finalSlug = slug;
-    if (!finalSlug && name) {
-      finalSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    }
+    // Normalize slug: lowercase, replace spaces with underscores, keep alphanumeric + underscore
+    const rawSlug = (slug || name).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
+    const finalSlug = rawSlug || name.toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
 
-    // Check for duplicate
-    if (finalSlug) {
-      const { data: existing } = await supabaseServer
-        .from('ingredients')
-        .select('id')
-        .eq('slug', finalSlug)
-        .single();
+    // Robust duplicate check using .limit(1) to avoid .single() errors
+    const { data: existing } = await supabaseServer
+      .from('ingredients')
+      .select('id')
+      .eq('slug', finalSlug)
+      .limit(1);
 
-      if (existing) {
-        return res.status(400).json({ error: 'Ingredient with this slug already exists' });
-      }
+    if (existing && existing.length > 0) {
+      return res.status(400).json({ error: 'Ingredient with this slug already exists' });
     }
 
     try {
-      const insertData = { name, slug: finalSlug, aliases, shopping_category, is_pantry_default };
       const { data, error } = await supabaseServer
         .from('ingredients')
-        .insert([insertData])
+        .insert([{
+          name: name.trim(),
+          slug: finalSlug,
+          aliases: aliases || [],
+          shopping_category: shopping_category || '其他',
+          is_pantry_default: is_pantry_default || false
+        }])
         .select()
         .single();
 
@@ -80,7 +90,13 @@ export default async function handler(req, res) {
     const { name, slug, aliases, shopping_category, is_pantry_default } = body;
 
     try {
-      const updateData = { name, slug, aliases, shopping_category, is_pantry_default };
+      const updateData = {};
+      if (name !== undefined) updateData.name = name.trim();
+      if (slug !== undefined) updateData.slug = slug.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
+      if (aliases !== undefined) updateData.aliases = aliases;
+      if (shopping_category !== undefined) updateData.shopping_category = shopping_category;
+      if (is_pantry_default !== undefined) updateData.is_pantry_default = is_pantry_default;
+
       const { data, error } = await supabaseServer
         .from('ingredients')
         .update(updateData)

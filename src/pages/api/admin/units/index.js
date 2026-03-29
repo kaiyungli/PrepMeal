@@ -2,7 +2,6 @@ import { requireAdmin } from '@/lib/adminAuth';
 import { supabaseServer } from '@/lib/supabaseServer';
 
 export default async function handler(req, res) {
-  // Admin auth check
   if (!requireAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -13,17 +12,22 @@ export default async function handler(req, res) {
 
   const { method, query, body } = req;
 
-  // GET - List all units
+  // GET - List all units (optionally search + limit)
   if (method === 'GET') {
     try {
-      let queryBuilder = supabaseServer.from('units').select('*').order('code');
+      let queryBuilder = supabaseServer
+        .from('units')
+        .select('id, code, name, unit_type, to_base')
+        .order('unit_type', { ascending: true })
+        .order('name', { ascending: true });
 
-      // Support optional search/limit params
+      // Optional search by name
       if (query?.search) {
         queryBuilder = queryBuilder.ilike('name', `%${query.search}%`);
       }
+      // Optional limit
       if (query?.limit) {
-        queryBuilder = queryBuilder.limit(parseInt(query.limit));
+        queryBuilder = queryBuilder.limit(parseInt(query.limit, 10));
       }
 
       const { data, error } = await queryBuilder;
@@ -38,25 +42,33 @@ export default async function handler(req, res) {
   if (method === 'POST') {
     const { code, name, unit_type, to_base } = body;
 
-    if (!code || !name) {
+    if (!code?.trim() || !name?.trim()) {
       return res.status(400).json({ error: 'Code and name are required' });
     }
 
-    // Check for duplicate code
+    // Normalize code: lowercase, no spaces
+    const finalCode = code.trim().toLowerCase().replace(/\s+/g, '');
+
+    // Robust duplicate check using .limit(1) to avoid .single() errors
     const { data: existing } = await supabaseServer
       .from('units')
       .select('id')
-      .eq('code', code)
-      .single();
+      .eq('code', finalCode)
+      .limit(1);
 
-    if (existing) {
+    if (existing && existing.length > 0) {
       return res.status(400).json({ error: 'Unit with this code already exists' });
     }
 
     try {
       const { data, error } = await supabaseServer
         .from('units')
-        .insert([{ code, name, unit_type, to_base }])
+        .insert([{
+          code: finalCode,
+          name: name.trim(),
+          unit_type: unit_type || 'other',
+          to_base: to_base || 1
+        }])
         .select()
         .single();
 
@@ -77,9 +89,15 @@ export default async function handler(req, res) {
     const { code, name, unit_type, to_base } = body;
 
     try {
+      const updateData = {};
+      if (code !== undefined) updateData.code = code.trim().toLowerCase().replace(/\s+/g, '');
+      if (name !== undefined) updateData.name = name.trim();
+      if (unit_type !== undefined) updateData.unit_type = unit_type;
+      if (to_base !== undefined) updateData.to_base = to_base;
+
       const { data, error } = await supabaseServer
         .from('units')
-        .update({ code, name, unit_type, to_base })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
