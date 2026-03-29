@@ -1,37 +1,97 @@
 /**
  * Hook for generate page preferences and filters
  * 
- * @deprecated This hook maintains legacy state for backward compatibility with generate.js.
- * The UI now uses FILTER_GROUPS from @/constants/filters, but the state is still passed
- * through this hook for server-side filtering via API params.
- * 
- * TODO: Refactor generate.js to use unified filter state from useRecipeFilters
- * and pass to server via the same recipeMatchesFilters-compatible params.
+ * Architecture:
+ * - Planning settings (daysPerWeek, servings, etc.) are separate
+ * - Unified filters are the real source of truth for filter state
+ * - setFilters directly updates filters state (no legacy mapping)
+ * - Legacy fields (cuisines, cookingConstraints, dietMode) are derived from filters for server-side API params
  */
 import { useState, useCallback, useMemo } from 'react';
-import { buildGenerateFiltersFromLegacy } from '@/utils/generateFilterAdapter';
+
+// Unified filter state type
+const INITIAL_FILTERS = {
+  cuisine: [],
+  dish_type: [],
+  protein: [],
+  method: [],
+  speed: [],
+  difficulty: [],
+  diet: [],
+  flavor: []
+};
 
 export function useGeneratePreferences() {
-  // Planning settings
+  // === Unified Filters State (Source of Truth) ===
+  const [filters, setFiltersState] = useState(INITIAL_FILTERS);
+
+  // === Planning Settings ===
   const [daysPerWeek, setDaysPerWeek] = useState(7);
   const [dishesPerDay, setDishesPerDay] = useState(1);
   const [servings, setServings] = useState(2);
   
-  // Preference settings  
-  const [dietMode, setDietMode] = useState('general');
+  // === Preference Settings ===
   const [budget, setBudget] = useState('normal');
   const [ingredientReuse, setIngredientReuse] = useState('normal');
-  
-  // Legacy filter state - kept for server-side API filtering
-  // These map to the new FILTER_GROUPS concepts:
-  // - cuisines -> cuisine filter (FILTER_GROUPS[0])
-  // - cookingConstraints -> difficulty + method + speed filters (FILTER_GROUPS[4,5,6])
-  // - exclusions -> protein filter (FILTER_GROUPS[2]) - for allergy exclusions
-  const [exclusions, setExclusions] = useState([]);  // Maps to protein filter
-  const [cuisines, setCuisines] = useState([]);       // Maps to cuisine filter
-  const [cookingConstraints, setCookingConstraints] = useState([]); // Maps to difficulty/method/speed
+  const [exclusions, setExclusions] = useState([]);  // Separate: avoid vs include
 
-  // Toggle handlers
+  // === Legacy-derived state for server-side API params ===
+  // Derive cuisines from filters.cuisine
+  const cuisines = filters.cuisine;
+  const setCuisines = useCallback((values) => {
+    setFiltersState(prev => ({ ...prev, cuisine: Array.isArray(values) ? values : [] }));
+  }, []);
+
+  // Derive cookingConstraints from filters.difficulty + filters.method + filters.speed
+  const cookingConstraints = useMemo(() => {
+    const constraints = [];
+    if (filters.difficulty) constraints.push(...filters.difficulty);
+    if (filters.method) constraints.push(...filters.method);
+    // Convert speed to legacy format
+    if (filters.speed) {
+      for (const speed of filters.speed) {
+        if (speed === 'quick') constraints.push('under_15');
+        else if (speed === 'normal') constraints.push('under_60');
+        else constraints.push(speed); // passthrough for explicit time values
+      }
+    }
+    return constraints;
+  }, [filters.difficulty, filters.method, filters.speed]);
+
+  // Derive dietMode from filters.diet (first value or 'general')
+  const dietMode = filters.diet.length > 0 ? filters.diet[0] : 'general';
+
+  // === Filter Toggle Handlers ===
+  const toggleFilter = useCallback((groupKey, value) => {
+    setFiltersState(prev => {
+      const current = prev[groupKey] || [];
+      const next = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      return { ...prev, [groupKey]: next };
+    });
+  }, []);
+
+  // Convenience aliases for backward compatibility
+  const toggleCuisine = useCallback((value) => toggleFilter('cuisine', value), [toggleFilter]);
+  const toggleConstraint = useCallback((value) => {
+    // Map to appropriate filter group based on value type
+    const DIFFICULTY_VALUES = ['easy', 'medium', 'hard'];
+    const METHOD_VALUES = ['stir_fry', 'steamed', 'fried', 'boiled', 'braised', 'baked', 'grilled', 'no_cook'];
+    const SPEED_VALUES = ['quick', 'normal', 'under_15', 'under_30', 'under_45', 'under_60'];
+    
+    if (DIFFICULTY_VALUES.includes(value)) {
+      toggleFilter('difficulty', value);
+    } else if (METHOD_VALUES.includes(value)) {
+      toggleFilter('method', value);
+    } else if (SPEED_VALUES.includes(value)) {
+      // Convert legacy speed value
+      if (value === 'under_15') toggleFilter('speed', 'quick');
+      else if (value === 'under_60') toggleFilter('speed', 'normal');
+      else toggleFilter('speed', value);
+    }
+  }, [toggleFilter]);
+
   const toggleExclusion = useCallback((value) => {
     setExclusions(prev => 
       prev.includes(value) 
@@ -40,98 +100,47 @@ export function useGeneratePreferences() {
     );
   }, []);
 
-  const toggleCuisine = useCallback((value) => {
-    setCuisines(prev => 
-      prev.includes(value) 
-        ? prev.filter(c => c !== value)
-        : [...prev, value]
-    );
-  }, []);
-
-  const toggleConstraint = useCallback((value) => {
-    setCookingConstraints(prev => 
-      prev.includes(value) 
-        ? prev.filter(c => c !== value)
-        : [...prev, value]
-    );
-  }, []);
-
-  // Clear all filters
+  // === Clear All Filters ===
   const clearFilters = useCallback(() => {
-    setExclusions([]);
-    setCuisines([]);
-    setCookingConstraints([]);
+    setFiltersState(INITIAL_FILTERS);
   }, []);
 
-  // Derived unified filters - built from legacy state
-  const filters = useMemo(() => 
-    buildGenerateFiltersFromLegacy({
-      cuisines,
-      cookingConstraints,
-      dietMode
-    }), 
-    [cuisines, cookingConstraints, dietMode]
-  );
-
-  // Set unified filters - maps back to legacy state for backward compatibility
-  // This allows parent components to control filters while keeping legacy state in sync
+  // === Set Filters (Direct Update) ===
+  // This directly updates the unified filters state
+  // All filter groups are preserved (no selective mapping)
   const setFilters = useCallback((nextFilters) => {
-    // Map filters.cuisine -> cuisines
-    if (nextFilters.cuisine) {
-      setCuisines(nextFilters.cuisine);
+    if (typeof nextFilters === 'function') {
+      setFiltersState(prev => nextFilters(prev));
+    } else {
+      setFiltersState(nextFilters);
     }
-    
-    // Map filters.diet -> dietMode (pick first, or 'general' if empty)
-    if (nextFilters.diet && nextFilters.diet.length > 0) {
-      setDietMode(nextFilters.diet[0]); // dietMode is single-value in legacy
-    } else if (!nextFilters.diet || nextFilters.diet.length === 0) {
-      setDietMode('general');
-    }
-    
-    // Map filters.method / filters.speed / filters.difficulty -> cookingConstraints
-    const newConstraints = [];
-    
-    // Add difficulty values
-    if (nextFilters.difficulty) {
-      newConstraints.push(...nextFilters.difficulty);
-    }
-    // Add method values
-    if (nextFilters.method) {
-      newConstraints.push(...nextFilters.method);
-    }
-    // Add speed values (convert to legacy format)
-    if (nextFilters.speed) {
-      for (const speed of nextFilters.speed) {
-        if (speed === 'quick') newConstraints.push('under_15');
-        else if (speed === 'normal') newConstraints.push('under_60');
-      }
-    }
-    
-    setCookingConstraints(newConstraints);
-    
-    // NOTE: exclusions NOT mapped - they remain separate (avoid vs include semantic difference)
   }, []);
 
   return {
-    // Planning
+    // Planning settings
     daysPerWeek, setDaysPerWeek,
     dishesPerDay, setDishesPerDay,
     servings, setServings,
-    // Preferences
-    dietMode, setDietMode,
+    
+    // Preference settings
     budget, setBudget,
     ingredientReuse, setIngredientReuse,
-    // Filters
     exclusions, setExclusions,
+    
+    // Filter state
     cuisines, setCuisines,
-    cookingConstraints, setCookingConstraints,
+    cookingConstraints,
+    dietMode,
+    
     // Handlers
     toggleExclusion,
     toggleCuisine,
     toggleConstraint,
+    toggleFilter,
     clearFilters,
-    // Derived unified filters
+    
+    // Unified filters (source of truth)
     filters,
-    setFilters, // Allow external control while syncing with legacy state
+    setFilters,
   };
 }
