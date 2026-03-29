@@ -88,9 +88,26 @@ export default async function handler(req, res) {
 
     const { code, name, unit_type, to_base } = body;
 
+    // Normalize code for duplicate check
+    const finalCode = code?.trim().toLowerCase().replace(/\s+/g, '');
+
+    // Check for duplicate code (excluding current record)
+    if (finalCode) {
+      const { data: existing } = await supabaseServer
+        .from('units')
+        .select('id')
+        .eq('code', finalCode)
+        .neq('id', id)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        return res.status(400).json({ error: 'Unit with this code already exists' });
+      }
+    }
+
     try {
       const updateData = {};
-      if (code !== undefined) updateData.code = code.trim().toLowerCase().replace(/\s+/g, '');
+      if (code !== undefined) updateData.code = finalCode;
       if (name !== undefined) updateData.name = name.trim();
       if (unit_type !== undefined) updateData.unit_type = unit_type;
       if (to_base !== undefined) updateData.to_base = to_base;

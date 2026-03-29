@@ -45,9 +45,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    // Normalize slug: lowercase, replace spaces with underscores, keep alphanumeric + underscore
-    const rawSlug = (slug || name).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
-    const finalSlug = rawSlug || name.toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
+    // Normalize slug: lowercase, replace spaces with underscores, keep letters/numbers/Chinese/underscore
+    const input = (slug || name).trim();
+    const finalSlug = input.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\u4e00-\u9fff]/g, '');
 
     // Robust duplicate check using .limit(1) to avoid .single() errors
     const { data: existing } = await supabaseServer
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           name: name.trim(),
           slug: finalSlug,
           aliases: aliases || [],
-          shopping_category: shopping_category || '其他',
+          shopping_category: shopping_category,
           is_pantry_default: is_pantry_default || false
         }])
         .select()
@@ -89,10 +89,27 @@ export default async function handler(req, res) {
 
     const { name, slug, aliases, shopping_category, is_pantry_default } = body;
 
+    // Normalize slug for duplicate check
+    const rawSlug = (slug || name)?.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\u4e00-\u9fff]/g, '');
+
+    // Check for duplicate slug (excluding current record)
+    if (rawSlug) {
+      const { data: existing } = await supabaseServer
+        .from('ingredients')
+        .select('id')
+        .eq('slug', rawSlug)
+        .neq('id', id)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        return res.status(400).json({ error: 'Ingredient with this slug already exists' });
+      }
+    }
+
     try {
       const updateData = {};
       if (name !== undefined) updateData.name = name.trim();
-      if (slug !== undefined) updateData.slug = slug.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w]/g, '');
+      if (slug !== undefined) updateData.slug = rawSlug;
       if (aliases !== undefined) updateData.aliases = aliases;
       if (shopping_category !== undefined) updateData.shopping_category = shopping_category;
       if (is_pantry_default !== undefined) updateData.is_pantry_default = is_pantry_default;
