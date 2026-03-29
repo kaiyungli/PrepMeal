@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 
 const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'taiwanese', 'indian', 'italian', 'fusion'];
 const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack', 'dessert'];
@@ -389,11 +388,13 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
           <button type="button" onClick={addIngredient} className="text-sm bg-[#C8D49A] text-[#3A2010] px-3 py-1 rounded-lg hover:bg-[#b5c288]">+ 添加食材</button>
         </div>
         <div className="hidden md:grid md:grid-cols-12 gap-3 text-xs text-[#AA7A50] font-medium px-2 mb-2">
-          <div className="md:col-span-4">食材</div>
-          <div className="md:col-span-2">份量</div>
-          <div className="md:col-span-2">單位</div>
+          <div className="md:col-span-3">食材</div>
+          <div className="md:col-span-1">份量</div>
+          <div className="md:col-span-1">單位</div>
           <div className="md:col-span-2">備註</div>
-          <div className="md:col-span-2">操作</div>
+          <div className="md:col-span-2">分組</div>
+          <div className="md:col-span-1">可選</div>
+          <div className="md:col-span-2"></div>
         </div>
         <div className="space-y-2">
           {form.ingredients.map((ing, i) => {
@@ -401,7 +402,7 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
             return (
               <div key={i} className="bg-[#FDFBF7] p-3 rounded-lg border border-[#DDD0B0]">
                 {/* Mobile: stacked layout */}
-                <div className="space-y-2">
+                <div className="space-y-2 md:hidden">
                   {/* Row 1: Ingredient selector - full width */}
                   <div>
                     <IngredientSelector value={ing.ingredient_id} onChange={v => updateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} />
@@ -432,13 +433,16 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
                 
                 {/* Desktop: grid layout */}
                 <div className="hidden md:grid md:grid-cols-12 gap-3 items-center">
-                  <div className="md:col-span-4"><IngredientSelector value={ing.ingredient_id} onChange={v => updateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} /></div>
-                  <div className="md:col-span-2"><input type="number" step="0.1" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} placeholder="份量" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
-                  <div className="md:col-span-2"><UnitSelector value={ing.unit_id} onChange={v => updateIngredient(i, 'unit_id', v)} units={units} /></div>
+                  <div className="md:col-span-3"><IngredientSelector value={ing.ingredient_id} onChange={v => updateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} /></div>
+                  <div className="md:col-span-1"><input type="number" step="0.1" value={ing.quantity} onChange={e => updateIngredient(i, 'quantity', e.target.value)} placeholder="份量" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
+                  <div className="md:col-span-1"><UnitSelector value={ing.unit_id} onChange={v => updateIngredient(i, 'unit_id', v)} units={units} /></div>
                   <div className="md:col-span-2"><input value={ing.notes} onChange={e => updateIngredient(i, 'notes', e.target.value)} placeholder="備註" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
-                  <div className="md:col-span-2 flex items-center justify-between">
-                    <label className="flex items-center gap-1 text-xs text-[#AA7A50]"><input type="checkbox" checked={ing.is_optional} onChange={e => updateIngredient(i, 'is_optional', e.target.checked)} className="rounded" />可選</label>
-                    <button type="button" onClick={() => removeIngredient(i)} className="text-red-500 hover:text-red-700">✕</button>
+                  <div className="md:col-span-2"><input value={ing.group_key || ''} onChange={e => updateIngredient(i, 'group_key', e.target.value)} placeholder="分組" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
+                  <div className="md:col-span-1 flex items-center justify-center">
+                    <label className="flex items-center gap-1 text-xs text-[#AA7A50] cursor-pointer"><input type="checkbox" checked={ing.is_optional} onChange={e => updateIngredient(i, 'is_optional', e.target.checked)} className="rounded border-[#DDD0B0]" /></label>
+                  </div>
+                  <div className="md:col-span-2 flex justify-end">
+                    <button type="button" onClick={() => removeIngredient(i)} className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded hover:bg-red-50">✕ 移除</button>
                   </div>
                 </div>
               </div>
