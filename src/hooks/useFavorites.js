@@ -10,9 +10,8 @@ const normalizeId = (id) => {
 
 // Fetcher for SWR - loads favorite IDs from API
 const favoritesFetcher = async ([url, token]) => {
+  const fetchStart = perfNow();
   if (!token) return [];
-  
-  // Initial favorites fetch start (handled by SWR internally)
   
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
@@ -26,6 +25,7 @@ const favoritesFetcher = async ([url, token]) => {
   
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
+  perfMeasure('useFavorites.initialFetch', fetchStart);
   
   return favoritesData.map(id => normalizeId(id));
 };
@@ -90,8 +90,6 @@ export function useFavorites(token) {
     const normalizedId = normalizeId(recipeId);
     const toggleStart = perfNow();
     
-    perfMeasure('useFavorites.toggleFavorite', toggleStart);
-    
     // Guard: no token = can't toggle
     if (!token) {
       return false;
@@ -154,6 +152,7 @@ export function useFavorites(token) {
     } finally {
       // Always clear pending state
       pendingRef.current.delete(normalizedId);
+      perfMeasure('useFavorites.toggleFavorite', toggleStart);
     }
   }, [token, swrKey, favoriteSet, favorites]);
 
