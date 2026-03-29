@@ -1,7 +1,9 @@
 import { supabase } from '@/lib/supabaseClient'
 import { getRecipeDetail } from '@/lib/recipeDetail'
+import { perfNow, perfMeasure } from '@/utils/perf';
 
 export default async function handler(req, res) {
+  const handlerStart = perfNow();
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -14,10 +16,12 @@ export default async function handler(req, res) {
     }
 
     // 1. Fetch all recipe_ingredients for these recipes in one query
+    const riStart = perfNow();
     const { data: recipeIngredients, error: riError } = await supabase
       .from('recipe_ingredients')
       .select('quantity, unit_id, recipe_id, ingredients(id, name, slug, shopping_category)')
       .in('recipe_id', recipeIds)
+    perfMeasure('api.shoppingList.recipeIngredientsQuery', riStart);
 
     if (riError) throw riError
 

@@ -1,5 +1,6 @@
 // Favorites hook - single source of truth for favorite IDs
 import useSWR, { mutate } from 'swr';
+import { perfNow, perfMeasure } from '@/utils/perf';
 import { useCallback, useMemo, useRef } from 'react';
 
 const normalizeId = (id) => {
@@ -11,7 +12,7 @@ const normalizeId = (id) => {
 const favoritesFetcher = async ([url, token]) => {
   if (!token) return [];
   
-  console.log('[fav-perf]', performance.now().toFixed(2), 'initial_favorites_fetch_start');
+  // Initial favorites fetch start (handled by SWR internally)
   
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
@@ -26,7 +27,7 @@ const favoritesFetcher = async ([url, token]) => {
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
   
-  console.log('[fav-perf]', performance.now().toFixed(2), 'initial_favorites_fetch_end', favoritesData.length);
+  perfMeasure('useFavorites.initialFetch', fetchStart);
   
   return favoritesData.map(id => normalizeId(id));
 };
@@ -90,7 +91,7 @@ export function useFavorites(token) {
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
-    console.log('[fav-perf]', performance.now().toFixed(2), 'toggle_start', normalizedId);
+    perfMeasure('useFavorites.toggleFavorite', toggleStart);
     
     // Guard: no token = can't toggle
     if (!token) {
@@ -108,7 +109,7 @@ export function useFavorites(token) {
     const isFav = favorites.includes(normalizedId);
     const previousFavorites = [...favorites];
     
-    console.log('[fav-perf]', performance.now().toFixed(2), 'optimistic_update_applied', isFav ? 'unfavorite' : 'favorite');
+    // Optimistic update applied
     
     // Optimistic update - immediately reflect in UI
     const newFavorites = isFav

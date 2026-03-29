@@ -1,5 +1,6 @@
 'use client';
 import { getWeekDates } from '@/utils/dateUtils';
+import { perfNow, perfMeasure } from '@/utils/perf';
 import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
@@ -115,12 +116,14 @@ export default function GeneratePage() {
       params.set('method', filters.method.join(','));
     }
     
-    fetch('/api/recipes?' + params.toString())
-      .then(res => res.json())
-      .then(data => {
-        const recipes = data.recipes || [];
-        setAllRecipes(recipes);
-      })
+    const t0 = perfNow();
+      fetch('/api/recipes?' + params.toString())
+        .then(res => res.json())
+        .then(data => {
+          perfMeasure('generate.recipesFetch', t0);
+          const recipes = data.recipes || [];
+          setAllRecipes(recipes);
+        })
       .catch(() => {});
   }, [cuisines, cookingConstraints, exclusions, filters]);
 

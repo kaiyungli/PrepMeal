@@ -12,6 +12,7 @@
  * - speed: quick, normal
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
+import { perfNow, perfMeasure, perfStage } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner'
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
@@ -191,6 +192,7 @@ export function planWeekAdvanced(
   recipes: Recipe[],
   config: PlanConfig
 ): Record<string, Recipe[]> {
+  const fnStart = perfNow();
   const {
     daysPerWeek,
     dishesPerDay,

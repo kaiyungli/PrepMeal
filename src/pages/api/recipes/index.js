@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
+import { perfNow, perfMeasure } from '@/utils/perf';
 
 // Recommended indexes for this query (see docs/db-indexes.md):
 // - idx_recipes_is_public ON recipes(is_public)
@@ -9,6 +10,7 @@ import { supabase } from '@/lib/supabaseClient'
 // - idx_recipes_created_at ON recipes(created_at DESC)
 
 export default async function handler(req, res) {
+  const handlerStart = perfNow();
   
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
   
@@ -142,7 +144,9 @@ export default async function handler(req, res) {
     const offsetNum = Math.max(parseInt(offset) || 0, 0)
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     
+    const queryStart = perfNow();
     const { data: recipes, error } = await query
+    perfMeasure('api.recipes.supabaseQuery', queryStart);
 
 
     if (error) {
@@ -158,6 +162,7 @@ export default async function handler(req, res) {
       recipes: recipesList, 
       hasMore: (recipesList.length) > offsetNum + limitNum
     })
+    perfMeasure('api.recipes.total', handlerStart);
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') // Fatal error
     res.status(500).json({ error: error.message || 'Unknown error' })

@@ -1,5 +1,6 @@
 // Simple auth hook for Google OAuth
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { perfNow, perfMeasure } from '@/utils/perf';
 import supabase from '@/lib/supabase';
 import { buildOAuthRedirectUrl } from '@/lib/authRedirect';
 
@@ -13,8 +14,10 @@ export function useAuth() {
   useEffect(() => {
     // Lazy load session AFTER first paint - don't block
     const loadSession = async () => {
+      const sessionStart = perfNow();
       try {
         const { data: { session } } = await supabase?.auth.getSession();
+        perfMeasure('useAuth.getSession', sessionStart);
         setUser(session?.user || null);
         setIsAuthenticated(!!session?.user);
         initialLoadDone.current = true;
@@ -53,8 +56,10 @@ export function useAuth() {
 
   // Get current access token for API calls - stable reference
   const getAccessToken = useCallback(async () => {
+    const tokenStart = perfNow();
     try {
       const { data: { session } } = await supabase?.auth.getSession();
+      perfMeasure('useAuth.getAccessToken', tokenStart);
       return session?.access_token || null;
     } catch {
       return null;
