@@ -118,7 +118,7 @@ export default function MyPlansPage() {
                     </button>
                   </div>
                   <p className="text-sm text-[#AA7A50] mb-4">
-                    {plan.days?.length || 0} 日餐單
+                    {plan.days_count || 0} 日餐單
                   </p>
                   <a 
                     href={`/my-plans/${plan.id}`}
