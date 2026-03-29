@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { FilterCardShell, FilterSectionConfig } from '@/components/filters';
 
 interface RecipeFiltersProps {

@@ -1,5 +1,5 @@
 'use client';
-import { getWeekDates, getInitialWeekPlan } from '@/utils/dateUtils';
+import { getWeekDates } from '@/utils/dateUtils';
 import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
