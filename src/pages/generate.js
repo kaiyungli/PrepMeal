@@ -332,8 +332,21 @@ export default function GeneratePage() {
   };
 
   const clearAll = () => {
+    // Reset planning settings to defaults
+    setDaysPerWeek(7);
+    setDishesPerDay(1);
+    setServings(2);
+    
+    // Reset all filters
+    clearFilters();
+    
+    // Reset generate page transient state
     setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
     setLockedSlots({});
+    setHasGenerated(false);
+    setShoppingList([]);
+    setShoppingListLoaded(false);
+    setShowShoppingList(false);
   };
 
   const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0);
