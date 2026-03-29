@@ -546,6 +546,8 @@ export default function AdminRecipes() {
     return matchesSearch && matchesCuisine && matchesDishType;
   });
 
+  const [listError, setListError] = useState('');
+
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' });
     router.push('/admin/login');
@@ -553,13 +555,14 @@ export default function AdminRecipes() {
 
   const handleSave = async () => {
     try {
+      setListError('');
       const res = await fetch('/api/admin/recipes');
       if (!res.ok) throw new Error('Failed to refresh recipes');
       const data = await res.json();
       setRecipes(data.recipes || []);
     } catch (err) {
       console.error('[handleSave] Refetch failed:', err);
-      // Continue anyway - list may be stale but user can refresh
+      setListError('已儲存食譜，但刷新列表失敗，請手動刷新頁面');
     }
     setView('list');
     setEditingRecipe(null);
@@ -622,6 +625,11 @@ export default function AdminRecipes() {
             </div>
           ) : (
             <>
+              {listError && (
+                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-4">
+                  {listError}
+                </div>
+              )}
               <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
                 <div className="flex flex-wrap gap-3 items-center">
                   <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="搜尋食譜..." className="flex-1 min-w-[200px] px-4 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" />
