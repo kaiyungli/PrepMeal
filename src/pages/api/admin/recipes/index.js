@@ -231,159 +231,62 @@ export default async function handler(req, res) {
     // PUT - Update recipe
     if (method === 'PUT') {
       const { id } = query;
-      console.log('[ADMIN RECIPES] Updating recipe:', id)
+      if (!id) return res.status(400).json({ error: 'Recipe ID is required' });
       
-      // Map form fields to DB column names
-      const recipeData = {
-        name: body.name,
-        slug: body.slug,
-        description: body.description,
-        cuisine: body.cuisine,
-        dish_type: body.dish_type,
-        difficulty: body.difficulty,
-        prep_time_minutes: body.prep_time,
-        cook_time_minutes: body.cook_time,
-        base_servings: body.servings,
-        image_url: body.image_url,
-        calories_per_serving: body.calories_per_serving,
-        is_public: body.is_public,
-        tags: body.tags,
-      };
+      console.log('[ADMIN RECIPES] Updating recipe atomically:', id);
       
-      const { error: recipeError } = await db
-        .from('recipes')
-        .update(recipeData)
-        .eq('id', id);
-      
-      if (recipeError) {
-        console.error('[ADMIN RECIPES] Error updating recipe:', recipeError);
-        return res.status(500).json({ error: recipeError.message, details: recipeError });
-      }
-      
-      // Delete existing ingredients
-      await db.from('recipe_ingredients').delete().eq('recipe_id', id);
-      
-      // Insert new ingredients
-      if (body.ingredients?.length > 0) {
-        const ingredientData = body.ingredients.map(i => ({
-          recipe_id: id,
-          ingredient_id: i.ingredient_id,
-          quantity: i.quantity,
-          unit_id: i.unit_id,
-          is_optional: i.is_optional || false,
-          notes: i.notes || null,
-          group_key: i.group_key || null,
-        }));
-        
-        const { error: ingError } = await db
-          .from('recipe_ingredients')
-          .insert(ingredientData);
-        
-        if (ingError) {
-          console.error('[ADMIN RECIPES] Error updating ingredients:', ingError);
-          return res.status(500).json({ error: ingError.message, details: ingError });
-        }
-      }
-      
-      // Delete existing steps
-      await db.from('recipe_steps').delete().eq('recipe_id', id);
-      
-      // Insert new steps
-      if (body.steps?.length > 0) {
-        const stepData = body.steps.map(s => ({
-          recipe_id: id,
-          step_no: s.step_no,
-          text: s.text,
-          time_seconds: s.time_seconds || null,
-        }));
-        
-        const { error: stepError } = await db
-          .from('recipe_steps')
-          .insert(stepData);
-        
-        if (stepError) {
-          console.error('[ADMIN RECIPES] Error updating steps:', stepError);
-          return res.status(500).json({ error: stepError.message, details: stepError });
-        }
-      }
-      
-      // Fetch updated recipe
-      const { data: updatedRecipe } = await db
-        .from('recipes')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      const { data: ingredients } = await db
-        .from('recipe_ingredients')
-        .select('*')
-        .eq('recipe_id', id);
-      
-      const { data: steps } = await db
-        .from('recipe_steps')
-        .select('*')
-        .eq('recipe_id', id)
-        .order('step_no');
-      
-      console.log('[ADMIN RECIPES] Recipe updated successfully:', id)
-      
-      return res.status(200).json({ 
-        recipe: { ...updatedRecipe, ingredients: ingredients || [], steps: steps || [] } 
+      const { data, error } = await db.rpc('admin_update_recipe_atomic', {
+        p_recipe_id: id,
+        p_name: body.name,
+        p_slug: body.slug,
+        p_description: body.description,
+        p_cuisine: body.cuisine,
+        p_dish_type: body.dish_type,
+        p_difficulty: body.difficulty,
+        p_prep_time_minutes: body.prep_time,
+        p_cook_time_minutes: body.cook_time,
+        p_base_servings: body.servings,
+        p_image_url: body.image_url,
+        p_calories_per_serving: body.calories_per_serving,
+        p_is_public: body.is_public,
+        p_tags: body.tags,
+        p_ingredients: JSON.stringify(body.ingredients || []),
+        p_steps: JSON.stringify(body.steps || [])
       });
+      
+      if (error) {
+        console.error('[ADMIN RECIPES] RPC error:', error);
+        return res.status(500).json({ error: 'Failed to update recipe: ' + error.message, details: error });
+      }
+      
+      if (!data) {
+        return res.status(500).json({ error: 'No data returned from RPC' });
+      }
+      
+      console.log('[ADMIN RECIPES] Recipe updated atomically:', id);
+      return res.status(200).json({ recipe: data.recipe, ingredients: data.ingredients, steps: data.steps });
     }
     
     // DELETE - Delete recipe
     if (method === 'DELETE') {
       const { id } = query;
-      console.log('[ADMIN RECIPES] Deleting recipe:', id);
+      if (!id) return res.status(400).json({ error: 'Recipe ID is required' });
       
-      try {
-        // Step 1: Delete recipe_ingredients (has id column)
-        console.log('[ADMIN RECIPES] Step 1: Delete recipe_ingredients');
-        const { data: delRI, error: errRI } = await db.from('recipe_ingredients').delete().eq('recipe_id', id).select('id');
-        console.log('[ADMIN RECIPES] recipe_ingredients deleted:', delRI?.length || 0, 'rows');
-        if (errRI) { console.error('[ADMIN RECIPES] Error:', errRI); return res.status(500).json({ error: 'Failed to delete recipe_ingredients: ' + errRI.message }); }
-        
-        // Step 2: Delete recipe_steps (has id column)
-        console.log('[ADMIN RECIPES] Step 2: Delete recipe_steps');
-        const { data: delRS, error: errRS } = await db.from('recipe_steps').delete().eq('recipe_id', id).select('id');
-        console.log('[ADMIN RECIPES] recipe_steps deleted:', delRS?.length || 0, 'rows');
-        if (errRS) { console.error('[ADMIN RECIPES] Error:', errRS); return res.status(500).json({ error: 'Failed to delete recipe_steps: ' + errRS.message }); }
-        
-        // Step 3: Delete recipe_equipment (NO id column - composite PK recipe_id + equipment_id)
-        console.log('[ADMIN RECIPES] Step 3: Delete recipe_equipment');
-        const { error: errRE } = await db.from('recipe_equipment').delete().eq('recipe_id', id);
-        console.log('[ADMIN RECIPES] recipe_equipment delete result:', errRE ? errRE.message : 'success');
-        if (errRE) { console.error('[ADMIN RECIPES] Error:', errRE); return res.status(500).json({ error: 'Failed to delete recipe_equipment: ' + errRE.message }); }
-        
-        // Step 4: Delete menu_plan_items (has id column)
-        console.log('[ADMIN RECIPES] Step 4: Delete menu_plan_items');
-        const { data: delMPI, error: errMPI } = await db.from('menu_plan_items').delete().eq('recipe_id', id).select('id');
-        console.log('[ADMIN RECIPES] menu_plan_items deleted:', delMPI?.length || 0, 'rows');
-        if (errMPI) { console.error('[ADMIN RECIPES] Error:', errMPI); return res.status(500).json({ error: 'Failed to delete menu_plan_items: ' + errMPI.message }); }
-        
-        // Step 5: Delete recipe (has id column)
-        console.log('[ADMIN RECIPES] Step 5: Delete recipe, id:', id);
-        
-        // First verify recipe exists
-        const { data: checkR, error: checkErr } = await db.from('recipes').select('id').eq('id', id);
-        console.log('[ADMIN RECIPES] Recipe check: found', checkR?.length || 0, 'rows, error:', checkErr || 'none');
-        
-        const { data: delR, error: errR } = await db.from('recipes').delete().eq('id', id).select('id');
-        console.log('[ADMIN RECIPES] recipes delete result: deleted', delR?.length || 0, 'rows, error:', errR ? errR.message : 'none');
-        if (errR) { console.error('[ADMIN RECIPES] Error deleting recipe:', errR); return res.status(500).json({ error: 'Failed to delete recipe: ' + errR.message }); }
-        
-        if (!delR || delR.length === 0) {
-          console.error('[ADMIN RECIPES] Delete returned 0 rows - RLS or service role issue');
-          return res.status(404).json({ error: 'Delete failed: 0 rows deleted. Using service role: ' + usingServiceRole });
-        }
-        
-        console.log('[ADMIN RECIPES] Recipe deleted successfully:', id);
-        return res.status(200).json({ success: true, deletedId: id });
-      } catch (err) {
-        console.error('[ADMIN RECIPES] Delete cascade failed:', err);
-        return res.status(500).json({ error: 'Delete failed: ' + err.message, details: err.toString() });
+      console.log('[ADMIN RECIPES] Deleting recipe atomically:', id);
+      
+      const { data, error } = await db.rpc('admin_delete_recipe_atomic', { p_recipe_id: id });
+      
+      if (error) {
+        console.error('[ADMIN RECIPES] RPC error:', error);
+        return res.status(500).json({ error: 'Failed to delete recipe: ' + error.message, details: error });
       }
+      
+      if (!data?.success) {
+        return res.status(500).json({ error: 'Delete did not complete successfully' });
+      }
+      
+      console.log('[ADMIN RECIPES] Recipe deleted atomically:', id, 'rows:', data.deleted_rows);
+      return res.status(200).json({ success: true, deletedId: id });
     }
     
     return res.status(405).json({ error: 'Method not allowed' });
