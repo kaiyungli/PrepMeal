@@ -27,8 +27,6 @@ const favoritesFetcher = async ([url, token]) => {
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
   
-  perfMeasure('useFavorites.initialFetch', fetchStart);
-  
   return favoritesData.map(id => normalizeId(id));
 };
 

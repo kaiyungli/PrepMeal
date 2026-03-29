@@ -153,6 +153,7 @@ export default async function handler(req, res) {
       toPurchase: toBuy.length
     })
 
+  perfMeasure('api.shoppingList.total', handlerStart);
   } catch (error) {
     console.error('Shopping list API error:', error)
     res.status(500).json({ error: error.message })

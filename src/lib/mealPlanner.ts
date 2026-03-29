@@ -217,6 +217,7 @@ export function planWeekAdvanced(
   const normExclusions = exclusions.length > 0 ? normalizeIngredients(exclusions) : [];
   
   // Filter recipes
+  const filterStart = perfNow();
   let filtered = recipes.filter(r => {
     if (cuisines.length > 0 && r.cuisine && !cuisines.includes(r.cuisine)) return false;
     if (normExclusions.length > 0) {
@@ -231,6 +232,7 @@ export function planWeekAdvanced(
     }
     return true;
   });
+  perfStage('mealPlanner.filtering', filterStart, perfNow());
 
   // Pre-populate usedRecipeIds with locked recipes to prevent duplication
   if (lockedRecipes) {
@@ -246,6 +248,7 @@ export function planWeekAdvanced(
   const normPantry = pantryIngredients.length > 0 ? normalizeIngredients(pantryIngredients) : [];
 
   // Find perfect pantry matches (recipes that use ALL pantry ingredients)
+  const pantryMatchStart = perfNow();
   let perfectMatchRecipe: Recipe | null = null;
   if (normPantry.length > 0 && filtered.length > 0) {
     // DEBUG: Log pantry ingredients
@@ -272,8 +275,10 @@ export function planWeekAdvanced(
       perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
     }
   }
+  perfStage('mealPlanner.perfectPantryMatch', pantryMatchStart, perfNow());
 
   // Generate plan
+  const dayGenStart = perfNow();
   days.forEach((day, dayIndex) => {
     const dayRecipes: Recipe[] = [];
     

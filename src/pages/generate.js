@@ -181,6 +181,7 @@ export default function GeneratePage() {
   // Preload shopping list - called after plan generation
   const preloadShoppingList = async (plan) => {
     // Collect recipe IDs from plan
+    const preloadStart = perfNow();
     const recipeIds = [];
     Object.values(plan).forEach(recipes => {
       if (Array.isArray(recipes)) {
@@ -193,6 +194,7 @@ export default function GeneratePage() {
     if (recipeIds.length === 0) {
       setShoppingList([]);
       setShoppingListLoaded(true);
+    perfMeasure('generate.preloadShoppingList.total', preloadStart);
       return;
     }
     
@@ -227,6 +229,7 @@ export default function GeneratePage() {
   };
 
   const handleGenerate = () => {
+    const genStart = perfNow();
     // Build locked recipes map
     const lockedRecipes = {};
     Object.entries(lockedSlots).forEach(([key, isLocked]) => {
@@ -235,6 +238,7 @@ export default function GeneratePage() {
       }
     });
 
+    const plannerStart = perfNow();
     // Call the meal planner
     const newPlan = planWeekAdvanced(filteredRecipes, {
       daysPerWeek,
@@ -250,6 +254,8 @@ export default function GeneratePage() {
     });
 
     setWeeklyPlan(newPlan);
+    perfMeasure('generate.handleGenerate.planWeekAdvanced', plannerStart);
+    perfMeasure('generate.handleGenerate.total', genStart);
     setHasGenerated(true);
     
     // Shopping list loads lazily when modal opens
