@@ -7,7 +7,6 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Server check
   if (!supabaseServer) {
     return res.status(500).json({ error: 'Server not configured' });
   }
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
         .order('name');
 
       if (error) throw error;
-      return res.status(200).json({ data });
+      return res.status(200).json({ ingredients: data || [] });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -31,21 +30,41 @@ export default async function handler(req, res) {
 
   // POST - Create ingredient
   if (method === 'POST') {
-    const { name, category, slug, shopping_category } = body;
+    const { name, slug, aliases, shopping_category, is_pantry_default } = body;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
     }
 
+    // Generate slug if not provided
+    let finalSlug = slug;
+    if (!finalSlug && name) {
+      finalSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    // Check for duplicate
+    if (finalSlug) {
+      const { data: existing } = await supabaseServer
+        .from('ingredients')
+        .select('id')
+        .eq('slug', finalSlug)
+        .single();
+
+      if (existing) {
+        return res.status(400).json({ error: 'Ingredient with this slug already exists' });
+      }
+    }
+
     try {
+      const insertData = { name, slug: finalSlug, aliases, shopping_category, is_pantry_default };
       const { data, error } = await supabaseServer
         .from('ingredients')
-        .insert([{ name, category, slug, shopping_category }])
+        .insert([insertData])
         .select()
         .single();
 
       if (error) throw error;
-      return res.status(201).json({ data });
+      return res.status(201).json({ ingredient: data });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -53,25 +72,24 @@ export default async function handler(req, res) {
 
   // PUT - Update ingredient
   if (method === 'PUT') {
-    // Support id from query or body
     const id = query?.id || body?.id;
-
     if (!id) {
       return res.status(400).json({ error: 'ID is required' });
     }
 
-    const { name, category, slug, shopping_category } = body;
+    const { name, slug, aliases, shopping_category, is_pantry_default } = body;
 
     try {
+      const updateData = { name, slug, aliases, shopping_category, is_pantry_default };
       const { data, error } = await supabaseServer
         .from('ingredients')
-        .update({ name, category, slug, shopping_category, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      return res.status(200).json({ data });
+      return res.status(200).json({ ingredient: data });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -80,7 +98,6 @@ export default async function handler(req, res) {
   // DELETE - Delete ingredient
   if (method === 'DELETE') {
     const id = query?.id || body?.id;
-
     if (!id) {
       return res.status(400).json({ error: 'ID is required' });
     }

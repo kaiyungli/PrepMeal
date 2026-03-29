@@ -7,7 +7,6 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Server check
   if (!supabaseServer) {
     return res.status(500).json({ error: 'Server not configured' });
   }
@@ -17,13 +16,19 @@ export default async function handler(req, res) {
   // GET - List all units
   if (method === 'GET') {
     try {
-      const { data, error } = await supabaseServer
-        .from('units')
-        .select('*')
-        .order('code');
+      let queryBuilder = supabaseServer.from('units').select('*').order('code');
 
+      // Support optional search/limit params
+      if (query?.search) {
+        queryBuilder = queryBuilder.ilike('name', `%${query.search}%`);
+      }
+      if (query?.limit) {
+        queryBuilder = queryBuilder.limit(parseInt(query.limit));
+      }
+
+      const { data, error } = await queryBuilder;
       if (error) throw error;
-      return res.status(200).json({ data });
+      return res.status(200).json({ units: data || [] });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -31,21 +36,32 @@ export default async function handler(req, res) {
 
   // POST - Create unit
   if (method === 'POST') {
-    const { code, name, type } = body;
+    const { code, name, unit_type, to_base } = body;
 
     if (!code || !name) {
       return res.status(400).json({ error: 'Code and name are required' });
     }
 
+    // Check for duplicate code
+    const { data: existing } = await supabaseServer
+      .from('units')
+      .select('id')
+      .eq('code', code)
+      .single();
+
+    if (existing) {
+      return res.status(400).json({ error: 'Unit with this code already exists' });
+    }
+
     try {
       const { data, error } = await supabaseServer
         .from('units')
-        .insert([{ code, name, type }])
+        .insert([{ code, name, unit_type, to_base }])
         .select()
         .single();
 
       if (error) throw error;
-      return res.status(201).json({ data });
+      return res.status(201).json({ unit: data });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -53,25 +69,23 @@ export default async function handler(req, res) {
 
   // PUT - Update unit
   if (method === 'PUT') {
-    // Support id from query or body
     const id = query?.id || body?.id;
-
     if (!id) {
       return res.status(400).json({ error: 'ID is required' });
     }
 
-    const { code, name, type } = body;
+    const { code, name, unit_type, to_base } = body;
 
     try {
       const { data, error } = await supabaseServer
         .from('units')
-        .update({ code, name, type })
+        .update({ code, name, unit_type, to_base })
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      return res.status(200).json({ data });
+      return res.status(200).json({ unit: data });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -80,7 +94,6 @@ export default async function handler(req, res) {
   // DELETE - Delete unit
   if (method === 'DELETE') {
     const id = query?.id || body?.id;
-
     if (!id) {
       return res.status(400).json({ error: 'ID is required' });
     }
