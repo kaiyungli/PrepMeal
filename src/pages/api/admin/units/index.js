@@ -1,110 +1,102 @@
-import { supabase } from '@/lib/supabaseClient'
+import { requireAdmin } from '@/lib/adminAuth';
+import { supabaseServer } from '@/lib/supabaseServer';
 
 export default async function handler(req, res) {
-  if (!supabase) {
-    return res.status(500).json({ error: 'Supabase is not configured' })
+  // Admin auth check
+  if (!requireAdmin(req)) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
+  // Server check
+  if (!supabaseServer) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+
   const { method, query, body } = req;
-  
-  try {
-    // GET - List all units
-    if (method === 'GET') {
-      const { data, error } = await supabase
+
+  // GET - List all units
+  if (method === 'GET') {
+    try {
+      const { data, error } = await supabaseServer
         .from('units')
-        .select('id, code, name, unit_type, to_base')
-        .order('unit_type', { ascending: true })
-        .then(({ data, error }) => {
-          if (error) throw error
-          return { data: data?.sort((a, b) => a.name.localeCompare(b.name)) || [], error: null }
-        })
-      
-      return res.status(200).json({ units: data })
+        .select('*')
+        .order('code');
+
+      if (error) throw error;
+      return res.status(200).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // POST - Create new unit
-    if (method === 'POST') {
-      const { code, name, unit_type, to_base } = body
-      
-      if (!code?.trim() || !name?.trim()) {
-        return res.status(400).json({ error: 'Unit code and name are required' })
-      }
-      
-      // Check for duplicate
-      const { data: existing } = await supabase
+  }
+
+  // POST - Create unit
+  if (method === 'POST') {
+    const { code, name, type } = body;
+
+    if (!code || !name) {
+      return res.status(400).json({ error: 'Code and name are required' });
+    }
+
+    try {
+      const { data, error } = await supabaseServer
         .from('units')
-        .select('id')
-        .eq('code', code.toLowerCase())
-        .limit(1)
-      
-      if (existing?.length > 0) {
-        return res.status(400).json({ error: 'Unit code already exists' })
-      }
-      
-      const { data, error } = await supabase
-        .from('units')
-        .insert({
-          code: code.toLowerCase().trim(),
-          name: name.trim(),
-          unit_type: unit_type || 'other',
-          to_base: to_base || 1
-        })
+        .insert([{ code, name, type }])
         .select()
-        .single()
-      
-      if (error) throw error
-      
-      return res.status(201).json({ unit: data })
+        .single();
+
+      if (error) throw error;
+      return res.status(201).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // PUT - Update unit
-    if (method === 'PUT') {
-      const { id, code, name, unit_type, to_base } = body
-      
-      if (!id) {
-        return res.status(400).json({ error: 'Unit ID is required' })
-      }
-      
-      const updates = {}
-      if (code !== undefined) updates.code = code.toLowerCase().trim()
-      if (name !== undefined) updates.name = name.trim()
-      if (unit_type !== undefined) updates.unit_type = unit_type
-      if (to_base !== undefined) updates.to_base = to_base
-      
-      const { data, error } = await supabase
+  }
+
+  // PUT - Update unit
+  if (method === 'PUT') {
+    // Support id from query or body
+    const id = query?.id || body?.id;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    const { code, name, type } = body;
+
+    try {
+      const { data, error } = await supabaseServer
         .from('units')
-        .update(updates)
+        .update({ code, name, type })
         .eq('id', id)
         .select()
-        .single()
-      
-      if (error) throw error
-      
-      return res.status(200).json({ unit: data })
+        .single();
+
+      if (error) throw error;
+      return res.status(200).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // DELETE - Delete unit
-    if (method === 'DELETE') {
-      const { id } = query
-      
-      if (!id) {
-        return res.status(400).json({ error: 'Unit ID is required' })
-      }
-      
-      const { error } = await supabase
+  }
+
+  // DELETE - Delete unit
+  if (method === 'DELETE') {
+    const id = query?.id || body?.id;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    try {
+      const { error } = await supabaseServer
         .from('units')
         .delete()
-        .eq('id', id)
-      
-      if (error) throw error
-      
-      return res.status(200).json({ success: true })
+        .eq('id', id);
+
+      if (error) throw error;
+      return res.status(200).json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    return res.status(405).json({ error: 'Method not allowed' })
-    
-  } catch (error) {
-    console.error('Admin units API error:', error)
-    res.status(500).json({ error: error.message })
   }
+
+  return res.status(405).json({ error: 'Method not allowed' });
 }

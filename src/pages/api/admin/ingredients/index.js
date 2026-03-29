@@ -1,124 +1,102 @@
-import { supabase } from '@/lib/supabaseClient'
+import { requireAdmin } from '@/lib/adminAuth';
+import { supabaseServer } from '@/lib/supabaseServer';
 
 export default async function handler(req, res) {
-  if (!supabase) {
-    return res.status(500).json({ error: 'Supabase is not configured' })
+  // Admin auth check
+  if (!requireAdmin(req)) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
+  // Server check
+  if (!supabaseServer) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+
   const { method, query, body } = req;
-  
-  try {
-    // GET - List all ingredients or search
-    if (method === 'GET') {
-      const { search, limit = 50 } = query;
-      
-      let queryBuilder = supabase
+
+  // GET - List all ingredients
+  if (method === 'GET') {
+    try {
+      const { data, error } = await supabaseServer
         .from('ingredients')
-        .select('id, name, slug, aliases, shopping_category, is_pantry_default')
-        .order('name')
-      
-      if (search) {
-        queryBuilder = queryBuilder.or(`name.ilike.%${search}%,slug.ilike.%${search}%`)
-      }
-      
-      if (limit) {
-        queryBuilder = queryBuilder.limit(parseInt(limit))
-      }
-      
-      const { data, error } = await queryBuilder
-      if (error) throw error
-      
-      return res.status(200).json({ ingredients: data || [] })
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return res.status(200).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // POST - Create new ingredient
-    if (method === 'POST') {
-      const { name, slug, aliases, shopping_category, is_pantry_default } = body
-      
-      if (!name?.trim()) {
-        return res.status(400).json({ error: 'Ingredient name is required' })
-      }
-      
-      // Generate slug from name if not provided
-      const finalSlug = slug?.trim() || name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/g, '')
-      
-      // Check for duplicate
-      const { data: existing } = await supabase
+  }
+
+  // POST - Create ingredient
+  if (method === 'POST') {
+    const { name, category, slug, shopping_category } = body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    try {
+      const { data, error } = await supabaseServer
         .from('ingredients')
-        .select('id')
-        .or(`slug.eq.${finalSlug},name.ieq.${name}`)
-        .limit(1)
-      
-      if (existing?.length > 0) {
-        return res.status(400).json({ error: 'Ingredient already exists' })
-      }
-      
-      const { data, error } = await supabase
-        .from('ingredients')
-        .insert({
-          name: name.trim(),
-          slug: finalSlug,
-          aliases: aliases || [],
-          shopping_category: shopping_category || '其他',
-          is_pantry_default: is_pantry_default || false
-        })
+        .insert([{ name, category, slug, shopping_category }])
         .select()
-        .single()
-      
-      if (error) throw error
-      
-      return res.status(201).json({ ingredient: data })
+        .single();
+
+      if (error) throw error;
+      return res.status(201).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // PUT - Update ingredient
-    if (method === 'PUT') {
-      const { id, name, slug, aliases, shopping_category, is_pantry_default } = body
-      
-      if (!id) {
-        return res.status(400).json({ error: 'Ingredient ID is required' })
-      }
-      
-      const updates = {}
-      if (name !== undefined) updates.name = name.trim()
-      if (slug !== undefined) updates.slug = slug.trim()
-      if (aliases !== undefined) updates.aliases = aliases
-      if (shopping_category !== undefined) updates.shopping_category = shopping_category
-      if (is_pantry_default !== undefined) updates.is_pantry_default = is_pantry_default
-      
-      const { data, error } = await supabase
+  }
+
+  // PUT - Update ingredient
+  if (method === 'PUT') {
+    // Support id from query or body
+    const id = query?.id || body?.id;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    const { name, category, slug, shopping_category } = body;
+
+    try {
+      const { data, error } = await supabaseServer
         .from('ingredients')
-        .update(updates)
+        .update({ name, category, slug, shopping_category, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
-        .single()
-      
-      if (error) throw error
-      
-      return res.status(200).json({ ingredient: data })
+        .single();
+
+      if (error) throw error;
+      return res.status(200).json({ data });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    // DELETE - Delete ingredient
-    if (method === 'DELETE') {
-      const { id } = query
-      
-      if (!id) {
-        return res.status(400).json({ error: 'Ingredient ID is required' })
-      }
-      
-      const { error } = await supabase
+  }
+
+  // DELETE - Delete ingredient
+  if (method === 'DELETE') {
+    const id = query?.id || body?.id;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    try {
+      const { error } = await supabaseServer
         .from('ingredients')
         .delete()
-        .eq('id', id)
-      
-      if (error) throw error
-      
-      return res.status(200).json({ success: true })
+        .eq('id', id);
+
+      if (error) throw error;
+      return res.status(200).json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
     }
-    
-    return res.status(405).json({ error: 'Method not allowed' })
-    
-  } catch (error) {
-    console.error('Admin ingredients API error:', error)
-    res.status(500).json({ error: error.message })
   }
+
+  return res.status(405).json({ error: 'Method not allowed' });
 }
