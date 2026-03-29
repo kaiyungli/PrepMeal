@@ -98,7 +98,7 @@ export default function GeneratePage() {
   // Fetch base recipes once on mount (no refetch on filter changes)
   useEffect(() => {
     const t0 = perfNow();
-    fetch('/api/recipes?limit=200')
+    fetch('/api/recipes?limit=200&view=generate')
       .then(res => res.json())
       .then(data => {
         perfMeasure('generate.recipesFetch', t0);

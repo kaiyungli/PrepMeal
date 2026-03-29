@@ -40,9 +40,19 @@ export default async function handler(req, res) {
     
     
     // Build query safely - select only fields needed for recipe cards
+    const view = url.searchParams.get('view');
+    const isGenerateView = view === 'generate';
+    
+    // Lightweight fields for generate page / planner
+    const generateFields = 'id,name,image_url,cuisine,difficulty,method,total_time_minutes,primary_protein,protein,dish_type,diet,flavor';
+    
+    const selectFields = isGenerateView
+      ? generateFields
+      : 'id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,carbs_g,fat_g,primary_protein,protein,dish_type,diet,description,is_public,created_at';
+    
     let query = supabase
       .from('recipes')
-      .select('id,name,image_url,slug,cuisine,difficulty,method,total_time_minutes,cook_time_minutes,prep_time_minutes,calories_per_serving,protein_g,carbs_g,fat_g,primary_protein,protein,dish_type,diet,description,is_public,created_at')
+      .select(selectFields)
     
     // Always filter by public
     query = query.eq('is_public', true)
