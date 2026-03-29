@@ -186,15 +186,34 @@ function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
       const slug = form.slug || 'recipe';
       const ext = file.name.split('.').pop() || 'jpg';
       const fileName = `recipes/${slug}-${Date.now()}.${ext}`;
+      
+      // Step 1: Get upload URL
       const res = await fetch('/api/admin/uploads/image', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName, fileType: file.type }),
       });
-      const { uploadUrl, publicUrl } = await res.json();
-      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!res.ok) throw new Error('Failed to get upload URL');
+      
+      const data = await res.json();
+      const { uploadUrl, publicUrl } = data;
+      if (!uploadUrl || !publicUrl) throw new Error('Invalid upload response');
+      
+      // Step 2: Upload to storage
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+      if (!uploadRes.ok) throw new Error('Failed to upload image');
+      
+      // Step 3: Update form
       handleChange('image_url', publicUrl);
-    } catch (err) { setError('圖片上傳失敗'); } 
-    finally { setUploading(false); }
+    } catch (err) {
+      console.error('[handleImageUpload] Error:', err);
+      setError('圖片上傳失敗: ' + err.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   useEffect(() => {
@@ -532,10 +551,16 @@ export default function AdminRecipes() {
     router.push('/admin/login');
   };
 
-  const handleSave = () => {
-    fetch('/api/admin/recipes')
-      .then(res => res.json())
-      .then(data => setRecipes(data.recipes || []));
+  const handleSave = async () => {
+    try {
+      const res = await fetch('/api/admin/recipes');
+      if (!res.ok) throw new Error('Failed to refresh recipes');
+      const data = await res.json();
+      setRecipes(data.recipes || []);
+    } catch (err) {
+      console.error('[handleSave] Refetch failed:', err);
+      // Continue anyway - list may be stale but user can refresh
+    }
     setView('list');
     setEditingRecipe(null);
   };
@@ -561,7 +586,7 @@ export default function AdminRecipes() {
       if (!res.ok) {
         throw new Error(data.error || '刪除失敗');
       }
-      setRecipes(recipes.filter(r => r.id !== deletingRecipe.id));
+      setRecipes(prev => prev.filter(r => r.id !== deletingRecipe.id));
       setDeletingRecipe(null);
       alert('食譜已刪除');
     } catch (err) {
