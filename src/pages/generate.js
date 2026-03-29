@@ -5,7 +5,8 @@ import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { recipeMatchesFilters } from '@/constants/filters';
 import { UI } from '@/styles/ui';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
@@ -94,53 +95,44 @@ export default function GeneratePage() {
     }
   }, [showShoppingList, shoppingListLoaded]);
 
+  // Fetch base recipes once on mount (no refetch on filter changes)
   useEffect(() => {
-    // Debug: log fetch trigger
-    const fetchSeq = (window.__fetchSeq = (window.__fetchSeq || 0) + 1);
-    
-    // Build filter params for API (server-side filtering)
-    const params = new URLSearchParams();
-    params.set('limit', '100');
-    
-    console.log(`[generate] fetch #${fetchSeq} triggered, params:`, params.toString());
-    
-    // Use unified filters for API params where supported
-    if (filters.cuisine.length > 0) params.set('cuisine', filters.cuisine.join(','));
-    if (filters.difficulty.length > 0) params.set('difficulty', filters.difficulty.join(','));
-    if (filters.speed.length > 0) {
-      // Map speed to maxTime using centralized helper
-    const maxTime = getMaxTimeFromSpeedFilters(filters.speed);
-    if (maxTime) params.set('maxTime', maxTime);
-    }
-    if (filters.diet.length > 0) params.set('diet', filters.diet.join(','));
-    
-    // Keep exclusions separate - not mapped to protein (semantic difference: avoid vs include)
-    if (exclusions.length > 0) params.set('exclusions', exclusions.join(','));
-    
-    // Use unified filters.method for method filtering
-    if (filters.method.length > 0) {
-      params.set('method', filters.method.join(','));
-    }
-    
-    // Use unified filters.protein for protein filtering
-    if (filters.protein && filters.protein.length > 0) {
-      params.set('protein', filters.protein.join(','));
-    }
-    
-    
-    
     const t0 = perfNow();
-      fetch('/api/recipes?' + params.toString())
-        .then(res => res.json())
-        .then(data => {
-          const duration = performance.now() - t0;
-          console.log(`[generate] fetch #${fetchSeq} completed in ${duration.toFixed(2)}ms, count:`, data.recipes?.length);
-          perfMeasure('generate.recipesFetch', t0);
-          const recipes = data.recipes || [];
-          setAllRecipes(recipes);
-        })
+    fetch('/api/recipes?limit=200')
+      .then(res => res.json())
+      .then(data => {
+        perfMeasure('generate.recipesFetch', t0);
+        const recipes = data.recipes || [];
+        setAllRecipes(recipes);
+      })
       .catch(() => {});
-  }, [filters, exclusions]);
+  }, []); // Empty deps = run once on mount
+  
+  // Compute locally filtered recipes from base dataset
+  // This runs on every filter change but uses cached allRecipes - no network request
+  const filteredRecipes = useMemo(() => {
+    if (!allRecipes.length) return [];
+    
+    // Build filter object for recipeMatchesFilters
+    const filterObj = { ...filters };
+    
+    // Apply exclusions as negative filter
+    const result = allRecipes.filter(recipe => {
+      // Check exclusions first (negative filter)
+      if (exclusions.length > 0) {
+        const recipeProteins = [recipe.primary_protein, ...(recipe.protein || [])].filter(Boolean);
+        const hasExcludedProtein = recipeProteins.some(p => exclusions.includes(p));
+        if (hasExcludedProtein) return false;
+      }
+      
+      // Apply positive filters
+      if (!recipeMatchesFilters(recipe, filterObj)) return false;
+      
+      return true;
+    });
+    
+    return result;
+  }, [allRecipes, filters, exclusions]);
 
   // Read pantry ingredients from URL
   useEffect(() => {
@@ -183,11 +175,7 @@ export default function GeneratePage() {
     }
   }, []);
 
-  // Recipes are already filtered by server (cuisine, difficulty, maxTime, exclusions)
-  // No client-side filtering needed - server does the filtering
-  const filteredRecipes = allRecipes;
-
-// ============================================
+  // ============================================
 // PLANNER CONFIGURATION CONSTANTS
 // ============================================
 
