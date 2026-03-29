@@ -4,18 +4,13 @@ import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
-import PantryChipInput from '@/components/home/PantryChipInput';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { UI } from '@/styles/ui';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
 
 import Head from 'next/head';
-import Link from 'next/link';
-import Image from 'next/image';
 import Header from '@/components/layout/Header';
-import Modal from '@/components/ui/Modal';
-import RecipeCard from '@/components/RecipeCard';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
@@ -89,7 +84,6 @@ export default function GeneratePage() {
   const recipeCache = useRef(new Map());
 
   // Derived: check if any unified filters are active (for UI/analytics)
-  const hasActiveFilters = Object.values(filters).some(arr => Array.isArray(arr) && arr.length > 0);
 
   // Lazy load shopping list when modal opens
   useEffect(() => {
@@ -178,16 +172,6 @@ export default function GeneratePage() {
 // ============================================
 // PLANNER CONFIGURATION CONSTANTS
 // ============================================
-const CONFIG = {
-  // How many days to look back for protein diversity
-  PROTEIN_LOOKBACK_DAYS: 2,
-  // How many days to look back for method diversity
-  METHOD_LOOKBACK_DAYS: 1,
-  // Whether to allow recipe repetition within the week
-  RECIPE_REPEAT_ALLOWED: false,
-  // Debug mode - logs selection reasoning
-  DEBUG_MODE: false,
-};
 
 // Generate meal plan based on settings with balancing rules
 
