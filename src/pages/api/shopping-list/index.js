@@ -26,6 +26,7 @@ export default async function handler(req, res) {
     if (riError) throw riError
 
     // 2. Get unique unit IDs and fetch in one query
+    const unitsStart = perfNow();
     const unitIds = [...new Set(recipeIngredients?.map(ri => ri.unit_id).filter(Boolean) || [])]
     let unitsMap = new Map()
     if (unitIds.length > 0) {
@@ -35,6 +36,7 @@ export default async function handler(req, res) {
         .in('id', unitIds)
       unitsMap = new Map((units || []).map(u => [u.id, u]))
     }
+    perfMeasure('api.shoppingList.unitsQuery', unitsStart);
 
     // 3. Build ingredient items with full metadata
     const items = []
@@ -56,6 +58,7 @@ export default async function handler(req, res) {
     }
 
     // 4. Aggregate by ingredient_id + unit
+    const aggStart = perfNow();
     const aggregated = new Map()
     for (const item of items) {
       if (!item.ingredient_id || !item.name) continue
@@ -73,6 +76,8 @@ export default async function handler(req, res) {
     }
 
     // 5. Normalize quantities
+    perfMeasure('api.shoppingList.aggregate', aggStart);
+    const normStart = perfNow();
     const normalized = Array.from(aggregated.values()).map(item => {
       let qty = item.quantity || 0
       const unit = item.unit?.code || ''
@@ -87,6 +92,7 @@ export default async function handler(req, res) {
       
       return { ...item, quantity: qty }
     })
+    perfMeasure('api.shoppingList.normalize', normStart);
 
     // 6. Match against pantry (case-insensitive)
     const pantryLower = pantryIngredients.map(p => p.toLowerCase())

@@ -183,8 +183,9 @@ export default function GeneratePage() {
 
   // Preload shopping list - called after plan generation
   const preloadShoppingList = async (plan) => {
-    // Collect recipe IDs from plan
     const preloadStart = perfNow();
+    
+    // Collect recipe IDs from plan
     const recipeIds = [];
     Object.values(plan).forEach(recipes => {
       if (Array.isArray(recipes)) {
@@ -194,15 +195,22 @@ export default function GeneratePage() {
       }
     });
     
+    // Debug logs
+    console.log('[generate] shoppingList start:', {
+      recipeIdsCount: recipeIds.length,
+      pantryCount: pantryIngredients.length,
+      servings: servings
+    });
+    
     if (recipeIds.length === 0) {
       setShoppingList([]);
       setShoppingListLoaded(true);
-    perfMeasure('generate.preloadShoppingList.total', preloadStart);
+      perfMeasure('generate.preloadShoppingList.total', preloadStart);
       return;
     }
     
     try {
-      // Use dedicated shopping list API for server-side aggregation
+      const fetchStart = perfNow();
       const res = await fetch('/api/shopping-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -216,6 +224,12 @@ export default function GeneratePage() {
       if (!res.ok) throw new Error('Failed to fetch shopping list');
       
       const data = await res.json();
+      perfMeasure('generate.shoppingList.fetch', fetchStart);
+      console.log('[generate] shoppingList response:', {
+        pantryItems: data.pantry?.length || 0,
+        toBuyItems: data.data?.toBuy?.length || 0,
+        total: data.data?.items?.length || 0
+      });
       
       // Convert API response to shopping list format
       const list = [
