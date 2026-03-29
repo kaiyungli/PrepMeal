@@ -59,6 +59,12 @@ function HomeRecipeGrid({
   isPending,
   onFavoriteClick,
 }: HomeRecipeGridProps) {
+  // Dev diagnostics
+  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+    console.log("[HomeRecipeGrid] isFavorite type:", typeof isFavorite);
+    console.log("[HomeRecipeGrid] isPending type:", typeof isPending);
+    console.log("[HomeRecipeGrid] onFavoriteClick type:", typeof onFavoriteClick);
+  }
   const safeRecipes = recipes || [];
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -69,7 +75,7 @@ function HomeRecipeGrid({
           onRecipeClick={onRecipeClick}
           isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
           isPending={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
-          onFavoriteClick={onFavoriteClick ? () => onFavoriteClick(recipe.id) : undefined}
+          onFavoriteClick={typeof onFavoriteClick === "function" ? () => onFavoriteClick(recipe.id) : undefined}
         />
       ))}
     </div>

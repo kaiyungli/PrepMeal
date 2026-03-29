@@ -26,6 +26,13 @@ function RecipeList({
   emptyMessage = '暫時未有食譜',
   emptyLink,
 }: RecipeListProps) {
+  // Dev diagnostics - only runs in development
+  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+    console.log("[RecipeList] isFavorite type:", typeof isFavorite);
+    console.log("[RecipeList] isPending type:", typeof isPending);
+    console.log("[RecipeList] onFavoriteClick type:", typeof onFavoriteClick);
+  }
+  
   if (!recipes || recipes.length === 0) {
     return (
       <div className="text-center py-20">
