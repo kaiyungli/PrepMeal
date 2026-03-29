@@ -29,7 +29,8 @@ function forwardToServer(label: string, duration: number): void {
   
   // Use sendBeacon if available, fallback to fetch with keepalive
   if (navigator.sendBeacon) {
-    navigator.sendBeacon('/api/perf-log', JSON.stringify(payload));
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    navigator.sendBeacon('/api/perf-log', blob);
   } else {
     fetch('/api/perf-log', {
       method: 'POST',

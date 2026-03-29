@@ -13,7 +13,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { label, duration_ms, ts, path } = req.body;
+    const rawBody = req.body;
+    const body = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
+    const { label, duration_ms, ts, path } = body || {};
     
     // Validate payload
     if (!label || typeof duration_ms !== 'number') {
