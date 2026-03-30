@@ -29,7 +29,7 @@ AS $$
 DECLARE
   v_result JSONB;
 BEGIN
-  -- Update recipe row (no updated_at - not in schema)
+  -- Update recipe row
   UPDATE recipes SET
     name = p_name,
     slug = p_slug,
@@ -92,7 +92,7 @@ BEGIN
         'base_servings', r.base_servings,
         'image_url', r.image_url,
         'calories_per_serving', r.calories_per_serving,
-        is_public', r.is_public
+        'is_public', r.is_public
       )
       FROM recipes r WHERE r.id = p_recipe_id
     ),
@@ -104,7 +104,7 @@ BEGIN
         'quantity', ri.quantity,
         'unit_id', ri.unit_id,
         'is_optional', ri.is_optional,
-        notes', ri.prep_note,
+        'notes', ri.prep_note,
         'group_key', ri.group_key
       )), '[]'::JSONB)
       FROM recipe_ingredients ri WHERE ri.recipe_id = p_recipe_id
