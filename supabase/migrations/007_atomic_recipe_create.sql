@@ -42,7 +42,8 @@ BEGIN
   RETURNING id INTO v_recipe_id;
 
   -- Insert ingredients (using prep_note column)
-  IF jsonb_array_length(p_ingredients) > 0 THEN
+  IF jsonb_typeof(COALESCE(p_ingredients, '[]'::jsonb)) = 'array'
+      AND jsonb_array_length(COALESCE(p_ingredients, '[]'::jsonb)) > 0 THEN
     INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_id, is_optional, prep_note, group_key)
     SELECT 
       v_recipe_id,
@@ -52,18 +53,19 @@ BEGIN
       COALESCE((j->>'is_optional')::BOOLEAN, FALSE),
       NULLIF(j->>'notes', ''),
       NULLIF(j->>'group_key', '')
-    FROM jsonb_array_elements(p_ingredients) AS j;
+    FROM jsonb_array_elements(COALESCE(p_ingredients, '[]'::jsonb)) AS j;
   END IF;
 
   -- Insert steps
-  IF jsonb_array_length(p_steps) > 0 THEN
+  IF jsonb_typeof(COALESCE(p_steps, '[]'::jsonb)) = 'array'
+      AND jsonb_array_length(COALESCE(p_steps, '[]'::jsonb)) > 0 THEN
     INSERT INTO recipe_steps (recipe_id, step_no, text, time_seconds)
     SELECT 
       v_recipe_id,
       (j->>'step_no')::INT,
       j->>'text',
       NULLIF((j->>'time_seconds')::TEXT, '')::INT
-    FROM jsonb_array_elements(p_steps) AS j;
+    FROM jsonb_array_elements(COALESCE(p_steps, '[]'::jsonb)) AS j;
   END IF;
 
   -- Return created recipe
