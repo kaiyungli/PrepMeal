@@ -3,11 +3,9 @@ import { useState, useEffect } from 'react';
 import RecipeIngredientsEditor from './RecipeIngredientsEditor';
 import RecipeStepsEditor from './RecipeStepsEditor';
 
-const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'taiwanese', 'indian', 'italian', 'fusion'];
-const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack', 'dessert'];
+const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'];
+const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack'];
 const difficultyOptions = ['easy', 'medium', 'hard'];
-const presetTags = ['家常', '快手', '高蛋白', '低卡', '湯類', '蒸', '煎', '炒', '焗', '小朋友啱食', '一鍋到底', '下飯', '健康', '早餐', '晚餐'];
-
 export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [ingredients, setIngredients] = useState([]);
   const [units, setUnits] = useState([]);
@@ -16,7 +14,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
   const [form, setForm] = useState({
     name: '', slug: '', description: '', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy',
     prep_time: 15, cook_time: 20, servings: 2, image_url: '', calories_per_serving: '', is_public: true,
-    ingredients: [], steps: [], tags: [],
+    ingredients: [], steps: [],
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -110,19 +108,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
 
       // Map DB column names to form field names
       // DB: prep_time_minutes, cook_time_minutes, base_servings -> Form: prep_time, cook_time, servings
-      // Safely parse tags from recipe data
-      let recipeTags = [];
-      if (recipe.tags) {
-        if (Array.isArray(recipe.tags)) {
-          recipeTags = recipe.tags;
-        } else if (typeof recipe.tags === 'string') {
-          try {
-            recipeTags = JSON.parse(recipe.tags);
-          } catch {
-            recipeTags = recipe.tags.split(',').map(t => t.trim()).filter(Boolean);
-          }
-        }
-      }
+      
 
       const formData = {
         ...recipe,
@@ -131,16 +117,14 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
         servings: recipe.base_servings || recipe.servings || 2,
         ingredients: formIngredients,
         steps: formSteps,
-        tags: recipeTags
+        
       };
       setForm(formData);
     }
   }, [recipe]);
 
   const handleChange = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
-  const toggleTag = (tag) => setForm(prev => ({ ...prev, tags: (prev.tags || []).includes(tag) ? prev.tags.filter(t => t !== tag) : [...(prev.tags || []), tag] }));
-  const addCustomTag = (e) => { if (e.key === 'Enter' && e.target.value.trim()) { if (!(form.tags || []).includes(e.target.value.trim())) setForm(prev => ({ ...prev, tags: [...(prev.tags || []), e.target.value.trim()] })); e.target.value = ''; }};
-
+    
   const addIngredient = () => setForm(prev => ({ ...prev, ingredients: [...prev.ingredients, { ingredient_id: null, quantity: '', unit_id: null, is_optional: false, notes: '', group_key: '' }] }));
   const removeIngredient = (index) => setForm(prev => ({ ...prev, ingredients: prev.ingredients.filter((_, i) => i !== index) }));
   const updateIngredient = (index, field, value) => setForm(prev => ({ ...prev, ingredients: prev.ingredients.map((ing, i) => i === index ? { ...ing, [field]: value } : ing) }));
@@ -170,7 +154,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
     try {
       const payload = {
         ...form,
-        tags: Array.isArray(form.tags) ? form.tags : [],
+        
         ingredients: form.ingredients.filter(i => i.ingredient_id && i.quantity).map(i => ({ ingredient_id: i.ingredient_id, quantity: parseFloat(i.quantity) || 0, unit_id: i.unit_id, is_optional: i.is_optional || false, notes: i.notes || '', group_key: i.group_key || null })),
         steps: form.steps.filter(s => s.text?.trim()).map((s, idx) => ({ step_no: idx + 1, text: s.text.trim(), time_seconds: s.time_seconds ? parseInt(s.time_seconds) : null }))
       };
