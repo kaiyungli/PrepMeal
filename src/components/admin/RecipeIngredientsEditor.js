@@ -62,7 +62,10 @@ export default function RecipeIngredientsEditor({
 
               {/* Desktop: grid layout */}
               <div className="hidden md:grid md:grid-cols-12 gap-3 items-center">
-                <div className="md:col-span-3"><IngredientSelector value={ing.ingredient_id} onChange={v => onUpdateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} /></div>
+                <div className="md:col-span-3">
+                  <IngredientSelector value={ing.ingredient_id} onChange={v => onUpdateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} />
+                  {selectedIng && <span className="text-xs text-[#AA7A50] ml-2">{selectedIng.shopping_category}</span>}
+                </div>
                 <div className="md:col-span-1"><input type="number" step="0.1" value={ing.quantity} onChange={e => onUpdateIngredient(i, 'quantity', e.target.value)} placeholder="份量" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
                 <div className="md:col-span-1"><UnitSelector value={ing.unit_id} onChange={v => onUpdateIngredient(i, 'unit_id', v)} units={units} /></div>
                 <div className="md:col-span-2"><input value={ing.notes} onChange={e => onUpdateIngredient(i, 'notes', e.target.value)} placeholder="備註" className="w-full px-2 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] text-sm" /></div>
