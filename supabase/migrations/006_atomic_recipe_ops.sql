@@ -19,7 +19,6 @@ CREATE OR REPLACE FUNCTION admin_update_recipe_atomic(
   p_image_url TEXT,
   p_calories_per_serving NUMERIC,
   p_is_public BOOLEAN,
-  p_tags JSONB,
   p_ingredients JSONB,
   p_steps JSONB
 )
@@ -43,8 +42,7 @@ BEGIN
     base_servings = p_base_servings,
     image_url = p_image_url,
     calories_per_serving = p_calories_per_serving,
-    is_public = p_is_public,
-    tags = p_tags
+    is_public = p_is_public
   WHERE id = p_recipe_id;
 
   -- Delete existing ingredients
@@ -52,7 +50,7 @@ BEGIN
 
   -- Insert new ingredients
   IF jsonb_array_length(p_ingredients) > 0 THEN
-    INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_id, is_optional, notes, group_key)
+    INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit_id, is_optional, prep_note, group_key)
     SELECT 
       p_recipe_id,
       (j->>'ingredient_id')::UUID,
@@ -94,8 +92,7 @@ BEGIN
         'base_servings', r.base_servings,
         'image_url', r.image_url,
         'calories_per_serving', r.calories_per_serving,
-        'is_public', r.is_public,
-        'tags', r.tags
+        is_public', r.is_public
       )
       FROM recipes r WHERE r.id = p_recipe_id
     ),
@@ -107,7 +104,7 @@ BEGIN
         'quantity', ri.quantity,
         'unit_id', ri.unit_id,
         'is_optional', ri.is_optional,
-        'notes', ri.notes,
+        notes', ri.prep_note,
         'group_key', ri.group_key
       )), '[]'::JSONB)
       FROM recipe_ingredients ri WHERE ri.recipe_id = p_recipe_id

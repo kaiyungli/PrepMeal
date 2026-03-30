@@ -246,7 +246,6 @@ export default async function handler(req, res) {
         p_image_url: body.image_url,
         p_calories_per_serving: body.calories_per_serving,
         p_is_public: body.is_public,
-        p_tags: body.tags,
         p_ingredients: JSON.stringify(body.ingredients || []),
         p_steps: JSON.stringify(body.steps || [])
       });
