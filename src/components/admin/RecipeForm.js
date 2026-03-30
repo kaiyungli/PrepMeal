@@ -6,6 +6,8 @@ import RecipeStepsEditor from './RecipeStepsEditor';
 const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'];
 const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack'];
 const difficultyOptions = ['easy', 'medium', 'hard'];
+const methodOptions = ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked'];
+const speedOptions = ['quick', 'normal', 'slow'];
 export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [ingredients, setIngredients] = useState([]);
   const [units, setUnits] = useState([]);
@@ -14,6 +16,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
   const [form, setForm] = useState({
     name: '', slug: '', description: '', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy',
     prep_time: 15, cook_time: 20, servings: 2, image_url: '', calories_per_serving: '', is_public: true,
+    method: 'stir_fry', speed: 'normal',
     ingredients: [], steps: [],
   });
   const [saving, setSaving] = useState(false);
@@ -115,6 +118,8 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
         prep_time: recipe.prep_time_minutes || recipe.prep_time || 15,
         cook_time: recipe.cook_time_minutes || recipe.cook_time || 20,
         servings: recipe.base_servings || recipe.servings || 2,
+        method: recipe.method || 'stir_fry',
+        speed: recipe.speed || 'normal',
         ingredients: formIngredients,
         steps: formSteps,
         
@@ -201,6 +206,14 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">難度</label>
             <select value={form.difficulty} onChange={e => handleChange('difficulty', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{difficultyOptions.map(d => <option key={d} value={d}>{d}</option>)}</select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">烹調方式</label>
+            <select value={form.method} onChange={e => handleChange('method', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{methodOptions.map(m => <option key={m} value={m}>{m}</option>)}</select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">時間類型</label>
+            <select value={form.speed} onChange={e => handleChange('speed', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{speedOptions.map(s => <option key={s} value={s}>{s}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">公開</label>
