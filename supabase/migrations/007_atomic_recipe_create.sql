@@ -18,6 +18,8 @@ CREATE OR REPLACE FUNCTION admin_create_recipe_atomic(
   p_image_url TEXT,
   p_calories_per_serving NUMERIC,
   p_is_public BOOLEAN,
+  p_method TEXT,
+  p_speed TEXT,
   p_ingredients JSONB,
   p_steps JSONB
 )
@@ -84,7 +86,9 @@ BEGIN
         'base_servings', r.base_servings,
         'image_url', r.image_url,
         'calories_per_serving', r.calories_per_serving,
-        'is_public', r.is_public
+        'is_public', r.is_public,
+        'method', r.method,
+        'speed', r.speed
       )
       FROM recipes r WHERE r.id = v_recipe_id
     ),

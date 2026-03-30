@@ -137,6 +137,8 @@ export default async function handler(req, res) {
         p_image_url: body.image_url,
         p_calories_per_serving: body.calories_per_serving,
         p_is_public: body.is_public,
+        p_method: body.method,
+        p_speed: body.speed,
         p_ingredients: body.ingredients || [],
         p_steps: body.steps || []
       });
@@ -182,6 +184,8 @@ export default async function handler(req, res) {
         p_image_url: body.image_url,
         p_calories_per_serving: body.calories_per_serving,
         p_is_public: body.is_public,
+        p_method: body.method,
+        p_speed: body.speed,
         p_ingredients: body.ingredients || [],
         p_steps: body.steps || []
       });
