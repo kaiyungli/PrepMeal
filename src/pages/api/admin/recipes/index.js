@@ -138,7 +138,6 @@ export default async function handler(req, res) {
         image_url: body.image_url,
         calories_per_serving: body.calories_per_serving,
         is_public: body.is_public,
-        tags: body.tags,
       };
       
       const { data: recipe, error: recipeError } = await db
@@ -162,7 +161,7 @@ export default async function handler(req, res) {
           quantity: i.quantity,
           unit_id: i.unit_id,
           is_optional: i.is_optional || false,
-          notes: i.notes || null,
+          prep_note: i.notes || null,
           group_key: i.group_key || null,
         }));
         
