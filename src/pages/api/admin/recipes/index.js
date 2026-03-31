@@ -139,6 +139,12 @@ export default async function handler(req, res) {
         p_is_public: body.is_public,
         p_method: body.method,
         p_speed: body.speed,
+        p_servings_unit: body.servings_unit,
+        p_meal_role: body.meal_role || null,
+        p_is_complete_meal: body.is_complete_meal,
+        p_primary_protein: body.primary_protein || null,
+        p_budget_level: body.budget_level || null,
+        p_reuse_group: body.reuse_group || null,
         p_ingredients: body.ingredients || [],
         p_steps: body.steps || []
       });
@@ -186,6 +192,12 @@ export default async function handler(req, res) {
         p_is_public: body.is_public,
         p_method: body.method,
         p_speed: body.speed,
+        p_servings_unit: body.servings_unit,
+        p_meal_role: body.meal_role || null,
+        p_is_complete_meal: body.is_complete_meal,
+        p_primary_protein: body.primary_protein || null,
+        p_budget_level: body.budget_level || null,
+        p_reuse_group: body.reuse_group || null,
         p_ingredients: body.ingredients || [],
         p_steps: body.steps || []
       });

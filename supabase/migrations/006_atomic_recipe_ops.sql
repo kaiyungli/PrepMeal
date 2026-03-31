@@ -21,6 +21,12 @@ CREATE OR REPLACE FUNCTION admin_update_recipe_atomic(
   p_is_public BOOLEAN,
   p_method TEXT,
   p_speed TEXT,
+  p_servings_unit TEXT,
+  p_meal_role TEXT,
+  p_is_complete_meal BOOLEAN,
+  p_primary_protein TEXT,
+  p_budget_level TEXT,
+  p_reuse_group TEXT,
   p_ingredients JSONB,
   p_steps JSONB
 )
@@ -46,7 +52,13 @@ BEGIN
     calories_per_serving = p_calories_per_serving,
     is_public = p_is_public,
     method = p_method,
-    speed = p_speed
+    speed = p_speed,
+    servings_unit = p_servings_unit,
+    meal_role = p_meal_role,
+    is_complete_meal = p_is_complete_meal,
+    primary_protein = p_primary_protein,
+    budget_level = p_budget_level,
+    reuse_group = p_reuse_group
   WHERE id = p_recipe_id;
 
   -- Delete existing ingredients
@@ -100,7 +112,13 @@ BEGIN
         'calories_per_serving', r.calories_per_serving,
         'is_public', r.is_public,
         'method', r.method,
-        'speed', r.speed
+        'speed', r.speed,
+        'servings_unit', r.servings_unit,
+        'meal_role', r.meal_role,
+        'is_complete_meal', r.is_complete_meal,
+        'primary_protein', r.primary_protein,
+        'budget_level', r.budget_level,
+        'reuse_group', r.reuse_group
       )
       FROM recipes r WHERE r.id = p_recipe_id
     ),

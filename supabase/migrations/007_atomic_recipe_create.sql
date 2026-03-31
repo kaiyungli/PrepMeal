@@ -20,6 +20,12 @@ CREATE OR REPLACE FUNCTION admin_create_recipe_atomic(
   p_is_public BOOLEAN,
   p_method TEXT,
   p_speed TEXT,
+  p_servings_unit TEXT,
+  p_meal_role TEXT,
+  p_is_complete_meal BOOLEAN,
+  p_primary_protein TEXT,
+  p_budget_level TEXT,
+  p_reuse_group TEXT,
   p_ingredients JSONB,
   p_steps JSONB
 )
@@ -88,7 +94,13 @@ BEGIN
         'calories_per_serving', r.calories_per_serving,
         'is_public', r.is_public,
         'method', r.method,
-        'speed', r.speed
+        'speed', r.speed,
+        'servings_unit', r.servings_unit,
+        'meal_role', r.meal_role,
+        'is_complete_meal', r.is_complete_meal,
+        'primary_protein', r.primary_protein,
+        'budget_level', r.budget_level,
+        'reuse_group', r.reuse_group
       )
       FROM recipes r WHERE r.id = v_recipe_id
     ),
