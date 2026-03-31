@@ -8,6 +8,9 @@ const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack'];
 const difficultyOptions = ['easy', 'medium', 'hard'];
 const methodOptions = ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked'];
 const speedOptions = ['quick', 'normal', 'slow'];
+const mealRoleOptions = ['complete_meal', 'protein_main', 'veg_side', 'protein_side', 'soup'];
+const primaryProteinOptions = ['chicken', 'beef', 'pork', 'fish', 'shrimp', 'tofu', 'egg', 'vegetarian', 'mixed'];
+const budgetLevelOptions = ['budget', 'normal', 'premium'];
 export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [ingredients, setIngredients] = useState([]);
   const [units, setUnits] = useState([]);
@@ -17,6 +20,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
     name: '', slug: '', description: '', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy',
     prep_time: 15, cook_time: 20, servings: 2, image_url: '', calories_per_serving: '', is_public: true,
     method: 'stir_fry', speed: 'normal',
+    servings_unit: 'portion', meal_role: '', is_complete_meal: false, primary_protein: '', budget_level: '', reuse_group: '',
     ingredients: [], steps: [],
   });
   const [saving, setSaving] = useState(false);
@@ -120,6 +124,12 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
         servings: recipe.base_servings || recipe.servings || 2,
         method: recipe.method || 'stir_fry',
         speed: recipe.speed || 'normal',
+        servings_unit: recipe.servings_unit || 'portion',
+        meal_role: recipe.meal_role || '',
+        is_complete_meal: recipe.is_complete_meal || false,
+        primary_protein: recipe.primary_protein || '',
+        budget_level: recipe.budget_level || '',
+        reuse_group: recipe.reuse_group || '',
         ingredients: formIngredients,
         steps: formSteps,
         
@@ -218,6 +228,30 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">公開</label>
             <select value={form.is_public ? 'true' : 'false'} onChange={e => handleChange('is_public', e.target.value === 'true')} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]"><option value="true">是</option><option value="false">否</option></select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">份量單位</label>
+            <input value={form.servings_unit || ''} onChange={e => handleChange('servings_unit', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" placeholder="portion" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">餐點角色</label>
+            <select value={form.meal_role || ''} onChange={e => handleChange('meal_role', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{mealRoleOptions.map(m => <option key={m} value={m}>{m}</option>)}</select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">完整餐點</label>
+            <select value={form.is_complete_meal ? 'true' : 'false'} onChange={e => handleChange('is_complete_meal', e.target.value === 'true')} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]"><option value="true">是</option><option value="false">否</option></select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">主要蛋白質</label>
+            <select value={form.primary_protein || ''} onChange={e => handleChange('primary_protein', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{primaryProteinOptions.map(p => <option key={p} value={p}>{p}</option>)}</select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">預算級別</label>
+            <select value={form.budget_level || ''} onChange={e => handleChange('budget_level', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{budgetLevelOptions.map(b => <option key={b} value={b}>{b}</option>)}</select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">重用組</label>
+            <input value={form.reuse_group || ''} onChange={e => handleChange('reuse_group', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" placeholder="可選" />
           </div>
         </div>
       </div>
