@@ -40,8 +40,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
         return res.json();
       })
     ]).then(([ingData, unitData]) => {
-      console.log('[RecipeForm] Ingredients loaded:', { count: (ingData.ingredients || []).length, sample: (ingData.ingredients || []).slice(0,2) });
-      setIngredients(ingData.ingredients || []);
+            setIngredients(ingData.ingredients || []);
       setUnits(unitData.units || []);
     }).catch((err) => {
       console.error('Failed to load data:', err);

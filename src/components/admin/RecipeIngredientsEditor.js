@@ -29,13 +29,6 @@ export default function RecipeIngredientsEditor({
         {formIngredients.map((ing, i) => {
           const selectedIng = ingredients.find(a => a.id === ing.ingredient_id);
           // Debug: log if not found
-          if (!selectedIng) {
-            console.log('[RecipeIngredientsEditor] Ingredient not found:', {
-              rowIndex: i,
-              ingredientId: ing.ingredient_id,
-              ingredientIdType: typeof ing.ingredient_id,
-              availableIds: ingredients.slice(0,3).map(x => ({ id: x.id, type: typeof x.id, name: x.name }))
-            });
           }
           return (
             <div key={i} className="bg-[#FDFBF7] p-3 rounded-lg border border-[#DDD0B0]">
