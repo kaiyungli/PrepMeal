@@ -1,14 +1,14 @@
 'use client';
 import { useState } from 'react';
 
-export default function IngredientSelector({ value, onChange, ingredients }) {
+export default function IngredientSelector({ value, onChange, ingredients, fallbackLabel }) {
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedIngredient = ingredients.find(i => i.id === value);
 
   // Show search if user is typing, otherwise show selected or placeholder
-  const displayValue = isOpen ? search : (selectedIngredient?.name || '');
+  const displayValue = isOpen ? search : (selectedIngredient?.name || fallbackLabel || '');
 
   const filtered = search
     ? ingredients.filter(i =>
@@ -41,7 +41,7 @@ export default function IngredientSelector({ value, onChange, ingredients }) {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder={selectedIngredient ? selectedIngredient.name : '搜尋食材...'}
+          placeholder={selectedIngredient?.name || fallbackLabel || '搜尋食材...'}
           className="flex-1 px-3 py-2 text-[#3A2010] text-sm bg-white"
         />
         {/* Clear button - only show when something is selected */}
