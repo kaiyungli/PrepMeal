@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         // Get ingredients
         const { data: ingredients, error: ingError } = await db
           .from('recipe_ingredients')
-          .select('*')
+          .select('id, recipe_id, ingredient_id, quantity, unit_id, is_optional, prep_note, group_key, ingredients(id, name, slug, shopping_category)')
           .eq('recipe_id', rid);
         
               if (ingError) {

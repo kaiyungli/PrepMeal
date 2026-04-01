@@ -37,7 +37,11 @@ export default function RecipeIngredientsEditor({
                 {/* Row 1: Ingredient selector - full width */}
                 <div>
                   <IngredientSelector value={ing.ingredient_id} onChange={v => onUpdateIngredient(i, 'ingredient_id', v)} ingredients={ingredients} fallbackLabel={ing.ingredient_name} />
-                  {selectedIng && <span className="text-xs text-[#AA7A50] ml-2 block mt-1">{selectedIng.shopping_category}</span>}
+                  {selectedIng ? (
+                    <span className="text-xs text-[#AA7A50] ml-2 block mt-1">{selectedIng.shopping_category}</span>
+                  ) : ing.ingredient_id && !selectedIng && !ing.ingredient_name ? (
+                    <span className="text-xs text-red-500 ml-2 block mt-1">找不到原食材，請重新選擇</span>
+                  ) : null}
                 </div>
 
                 {/* Row 2: Quantity + Unit side by side */}
