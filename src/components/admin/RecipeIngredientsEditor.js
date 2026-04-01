@@ -28,8 +28,6 @@ export default function RecipeIngredientsEditor({
       <div className="space-y-2">
         {formIngredients.map((ing, i) => {
           const selectedIng = ingredients.find(a => a.id === ing.ingredient_id);
-          // Debug: log if not found
-          }
           return (
             <div key={i} className="bg-[#FDFBF7] p-3 rounded-lg border border-[#DDD0B0]">
               {/* Mobile: stacked layout */}
