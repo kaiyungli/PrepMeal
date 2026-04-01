@@ -103,9 +103,14 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
 
   useEffect(() => {
     if (recipe) {
+      console.log("[RecipeForm] RAW INGREDIENT ROW:", JSON.stringify(recipe.ingredients?.[0]));
       const formIngredients = (recipe.ingredients || []).map(i => ({
-        ingredient_id: i.ingredient_id || i.ingredients?.id || null,
-        ingredient_name: i.ingredient_name || i.ingredients?.name || i.ingredients?.id ? '' : i.name || '',
+        ingredient_id: i.ingredient_id || null,
+        ingredient_name:
+          i.ingredient_name ||
+          i.ingredients?.name ||
+          i.ingredients?.[0]?.name ||
+          i.name || '',
         quantity: i.quantity || '',
         unit_id: i.unit_id || null,
         is_optional: i.is_optional || false,
