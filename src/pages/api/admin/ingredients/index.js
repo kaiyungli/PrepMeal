@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 
       const { data, error } = await queryBuilder;
       if (error) throw error;
+      console.log('[ADMIN INGREDIENTS] Response:', { count: data?.length, sample: data?.slice(0,2) });
       return res.status(200).json({ ingredients: data || [] });
     } catch (err) {
       return res.status(500).json({ error: err.message });
