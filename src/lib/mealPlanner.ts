@@ -422,13 +422,24 @@ export function planWeekAdvanced(
           }
         }
         
-        // Protein diversity
+        // Protein diversity (positive scoring)
         const protein = r.primary_protein || r.protein?.[0];
         if (protein && recentProteins.length > 0) {
           if (!recentProteins.slice(-PLANNER_RULES.PROTEIN_LOOKBACK.WITHIN_2_DAYS).includes(protein)) {
             score += PLANNER_WEIGHTS.PROTEIN_NEW;
           } else {
             score += PLANNER_WEIGHTS.PROTEIN_SAME_DAY;
+          }
+        }
+        
+        // Protein rotation penalty (reduce repetition across days)
+        if (protein && recentProteins.length > 0) {
+          const recentWindow = recentProteins.slice(-2); // Last 2 days
+          if (recentWindow.includes(protein)) {
+            score -= 2; // Penalty for repeat within 2 days
+            if (recentWindow[recentWindow.length - 1] === protein) {
+              score -= 1; // Extra penalty for immediate repeat (yesterday)
+            }
           }
         }
         
