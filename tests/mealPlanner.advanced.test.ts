@@ -287,3 +287,50 @@ describe('planWeekAdvanced slotRoles', () => {
     expect(dayRecipes[0].meal_role).toBe('complete_meal');
   });
 });
+// Test G: Perfect pantry match respects slot role
+describe('planWeekAdvanced pantry match respects slot role', () => {
+  beforeEach(() => {
+    mockRandom(0.5);
+  });
+  
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should not force pantry-perfect soup into protein_main slot', () => {
+    // A soup recipe that matches pantry perfectly but is wrong for protein_main
+    const soupPerfectForPantry = createMockRecipe({
+      id: 'soup1',
+      name: '完美雞湯',
+      dish_type: 'soup',
+      meal_role: 'soup',
+      ingredients_list: ['雞', '冬菇'], // These match pantry
+    });
+    
+    const recipes = [
+      soupPerfectForPantry,
+      fixtures.proteinMainExplicit,
+      fixtures.vegSideExplicit,
+    ];
+    
+    // Set pantry to match soupPerfectForPantry ingredients
+    const config = {
+      daysPerWeek: 1,
+      dishesPerDay: 2,
+      slotRoles: ['protein_main', 'veg_side'],
+      isWeekend: () => false,
+      lockedSlots: {},
+      lockedRecipes: {},
+      pantryIngredients: ['雞', '冬菇'], // Perfect match for soup
+    };
+    
+    const plan = planWeekAdvanced(recipes, config);
+    const dayRecipes = plan['mon'];
+    
+    // Protein main slot (slot 0) should NOT be the soup
+    // It should be protein_main recipe
+    const proteinMainSlot = dayRecipes[0];
+    expect(proteinMainSlot.dish_type).not.toBe('soup');
+    expect(proteinMainSlot.meal_role).not.toBe('soup');
+  });
+});
