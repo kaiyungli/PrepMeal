@@ -255,11 +255,20 @@ export default function GeneratePage() {
       }
     });
 
+    // Map dishesPerDay to default slotRoles
+    const defaultSlotRoles = {
+      1: ['complete_meal'],
+      2: ['protein_main', 'veg_side'],
+      3: ['protein_main', 'veg_side', 'soup']
+    };
+    const slotRoles = defaultSlotRoles[dishesPerDay] || Array(dishesPerDay).fill('any');
+
     const plannerStart = perfNow();
     // Call the meal planner
     const newPlan = planWeekAdvanced(filteredRecipes, {
       daysPerWeek,
       dishesPerDay,
+      slotRoles,
       isWeekend: (dayKey) => DAYS.find(d => d.key === dayKey)?.isWeekend || false,
       cuisines,
       exclusions,

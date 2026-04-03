@@ -178,6 +178,7 @@ export function planWeek(recipes: Recipe[]): Recipe[] {
 export interface PlanConfig {
   daysPerWeek: number;
   dishesPerDay: number;
+  slotRoles?: string[];
   isWeekend: (dayKey: string) => boolean;
   cuisines?: string[];
   exclusions?: string[];
@@ -196,6 +197,7 @@ export function planWeekAdvanced(
   const {
     daysPerWeek,
     dishesPerDay,
+    slotRoles,
     isWeekend,
     cuisines = [],
     exclusions = [],
@@ -205,6 +207,11 @@ export function planWeekAdvanced(
     lockedSlots = {},
     lockedRecipes = {}
   } = config;
+
+  // Use slotRoles if provided, otherwise fallback to dishesPerDay filled with 'any'
+  const effectiveSlotRoles = (slotRoles && slotRoles.length > 0) 
+    ? slotRoles 
+    : Array(dishesPerDay).fill('any');
 
   const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].slice(0, daysPerWeek);
   const result: Record<string, Recipe[]> = {};
@@ -282,7 +289,8 @@ export function planWeekAdvanced(
   days.forEach((day, dayIndex) => {
     const dayRecipes: Recipe[] = [];
     
-    for (let dish = 0; dish < dishesPerDay; dish++) {
+    for (let dish = 0; dish < effectiveSlotRoles.length; dish++) {
+      const slotRole = effectiveSlotRoles[dish];
       const slotKey = `${day}-${dish}`;
       
       // Use locked recipe if exists
