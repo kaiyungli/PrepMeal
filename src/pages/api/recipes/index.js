@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     const isGenerateView = view === 'generate';
     
     // Lightweight fields for generate page / planner
-    const generateFields = 'id,name,image_url,cuisine,difficulty,method,total_time_minutes,primary_protein,protein,dish_type,diet,flavor';
+    const generateFields = 'id,name,image_url,cuisine,difficulty,method,total_time_minutes,primary_protein,protein,dish_type,diet,flavor,meal_role,is_complete_meal';
     
     const selectFields = isGenerateView
       ? generateFields
