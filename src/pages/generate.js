@@ -265,7 +265,6 @@ export default function GeneratePage() {
       return ['protein_main', 'veg_side'];
     };
     const slotRoles = getSlotRoles(dailyComposition);
-    const effectiveDishesPerDay = composition.dishesPerDay;
 
     const plannerStart = perfNow();
     // Call the meal planner
@@ -486,7 +485,7 @@ export default function GeneratePage() {
           weeklyPlan={weeklyPlan}
           lockedSlots={lockedSlots}
           daysPerWeek={daysPerWeek}
-          dishesPerDay={dishesPerDay}
+          dishesPerDay={effectiveDishesPerDay}
           filteredRecipes={filteredRecipes}
           onLock={lockSlot}
           onUnlock={unlockSlot}
