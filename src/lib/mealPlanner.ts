@@ -191,13 +191,12 @@ export interface PlanConfig {
 
 // Helper to check if a recipe matches a slot role
 function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
-  if (slotRole === 'any') return true;
-  
   const mealRole = recipe.meal_role;
   const dishType = recipe.dish_type;
   const isCompleteMeal = recipe.is_complete_meal;
   const primaryProtein = recipe.primary_protein;
   
+  // Role-specific matching
   switch (slotRole) {
     case 'complete_meal':
       return mealRole === 'complete_meal' || isCompleteMeal === true;
@@ -207,8 +206,15 @@ function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
       return mealRole === 'veg_side' || dishType === 'side';
     case 'soup':
       return mealRole === 'soup' || dishType === 'soup';
-    default:
+    // Explicit fallback roles (not wildcards)
+    case 'main':
+      return dishType === 'main';
+    case 'side':
+      return dishType === 'side';
+    case 'any':
       return true;
+    default:
+      return false; // Unknown role = no match
   }
 }
 
@@ -223,11 +229,11 @@ function getCandidatesWithFallback(
   );
   if (exactMatch.length > 0) return exactMatch;
   
-  // Fallback chain per role
+  // Fallback chain per role - explicit dish_type fallbacks
   const fallbacks: Record<string, string[]> = {
     'protein_main': ['protein_main', 'main', 'any'],
     'veg_side': ['veg_side', 'side', 'any'],
-    'soup': ['soup', 'soup', 'side', 'any'],
+    'soup': ['soup', 'side', 'any'],
     'complete_meal': ['complete_meal', 'main', 'any']
   };
   
@@ -355,16 +361,20 @@ export function planWeekAdvanced(
         continue;
       }
       
-      // GUARANTEE: Use perfect match in first available slot
+      // GUARANTEE: Use perfect match only if it matches current slot role
       if (perfectMatchRecipe && !usedRecipeIds.has(perfectMatchRecipe.id)) {
-        dayRecipes.push(perfectMatchRecipe);
-        applyRecipeSelection(perfectMatchRecipe, usedRecipeIds, recentProteins, recentMethods);
-        perfectMatchRecipe = null; // Only use once
-        continue;
+        // Only use perfect match if it fits the current slot's role
+        if (matchesSlotRole(perfectMatchRecipe, slotRole)) {
+          dayRecipes.push(perfectMatchRecipe);
+          applyRecipeSelection(perfectMatchRecipe, usedRecipeIds, recentProteins, recentMethods);
+          perfectMatchRecipe = null; // Only use once
+          continue;
+        }
+        // If it doesn't match this slot, keep it for later slots (will use fallback)
       }
       
       // Calculate diminishing pantry bonus
-      const mealPosition = dayIndex * dishesPerDay + dish;
+      const mealPosition = dayIndex * effectiveSlotRoles.length + dish;
       const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
       
       // Pre-normalize pantry ONCE before scoring loop (optimization)
