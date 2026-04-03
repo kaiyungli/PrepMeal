@@ -189,24 +189,39 @@ export interface PlanConfig {
   lockedRecipes?: Record<string, Recipe>;
 }
 
-// Helper to check if a recipe matches a slot role
+// Helper to check if a recipe matches a slot role with refined priority
 function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
   const mealRole = recipe.meal_role;
   const dishType = recipe.dish_type;
   const isCompleteMeal = recipe.is_complete_meal;
   const primaryProtein = recipe.primary_protein;
   
-  // Role-specific matching
+  // Role-specific matching with priority
   switch (slotRole) {
     case 'complete_meal':
       return mealRole === 'complete_meal' || isCompleteMeal === true;
+    
     case 'protein_main':
-      return mealRole === 'protein_main' || dishType === 'main' || !!primaryProtein;
+      // Priority 1: explicit meal_role
+      if (mealRole === 'protein_main') return true;
+      // Priority 2: dish_type === 'main' (main course)
+      if (dishType === 'main') return true;
+      // Priority 3: primary protein exists (protein-tagged recipe)
+      if (!!primaryProtein) return true;
+      return false;
+    
     case 'veg_side':
-      return mealRole === 'veg_side' || dishType === 'side';
+      // Priority 1: explicit meal_role
+      if (mealRole === 'veg_side') return true;
+      // Priority 2: dish_type === 'side' AND NO primary protein
+      // Avoid protein-heavy "sides" being treated as veg sides
+      if (dishType === 'side' && !primaryProtein) return true;
+      return false;
+    
     case 'soup':
       return mealRole === 'soup' || dishType === 'soup';
-    // Explicit fallback roles (not wildcards)
+    
+    // Explicit fallback roles
     case 'main':
       return dishType === 'main';
     case 'side':
@@ -214,7 +229,7 @@ function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
     case 'any':
       return true;
     default:
-      return false; // Unknown role = no match
+      return false;
   }
 }
 
