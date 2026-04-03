@@ -269,7 +269,7 @@ export default function GeneratePage() {
     // Call the meal planner
     const newPlan = planWeekAdvanced(filteredRecipes, {
       daysPerWeek,
-      dishesPerDay,
+      dishesPerDay: effectiveDishesPerDay,
       slotRoles,
       isWeekend: (dayKey) => DAYS.find(d => d.key === dayKey)?.isWeekend || false,
       cuisines,
