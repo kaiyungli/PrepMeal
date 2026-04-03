@@ -189,6 +189,61 @@ export interface PlanConfig {
   lockedRecipes?: Record<string, Recipe>;
 }
 
+// Helper to check if a recipe matches a slot role
+function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
+  if (slotRole === 'any') return true;
+  
+  const mealRole = recipe.meal_role;
+  const dishType = recipe.dish_type;
+  const isCompleteMeal = recipe.is_complete_meal;
+  const primaryProtein = recipe.primary_protein;
+  
+  switch (slotRole) {
+    case 'complete_meal':
+      return mealRole === 'complete_meal' || isCompleteMeal === true;
+    case 'protein_main':
+      return mealRole === 'protein_main' || dishType === 'main' || !!primaryProtein;
+    case 'veg_side':
+      return mealRole === 'veg_side' || dishType === 'side';
+    case 'soup':
+      return mealRole === 'soup' || dishType === 'soup';
+    default:
+      return true;
+  }
+}
+
+// Fallback chain for when exact role has no candidates
+function getCandidatesWithFallback(
+  recipes: Recipe[], 
+  slotRole: string,
+  usedRecipeIds: Set<string>
+): Recipe[] {
+  const exactMatch = recipes.filter(r => 
+    !usedRecipeIds.has(r.id) && matchesSlotRole(r, slotRole)
+  );
+  if (exactMatch.length > 0) return exactMatch;
+  
+  // Fallback chain per role
+  const fallbacks: Record<string, string[]> = {
+    'protein_main': ['protein_main', 'main', 'any'],
+    'veg_side': ['veg_side', 'side', 'any'],
+    'soup': ['soup', 'soup', 'side', 'any'],
+    'complete_meal': ['complete_meal', 'main', 'any']
+  };
+  
+  const chain = fallbacks[slotRole] || ['any'];
+  for (const fallbackRole of chain) {
+    const candidates = recipes.filter(r => 
+      !usedRecipeIds.has(r.id) && matchesSlotRole(r, fallbackRole)
+    );
+    if (candidates.length > 0) return candidates;
+  }
+  
+  // Ultimate fallback: any unused recipe
+  return recipes.filter(r => !usedRecipeIds.has(r.id));
+}
+
+
 export function planWeekAdvanced(
   recipes: Recipe[],
   config: PlanConfig
@@ -315,11 +370,14 @@ export function planWeekAdvanced(
       // Pre-normalize pantry ONCE before scoring loop (optimization)
       const scoringNormPantry = normPantry;
       
+      // Get candidates matching this slot role (with fallback chain)
+      const candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
+      
       // Score candidates and maintain top 3 only (optimization: avoid full array sort)
       // Use simple insertion to keep only top 3 instead of sorting entire array
       let top3: { recipe: Recipe; score: number }[] = [];
       
-      for (const r of filtered) {
+      for (const r of candidates) {
         let score = 5; // base score
         
         // Repeat penalty - exclude already used recipes or heavily penalize
