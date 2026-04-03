@@ -33,9 +33,6 @@ export default function GeneratePage() {
   const {
     daysPerWeek, setDaysPerWeek,
     dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition,
-  // Derived dishesPerDay from composition
-  const effectiveDishesPerDay = dailyComposition === 'complete_meal' ? 1 : dailyComposition === 'meat_veg_soup' ? 3 : 2;
-
     servings, setServings,
     dietMode, setDietMode,
     budget, setBudget,
@@ -50,6 +47,9 @@ export default function GeneratePage() {
     filters, // NEW: derived unified filters
     setFilters, // NEW: setter for unified filters
   } = useGeneratePreferences();
+  
+  // Derived dishesPerDay from composition (MUST be after hook)
+  const effectiveDishesPerDay = dailyComposition === 'complete_meal' ? 1 : dailyComposition === 'meat_veg_soup' ? 3 : 2;
   
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
@@ -258,11 +258,283 @@ export default function GeneratePage() {
       }
     });
 
-    // Composition mapping - dailyComposition is the source of truth
-    const COMPOSITION_MAP = {
-      'complete_meal': { slotRoles: ['complete_meal'], dishesPerDay: 1 },
-      'meat_veg': { slotRoles: ['protein_main', 'veg_side'], dishesPerDay: 2 },
-      'meat_veg_soup': { slotRoles: ['protein_main', 'veg_side', 'soup'], dishesPerDay: 3 }
+    // Get slotRoles from composition (avoid object literal for parser)
+    const getSlotRoles = (c) => {
+      if (c === 'complete_meal') return ['complete_meal'];
+      if (c === 'meat_veg_soup') return ['protein_main', 'veg_side', 'soup'];
+      return ['protein_main', 'veg_side'];
     };
-    const composition = COMPOSITION_MAP[dailyComposition] || COMPOSITION_MAP['meat_veg'];
-    const slotRoles = composition.slotRoles;
+    const slotRoles = getSlotRoles(dailyComposition);
+    const effectiveDishesPerDay = composition.dishesPerDay;
+
+    const plannerStart = perfNow();
+    // Call the meal planner
+    const newPlan = planWeekAdvanced(filteredRecipes, {
+      daysPerWeek,
+      dishesPerDay: effectiveDishesPerDay,
+      slotRoles,
+      isWeekend: (dayKey) => DAYS.find(d => d.key === dayKey)?.isWeekend || false,
+      cuisines,
+      exclusions,
+      cookingConstraints,
+      budget,
+      pantryIngredients,
+      lockedSlots,
+      lockedRecipes
+    });
+
+    setWeeklyPlan(newPlan);
+    perfMeasure('generate.handleGenerate.planWeekAdvanced', plannerStart);
+    perfMeasure('generate.handleGenerate.total', genStart);
+    setHasGenerated(true);
+    
+    // Shopping list loads lazily when modal opens
+  };
+
+  const replaceRecipe = (dayKey, index) => {
+    // Get current recipes for this day to use in scoring
+    const currentDayRecipes = weeklyPlan[dayKey] || [];
+    const allRecipes = Object.values(weeklyPlan).flat().filter(r => r);
+    
+    // Score each available recipe using same logic as planner
+    const scored = filteredRecipes
+      .filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
+      .map(r => {
+        let score = 5; // base score
+        
+        // Repeat penalty - avoid recipes already in plan
+        if (allRecipes.some(pr => pr.id === r.id)) {
+          score -= 100;
+        }
+        
+        // Protein diversity
+        const protein = r.primary_protein || r.protein?.[0];
+        const recentProteins = allRecipes.slice(-3).map(pr => pr.primary_protein || pr.protein?.[0]).filter(Boolean);
+        if (protein && recentProteins.length > 0) {
+          if (!recentProteins.includes(protein)) {
+            score += 2;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        // Method diversity
+        const method = r.method;
+        const recentMethods = allRecipes.slice(-2).map(pr => pr.method).filter(Boolean);
+        if (method && recentMethods.length > 0) {
+          if (!recentMethods.includes(method)) {
+            score += 1;
+          } else {
+            score -= 1;
+          }
+        }
+        
+        return { recipe: r, score };
+      });
+    
+    if (scored.length === 0) return;
+    
+    // Sort by score and pick highest
+    scored.sort((a, b) => b.score - a.score);
+    const selected = scored[0]?.recipe;
+    
+    if (selected) {
+      setWeeklyPlan(prev => {
+        const dayRecipes = [...(prev[dayKey] || [])];
+        dayRecipes[index] = selected;
+        return { ...prev, [dayKey]: dayRecipes };
+      });
+    }
+  };
+
+  // Open shopping list - data already preloaded
+  const generateShoppingList = () => {
+    // Open modal immediately - data already in state
+    // If not loaded yet, show inline loading inside modal
+    setShowShoppingList(true);
+  };
+
+  const clearAll = () => {
+    // Reset planning settings to defaults
+    setDaysPerWeek(7);
+    setDishesPerDay(1); setDailyComposition('complete_meal');
+    setServings(2);
+    
+    // Reset all filters
+    clearFilters();
+    
+    // Reset generate page transient state
+    setWeeklyPlan(DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}));
+    setLockedSlots({});
+    setHasGenerated(false);
+    setShoppingList([]);
+    setShoppingListLoaded(false);
+    setShowShoppingList(false);
+  };
+
+  const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0);
+  const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+
+  return (
+    <>
+      <Header />
+      <Head><title>今晚食乜 - 一週餐單</title></Head>
+      <div className="min-h-screen bg-[#F8F3E8]">
+        
+        {/* Hero Header */}
+        <section className='bg-[#9B6035] px-6 py-8 text-center'>
+          <h1 className='text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white mb-2'>
+            🍽️ 一週餐單
+          </h1>
+          <p className='text-white/80 text-base'>
+            為你安排每日晚餐，簡單方便
+          </p>
+        </section>
+
+        {/* Settings Panel */}
+        <GenerateSettings 
+          daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
+          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay} dailyComposition={dailyComposition} setDailyComposition={setDailyComposition}
+          servings={servings} setServings={setServings}
+          filters={filters}
+          setFilters={setFilters}
+          onClearAll={clearAll}
+        />
+
+        {/* Action Bar */}
+        
+        <GenerateActions 
+          isSaving={isSaving}
+          selectedCount={selectedCount}
+          hasRecipes={hasRecipes}
+          onClear={clearAll}
+          onShoppingList={generateShoppingList}
+          onGenerate={() => handleGenerate()}
+          onSave={async () => {
+            if (isSaving) return;
+            // Check auth first
+            if (!isAuthenticated) {
+              alert('請先登入以保存餐單');
+              window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+            const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
+            if (!name) return;
+            
+            // Build normalized items from weeklyPlan using explicit day mapping
+            // weeklyPlan structure: { mon: [recipe, recipe], tue: [recipe, recipe], ... }
+            const items = [];
+            Object.keys(weeklyPlan).forEach((dayKey) => {
+              const dayIndex = DAY_INDEX_MAP[dayKey];
+              if (dayIndex === undefined) return; // Skip invalid day keys
+              
+              const dayRecipes = weeklyPlan[dayKey] || [];
+              dayRecipes.forEach((recipe) => {
+                if (recipe && recipe.id) {
+                  items.push({
+                    day_index: dayIndex,
+                    meal_type: 'dinner',
+                    recipe_id: recipe.id,
+                    servings: servings,
+                  });
+                }
+              });
+            });
+            
+            if (items.length === 0) {
+              alert('沒有餐單內容可以保存');
+              return;
+            }
+            
+            // Get token and verify before sending request
+            const token = await getAccessToken();
+            if (!token) {
+              alert('登入狀態已失效，請重新登入');
+              window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+            
+            try {
+              setIsSaving(true);
+              const res = await fetch('/api/user/menus', {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                  name,
+                  week_start_date: new Date().toISOString().split('T')[0],
+                  days_count: daysPerWeek,
+                  items,
+                })
+              });
+              const data = await res.json();
+              if (data.success === false && data.error) throw new Error(data.error);
+              setSaveNotice(`✅ 已保存餐單：${name}`);
+              setTimeout(() => setSaveNotice(''), 3000);
+            } catch (e) {
+              alert('保存失敗: ' + e.message);
+            } finally {
+              setIsSaving(false);
+            }
+          }}
+        />
+
+        {/* Weekly Plan Grid */}
+        <GenerateResults
+          weeklyPlan={weeklyPlan}
+          lockedSlots={lockedSlots}
+          daysPerWeek={daysPerWeek}
+          dishesPerDay={dishesPerDay}
+          filteredRecipes={filteredRecipes}
+          onLock={lockSlot}
+          onUnlock={unlockSlot}
+          onRemove={removeRecipe}
+          setWeeklyPlan={setWeeklyPlan}
+          onRecipeClick={(recipe) => {
+            // Use cache if available
+            if (recipeCache.current.has(recipe.id)) {
+              setSelectedRecipe(recipeCache.current.get(recipe.id));
+              return;
+            }
+            setModalLoading(true);
+            fetch('/api/recipes/' + recipe.id)
+              .then(res => res.json())
+              .then(data => {
+                recipeCache.current.set(recipe.id, data);
+                setSelectedRecipe(data);
+              })
+              .finally(() => setModalLoading(false));
+          }}
+        />
+        {/* Shopping List Modal */}
+        <ShoppingListModal 
+          isOpen={showShoppingList} 
+          onClose={() => setShowShoppingList(false)}
+          shoppingList={shoppingList}
+          loading={!shoppingListLoaded}
+        />
+
+        {/* Recipe Detail Modal */}
+        <RecipeDetailModal 
+          isOpen={!!selectedRecipe} 
+          onClose={() => setSelectedRecipe(null)} 
+          recipe={selectedRecipe}
+          loading={modalLoading}
+        />
+
+        <Footer />
+        {saveNotice && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+            <div className={UI.notice}>
+              <span className="text-[var(--color-primary)]">✓</span>
+              <span className="font-medium text-[var(--color-text-primary)]">{saveNotice}</span>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </>
+  );
+}
