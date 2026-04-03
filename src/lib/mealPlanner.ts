@@ -363,8 +363,13 @@ export function planWeekAdvanced(
 
   // Generate plan
   const dayGenStart = perfNow();
+  
+  // Day-based protein history for rotation penalty (not slot-based)
+  const dayProteinHistory: string[][] = [];
+  
   days.forEach((day, dayIndex) => {
     const dayRecipes: Recipe[] = [];
+    const dayProteins: string[] = [];
     
     for (let dish = 0; dish < effectiveSlotRoles.length; dish++) {
       const slotRole = effectiveSlotRoles[dish];
@@ -432,14 +437,14 @@ export function planWeekAdvanced(
           }
         }
         
-        // Protein rotation penalty (reduce repetition across days)
-        if (protein && recentProteins.length > 0) {
-          const recentWindow = recentProteins.slice(-2); // Last 2 days
-          if (recentWindow.includes(protein)) {
-            score -= 2; // Penalty for repeat within 2 days
-            if (recentWindow[recentWindow.length - 1] === protein) {
-              score -= 1; // Extra penalty for immediate repeat (yesterday)
-            }
+        // Protein rotation penalty (day-based, not slot-based)
+        if (protein && dayProteinHistory.length > 0) {
+          const yesterdayProteins = dayProteinHistory[dayProteinHistory.length - 1] || [];
+          const last2DaysProteins = dayProteinHistory.slice(-2).flat();
+          if (yesterdayProteins.includes(protein)) {
+            score -= 3; // Stronger penalty for same protein yesterday
+          } else if (last2DaysProteins.includes(protein)) {
+            score -= 2; // Penalty for repeat within last 2 days
           }
         }
         
@@ -535,6 +540,13 @@ export function planWeekAdvanced(
         applyRecipeSelection(selected, usedRecipeIds, recentProteins, recentMethods);
       }
     }
+    
+    // Save day's proteins to history for next day penalties
+    dayRecipes.forEach(r => {
+      const p = r.primary_protein || r.protein?.[0];
+      if (p) dayProteins.push(p);
+    });
+    dayProteinHistory.push(dayProteins);
     
     result[day] = dayRecipes;
   });
