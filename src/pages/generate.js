@@ -32,7 +32,7 @@ export default function GeneratePage() {
   // Settings State - use hook for preferences
   const {
     daysPerWeek, setDaysPerWeek,
-    dishesPerDay, setDishesPerDay,
+    dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition,
     servings, setServings,
     dietMode, setDietMode,
     budget, setBudget,
@@ -255,13 +255,16 @@ export default function GeneratePage() {
       }
     });
 
-    // Map dishesPerDay to default slotRoles
-    const defaultSlotRoles = {
-      1: ['complete_meal'],
-      2: ['protein_main', 'veg_side'],
-      3: ['protein_main', 'veg_side', 'soup']
+    // Composition mapping - dailyComposition is the source of truth
+    const COMPOSITION_MAP = {
+      'complete_meal': { slotRoles: ['complete_meal'], dishesPerDay: 1 },
+      'meat_veg': { slotRoles: ['protein_main', 'veg_side'], dishesPerDay: 2 },
+      'meat_veg_soup': { slotRoles: ['protein_main', 'veg_side', 'soup'], dishesPerDay: 3 }
     };
-    const slotRoles = defaultSlotRoles[dishesPerDay] || Array(dishesPerDay).fill('any');
+    const composition = COMPOSITION_MAP[dailyComposition] || COMPOSITION_MAP['meat_veg'];
+    const slotRoles = composition.slotRoles;
+    // Sync dishesPerDay for legacy code
+    setDishesPerDay(composition.dishesPerDay);
 
     const plannerStart = perfNow();
     // Call the meal planner
@@ -353,7 +356,7 @@ export default function GeneratePage() {
   const clearAll = () => {
     // Reset planning settings to defaults
     setDaysPerWeek(7);
-    setDishesPerDay(1);
+    setDishesPerDay(1); setDailyComposition('complete_meal');
     setServings(2);
     
     // Reset all filters
@@ -390,7 +393,7 @@ export default function GeneratePage() {
         {/* Settings Panel */}
         <GenerateSettings 
           daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
-          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay}
+          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay} dailyComposition={dailyComposition} setDailyComposition={setDailyComposition}
           servings={servings} setServings={setServings}
           filters={filters}
           setFilters={setFilters}

@@ -8,6 +8,8 @@ interface GenerateSettingsProps {
   setDaysPerWeek: (v: number) => void;
   dishesPerDay: number;
   setDishesPerDay: (v: number) => void;
+  dailyComposition: string;
+  setDailyComposition: (v: string) => void;
   servings: number;
   setServings: (v: number) => void;
   // Legacy props - ignored in unified mode
@@ -34,7 +36,7 @@ const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
-  dishesPerDay, setDishesPerDay,
+  dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition,
   servings, setServings,
   filters: externalFilters,
   setFilters: externalSetFilters,
@@ -114,19 +116,23 @@ export default function GenerateSettings({
 
             {/* Dishes per day */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#7A5A38]">每日</span>
+              <span className="text-xs font-medium text-[#7A5A38]">餐單</span>
               <div className="flex gap-1">
-                {DISHES_OPTIONS.map(d => (
+                {[
+                  { value: 'complete_meal', label: '一份完整餐' },
+                  { value: 'meat_veg', label: '一肉一菜' },
+                  { value: 'meat_veg_soup', label: '一肉一菜一湯' }
+                ].map(opt => (
                   <button
-                    key={d}
-                    onClick={() => setDishesPerDay(d)}
+                    key={opt.value}
+                    onClick={() => setDailyComposition(opt.value)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      dishesPerDay === d
+                      dailyComposition === opt.value
                         ? 'bg-[#9B6035] text-white'
                         : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
                     }`}
                   >
-                    {d}碟
+                    {opt.label}
                   </button>
                 ))}
               </div>
