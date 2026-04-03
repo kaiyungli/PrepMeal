@@ -13,7 +13,8 @@
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
 import { perfNow, perfMeasure, perfStage } from '@/utils/perf';
-import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner'
+import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
+import { COMPOSITION_CONFIG } from '@/constants/composition';
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
 function getRecipeSearchText(recipe: Recipe): string {
@@ -245,20 +246,33 @@ function getCandidatesWithFallback(
   );
   if (exactMatch.length > 0) return exactMatch;
   
-  // Fallback chain per role - explicit dish_type fallbacks
+  // Fallback chain per role - stricter for veg_side
   const fallbacks: Record<string, string[]> = {
     'protein_main': ['protein_main', 'main', 'any'],
-    'veg_side': ['veg_side', 'side', 'any'],
+    'veg_side': ['veg_side', 'side'],  // Removed 'any' - no main dishes for veg slot
     'soup': ['soup', 'side', 'any'],
     'complete_meal': ['complete_meal', 'main', 'any']
   };
   
   const chain = fallbacks[slotRole] || ['any'];
-  for (const fallbackRole of chain) {
-    const candidates = recipes.filter(r => 
-      !usedRecipeIds.has(r.id) && matchesSlotRole(r, fallbackRole)
-    );
-    if (candidates.length > 0) return candidates;
+  
+  // For veg_side, filter out candidates with primary_protein
+  if (slotRole === 'veg_side') {
+    for (const fallbackRole of chain) {
+      const candidates = recipes.filter(r => 
+        !usedRecipeIds.has(r.id) && 
+        matchesSlotRole(r, fallbackRole) &&
+        !r.primary_protein  // Must have NO protein for veg slot
+      );
+      if (candidates.length > 0) return candidates;
+    }
+  } else {
+    for (const fallbackRole of chain) {
+      const candidates = recipes.filter(r => 
+        !usedRecipeIds.has(r.id) && matchesSlotRole(r, fallbackRole)
+      );
+      if (candidates.length > 0) return candidates;
+    }
   }
   
   // Ultimate fallback: any unused recipe
@@ -408,7 +422,11 @@ export function planWeekAdvanced(
       // Use simple insertion to keep only top 3 instead of sorting entire array
       let top3: { recipe: Recipe; score: number }[] = [];
       
-      for (const r of candidates) {
+      // Collect current day's proteins for hard constraints
+        const dayProteins = dayRecipes.map(d => d.primary_protein).filter(Boolean);
+        const alreadyHasComplete = dayRecipes.some(d => d.is_complete_meal || d.meal_role === 'complete_meal');
+        
+        for (const r of candidates) {
         let score = 5; // base score
         
         // Repeat penalty - exclude already used recipes or heavily penalize
@@ -416,15 +434,23 @@ export function planWeekAdvanced(
           score -= 100; // Heavy penalty to avoid repeats
         }
         
-        // Complete meal penalty in mixed modes (meat_veg, two_meat_one_veg)
-        // Allow complete_meal to appear occasionally but not dominate
+        // HARD CONSTRAINT: Max 1 complete_meal per day
         const isComplete = r.is_complete_meal || r.meal_role === 'complete_meal';
-        if (isComplete && config.dailyComposition && config.dailyComposition !== 'complete_meal') {
-          if (config.dailyComposition === 'meat_veg') {
-            score -= 1.5; // Penalty in 1-meat-1-veg mode
-          } else if (config.dailyComposition === 'two_meat_one_veg') {
-            score -= 2.5; // Higher penalty in 2-meat-1-veg mode
-          }
+        if (isComplete && alreadyHasComplete) {
+          score -= 10; // Extra heavy penalty to prevent second complete_meal
+        }
+        
+        // HARD CONSTRAINT: No same protein within same day
+        const candidateProtein = r.primary_protein || r.protein?.[0];
+        if (candidateProtein && dayProteins.includes(candidateProtein)) {
+          score -= 6; // Stronger penalty for same-day protein duplication
+        }
+        
+        // Complete meal penalty in mixed modes - use centralized config
+        const compositionKey = (config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG;
+        const compositionConfig = COMPOSITION_CONFIG[compositionKey];
+        if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
+          score += compositionConfig.completeMealPenalty;
         }
         
         // Protein diversity (positive scoring)

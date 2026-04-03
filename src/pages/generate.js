@@ -8,6 +8,7 @@ import GenerateResults from '@/components/generate/GenerateResults';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
 import { UI } from '@/styles/ui';
+import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -48,8 +49,10 @@ export default function GeneratePage() {
     setFilters, // NEW: setter for unified filters
   } = useGeneratePreferences();
   
-  // Derived dishesPerDay from composition (MUST be after hook)
-  const effectiveDishesPerDay = dailyComposition === 'complete_meal' ? 1 : dailyComposition === 'two_meat_one_veg' ? 3 : 2;
+  // Use centralized composition config
+  const compositionKey = dailyComposition || 'meat_veg';
+  const compositionConfig = COMPOSITION_CONFIG[compositionKey] || COMPOSITION_CONFIG.meat_veg;
+  const effectiveDishesPerDay = compositionConfig.dishesPerDay;
   
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
@@ -258,13 +261,7 @@ export default function GeneratePage() {
       }
     });
 
-    // Get slotRoles from composition (avoid object literal for parser)
-    const getSlotRoles = (c) => {
-      if (c === 'complete_meal') return ['complete_meal'];
-      if (c === 'two_meat_one_veg') return ['protein_main', 'protein_main', 'veg_side'];
-      return ['protein_main', 'veg_side'];
-    };
-    const slotRoles = getSlotRoles(dailyComposition);
+    const slotRoles = compositionConfig.slotRoles;
 
     const plannerStart = perfNow();
     // Call the meal planner
