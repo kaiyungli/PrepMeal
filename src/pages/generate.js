@@ -272,6 +272,7 @@ export default function GeneratePage() {
       daysPerWeek,
       dishesPerDay: effectiveDishesPerDay,
       slotRoles,
+      dailyComposition,
       isWeekend: (dayKey) => DAYS.find(d => d.key === dayKey)?.isWeekend || false,
       cuisines,
       exclusions,

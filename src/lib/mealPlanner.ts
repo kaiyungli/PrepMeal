@@ -179,6 +179,7 @@ export interface PlanConfig {
   daysPerWeek: number;
   dishesPerDay: number;
   slotRoles?: string[];
+  dailyComposition?: string; // 'complete_meal' | 'meat_veg' | 'two_meat_one_veg'
   isWeekend: (dayKey: string) => boolean;
   cuisines?: string[];
   exclusions?: string[];
@@ -408,6 +409,17 @@ export function planWeekAdvanced(
         // Repeat penalty - exclude already used recipes or heavily penalize
         if (usedRecipeIds.has(r.id)) {
           score -= 100; // Heavy penalty to avoid repeats
+        }
+        
+        // Complete meal penalty in mixed modes (meat_veg, two_meat_one_veg)
+        // Allow complete_meal to appear occasionally but not dominate
+        const isComplete = r.is_complete_meal || r.meal_role === 'complete_meal';
+        if (isComplete && config.dailyComposition && config.dailyComposition !== 'complete_meal') {
+          if (config.dailyComposition === 'meat_veg') {
+            score -= 1.5; // Penalty in 1-meat-1-veg mode
+          } else if (config.dailyComposition === 'two_meat_one_veg') {
+            score -= 2.5; // Higher penalty in 2-meat-1-veg mode
+          }
         }
         
         // Protein diversity
