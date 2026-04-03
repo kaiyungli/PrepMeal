@@ -6,8 +6,7 @@ import { FILTER_GROUPS } from '@/constants/filters';
 interface GenerateSettingsProps {
   daysPerWeek: number;
   setDaysPerWeek: (v: number) => void;
-  dishesPerDay: number;
-  setDishesPerDay: (v: number) => void;
+  
   dailyComposition: string;
   setDailyComposition: (v: string) => void;
   servings: number;
@@ -31,12 +30,12 @@ interface GenerateSettingsProps {
 }
 
 const DAYS_OPTIONS = [3, 5, 7];
-const DISHES_OPTIONS = [1, 2, 3];
+
 const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
-  dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition,
+  dailyComposition, setDailyComposition,
   servings, setServings,
   filters: externalFilters,
   setFilters: externalSetFilters,

@@ -263,8 +263,7 @@ export default function GeneratePage() {
     };
     const composition = COMPOSITION_MAP[dailyComposition] || COMPOSITION_MAP['meat_veg'];
     const slotRoles = composition.slotRoles;
-    // Sync dishesPerDay for legacy code
-    setDishesPerDay(composition.dishesPerDay);
+    const effectiveDishesPerDay = composition.dishesPerDay;
 
     const plannerStart = perfNow();
     // Call the meal planner
