@@ -394,7 +394,7 @@ export default function GeneratePage() {
         {/* Settings Panel */}
         <GenerateSettings 
           daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
-          dishesPerDay={dishesPerDay} setDishesPerDay={setDishesPerDay} dailyComposition={dailyComposition} setDailyComposition={setDailyComposition}
+          dailyComposition={dailyComposition} setDailyComposition={setDailyComposition}
           servings={servings} setServings={setServings}
           filters={filters}
           setFilters={setFilters}
