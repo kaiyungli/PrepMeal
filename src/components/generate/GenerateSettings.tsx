@@ -120,7 +120,7 @@ export default function GenerateSettings({
                 {[
                   { value: 'complete_meal', label: '一份完整餐' },
                   { value: 'meat_veg', label: '一肉一菜' },
-                  { value: 'meat_veg_soup', label: '一肉一菜一湯' }
+                  { value: 'two_meat_one_veg', label: '二肉一菜' }
                 ].map(opt => (
                   <button
                     key={opt.value}

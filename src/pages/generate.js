@@ -49,7 +49,7 @@ export default function GeneratePage() {
   } = useGeneratePreferences();
   
   // Derived dishesPerDay from composition (MUST be after hook)
-  const effectiveDishesPerDay = dailyComposition === 'complete_meal' ? 1 : dailyComposition === 'meat_veg_soup' ? 3 : 2;
+  const effectiveDishesPerDay = dailyComposition === 'complete_meal' ? 1 : dailyComposition === 'two_meat_one_veg' ? 3 : 2;
   
   // Auth for save functionality
   const { isAuthenticated, getAccessToken } = useAuth();
@@ -261,7 +261,7 @@ export default function GeneratePage() {
     // Get slotRoles from composition (avoid object literal for parser)
     const getSlotRoles = (c) => {
       if (c === 'complete_meal') return ['complete_meal'];
-      if (c === 'meat_veg_soup') return ['protein_main', 'veg_side', 'soup'];
+      if (c === 'two_meat_one_veg') return ['protein_main', 'protein_main', 'veg_side'];
       return ['protein_main', 'veg_side'];
     };
     const slotRoles = getSlotRoles(dailyComposition);
