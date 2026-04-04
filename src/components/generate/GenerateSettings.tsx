@@ -140,17 +140,19 @@ export default function GenerateSettings({
             </div>
 
             {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
-              <button
-                type="button"
-                onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
-                className={`mt-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                  allowCompleteMeal
-                    ? 'bg-[#9B6035] text-white border-[#9B6035]'
-                    : 'bg-white text-[#6B5C4F] border-[#E5D5C0]'
-                }`}
-              >
-                {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
-              </button>
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
+                  className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                    allowCompleteMeal
+                      ? 'bg-[#F4EDDD] text-[#9B6035] border-[#E5D5C0]'
+                      : 'bg-white text-[#9B8B7A] border-[#E5D5C0]'
+                  }`}
+                >
+                  {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
+                </button>
+              </div>
             )}
 
             {/* Servings */}
