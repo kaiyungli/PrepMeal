@@ -118,7 +118,24 @@ export default function GenerateSettings({
 
             {/* Group 2: 餐單 */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-medium text-[#7A5A38]">餐單</span>
+              {/* Row 1: Label + Toggle */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-[#7A5A38]">餐單</span>
+                {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
+                  <button
+                    type="button"
+                    onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
+                    className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                      allowCompleteMeal
+                        ? 'bg-[#F4EDDD] text-[#9B6035] border-[#E5D5C0]'
+                        : 'bg-white text-[#9B8B7A] border-[#E5D5C0]'
+                    }`}
+                  >
+                    {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
+                  </button>
+                )}
+              </div>
+              {/* Row 2: Composition chips */}
               <div className="flex flex-wrap gap-1">
                 {[
                   { value: 'complete_meal', label: '一份完整餐' },
@@ -138,21 +155,6 @@ export default function GenerateSettings({
                   </button>
                 ))}
               </div>
-              {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
-                    className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                      allowCompleteMeal
-                        ? 'bg-[#F4EDDD] text-[#9B6035] border-[#E5D5C0]'
-                        : 'bg-white text-[#9B8B7A] border-[#E5D5C0]'
-                    }`}
-                  >
-                    {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Group 3: 份量 */}
