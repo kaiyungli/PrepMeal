@@ -1,5 +1,16 @@
 import Image from 'next/image'
 
+// Get meal role label for display
+function getMealRoleLabel(recipe: Recipe): string | null {
+  if (recipe.is_complete_meal || recipe.meal_role === 'complete_meal') return '完整餐';
+  if (recipe.meal_role === 'veg_side') return '配菜';
+  if (recipe.meal_role === 'protein_main') return '主菜';
+  // Default based on dish_type
+  if (recipe.dish_type === 'side') return '配菜';
+  if (recipe.dish_type === 'soup') return '湯';
+  return null;
+}
+
 const DAYS = [
   { key: 'mon', label: '星期一', isWeekend: false },
   { key: 'tue', label: '星期二', isWeekend: false },
@@ -31,6 +42,8 @@ interface Recipe {
   image_url?: string
   cuisine?: string
   dish_type?: string
+  meal_role?: string
+  is_complete_meal?: boolean
 }
 
 /**
@@ -126,6 +139,11 @@ export default function WeeklyPlanGrid({
                       </div>
                       <div className="p-2">
                         <div className="text-xs font-medium text-[#3A2010] truncate">{recipe.name}</div>
+                        {getMealRoleLabel(recipe) && (
+                          <span className="text-[10px] px-1 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded mt-1 inline-block">
+                            {getMealRoleLabel(recipe)}
+                          </span>
+                        )}
                         <div className="flex gap-1 mt-1">
                           <button
                             onClick={() => onReplace(day.key, index)}
