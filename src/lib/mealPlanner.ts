@@ -447,13 +447,15 @@ export function planWeekAdvanced(
           score -= 6; // Stronger penalty for same-day protein duplication
         }
         
-        // Complete meal penalty in mixed modes - use centralized config
+        // Complete meal handling in mixed modes
         const compositionKey = (config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG;
         const compositionConfig = COMPOSITION_CONFIG[compositionKey];
-        // Only apply penalty if allowCompleteMeal is true (default) and not in complete_meal mode
-        const shouldPenalizeComplete = config.allowCompleteMeal !== false && 
-          compositionConfig && compositionConfig.completeMealPenalty !== 0;
-        if (isComplete && shouldPenalizeComplete) {
+        const isMixedMode = compositionConfig && compositionConfig.dishesPerDay > 1;
+        // If allowCompleteMeal = false in mixed mode, exclude complete_meal entirely
+        if (isComplete && isMixedMode && config.allowCompleteMeal === false) {
+          score -= 100; // Heavy penalty to effectively exclude
+        } else if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
+          // Apply normal penalty when allowCompleteMeal = true
           score += compositionConfig.completeMealPenalty;
         }
         
