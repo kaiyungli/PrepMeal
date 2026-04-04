@@ -94,12 +94,12 @@ export default function GenerateSettings({
       <div className="max-w-[1200px] mx-auto">
         {/* Planning Controls - embedded in header */}
         <div className="bg-[#F8F3E8] rounded-t-xl border border-b-0 border-[#E5DCC8] px-4 py-3 mb-[-1px]">
-          {/* Grouped controls - 3 aligned rows */}
-          <div className="flex flex-col gap-3">
-            {/* Group 1: Days per week */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-[#7A5A38] w-10">每週</span>
-              <div className="flex gap-1">
+          {/* Grouped controls - 3-column grid */}
+          <div className="grid grid-cols-3 gap-6">
+            {/* Group 1: 每週 */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">每週</span>
+              <div className="flex flex-wrap gap-1">
                 {DAYS_OPTIONS.map(d => (
                   <button
                     key={d}
@@ -116,32 +116,30 @@ export default function GenerateSettings({
               </div>
             </div>
 
-            {/* Group 2: Composition + Toggle */}
+            {/* Group 2: 餐單 */}
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-[#7A5A38] w-10">餐單</span>
-                <div className="flex gap-1">
-                  {[
-                    { value: 'complete_meal', label: '一份完整餐' },
-                    { value: 'meat_veg', label: '一肉一菜' },
-                    { value: 'two_meat_one_veg', label: '二肉一菜' }
-                  ].map(opt => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setDailyComposition(opt.value)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                        dailyComposition === opt.value
-                          ? 'bg-[#9B6035] text-white'
-                          : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
+              <span className="text-xs font-medium text-[#7A5A38]">餐單</span>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { value: 'complete_meal', label: '一份完整餐' },
+                  { value: 'meat_veg', label: '一肉一菜' },
+                  { value: 'two_meat_one_veg', label: '二肉一菜' }
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setDailyComposition(opt.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      dailyComposition === opt.value
+                        ? 'bg-[#9B6035] text-white'
+                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
               {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
-                <div className="pl-[3.5rem]">
+                <div>
                   <button
                     type="button"
                     onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
@@ -157,9 +155,9 @@ export default function GenerateSettings({
               )}
             </div>
 
-            {/* Group 3: Servings */}
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-[#7A5A38] w-10">份量</span>
+            {/* Group 3: 份量 */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">份量</span>
               <select
                 value={servings}
                 onChange={(e) => setServings(parseInt(e.target.value))}
