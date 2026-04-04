@@ -12,12 +12,12 @@ export const COMPOSITION_CONFIG = {
   meat_veg: {
     dishesPerDay: 2,
     slotRoles: ['protein_main', 'veg_side'],
-    completeMealPenalty: -1.5, // Penalty in 1-meat-1-veg mode
+    completeMealPenalty: -3, // Further tuned in 1-meat-1-veg mode
   },
   two_meat_one_veg: {
     dishesPerDay: 3,
     slotRoles: ['protein_main', 'protein_main', 'veg_side'],
-    completeMealPenalty: -2.5, // Higher penalty in 2-meat-1-veg mode
+    completeMealPenalty: -4.5, // Further tuned in 2-meat-1-veg mode
   },
 };
 
