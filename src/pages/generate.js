@@ -33,7 +33,7 @@ export default function GeneratePage() {
   // Settings State - use hook for preferences
   const {
     daysPerWeek, setDaysPerWeek,
-    dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition,
+    dishesPerDay, setDishesPerDay, dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
     servings, setServings,
     dietMode, setDietMode,
     budget, setBudget,
@@ -392,6 +392,7 @@ export default function GeneratePage() {
         <GenerateSettings 
           daysPerWeek={daysPerWeek} setDaysPerWeek={setDaysPerWeek}
           dailyComposition={dailyComposition} setDailyComposition={setDailyComposition}
+          allowCompleteMeal={allowCompleteMeal} setAllowCompleteMeal={setAllowCompleteMeal}
           servings={servings} setServings={setServings}
           filters={filters}
           setFilters={setFilters}

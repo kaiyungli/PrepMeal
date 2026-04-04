@@ -9,6 +9,8 @@ interface GenerateSettingsProps {
   
   dailyComposition: string;
   setDailyComposition: (v: string) => void;
+  allowCompleteMeal: boolean;
+  setAllowCompleteMeal: (v: boolean) => void;
   servings: number;
   setServings: (v: number) => void;
   // Legacy props - ignored in unified mode
@@ -35,7 +37,7 @@ const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
-  dailyComposition, setDailyComposition,
+  dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
   filters: externalFilters,
   setFilters: externalSetFilters,
@@ -136,6 +138,17 @@ export default function GenerateSettings({
                 ))}
               </div>
             </div>
+
+            {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
+              <label className="flex items-center gap-2 mt-2 text-sm text-[#6B5C4F]">
+                <input
+                  type="checkbox"
+                  checked={allowCompleteMeal}
+                  onChange={(e) => setAllowCompleteMeal(e.target.checked)}
+                />
+                可接受一份完整餐
+              </label>
+            )}
 
             {/* Servings */}
             <div className="flex items-center gap-2">

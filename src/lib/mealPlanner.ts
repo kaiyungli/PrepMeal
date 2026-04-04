@@ -181,6 +181,7 @@ export interface PlanConfig {
   dishesPerDay: number;
   slotRoles?: string[];
   dailyComposition?: string; // 'complete_meal' | 'meat_veg' | 'two_meat_one_veg'
+  allowCompleteMeal?: boolean; // Whether to allow complete_meal in mixed modes
   isWeekend: (dayKey: string) => boolean;
   cuisines?: string[];
   exclusions?: string[];
@@ -449,7 +450,10 @@ export function planWeekAdvanced(
         // Complete meal penalty in mixed modes - use centralized config
         const compositionKey = (config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG;
         const compositionConfig = COMPOSITION_CONFIG[compositionKey];
-        if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
+        // Only apply penalty if allowCompleteMeal is true (default) and not in complete_meal mode
+        const shouldPenalizeComplete = config.allowCompleteMeal !== false && 
+          compositionConfig && compositionConfig.completeMealPenalty !== 0;
+        if (isComplete && shouldPenalizeComplete) {
           score += compositionConfig.completeMealPenalty;
         }
         

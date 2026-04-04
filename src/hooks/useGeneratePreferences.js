@@ -29,6 +29,7 @@ export function useGeneratePreferences() {
   const [daysPerWeek, setDaysPerWeek] = useState(7);
   const [dishesPerDay, setDishesPerDay] = useState(2); // Legacy - prefer dailyComposition
   const [dailyComposition, setDailyComposition] = useState('meat_veg');
+  const [allowCompleteMeal, setAllowCompleteMeal] = useState(true);
   const [servings, setServings] = useState(2);
   
   // === Preference Settings ===
@@ -122,6 +123,7 @@ export function useGeneratePreferences() {
     daysPerWeek, setDaysPerWeek,
     dishesPerDay, setDishesPerDay, // Legacy - prefer dailyComposition
     dailyComposition, setDailyComposition,
+    allowCompleteMeal, setAllowCompleteMeal,
     servings, setServings,
     
     // Preference settings
