@@ -417,7 +417,15 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      const candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
+      let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
+      
+      // Hard filter: exclude complete_meal in mixed mode when allowCompleteMeal=false
+      const compositionKey = (config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG;
+      const compositionConfig = COMPOSITION_CONFIG[compositionKey];
+      const isMixedMode = compositionConfig && compositionConfig.dishesPerDay > 1;
+      if (isMixedMode && config.allowCompleteMeal === false) {
+        candidates = candidates.filter(r => !(r.is_complete_meal || r.meal_role === 'complete_meal'));
+      }
       
       // Score candidates and maintain top 3 only (optimization: avoid full array sort)
       // Use simple insertion to keep only top 3 instead of sorting entire array
@@ -452,8 +460,9 @@ export function planWeekAdvanced(
         const compositionConfig = COMPOSITION_CONFIG[compositionKey];
         const isMixedMode = compositionConfig && compositionConfig.dishesPerDay > 1;
         // If allowCompleteMeal = false in mixed mode, exclude complete_meal entirely
+        // Treat undefined as true (default behavior)
         if (isComplete && isMixedMode && config.allowCompleteMeal === false) {
-          score -= 100; // Heavy penalty to effectively exclude
+          score -= 200; // Extra heavy penalty to reliably exclude complete_meal when disabled
         } else if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
           // Apply normal penalty when allowCompleteMeal = true
           score += compositionConfig.completeMealPenalty;

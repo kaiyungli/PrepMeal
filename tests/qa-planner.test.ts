@@ -81,3 +81,79 @@ describe('Planner QA - Real Output Testing', () => {
     }
   });
 });
+
+describe('allowCompleteMeal checkbox behavior', () => {
+  const testConfig = { isWeekend: () => false, lockedSlots: {}, lockedRecipes: {} };
+  
+  it('meat_veg + allowCompleteMeal=true allows complete_meal occasionally', () => {
+    // Run multiple times and check that complete_meal can appear
+    let hasCompleteMeal = false;
+    for (let i = 0; i < 10; i++) {
+      const plan = planWeekAdvanced(mockRecipes, {
+        ...testConfig,
+        daysPerWeek: 7,
+        dishesPerDay: 2,
+        slotRoles: ['protein_main', 'veg_side'],
+        dailyComposition: 'meat_veg',
+        allowCompleteMeal: true
+      });
+      Object.values(plan).forEach(dishes => {
+        if (dishes.some(d => d.is_complete_meal || d.meal_role === 'complete_meal')) {
+          hasCompleteMeal = true;
+        }
+      });
+    }
+    // With allowCompleteMeal=true, complete_meal should be allowed (may or may not appear due to randomness)
+    expect(hasCompleteMeal).toBe(true);
+  });
+
+  it('meat_veg + allowCompleteMeal=false excludes complete_meal', () => {
+    for (let i = 0; i < 10; i++) {
+      const plan = planWeekAdvanced(mockRecipes, {
+        ...testConfig,
+        daysPerWeek: 7,
+        dishesPerDay: 2,
+        slotRoles: ['protein_main', 'veg_side'],
+        dailyComposition: 'meat_veg',
+        allowCompleteMeal: false
+      });
+      Object.values(plan).forEach(dishes => {
+        dishes.forEach(d => {
+          expect(d.is_complete_meal || d.meal_role === 'complete_meal').toBe(false);
+        });
+      });
+    }
+  });
+
+  it('two_meat_one_veg + allowCompleteMeal=false excludes complete_meal', () => {
+    for (let i = 0; i < 10; i++) {
+      const plan = planWeekAdvanced(mockRecipes, {
+        ...testConfig,
+        daysPerWeek: 7,
+        dishesPerDay: 3,
+        slotRoles: ['protein_main', 'protein_main', 'veg_side'],
+        dailyComposition: 'two_meat_one_veg',
+        allowCompleteMeal: false
+      });
+      Object.values(plan).forEach(dishes => {
+        dishes.forEach(d => {
+          expect(d.is_complete_meal || d.meal_role === 'complete_meal').toBe(false);
+        });
+      });
+    }
+  });
+
+  it('complete_meal mode works with allowCompleteMeal setting', () => {
+    // In complete_meal mode, should still generate plans (allowCompleteMeal doesn't crash)
+    const plan = planWeekAdvanced(mockRecipes, {
+      ...testConfig,
+      daysPerWeek: 7,
+      dishesPerDay: 1,
+      slotRoles: ['complete_meal'],
+      dailyComposition: 'complete_meal',
+      allowCompleteMeal: false
+    });
+    // Should have 7 days of plans
+    expect(Object.keys(plan).length).toBe(7);
+  });
+});
