@@ -163,7 +163,7 @@ export default function GenerateSettings({
               <select
                 value={servings}
                 onChange={(e) => setServings(parseInt(e.target.value))}
-                className="px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-[#E5DCC8] text-[#3A2010] focus:outline-none"
+                className="w-24 px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-[#E5DCC8] text-[#3A2010] focus:outline-none"
               >
                 {SERVINGS_OPTIONS.map(s => (
                   <option key={s} value={s}>{s}人</option>
