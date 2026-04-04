@@ -354,7 +354,9 @@ export default function GeneratePage() {
   const clearAll = () => {
     // Reset planning settings to defaults
     setDaysPerWeek(7);
-    setDishesPerDay(1); setDailyComposition('complete_meal');
+    setDishesPerDay(2); // Legacy - keep for compatibility
+    setDailyComposition('meat_veg');
+    setAllowCompleteMeal(true); // Reset checkbox to default
     setServings(2);
     
     // Reset all filters
