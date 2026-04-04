@@ -140,14 +140,17 @@ export default function GenerateSettings({
             </div>
 
             {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
-              <label className="flex items-center gap-2 mt-2 text-sm text-[#6B5C4F]">
-                <input
-                  type="checkbox"
-                  checked={allowCompleteMeal}
-                  onChange={(e) => setAllowCompleteMeal(e.target.checked)}
-                />
-                可接受一份完整餐
-              </label>
+              <button
+                type="button"
+                onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
+                className={`mt-2 px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                  allowCompleteMeal
+                    ? 'bg-[#9B6035] text-white border-[#9B6035]'
+                    : 'bg-white text-[#6B5C4F] border-[#E5D5C0]'
+                }`}
+              >
+                {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
+              </button>
             )}
 
             {/* Servings */}
