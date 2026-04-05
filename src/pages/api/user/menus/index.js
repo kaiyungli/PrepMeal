@@ -72,26 +72,55 @@ export default async function handler(req, res) {
         endDate.setDate(endDate.getDate() + days - 1);
         const end_date = endDate.toISOString().split('T')[0];
 
-        // Insert parent plan using real schema: menu_plans
-        // Maps: name → title, week_start_date → start_date
-        // Note: menu_plans does NOT have notes column
-        const { data: plan, error: planError } = await userSupabase
+        // Check if plan already exists for this user+week (upsert logic)
+        const { data: existingPlan } = await userSupabase
           .from('menu_plans')
-          .insert({
-            user_id: userId,
-            title: name,
-            start_date: week_start_date,
-            end_date: end_date,
-          })
-          .select()
-          .single();
+          .select('id')
+          .eq('user_id', userId)
+          .eq('start_date', week_start_date)
+          .maybeSingle();
         
-        if (planError) {
-          throw planError;
+        let planId;
+        
+        if (existingPlan) {
+          // Update existing plan - delete old items first
+          planId = existingPlan.id;
+          
+          const { error: deleteError } = await userSupabase
+            .from('menu_plan_items')
+            .delete()
+            .eq('menu_plan_id', planId);
+          
+          if (deleteError) {
+            throw deleteError;
+          }
+          
+          // Update plan timestamp
+          await userSupabase
+            .from('menu_plans')
+            .update({ title: name, end_date: end_date, updated_at: new Date().toISOString() })
+            .eq('id', planId);
+        } else {
+          // Insert new plan
+          const { data: plan, error: planError } = await userSupabase
+            .from('menu_plans')
+            .insert({
+              user_id: userId,
+              title: name,
+              start_date: week_start_date,
+              end_date: end_date,
+            })
+            .select()
+            .single();
+          
+          if (planError) {
+            throw planError;
+          }
+          planId = plan.id;
         }
 
         // Insert items using helper (computes item_order per group)
-        const itemsToInsert = transformItemsToInsert(items, plan.id, week_start_date);
+        const itemsToInsert = transformItemsToInsert(items, planId, week_start_date);
 
         const { error: itemsError } = await userSupabase
           .from('menu_plan_items')

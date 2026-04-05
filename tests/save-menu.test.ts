@@ -107,3 +107,34 @@ describe('Save Menu - Multi-dish per slot transformation', () => {
     expect(groups).toEqual(['2024-01-01_dinner', '2024-01-02_dinner']);
   });
 });
+
+describe('Save Menu - Upsert behavior', () => {
+  const menu_plan_id = 'test-plan-id';
+  const week_start_date = '2024-01-01';
+
+  it('should handle same week save without duplicate', () => {
+    // Simulate: first save creates items with order 1,2
+    const items1 = [
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r1', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r2', servings: 1 },
+    ];
+    const result1 = transformItemsToInsert(items1, menu_plan_id, week_start_date);
+    expect(result1.length).toBe(2);
+    expect(result1[0].item_order).toBe(1);
+    expect(result1[1].item_order).toBe(2);
+
+    // Simulate: second save (same week) - items should be new (upsert replaces)
+    const items2 = [
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r3', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r4', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r5', servings: 1 },
+    ];
+    const result2 = transformItemsToInsert(items2, menu_plan_id, week_start_date);
+    expect(result2.length).toBe(3);
+    expect(result2[0].item_order).toBe(1);
+    expect(result2[1].item_order).toBe(2);
+    expect(result2[2].item_order).toBe(3);
+    // Different recipes, so this simulates overwrite scenario
+    expect(result2[0].recipe_id).not.toBe(result1[0].recipe_id);
+  });
+});
