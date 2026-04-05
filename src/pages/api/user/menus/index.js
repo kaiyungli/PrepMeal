@@ -73,12 +73,16 @@ export default async function handler(req, res) {
         const end_date = endDate.toISOString().split('T')[0];
 
         // Check if plan already exists for this user+week (upsert logic)
-        const { data: existingPlan } = await userSupabase
+        const { data: existingPlan, error: existingPlanError } = await userSupabase
           .from('menu_plans')
           .select('id')
           .eq('user_id', userId)
           .eq('start_date', week_start_date)
           .maybeSingle();
+        
+        if (existingPlanError) {
+          throw existingPlanError;
+        }
         
         let planId;
         
