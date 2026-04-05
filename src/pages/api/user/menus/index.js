@@ -134,7 +134,7 @@ export default async function handler(req, res) {
           throw itemsError;
         }
 
-        return res.status(201).json(ApiResponse.created({ plan_id: plan.id }));
+        return res.status(201).json(ApiResponse.created({ plan_id: planId }));
       } catch (err) {
         return res.status(500).json(ApiResponse.error(err.message));
       }
