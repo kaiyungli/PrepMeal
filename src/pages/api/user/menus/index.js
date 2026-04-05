@@ -3,6 +3,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
+import { transformItemsToInsert } from '@/lib/menuItemTransform';
 
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
