@@ -1,67 +1,109 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import { transformItemsToInsert, getItemGroups } from '@/lib/menuItemTransform';
 
-// Mock test for save menu functionality
-// Note: This is a conceptual test - actual DB testing would require Supabase
+describe('Save Menu - Multi-dish per slot transformation', () => {
+  const menu_plan_id = 'test-plan-id';
+  const week_start_date = '2024-01-01';
 
-describe('Save Menu - Multi-dish per slot', () => {
-  it('should allow saving 2 items in same day/slot with item_order', () => {
-    // Simulating: 2 dishes for same day/meal_slot
+  it('should assign item_order 1,2 for same day/slot', () => {
     const items = [
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r1', servings: 1 },
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r2', servings: 1 },
     ];
     
-    // After processing in API:
-    // Group by date+meal_slot -> { "2024-01-01_dinner": [item1, item2] }
-    // item_order: 1, 2
+    const result = transformItemsToInsert(items, menu_plan_id, week_start_date);
     
-    // Schema allows: (menu_plan_id, date, meal_slot, item_order) = unique
-    // So insert should succeed
-    expect(true).toBe(true);
+    // Both should have same date and meal_slot
+    expect(result[0].date).toBe('2024-01-01');
+    expect(result[1].date).toBe('2024-01-01');
+    expect(result[0].meal_slot).toBe('dinner');
+    expect(result[1].meal_slot).toBe('dinner');
+    
+    // item_order should be 1 and 2
+    expect(result[0].item_order).toBe(1);
+    expect(result[1].item_order).toBe(2);
   });
 
-  it('should allow saving 3 items in same day/slot with item_order', () => {
+  it('should restart item_order at 1 for new day/slot', () => {
+    const items = [
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r1', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r2', servings: 1 },
+      { day_index: 1, meal_type: 'dinner', recipe_id: 'r3', servings: 1 },
+      { day_index: 1, meal_type: 'dinner', recipe_id: 'r4', servings: 1 },
+    ];
+    
+    const result = transformItemsToInsert(items, menu_plan_id, week_start_date);
+    
+    // Day 0: item_order 1, 2
+    expect(result[0].date).toBe('2024-01-01');
+    expect(result[0].item_order).toBe(1);
+    expect(result[1].date).toBe('2024-01-01');
+    expect(result[1].item_order).toBe(2);
+    
+    // Day 1: item_order restarts at 1, 2
+    expect(result[2].date).toBe('2024-01-02');
+    expect(result[2].item_order).toBe(1);
+    expect(result[3].date).toBe('2024-01-02');
+    expect(result[3].item_order).toBe(2);
+  });
+
+  it('should handle 3 dishes in same day/slot', () => {
     const items = [
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r1', servings: 1 },
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r2', servings: 1 },
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r3', servings: 1 },
     ];
-    // After processing: item_order = 1, 2, 3
-    expect(items.length).toBe(3);
+    
+    const result = transformItemsToInsert(items, menu_plan_id, week_start_date);
+    
+    expect(result.length).toBe(3);
+    expect(result[0].item_order).toBe(1);
+    expect(result[1].item_order).toBe(2);
+    expect(result[2].item_order).toBe(3);
   });
 
-  it('should compute item_order correctly per group', () => {
-    // Test the grouping logic from API
+  it('should handle different meal_types separately', () => {
+    const items = [
+      { day_index: 0, meal_type: 'lunch', recipe_id: 'r1', servings: 1 },
+      { day_index: 0, meal_type: 'lunch', recipe_id: 'r2', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r3', servings: 1 },
+      { day_index: 0, meal_type: 'dinner', recipe_id: 'r4', servings: 1 },
+    ];
+    
+    const result = transformItemsToInsert(items, menu_plan_id, week_start_date);
+    
+    // Lunch: 2 items (order 1,2)
+    const lunchItems = result.filter(r => r.meal_slot === 'lunch');
+    expect(lunchItems.length).toBe(2);
+    expect(lunchItems[0].item_order).toBe(1);
+    expect(lunchItems[1].item_order).toBe(2);
+    
+    // Dinner: 2 items (order 1,2)
+    const dinnerItems = result.filter(r => r.meal_slot === 'dinner');
+    expect(dinnerItems.length).toBe(2);
+    expect(dinnerItems[0].item_order).toBe(1);
+    expect(dinnerItems[1].item_order).toBe(2);
+  });
+
+  it('should default meal_type to dinner', () => {
+    const items = [
+      { day_index: 0, recipe_id: 'r1', servings: 1 },
+    ];
+    
+    const result = transformItemsToInsert(items, menu_plan_id, week_start_date);
+    
+    expect(result[0].meal_slot).toBe('dinner');
+  });
+
+  it('should use getItemGroups for verification', () => {
     const items = [
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r1' },
       { day_index: 0, meal_type: 'dinner', recipe_id: 'r2' },
       { day_index: 1, meal_type: 'dinner', recipe_id: 'r3' },
-      { day_index: 1, meal_type: 'dinner', recipe_id: 'r4' },
     ];
     
-    // Group by date+meal_slot (simulating API logic)
-    const itemsByGroup: Record<string, typeof items> = {};
-    items.forEach((item, i) => {
-      const date = `2024-01-0${1 + (item.day_index || 0)}`;
-      const key = `${date}_${item.meal_type}`;
-      if (!itemsByGroup[key]) itemsByGroup[key] = [];
-      itemsByGroup[key].push(item);
-    });
+    const groups = getItemGroups(items, week_start_date);
     
-    // Compute item_order per group (as API does)
-    const itemsWithOrder: {item: any, order: number}[] = [];
-    Object.values(itemsByGroup).forEach(groupItems => {
-      groupItems.forEach((item, idx) => {
-        itemsWithOrder.push({ item, order: idx + 1 });
-      });
-    });
-    
-    // Verify: Group 1 has items with order 1, 2; Group 2 has order 1, 2
-    expect(itemsWithOrder[0].order).toBe(1); // r1
-    expect(itemsWithOrder[1].order).toBe(2); // r2
-    expect(itemsWithOrder[2].order).toBe(1); // r3 (new group starts at 1)
-    expect(itemsWithOrder[3].order).toBe(2); // r4
-    
-    expect(Object.keys(itemsByGroup).length).toBe(2);
+    expect(groups).toEqual(['2024-01-01_dinner', '2024-01-02_dinner']);
   });
 });

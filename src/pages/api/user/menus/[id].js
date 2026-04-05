@@ -60,6 +60,7 @@ export default async function handler(req, res) {
         .from('menu_plan_items')
         .select('*')
         .eq('menu_plan_id', planId)
+        .order('date', { ascending: true })
         .order('item_order', { ascending: true });
       
       if (itemsError) {

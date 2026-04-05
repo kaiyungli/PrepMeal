@@ -89,35 +89,8 @@ export default async function handler(req, res) {
           throw planError;
         }
 
-        // Insert items using real schema: menu_plan_items
-        // Compute item_order per (date, meal_slot) group
-        const itemsByGroup = {};
-        items.forEach((item) => {
-          const itemDate = new Date(week_start_date);
-          itemDate.setDate(itemDate.getDate() + (item.day_index || 0));
-          const dateStr = itemDate.toISOString().split('T')[0];
-          const mealSlot = item.meal_type || 'dinner';
-          const key = `${dateStr}_${mealSlot}`;
-          if (!itemsByGroup[key]) itemsByGroup[key] = [];
-          itemsByGroup[key].push(item);
-        });
-        
-        const itemsToInsert = [];
-        Object.values(itemsByGroup).forEach(groupItems => {
-          groupItems.forEach((item, idx) => {
-            const itemDate = new Date(week_start_date);
-            itemDate.setDate(itemDate.getDate() + (item.day_index || 0));
-            itemsToInsert.push({
-              menu_plan_id: plan.id,
-              date: itemDate.toISOString().split('T')[0],
-              meal_slot: item.meal_type || 'dinner',
-              recipe_id: item.recipe_id,
-              servings: item.servings || 1,
-              item_order: idx + 1,  // Restarts at 1 for each date+meal_slot group
-              source: 'generated',
-            });
-          });
-        });
+        // Insert items using helper (computes item_order per group)
+        const itemsToInsert = transformItemsToInsert(items, plan.id, week_start_date);
 
         const { error: itemsError } = await userSupabase
           .from('menu_plan_items')
