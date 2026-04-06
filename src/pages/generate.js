@@ -233,14 +233,23 @@ export default function GeneratePage() {
       perfMeasure('generate.shoppingList.fetch', fetchStart);
       console.log('[generate] shoppingList response:', {
         pantryItems: data.pantry?.length || 0,
-        toBuyItems: data.data?.toBuy?.length || 0,
-        total: data.data?.items?.length || 0
+        toBuyItems: Object.values(data.toBuy || {}).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
       });
       
       // Convert API response to shopping list format
+      // Handle grouped toBuy format from API
+      const toBuyGroups = data.toBuy || {};
+      const flatToBuy = [];
+      Object.values(toBuyGroups).forEach(items => {
+        if (Array.isArray(items)) {
+          items.forEach(item => {
+            flatToBuy.push({ ...item, inPantry: false });
+          });
+        }
+      });
       const list = [
         ...(data.pantry || []).map(p => ({ ...p, inPantry: true })),
-        ...(data.toBuy || []).map(t => ({ ...t, inPantry: false }))
+        ...flatToBuy
       ];
       
       setShoppingList(list);
