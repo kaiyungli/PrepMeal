@@ -8,7 +8,7 @@ const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '
  * 
  * Responsive layout:
  * - Mobile: vertical stack (flex-col)
- * - Desktop (md): horizontal row (flex-row with overflow-x)
+ * - Desktop (md): horizontal row with wrapping (flex-row flex-wrap)
  */
 export default function PlanDaySection({ dayIndex, items }) {
   const dayName = DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
