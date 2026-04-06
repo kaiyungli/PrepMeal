@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-const CATEGORY_LABELS = {
-  meat: '肉類',
-  seafood: '海鮮',
-  vegetable: '蔬菜',
-  fruit: '水果',
-  dairy: '乳製品',
-  grain: '穀物',
-  seasoning: '調味料',
-  other: '其他'
-};
+import { CATEGORY_ORDER, CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/constants/shoppingCategories';
 
 /**
  * ShoppingListDrawer - Reusable drawer/modal for shopping list
@@ -85,7 +76,7 @@ export default function ShoppingListDrawer({
                 items.length > 0 && (
                   <div key={category} className="mb-4">
                     <h3 className="text-sm font-medium text-[var(--color-text-muted)] mb-2">
-                      {CATEGORY_LABELS[category] || '其他'} ({items.length})
+                      {LABELS[category] || '其他'} ({items.length})
                     </h3>
                     <div className="space-y-2">
                       {items.map((item, idx) => (

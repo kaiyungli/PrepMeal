@@ -12,6 +12,8 @@
  * @param {string[]} pantryIngredients - Array of pantry item names (for matching)
  * @returns {pantry: Array, toBuy: Object} - toBuy grouped by category
  */
+import { normalizeCategory, CATEGORY_ORDER, CATEGORY_LABELS } from '@/constants/shoppingCategories';
+
 export function aggregateIngredients(items, pantryIngredients = []) {
   if (!items || !items.length) {
     return { pantry: [], toBuy: {} };
@@ -63,7 +65,7 @@ export function aggregateIngredients(items, pantryIngredients = []) {
   // Group toBuy by category
   const toBuy = {};
   for (const item of toBuyRaw) {
-    const category = item.category || 'other';
+    const category = normalizeCategory(item.category);
     if (!toBuy[category]) toBuy[category] = [];
     toBuy[category].push({
       name: item.name,
