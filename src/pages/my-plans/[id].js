@@ -6,9 +6,8 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { UI } from '@/styles/ui';
-
-const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
-const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
+import PlanDaySection from '@/components/myPlans/PlanDaySection';
+import { formatDate } from '@/components/myPlans/planUtils';
 
 export default function PlanDetailPage() {
   const router = useRouter();
@@ -56,16 +55,6 @@ export default function PlanDetailPage() {
 
     fetchPlan();
   }, [isAuthenticated, id, router]);
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    // Safe for YYYY-MM-DD - avoid timezone shift
-    if (dateStr.includes('-') && dateStr.length === 10) {
-      const [y, m, d] = dateStr.split('-');
-      return new Date(y, parseInt(m) - 1, d).toLocaleDateString('zh-HK');
-    }
-    return new Date(dateStr).toLocaleDateString('zh-HK');
-  };
 
   // Transform items - compute day_index from date
   const startDate = plan?.week_start_date ? new Date(plan.week_start_date) : null;
@@ -128,46 +117,11 @@ export default function PlanDetailPage() {
 
               {/* Days */}
               {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
-                <div key={dayIndex} className={UI.card + " p-4 mb-4"}>
-                  <h3 className="text-lg font-semibold text-[var(--color-primary)] mb-3">
-                    {DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`}
-                  </h3>
-                  
-                  {groupedItems[dayIndex]?.length > 0 ? (
-                    <div className="space-y-3">
-                      {(groupedItems[dayIndex] || []).map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 p-2 bg-[#F8F3E8] rounded-lg">
-                          {item.recipe?.image_url ? (
-                            <img
-                              src={item.recipe.image_url}
-                              alt={item.recipe.name}
-                              className="w-16 h-16 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 bg-[#E5DCC8] rounded flex items-center justify-center text-2xl">
-                              🍽️
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-[var(--color-text-primary)]">
-                              {item.recipe?.name || '未知食譜'}
-                            </p>
-                            <p className="text-sm text-[var(--color-text-muted)]">
-                              {MEAL_TYPES[item.meal_type] || item.meal_type} · {item.servings}人份
-                            </p>
-                            {item.recipe && (
-                              <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                                {item.recipe.total_time_minutes}分鐘 · {item.recipe.calories_per_serving}卡
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-[var(--color-text-muted)]">無安排</p>
-                  )}
-                </div>
+                <PlanDaySection
+                  key={dayIndex}
+                  dayIndex={dayIndex}
+                  items={groupedItems[dayIndex] || []}
+                />
               ))}
             </>
           )}
