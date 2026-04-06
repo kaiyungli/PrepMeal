@@ -5,6 +5,10 @@ const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '
 
 /**
  * PlanDaySection - displays a single day's meals
+ * 
+ * Responsive layout:
+ * - Mobile: vertical stack (flex-col)
+ * - Desktop (md): horizontal row (flex-row with overflow-x)
  */
 export default function PlanDaySection({ dayIndex, items }) {
   const dayName = DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
@@ -17,9 +21,11 @@ export default function PlanDaySection({ dayIndex, items }) {
       </h3>
       
       {hasItems ? (
-        <div className="space-y-3">
+        <div className="flex flex-col md:flex-row md:flex-wrap md:gap-3">
           {items.map((item) => (
-            <PlanRecipeCard key={item.id} item={item} />
+            <div key={item.id} className="w-full md:w-auto md:flex-1 md:min-w-[200px] md:max-w-[300px]">
+              <PlanRecipeCard item={item} />
+            </div>
           ))}
         </div>
       ) : (
