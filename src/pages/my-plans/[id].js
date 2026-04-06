@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
+import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 
 export default function PlanDetailPage() {
   const router = useRouter();
@@ -69,6 +70,13 @@ export default function PlanDetailPage() {
     groupedItems[dayIndex].push(item);
   });
 
+  // Extract unique recipe IDs for shopping list
+  const recipeIds = [...new Set(items.map(i => i.recipe_id).filter(Boolean))];
+  // Average servings for shopping list
+  const avgServings = items.length > 0 
+    ? Math.round(items.reduce((sum, i) => sum + (i.servings || 1), 0) / items.length)
+    : 1;
+
   if (authLoading || !isAuthenticated) {
     return (
       <>
@@ -118,6 +126,11 @@ export default function PlanDetailPage() {
                   建立於: {formatDate(plan.created_at)}
                 </p>
               </div>
+
+              {/* Shopping List CTA */}
+              {items.length > 0 && (
+                <ShoppingListSection items={items} recipeIds={recipeIds} servings={avgServings} />
+              )}
 
               {/* Days */}
               {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
