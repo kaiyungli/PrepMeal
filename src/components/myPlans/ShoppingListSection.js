@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { aggregateShoppingList } from '@/services/shoppingList';
 import { UI } from '@/styles/ui';
 
 /**
  * ShoppingListSection - displays shopping list inline on plan detail page
+ * Uses shared service directly - no API roundtrip
  */
 export default function ShoppingListSection({ items, recipeIds, servings = 1 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,21 +17,9 @@ export default function ShoppingListSection({ items, recipeIds, servings = 1 }) 
     setError(null);
     
     try {
-      const res = await fetch('/api/shopping-list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipeIds,
-          servings
-        })
-      });
-      const data = await res.json();
-      
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setShoppingList(data);
-      }
+      // Use shared service directly - no API roundtrip
+      const result = await aggregateShoppingList(recipeIds, [], servings);
+      setShoppingList(result);
     } catch (err) {
       setError(err.message || '載入失敗');
     } finally {
