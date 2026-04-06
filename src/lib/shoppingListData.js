@@ -51,7 +51,7 @@ export async function fetchRecipeIngredients(recipeIds, servings = 1) {
       slug: ing.slug,
       quantity: ri.quantity ? Number(ri.quantity) * servings : null,
       unit: unit ? { code: unit.code, name: unit.name } : null,
-      category: ing.shopping_category || '其他'
+      category: ing.shopping_category || null
     });
   }
 
