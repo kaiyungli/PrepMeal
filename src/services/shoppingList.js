@@ -1,84 +1,30 @@
-import { supabase } from '@/lib/supabaseClient';
-
 /**
- * Shopping List Aggregation Service
+ * Shopping List Aggregation - Pure Business Logic
  * 
- * Pure business logic for aggregating shopping list from recipes.
- * No UI / React code here.
+ * NO Supabase import - NO DB access
+ * NO React - Pure functions only
+ * 
+ * These functions accept normalized data and return aggregated results.
  */
 
 /**
- * Aggregate shopping list from recipe IDs
+ * Normalize and aggregate ingredient items
  * 
- * @param {string[]} recipeIds - Array of recipe IDs
+ * @param {Array} items - Array of ingredient items with {name, quantity, unit, category}
  * @param {string[]} pantryIngredients - Array of pantry item names (for matching)
- * @param {number} servings - Servings multiplier (default 1)
- * @returns {Promise<{pantry: Array, toBuy: Array}>}
+ * @returns {pantry: Array, toBuy: Array}
  */
-export async function aggregateShoppingList(recipeIds, pantryIngredients = [], servings = 1) {
-  if (!recipeIds || !Array.isArray(recipeIds) || recipeIds.length === 0) {
+export function aggregateIngredients(items, pantryIngredients = []) {
+  if (!items || !items.length) {
     return { pantry: [], toBuy: [] };
   }
 
-  // 1. Fetch all recipe_ingredients for these recipes in one query
-  const { data: recipeIngredients, error: riError } = await supabase
-    .from('recipe_ingredients')
-    .select('quantity, unit_id, recipe_id, ingredients(id, name, slug, shopping_category)')
-    .in('recipe_id', recipeIds);
-
-  if (riError) throw riError;
-
-  // 2. Get unique unit IDs and fetch in one query
-  const unitIds = [...new Set(recipeIngredients?.map(ri => ri.unit_id).filter(Boolean) || [])];
-  let unitsMap = new Map();
-  if (unitIds.length > 0) {
-    const { data: units } = await supabase
-      .from('units')
-      .select('id, code, name')
-      .in('id', unitIds);
-    unitsMap = new Map((units || []).map(u => [u.id, u]));
-  }
-
-  // 3. Build ingredient items with full metadata
-  const items = [];
-  for (const ri of (recipeIngredients || [])) {
-    const ing = ri.ingredients;
-    if (!ing) continue;
-
-    const unit = unitsMap.get(ri.unit_id);
-    items.push({
-      ingredient_id: ing.id,
-      name: ing.name,
-      display_name: ing.name,
-      slug: ing.slug,
-      quantity: ri.quantity ? Number(ri.quantity) * servings : null,
-      unit: unit ? { code: unit.code, name: unit.name } : null,
-      category: ing.shopping_category || '其他',
-      source: 'recipe_ingredients'
-    });
-  }
-
-  // 4. Aggregate by ingredient_id + unit
-  const aggregated = new Map();
-  for (const item of items) {
-    if (!item.ingredient_id || !item.name) continue;
-    
-    const unitCode = item.unit?.code || 'no_unit';
-    const key = `${item.ingredient_id}:${unitCode}`;
-    const existing = aggregated.get(key);
-    const qty = item.quantity || 0;
-    
-    if (existing) {
-      existing.quantity = (existing.quantity || 0) + qty;
-    } else {
-      aggregated.set(key, { ...item });
-    }
-  }
-
-  // 5. Normalize quantities
-  const normalized = Array.from(aggregated.values()).map(item => {
+  const pantryLower = pantryIngredients.map(p => p.toLowerCase());
+  
+  // Normalize quantities by unit type
+  const normalized = items.map(item => {
     let qty = item.quantity || 0;
-    const unit = item.unit?.code || '';
+    const unit = item.unit?.code || item.unit || '';
     
     if (unit === 'g' || unit === 'ml' || unit === 'kg' || unit === 'l') {
       qty = Math.round(qty);
@@ -91,82 +37,67 @@ export async function aggregateShoppingList(recipeIds, pantryIngredients = [], s
     return { ...item, quantity: qty };
   });
 
-  // 6. Match against pantry (case-insensitive)
-  const pantryLower = pantryIngredients.map(p => p.toLowerCase());
-  const withPantryStatus = normalized.map(item => {
-    const nameLower = item.name?.toLowerCase() || '';
-    const inPantry = pantryLower.some(p => nameLower.includes(p) || p.includes(nameLower));
-    return { ...item, inPantry };
-  });
-
-  // 7. Split into pantry vs toBuy
-  const pantry = withPantryStatus.filter(i => i.inPantry).map(i => ({
-    name: i.name,
-    quantity: i.quantity,
-    unit: i.unit?.name || ''
-  }));
-
-  const toBuy = withPantryStatus.filter(i => !i.inPantry).map(i => ({
-    name: i.name,
-    quantity: i.quantity,
-    unit: i.unit?.name || '',
-    category: i.category
-  }));
-
-  return { pantry, toBuy };
-}
-
-/**
- * Get shopping list from full recipe data (alternative entry point)
- * Use this when you already have recipe data and don't want DB query
- * 
- * @param {Array} recipes - Array of recipe objects with ingredients
- * @param {string[]} pantryIngredients - Array of pantry item names
- * @returns {pantry: Array, toBuy: Array}
- */
-export function aggregateFromRecipeData(recipes, pantryIngredients = []) {
-  // This is a simplified version for when you have recipe data already
-  // Similar logic but works with in-memory data
-  if (!recipes || !recipes.length) {
-    return { pantry: [], toBuy: [] };
-  }
-
-  const items = [];
-  const pantryLower = pantryIngredients.map(p => p.toLowerCase());
-
-  for (const recipe of recipes) {
-    const recipeIngredients = recipe.ingredients || [];
-    for (const ri of recipeIngredients) {
-      const ing = ri.ingredient || ri.ingredients;
-      if (!ing) continue;
-      
-      items.push({
-        name: ing.name || ing.display_name,
-        quantity: ri.quantity || 0,
-        unit: ri.unit_name || ri.unit?.name || ''
-      });
-    }
-  }
-
-  // Simple aggregation by name (this is a fallback for offline/UI-only)
+  // Aggregate by ingredient name + unit
   const aggregated = new Map();
-  for (const item of items) {
-    const key = item.name;
+  for (const item of normalized) {
+    const key = `${item.name}:${item.unit?.code || item.unit || 'unit'}`;
     const existing = aggregated.get(key);
     if (existing) {
-      existing.quantity += item.quantity;
+      existing.quantity = (existing.quantity || 0) + (item.quantity || 0);
     } else {
       aggregated.set(key, { ...item });
     }
   }
 
-  const normalized = Array.from(aggregated.values());
-  const pantry = normalized.filter(i => 
-    pantryLower.some(p => i.name.toLowerCase().includes(p))
-  );
-  const toBuy = normalized.filter(i => 
-    !pantryLower.some(p => i.name.toLowerCase().includes(p))
-  );
+  const result = Array.from(aggregated.values());
+  
+  // Split into pantry vs toBuy
+  const pantry = result.filter(item => {
+    const nameLower = (item.name || '').toLowerCase();
+    return pantryLower.some(p => nameLower.includes(p) || p.includes(nameLower));
+  });
+  
+  const toBuy = result.filter(item => {
+    const nameLower = (item.name || '').toLowerCase();
+    return !pantryLower.some(p => nameLower.includes(p) || p.includes(nameLower));
+  });
 
-  return { pantry, toBuy };
+  return {
+    pantry: pantry.map(i => ({ name: i.name, quantity: i.quantity, unit: i.unit?.name || i.unit || '' })),
+    toBuy: toBuy.map(i => ({ 
+      name: i.name, 
+      quantity: i.quantity, 
+      unit: i.unit?.name || i.unit || '',
+      category: i.category || '其他'
+    }))
+  };
+}
+
+/**
+ * Build ingredient items from raw DB rows (called from API)
+ * 
+ * @param {Array} recipeIngredients - Raw recipe_ingredient rows with ingredient data
+ * @param {Map} unitsMap - Map of unit_id -> unit data
+ * @param {number} servings - Servings multiplier
+ * @returns {Array} - Normalized ingredient items
+ */
+export function buildIngredientItems(recipeIngredients, unitsMap, servings = 1) {
+  const items = [];
+  
+  for (const ri of (recipeIngredients || [])) {
+    const ing = ri.ingredients;
+    if (!ing) continue;
+
+    const unit = unitsMap.get(ri.unit_id);
+    items.push({
+      ingredient_id: ing.id,
+      name: ing.name,
+      slug: ing.slug,
+      quantity: ri.quantity ? Number(ri.quantity) * servings : null,
+      unit: unit ? { code: unit.code, name: unit.name } : null,
+      category: ing.shopping_category || '其他'
+    });
+  }
+  
+  return items;
 }

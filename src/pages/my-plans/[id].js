@@ -129,7 +129,7 @@ export default function PlanDetailPage() {
 
               {/* Shopping List CTA */}
               {items.length > 0 && (
-                <ShoppingListSection items={items} recipeIds={recipeIds} servings={avgServings} />
+                <ShoppingListSection recipeIds={recipeIds} servings={avgServings} />
               )}
 
               {/* Days */}
