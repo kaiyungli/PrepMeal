@@ -4,8 +4,7 @@ import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
 
 /**
  * ShoppingListSection - triggers drawer with shopping list
- * 
- * Uses reusable ShoppingListDrawer component
+ * Uses API via ShoppingListDrawer - server-side data boundary
  */
 export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,25 +36,14 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
     }
   };
 
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
 
   return (
     <>
-      {/* CTA Button */}
-      <button
-        onClick={handleOpen}
-        className={UI.buttonPrimary + " w-full py-3 mt-6"}
-      >
+      <button onClick={handleOpen} className={UI.buttonPrimary + " w-full py-3 mt-6"}>
         查看購物清單
       </button>
-
-      {/* Reusable Drawer */}
       <ShoppingListDrawer
         isOpen={isOpen}
         onClose={handleClose}
