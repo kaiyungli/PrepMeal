@@ -10,3 +10,15 @@ export function formatDate(dateStr) {
   }
   return new Date(dateStr).toLocaleDateString('zh-HK');
 }
+
+
+/**
+ * Get recipe detail URL from recipe object
+ * Returns /recipes/[slug] if slug exists, or /recipes/[id] as fallback
+ */
+export function getRecipeUrl(recipe) {
+  if (!recipe) return null;
+  if (recipe.slug) return `/recipes/${recipe.slug}`;
+  if (recipe.id) return `/recipes/${recipe.id}`;
+  return null;
+}

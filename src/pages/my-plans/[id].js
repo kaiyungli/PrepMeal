@@ -35,7 +35,7 @@ export default function PlanDetailPage() {
         });
         const data = await res.json();
         
-        console.log('DEBUG items response:', data);
+        
         
         // Handle both old and new response format
         if (data.success === false && data.error) {
