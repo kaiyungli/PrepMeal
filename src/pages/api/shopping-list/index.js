@@ -1,6 +1,13 @@
-import { supabase } from '@/lib/supabaseClient';
-import { aggregateIngredients, buildIngredientItems } from '@/services/shoppingList';
+import { fetchRecipeIngredients } from '@/lib/shoppingListData';
+import { aggregateIngredients } from '@/services/shoppingList';
 
+/**
+ * Shopping List API
+ * 
+ * Architecture: API → Data Helper → Pure Service
+ * - Data helper fetches from DB (supabase)
+ * - Pure service aggregates and groups (no DB)
+ */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -13,29 +20,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'recipeIds is required' });
     }
 
-    // 1. Fetch recipe_ingredients
-    const { data: recipeIngredients, error: riError } = await supabase
-      .from('recipe_ingredients')
-      .select('quantity, unit_id, recipe_id, ingredients(id, name, slug, shopping_category)')
-      .in('recipe_id', recipeIds);
+    // 1. Fetch data via server-side helper (DB access)
+    const items = await fetchRecipeIngredients(recipeIds, servings);
 
-    if (riError) throw riError;
-
-    // 2. Fetch units
-    const unitIds = [...new Set(recipeIngredients?.map(ri => ri.unit_id).filter(Boolean) || [])];
-    let unitsMap = new Map();
-    if (unitIds.length > 0) {
-      const { data: units } = await supabase
-        .from('units')
-        .select('id, code, name')
-        .in('id', unitIds);
-      unitsMap = new Map((units || []).map(u => [u.id, u]));
-    }
-
-    // 3. Build items
-    const items = buildIngredientItems(recipeIngredients, unitsMap, servings);
-
-    // 4. Aggregate (grouped by category)
+    // 2. Aggregate using pure service (no DB)
     const result = aggregateIngredients(items, pantryIngredients);
 
     return res.status(200).json(result);
