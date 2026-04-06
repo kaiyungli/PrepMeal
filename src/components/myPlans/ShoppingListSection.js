@@ -4,8 +4,7 @@ import { UI } from '@/styles/ui';
 /**
  * ShoppingListSection - displays shopping list inline on plan detail page
  * 
- * Uses API to fetch data - keeps data access on server side
- * Pure aggregation logic is in services/shoppingList.js
+ * Uses /api/shopping-list endpoint - server-side data access only
  */
 export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   const [isOpen, setIsOpen] = useState(false);

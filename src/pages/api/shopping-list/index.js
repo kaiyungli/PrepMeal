@@ -1,15 +1,11 @@
-import { supabase } from '@/lib/supabaseClient';
-import { aggregateIngredients, buildIngredientItems } from '@/services/shoppingList';
+import { fetchRecipeIngredients } from '@/lib/shoppingListData';
+import { aggregateIngredients } from '@/services/shoppingList';
 import { perfNow, perfMeasure } from '@/utils/perf';
 
 /**
  * Shopping List API
  * 
- * Data Access Layer:
- * 1. Fetch recipe_ingredients from DB
- * 2. Fetch units from DB
- * 3. Build normalized items using pure service
- * 4. Aggregate using pure service
+ * Uses server-side data access + pure aggregation service
  */
 
 export default async function handler(req, res) {
@@ -26,35 +22,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'recipeIds is required' });
     }
 
-    // 1. Fetch recipe_ingredients with ingredient data
-    const riStart = perfNow();
-    const { data: recipeIngredients, error: riError } = await supabase
-      .from('recipe_ingredients')
-      .select('quantity, unit_id, recipe_id, ingredients(id, name, slug, shopping_category)')
-      .in('recipe_id', recipeIds);
-    perfMeasure('api.shoppingList.recipeIngredientsQuery', riStart);
+    // 1. Fetch data via server-side helper
+    const fetchStart = perfNow();
+    const items = await fetchRecipeIngredients(recipeIds, servings);
+    perfMeasure('api.shoppingList.fetchData', fetchStart);
 
-    if (riError) throw riError;
-
-    // 2. Fetch units
-    const unitsStart = perfNow();
-    const unitIds = [...new Set(recipeIngredients?.map(ri => ri.unit_id).filter(Boolean) || [])];
-    let unitsMap = new Map();
-    if (unitIds.length > 0) {
-      const { data: units } = await supabase
-        .from('units')
-        .select('id, code, name')
-        .in('id', unitIds);
-      unitsMap = new Map((units || []).map(u => [u.id, u]));
-    }
-    perfMeasure('api.shoppingList.unitsQuery', unitsStart);
-
-    // 3. Build items using pure service
-    const buildStart = perfNow();
-    const items = buildIngredientItems(recipeIngredients, unitsMap, servings);
-    perfMeasure('api.shoppingList.buildItems', buildStart);
-
-    // 4. Aggregate using pure service
+    // 2. Aggregate using pure service
     const aggStart = perfNow();
     const result = aggregateIngredients(items, pantryIngredients);
     perfMeasure('api.shoppingList.aggregate', aggStart);
