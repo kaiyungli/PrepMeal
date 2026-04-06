@@ -7,7 +7,7 @@ import Header from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
-import { formatDate } from '@/components/myPlans/planUtils';
+import { formatDate } from '@/utils/planUtils';
 
 export default function PlanDetailPage() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function PlanDetailPage() {
   const [plan, setPlan] = useState(null);
   const [items, setItems] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -39,8 +40,7 @@ export default function PlanDetailPage() {
         
         // Handle both old and new response format
         if (data.success === false && data.error) {
-          alert(data.error);
-          router.push('/my-plans');
+          setError(data.error || '載入失敗');
         } else {
           setPlan(data.data?.plan || data.plan);
           setItems(data.data?.items || data.items || []);
@@ -97,6 +97,10 @@ export default function PlanDetailPage() {
           {dataLoading ? (
             <div className="text-center py-20">
               <p className="text-[var(--color-text-muted)]">載入中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-red-600">{error}</p>
             </div>
           ) : !plan ? (
             <div className="text-center py-20">

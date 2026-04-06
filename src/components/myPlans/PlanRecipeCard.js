@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getRecipeUrl } from './planUtils';
+import { getRecipeUrl } from '@/utils/planUtils';
 
 const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 
