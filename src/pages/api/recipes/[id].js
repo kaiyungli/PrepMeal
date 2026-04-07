@@ -1,6 +1,10 @@
 import { getRecipeDetail, formatIngredientForUI } from '@/lib/recipeDetail'
 import { perfNow, perfMeasure } from '@/utils/perf';
 
+/**
+ * Single Recipe Detail API
+ * Returns: { recipe: {...} }
+ */
 export default async function handler(req, res) {
   const handlerStart = perfNow();
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
@@ -19,8 +23,9 @@ export default async function handler(req, res) {
     // Format ingredients for UI
     const formattedIngredients = ingredients.map(formatIngredientForUI)
     
+    // Return single recipe object (clean contract)
     res.status(200).json({
-      recipes: [{ ...recipe, ingredients: formattedIngredients, steps }]
+      recipe: { ...recipe, ingredients: formattedIngredients, steps }
     })
     perfMeasure('api.recipeDetail.total', handlerStart);
     

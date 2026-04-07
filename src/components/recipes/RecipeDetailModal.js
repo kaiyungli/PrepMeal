@@ -31,27 +31,22 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
       setRecipe(null);
       
       try {
-        console.log('[modal] fetching:', `/api/recipes/${recipeId}`);
         const res = await fetch(`/api/recipes/${recipeId}`);
-        console.log('[modal] status:', res.status);
         
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
         
         const data = await res.json();
-        console.log('[modal] response keys:', Object.keys(data));
         
         // API returns: { recipes: [...] } format
         // Also check for direct recipe object
-        const recipeData = data?.recipes?.[0] || data?.recipe;
+        const recipeData = data?.recipe;
         
         if (!recipeData) {
-          console.log('[modal] no recipe found in response');
-          setError('找不到食譜');
+            setError('找不到食譜');
         } else {
-          console.log('[modal] recipe loaded:', recipeData?.name);
-          setRecipe(recipeData);
+            setRecipe(recipeData);
         }
       } catch (err) {
         console.error('[modal] error:', err);
