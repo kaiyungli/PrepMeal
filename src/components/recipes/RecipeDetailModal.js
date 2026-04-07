@@ -1,16 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-const COLORS = {
-  background: '#F8F3E8',
-  primary: '#9B6035',
-  secondary: '#C8D49A',
-  text: '#3A2010',
-  textLight: '#AA7A50',
-  border: '#DDD0B0',
-  cardBg: '#FEFCF8',
-};
-
 const DIFFICULTY = { easy: '易', medium: '中', hard: '難' };
 const SPEED = { quick: '快', normal: '中', slow: '慢' };
 const METHOD = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒' };
@@ -33,7 +23,7 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
   }, []);
 
   useEffect(() => {
-    if (!recipeId) return;
+    if (!recipeId || !mounted) return;
     
     const fetchRecipe = async () => {
       setLoading(true);
@@ -41,21 +31,30 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
       setRecipe(null);
       
       try {
-        console.log('[modal] fetching recipe:', recipeId);
+        console.log('[modal] fetching:', `/api/recipes/${recipeId}`);
         const res = await fetch(`/api/recipes/${recipeId}`);
-        const data = await res.json();
-        console.log('[modal] response:', data);
+        console.log('[modal] status:', res.status);
         
-        if (data.error) {
-          setError(data.error);
-        } else if (data.recipes?.[0]) {
-          setRecipe(data.recipes[0]);
-          console.log('[modal] recipe loaded:', data.recipes[0]?.name);
-        } else {
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log('[modal] response keys:', Object.keys(data));
+        
+        // API returns: { recipes: [...] } format
+        // Also check for direct recipe object
+        const recipeData = data?.recipes?.[0] || data?.recipe;
+        
+        if (!recipeData) {
+          console.log('[modal] no recipe found in response');
           setError('找不到食譜');
+        } else {
+          console.log('[modal] recipe loaded:', recipeData?.name);
+          setRecipe(recipeData);
         }
       } catch (err) {
-        console.error('[modal] fetch error:', err);
+        console.error('[modal] error:', err);
         setError(err.message || '載入失敗');
       } finally {
         setLoading(false);
@@ -63,7 +62,7 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
     };
     
     fetchRecipe();
-  }, [recipeId]);
+  }, [recipeId, mounted]);
 
   // Handle escape key
   useEffect(() => {
@@ -74,8 +73,8 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  // Don't render until mounted and has valid props
-  if (!mounted || !recipeId) return null;
+  // Don't render until mounted
+  if (!mounted) return null;
 
   return createPortal(
     <>
@@ -100,35 +99,30 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          {/* Loading state */}
           {loading && (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full min-h-[200px]">
               <p className="text-[#AA7A50]">載入中...</p>
             </div>
           )}
           
-          {/* Error state */}
           {error && !loading && (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full min-h-[200px]">
               <p className="text-red-600">{error}</p>
             </div>
           )}
           
-          {/* Recipe content - guard with recipe?. */}
           {!loading && !error && recipe && (
             <div className="p-4">
-              {/* Image */}
               {recipe?.image_url && (
                 <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
                   <img 
                     src={recipe.image_url} 
-                    alt={recipe.name || '食譜'}
+                    alt={recipe?.name || '食譜'}
                     className="w-full h-full object-cover"
                   />
                 </div>
               )}
               
-              {/* Title & Meta */}
               <h1 className="text-xl font-bold text-[#3A2010] mb-2">
                 {recipe?.name || '未知食譜'}
               </h1>
@@ -161,12 +155,10 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
                 )}
               </div>
               
-              {/* Description */}
               {recipe?.description && (
                 <p className="text-[#AA7A50] text-sm mb-4">{recipe.description}</p>
               )}
               
-              {/* Ingredients */}
               {recipe?.ingredients?.length > 0 && (
                 <div className="mb-4">
                   <h3 className="font-semibold text-[#3A2010] mb-2">食材</h3>
@@ -183,7 +175,6 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
                 </div>
               )}
               
-              {/* Steps */}
               {recipe?.steps?.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-[#3A2010] mb-2">步驟</h3>
