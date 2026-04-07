@@ -38,19 +38,24 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
     const fetchRecipe = async () => {
       setLoading(true);
       setError(null);
+      setRecipe(null);
       
       try {
+        console.log('[modal] fetching recipe:', recipeId);
         const res = await fetch(`/api/recipes/${recipeId}`);
         const data = await res.json();
+        console.log('[modal] response:', data);
         
         if (data.error) {
           setError(data.error);
         } else if (data.recipes?.[0]) {
           setRecipe(data.recipes[0]);
+          console.log('[modal] recipe loaded:', data.recipes[0]?.name);
         } else {
           setError('找不到食譜');
         }
       } catch (err) {
+        console.error('[modal] fetch error:', err);
         setError(err.message || '載入失敗');
       } finally {
         setLoading(false);
@@ -69,7 +74,8 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  if (!mounted) return null;
+  // Don't render until mounted and has valid props
+  if (!mounted || !recipeId) return null;
 
   return createPortal(
     <>
@@ -94,56 +100,61 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
+          {/* Loading state */}
           {loading && (
             <div className="flex items-center justify-center h-full">
               <p className="text-[#AA7A50]">載入中...</p>
             </div>
           )}
           
-          {error && (
+          {/* Error state */}
+          {error && !loading && (
             <div className="flex items-center justify-center h-full">
               <p className="text-red-600">{error}</p>
             </div>
           )}
           
-          {recipe && (
+          {/* Recipe content - guard with recipe?. */}
+          {!loading && !error && recipe && (
             <div className="p-4">
               {/* Image */}
-              {recipe.image_url && (
+              {recipe?.image_url && (
                 <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
                   <img 
                     src={recipe.image_url} 
-                    alt={recipe.name}
+                    alt={recipe.name || '食譜'}
                     className="w-full h-full object-cover"
                   />
                 </div>
               )}
               
               {/* Title & Meta */}
-              <h1 className="text-xl font-bold text-[#3A2010] mb-2">{recipe.name}</h1>
+              <h1 className="text-xl font-bold text-[#3A2010] mb-2">
+                {recipe?.name || '未知食譜'}
+              </h1>
               
               <div className="flex flex-wrap gap-2 mb-4">
-                {recipe.difficulty && (
+                {recipe?.difficulty && (
                   <span className="px-2 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
                     {DIFFICULTY[recipe.difficulty] || recipe.difficulty}
                   </span>
                 )}
-                {recipe.speed && (
+                {recipe?.speed && (
                   <span className="px-2 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
                     {SPEED[recipe.speed] || recipe.speed}
                   </span>
                 )}
-                {recipe.method && (
+                {recipe?.method && (
                   <span className="px-2 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
                     {METHOD[recipe.method] || recipe.method}
                   </span>
                 )}
-                {recipe.total_time_minutes && (
+                {recipe?.total_time_minutes && (
                   <span className="px-2 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
                     {recipe.total_time_minutes}分鐘
                   </span>
                 )}
-                {recipe.calories_per_serving && (
+                {recipe?.calories_per_serving && (
                   <span className="px-2 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
                     {recipe.calories_per_serving}卡
                   </span>
@@ -151,19 +162,21 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
               </div>
               
               {/* Description */}
-              {recipe.description && (
+              {recipe?.description && (
                 <p className="text-[#AA7A50] text-sm mb-4">{recipe.description}</p>
               )}
               
               {/* Ingredients */}
-              {recipe.ingredients?.length > 0 && (
+              {recipe?.ingredients?.length > 0 && (
                 <div className="mb-4">
                   <h3 className="font-semibold text-[#3A2010] mb-2">食材</h3>
                   <div className="space-y-1">
                     {recipe.ingredients.map((ing, idx) => (
                       <div key={idx} className="flex justify-between py-1 px-2 bg-[#FEFCF8] rounded">
-                        <span className="text-[#3A2010]">{ing.name}</span>
-                        <span className="text-[#AA7A50] text-sm">{ing.quantity} {ing.unit}</span>
+                        <span className="text-[#3A2010]">{ing?.name || '未知'}</span>
+                        <span className="text-[#AA7A50] text-sm">
+                          {ing?.quantity || ''} {ing?.unit || ''}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -171,7 +184,7 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
               )}
               
               {/* Steps */}
-              {recipe.steps?.length > 0 && (
+              {recipe?.steps?.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-[#3A2010] mb-2">步驟</h3>
                   <div className="space-y-2">
