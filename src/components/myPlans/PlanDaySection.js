@@ -6,11 +6,12 @@ const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '
 /**
  * PlanDaySection - displays a single day's meals
  * 
- * Responsive layout:
- * - Mobile: 1 column grid
- * - Desktop (md): 2 column grid for balanced centering
+ * Props:
+ * - dayIndex: number (0-6)
+ * - items: array of meal items
+ * - onRecipeClick: function (optional) - called with recipe ID when card clicked
  */
-export default function PlanDaySection({ dayIndex, items }) {
+export default function PlanDaySection({ dayIndex, items, onRecipeClick }) {
   const dayName = DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
   const hasItems = items?.length > 0;
   
@@ -23,7 +24,11 @@ export default function PlanDaySection({ dayIndex, items }) {
       {hasItems ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {items.map((item) => (
-            <PlanRecipeCard key={item.id} item={item} />
+            <PlanRecipeCard 
+              key={item.id} 
+              item={item} 
+              onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id) : undefined}
+            />
           ))}
         </div>
       ) : (

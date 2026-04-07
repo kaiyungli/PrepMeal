@@ -9,6 +9,7 @@ import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
+import RecipeDetailModal from '@/components/recipes/RecipeDetailModal';
 
 export default function PlanDetailPage() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function PlanDetailPage() {
   const [items, setItems] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -37,9 +39,6 @@ export default function PlanDetailPage() {
         });
         const data = await res.json();
         
-        
-        
-        // Handle both old and new response format
         if (data.success === false && data.error) {
           setError(data.error || '載入失敗');
         } else {
@@ -72,10 +71,20 @@ export default function PlanDetailPage() {
 
   // Extract unique recipe IDs for shopping list
   const recipeIds = [...new Set(items.map(i => i.recipe_id).filter(Boolean))];
-  // Average servings for shopping list
   const avgServings = items.length > 0 
     ? Math.round(items.reduce((sum, i) => sum + (i.servings || 1), 0) / items.length)
     : 1;
+
+  // Handle recipe card click - opens modal instead of navigation
+  const handleRecipeClick = (recipeId) => {
+    if (recipeId) {
+      setSelectedRecipeId(recipeId);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedRecipeId(null);
+  };
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -138,12 +147,21 @@ export default function PlanDetailPage() {
                   key={dayIndex}
                   dayIndex={dayIndex}
                   items={groupedItems[dayIndex] || []}
+                  onRecipeClick={handleRecipeClick}
                 />
               ))}
             </>
           )}
         </div>
       </div>
+
+      {/* Recipe Detail Modal */}
+      {selectedRecipeId && (
+        <RecipeDetailModal
+          recipeId={selectedRecipeId}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 }
