@@ -41,6 +41,7 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
         
         // API returns: { recipes: [...] } format
         // Also check for direct recipe object
+        console.log('[modal] steps sample:', data?.recipe?.steps?.slice(0,2));
         const recipeData = data?.recipe;
         
         if (!recipeData) {
@@ -174,14 +175,17 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
                 <div>
                   <h3 className="font-semibold text-[#3A2010] mb-2">步驟</h3>
                   <div className="space-y-2">
-                    {recipe.steps.map((step, idx) => (
-                      <div key={idx} className="flex gap-3">
-                        <span className="flex-shrink-0 w-6 h-6 bg-[#9B6035] text-white rounded-full flex items-center justify-center text-sm">
-                          {idx + 1}
-                        </span>
-                        <p className="text-[#3A2010] text-sm">{step}</p>
-                      </div>
-                    ))}
+                    {recipe.steps.map((step, idx) => {
+                      const stepText = typeof step === 'string' ? step : String(step || '');
+                      return (
+                        <div key={idx} className="flex gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 bg-[#9B6035] text-white rounded-full flex items-center justify-center text-sm">
+                            {idx + 1}
+                          </span>
+                          <p className="text-[#3A2010] text-sm">{stepText}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

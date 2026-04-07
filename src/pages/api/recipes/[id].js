@@ -23,9 +23,15 @@ export default async function handler(req, res) {
     // Format ingredients for UI
     const formattedIngredients = ingredients.map(formatIngredientForUI)
     
+    // Normalize steps to plain strings
+    const normalizedSteps = (steps || []).map((step) => {
+      if (typeof step === 'string') return step;
+      return step?.text || step?.instruction || step?.description || '';
+    }).filter(Boolean);
+    
     // Return single recipe object (clean contract)
     res.status(200).json({
-      recipe: { ...recipe, ingredients: formattedIngredients, steps }
+      recipe: { ...recipe, ingredients: formattedIngredients, steps: normalizedSteps }
     })
     perfMeasure('api.recipeDetail.total', handlerStart);
     
