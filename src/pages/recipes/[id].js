@@ -1,35 +1,22 @@
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
+import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
 
 const colors = {
   background: '#F8F3E8',
   primary: '#9B6035',
-  secondary: '#C8D49A',
-  accent: '#F0A060',
   text: '#3A2010',
   textLight: '#AA7A50',
-  border: '#DDD0B0',
-  cardBg: '#FEFCF8',
-  tipsBg: '#FFF9E6',
 };
 
 export default function RecipeDetail({ recipe, error }) {
   if (error || !recipe) {
     return (
-      <div className='min-h-screen bg-[#F8F3E8] py-10 text-center'>
-        <p className='text-[#3A2010]'>找不到食譜</p>
+      <div className="min-h-screen bg-[#F8F3E8] py-10 text-center">
+        <p className="text-[#3A2010]">找不到食譜</p>
       </div>
     );
   }
-
-  const difficultyLabels = { easy: '易', medium: '中', hard: '難' };
-  const speedLabels = { quick: '快', normal: '中', slow: '慢' };
-  const methodLabels = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒' };
-  
-  // Defensive guards for API response shape
-  const ingredients = (recipe?.ingredients || []);
-  const steps = (recipe?.steps || []);
 
   return (
     <>
@@ -39,165 +26,19 @@ export default function RecipeDetail({ recipe, error }) {
       </Head>
       
       {/* Header */}
-      <header className='sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3'>
-        <div className='max-w-[1200px] mx-auto flex items-center justify-between'>
-          <Link href="/" className='flex items-center gap-2 no-underline text-[#9B6035]'>
-            <span className='text-xl'>←</span>
-            <span className='text-lg font-bold'>今晚食乜</span>
+      <header className="sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3">
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 no-underline text-[#9B6035]">
+            <span className="text-xl">←</span>
+            <span className="text-lg font-bold">今晚食乜</span>
           </Link>
         </div>
       </header>
 
-      {/* Hero Image */}
-      <div className='relative h-[300px] bg-[#C8D49A]'>
-        {recipe.image_url ? (
-          <Image src={recipe.image_url} alt={recipe.name} fill className='object-cover' priority />
-        ) : (
-          <div className='h-full flex items-center justify-center text-6xl'>🍳</div>
-        )}
-        <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
-        <div className='absolute bottom-6 left-5 right-5 text-white'>
-          <h1 className='text-3xl font-extrabold mb-2'>{recipe.name}</h1>
-          <div className='flex gap-2 flex-wrap'>
-            {recipe.difficulty && (
-              <span className='bg-[#9B6035] px-3 py-1 rounded-xl text-sm'>
-                {difficultyLabels[recipe.difficulty] || recipe.difficulty}
-              </span>
-            )}
-            {recipe.speed && (
-              <span className='bg-[#F0A060] px-3 py-1 rounded-xl text-sm'>
-                {speedLabels[recipe.speed] || recipe.speed}
-              </span>
-            )}
-            {recipe.method && (
-              <span className='bg-[#C8D49A] px-3 py-1 rounded-xl text-sm text-[#3A2010]'>
-                {methodLabels[recipe.method] || recipe.method}
-              </span>
-            )}
-            {recipe.calories_per_serving && (
-              <span className='bg-white/20 px-3 py-1 rounded-xl text-sm'>
-                {recipe.calories_per_serving} 卡
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Content Grid */}
-      <div className='max-w-[1200px] mx-auto p-6 grid grid-cols-12 gap-6'>
-        
-        {/* Main Content - 8 cols */}
-        <div className='col-span-8'>
-          
-          {/* Description Card */}
-          {recipe.description && (
-            <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-              <h3 className='text-base font-bold text-[#3A2010] mb-3'>簡介</h3>
-              <p className='text-[#AA7A50] leading-relaxed'>{recipe.description}</p>
-            </div>
-          )}
-
-          {/* Ingredients Card */}
-          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-            <h3 className='text-base font-bold text-[#3A2010] mb-4'>🥬 食材</h3>
-            {ingredients.length > 0 ? (
-              <ul className='list-none p-0 m-0'>
-                {ingredients.map((ing, i) => (
-                  <li key={i} className='flex justify-between py-2.5 border-b border-[#DDD0B0]'>
-                    <span className='text-[#3A2010]'>
-                      {ing.display_name || ing.name || ing.slug || ing.ingredient_id || '-'}
-                    </span>
-                    <span className='text-[#AA7A50]'>
-                      {ing.quantity ?? '-'} {ing.unit?.name || ing.unit || ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className='text-[#AA7A50]'>暫無食材資料</p>
-            )}
-          </div>
-
-          {/* Cooking Steps Card */}
-          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-            <h3 className='text-base font-bold text-[#3A2010] mb-4'>👨‍🍳 烹飪步驟</h3>
-            {steps.length > 0 ? (
-              <ol className='list-none p-0 m-0 space-y-4'>
-                {steps.map((step, i) => (
-                  <li key={i} className='flex gap-4 mb-5 relative'>
-                    <div className='w-8 h-8 rounded-full bg-[#9B6035] text-white flex items-center justify-center font-bold flex-shrink-0'>
-                      {step.step_no}
-                    </div>
-                    <div className='flex-1 pt-1'>
-                      <p className='text-[#3A2010] leading-relaxed'>{step.text}</p>
-                      {step.time_seconds > 0 && (
-                        <span className='text-xs text-[#AA7A50] mt-1 block'>
-                        ⏱ {Math.floor(step.time_seconds / 60)}分鐘
-                      </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className='text-[#AA7A50]'>暫無步驟資料</p>
-            )}
-          </div>
-
-          {/* Tips Card - dynamic based on recipe */}
-          <div className='bg-[#FFF9E6] rounded-xl p-5 border border-[#F0A060]'>
-            <h3 className='text-base font-bold text-[#3A2010] mb-3'>💡 小貼士</h3>
-            {recipe.tips ? (
-              <p className='text-[#AA7A50] leading-relaxed'>{recipe.tips}</p>
-            ) : (
-              <p className='text-[#AA7A50] leading-relaxed'>暫無小貼士</p>
-            )}
-          </div>
-
-        </div>
-
-        {/* Sidebar - 4 cols */}
-        <div className='col-span-4'>
-          
-          {/* Action Buttons */}
-          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-            <button className='w-full py-3.5 bg-[#9B6035] text-white border-none rounded-xl text-base font-semibold cursor-pointer mb-3'>
-              + 加入本週餐單
-            </button>
-            <button className='w-full py-3.5 bg-white text-[#9B6035] border-2 border-[#9B6035] rounded-xl text-base font-semibold cursor-pointer'>
-              + 加入購物清單
-            </button>
-          </div>
-
-          {/* Nutrition Card */}
-          <div className='bg-[#FEFCF8] rounded-xl p-5 mb-6 border border-[#DDD0B0]'>
-            <h3 className='text-base font-bold text-[#3A2010] mb-4'>📊 營養資料</h3>
-            <div className='grid grid-cols-2 gap-3'>
-              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
-                <div className='text-xl font-bold text-[#9B6035]'>{recipe.calories_per_serving || '-'}</div>
-                <div className='text-xs text-[#AA7A50]'>卡路里</div>
-              </div>
-              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
-                <div className='text-xl font-bold text-[#9B6035]'>{recipe.protein_g || '-'}</div>
-                <div className='text-xs text-[#AA7A50]'>蛋白質(g)</div>
-              </div>
-              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
-                <div className='text-xl font-bold text-[#9B6035]'>{recipe.carbs_g || '-'}</div>
-                <div className='text-xs text-[#AA7A50]'>碳水(g)</div>
-              </div>
-              <div className='text-center p-3 bg-[#F8F3E8] rounded-lg'>
-                <div className='text-xl font-bold text-[#9B6035]'>{recipe.fat_g || '-'}</div>
-                <div className='text-xs text-[#AA7A50]'>脂肪(g)</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Related Recipes */}
-          <div className='bg-[#FEFCF8] rounded-xl p-5 border border-[#DDD0B0]'>
-            <h3 className='text-base font-bold text-[#3A2010] mb-4'>相關食譜</h3>
-            <p className='text-[#AA7A50] text-sm'>暫無相關食譜</p>
-          </div>
-
+      {/* Page Shell - uses shared content component */}
+      <div className="min-h-screen bg-[#F8F3E8]">
+        <div className="max-w-[800px] mx-auto py-6 px-4">
+          <RecipeDetailContent recipe={recipe} />
         </div>
       </div>
     </>
@@ -206,39 +47,27 @@ export default function RecipeDetail({ recipe, error }) {
 
 export async function getServerSideProps({ params }) {
   try {
-    const { id } = params;
-    
-    // Reuse /api/recipes/[id] for consistent data shape
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://prep-meal-tan.vercel.app';
-    const res = await fetch(`${baseUrl}/api/recipes/${id}`);
-    
-    if (!res.ok) {
-      return { props: { recipe: null, error: 'Not found' } };
-    }
-    
-    const data = await res.json();
-    
-    // Support both { recipes: [...] } and legacy { ...recipe } response shapes
-    let recipe = null;
-    if (data.recipes && Array.isArray(data.recipes)) {
-      recipe = data.recipes[0];
-    } else if (data.id) {
-      // Legacy single object format fallback
-      recipe = data;
-    }
-    
-    if (!recipe) {
-      console.error('Recipe not found - API response:', JSON.stringify(data).slice(0, 200));
-      return { props: { recipe: null, error: 'Not found' } };
-    }
+    const { getRecipeDetail } = await import('@/lib/recipeDetail');
+    const { recipe, ingredients, steps } = await getRecipeDetail(params.id);
     
     return {
       props: {
-        recipe,
-        error: null
+        recipe: {
+          ...recipe,
+          ingredients: ingredients.map(ing => ({
+            name: ing.name,
+            quantity: ing.quantity,
+            unit: ing.unit
+          })),
+          steps: steps.map(s => s.text || String(s))
+        }
       }
-    }
-  } catch (e) {
-    return { props: { recipe: null, error: e.message } };
+    };
+  } catch (err) {
+    return {
+      props: {
+        error: err.message || 'Failed to load recipe'
+      }
+    };
   }
 }
