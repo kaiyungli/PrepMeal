@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { UI } from '@/styles/ui';
 import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
 
 /**
@@ -41,9 +40,35 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
 
   return (
     <>
-      <button onClick={handleOpen} className={UI.buttonPrimary + " w-full py-3 mt-6"}>
-        查看購物清單
-      </button>
+      {/* Premium Card-Style CTA */}
+      <div className="mb-4">
+        <button
+          onClick={handleOpen}
+          className="w-full flex items-center justify-between rounded-2xl border border-[#E5E5E5] bg-white px-4 py-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
+        >
+          {/* Left */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#F6F1EB]">
+              🛒
+            </div>
+
+            <div className="text-left">
+              <div className="text-[15px] font-semibold text-[#3D3D3D]">
+                查看購物清單
+              </div>
+              <div className="text-xs text-[#9A9A9A]">
+                可按種類或菜式查看
+              </div>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="text-[#B0B0B0] text-lg">
+            →
+          </div>
+        </button>
+      </div>
+
       <ShoppingListDrawer
         isOpen={isOpen}
         onClose={handleClose}
