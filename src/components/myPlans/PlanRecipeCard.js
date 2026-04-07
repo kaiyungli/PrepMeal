@@ -5,7 +5,7 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 
 /**
  * PlanRecipeCard - displays a single meal item in the plan
- * Clickable if recipe has valid route
+ * Premium clickable card with clear affordance
  */
 export default function PlanRecipeCard({ item }) {
   if (!item) return null;
@@ -20,52 +20,64 @@ export default function PlanRecipeCard({ item }) {
     return (
       <Link
         href={recipeUrl}
-        className="block group"
+        className="block group cursor-pointer"
       >
-        <div className="flex items-center gap-3 p-2 bg-[#F8F3E8] rounded-lg transition-shadow group-hover:shadow-md">
-          {recipe.image_url ? (
-            <img
-              src={recipe.image_url}
-              alt={recipe.name}
-              className="w-16 h-16 object-cover rounded"
-            />
-          ) : (
-            <div className="w-16 h-16 bg-[#E5DCC8] rounded flex items-center justify-center text-2xl">
-              🍽️
-            </div>
-          )}
-          <div className="flex-1">
-            <p className="font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)]">
+        <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] active:scale-[0.99]">
+          {/* Image */}
+          <div className="flex-shrink-0">
+            {recipe.image_url ? (
+              <img
+                src={recipe.image_url}
+                alt={recipe.name}
+                className="w-14 h-14 object-cover rounded-lg"
+              />
+            ) : (
+              <div className="w-14 h-14 bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl">
+                🍽️
+              </div>
+            )}
+          </div>
+          
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-semibold text-[#3D3D3D] group-hover:text-[var(--color-primary)] truncate">
               {recipe.name || '未知食譜'}
             </p>
-            <p className="text-sm text-[var(--color-text-muted)]">
+            <p className="text-xs text-[#9A9A9A] mt-0.5">
               {mealLabel} · {servings}人份
             </p>
             {recipe && (
-              <p className="text-xs text-[var(--color-text-muted)] mt-1">
+              <p className="text-xs text-[#B0B0B0] mt-1">
                 {recipe.total_time_minutes}分鐘 · {recipe.calories_per_serving}卡
               </p>
             )}
+          </div>
+          
+          {/* Chevron */}
+          <div className="flex-shrink-0 text-[#B0B0B0] text-lg">
+            →
           </div>
         </div>
       </Link>
     );
   }
   
-  // Render non-clickable fallback (no valid recipe)
+  // Render non-clickable fallback
   return (
-    <div className="flex items-center gap-3 p-2 bg-[#F8F3E8] rounded-lg opacity-75">
-      <div className="w-16 h-16 bg-[#E5DCC8] rounded flex items-center justify-center text-2xl">
-        🍽️
+    <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] opacity-60">
+      <div className="flex-shrink-0">
+        <div className="w-14 h-14 bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl">
+          🍽️
+        </div>
       </div>
-      <div className="flex-1">
-        <p className="font-medium text-[var(--color-text-muted)]">
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-semibold text-[#9A9A9A] truncate">
           {recipe?.name || '未知食譜'}
         </p>
-        <p className="text-sm text-[var(--color-text-muted)]">
+        <p className="text-xs text-[#B0B0B0] mt-0.5">
           {mealLabel} · {servings}人份
         </p>
-        <p className="text-xs text-[var(--color-text-muted)] mt-1">
+        <p className="text-xs text-[#B0B0B0] mt-1">
           食譜資料不完整
         </p>
       </div>
