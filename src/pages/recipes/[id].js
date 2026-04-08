@@ -5,11 +5,18 @@ import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
 /**
  * Recipe Detail Page
  * 
- * Reuses the same normalized recipe contract as the modal:
- * - Fetch from /api/recipes/[id] (same path as modal)
- * - UI: RecipeDetailContent (shared with modal)
+ * Reuses the same normalized recipe contract as the modal
  */
 export default function RecipeDetail({ recipe, error }) {
+  // Guard: show loading if no recipe yet
+  if (!recipe && !error) {
+    return (
+      <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
+        <p className="text-[#AA7A50]">載入中...</p>
+      </div>
+    );
+  }
+
   if (error || !recipe) {
     return (
       <div className="min-h-screen bg-[#F8F3E8] py-10 text-center">
@@ -18,11 +25,29 @@ export default function RecipeDetail({ recipe, error }) {
     );
   }
 
+  // Safe recipe with defaults
+  const safeRecipe = {
+    id: recipe?.id || null,
+    name: recipe?.name || '未知食譜',
+    image_url: recipe?.image_url || null,
+    total_time_minutes: recipe?.total_time_minutes || null,
+    calories_per_serving: recipe?.calories_per_serving || null,
+    servings: recipe?.servings || null,
+    description: recipe?.description || '',
+    difficulty: recipe?.difficulty || null,
+    speed: recipe?.speed || null,
+    method: recipe?.method || null,
+    ingredients: Array.isArray(recipe?.ingredients) ? recipe.ingredients : [],
+    steps: Array.isArray(recipe?.steps) ? recipe.steps : []
+  };
+
+  console.log('[page] recipe:', safeRecipe?.name, 'ingredients:', safeRecipe?.ingredients?.length, 'steps:', safeRecipe?.steps?.length);
+
   return (
     <>
       <Head>
-        <title>{recipe.name} - 今晚食乜</title>
-        <meta name="description" content={recipe.description || recipe.name} />
+        <title>{safeRecipe.name} - 今晚食乜</title>
+        <meta name="description" content={safeRecipe.description || safeRecipe.name} />
       </Head>
       
       {/* Header */}
@@ -35,25 +60,25 @@ export default function RecipeDetail({ recipe, error }) {
         </div>
       </header>
 
-      {/* Page Shell - uses shared UI */}
+      {/* Page Shell */}
       <div className="min-h-screen bg-[#F8F3E8]">
         <div className="max-w-[800px] mx-auto py-6 px-4">
-          <RecipeDetailContent recipe={recipe} />
+          <RecipeDetailContent recipe={safeRecipe} />
         </div>
       </div>
     </>
   );
 }
 
-// Use same fetch path as modal for consistent contract
+// Use same API as modal for consistent contract
 export async function getServerSideProps({ params }) {
   const API_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   
   try {
-    // Reuse the same API endpoint as modal
     const res = await fetch(`${API_URL}/api/recipes/${params.id}`);
     
     if (!res.ok) {
+      console.log('[page] API error:', res.status);
       return { props: { error: '找不到食譜' } };
     }
     
@@ -61,8 +86,11 @@ export async function getServerSideProps({ params }) {
     const recipe = data?.recipe;
     
     if (!recipe) {
+      console.log('[page] no recipe in response');
       return { props: { error: '找不到食譜' } };
     }
+    
+    console.log('[page] API success, recipe:', recipe?.name);
     
     return {
       props: {
@@ -70,6 +98,7 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch (err) {
+    console.error('[page] catch error:', err.message);
     return {
       props: {
         error: err.message || 'Failed to load recipe'

@@ -13,19 +13,21 @@ const SPEED = { quick: '快', normal: '中', slow: '慢' };
 const METHOD = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒' };
 
 export default function RecipeDetailContent({ recipe }) {
-  if (!recipe) return null;
+  // Defensive guards
+  const safeRecipe = recipe || {};
+  const ingredients = Array.isArray(safeRecipe.ingredients) ? safeRecipe.ingredients : [];
+  const steps = Array.isArray(safeRecipe.steps) ? safeRecipe.steps : [];
   
-  const ingredients = recipe.ingredients || [];
-  const steps = recipe.steps || [];
+  if (!recipe) return null;
   
   return (
     <div className="p-4 md:p-6">
       {/* Image */}
-      {recipe.image_url && (
+      {safeRecipe.image_url && (
         <div className="relative w-full h-48 md:h-64 mb-4 md:mb-6 rounded-xl overflow-hidden">
           <img 
-            src={recipe.image_url} 
-            alt={recipe.name || '食譜'}
+            src={safeRecipe.image_url} 
+            alt={safeRecipe.name || '食譜'}
             className="w-full h-full object-cover"
           />
         </div>
@@ -33,41 +35,41 @@ export default function RecipeDetailContent({ recipe }) {
       
       {/* Title */}
       <h1 className="text-xl md:text-2xl font-bold text-[#3A2010] mb-2 md:mb-3">
-        {recipe.name || '未知食譜'}
+        {safeRecipe.name || '未知食譜'}
       </h1>
       
       {/* Meta Tags */}
       <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-        {recipe.difficulty && (
+        {safeRecipe.difficulty && (
           <span className="px-2 md:px-3 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
-            {DIFFICULTY[recipe.difficulty] || recipe.difficulty}
+            {DIFFICULTY[safeRecipe.difficulty] || safeRecipe.difficulty}
           </span>
         )}
-        {recipe.speed && (
+        {safeRecipe.speed && (
           <span className="px-2 md:px-3 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
-            {SPEED[recipe.speed] || recipe.speed}
+            {SPEED[safeRecipe.speed] || safeRecipe.speed}
           </span>
         )}
-        {recipe.method && (
+        {safeRecipe.method && (
           <span className="px-2 md:px-3 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
-            {METHOD[recipe.method] || recipe.method}
+            {METHOD[safeRecipe.method] || safeRecipe.method}
           </span>
         )}
-        {recipe.total_time_minutes && (
+        {safeRecipe.total_time_minutes && (
           <span className="px-2 md:px-3 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
-            {recipe.total_time_minutes}分鐘
+            {safeRecipe.total_time_minutes}分鐘
           </span>
         )}
-        {recipe.calories_per_serving && (
+        {safeRecipe.calories_per_serving && (
           <span className="px-2 md:px-3 py-1 bg-[#F0E8D8] text-[#AA7A50] text-sm rounded">
-            {recipe.calories_per_serving}卡
+            {safeRecipe.calories_per_serving}卡
           </span>
         )}
       </div>
       
       {/* Description */}
-      {recipe.description && (
-        <p className="text-[#AA7A50] text-sm mb-4 md:mb-6">{recipe.description}</p>
+      {safeRecipe.description && (
+        <p className="text-[#AA7A50] text-sm mb-4 md:mb-6">{safeRecipe.description}</p>
       )}
       
       {/* Ingredients */}
@@ -76,7 +78,7 @@ export default function RecipeDetailContent({ recipe }) {
           <h3 className="font-semibold text-[#3A2010] mb-2 md:mb-3">食材</h3>
           <div className="bg-[#FEFCF8] rounded-lg p-3 md:p-4">
             <div className="space-y-1">
-              {ingredients.map((ing, idx) => {
+              {ingredients?.map || (() => [])((ing, idx) => {
                 const name = ing?.display_name || ing?.name || '未知';
                 const qty = ing?.quantity ?? '';
                 const unit = ing?.unit?.name || ing?.unit || '';
@@ -97,7 +99,7 @@ export default function RecipeDetailContent({ recipe }) {
         <div>
           <h3 className="font-semibold text-[#3A2010] mb-2 md:mb-3">步驟</h3>
           <div className="space-y-3 md:space-y-4">
-            {steps.map((step, idx) => {
+            {steps?.map || (() => [])((step, idx) => {
               // Handle both string and object step formats
               const stepText = typeof step === 'string' 
                 ? step 
