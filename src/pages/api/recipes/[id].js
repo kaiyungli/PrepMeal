@@ -1,5 +1,4 @@
-import { getRecipeDetail } from '@/lib/recipeDetail'
-import { normalizeRecipeDetail } from '@/lib/normalizeRecipeDetail'
+import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
 import { perfNow, perfMeasure } from '@/utils/perf';
 
 /**
@@ -17,16 +16,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Recipe ID is required' })
     }
 
-    const detailStart = perfNow();
-    const { recipe, ingredients, steps } = await getRecipeDetail(id)
-    perfMeasure('api.recipeDetail.getRecipeDetail', detailStart);
+    const fetchStart = perfNow();
+    const { recipe, error } = await fetchRecipeDetail(id);
+    perfMeasure('api.recipeDetail.fetch', fetchStart);
     
-    // Use shared normalization
-    const normalizedRecipe = normalizeRecipeDetail(recipe, ingredients, steps);
+    if (error || !recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
     
-    res.status(200).json({
-      recipe: normalizedRecipe
-    })
+    res.status(200).json({ recipe });
     perfMeasure('api.recipeDetail.total', handlerStart);
     
   } catch (error) {
