@@ -50,16 +50,25 @@ export async function getServerSideProps({ params }) {
     const { getRecipeDetail } = await import('@/lib/recipeDetail');
     const { recipe, ingredients, steps } = await getRecipeDetail(params.id);
     
+    // Normalize like API does
+    const formattedIngredients = ingredients.map(ing => ({
+      name: ing.name,
+      display_name: ing.display_name || ing.name,
+      quantity: ing.quantity,
+      unit: ing.unit?.name || ing.unit || ''
+    }));
+    
+    const normalizedSteps = (steps || []).map((step) => {
+      if (typeof step === 'string') return step;
+      return step?.text || step?.instruction || step?.description || '';
+    }).filter(Boolean);
+    
     return {
       props: {
         recipe: {
           ...recipe,
-          ingredients: ingredients.map(ing => ({
-            name: ing.name,
-            quantity: ing.quantity,
-            unit: ing.unit
-          })),
-          steps: steps.map(s => s.text || String(s))
+          ingredients: formattedIngredients,
+          steps: normalizedSteps
         }
       }
     };
