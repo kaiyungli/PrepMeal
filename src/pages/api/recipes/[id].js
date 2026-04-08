@@ -1,4 +1,5 @@
-import { getRecipeDetail, formatIngredientForUI } from '@/lib/recipeDetail'
+import { getRecipeDetail } from '@/lib/recipeDetail'
+import { normalizeRecipeDetail } from '@/lib/normalizeRecipeDetail'
 import { perfNow, perfMeasure } from '@/utils/perf';
 
 /**
@@ -20,18 +21,11 @@ export default async function handler(req, res) {
     const { recipe, ingredients, steps } = await getRecipeDetail(id)
     perfMeasure('api.recipeDetail.getRecipeDetail', detailStart);
     
-    // Format ingredients for UI
-    const formattedIngredients = ingredients.map(formatIngredientForUI)
+    // Use shared normalization
+    const normalizedRecipe = normalizeRecipeDetail(recipe, ingredients, steps);
     
-    // Normalize steps to plain strings
-    const normalizedSteps = (steps || []).map((step) => {
-      if (typeof step === 'string') return step;
-      return step?.text || step?.instruction || step?.description || '';
-    }).filter(Boolean);
-    
-    // Return single recipe object (clean contract)
     res.status(200).json({
-      recipe: { ...recipe, ingredients: formattedIngredients, steps: normalizedSteps }
+      recipe: normalizedRecipe
     })
     perfMeasure('api.recipeDetail.total', handlerStart);
     

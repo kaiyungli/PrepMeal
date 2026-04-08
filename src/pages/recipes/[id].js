@@ -1,13 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
-
-const colors = {
-  background: '#F8F3E8',
-  primary: '#9B6035',
-  text: '#3A2010',
-  textLight: '#AA7A50',
-};
+import { normalizeRecipeDetail } from '@/lib/normalizeRecipeDetail';
 
 export default function RecipeDetail({ recipe, error }) {
   if (error || !recipe) {
@@ -35,7 +29,7 @@ export default function RecipeDetail({ recipe, error }) {
         </div>
       </header>
 
-      {/* Page Shell - uses shared content component */}
+      {/* Page Shell */}
       <div className="min-h-screen bg-[#F8F3E8]">
         <div className="max-w-[800px] mx-auto py-6 px-4">
           <RecipeDetailContent recipe={recipe} />
@@ -50,26 +44,12 @@ export async function getServerSideProps({ params }) {
     const { getRecipeDetail } = await import('@/lib/recipeDetail');
     const { recipe, ingredients, steps } = await getRecipeDetail(params.id);
     
-    // Normalize like API does
-    const formattedIngredients = ingredients.map(ing => ({
-      name: ing.name,
-      display_name: ing.display_name || ing.name,
-      quantity: ing.quantity,
-      unit: ing.unit?.name || ing.unit || ''
-    }));
-    
-    const normalizedSteps = (steps || []).map((step) => {
-      if (typeof step === 'string') return step;
-      return step?.text || step?.instruction || step?.description || '';
-    }).filter(Boolean);
+    // Use shared normalization
+    const normalizedRecipe = normalizeRecipeDetail(recipe, ingredients, steps);
     
     return {
       props: {
-        recipe: {
-          ...recipe,
-          ingredients: formattedIngredients,
-          steps: normalizedSteps
-        }
+        recipe: normalizedRecipe
       }
     };
   } catch (err) {
