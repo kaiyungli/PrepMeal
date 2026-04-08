@@ -1,8 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
-import { normalizeRecipeDetail } from '@/lib/normalizeRecipeDetail';
 
+/**
+ * Recipe Detail Page
+ * 
+ * Reuses the same normalized recipe contract as the modal:
+ * - Fetch from /api/recipes/[id] (same path as modal)
+ * - UI: RecipeDetailContent (shared with modal)
+ */
 export default function RecipeDetail({ recipe, error }) {
   if (error || !recipe) {
     return (
@@ -29,7 +35,7 @@ export default function RecipeDetail({ recipe, error }) {
         </div>
       </header>
 
-      {/* Page Shell */}
+      {/* Page Shell - uses shared UI */}
       <div className="min-h-screen bg-[#F8F3E8]">
         <div className="max-w-[800px] mx-auto py-6 px-4">
           <RecipeDetailContent recipe={recipe} />
@@ -39,17 +45,28 @@ export default function RecipeDetail({ recipe, error }) {
   );
 }
 
+// Use same fetch path as modal for consistent contract
 export async function getServerSideProps({ params }) {
+  const API_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  
   try {
-    const { getRecipeDetail } = await import('@/lib/recipeDetail');
-    const { recipe, ingredients, steps } = await getRecipeDetail(params.id);
+    // Reuse the same API endpoint as modal
+    const res = await fetch(`${API_URL}/api/recipes/${params.id}`);
     
-    // Use shared normalization
-    const normalizedRecipe = normalizeRecipeDetail(recipe, ingredients, steps);
+    if (!res.ok) {
+      return { props: { error: '找不到食譜' } };
+    }
+    
+    const data = await res.json();
+    const recipe = data?.recipe;
+    
+    if (!recipe) {
+      return { props: { error: '找不到食譜' } };
+    }
     
     return {
       props: {
-        recipe: normalizedRecipe
+        recipe // Already normalized by API
       }
     };
   } catch (err) {
