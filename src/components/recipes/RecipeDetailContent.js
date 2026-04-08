@@ -14,12 +14,14 @@ const METHOD = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braise
 
 export default function RecipeDetailContent({ recipe }) {
   // Defensive guards
+  if (!recipe) return null;
+  
   const safeRecipe = recipe || {};
   const ingredients = Array.isArray(safeRecipe.ingredients) ? safeRecipe.ingredients : [];
   const steps = Array.isArray(safeRecipe.steps) ? safeRecipe.steps : [];
-  
-  if (!recipe) return null;
-  
+
+  console.log('[content] rendering, ingredients:', ingredients.length, 'steps:', steps.length);
+
   return (
     <div className="p-4 md:p-6">
       {/* Image */}
@@ -78,10 +80,10 @@ export default function RecipeDetailContent({ recipe }) {
           <h3 className="font-semibold text-[#3A2010] mb-2 md:mb-3">食材</h3>
           <div className="bg-[#FEFCF8] rounded-lg p-3 md:p-4">
             <div className="space-y-1">
-              {ingredients?.map || (() => [])((ing, idx) => {
-                const name = ing?.display_name || ing?.name || '未知';
+              {ingredients.map((ing, idx) => {
+                const name = ing?.name || '未知';
                 const qty = ing?.quantity ?? '';
-                const unit = ing?.unit?.name || ing?.unit || '';
+                const unit = ing?.unit || '';
                 return (
                   <div key={idx} className="flex justify-between py-1.5 md:py-2 border-b border-[#DDD0B0] last:border-b-0">
                     <span className="text-[#3A2010]">{name}</span>
@@ -99,12 +101,10 @@ export default function RecipeDetailContent({ recipe }) {
         <div>
           <h3 className="font-semibold text-[#3A2010] mb-2 md:mb-3">步驟</h3>
           <div className="space-y-3 md:space-y-4">
-            {steps?.map || (() => [])((step, idx) => {
+            {steps.map((step, idx) => {
               // Handle both string and object step formats
-              const stepText = typeof step === 'string' 
-                ? step 
-                : step?.text || step?.instruction || step?.description || '';
-              const stepNum = step?.step_no || idx + 1;
+              const stepText = typeof step === 'string' ? step : String(step || '');
+              const stepNum = idx + 1;
               
               return (
                 <div key={idx} className="flex gap-3 md:gap-4">

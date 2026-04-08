@@ -4,12 +4,12 @@ import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
 import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
 
 /**
- * Recipe Detail Page
- * 
- * Reuses shared loader for max stability
+ * Recipe Detail Page - dumb shell only
  */
 export default function RecipeDetail({ recipe, error }) {
-  // Guard: show loading if no recipe yet
+  console.log('[page] props:', { hasRecipe: !!recipe, error });
+
+  // Guard: loading
   if (!recipe && !error) {
     return (
       <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
@@ -18,6 +18,7 @@ export default function RecipeDetail({ recipe, error }) {
     );
   }
 
+  // Guard: error
   if (error || !recipe) {
     return (
       <div className="min-h-screen bg-[#F8F3E8] py-10 text-center">
@@ -26,14 +27,14 @@ export default function RecipeDetail({ recipe, error }) {
     );
   }
 
-  // Safe recipe with defaults (double defense)
+  // Safe recipe - double defense
   const safeRecipe = {
     ...recipe,
     ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
 
-  console.log('[page] loaded:', safeRecipe?.name);
+  console.log('[page] render:', safeRecipe.name);
 
   return (
     <>
@@ -42,7 +43,7 @@ export default function RecipeDetail({ recipe, error }) {
         <meta name="description" content={safeRecipe.description || safeRecipe.name} />
       </Head>
       
-      {/* Page Shell - dumb wrapper only */}
+      {/* Page Shell - dumb wrapper */}
       <header className="sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 no-underline text-[#9B6035]">
@@ -61,18 +62,18 @@ export default function RecipeDetail({ recipe, error }) {
   );
 }
 
-// Use shared loader - same as API
+// Use shared loader
 export async function getServerSideProps({ params }) {
-  console.log('[page] fetching recipe:', params.id);
+  console.log('[page] fetching:', params.id);
   
   const { recipe, error } = await fetchRecipeDetail(params.id);
   
-  console.log('[page] result:', error ? 'error' : 'success', recipe?.name);
+  console.log('[page] result:', error ? 'error' : 'success');
   
   return {
     props: {
       recipe: recipe || null,
-      error: error
+      error: error || null
     }
   };
 }
