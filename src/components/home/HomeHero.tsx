@@ -40,8 +40,8 @@ const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
   const router = useRouter();
   
-  // Use service to group plan by day
-  const groupedPlan = groupPlanByDay(weeklyPlan);
+  // Use service to get array of grouped days
+  const groupedDays = groupPlanByDay(weeklyPlan);
   
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
@@ -97,25 +97,28 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
               
               {/* Two columns: 餐單 + 購物清單 */}
               <div className="grid grid-cols-2 gap-4">
-                {/* 左欄：本週餐單 - using grouped data */}
+                {/* 左欄：本週餐單 - render all items per day */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
                   <div className="space-y-1">
-                    {Object.keys(groupedPlan).length > 0 ? (
-                      Object.entries(groupedPlan).sort(([a], [b]) => Number(a) - Number(b)).map(([dayIndex, dayData]: [string, any]) => (
-                        <Link
-                          key={dayIndex}
-                          href="/generate"
-                          className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0] hover:opacity-80 transition-opacity"
-                        >
-                          <span className="text-xs text-[#9B6035] font-medium">{dayData.dayName}</span>
-                          <span className="flex-1 text-sm text-[#3A2010] truncate">
-                            {dayData.items?.[0]?.recipe?.name || '—'}
-                          </span>
-                          {dayData.items?.length > 1 && (
-                            <span className="text-xs text-[#AA7A50]">+{dayData.items.length - 1}</span>
-                          )}
-                        </Link>
+                    {groupedDays.length > 0 ? (
+                      groupedDays.map((day) => (
+                        <div key={day.dayIndex} className="space-y-0.5">
+                          <div className="text-xs text-[#9B6035] font-medium">{day.dayName}</div>
+                          {day.items.map((item, idx) => (
+                            <div 
+                              key={idx}
+                              className="flex items-center gap-1 py-0.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
+                            >
+                              <span className="text-xs text-[#AA7A50]">
+                                {item.mealSlot === 'lunch' ? '🥗' : '🍽️'}
+                              </span>
+                              <span className="flex-1 text-sm text-[#3A2010] truncate">
+                                {item.recipeName}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       ))
                     ) : (
                       DAYS.map((day) => (

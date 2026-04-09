@@ -11,41 +11,75 @@ const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '
  * Group weekly plan items by day
  * 
  * @param {Array} planDays - Array of day objects with items: [{recipe, servings, mealSlot}]
- * @returns {Object} - { dayIndex: { dayIndex, dayName, date, items: [...] } }
+ * @returns {Array} - [{ dayIndex, dayName, date, items: [...] }] sorted by dayIndex
  */
 export function groupPlanByDay(planDays) {
-  if (!planDays || planDays.length === 0) return {};
+  if (!planDays || planDays.length === 0) return [];
   
-  const grouped = {};
+  // Sort by dayIndex and return array
+  const sorted = [...planDays].sort((a, b) => (a.dayIndex || 0) - (b.dayIndex || 0));
   
-  for (const day of planDays) {
-    const dayIndex = day.dayIndex ?? 0;
-    const dayName = day.dayName || DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
-    
-    if (!grouped[dayIndex]) {
-      grouped[dayIndex] = {
-        dayIndex,
-        dayName,
-        date: day.date || null,
-        items: []
-      };
+  return sorted.map(day => ({
+    dayIndex: day.dayIndex ?? 0,
+    dayName: day.dayName || DAY_NAMES[day.dayIndex] || `Day ${day.dayIndex + 1}`,
+    date: day.date || null,
+    items: (day.items || []).map(item => ({
+      recipeId: item.recipe?.id || null,
+      recipeName: item.recipe?.name || '未知食譜',
+      recipeImage: item.recipe?.image_url || null,
+      servings: item.servings || 1,
+      mealSlot: item.mealSlot || item.meal_slot || 'dinner',
+      done: false
+    }))
+  }));
+}
+
+/**
+ * Transform raw recipes to weekly plan format (multiple items per day ready)
+ * 
+ * @param {Array} recipes - Array of recipe objects
+ * @param {number} daysCount - Number of days to generate (default 5)
+ * @param {number} itemsPerDay - Number of meals per day (default 2)
+ * @returns {Array} - Weekly plan: [{ dayIndex, dayName, date, items: [...] }]
+ */
+export function generateWeeklyPlan(recipes, daysCount = 5, itemsPerDay = 2) {
+  if (!recipes || recipes.length === 0) return [];
+  
+  const shuffled = [...recipes].sort(() => 0.5 - Math.random());
+  const selectedRecipes = shuffled.slice(0, daysCount * itemsPerDay);
+  
+  // Return structure with multiple items per day
+  const mealSlots = ['lunch', 'dinner'];
+  
+  const result = [];
+  for (let i = 0; i < daysCount; i++) {
+    const dayItems = [];
+    for (let j = 0; j < itemsPerDay; j++) {
+      const recipeIdx = i * itemsPerDay + j;
+      if (recipeIdx < selectedRecipes.length) {
+        const recipe = selectedRecipes[recipeIdx];
+        dayItems.push({
+          recipe: {
+            id: recipe.id,
+            name: recipe.name,
+            image_url: recipe.image_url,
+            ingredients: recipe.ingredients || null
+          },
+          servings: 2,
+          mealSlot: mealSlots[j % mealSlots.length]
+        });
+      }
     }
     
-    // Items is array of {recipe, servings, mealSlot}
-    const items = day.items || [];
-    for (const item of items) {
-      grouped[dayIndex].items.push({
-        recipeId: item.recipe?.id || null,
-        recipeName: item.recipe?.name || '未知食譜',
-        recipeImage: item.recipe?.image_url || null,
-        servings: item.servings || 1,
-        mealSlot: item.mealSlot || item.meal_slot || 'dinner',
-        done: false
-      });
-    }
+    result.push({
+      dayIndex: i,
+      dayName: DAY_NAMES[i] || `Day ${i + 1}`,
+      date: null,
+      items: dayItems
+    });
   }
   
-  return grouped;
+  return result;
 }
 
 /**
@@ -68,7 +102,6 @@ export function buildShoppingListFromPlan(planDays) {
       if (!recipe?.ingredients) continue;
       
       try {
-        // Handle both string and array formats
         const ingredients = typeof recipe.ingredients === 'string'
           ? JSON.parse(recipe.ingredients)
           : recipe.ingredients;
@@ -78,17 +111,14 @@ export function buildShoppingListFromPlan(planDays) {
         for (const ing of ingredients) {
           const name = ing.name || ing.item || '未知食材';
           
-          // Parse quantity - try multiple fields
           const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
           const qtyNum = parseFloat(qtyRaw);
           
           if (ingredientMap.has(name)) {
             const existing = ingredientMap.get(name);
-            // Aggregate if both are numbers
             if (typeof existing === 'number' && !isNaN(qtyNum)) {
               ingredientMap.set(name, existing + qtyNum);
             } else {
-              // Just concatenate as fallback
               ingredientMap.set(name, `${existing}+${qtyRaw}`);
             }
           } else {
@@ -104,39 +134,6 @@ export function buildShoppingListFromPlan(planDays) {
   return Array.from(ingredientMap.entries()).map(([name, qty]) => ({
     name,
     qty: typeof qty === 'number' ? Math.round(qty * 100) / 100 : qty
-  }));
-}
-
-/**
- * Transform raw recipes to weekly plan format (multiple items per day ready)
- * 
- * @param {Array} recipes - Array of recipe objects
- * @param {number} daysCount - Number of days to generate (default 5)
- * @returns {Array} - Weekly plan: [{ dayIndex, dayName, date, items: [{recipe, servings, mealSlot}] }]
- */
-export function generateWeeklyPlan(recipes, daysCount = 5) {
-  if (!recipes || recipes.length === 0) return [];
-  
-  const shuffled = [...recipes].sort(() => 0.5 - Math.random());
-  const selectedRecipes = shuffled.slice(0, daysCount);
-  
-  // Return structure ready for multiple items per day
-  return selectedRecipes.map((recipe, index) => ({
-    dayIndex: index,
-    dayName: DAY_NAMES[index] || `Day ${index + 1}`,
-    date: null,
-    items: [
-      {
-        recipe: {
-          id: recipe.id,
-          name: recipe.name,
-          image_url: recipe.image_url,
-          ingredients: recipe.ingredients || null
-        },
-        servings: 2,
-        mealSlot: 'dinner'
-      }
-    ]
   }));
 }
 
