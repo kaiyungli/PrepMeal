@@ -25,7 +25,7 @@ interface RecipeDetailContentProps {
       shopping_category?: string
       source?: string
     }>
-    steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
+    steps?: string[]
   }
   isLoading?: boolean
   isFavorite?: boolean
@@ -195,18 +195,13 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             </div>
           ) : steps.length > 0 ? (
             <ol className="space-y-4">
-              {steps.map((step: any, i: number) => (
+              {steps.map((step: string, i: number) => (
                 <li key={i} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{ backgroundColor: '#9B6035', color: 'white' }}>
-                    {step.step_no || i + 1}
+                    {i + 1}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{step.text}</p>
-                    {(step.time_seconds || 0) > 0 && (
-                      <span className="text-xs mt-1 block" style={{ color: '#AA7A50' }}>
-                        ⏱ {Math.floor((step.time_seconds || 0) / 60)}分鐘
-                      </span>
-                    )}
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{step}</p>
                   </div>
                 </li>
               ))}
