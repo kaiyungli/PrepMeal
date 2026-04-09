@@ -60,11 +60,9 @@ export default function RecipeDetail({ recipe, error }) {
 
 // Use shared loader
 export async function getServerSideProps({ params }) {
-  console.log('[page] fetching:', params.id);
   
   const { recipe, error } = await fetchRecipeDetail(params.id);
   
-  console.log('[page] result:', error ? 'error' : 'success');
   
   return {
     props: {
