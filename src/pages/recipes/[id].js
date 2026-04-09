@@ -7,8 +7,6 @@ import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
  * Recipe Detail Page - dumb shell only
  */
 export default function RecipeDetail({ recipe, error }) {
-  console.log('[page] props:', { hasRecipe: !!recipe, error });
-
   // Guard: loading
   if (!recipe && !error) {
     return (
@@ -33,8 +31,6 @@ export default function RecipeDetail({ recipe, error }) {
     ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
-
-  console.log('[page] render:', safeRecipe.name);
 
   return (
     <>

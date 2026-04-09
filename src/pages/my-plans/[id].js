@@ -11,56 +11,7 @@ import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import RecipeDetailModal from '@/components/recipes/RecipeDetailModal';
 
-/**
- * Client-side debug logger
- */
-async function logClient(payload) {
-  try {
-    await fetch('/api/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-  } catch (e) {}
-}
 
-/**
- * Error boundary wrapper for modal
- */
-class ModalErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  
-  componentDidCatch(error, errorInfo) {
-    logClient({
-      step: 'modal_boundary_catch',
-      error: error?.message,
-      stack: error?.stack,
-    });
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="p-4 text-red-600">
-          <p>Modal crashed: {this.state.error?.message}</p>
-          <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 bg-gray-200 rounded">
-            Reload
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-import React from 'react';
 
 export default function PlanDetailPage() {
   const router = useRouter();
@@ -124,16 +75,8 @@ export default function PlanDetailPage() {
     ? Math.round(items.reduce((sum, i) => sum + (i.servings || 1), 0) / items.length)
     : 1;
 
-  // Handle recipe card click - WITH LOGGING
-  const handleRecipeClick = async (recipeId, recipeName) => {
-    // Log immediately when card is clicked
-    await logClient({
-      step: 'card_click',
-      recipeId,
-      recipeName,
-      timestamp: new Date().toISOString(),
-    });
-    
+  // Handle recipe card click
+  const handleRecipeClick = (recipeId) => {
     if (recipeId) {
       setSelectedRecipeId(recipeId);
     }
@@ -194,7 +137,7 @@ export default function PlanDetailPage() {
                   key={dayIndex}
                   dayIndex={dayIndex}
                   items={groupedItems[dayIndex] || []}
-                  onRecipeClick={(recipeId) => handleRecipeClick(recipeId, groupedItems[dayIndex]?.find(i => i.recipe?.id === recipeId)?.recipe?.name)}
+                  onRecipeClick={handleRecipeClick}
                 />
               ))}
             </>
@@ -202,14 +145,12 @@ export default function PlanDetailPage() {
         </div>
       </div>
 
-      {/* Recipe Detail Modal with Error Boundary */}
+      {/* Recipe Detail Modal */}
       {selectedRecipeId && (
-        <ModalErrorBoundary>
-          <RecipeDetailModal
-            recipeId={selectedRecipeId}
-            onClose={handleCloseModal}
-          />
-        </ModalErrorBoundary>
+        <RecipeDetailModal
+          recipeId={selectedRecipeId}
+          onClose={handleCloseModal}
+        />
       )}
     </>
   );

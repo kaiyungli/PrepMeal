@@ -3,22 +3,6 @@ import { createPortal } from 'react-dom';
 import RecipeDetailContent from './RecipeDetailContent';
 
 /**
- * Helper to send client logs to server
- * Temporary debug for iPad/Vercel debugging
- */
-async function logClient(payload) {
-  try {
-    await fetch('/api/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-  } catch (e) {
-    // Silently fail
-  }
-}
-
-/**
  * RecipeDetailModal - popup modal shell for recipe details
  * 
  * Props:
@@ -43,12 +27,6 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
       setError(null);
       setRecipe(null);
       
-      // Log: fetch start
-      await logClient({
-        step: 'fetch_start',
-        recipeId,
-      });
-      
       try {
         const res = await fetch(`/api/recipes/${recipeId}`);
         
@@ -57,43 +35,14 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
         }
         
         const data = await res.json();
-        
-        // Log: fetch success
-        await logClient({
-          step: 'fetch_success',
-          recipeId,
-          responseKeys: Object.keys(data || {}),
-          hasRecipe: !!data?.recipe,
-        });
-        
         const recipeData = data?.recipe;
         
         if (!recipeData) {
           setError('找不到食譜');
         } else {
-          // Log: before render
-          await logClient({
-            step: 'before_render',
-            recipeId,
-            hasRecipe: !!recipeData,
-            recipeKeys: Object.keys(recipeData || {}),
-            stepsType: typeof recipeData?.steps,
-            stepsSample: recipeData?.steps?.[0],
-            ingredientsSample: recipeData?.ingredients?.[0],
-            descriptionType: typeof recipeData?.description,
-          });
-          
           setRecipe(recipeData);
         }
       } catch (err) {
-        // Log: fetch error
-        await logClient({
-          step: 'fetch_error',
-          recipeId,
-          message: err?.message,
-          stack: err?.stack,
-        });
-        
         setError(err.message || '載入失敗');
       } finally {
         setLoading(false);
@@ -113,14 +62,6 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
   }, [onClose]);
 
   if (!mounted) return null;
-  
-  // Early log: modal mounted, recipeId present
-  useEffect(() => {
-    if (mounted && recipeId) {
-      logClient({ step: 'modal_mounted', recipeId });
-    }
-  }, [mounted, recipeId]);
-
 
   return createPortal(
     <>
