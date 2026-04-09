@@ -9,7 +9,7 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
  * - onClick provided: calls callback instead of navigation
  * - no onClick: uses Link for navigation (existing behavior)
  */
-export default function PlanRecipeCard({ item, onClick }) {
+export default function PlanRecipeCard({ item, onClick, compact = false }) {
   if (!item) return null;
   
   const { recipe, meal_type, servings } = item;
@@ -25,10 +25,10 @@ export default function PlanRecipeCard({ item, onClick }) {
           <img
             src={recipe.image_url}
             alt={recipe.name}
-            className="w-14 h-14 object-cover rounded-lg"
+            className={compact ? "w-10 h-10" : "w-14 h-14"} + " object-cover rounded-lg"
           />
         ) : (
-          <div className="w-14 h-14 bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl">
+          <div className={(compact ? "w-10 h-10" : "w-14 h-14") + " bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl"}>
             🍽️
           </div>
         )}
@@ -36,7 +36,7 @@ export default function PlanRecipeCard({ item, onClick }) {
       
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-[#3D3D3D] group-hover:text-[var(--color-primary)] truncate">
+        <p className={(compact ? "text-sm" : "text-[15px]") + " font-semibold text-[#3D3D3D] group-hover:text-[var(--color-primary)] truncate"}>
           {recipe.name || '未知食譜'}
         </p>
         <p className="text-xs text-[#9A9A9A] mt-0.5">
@@ -81,7 +81,7 @@ export default function PlanRecipeCard({ item, onClick }) {
   return (
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] opacity-60">
       <div className="flex-shrink-0">
-        <div className="w-14 h-14 bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl">
+        <div className={(compact ? "w-10 h-10" : "w-14 h-14") + " bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl"}>
           🍽️
         </div>
       </div>

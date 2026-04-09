@@ -137,6 +137,7 @@ export default function PlanDetailPage() {
                   key={dayIndex}
                   dayIndex={dayIndex}
                   items={groupedItems[dayIndex] || []}
+                  weekStartDate={plan.week_start_date}
                   onRecipeClick={handleRecipeClick}
                 />
               ))}
