@@ -37,7 +37,7 @@ export default function FavoritesPage() {
         // Use public recipes endpoint
         const res = await fetch('/api/recipes?limit=100');
         const data = await res.json();
-        const recipesData = data?.data?.recipes || data?.recipes || [];
+        const recipesData = data?.recipes || [];
         setAllRecipes(recipesData);
       } catch (err) {
         console.error('Failed to load recipes:', err);
