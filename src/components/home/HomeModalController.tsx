@@ -5,9 +5,13 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 // Detail fetch helper - lives here, with abort signal support
 const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal) => {
   const res = await fetch(`/api/recipes/${recipeId}`, { signal });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
+  }
+
   const data = await res.json();
-  const recipes = data?.data?.recipes || data?.recipes || [];
-  return recipes[0] || null;
+  return data?.recipe || null;
 };
 
 interface HomeModalControllerProps {
@@ -51,7 +55,10 @@ function HomeModalController({ selectedRecipe, onClose, isFavorite, favoriteLoad
           setFullRecipe({ ...selectedRecipe, ...data });
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+  if (err?.name === 'AbortError') return;
+  console.error('[HomeModalController] fetch detail failed:', err);
+})
       .finally(() => setLoading(false));
   }, [selectedRecipe]);
 
