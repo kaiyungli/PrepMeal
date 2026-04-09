@@ -63,7 +63,11 @@ if (hasFullDetail) {
   if (err?.name === 'AbortError') return;
   console.error('[HomeModalController] fetch detail failed:', err);
 })
-      .finally(() => setLoading(false));
+      .finally(() => {
+  if (!abortRef.current?.signal.aborted) {
+    setLoading(false);
+  }
+});
   }, [selectedRecipe]);
 
   const handleClose = useCallback(() => {

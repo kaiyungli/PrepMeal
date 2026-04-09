@@ -67,15 +67,21 @@ if (hasFullDetail) {
   if (err?.name === 'AbortError') return;
   console.error('[RecipeModalController] fetch detail failed:', err);
 })
-      .finally(() => setLoading(false));
+      .finally(() => {
+  if (!abortRef.current?.signal.aborted) {
+    setLoading(false);
+  }
+});
   }, [selectedRecipe]);
 
   const handleClose = useCallback(() => {
-    if (abortRef.current) {
-      abortRef.current.abort();
-    }
-    onClose();
-  }, [onClose]);
+  if (abortRef.current) {
+    abortRef.current.abort();
+  }
+  setLoading(false);
+  setFullRecipe(null);
+  onClose();
+}, [onClose]);
 
   const recipe = fullRecipe || selectedRecipe;
 
