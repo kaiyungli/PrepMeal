@@ -12,8 +12,9 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
+import { generateWeeklyPlan, buildShoppingListFromPlan } from '@/services/weeklyPlan';
 
-const DAYS = ['週一', '週二', '週三', '週四', '週五'];
+
 
 export default function Home({ initialRecipes = [] }) {
   const router = useRouter();
@@ -40,73 +41,14 @@ export default function Home({ initialRecipes = [] }) {
     toggleFavorite(recipeId);
   }, [isAuthenticated, toggleFavorite, showToast]);
 
-  // Build weekly plan from recipes - preserve ingredients for shopping list
-  const buildWeeklyPlan = useCallback((recipes) => {
-    if (!recipes || recipes.length === 0) return [];
-    
-    const shuffled = [...recipes].sort(() => 0.5 - Math.random());
-    const planRecipes = shuffled.slice(0, 5);
-    
-    return planRecipes.map((recipe, index) => ({
-      day: DAYS[index] || `DAY${index + 1}`,
-      recipe: {
-        id: recipe.id,
-        name: recipe.name,
-        image_url: recipe.image_url,
-        ingredients: recipe.ingredients || null,
-      }
-    }));
-  }, []);
 
-  // Build shopping list from weekly plan - aggregates real ingredients
-  const buildShoppingList = useCallback((plan) => {
-    if (!plan || plan.length === 0) return [];
-    
-    const ingredientMap = new Map();
-    
-    for (const item of plan) {
-      const recipe = item.recipe;
-      
-      if (recipe && recipe.ingredients) {
-        try {
-          const ingredients = typeof recipe.ingredients === 'string' 
-            ? JSON.parse(recipe.ingredients) 
-            : recipe.ingredients;
-            
-          if (Array.isArray(ingredients)) {
-            for (const ing of ingredients) {
-              const name = ing.name || ing.item || '未知食材';
-              const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
-              const qtyNum = parseFloat(qtyRaw);
-              
-              if (ingredientMap.has(name)) {
-                const existing = ingredientMap.get(name);
-                if (typeof existing === 'number' && !isNaN(qtyNum)) {
-                  ingredientMap.set(name, existing + qtyNum);
-                } else {
-                  ingredientMap.set(name, `${existing}+${qtyRaw}`);
-                }
-              } else {
-                ingredientMap.set(name, !isNaN(qtyNum) ? qtyNum : qtyRaw);
-              }
-            }
-          }
-        } catch (e) {
-          // Skip invalid ingredients
-        }
-      }
-    }
-    
-    return Array.from(ingredientMap.entries()).map(([name, qty]) => ({
-      name,
-      qty: typeof qty === 'number' ? String(qty) : qty
-    }));
-  }, []);
 
-  // Shopping list from weekly plan
+
+
+  // Shopping list from weekly plan - use service
   const shoppingList = useMemo(() => {
-    return buildShoppingList(weeklyPlan);
-  }, [weeklyPlan, buildShoppingList]);
+    return buildShoppingListFromPlan(weeklyPlan);
+  }, [weeklyPlan]);
 
   // Filters - stay in index.js
   const { 
