@@ -1,36 +1,16 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { groupPlanByDay } from '@/services/weeklyPlan';
-
-interface Recipe {
-  id: string | number;
-  name: string;
-  image_url?: string;
-  prep_time_minutes?: number;
-  cook_time_minutes?: number;
-  [key: string]: any;
-}
+import { groupPlanByDay, PlanItem, PlanDay } from '@/services/weeklyPlan';
 
 interface ShoppingItem {
   name: string;
   qty?: string;
 }
 
-interface WeeklyPlanDay {
-  dayIndex: number;
-  dayName: string;
-  date: string | null;
-  items: Array<{
-    recipe: Recipe;
-    servings: number;
-    mealSlot: string;
-  }>;
-}
-
 interface HomeHeroProps {
   onPrimaryAction?: () => void;
-  weeklyPlan?: WeeklyPlanDay[];
+  weeklyPlan?: PlanDay[];
   shoppingList?: ShoppingItem[];
   onRefreshPlan?: () => void;
 }
@@ -40,7 +20,6 @@ const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
   const router = useRouter();
   
-  // Use service to get array of grouped days
   const groupedDays = groupPlanByDay(weeklyPlan);
   
   return (
@@ -59,7 +38,6 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
               今晚<br/>食乜
             </h1>
             
-            {/* CTA Button */}
             <div className="mt-8">
               <button
                 onClick={onPrimaryAction}
@@ -73,7 +51,6 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
           {/* Right side - HeroCard */}
           <div className="col-span-12 md:col-span-5 hidden md:flex justify-center">
             <div className="w-full max-w-[480px] rounded-2xl border border-[#DDD0B0] bg-white p-6 shadow-[0_30px_80px_rgba(155,96,53,0.18)] scale-[1.05]">
-              {/* Header */}
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <span className="text-xs font-bold text-[#C0A080]">本週計劃</span>
@@ -95,9 +72,8 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
                 </div>
               </div>
               
-              {/* Two columns: 餐單 + 購物清單 */}
               <div className="grid grid-cols-2 gap-4">
-                {/* 左欄：本週餐單 - render all items per day */}
+                {/* 左欄：本週餐單 */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
                   <div className="space-y-1">
@@ -105,7 +81,7 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
                       groupedDays.map((day) => (
                         <div key={day.dayIndex} className="space-y-0.5">
                           <div className="text-xs text-[#9B6035] font-medium">{day.dayName}</div>
-                          {day.items.map((item, idx) => (
+                          {day.items.map((item: PlanItem, idx: number) => (
                             <div 
                               key={idx}
                               className="flex items-center gap-1 py-0.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
@@ -155,7 +131,6 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
                 </div>
               </div>
               
-              {/* 底部按鈕 */}
               <div className="mt-4 pt-4 border-t border-[#E5DCC8]">
                 <button 
                   onClick={() => router.push('/generate')}
