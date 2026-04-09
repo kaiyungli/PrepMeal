@@ -47,7 +47,7 @@ export default function Home({ initialRecipes = [] }) {
 
 
   // Shopping list preview - reuse API flow
-  const { previewList: shoppingList } = useShoppingListPreview(weeklyPlan);
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError } = useShoppingListPreview(weeklyPlan);
 
   // Filters - stay in index.js
   const { 
@@ -93,7 +93,7 @@ export default function Home({ initialRecipes = [] }) {
       <HomeHero 
         onPrimaryAction={handlePrimaryAction} 
         weeklyPlan={weeklyPlan} 
-        shoppingList={shoppingList} 
+        shoppingList={shoppingList} shoppingLoading={shoppingLoading} shoppingError={shoppingError} 
         onRefreshPlan={handleRefreshPlan}
       />
 

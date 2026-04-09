@@ -1,25 +1,38 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { groupPlanByDay, PlanItem, PlanDay } from '@/services/weeklyPlan';
+import { groupPlanByDay, PlanDay } from '@/services/weeklyPlan';
 
 interface ShoppingItem {
   name: string;
   qty?: string;
+  unit?: string;
 }
 
 interface HomeHeroProps {
   onPrimaryAction?: () => void;
   weeklyPlan?: PlanDay[];
   shoppingList?: ShoppingItem[];
+  shoppingLoading?: boolean;
+  shoppingError?: string | null;
   onRefreshPlan?: () => void;
 }
 
 const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
-function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
+function HomeHero({ 
+  onPrimaryAction, 
+  weeklyPlan = [], 
+  shoppingList = [],
+  shoppingLoading = false,
+  shoppingError = null,
+  onRefreshPlan 
+}: HomeHeroProps) {
   const router = useRouter();
   
   const groupedDays = groupPlanByDay(weeklyPlan);
+  
+  // Determine shopping list display state
+  const showShoppingFallback = shoppingLoading || shoppingError || (shoppingList.length === 0);
   
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
@@ -106,22 +119,32 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
                   </div>
                 </div>
                 
-                {/* 右欄：購物清單 */}
+                {/* 右欄：購物清單 - with loading/error states */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
                   <div className="space-y-1">
-                    {shoppingList && shoppingList.length > 0 ? (
+                    {shoppingLoading ? (
+                      // Loading state
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">生成中...</div>
+                    ) : shoppingError ? (
+                      // Error state
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
+                    ) : showShoppingFallback ? (
+                      // Empty/fallback state
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
+                    ) : (
+                      // Normal display - first 5 items
                       shoppingList.slice(0, 5).map((item, index) => (
                         <div 
                           key={index}
                           className="flex items-center justify-between py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
                         >
                           <span className="flex-1 text-sm text-[#3A2010] truncate">{item.name}</span>
-                          <span className="text-xs text-[#AA7A50]">{item.qty}</span>
+                          <span className="text-xs text-[#AA7A50]">
+                            {item.qty ? `${item.qty}${item.unit || ''}` : ''}
+                          </span>
                         </div>
                       ))
-                    ) : (
-                      <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
                     )}
                   </div>
                 </div>
