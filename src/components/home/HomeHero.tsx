@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { groupPlanByDay, PlanItem, PlanDay } from '@/services/weeklyPlan';
 
 interface ShoppingItem {
@@ -73,29 +72,26 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                {/* 左欄：本週餐單 */}
+                {/* 左欄：本週餐單 - ONE dish per day only */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
                   <div className="space-y-1">
                     {groupedDays.length > 0 ? (
-                      groupedDays.map((day) => (
-                        <div key={day.dayIndex} className="space-y-0.5">
-                          <div className="text-xs text-[#9B6035] font-medium">{day.dayName}</div>
-                          {day.items.map((item: PlanItem, idx: number) => (
-                            <div 
-                              key={idx}
-                              className="flex items-center gap-1 py-0.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
-                            >
-                              <span className="text-xs text-[#AA7A50]">
-                                {item.mealSlot === 'lunch' ? '🥗' : '🍽️'}
-                              </span>
-                              <span className="flex-1 text-sm text-[#3A2010] truncate">
-                                {item.recipeName}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ))
+                      groupedDays.map((day) => {
+                        // Lightweight preview: only FIRST item
+                        const previewItem = day.items?.[0];
+                        return (
+                          <div 
+                            key={day.dayIndex} 
+                            className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
+                          >
+                            <span className="text-xs text-[#9B6035] font-medium">{day.dayName}</span>
+                            <span className="flex-1 text-sm text-[#3A2010] truncate">
+                              {previewItem?.recipeName || '未生成'}
+                            </span>
+                          </div>
+                        );
+                      })
                     ) : (
                       DAYS.map((day) => (
                         <div 
