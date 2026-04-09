@@ -3,21 +3,22 @@ import { supabaseServer } from '@/lib/supabaseServer';
 
 /**
  * Fetch recipes for server-side props
- * Queries Supabase directly instead of self-fetching API route
+ * Queries Supabase directly - handles bad data gracefully
  */
 export async function fetchRecipesForServer(limit = 24) {
-  // Diagnostic: Check if supabaseServer is configured
+  console.log('[SSR] fetchRecipesForServer: starting...');
+
   if (!supabaseServer) {
-    console.error('[SSR] Supabase server client NOT configured');
+    console.error('[SSR] ERROR: Supabase server client NOT configured');
     console.error('[SSR] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'NOT set');
     console.error('[SSR] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'NOT set');
     return [];
   }
 
-  console.log('[SSR] Supabase server client configured, fetching recipes...');
+  console.log('[SSR] Supabase client configured, querying recipes...');
 
   try {
-    const { data, error } = await supabaseServer
+    const { data, error, status } = await supabaseServer
       .from('recipes')
       .select(`
         id,
@@ -35,6 +36,7 @@ export async function fetchRecipesForServer(limit = 24) {
         budget_level,
         is_complete_meal,
         method,
+        ingredients,
         created_at
       `)
       .eq('is_public', true)
@@ -42,14 +44,58 @@ export async function fetchRecipesForServer(limit = 24) {
       .limit(limit);
 
     if (error) {
-      console.error('[SSR] Error fetching recipes:', error);
+      console.error('[SSR] ERROR: Supabase query failed:', JSON.stringify(error));
+      console.error('[SSR] Error code:', error.code);
+      console.error('[SSR] Error message:', error.message);
+      console.error('[SSR] HTTP status:', status);
       return [];
     }
 
-    console.log('[SSR] Fetched recipes count:', data?.length || 0);
-    return data || [];
+    console.log('[SSR] Query successful, count:', data?.length || 0);
+
+    // Validate and parse each recipe's ingredients
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    const safeRecipes = [];
+    for (const recipe of data) {
+      try {
+        let parsedIngredients = [];
+        
+        // Safe parse ingredients
+        if (recipe.ingredients) {
+          try {
+            parsedIngredients = typeof recipe.ingredients === 'string'
+              ? JSON.parse(recipe.ingredients)
+              : recipe.ingredients;
+            
+            if (!Array.isArray(parsedIngredients)) {
+              console.warn('[SSR] WARN: ingredients not array for recipe', recipe.id, typeof parsedIngredients);
+              parsedIngredients = [];
+            }
+          } catch (parseErr) {
+            console.warn('[SSR] WARN: Invalid JSON in ingredients for recipe', recipe.id, String(parseErr));
+            parsedIngredients = [];
+          }
+        }
+
+        safeRecipes.push({
+          ...recipe,
+          ingredients: parsedIngredients
+        });
+      } catch (rowErr) {
+        console.error('[SSR] ERROR: Failed to process recipe', recipe?.id, String(rowErr));
+        // Skip bad row, continue with others
+      }
+    }
+
+    console.log('[SSR] Safe recipes count:', safeRecipes.length);
+    return safeRecipes;
+
   } catch (err) {
-    console.error('[SSR] Exception fetching recipes:', err);
+    console.error('[SSR] FATAL EXCEPTION:', String(err));
+    console.error('[SSR] Stack:', String(err));
     return [];
   }
 }

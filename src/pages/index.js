@@ -163,9 +163,14 @@ export default function Home({ initialRecipes = [] }) {
 
 export async function getServerSideProps() {
   try {
-    const initialRecipes = await fetchRecipesForServer(24);
-    return { props: { initialRecipes } };
+    console.log('[SSR] getServerSideProps: calling fetchRecipesForServer...');
+    const recipes = await fetchRecipesForServer(24);
+    console.log('[SSR] getServerSideProps: got', recipes?.length || 0, 'recipes');
+    
+    return { props: { initialRecipes: recipes || [] } };
   } catch (err) {
+    console.error('[SSR] getServerSideProps: FATAL error:', err.message, err.stack);
+    // NEVER throw - always return valid page
     return { props: { initialRecipes: [] } };
   }
 }
