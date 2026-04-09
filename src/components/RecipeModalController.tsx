@@ -39,7 +39,11 @@ function RecipeModalController({ selectedRecipe, onClose, isFavorite, favoriteLo
     }
 
     // Already have full data?
-    if (selectedRecipe.ingredients || selectedRecipe.instructions) {
+    const hasFullDetail =
+  Array.isArray(selectedRecipe?.ingredients) &&
+  Array.isArray(selectedRecipe?.steps);
+
+if (hasFullDetail) {
       setFullRecipe(selectedRecipe);
       return;
     }
