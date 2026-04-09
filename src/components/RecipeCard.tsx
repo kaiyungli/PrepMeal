@@ -1,8 +1,8 @@
 import React from 'react';
-import Image from 'next/image'
-import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy'
+import Image from 'next/image';
+import Link from 'next/link';
+import { getLabel, CUISINE_MAP, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy';
 import FavoriteButton from './FavoriteButton';
-import { useRouter } from 'next/router';
 
 interface RecipeCardProps {
   recipe: {
@@ -31,7 +31,12 @@ interface RecipeCardProps {
 }
 
 /**
- * RecipeCard - simplified without overlay
+ * RecipeCard - entire card is clickable, uses Link wrapper
+ * 
+ * Structure:
+ * - Link wraps entire card for navigation
+ * - FavoriteButton handles its own stopPropagation internally
+ * - onClick prop provides custom click behavior
  */
 function RecipeCard({ 
   recipe, 
@@ -42,47 +47,47 @@ function RecipeCard({
   isAuthenticated,
   className = '' 
 }: RecipeCardProps) {
-  const router = useRouter();
-  const recipeId = recipe?.id
-  const recipeName = recipe?.name || '無名食譜'
-  const recipeImage = recipe?.image_url || null
-  const recipeSlug = recipe?.slug || recipeId
-  const recipeTime = recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null
-  const recipeDifficulty = recipe?.difficulty || ''
-  const recipeMethod = recipe?.method || ''
-  const recipeCalories = recipe?.calories_per_serving || null
-  const recipeProteinGrams = recipe?.protein_g ?? null
-  const recipePrimaryProtein = recipe?.primary_protein || ''
-  const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : []
-  const recipeDishType = recipe?.dish_type || ''
+  const recipeId = recipe?.id;
+  const recipeName = recipe?.name || '無名食譜';
+  const recipeImage = recipe?.image_url || null;
+  const recipeSlug = recipe?.slug || recipeId;
+  const recipeTime = recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null;
+  const recipeDifficulty = recipe?.difficulty || '';
+  const recipeMethod = recipe?.method || '';
+  const recipeCalories = recipe?.calories_per_serving || null;
+  const recipeProteinGrams = recipe?.protein_g ?? null;
+  const recipePrimaryProtein = recipe?.primary_protein || '';
+  const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : [];
+  const recipeDishType = recipe?.dish_type || '';
   
-  const tags: string[] = []
+  const tags: string[] = [];
   if (recipePrimaryProtein) {
-    tags.push(getLabel(PROTEIN_MAP, recipePrimaryProtein))
+    tags.push(getLabel(PROTEIN_MAP, recipePrimaryProtein));
   }
   if (recipeDishType) {
-    tags.push(getLabel(DISH_TYPE_MAP, recipeDishType))
+    tags.push(getLabel(DISH_TYPE_MAP, recipeDishType));
   }
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    const cardRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const clickX = e.clientX - cardRect.left;
-    const clickY = e.clientY - cardRect.top;
-    
-    // Exclude top-right 60px zone where heart is
-    const cardWidth = cardRect.width;
-    if (clickX >= cardWidth - 60 && clickY <= 60) {
-      return;
-    }
-    
+  // Build href - either from onClick prop or default routing
+  const href = recipeSlug ? `/recipes/${recipeSlug}` : '#';
+  const needsNavigation = !onClick && recipeSlug;
+
+  const handleCardClick = () => {
     if (onClick) {
       onClick();
-    } else if (recipeSlug) {
-      router.push(`/recipes/${recipeSlug}`);
     }
   };
 
-  // Image container - base layer with relative
+  // Static heart for homepage (no interaction)
+  const staticHeart = (
+    <div className="absolute top-3 right-3 z-50 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
+      </svg>
+    </div>
+  );
+
+  // Image container
   const imageContainer = (
     <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
       {/* FavoriteButton - absolute top-right */}
@@ -97,15 +102,9 @@ function RecipeCard({
       )}
 
       {/* Static heart for homepage */}
-      {!onFavoriteClick && (
-        <div className="absolute top-3 right-3 z-50 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.5 10.5 11.25 10.5 11.25S21 15.75 21 8.25z" />
-          </svg>
-        </div>
-      )}
+      {!onFavoriteClick && staticHeart}
 
-      {/* Image - direct render, no overlay */}
+      {/* Image */}
       {recipeImage ? (
         <div className="absolute inset-0 p-3">
           <Image 
@@ -193,15 +192,38 @@ function RecipeCard({
         )}
       </div>
     </div>
-  )
+  );
 
-  return (
-    <div className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
-      {imageContainer}
-      <div onClick={handleCardClick} className="cursor-pointer">
+  // Use Link wrapper if we need navigation, otherwise article with onClick
+  if (needsNavigation) {
+    return (
+      <Link
+        href={href}
+        className={`group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
+      >
+        {imageContainer}
         {contentBody}
-      </div>
-    </div>
+      </Link>
+    );
+  }
+
+  // Fallback: article with onClick for custom behavior
+  return (
+    <article
+      className={`relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${className}`}
+      onClick={handleCardClick}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+    >
+      {imageContainer}
+      {contentBody}
+    </article>
   );
 }
 
