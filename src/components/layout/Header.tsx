@@ -10,14 +10,13 @@ interface HeaderProps {
 }
 
 /**
- * Check if current route matches nav item (supports nested routes)
+ * Check if current route matches nav item (boundary-safe for nested routes)
  */
 function isActiveRoute(currentPath: string | null, linkPath: string): boolean {
   if (!currentPath) return false;
-  if (linkPath === '/') {
-    return currentPath === '/';
-  }
-  return currentPath.startsWith(linkPath);
+  if (linkPath === '/') return currentPath === '/';
+  // Exact match or nested under /
+  return currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
 }
 
 export default function Header({ showNav = true }: HeaderProps) {
@@ -45,12 +44,27 @@ export default function Header({ showNav = true }: HeaderProps) {
     }
   };
 
-  // Generate nav link class based on active state
-  const getNavLinkClass = (path: string) => {
-    const isActive = isActiveRoute(pathname, path);
+  // Generate nav link class based on active state (reusable)
+  const getNavLinkClass = (isActive: boolean) => {
     return isActive
       ? "text-sm font-semibold text-[#9B6035] border-b-2 border-[#9B6035] pb-1"
       : "text-sm font-medium text-[#AA7A50] hover:text-[#9B6035] transition-colors";
+  };
+
+  // Render a nav link (reusable for desktop and mobile)
+  const renderNavLink = (link: { label: string; path: string }, isMobile = false) => {
+    const isActive = isActiveRoute(pathname, link.path);
+    return (
+      <Link
+        key={link.path}
+        href={link.path}
+        className={getNavLinkClass(isActive)}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={() => isMobile && setMenuOpen(false)}
+      >
+        {link.label}
+      </Link>
+    );
   };
 
   return (
@@ -66,15 +80,7 @@ export default function Header({ showNav = true }: HeaderProps) {
           {/* Desktop Nav */}
           {showNav && (
             <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className={getNavLinkClass(link.path)}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => renderNavLink(link))}
             </nav>
           )}
 
@@ -122,19 +128,7 @@ export default function Header({ showNav = true }: HeaderProps) {
       {menuOpen && showNav && (
         <div className="md:hidden bg-[#F8F3E8] border-b border-[#DDD0B0] px-4 py-4">
           <nav className="flex flex-col gap-4">
-            {navLinks.map((link) => {
-              const isActive = isActiveRoute(pathname, link.path);
-              return (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className={isActive ? "text-sm font-semibold text-[#9B6035]" : "text-sm font-medium text-[#AA7A50]"}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => renderNavLink(link, true))}
             <hr className="border-[#E5DCC8]" />
             {!loading && (
               isAuthenticated ? (
