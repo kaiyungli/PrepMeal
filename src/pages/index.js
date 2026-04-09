@@ -12,7 +12,8 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
-import { generateWeeklyPlan, buildShoppingListFromPlan } from '@/services/weeklyPlan';
+import { generateWeeklyPlan } from '@/services/weeklyPlan';
+import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 
 
 
@@ -45,10 +46,8 @@ export default function Home({ initialRecipes = [] }) {
 
 
 
-  // Shopping list from weekly plan - use service
-  const shoppingList = useMemo(() => {
-    return buildShoppingListFromPlan(weeklyPlan);
-  }, [weeklyPlan]);
+  // Shopping list preview - reuse API flow
+  const { previewList: shoppingList } = useShoppingListPreview(weeklyPlan);
 
   // Filters - stay in index.js
   const { 
