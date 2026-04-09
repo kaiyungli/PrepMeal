@@ -7,13 +7,13 @@
  *   weeklyPlan recipe IDs → /api/shopping-list → byCategory.toBuy → flat preview
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * Transform API response to flat preview list (first 5 items)
  * This is PRESENTATION ONLY - no aggregation logic
  */
-function transformToPreview(apiResponse: any) {
+function transformToPreview(apiResponse: any): Array<{name: string, qty: string, unit: string}> {
   if (!apiResponse) return [];
   
   const { byCategory } = apiResponse;
@@ -49,6 +49,9 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Request safety: track current request ID
+  const requestIdRef = useRef(0);
+  
   useEffect(() => {
     // Extract recipe IDs from weeklyPlan
     const recipeIds: string[] = [];
@@ -65,10 +68,14 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
     // No recipes = no preview
     if (recipeIds.length === 0) {
       setPreviewList([]);
+      setError(null);
       return;
     }
     
     async function fetchPreview() {
+      // Increment request ID - this request is now "current"
+      const currentRequestId = ++requestIdRef.current;
+      
       setIsLoading(true);
       setError(null);
       
@@ -83,24 +90,47 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
           })
         });
         
+        // Check if this is still the current request (not stale)
+        if (currentRequestId !== requestIdRef.current) {
+          console.log('[shopping-list-preview] stale response, ignoring');
+          return;
+        }
+        
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
         
         const data = await response.json();
+        
+        // Double-check after await
+        if (currentRequestId !== requestIdRef.current) {
+          console.log('[shopping-list-preview] stale response after await, ignoring');
+          return;
+        }
+        
         const preview = transformToPreview(data);
         setPreviewList(preview);
       } catch (err) {
+        // Check if still current request
+        if (currentRequestId !== requestIdRef.current) {
+          return;
+        }
+        
         console.error('[shopping-list-preview] fetch error:', err);
         setError(String(err));
         setPreviewList([]);
       } finally {
-        setIsLoading(false);
+        // Only update loading if still current request
+        if (currentRequestId === requestIdRef.current) {
+          setIsLoading(false);
+        }
       }
     }
     
     fetchPreview();
-  }, [weeklyPlan]); // Re-fetch when weeklyPlan changes
+    
+    // Cleanup on effect rerun or unmount - next effect will increment requestId
+  }, [weeklyPlan]);
   
   return { previewList, isLoading, error };
 }
