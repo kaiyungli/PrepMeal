@@ -9,7 +9,7 @@ import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
-import RecipeDetailModal from '@/components/recipes/RecipeDetailModal';
+import RecipeDetailModal from '@/components/RecipeDetailModal';
 
 
 
