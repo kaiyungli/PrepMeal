@@ -1,10 +1,12 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { groupPlanByDay } from '@/services/weeklyPlan';
 
 interface Recipe {
   id: string | number;
   name: string;
+  image_url?: string;
   prep_time_minutes?: number;
   cook_time_minutes?: number;
   [key: string]: any;
@@ -15,15 +17,20 @@ interface ShoppingItem {
   qty?: string;
 }
 
-interface WeeklyPlanItem {
-  day: string;
-  recipe: Recipe;
-  done?: boolean;
+interface WeeklyPlanDay {
+  dayIndex: number;
+  dayName: string;
+  date: string | null;
+  items: Array<{
+    recipe: Recipe;
+    servings: number;
+    mealSlot: string;
+  }>;
 }
 
 interface HomeHeroProps {
   onPrimaryAction?: () => void;
-  weeklyPlan?: WeeklyPlanItem[];
+  weeklyPlan?: WeeklyPlanDay[];
   shoppingList?: ShoppingItem[];
   onRefreshPlan?: () => void;
 }
@@ -32,23 +39,27 @@ const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
 function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefreshPlan }: HomeHeroProps) {
   const router = useRouter();
+  
+  // Use service to group plan by day
+  const groupedPlan = groupPlanByDay(weeklyPlan);
+  
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
-      {/* Top-right green circle decoration - LARGER */}
+      {/* Top-right green circle decoration */}
       <div className="absolute w-[400px] h-[400px] rounded-full bg-[#C8D49A] opacity-40 -top-32 -right-32 hidden md:block"></div>
       
-      {/* Bottom-left warm yellow circle decoration - LARGER */}
+      {/* Bottom-left warm yellow circle decoration */}
       <div className="absolute w-[250px] h-[250px] rounded-full bg-[#E8C87A] opacity-30 -bottom-20 -left-20 hidden md:block"></div>
       
       <div className="relative z-10 mx-auto max-w-[1200px] px-4">
         <div className="grid grid-cols-12 gap-6 items-center">
-          {/* Left side - Text - WIDER (col-span-7) */}
+          {/* Left side - Text */}
           <div className="col-span-12 md:col-span-7 text-center md:text-left">
             <h1 className="text-7xl md:text-[8rem] font-black leading-[0.9] tracking-[-0.03em] text-[#3A2010]">
               今晚<br/>食乜
             </h1>
             
-            {/* CTA Button - LARGER */}
+            {/* CTA Button */}
             <div className="mt-8">
               <button
                 onClick={onPrimaryAction}
@@ -59,7 +70,7 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
             </div>
           </div>
           
-          {/* Right side - HeroCard - ENHANCED */}
+          {/* Right side - HeroCard */}
           <div className="col-span-12 md:col-span-5 hidden md:flex justify-center">
             <div className="w-full max-w-[480px] rounded-2xl border border-[#DDD0B0] bg-white p-6 shadow-[0_30px_80px_rgba(155,96,53,0.18)] scale-[1.05]">
               {/* Header */}
@@ -86,31 +97,28 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
               
               {/* Two columns: 餐單 + 購物清單 */}
               <div className="grid grid-cols-2 gap-4">
-                {/* 左欄：本週餐單 */}
+                {/* 左欄：本週餐單 - using grouped data */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
                   <div className="space-y-1">
-                    {weeklyPlan.length > 0 ? (
-                      weeklyPlan.map((item, index) => (
+                    {Object.keys(groupedPlan).length > 0 ? (
+                      Object.entries(groupedPlan).sort(([a], [b]) => Number(a) - Number(b)).map(([dayIndex, dayData]: [string, any]) => (
                         <Link
-                          key={item.day}
-                          href={item.recipe?.id ? `/recipes/${item.recipe.id}` : '#'}
-                          className={`flex items-center gap-2 py-1.5 px-2 rounded ${
-                            item.done 
-                              ? 'bg-[rgba(200,212,154,0.30)] border border-[rgba(155,96,53,0.22)]' 
-                              : 'bg-[#faf7f0] border border-[#DDD0B0]'
-                          } hover:opacity-80 transition-opacity`}
+                          key={dayIndex}
+                          href="/generate"
+                          className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0] hover:opacity-80 transition-opacity"
                         >
-                          <span className="text-xs text-[#9B6035] font-medium">{item.day}</span>
+                          <span className="text-xs text-[#9B6035] font-medium">{dayData.dayName}</span>
                           <span className="flex-1 text-sm text-[#3A2010] truncate">
-                            {item.recipe?.name || '—'}
+                            {dayData.items?.[0]?.recipe?.name || '—'}
                           </span>
-                          {item.done && <span className="text-green-600">✓</span>}
+                          {dayData.items?.length > 1 && (
+                            <span className="text-xs text-[#AA7A50]">+{dayData.items.length - 1}</span>
+                          )}
                         </Link>
                       ))
                     ) : (
-                      // Fallback when no weekly plan
-                      DAYS.map((day, index) => (
+                      DAYS.map((day) => (
                         <div 
                           key={day} 
                           className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
@@ -126,36 +134,33 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
                 {/* 右欄：購物清單 */}
                 <div>
                   <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
-                  {shoppingList && shoppingList.length > 0 ? (
-                    <div className="space-y-1">
-                      {shoppingList.map((item, index) => (
+                  <div className="space-y-1">
+                    {shoppingList && shoppingList.length > 0 ? (
+                      shoppingList.slice(0, 5).map((item, index) => (
                         <div 
-                          key={item.name + index} 
-                          className="flex items-center justify-between py-1.5 px-2 bg-[#faf7f0] rounded"
+                          key={index}
+                          className="flex items-center justify-between py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
                         >
-                          <span className="text-sm text-[#3A2010]">{item.name}</span>
-                          {item.qty && <span className="text-xs text-[#AA7A50]">{item.qty}</span>}
+                          <span className="flex-1 text-sm text-[#3A2010] truncate">{item.name}</span>
+                          <span className="text-xs text-[#AA7A50]">{item.qty}</span>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-xs text-[#AA7A50] italic">
-                      選擇食譜後自動生成
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              {/* CTA Button */}
-              <button
-                onClick={() => {
-                  sessionStorage.setItem('heroWeeklyPlan', JSON.stringify(weeklyPlan));
-                  router.push('/generate');
-                }}
-                className="w-full mt-4 py-3 px-4 bg-[#9B6035] text-white rounded-xl font-medium hover:bg-[#7D4E2A] transition-colors"
-              >
-                使用這個餐單
-              </button>
+              {/* 底部按鈕 */}
+              <div className="mt-4 pt-4 border-t border-[#E5DCC8]">
+                <button 
+                  onClick={() => router.push('/generate')}
+                  className="w-full py-2.5 rounded-xl bg-[#C8D49A] text-[#3A2010] font-semibold text-sm hover:bg-[#B8C489] transition-colors"
+                >
+                  生成新餐單
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -164,4 +169,4 @@ function HomeHero({ onPrimaryAction, weeklyPlan = [], shoppingList = [], onRefre
   );
 }
 
-export default React.memo(HomeHero);
+export default HomeHero;

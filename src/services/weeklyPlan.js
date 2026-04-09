@@ -10,35 +10,39 @@ const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '
 /**
  * Group weekly plan items by day
  * 
- * @param {Array} planItems - Array of plan items with day, recipe, done
- * @returns {Object} - { dayIndex: { dayName, date, items: [...] } }
+ * @param {Array} planDays - Array of day objects with items: [{recipe, servings, mealSlot}]
+ * @returns {Object} - { dayIndex: { dayIndex, dayName, date, items: [...] } }
  */
-export function groupPlanByDay(planItems) {
-  if (!planItems || planItems.length === 0) return {};
+export function groupPlanByDay(planDays) {
+  if (!planDays || planDays.length === 0) return {};
   
   const grouped = {};
   
-  for (const item of planItems) {
-    const dayIndex = item.dayIndex ?? 0;
-    const dayName = item.day || DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
+  for (const day of planDays) {
+    const dayIndex = day.dayIndex ?? 0;
+    const dayName = day.dayName || DAY_NAMES[dayIndex] || `Day ${dayIndex + 1}`;
     
     if (!grouped[dayIndex]) {
       grouped[dayIndex] = {
         dayIndex,
         dayName,
-        date: item.date || null,
+        date: day.date || null,
         items: []
       };
     }
     
-    grouped[dayIndex].items.push({
-      recipeId: item.recipe?.id || null,
-      recipeName: item.recipe?.name || '未知食譜',
-      recipeImage: item.recipe?.image_url || null,
-      servings: item.servings || 1,
-      mealSlot: item.meal_slot || 'dinner',
-      done: item.done || false
-    });
+    // Items is array of {recipe, servings, mealSlot}
+    const items = day.items || [];
+    for (const item of items) {
+      grouped[dayIndex].items.push({
+        recipeId: item.recipe?.id || null,
+        recipeName: item.recipe?.name || '未知食譜',
+        recipeImage: item.recipe?.image_url || null,
+        servings: item.servings || 1,
+        mealSlot: item.mealSlot || item.meal_slot || 'dinner',
+        done: false
+      });
+    }
   }
   
   return grouped;
@@ -47,49 +51,53 @@ export function groupPlanByDay(planItems) {
 /**
  * Build shopping list from weekly plan recipes
  * 
- * @param {Array} planItems - Array of plan items with recipe.ingredients
+ * @param {Array} planDays - Array of day objects with items: [{recipe: {ingredients}}]
  * @returns {Array} - Aggregated ingredients [{ name, qty }]
  */
-export function buildShoppingListFromPlan(planItems) {
-  if (!planItems || planItems.length === 0) return [];
+export function buildShoppingListFromPlan(planDays) {
+  if (!planDays || planDays.length === 0) return [];
   
   const ingredientMap = new Map();
   
-  for (const item of planItems) {
-    const recipe = item.recipe;
+  for (const day of planDays) {
+    const items = day.items || [];
     
-    if (!recipe?.ingredients) continue;
-    
-    try {
-      // Handle both string and array formats
-      const ingredients = typeof recipe.ingredients === 'string'
-        ? JSON.parse(recipe.ingredients)
-        : recipe.ingredients;
+    for (const item of items) {
+      const recipe = item.recipe;
       
-      if (!Array.isArray(ingredients)) continue;
+      if (!recipe?.ingredients) continue;
       
-      for (const ing of ingredients) {
-        const name = ing.name || ing.item || '未知食材';
+      try {
+        // Handle both string and array formats
+        const ingredients = typeof recipe.ingredients === 'string'
+          ? JSON.parse(recipe.ingredients)
+          : recipe.ingredients;
         
-        // Parse quantity - try multiple fields
-        const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
-        const qtyNum = parseFloat(qtyRaw);
+        if (!Array.isArray(ingredients)) continue;
         
-        if (ingredientMap.has(name)) {
-          const existing = ingredientMap.get(name);
-          // Aggregate if both are numbers
-          if (typeof existing === 'number' && !isNaN(qtyNum)) {
-            ingredientMap.set(name, existing + qtyNum);
+        for (const ing of ingredients) {
+          const name = ing.name || ing.item || '未知食材';
+          
+          // Parse quantity - try multiple fields
+          const qtyRaw = ing.qty || ing.amount || ing.quantity || ing.qty_per_person || '1';
+          const qtyNum = parseFloat(qtyRaw);
+          
+          if (ingredientMap.has(name)) {
+            const existing = ingredientMap.get(name);
+            // Aggregate if both are numbers
+            if (typeof existing === 'number' && !isNaN(qtyNum)) {
+              ingredientMap.set(name, existing + qtyNum);
+            } else {
+              // Just concatenate as fallback
+              ingredientMap.set(name, `${existing}+${qtyRaw}`);
+            }
           } else {
-            // Just concatenate as fallback
-            ingredientMap.set(name, `${existing}+${qtyRaw}`);
+            ingredientMap.set(name, !isNaN(qtyNum) ? qtyNum : qtyRaw);
           }
-        } else {
-          ingredientMap.set(name, !isNaN(qtyNum) ? qtyNum : qtyRaw);
         }
+      } catch (e) {
+        // Skip invalid ingredients
       }
-    } catch (e) {
-      // Skip invalid ingredients
     }
   }
   
@@ -100,32 +108,35 @@ export function buildShoppingListFromPlan(planItems) {
 }
 
 /**
- * Transform raw recipes to weekly plan format
+ * Transform raw recipes to weekly plan format (multiple items per day ready)
  * 
  * @param {Array} recipes - Array of recipe objects
  * @param {number} daysCount - Number of days to generate (default 5)
- * @returns {Array} - Weekly plan in standard format
+ * @returns {Array} - Weekly plan: [{ dayIndex, dayName, date, items: [{recipe, servings, mealSlot}] }]
  */
 export function generateWeeklyPlan(recipes, daysCount = 5) {
   if (!recipes || recipes.length === 0) return [];
   
-  // Shuffle and take needed amount
   const shuffled = [...recipes].sort(() => 0.5 - Math.random());
   const selectedRecipes = shuffled.slice(0, daysCount);
   
+  // Return structure ready for multiple items per day
   return selectedRecipes.map((recipe, index) => ({
     dayIndex: index,
-    day: DAY_NAMES[index] || `Day ${index + 1}`,
-    date: null, // Will be filled when planning specific week
-    recipe: {
-      id: recipe.id,
-      name: recipe.name,
-      image_url: recipe.image_url,
-      ingredients: recipe.ingredients || null
-    },
-    servings: 2, // Default
-    meal_slot: 'dinner',
-    done: false
+    dayName: DAY_NAMES[index] || `Day ${index + 1}`,
+    date: null,
+    items: [
+      {
+        recipe: {
+          id: recipe.id,
+          name: recipe.name,
+          image_url: recipe.image_url,
+          ingredients: recipe.ingredients || null
+        },
+        servings: 2,
+        mealSlot: 'dinner'
+      }
+    ]
   }));
 }
 
