@@ -3,21 +3,20 @@ import { supabaseServer } from '@/lib/supabaseServer';
 
 /**
  * Fetch recipes for server-side props
- * Queries Supabase directly - handles bad data gracefully
+ * Only fetches fields that actually exist in the recipes table
  */
 export async function fetchRecipesForServer(limit = 24) {
   console.log('[SSR] fetchRecipesForServer: starting...');
 
   if (!supabaseServer) {
     console.error('[SSR] ERROR: Supabase server client NOT configured');
-    console.error('[SSR] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'NOT set');
-    console.error('[SSR] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'NOT set');
     return [];
   }
 
   console.log('[SSR] Supabase client configured, querying recipes...');
 
   try {
+    // Only select fields that exist in recipes table
     const { data, error, status } = await supabaseServer
       .from('recipes')
       .select(`
@@ -36,7 +35,6 @@ export async function fetchRecipesForServer(limit = 24) {
         budget_level,
         is_complete_meal,
         method,
-        ingredients,
         created_at
       `)
       .eq('is_public', true)
@@ -53,49 +51,18 @@ export async function fetchRecipesForServer(limit = 24) {
 
     console.log('[SSR] Query successful, count:', data?.length || 0);
 
-    // Validate and parse each recipe's ingredients
     if (!data || data.length === 0) {
       return [];
     }
 
-    const safeRecipes = [];
-    for (const recipe of data) {
-      try {
-        let parsedIngredients = [];
-        
-        // Safe parse ingredients
-        if (recipe.ingredients) {
-          try {
-            parsedIngredients = typeof recipe.ingredients === 'string'
-              ? JSON.parse(recipe.ingredients)
-              : recipe.ingredients;
-            
-            if (!Array.isArray(parsedIngredients)) {
-              console.warn('[SSR] WARN: ingredients not array for recipe', recipe.id, typeof parsedIngredients);
-              parsedIngredients = [];
-            }
-          } catch (parseErr) {
-            console.warn('[SSR] WARN: Invalid JSON in ingredients for recipe', recipe.id, String(parseErr));
-            parsedIngredients = [];
-          }
-        }
-
-        safeRecipes.push({
-          ...recipe,
-          ingredients: parsedIngredients
-        });
-      } catch (rowErr) {
-        console.error('[SSR] ERROR: Failed to process recipe', recipe?.id, String(rowErr));
-        // Skip bad row, continue with others
-      }
-    }
-
-    console.log('[SSR] Safe recipes count:', safeRecipes.length);
-    return safeRecipes;
+    // Return recipes without ingredients - ingredients come from normalized tables
+    return data.map(recipe => ({
+      ...recipe,
+      ingredients: [] // Empty - not from recipes table
+    }));
 
   } catch (err) {
     console.error('[SSR] FATAL EXCEPTION:', String(err));
-    console.error('[SSR] Stack:', String(err));
     return [];
   }
 }
