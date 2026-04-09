@@ -67,9 +67,9 @@ export default function Home({ initialRecipes = [] }) {
     if (!recipesList || recipesList.length === 0) {
       setWeeklyPlan([]);
     } else {
-      setWeeklyPlan(buildWeeklyPlan(recipesList));
+      setWeeklyPlan(generateWeeklyPlan(recipesList));
     }
-  }, [recipesList, buildWeeklyPlan]);
+  }, [recipesList, generateWeeklyPlan]);
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
@@ -78,8 +78,8 @@ export default function Home({ initialRecipes = [] }) {
 
   // Regenerate weekly plan - AFTER recipesList declared
   const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(buildWeeklyPlan(recipesList));
-  }, [recipesList, buildWeeklyPlan]);
+    setWeeklyPlan(generateWeeklyPlan(recipesList));
+  }, [recipesList, generateWeeklyPlan]);
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showEmptyState = recipesList.length === 0;
