@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import RecipeDetailContent from '@/components/recipes/RecipeDetailContent';
+import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
 
 /**
