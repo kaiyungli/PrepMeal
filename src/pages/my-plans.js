@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { UI } from '@/styles/ui';
+import PlanCard from '@/components/myPlans/PlanCard';
 
 export default function MyPlansPage() {
   // Use centralized auth guard - includes getAccessToken
@@ -45,6 +46,8 @@ export default function MyPlansPage() {
 
   const handleDelete = async (planId) => {
     if (!requireAuth()) return;
+    
+    if (!confirm('確定要刪除呢個餐單？')) return;
     
     setDeleting(planId);
     try {
@@ -106,27 +109,12 @@ export default function MyPlansPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {plans.map((plan) => (
-                <div key={plan.id} className={UI.card + " p-6"}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="font-bold text-[#3A2010]">{plan.name || '未命名餐單'}</h3>
-                    <button 
-                      onClick={() => handleDelete(plan.id)}
-                      disabled={deleting === plan.id}
-                      className={UI.textDanger + (deleting === plan.id ? " opacity-50" : "")}
-                    >
-                      {deleting === plan.id ? '刪除中...' : '刪除'}
-                    </button>
-                  </div>
-                  <p className="text-sm text-[#AA7A50] mb-4">
-                    {plan.days_count || 0} 日餐單
-                  </p>
-                  <a 
-                    href={`/my-plans/${plan.id}`}
-                    className={"block text-center py-2 " + UI.buttonAccent}
-                  >
-                    查看詳情
-                  </a>
-                </div>
+                <PlanCard 
+                  key={plan.id} 
+                  plan={plan} 
+                  onDelete={handleDelete}
+                  isDeleting={deleting === plan.id}
+                />
               ))}
             </div>
           )}

@@ -30,19 +30,52 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       // Use real table: menu_plans
-      const { data, error } = await userSupabase
+      const { data: plansData, error: plansError } = await userSupabase
         .from('menu_plans')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
       
-      if (error) {
-        return res.status(500).json(ApiResponse.error(error.message));
+      if (plansError) {
+        return res.status(500).json(ApiResponse.error(plansError.message));
+      }
+      
+      // Fetch items for all plans
+      const planIds = (plansData || []).map(p => p.id);
+      let itemsData = [];
+      if (planIds.length > 0) {
+        const { data: items, error: itemsError } = await userSupabase
+          .from('menu_plan_items')
+          .select('*, recipes(id, name, image_url)')
+          .in('menu_plan_id', planIds)
+          .order('date', { ascending: true });
+        
+        if (!itemsError) {
+          itemsData = items || [];
+        }
+      }
+      
+      // Group items by plan
+      const itemsByPlan = {};
+      for (const item of itemsData) {
+        if (!itemsByPlan[item.menu_plan_id]) {
+          itemsByPlan[item.menu_plan_id] = [];
+        }
+        itemsByPlan[item.menu_plan_id].push({
+          id: item.id,
+          date: item.date,
+          meal_slot: item.meal_slot,
+          servings: item.servings,
+          recipe: item.recipes ? {
+            id: item.recipes.id,
+            name: item.recipes.name,
+            image_url: item.recipes.image_url
+          } : null
+        });
       }
       
       // Transform DB fields to frontend-safe response
-      // Note: menu_plans does NOT have notes column, return null
-      const plans = (data || []).map(plan => ({
+      const plans = (plansData || []).map(plan => ({
         id: plan.id,
         user_id: plan.user_id,
         name: plan.title,
@@ -52,6 +85,8 @@ export default async function handler(req, res) {
           : 7,
         notes: null,
         created_at: plan.created_at,
+        updated_at: plan.updated_at,
+        items: itemsByPlan[plan.id] || []
       }));
       
       return res.status(200).json(ApiResponse.success({ plans }));
