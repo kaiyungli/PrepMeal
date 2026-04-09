@@ -25,7 +25,7 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
           <img
             src={recipe.image_url}
             alt={recipe.name}
-            className={compact ? "w-10 h-10" : "w-14 h-14"} + " object-cover rounded-lg"
+            className={(compact ? "w-10 h-10" : "w-14 h-14") + " object-cover rounded-lg"
           />
         ) : (
           <div className={(compact ? "w-10 h-10" : "w-14 h-14") + " bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl"}>
