@@ -54,24 +54,26 @@ if (hasFullDetail) {
     if (abortRef.current) {
       abortRef.current.abort();
     }
-    abortRef.current = new AbortController();
+
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
-    fetchRecipeDetail(selectedRecipe.id, abortRef.current.signal)
+    fetchRecipeDetail(selectedRecipe.id, controller.signal)
       .then(data => {
         if (data) {
           setFullRecipe({ ...selectedRecipe, ...data });
         }
       })
       .catch((err) => {
-  if (err?.name === 'AbortError') return;
-  console.error('[RecipeModalController] fetch detail failed:', err);
-})
+        if (err?.name === 'AbortError') return;
+        console.error('[RecipeModalController] fetch detail failed:', err);
+      })
       .finally(() => {
-  if (!abortRef.current?.signal.aborted) {
-    setLoading(false);
-  }
-});
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      });
   }, [selectedRecipe]);
 
   const handleClose = useCallback(() => {
