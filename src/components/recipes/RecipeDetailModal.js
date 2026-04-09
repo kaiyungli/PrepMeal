@@ -113,6 +113,14 @@ export default function RecipeDetailModal({ recipeId, onClose }) {
   }, [onClose]);
 
   if (!mounted) return null;
+  
+  // Early log: modal mounted, recipeId present
+  useEffect(() => {
+    if (mounted && recipeId) {
+      logClient({ step: 'modal_mounted', recipeId });
+    }
+  }, [mounted, recipeId]);
+
 
   return createPortal(
     <>
