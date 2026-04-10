@@ -10,6 +10,18 @@
 
 ---
 
+## Boundary Rules for Implementation
+
+| Layer | Responsibility | Examples |
+|-------|---------------|----------|
+| **page** | Composition only | Render UI, pass props |
+| **controller hook** | Orchestration + UI state | Modal state, loading, user feedback |
+| **services** | API / IO | Fetch recipes, save plan, shopping list |
+| **engine** | Pure planning logic | mealPlanner, recipe selection |
+| **mappers** | Payload transformation | Plan → API body |
+
+---
+
 ## Current Responsibilities
 
 ### A. UI Rendering (Lines ~380-549)
@@ -24,50 +36,49 @@
 | Save notice toast | Inline notification |
 
 ### B. State Management (useState)
-| State | Purpose | Lines |
+| State | Purpose | Owner |
 |-------|---------|-------|
-| `daysPerWeek` | Days to generate | ~43 |
-| `dishesPerDay` | Dishes per day (legacy) | ~44 |
-| `dailyComposition` | Meat/veg mode | ~45 |
-| `allowCompleteMeal` | Complete meal checkbox | ~45 |
-| `servings` | Servings per meal | ~46 |
-| `dietMode` | Diet filter | ~47 |
-| `budget` | Budget constraint | ~48 |
-| `ingredientReuse` | Reuse constraint | ~49 |
-| `exclusions` | Excluded proteins | ~50 |
-| `cuisines` | Cuisine filters | ~51 |
-| `cookingConstraints` | Method/time filters | ~52 |
-| `filters` | Unified filter object | ~57 |
-| `allRecipes` | Raw recipe list from API | ~75 |
-| `selectedRecipe` | Recipe for detail modal | ~77 |
-| `modalLoading` | Modal fetch loading | ~78 |
-| `pantryIngredients` | From URL query | ~80 |
-| `hasGenerated` | Plan generated flag | ~81 |
-| `weeklyPlan` | Current plan {day: [recipes]} | ~85 |
-| `lockedSlots` | Locked slot tracking | ~86 |
-| `shoppingList` | Aggregated list | ~89 |
-| `showShoppingList` | Modal visibility | ~90 |
-| `shoppingListLoaded` | List loaded flag | ~91 |
-| `saveNotice` | Save feedback | ~41 |
-| `isSaving` | Save in progress | ~40 |
+| `daysPerWeek` | Days to generate | useGeneratePreferences |
+| `dishesPerDay` | Dishes per day (legacy) | useGeneratePreferences |
+| `dailyComposition` | Meat/veg mode | useGeneratePreferences |
+| `allowCompleteMeal` | Complete meal checkbox | useGeneratePreferences |
+| `servings` | Servings per meal | useGeneratePreferences |
+| `dietMode` | Diet filter | useGeneratePreferences |
+| `budget` | Budget constraint | useGeneratePreferences |
+| `ingredientReuse` | Reuse constraint | useGeneratePreferences |
+| `exclusions` | Excluded proteins | useGeneratePreferences |
+| `cuisines` | Cuisine filters | useGeneratePreferences |
+| `cookingConstraints` | Method/time filters | useGeneratePreferences |
+| `filters` | Unified filter object | useGeneratePreferences |
+| `allRecipes` | Raw recipe list from API | controller |
+| `selectedRecipe` | Recipe for detail modal | controller |
+| `modalLoading` | Modal fetch loading | controller |
+| `pantryIngredients` | From URL query | controller |
+| `hasGenerated` | Plan generated flag | controller |
+| `weeklyPlan` | Current plan {day: [recipes]} | controller |
+| `lockedSlots` | Locked slot tracking | controller |
+| `shoppingList` | Aggregated list | controller |
+| `showShoppingList` | Modal visibility | controller |
+| `shoppingListLoaded` | List loaded flag | controller |
+| `saveNotice` | Save feedback | controller |
+| `isSaving` | Save in progress | controller |
+| `recipeCache` | Detail cache | controller |
 
-### C. Data Fetching
-| Fetch | Purpose | Lines |
-|-------|---------|-------|
-| `/api/recipes?limit=200&view=generate` | Load base recipes | ~105-115 |
-| `/api/shopping-list` (preloadShoppingList) | Shopping list aggregation | ~185-255 |
-| `/api/user/menus` (save) | Save plan to user account | ~445-475 |
-| `/api/recipes/{id}` (detail) | Recipe detail for modal | ~515-520 |
+### C. Data Fetching (Services - IO Boundaries)
+| Fetch | Purpose | Lines | Target |
+|-------|---------|-------|--------|
+| `/api/recipes?limit=200&view=generate` | Load base recipes | ~105-115 | `services/fetchAvailableRecipes.ts` |
+| `/api/shopping-list` | Shopping list aggregation | ~185-255 | `services/fetchGeneratedPlanShoppingList.ts` |
+| `/api/user/menus` | Save plan | ~445-475 | `services/saveGeneratedPlan.ts` |
+| `/api/recipes/{id}` | Recipe detail | ~515-520 | Use existing hook |
 
-### D. Business Logic
-| Function | Purpose | Lines |
-|----------|---------|-------|
-| `planWeekAdvanced()` | Core meal planner algorithm | ~265-275 |
-| `preloadShoppingList()` | Aggregate shopping list | ~185-255 |
-| `handleGenerate()` | Trigger plan generation | ~257-280 |
-| `replaceRecipe()` | Replace single recipe with scoring | ~282-340 |
-| `recipeMatchesFilters()` | Filter matching | ~130-145 |
-| Scoring logic | Diversity penalties in replaceRecipe | ~295-320 |
+### D. Business Logic (Engine - Pure Planning)
+| Function | Purpose | Lines | Target |
+|----------|---------|-------|--------|
+| `planWeekAdvanced()` | Core meal planner | ~265-275 | `engine/mealPlanner.ts` |
+| Scoring logic | Diversity in replaceRecipe | ~295-320 | `engine/recipeScorer.ts` |
+| `replaceRecipe()` | Replace single recipe | ~282-340 | `engine/recipeReplacer.ts` |
+| `recipeMatchesFilters()` | Filter matching | ~130-145 | Keep in useGeneratePageController |
 
 ### E. User Actions
 | Action | Handler | Lines |
@@ -96,33 +107,25 @@
 ## State Map
 
 ```
-GeneratePage
-├── Settings State (useGeneratePreferences hook)
-│   ├── daysPerWeek, dishesPerDay, dailyComposition
-│   ├── allowCompleteMeal, servings
-│   ├── dietMode, budget
-│   ├── exclusions, cuisines, cookingConstraints
-│   └── filters (unified filter object)
-├── Auth State (useAuth hook)
-│   ├── isAuthenticated
-│   └── getAccessToken
-├── Recipe State
-│   ├── allRecipes (raw API data)
-│   └── filteredRecipes (useMemo derived)
-├── Plan State
-│   ├── weeklyPlan (current generated plan)
-│   ├── lockedSlots (user locks)
-│   └── hasGenerated (flag)
-├── Modal State
-│   ├── selectedRecipe (detail modal)
-│   ├── modalLoading
-│   ├── showShoppingList
-│   └── shoppingList + shoppingListLoaded
-├── UI State
-│   ├── saveNotice
-│   └── isSaving
-└── Refs
-    └── recipeCache (Map for detail caching)
+GeneratePage (Composition)
+└── useGeneratePageController (Orchestration)
+    ├── Settings State (useGeneratePreferences)
+    ├── Auth State (useAuth)
+    ├── Recipe State
+    │   ├── allRecipes (raw)
+    │   └── filteredRecipes (derived)
+    ├── Plan State
+    │   ├── weeklyPlan
+    │   ├── lockedSlots
+    │   └── hasGenerated
+    ├── Modal State
+    │   ├── selectedRecipe
+    │   ├── modalLoading
+    │   ├── showShoppingList
+    │   └── shoppingList + shoppingListLoaded
+    └── UI State
+        ├── saveNotice
+        └── isSaving
 ```
 
 ---
@@ -134,7 +137,7 @@ User Action: "Generate"
     ↓
 handleGenerate()
     ↓
-planWeekAdvanced(filteredRecipes, config)
+planWeekAdvanced(filteredRecipes, config)  [ENGINE]
     ↓
 setWeeklyPlan(newPlan)
     ↓
@@ -142,15 +145,13 @@ User clicks Shopping List
     ↓
 showShoppingList changes → useEffect
     ↓
-preloadShoppingList(weeklyPlan)
-    ↓
-fetch('/api/shopping-list')
+fetchGeneratedPlanShoppingList(weeklyPlan)  [SERVICE]
     ↓
 setShoppingList()
     ↓
 User clicks Save
     ↓
-getAccessToken() → POST /api/user/menus
+getAccessToken() → saveGeneratedPlan(data)  [SERVICE]
 ```
 
 ---
@@ -159,20 +160,18 @@ getAccessToken() → POST /api/user/menus
 
 ### Table: Current → Target Mapping
 
-| Responsibility | Current Location | Target Location | Priority |
-|----------------|-----------------|-----------------|----------|
-| Recipe fetch | generate.js (line 105) | `generate/services/fetchAvailableRecipes.ts` | HIGH |
-| Filter recipes | generate.js (line 120) | `generate/hooks/useFilteredRecipes.ts` | HIGH |
-| Plan generation | generate.js (line 265) | `generate/services/mealPlanGenerator.ts` | HIGH |
-| Replace recipe | generate.js (line 282) | `generate/services/recipeReplacer.ts` | MEDIUM |
-| Shopping list preload | generate.js (line 185) | `generate/services/shoppingListLoader.ts` | MEDIUM |
-| Save plan | generate.js (line 433) | `generate/services/savePlan.ts` | MEDIUM |
-| Settings state | useGeneratePreferences (existing) | Keep | KEEP |
-| Auth state | useAuth (existing) | Keep | KEEP |
-| Weekly plan state | generate.js (line 85) | `generate/hooks/useWeeklyPlanState.ts` | HIGH |
-| Modal state | generate.js (line 77) | Keep in page (orchestration) | LOW |
-| Recipe cache | generate.js (line 94) | Keep in page | LOW |
-| UI Rendering | generate.js (line 380) | Keep - page composition | KEEP |
+| Responsibility | Current Location | Target Location | Layer |
+|----------------|-----------------|------------------|-------|
+| Recipe fetch | generate.js (line 105) | `generate/services/fetchAvailableRecipes.ts` | SERVICE |
+| Save plan | generate.js (line 433) | `generate/services/saveGeneratedPlan.ts` | SERVICE |
+| Shopping list preload | generate.js (line 185) | `generate/services/fetchGeneratedPlanShoppingList.ts` | SERVICE |
+| Plan generation | generate.js (line 265) | `generate/engine/mealPlanner.ts` | ENGINE |
+| Replace recipe scoring | generate.js (line 282) | `generate/engine/recipeReplacer.ts` | ENGINE |
+| Recipe cache | generate.js (line 94) | useGeneratePageController | CONTROLLER |
+| Settings state | useGeneratePreferences | Keep | HOOK |
+| Weekly plan state | generate.js (line 85) | useGeneratePageController | CONTROLLER |
+| Modal state | generate.js (line 77) | useGeneratePageController | CONTROLLER |
+| UI Rendering | generate.js (line 380) | Keep - page composition | PAGE |
 
 ---
 
@@ -180,22 +179,27 @@ getAccessToken() → POST /api/user/menus
 
 ```
 src/features/generate/
-  index.ts                    # Public exports
+  index.ts                 # Public exports
   
+  # API / IO Boundary
   services/
-    fetchAvailableRecipes.ts # /api/recipes call
-    mealPlanGenerator.ts      # planWeekAdvanced wrapper
-    recipeReplacer.ts         # Replace single recipe logic
-    shoppingListLoader.ts      # /api/shopping-list call
-    savePlan.ts               # Save to user account
+    fetchAvailableRecipes.ts         # GET /api/recipes
+    saveGeneratedPlan.ts             # POST /api/user/menus
+    fetchGeneratedPlanShoppingList.ts # POST /api/shopping-list
     
+  # Pure Planning Logic
+  engine/
+    mealPlanner.ts         # planWeekAdvanced wrapper
+    recipeScorer.ts        # Diversity scoring
+    recipeReplacer.ts      # Replace single recipe
+    
+  # Orchestration
   hooks/
-    useFilteredRecipes.ts     # Recipes + filters → filtered
-    useWeeklyPlanState.ts     # Weekly plan state management
-    useGeneratePageController.ts # Main orchestrator (optional)
+    useGeneratePageController.ts  # Main orchestrator hook
+    useFilteredRecipes.ts           # Only if reusable
     
   mappers/
-    normalizePlanForSave.ts   # Transform plan → API payload
+    normalizePlanForSave.ts         # Transform plan → API payload
     
 components/
   generate/
@@ -209,8 +213,13 @@ components/
 ```typescript
 // src/pages/generate.js
 import { useGeneratePageController } from '@/features/generate';
+import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 
 export default function GeneratePage() {
+  // Settings from existing hook (unchanged)
+  const preferences = useGeneratePreferences();
+  
+  // Orchestration from new controller
   const {
     // State
     weeklyPlan,
@@ -223,10 +232,10 @@ export default function GeneratePage() {
     handleSave,
     handleReplace,
     
-    // Modals
+    // Modals (controller-owned)
     selectedRecipe,
     showShoppingList,
-  } = useGeneratePageController();
+  } = useGeneratePageController(preferences);
   
   return (
     // UI only - composition
@@ -254,34 +263,31 @@ export default function GeneratePage() {
 
 ---
 
-## Priority Order for Extraction
+## Extraction Priority
 
-1. **Phase 1:** Recipe fetch + filtered recipes (HIGH)
-   - Extract `fetchAvailableRecipes.ts`
-   - Extract `useFilteredRecipes.ts`
-   
-2. **Phase 2:** Weekly plan state (HIGH)
-   - Extract `useWeeklyPlanState.ts`
-   
-3. **Phase 3:** Plan generation (HIGH)
-   - Extract `mealPlanGenerator.ts`
-   
-4. **Phase 4:** Save flow (MEDIUM)
-   - Extract `savePlan.ts`
-   
-5. **Phase 5:** Shopping list (MEDIUM)
-   - Extract `shoppingListLoader.ts`
-   
-6. **Phase 6:** Replace logic (MEDIUM)
-   - Extract `recipeReplacer.ts`
+### Phase 1: IO Boundaries (Services)
+1. `services/fetchAvailableRecipes.ts` - Recipe fetch
+2. `services/saveGeneratedPlan.ts` - Save plan
+3. `services/fetchGeneratedPlanShoppingList.ts` - Shopping list
+
+### Phase 2: Engine Extraction
+4. `engine/mealPlanner.ts` - Plan generation
+5. `engine/recipeReplacer.ts` - Replace logic
+
+### Phase 3: Controller Hook
+6. `useGeneratePageController.ts` - Orchestration
+
+### Phase 4: Optional Finer Hooks
+7. `useFilteredRecipes.ts` - Only if truly reusable independently
 
 ---
 
 ## Success Criteria
 
-- [ ] generate.js reduced to < 150 lines
-- [ ] Each service/hook has single responsibility
-- [ ] No duplicate fetch logic
+- [ ] generate.js reduced to < 150 lines (composition only)
+- [ ] Each service has single API responsibility
+- [ ] Engine functions are pure (no side effects)
+- [ ] Controller handles all UI state
 - [ ] Business logic testable in isolation
-- [ ] UI only in page composition layer
+- [ ] No duplicate fetch logic
 - [ ] All existing behavior preserved
