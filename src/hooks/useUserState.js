@@ -27,34 +27,22 @@ export function useUserState() {
   // Auth state
   const auth = useAuth();
   
-  // Token for favorites - only set when authenticated + token resolved
+  // Token for favorites - only resolve when authenticated
   const [token, setToken] = useState(null);
-  const [tokenReady, setTokenReady] = useState(false);
   
   useEffect(() => {
     if (!auth.loading) {
       if (auth.isAuthenticated) {
-        auth.getAccessToken().then(t => {
-          setToken(t);
-          setTokenReady(true);
-        });
+        auth.getAccessToken().then(t => setToken(t));
       } else {
         setToken(null);
-        setTokenReady(false);
       }
     }
   }, [auth.loading, auth.isAuthenticated, auth.getAccessToken]);
   
-  // Only initialize useFavorites when token is ready (authenticated + token resolved)
-  // This prevents duplicate API calls on initial load
-  const fav = tokenReady && token ? useFavorites(token) : {
-    favorites: [],
-    isFavorite: () => false,
-    toggleFavorite: async () => {},
-    loading: true,
-    error: null,
-    isPending: false
-  };
+  // Always call useFavorites - pass null when token not ready (SWR won't fetch with null key)
+  // This respects Hooks rules while preventing duplicate fetches
+  const fav = useFavorites(token);
   
   return {
     // Auth
