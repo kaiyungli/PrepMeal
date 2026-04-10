@@ -9,7 +9,6 @@ import HomeFiltersBar from '@/components/home/HomeFiltersBar';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
-import { useUserState } from '@/hooks/useUserState';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
@@ -24,23 +23,9 @@ export default function Home({ initialRecipes = [] }) {
   // Weekly plan state - separate from selectedRecipe
   
 
-  // Central user state
-  const { 
-    isAuthenticated,
-    isFavorite, 
-    isPending, 
-    toggleFavorite 
-  } = useUserState();
+  
 
-  // Favorite toggle handler with auth check
-  const handleFavoriteToggle = useCallback((recipeId) => {
-    if (!isAuthenticated) {
-      showToast('請先登入以收藏食譜', 'info');
-      return;
-    }
-    console.log('[fav-perf]', performance.now().toFixed(2), 'button_click', recipeId);
-    toggleFavorite(recipeId);
-  }, [isAuthenticated, toggleFavorite, showToast]);
+  
 
 
 
@@ -62,7 +47,7 @@ export default function Home({ initialRecipes = [] }) {
   }, [initialRecipes, filterRecipes]);
 
   // Weekly plan controller
-  const { weeklyPlan, handleRefreshPlan, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList });
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList });
 
   
 
