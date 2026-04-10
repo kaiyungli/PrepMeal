@@ -48,8 +48,8 @@ interface GenerateResultsProps {
   onLock: (dayKey: string, index: number) => void
   onUnlock: (dayKey: string, index: number) => void
   onRemove: (dayKey: string, index: number) => void
-  onReplace?: (dayKey: string, index: number) => void
-  onAddRandom?: (dayKey: string) => void
+  onReplace: (dayKey: string, index: number) => void
+  onAddRandom: (dayKey: string) => void
   onRecipeClick: (recipe: Recipe) => void
   setWeeklyPlan?: React.Dispatch<React.SetStateAction<Record<string, Recipe[]>>>
 }
@@ -76,15 +76,7 @@ export default function GenerateResults({
       onReplace(dayKey, index);
       return;
     }
-    // Fallback: inline logic
-    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
-    if (available.length > 0) {
-      const random = available[Math.floor(Math.random() * available.length)]
-      safeSetWeeklyPlan((prev: Record<string, Recipe[]>) => ({
-        ...prev,
-        [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
-      }))
-    }
+    // Fallback: do nothing if no callback
   }
 
   const addRandomRecipe = (dayKey: string) => {
@@ -92,15 +84,7 @@ export default function GenerateResults({
       onAddRandom(dayKey);
       return;
     }
-    // Fallback: inline logic
-    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
-    if (available.length > 0) {
-      const random = available[Math.floor(Math.random() * available.length)]
-      safeSetWeeklyPlan((prev: Record<string, Recipe[]>) => ({
-        ...prev,
-        [dayKey]: [...(prev[dayKey] || []), random]
-      }))
-    }
+    // Fallback: do nothing if no callback
   }
 
   const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0)

@@ -96,6 +96,7 @@ export default function GeneratePage() {
           onRemove={removeRecipe}
           onReplace={handleReplaceRecipe}
           onAddRandom={handleAddRandomRecipe}
+          onAddRandom={handleAddRandomRecipe}
           setWeeklyPlan={setWeeklyPlan}
           onRecipeClick={handleRecipeClick}
         />

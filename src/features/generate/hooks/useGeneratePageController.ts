@@ -10,7 +10,6 @@ import {
   saveGeneratedPlan,
   fetchGeneratedPlanShoppingList,
   generateWeeklyPlan,
-  replaceRecipeInPlan,
   normalizePlanForSave,
 } from '../index';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
@@ -203,6 +202,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     setHasGenerated(true);
   }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan]);
   
+  // Replace recipe at slot
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
     const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
     if (available.length > 0) {
@@ -210,6 +210,18 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
       setWeeklyPlan(prev => ({
         ...prev,
         [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
+      }));
+    }
+  }, [weeklyPlan, filteredRecipes]);
+  
+  // Add random recipe to day
+  const handleAddRandomRecipe = useCallback((dayKey: string) => {
+    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
+    if (available.length > 0) {
+      const random = available[Math.floor(Math.random() * available.length)];
+      setWeeklyPlan(prev => ({
+        ...prev,
+        [dayKey]: [...(prev[dayKey] || []), random]
       }));
     }
   }, [weeklyPlan, filteredRecipes]);
@@ -324,6 +336,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     isSaving,
     handleGenerate,
     handleReplaceRecipe,
+    handleAddRandomRecipe,
     handleOpenShoppingList,
     handleClearAll,
     handleSave,
