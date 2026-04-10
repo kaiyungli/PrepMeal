@@ -5,8 +5,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
+import { useGenerateData } from './useGenerateData';
 import {
-  fetchAvailableRecipes,
   saveGeneratedPlan,
   fetchGeneratedPlanShoppingList,
   generateWeeklyPlan,
@@ -48,11 +48,12 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
   const compositionConfig = COMPOSITION_CONFIG[compositionKey as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
   const effectiveDishesPerDay = compositionConfig.dishesPerDay;
   
-  // Recipe State
-  const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  // Data from useGenerateData hook
+  const { allRecipes, loadingRecipes, pantryIngredients } = useGenerateData();
+  
+  // UI State
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const [pantryIngredients, setPantryIngredients] = useState<string[]>([]);
   const [hasGenerated, setHasGenerated] = useState(false);
   
   // Plan State
@@ -100,22 +101,6 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
       return true;
     });
   }, [allRecipes, exclusions, filters]);
-  
-  // Fetch recipes on mount
-  useEffect(() => {
-    fetchAvailableRecipes(200)
-      .then(recipes => setAllRecipes(recipes))
-      .catch(() => {});
-  }, []);
-  
-  // Read pantry from URL
-  useEffect(() => {
-    const { ingredients } = router.query;
-    if (ingredients) {
-      const parsed = ingredients.toString().split(',').map(i => i.trim()).filter(Boolean);
-      setPantryIngredients(parsed);
-    }
-  }, [router.query]);
   
   // Restore hero plan from session storage
   useEffect(() => {
@@ -322,6 +307,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     servings,
     effectiveDishesPerDay,
     allRecipes,
+    loadingRecipes,
     filteredRecipes,
     selectedRecipe,
     modalLoading,
