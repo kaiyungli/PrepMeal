@@ -26,13 +26,13 @@ export function useHeaderController() {
     return pathname === linkPath || pathname.startsWith(`${linkPath}/`);
   };
 
-  // Handle logout
+  // Handle logout - no error UX needed as logout rarely fails
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await signOut();
     } catch (err) {
-      console.error('Logout error:', err);
+      // Silent fail - user may retry or refresh
     } finally {
       setLoggingOut(false);
     }

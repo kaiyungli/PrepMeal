@@ -2,15 +2,35 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
+
+interface NavLink {
+  label: string;
+  path: string;
+}
 
 interface HeaderProps {
   showNav?: boolean;
+  // Data props
+  navLinks?: NavLink[];
+  isAuthenticated?: boolean;
+  loading?: boolean;
+  loggingOut?: boolean;
+  // Checkers
+  isActiveRoute?: (path: string) => boolean;
+  // Actions
+  handleLogout?: () => void;
 }
 
-export default function Header({ showNav = true }: HeaderProps) {
+export default function Header({ 
+  showNav = true,
+  navLinks = [],
+  isAuthenticated = false,
+  loading = false,
+  loggingOut = false,
+  isActiveRoute = () => false,
+  handleLogout = () => {},
+}: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isAuthenticated, loading, loggingOut, navLinks, isActiveRoute, handleLogout } = useHeaderController();
 
   // Generate nav link class based on active state
   const getNavLinkClass = (isActive: boolean) => {
