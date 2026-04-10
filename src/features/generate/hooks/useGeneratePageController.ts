@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGenerateData } from './useGenerateData';
+import { useGeneratePlan } from './useGeneratePlan';
 import {
   saveGeneratedPlan,
   fetchGeneratedPlanShoppingList,
@@ -56,12 +57,6 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
   const [modalLoading, setModalLoading] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   
-  // Plan State
-  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan>(
-    DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}) as WeeklyPlan
-  );
-  const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
-  
   // Shopping List State
   const [shoppingList, setShoppingList] = useState<any[]>([]);
   const [showShoppingList, setShowShoppingList] = useState(false);
@@ -101,6 +96,28 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
       return true;
     });
   }, [allRecipes, exclusions, filters]);
+  
+  // Plan from useGeneratePlan hook (after filteredRecipes is available)
+  const { 
+    weeklyPlan, 
+    setWeeklyPlan, 
+    lockedSlots, 
+    setLockedSlots,
+    lockSlot: hookLockSlot, 
+    unlockSlot: hookUnlockSlot,
+    handleGenerate: hookHandleGenerate,
+    handleReplaceRecipe: hookHandleReplaceRecipe
+  } = useGeneratePlan({
+    filteredRecipes,
+    dailyComposition,
+    daysPerWeek,
+    effectiveDishesPerDay,
+    cuisines,
+    exclusions,
+    cookingConstraints,
+    budget: budget || 'medium',
+    pantryIngredients
+  });
   
   // Restore hero plan from session storage
   useEffect(() => {
@@ -151,53 +168,6 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
   }, [showShoppingList, shoppingListLoaded, weeklyPlan, pantryIngredients, servings]);
   
   // Handlers
-  const handleGenerate = useCallback(() => {
-    const genStart = perfNow();
-    
-    const lockedRecipes: Record<string, any> = {};
-    Object.entries(lockedSlots).forEach(([key, isLocked]) => {
-      if (isLocked) {
-        const [dayKey, indexStr] = key.split('-');
-        const index = parseInt(indexStr);
-        if (weeklyPlan[dayKey]?.[index]) {
-          lockedRecipes[key] = weeklyPlan[dayKey][index];
-        }
-      }
-    });
-
-    const plannerStart = perfNow();
-    const newPlan = generateWeeklyPlan(filteredRecipes, {
-      daysPerWeek,
-      dishesPerDay: effectiveDishesPerDay,
-      slotRoles: compositionConfig.slotRoles,
-      dailyComposition,
-      isWeekend: (dayKey: string) => DAYS.find(d => d.key === dayKey)?.isWeekend || false,
-      cuisines,
-      exclusions,
-      cookingConstraints,
-      budget: budget || 'medium',
-      pantryIngredients,
-      lockedSlots,
-      lockedRecipes
-    });
-
-    setWeeklyPlan(newPlan);
-    perfMeasure('generate.handleGenerate.planWeekAdvanced', plannerStart);
-    perfMeasure('generate.handleGenerate.total', genStart);
-    setHasGenerated(true);
-  }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan]);
-  
-  // Replace recipe at slot
-  const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
-    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
-    if (available.length > 0) {
-      const random = available[Math.floor(Math.random() * available.length)];
-      setWeeklyPlan(prev => ({
-        ...prev,
-        [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
-      }));
-    }
-  }, [weeklyPlan, filteredRecipes]);
   
   // Add random recipe to day
   const handleAddRandomRecipe = useCallback((dayKey: string) => {
@@ -223,7 +193,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     setShoppingListLoaded(false);
     setShowShoppingList(false);
     clearFilters();
-  }, [clearFilters]);
+  }, [clearFilters, setWeeklyPlan, setLockedSlots]);
   
   const handleSave = useCallback(async () => {
     if (isSaving) return;
@@ -280,15 +250,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     setSelectedRecipe(null);
   }, []);
   
-  const lockSlot = useCallback((dayKey: string, index: number) => {
-    const key = `${dayKey}-${index}`;
-    setLockedSlots(prev => ({ ...prev, [key]: true }));
-  }, []);
-  
-  const unlockSlot = useCallback((dayKey: string, index: number) => {
-    const key = `${dayKey}-${index}`;
-    setLockedSlots(prev => ({ ...prev, [key]: false }));
-  }, []);
+
   
   const removeRecipe = useCallback((dayKey: string, index: number) => {
     setWeeklyPlan(prev => {
@@ -314,14 +276,15 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     pantryIngredients,
     hasGenerated,
     weeklyPlan,
+    setWeeklyPlan,
     lockedSlots,
     shoppingList,
     showShoppingList,
     shoppingListLoaded,
     saveNotice,
     isSaving,
-    handleGenerate,
-    handleReplaceRecipe,
+    handleGenerate: hookHandleGenerate,
+    handleReplaceRecipe: hookHandleReplaceRecipe,
     handleAddRandomRecipe,
     handleOpenShoppingList,
     handleClearAll,
@@ -329,10 +292,9 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     handleRecipeClick,
     handleCloseRecipe,
     setShowShoppingList,
-    lockSlot,
-    unlockSlot,
+    lockSlot: hookLockSlot,
+    unlockSlot: hookUnlockSlot,
     removeRecipe,
-    setWeeklyPlan,
     hasRecipes,
     selectedCount,
   };
