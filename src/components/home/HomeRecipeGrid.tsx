@@ -41,14 +41,12 @@ function RecipeGridItem({
 
 // Memoize to prevent re-renders when parent props unchanged
 const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
-  // Compare recipe ID
+  // Only compare UI-relevant props that should trigger re-render
   if (prev.recipe?.id !== next.recipe?.id) return false;
-  // Compare boolean props directly (they are already evaluated)
   if (prev.isFavorite !== next.isFavorite) return false;
   if (prev.isPending !== next.isPending) return false;
-  // Callback function references
-  if (prev.onRecipeClick !== next.onRecipeClick) return false;
-  if (prev.onFavoriteClick !== next.onFavoriteClick) return false;
+  // Ignore callback references - they work regardless of reference equality
+  // The inline wrapper functions are recreated each render but still call the same underlying handler
   return true;
 });
 
