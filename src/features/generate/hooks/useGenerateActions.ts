@@ -72,6 +72,10 @@ export function useGenerateActions({
     setShowShoppingList(true);
   }, []);
 
+  const handleCloseShoppingList = useCallback(() => {
+    setShowShoppingList(false);
+  }, []);
+
   // Save handler
   const handleSave = useCallback(async () => {
     if (isSaving) return;
@@ -129,7 +133,7 @@ export function useGenerateActions({
     showShoppingList,
     shoppingListLoaded,
     handleOpenShoppingList,
-    setShowShoppingList,
+    handleCloseShoppingList,
 
     // Save
     saveNotice,

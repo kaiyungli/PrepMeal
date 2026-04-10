@@ -42,13 +42,13 @@ export default function GeneratePage() {
     handleSave,
     handleRecipeClick,
     handleCloseRecipe,
-    setShowShoppingList,
+    handleCloseShoppingList,
     lockSlot,
     unlockSlot,
     removeRecipe,
     
     handleAddRandomRecipe,
-    setWeeklyPlan,
+    handleResetPlan,
   } = ctrl;
   
   return (
@@ -97,14 +97,12 @@ export default function GeneratePage() {
           onRemove={removeRecipe}
           onReplace={handleReplaceRecipe}
           onAddRandom={handleAddRandomRecipe}
-          onAddRandom={handleAddRandomRecipe}
-          setWeeklyPlan={setWeeklyPlan}
           onRecipeClick={handleRecipeClick}
         />
         
         <ShoppingListModal 
           isOpen={showShoppingList} 
-          onClose={() => setShowShoppingList(false)}
+          onClose={handleCloseShoppingList}
           shoppingList={shoppingList}
           loading={!shoppingListLoaded}
         />

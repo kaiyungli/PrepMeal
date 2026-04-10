@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 interface UseGenerateHandlersOptions {
   weeklyPlan: any;
   setWeeklyPlan: (plan: any) => void;
-  setLockedSlots: (slots: any) => void;
+  setLockedSlots?: (slots: any) => void;
   filteredRecipes: any[];
   clearFilters: () => void;
   actionsClearAll: () => void;
@@ -42,7 +42,7 @@ export function useGenerateHandlers({
   const handleClearAll = useCallback((): void => {
     actionsClearAll();
     setWeeklyPlan({ mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });
-    setLockedSlots({});
+    if (setLockedSlots) setLockedSlots({});
     clearFilters();
   }, [actionsClearAll, setWeeklyPlan, setLockedSlots, clearFilters]);
 

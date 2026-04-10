@@ -89,10 +89,10 @@ export function useGeneratePageController() {
     
     // Plan
     weeklyPlan: plan.weeklyPlan,
-    setWeeklyPlan: plan.setWeeklyPlan,
     lockedSlots: plan.lockedSlots,
     handleGenerate: plan.handleGenerate,
     handleReplaceRecipe: plan.handleReplaceRecipe,
+    handleResetPlan: plan.handleResetPlan,
     lockSlot: plan.lockSlot,
     unlockSlot: plan.unlockSlot,
     
@@ -105,10 +105,10 @@ export function useGeneratePageController() {
     saveNotice: actions.saveNotice,
     isSaving: actions.isSaving,
     handleOpenShoppingList: actions.handleOpenShoppingList,
+    handleCloseShoppingList: actions.handleCloseShoppingList,
     handleSave: actions.handleSave,
     handleRecipeClick: actions.handleRecipeClick,
     handleCloseRecipe: actions.handleCloseRecipe,
-    setShowShoppingList: actions.setShowShoppingList,
     
     // Handlers
     handleAddRandomRecipe: handlers.handleAddRandomRecipe,

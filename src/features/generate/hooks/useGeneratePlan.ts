@@ -93,14 +93,22 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     setLockedSlots(prev => ({ ...prev, [key]: false }));
   }, []);
 
+  // Reset plan to empty
+  const handleResetPlan = useCallback(() => {
+    setWeeklyPlan({ mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });
+    setLockedSlots({});
+  }, [setWeeklyPlan, setLockedSlots]);
+
   return {
     weeklyPlan,
-    setWeeklyPlan,
     lockedSlots,
-    setLockedSlots,
     lockSlot,
     unlockSlot,
     handleGenerate,
     handleReplaceRecipe,
+    handleResetPlan,
+    // Internal - for handlers only
+    setWeeklyPlan,
+    setLockedSlots,
   };
 }

@@ -51,7 +51,6 @@ interface GenerateResultsProps {
   onReplace: (dayKey: string, index: number) => void
   onAddRandom: (dayKey: string) => void
   onRecipeClick: (recipe: Recipe) => void
-  setWeeklyPlan?: React.Dispatch<React.SetStateAction<Record<string, Recipe[]>>>
 }
 
 export default function GenerateResults({
@@ -66,10 +65,7 @@ export default function GenerateResults({
   onReplace,
   onAddRandom,
   onRecipeClick,
-  setWeeklyPlan,
 }: GenerateResultsProps) {
-  // Placeholder if not provided (for simple actions)
-  const safeSetWeeklyPlan = setWeeklyPlan || (() => {})
 
   const replaceRecipe = (dayKey: string, index: number) => {
     if (onReplace) {
