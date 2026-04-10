@@ -1,5 +1,4 @@
 'use client';
-import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,82 +9,33 @@ import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-
-
+import { usePlanDetailController } from '@/features/plans';
 
 export default function PlanDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
-  const [plan, setPlan] = useState(null);
-  const [items, setItems] = useState([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [authLoading, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !id) return;
-
-    const fetchPlan = async () => {
-      setDataLoading(true);
-      try {
-        const token = await getAccessToken();
-        const res = await fetch(`/api/user/menus/${id}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        const data = await res.json();
-        
-        if (data.success === false && data.error) {
-          setError(data.error || '載入失敗');
-        } else {
-          setPlan(data.data?.plan || data.plan);
-          setItems(data.data?.items || data.items || []);
-        }
-      } catch (err) {
-        console.error('Failed to load plan:', err);
-        router.push('/my-plans');
-      } finally {
-        setDataLoading(false);
-      }
-    };
-
-    fetchPlan();
-  }, [isAuthenticated, id, router]);
-
-  const startDate = plan?.week_start_date ? new Date(plan.week_start_date) : null;
-  const groupedItems = {};
-  
-  if (Array.isArray(items)) items.forEach((item) => {
-    const itemDate = new Date(item.date);
-    const diffDays = startDate ? Math.floor((itemDate - startDate) / (1000 * 60 * 60 * 24)) : 0;
-    const dayIndex = Math.min(Math.max(diffDays >= 0 ? diffDays : 0), (plan?.days_count || 7) - 1);
-    
-    if (!groupedItems[dayIndex]) groupedItems[dayIndex] = [];
-    groupedItems[dayIndex].push(item);
+  const controller = usePlanDetailController({
+    planId: id,
+    isAuthenticated,
+    getAccessToken
   });
 
-  const recipeIds = [...new Set(items.map(i => i.recipe_id).filter(Boolean))];
-  const avgServings = items.length > 0 
-    ? Math.round(items.reduce((sum, i) => sum + (i.servings || 1), 0) / items.length)
-    : 1;
+  const {
+    plan,
+    items,
+    groupedItems,
+    recipeIds,
+    avgServings,
+    loading: dataLoading,
+    error,
+    selectedRecipeId,
+    handleRecipeClick,
+    handleCloseModal
+  } = controller;
 
-  // Handle recipe card click
-  const handleRecipeClick = (recipeId) => {
-    if (recipeId) {
-      setSelectedRecipeId(recipeId);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setSelectedRecipeId(null);
-  };
-
+  // Auth redirect handled by useAuth hook
   if (authLoading || !isAuthenticated) {
     return (
       <>
@@ -146,7 +96,6 @@ export default function PlanDetailPage() {
         </div>
       </div>
 
-      {/* Recipe Detail Modal */}
       {selectedRecipeId && (
         <RecipeDetailModal
           recipeId={selectedRecipeId}

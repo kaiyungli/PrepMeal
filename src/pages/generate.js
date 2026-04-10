@@ -36,6 +36,7 @@ export default function GeneratePage() {
     saveNotice,
     isSaving,
     handleGenerate,
+    handleOpenShoppingList,
     handleReplaceRecipe,
     handleClearAll,
     handleSave,
