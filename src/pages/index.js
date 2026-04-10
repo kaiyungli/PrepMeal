@@ -54,7 +54,7 @@ export default function Home({ initialRecipes = [] }) {
         onRefreshPlan={handleRefreshPlan}
       />
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => {}} />}
+      {toast && <Toast toast={toast} />}
 
       <HomeFiltersBar
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
