@@ -48,6 +48,8 @@ interface GenerateResultsProps {
   onLock: (dayKey: string, index: number) => void
   onUnlock: (dayKey: string, index: number) => void
   onRemove: (dayKey: string, index: number) => void
+  onReplace?: (dayKey: string, index: number) => void
+  onAddRandom?: (dayKey: string) => void
   onRecipeClick: (recipe: Recipe) => void
   setWeeklyPlan?: React.Dispatch<React.SetStateAction<Record<string, Recipe[]>>>
 }
@@ -61,6 +63,8 @@ export default function GenerateResults({
   onLock,
   onUnlock,
   onRemove,
+  onReplace,
+  onAddRandom,
   onRecipeClick,
   setWeeklyPlan,
 }: GenerateResultsProps) {
@@ -68,7 +72,11 @@ export default function GenerateResults({
   const safeSetWeeklyPlan = setWeeklyPlan || (() => {})
 
   const replaceRecipe = (dayKey: string, index: number) => {
-    const current = weeklyPlan[dayKey]?.[index]
+    if (onReplace) {
+      onReplace(dayKey, index);
+      return;
+    }
+    // Fallback: inline logic
     const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
     if (available.length > 0) {
       const random = available[Math.floor(Math.random() * available.length)]
@@ -80,6 +88,11 @@ export default function GenerateResults({
   }
 
   const addRandomRecipe = (dayKey: string) => {
+    if (onAddRandom) {
+      onAddRandom(dayKey);
+      return;
+    }
+    // Fallback: inline logic
     const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
     if (available.length > 0) {
       const random = available[Math.floor(Math.random() * available.length)]

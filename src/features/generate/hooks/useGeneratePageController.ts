@@ -16,20 +16,16 @@ import {
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { getWeekDates } from '@/utils/dateUtils';
 import { perfNow, perfMeasure } from '@/utils/perf';
+import { recipeMatchesFilters } from '@/constants/filters';
 
 const DAYS = getWeekDates();
-
-interface UseGeneratePageControllerOptions {
-  preferences?: ReturnType<typeof useGeneratePreferences>;
-}
 
 interface WeeklyPlan {
   [dayKey: string]: any[];
 }
 
-interface ScoredRecipe {
-  recipe: any;
-  score: number;
+interface UseGeneratePageControllerOptions {
+  preferences?: ReturnType<typeof useGeneratePreferences>;
 }
 
 export function useGeneratePageController(options: UseGeneratePageControllerOptions = {}) {
@@ -45,6 +41,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     cuisines,
     cookingConstraints,
     budget,
+    filters,
     clearFilters,
   } = preferences;
   
@@ -77,19 +74,33 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
   // Recipe Cache
   const recipeCache = useRef(new Map());
   
-  // Filtered recipes
+  // Filtered recipes with full filtering
   const filteredRecipes = useMemo(() => {
     if (!allRecipes.length) return [];
+    
     return allRecipes.filter((recipe: any) => {
-      if (exclusions.length > 0) {
+      // Negative filter: exclusions
+      if (exclusions && exclusions.length > 0) {
         const proteins = recipe.protein || [];
-        const recipeProteins = [recipe.primary_protein, ...proteins].filter(Boolean);
-        const hasExcluded = recipeProteins.some((p: any) => (exclusions as string[]).includes(p));
-        if (hasExcluded) return false;
+        const allProteins: any[] = [...proteins];
+        if (recipe.primary_protein) allProteins.push(recipe.primary_protein);
+        for (const p of allProteins) {
+          if (p && (exclusions as any).includes(p)) return false;
+        }
       }
+      
+      // Positive filter: recipeMatchesFilters
+      if (filters && Object.keys(filters).length > 0) {
+        try {
+          if (!recipeMatchesFilters(recipe as any, filters as any)) return false;
+        } catch (e) {
+          // Include on error
+        }
+      }
+      
       return true;
     });
-  }, [allRecipes, exclusions]);
+  }, [allRecipes, exclusions, filters]);
   
   // Fetch recipes on mount
   useEffect(() => {
@@ -139,7 +150,7 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     }
   }, []);
   
-  // Preload shopping list when modal opens
+  // Preload shopping list
   useEffect(() => {
     if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
       (async () => {
@@ -193,9 +204,13 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
   }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan]);
   
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
-    const updatedPlan = replaceRecipeInPlan(weeklyPlan, dayKey, index, filteredRecipes);
-    if (updatedPlan) {
-      setWeeklyPlan(updatedPlan);
+    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
+    if (available.length > 0) {
+      const random = available[Math.floor(Math.random() * available.length)];
+      setWeeklyPlan(prev => ({
+        ...prev,
+        [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
+      }));
     }
   }, [weeklyPlan, filteredRecipes]);
   
@@ -268,11 +283,13 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     setSelectedRecipe(null);
   }, []);
   
-  const lockSlot = useCallback((key: string) => {
+  const lockSlot = useCallback((dayKey: string, index: number) => {
+    const key = `${dayKey}-${index}`;
     setLockedSlots(prev => ({ ...prev, [key]: true }));
   }, []);
   
-  const unlockSlot = useCallback((key: string) => {
+  const unlockSlot = useCallback((dayKey: string, index: number) => {
+    const key = `${dayKey}-${index}`;
     setLockedSlots(prev => ({ ...prev, [key]: false }));
   }, []);
   

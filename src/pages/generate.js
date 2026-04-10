@@ -37,7 +37,6 @@ export default function GeneratePage() {
     isSaving,
     handleGenerate,
     handleReplaceRecipe,
-    handleOpenShoppingList,
     handleClearAll,
     handleSave,
     handleRecipeClick,
@@ -46,6 +45,8 @@ export default function GeneratePage() {
     lockSlot,
     unlockSlot,
     removeRecipe,
+    
+    handleAddRandomRecipe,
     setWeeklyPlan,
   } = ctrl;
   
@@ -93,6 +94,8 @@ export default function GeneratePage() {
           onLock={lockSlot}
           onUnlock={unlockSlot}
           onRemove={removeRecipe}
+          onReplace={handleReplaceRecipe}
+          onAddRandom={handleAddRandomRecipe}
           setWeeklyPlan={setWeeklyPlan}
           onRecipeClick={handleRecipeClick}
         />
