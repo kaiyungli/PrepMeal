@@ -65,8 +65,16 @@ export default function Home({ initialRecipes = [] }) {
 
       {showFilters && (
         <RecipeFilters
-          sections={recipeFilterSections}
-          onClear={clearFilters}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          recipeFilterSections={recipeFilterSections}
+          hasFilters={hasFilters}
+          activeFilterCount={activeFilterCount}
+          clearFilters={clearFilters}
         />
       )}
 

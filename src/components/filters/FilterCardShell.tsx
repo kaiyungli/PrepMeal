@@ -115,7 +115,7 @@ export default function FilterCardShell({
 
           {/* Filter chips in grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 max-h-[300px] overflow-y-auto pr-2">
-            {filterSections.map(section => (
+            {(filterSections || []).map(section => (
               <div key={section.id} className="min-w-0 space-y-1.5">
                 <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase sticky top-0 bg-white py-1">
                   {section.title}
