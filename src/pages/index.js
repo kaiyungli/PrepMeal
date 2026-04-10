@@ -14,7 +14,6 @@ import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
-import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 
 
 
@@ -48,7 +47,7 @@ export default function Home({ initialRecipes = [] }) {
 
 
   // Shopping list preview - reuse API flow
-  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError } = useShoppingListPreview(weeklyPlan);
+  
 
   // Filters - stay in index.js
   const { 
@@ -63,7 +62,7 @@ export default function Home({ initialRecipes = [] }) {
   }, [initialRecipes, filterRecipes]);
 
   // Weekly plan controller
-  const { weeklyPlan, handleRefreshPlan } = useHomePageController({ recipesList });
+  const { weeklyPlan, handleRefreshPlan, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList });
 
   
 

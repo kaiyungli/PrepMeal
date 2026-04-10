@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { generateWeeklyPlan } from '@/services/weeklyPlan';
+import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 
 interface UseHomePageControllerOptions {
   recipesList: any[];
@@ -22,8 +23,14 @@ export function useHomePageController({ recipesList = [] }: UseHomePageControlle
     setWeeklyPlan(generateWeeklyPlan(recipesList));
   }, [recipesList]);
 
+  // Shopping list preview
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError } = useShoppingListPreview(weeklyPlan);
+
   return {
     weeklyPlan,
-    handleRefreshPlan
+    handleRefreshPlan,
+    shoppingList,
+    shoppingLoading,
+    shoppingError
   };
 }
