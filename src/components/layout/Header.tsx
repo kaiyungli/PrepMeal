@@ -2,49 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 
 interface HeaderProps {
   showNav?: boolean;
 }
 
-/**
- * Check if current route matches nav item (boundary-safe for nested routes)
- */
-function isActiveRoute(currentPath: string | null, linkPath: string): boolean {
-  if (!currentPath) return false;
-  if (linkPath === '/') return currentPath === '/';
-  // Exact match or nested under /
-  return currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
-}
-
 export default function Header({ showNav = true }: HeaderProps) {
-  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, signOut, isAuthenticated, loading } = useAuth();
-  const [loggingOut, setLoggingOut] = useState(false);
+  const { isAuthenticated, loading, loggingOut, navLinks, isActiveRoute, handleLogout } = useHeaderController();
 
-  const navLinks = [
-    { label: "首頁", path: "/" },
-    { label: "食譜", path: "/recipes" },
-    { label: "生成餐單", path: "/generate" },
-    { label: "收藏", path: "/favorites" },
-    { label: "我的餐單", path: "/my-plans" },
-  ];
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await signOut();
-    } catch (err) {
-      console.error('Logout error:', err);
-    } finally {
-      setLoggingOut(false);
-    }
-  };
-
-  // Generate nav link class based on active state (reusable)
+  // Generate nav link class based on active state
   const getNavLinkClass = (isActive: boolean) => {
     return isActive
       ? "text-sm font-semibold text-[#9B6035] border-b-2 border-[#9B6035] pb-1"
@@ -53,7 +21,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
   // Render a nav link (reusable for desktop and mobile)
   const renderNavLink = (link: { label: string; path: string }, isMobile = false) => {
-    const isActive = isActiveRoute(pathname, link.path);
+    const isActive = isActiveRoute(link.path);
     return (
       <Link
         key={link.path}
