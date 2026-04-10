@@ -10,9 +10,10 @@ import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
+import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
-import { generateWeeklyPlan } from '@/services/weeklyPlan';
+
 import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 
 
@@ -22,7 +23,7 @@ export default function Home({ initialRecipes = [] }) {
   const { toast, showToast } = useToast();
 
   // Weekly plan state - separate from selectedRecipe
-  const [weeklyPlan, setWeeklyPlan] = useState([]);
+  
 
   // Central user state
   const { 
@@ -61,24 +62,17 @@ export default function Home({ initialRecipes = [] }) {
     return filterRecipes(initialRecipes || []);
   }, [initialRecipes, filterRecipes]);
 
-  // Regenerate weekly plan when recipesList changes - AFTER recipesList declared
-  useEffect(() => {
-    if (!recipesList || recipesList.length === 0) {
-      setWeeklyPlan([]);
-    } else {
-      setWeeklyPlan(generateWeeklyPlan(recipesList));
-    }
-  }, [recipesList, generateWeeklyPlan]);
+  // Weekly plan controller
+  const { weeklyPlan, handleRefreshPlan } = useHomePageController({ recipesList });
+
+  
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
     router.push('/generate');
   }, [router]);
 
-  // Regenerate weekly plan - AFTER recipesList declared
-  const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(generateWeeklyPlan(recipesList));
-  }, [recipesList, generateWeeklyPlan]);
+  
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showEmptyState = recipesList.length === 0;
