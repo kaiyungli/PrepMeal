@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { generateWeeklyPlan } from '@/services/weeklyPlan';
 import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 import { useUserState } from '@/hooks/useUserState';
-import { useToast } from '@/components/ui/Toast';
 
 interface UseHomePageControllerOptions {
   recipesList: any[];
+  showToast?: (message: string, type?: string) => void;
 }
 
-export function useHomePageController({ recipesList = [] }: UseHomePageControllerOptions) {
+export function useHomePageController({ recipesList = [], showToast }: UseHomePageControllerOptions) {
   // Weekly plan state
   const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
 
@@ -28,15 +28,13 @@ export function useHomePageController({ recipesList = [] }: UseHomePageControlle
 
   // User state for favorites
   const { isAuthenticated, isFavorite, toggleFavorite } = useUserState();
-  const { showToast } = useToast();
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
     if (!isAuthenticated) {
-      showToast('請先登入以收藏食譜', 'info');
+      if (showToast) showToast('請先登入以收藏食譜', 'info');
       return;
     }
-    console.log('[fav-perf]', performance.now().toFixed(2), 'button_click', recipeId);
     toggleFavorite(recipeId);
   }, [isAuthenticated, toggleFavorite, showToast]);
 

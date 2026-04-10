@@ -30,7 +30,7 @@ export default function Home({ initialRecipes = [] }) {
   }, [initialRecipes, filterRecipes]);
 
   // Controller
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList });
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
