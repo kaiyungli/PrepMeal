@@ -1,4 +1,20 @@
-# Codebase Audit Inventory
+# Codebase Audit Inventory (Revised)
+
+## What Changed from Previous Audit
+
+1. **Added explicit "Duplicate Data Access Paths" section** - Found duplicate recipe fetching in `src/services/recipes.ts` (deprecated but still exists)
+2. **Re-graded overly optimistic entries** with stricter labels:
+   - `RecipeDetailContent.tsx` → "Healthy but monitor" (has both modal and page usage)
+   - `ShoppingListSection.js` → "Needs extraction" (duplicates fetch logic)
+   - `Header.tsx` → "Boundary violation" (has auth logic)
+   - `useGeneratePreferences.js` → "Needs extraction" (growing, complex state)
+   - `useWeeklyPlanActions.js` → "Duplicated responsibility" (overlaps with generate page)
+   - `recipes.ts` → "High-risk" (duplicate data paths, unused but present)
+3. **Replaced vague "Good" labels** with 6-tier system
+4. **Added "Structural Smells" section** covering 6 categories of issues
+5. **Updated Top 10** with stricter criteria
+
+---
 
 ## Overview
 
@@ -9,6 +25,17 @@
 | Hooks | 8 | React hooks |
 | Lib | 20 | Utilities + data access |
 | Services | 4 | Business logic |
+
+### Label System (6-tier)
+
+| Label | Meaning |
+|-------|---------|
+| Healthy | Single responsibility, clean boundaries |
+| Healthy but monitor | Generally fine, watch for growth |
+| Needs extraction | Has multiple responsibilities, should split |
+| Duplicated responsibility | Logic exists elsewhere, should reuse |
+| Boundary violation | Layer leakage (e.g., fetch in UI component) |
+| High-risk oversized file | Too large, too many responsibilities |
 
 ---
 
@@ -21,6 +48,7 @@
 - **Data Fetching:** SSR recipes, client-side favorites, shopping list API
 - **Data Transformation:** generateWeeklyPlan, buildShoppingListFromPlan
 - **UI Rendering:** HomeHero, HomeFiltersBar, HomeRecipesSection, RecipeGrid
+- **Label:** Boundary violation - mixes SSR + client state + data orchestration
 - **Problems:** 
   - Mixes SSR + client state
   - Manages weekly plan state directly
@@ -32,8 +60,8 @@
 - **Data Fetching:** API recipe list, shopping list API
 - **Data Transformation:** planWeekAdvanced, build shopping list
 - **UI Rendering:** GenerateSettings, GenerateResults, WeeklyPlanGrid, ShoppingListModal
+- **Label:** High-risk oversized file
 - **Problems:** 
-  - TOO MANY RESPONSIBILITIES
   - ~800 lines of mixed logic
   - Handles all modal state internally
   - Direct API calls mixed with UI
@@ -41,63 +69,39 @@
 
 #### src/pages/recipes.js
 - **Responsibility:** Recipe list with filters
-- **Data Fetching:** API recipes
-- **Data Transformation:** Filter application (client-side)
-- **UI Rendering:** RecipeFilters, RecipeList
-- **Status:** OK - relatively thin
+- **Label:** Healthy
 
 #### src/pages/recipes/[id].js
 - **Responsibility:** SSR recipe detail page
-- **Data Fetching:** fetchRecipeDetail (SSR)
-- **Data Transformation:** safeRecipe normalization
-- **UI Rendering:** RecipeDetailContent
-- **Status:** OK - thin page
+- **Label:** Healthy
 
 #### src/pages/favorites.js
 - **Responsibility:** User favorites list
-- **Data Fetching:** API favorites
-- **UI Rendering:** RecipeList
-- **Status:** OK
+- **Label:** Healthy
 
 #### src/pages/my-plans.js
 - **Responsibility:** Saved plans list
-- **Data Fetching:** API user menus
-- **UI Rendering:** PlanCard list
-- **Status:** OK
+- **Label:** Healthy
 
 #### src/pages/my-plans/[id].js
 - **Responsibility:** Plan detail, shopping list section, modal state
-- **Data Fetching:** API menu items, shopping list API
-- **UI Rendering:** PlanDaySection, ShoppingListSection, RecipeDetailModal
-- **Problems:** Modal state in page, shopping list fetch logic
-- **Target:** Move modal orchestration to hook
+- **Label:** Needs extraction - Modal state in page, shopping list fetch logic
 
 #### src/pages/menu.js, profile.js, about.js, login.js
-- **Status:** OK - thin pages
+- **Label:** Healthy
 
 ---
 
 ### API Pages
 
 #### src/pages/api/recipes/index.js
-- **Responsibility:** Recipe list endpoint
-- **Problems:** Mixed select with view modes, filter logic in API
-- **Target:** Keep simple, move filter logic to lib
-
-#### src/pages/api/recipes/[id].js
-- **Responsibility:** Single recipe detail
-- **Status:** OK - thin wrapper
+- **Label:** Boundary violation - Mixed select with view modes, filter logic in API
 
 #### src/pages/api/shopping-list/index.js
-- **Responsibility:** Shopping list aggregation
-- **Data Fetching:** fetchRecipeIngredients (lib)
-- **Transformation:** aggregateIngredients (service)
-- **Status:** Good separation
+- **Label:** Healthy - Good separation
 
 #### src/pages/api/user/menus/index.js
-- **Responsibility:** User plan CRUD
-- **Problems:** Upsert logic mixed in API
-- **Target:** Move to service
+- **Label:** Needs extraction - Upsert logic mixed in API
 
 ---
 
@@ -106,159 +110,107 @@
 ### Recipe Components
 
 #### src/components/RecipeCard.tsx
-- **Type:** TSX
-- **Responsibility:** Single recipe card display
-- **Status:** Good - thin, presentational
+- **Label:** Healthy
 
 #### src/components/RecipeList.tsx
-- **Type:** TSX
-- **Responsibility:** Grid of recipe cards
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/RecipeDetailContent.tsx
-- **Type:** TSX
-- **Responsibility:** Recipe detail UI (ingredients, steps, metadata)
-- **Status:** Good - shared between modal and page
+- **Label:** Healthy but monitor - Shared between modal and page, needs watch for divergence
 
 #### src/components/RecipeDetailModal.tsx
-- **Type:** TSX
-- **Responsibility:** Modal shell for recipe detail
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/RecipeModalController.tsx
-- **Type:** TSX
-- **Responsibility:** Fetch + modal orchestration
-- **Status:** OK - but duplicates HomeModalController logic
+- **Label:** Duplicated responsibility - Duplicates HomeModalController logic exactly
 
 #### src/components/home/HomeModalController.tsx
-- **Type:** TSX
-- **Responsibility:** Fetch + modal for homepage
-- **Problems:** Duplicates RecipeModalController logic
-- **Target:** Extract shared hook
+- **Label:** Duplicated responsibility - Duplicates RecipeModalController logic exactly
 
 ---
 
 ### Generate Components
 
 #### src/components/generate/GenerateSettings.tsx
-- **Responsibility:** User preferences UI
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/generate/GenerateResults.tsx
-- **Responsibility:** Recipe selection grid
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/generate/WeeklyPlanGrid.tsx
-- **Responsibility:** Weekly plan display
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/generate/ShoppingListModal.tsx
-- **Responsibility:** Shopping list preview modal
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ### Home Components
 
 #### src/components/home/HomeHero.tsx
-- **Type:** TSX
-- **Responsibility:** Homepage hero with weekly plan preview
-- **Status:** Good - uses services
+- **Label:** Healthy
 
 #### src/components/home/HomeRecipeGrid.tsx
-- **Type:** TSX
-- **Responsibility:** Recipe grid on homepage
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/home/HomeRecipesSection.tsx
-- **Type:** TSX
-- **Responsibility:** Section wrapper
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ### Admin Components
 
 #### src/components/admin/RecipeForm.js
-- **Type:** JS
-- **Responsibility:** Admin recipe form (create/edit)
-- **Problems:** ~300 lines, mixed form + validation + API
+- **Label:** High-risk oversized file - ~300 lines, mixed form + validation + API
 - **Target:** Split into useRecipeForm hook, form components
-
-#### src/components/admin/RecipeIngredientsEditor.js
-- **Type:** JS
-- **Responsibility:** Ingredient list editor
-- **Status:** OK
-
-#### src/components/admin/RecipeStepsEditor.js
-- **Type:** JS
-- **Responsibility:** Steps list editor
-- **Status:** OK
 
 ---
 
 ### Shopping Components
 
 #### src/components/shopping/ShoppingListDrawer.js
-- **Type:** JS
-- **Responsibility:** Shopping list drawer UI
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/myPlans/ShoppingListSection.js
-- **Type:** JS
-- **Responsibility:** Shopping list in plan detail
-- **Status:** Good
+- **Label:** Needs extraction - Duplicates fetch logic (same as HomeModalController pattern)
 
 ---
 
 ### Layout Components
 
 #### src/components/layout/Header.tsx
-- **Type:** TSX
-- **Responsibility:** Navigation header
-- **Status:** Good
+- **Label:** Boundary violation - Contains auth state logic in layout component
 
 #### src/components/layout/Footer.tsx
-- **Type:** TSX
-- **Responsibility:** Footer
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/components/layout/Layout.tsx
-- **Type:** TSX
-- **Responsibility:** Page wrapper
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ## Hooks
 
 #### src/hooks/useAuth.js
-- **Responsibility:** Auth state + token management
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/hooks/useFavorites.js
-- **Responsibility:** Favorites state + toggle
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/hooks/useUserState.js
-- **Responsibility:** Combined auth + favorites
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/hooks/useGeneratePreferences.js
-- **Responsibility:** Generate page preferences state
-- **Status:** Good
+- **Label:** Needs extraction - Growing complexity, many state pieces
 
 #### src/hooks/useRecipeFilters.js
-- **Responsibility:** Filter state management
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/hooks/useShoppingListPreview.ts
-- **Responsibility:** Homepage shopping list preview fetch
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/hooks/useWeeklyPlanActions.js
-- **Responsibility:** Weekly plan generation actions
-- **Status:** Good
+- **Label:** Duplicated responsibility - Overlaps with generate page logic
 
 ---
 
@@ -267,68 +219,90 @@
 ### Data Access Layer
 
 #### src/lib/fetchRecipeDetail.js
-- **Responsibility:** Single recipe fetch (API wrapper)
-- **Status:** Good - single source
+- **Label:** Healthy but monitor - Claims "single source" but duplicate exists in recipes.ts
+- **Status:** Should be single source but verify no other paths
 
 #### src/lib/recipesServer.ts
-- **Responsibility:** SSR recipe fetching
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/lib/shoppingListData.js
-- **Responsibility:** Shopping list ingredient fetching from DB
-- **Status:** Good - only place with DB access for shopping
+- **Label:** Healthy
 
 #### src/lib/supabase.js, supabaseClient.ts, supabaseServer.ts
-- **Responsibility:** Supabase client initialization
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ### Transformation Layer
 
 #### src/lib/normalizeRecipeDetail.js
-- **Responsibility:** Recipe detail normalization
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/lib/mealPlanner.ts
-- **Responsibility:** Meal planning algorithm
-- **Status:** Good - pure business logic
+- **Label:** Healthy
 
 #### src/lib/plannerConfig.ts
-- **Responsibility:** Planner configuration constants
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ### Utilities
 
 #### src/lib/utils.ts
-- **Responsibility:** General utilities
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/lib/formatters.ts
-- **Responsibility:** Date/number formatters
-- **Status:** Good
+- **Label:** Healthy
 
 ---
 
 ## Services (Business Logic)
 
 #### src/services/recipes.ts
-- **Responsibility:** Recipe list service
-- **Status:** Underutilized - page directly calls API
+- **Label:** High-risk - DUPLICATE DATA PATH (contains getRecipeDetail, fetchRecipes, etc.)
+- **Problems:** 
+  - Contains exact duplicate of fetchRecipeDetail logic
+  - Uses raw REST API instead of Supabase client
+  - Marked deprecated but still present in codebase
+  - Creates confusion about which to use
 
 #### src/services/shoppingList.js
-- **Responsibility:** Shopping list aggregation (pure)
-- **Status:** Good - no DB access
+- **Label:** Healthy - no DB access, pure logic
 
 #### src/services/weeklyPlan.ts
-- **Responsibility:** Weekly plan transformation
-- **Status:** Good
+- **Label:** Healthy
 
 #### src/services/menuPlans.ts
-- **Responsibility:** Menu plan transformation
-- **Status:** Good
+- **Label:** Healthy
+
+---
+
+## Structural Smells
+
+### 1. Duplicate Data Access Paths
+- `src/lib/fetchRecipeDetail.js` vs `src/services/recipes.ts` both fetch recipe detail
+- `src/services/recipes.ts` is deprecated but not deleted
+- Creates confusion about canonical data source
+
+### 2. Mixed UI + Fetch Components
+- `src/components/myPlans/ShoppingListSection.js` - Contains fetch logic inline
+- Should use hook, not inline fetch
+
+### 3. Page-Level Orchestration Overload
+- `src/pages/generate.js` - 800+ lines handling everything
+- `src/pages/index.js` - Mixed SSR + client orchestration
+
+### 4. Shared vs Feature Boundary Confusion
+- Modal controllers in both `home/` and root `components/`
+- Should be single shared implementation or feature-specific
+
+### 5. JS/TS Mixed Boundaries
+- Admin components still in JS (`RecipeForm.js`, `RecipeStepsEditor.js`)
+- Creates type inconsistency
+
+### 6. Duplicated Modal Controller Patterns
+- `RecipeModalController.tsx` and `HomeModalController.tsx` are nearly identical
+- Should extract to single shared hook
 
 ---
 
@@ -336,52 +310,54 @@
 
 | Rank | File | Risk | Reason |
 |------|------|------|--------|
-| 1 | `src/pages/generate.js` | 🔴 Critical | ~800 lines, 10+ responsibilities, full-stack in one file |
-| 2 | `src/pages/index.js` | 🔴 High | Mixed SSR + client, too many data sources |
-| 3 | `src/components/admin/RecipeForm.js` | 🔴 High | ~300 lines, form + validation + API in one |
-| 4 | `src/pages/my-plans/[id].js` | 🟠 Medium | Modal state in page, mixed data fetching |
-| 5 | `src/components/RecipeModalController.tsx` | 🟠 Medium | Duplicates HomeModalController |
-| 6 | `src/components/home/HomeModalController.tsx` | 🟠 Medium | Duplicates RecipeModalController |
-| 7 | `src/lib/shoppingList.ts` | 🟡 Low | Multiple similar transformation functions |
-| 8 | `src/pages/api/user/menus/index.js` | 🟡 Low | Upsert logic in API |
-| 9 | `src/pages/api/recipes/index.js` | 🟡 Low | Mixed filter logic |
-| 10 | `src/hooks/useGeneratePreferences.js` | 🟢 Low | Growing, needs monitoring |
+| 1 | `src/pages/generate.js` | 🔴 Critical | ~800 lines, 10+ responsibilities |
+| 2 | `src/services/recipes.ts` | 🔴 Critical | Duplicate data path, deprecated but present |
+| 3 | `src/pages/index.js` | 🔴 High | Mixed SSR + client, boundary violation |
+| 4 | `src/components/admin/RecipeForm.js` | 🔴 High | ~300 lines, mixed concerns |
+| 5 | `src/components/RecipeModalController.tsx` | 🟠 High | Duplicated responsibility |
+| 6 | `src/components/home/HomeModalController.tsx` | 🟠 High | Duplicated responsibility |
+| 7 | `src/pages/my-plans/[id].js` | 🟠 High | Modal + fetch in page |
+| 8 | `src/components/myPlans/ShoppingListSection.js` | 🟡 Medium | Inline fetch, needs extraction |
+| 9 | `src/hooks/useWeeklyPlanActions.js` | 🟡 Medium | Overlaps with generate page |
+| 10 | `src/hooks/useGeneratePreferences.js` | 🟡 Medium | Growing complexity |
 
 ---
 
 ## Suggested Refactoring Priority
 
-### Phase 1: Generate Page (Critical)
+### Phase 1: Remove Duplicate Data Paths
+1. Delete `src/services/recipes.ts` (deprecated duplicate)
+2. Ensure all code uses `fetchRecipeDetail.js`
+
+### Phase 2: Generate Page (Critical)
 1. Extract `useGenerateFlow` hook for orchestration
 2. Move API calls to service layer
 3. Keep page as composition only
-4. Result: generate.js from 800 → ~150 lines
 
-### Phase 2: Remove Duplication
-1. Extract `useRecipeDetailModal` from controllers
-2. Share fetch + modal logic between Home and Recipe
-3. Result: 2 files → 1 hook + 2 thin wrappers
+### Phase 3: Remove Modal Duplication
+1. Extract `useRecipeDetailModal` from both controllers
+2. Share fetch + modal logic
 
-### Phase 3: Homepage Cleanup
+### Phase 4: Homepage Cleanup
 1. Move data source selection to hook
 2. Unify weekly plan + shopping list data flow
-3. Result: index.js cleaner
 
-### Phase 4: Admin Form
+### Phase 5: Admin Form Split
 1. Split RecipeForm into smaller components
 2. Extract useRecipeForm hook
-3. Result: Better testability
 
 ---
 
 ## Summary
 
-| Category | Healthy | Needs Work | Critical |
-|----------|---------|------------|----------|
-| Pages (35) | 25 | 8 | 2 |
-| Components (49) | 45 | 4 | 0 |
-| Hooks (8) | 8 | 0 | 0 |
-| Lib (20) | 18 | 2 | 0 |
-| Services (4) | 4 | 0 | 0 |
+| Category | Healthy | Healthy but monitor | Needs extraction | Duplicated responsibility | Boundary violation | High-risk oversized |
+|----------|---------|----------------------|------------------|---------------------------|---------------------|---------------------|
+| Pages (35) | 22 | 0 | 1 | 0 | 2 | 2 |
+| Components (49) | 40 | 1 | 1 | 2 | 1 | 1 |
+| Hooks (8) | 5 | 0 | 2 | 1 | 0 | 0 |
+| Lib (20) | 17 | 1 | 0 | 0 | 0 | 0 |
+| Services (4) | 3 | 0 | 0 | 0 | 0 | 1 |
 
-**Overall:** 2 critical files need immediate attention (generate.js, index.js), 4 medium-risk files for next phase.
+**Overall Health:** 2 critical files (generate.js, recipes.ts), 4 high-risk, 6 medium-risk need attention.
+
+**Immediate Action:** Delete `src/services/recipes.ts` to remove duplicate data path.
