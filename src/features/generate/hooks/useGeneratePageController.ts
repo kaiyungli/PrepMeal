@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGenerateData } from './useGenerateData';
 import { useGeneratePlan } from './useGeneratePlan';
+import { useGenerateActions } from './useGenerateActions';
 import {
   saveGeneratedPlan,
   fetchGeneratedPlanShoppingList,
@@ -117,6 +118,16 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     cookingConstraints,
     budget: budget || 'medium',
     pantryIngredients
+  });
+  
+  // Actions from useGenerateActions hook
+  const actions = useGenerateActions({
+    weeklyPlan,
+    pantryIngredients,
+    servings,
+    daysPerWeek,
+    isAuthenticated,
+    getAccessToken
   });
   
   // Restore hero plan from session storage
@@ -271,27 +282,27 @@ export function useGeneratePageController(options: UseGeneratePageControllerOpti
     allRecipes,
     loadingRecipes,
     filteredRecipes,
-    selectedRecipe,
-    modalLoading,
+    selectedRecipe: actions.selectedRecipe,
+    modalLoading: actions.modalLoading,
     pantryIngredients,
     hasGenerated,
     weeklyPlan,
     setWeeklyPlan,
     lockedSlots,
-    shoppingList,
-    showShoppingList,
-    shoppingListLoaded,
-    saveNotice,
-    isSaving,
+    shoppingList: actions.shoppingList,
+    showShoppingList: actions.showShoppingList,
+    shoppingListLoaded: actions.shoppingListLoaded,
+    saveNotice: actions.saveNotice,
+    isSaving: actions.isSaving,
     handleGenerate: hookHandleGenerate,
     handleReplaceRecipe: hookHandleReplaceRecipe,
     handleAddRandomRecipe,
-    handleOpenShoppingList,
-    handleClearAll,
-    handleSave,
-    handleRecipeClick,
-    handleCloseRecipe,
-    setShowShoppingList,
+    handleOpenShoppingList: actions.handleOpenShoppingList,
+    handleClearAll: () => { actions.handleClearAll(); clearFilters(); },
+    handleSave: actions.handleSave,
+    handleRecipeClick: actions.handleRecipeClick,
+    handleCloseRecipe: actions.handleCloseRecipe,
+    setShowShoppingList: actions.setShowShoppingList,
     lockSlot: hookLockSlot,
     unlockSlot: hookUnlockSlot,
     removeRecipe,
