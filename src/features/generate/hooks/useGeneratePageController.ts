@@ -56,10 +56,10 @@ export function useGeneratePageController() {
   const handlers = useGenerateHandlers({
     weeklyPlan: plan.weeklyPlan,
     setWeeklyPlan: plan.setWeeklyPlan,
-    setLockedSlots: plan.setLockedSlots,
     filteredRecipes,
     clearFilters,
     actionsClearAll: actions.handleClearAll,
+    handleResetPlan: plan.handleResetPlan,
   });
   
   // Derived state (no setState during render)

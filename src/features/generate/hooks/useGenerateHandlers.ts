@@ -3,19 +3,20 @@ import { useCallback } from 'react';
 interface UseGenerateHandlersOptions {
   weeklyPlan: any;
   setWeeklyPlan: (plan: any) => void;
-  setLockedSlots?: (slots: any) => void;
   filteredRecipes: any[];
   clearFilters: () => void;
   actionsClearAll: () => void;
+  // Semantic action for plan reset (preferred over raw setter)
+  handleResetPlan: () => void;
 }
 
 export function useGenerateHandlers({
   weeklyPlan,
   setWeeklyPlan,
-  setLockedSlots,
   filteredRecipes,
   clearFilters,
   actionsClearAll,
+  handleResetPlan,
 }: UseGenerateHandlersOptions) {
   // Add random recipe to day
   const handleAddRandomRecipe = useCallback((dayKey: string): void => {
@@ -38,13 +39,12 @@ export function useGenerateHandlers({
     });
   }, [setWeeklyPlan]);
 
-  // Clear all - reset plan + clear filters
+  // Clear all - use semantic handleResetPlan instead of raw setters
   const handleClearAll = useCallback((): void => {
     actionsClearAll();
-    setWeeklyPlan({ mon: [], tue: [], wed: [], thu: [], fri: [], sat: [], sun: [] });
-    if (setLockedSlots) setLockedSlots({});
+    handleResetPlan();
     clearFilters();
-  }, [actionsClearAll, setWeeklyPlan, setLockedSlots, clearFilters]);
+  }, [actionsClearAll, handleResetPlan, clearFilters]);
 
   return {
     handleAddRandomRecipe,
