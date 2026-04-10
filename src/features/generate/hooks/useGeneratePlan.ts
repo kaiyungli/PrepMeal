@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { getWeekDates } from '@/utils/dateUtils';
-import { generateWeeklyPlan } from '../index';
+import { generateWeeklyPlan, replaceRecipeInPlan } from '../index';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 
 const DAYS = getWeekDates();
@@ -74,15 +74,11 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     setWeeklyPlan(newPlan);
   }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan]);
 
-  // Replace recipe at slot
+  // Replace recipe at slot (using engine for diversity-based selection)
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
-    const available = filteredRecipes.filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id));
-    if (available.length > 0) {
-      const random = available[Math.floor(Math.random() * available.length)];
-      setWeeklyPlan(prev => ({
-        ...prev,
-        [dayKey]: (prev[dayKey] || []).map((r, i) => i === index ? random : r)
-      }));
+    const updatedPlan = replaceRecipeInPlan(weeklyPlan, dayKey, index, filteredRecipes);
+    if (updatedPlan) {
+      setWeeklyPlan(updatedPlan);
     }
   }, [weeklyPlan, filteredRecipes]);
 
