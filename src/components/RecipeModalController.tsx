@@ -1,20 +1,10 @@
-// RecipeModalController - isolated modal + detail fetch for recipe pages
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 
-// Detail fetch helper - with abort signal support
-import { loadRecipeDetail } from '@/features/recipes';
-
-const fetchRecipeDetail = async (recipeId: string | number, _signal?: AbortSignal) => {
-  const { recipe, error } = await loadRecipeDetail(String(recipeId));
-  
-  if (error || !recipe) {
-    throw new Error(error || 'Recipe not found');
-  }
-  
-  return recipe;
-};
-
+/**
+ * RecipeModalController - Modal orchestration for recipe detail
+ * Uses API endpoint for client-side fetch (not direct DB import)
+ */
 interface RecipeModalControllerProps {
   selectedRecipe: any;
   onClose: () => void;
@@ -24,27 +14,40 @@ interface RecipeModalControllerProps {
 }
 
 /**
- * RecipeModalController - handles modal + detail fetch
- * Used by both homepage and recipes page for consistent behavior
+ * Fetch recipe detail via API (client-safe)
  */
-function RecipeModalController({ selectedRecipe, onClose, isFavorite, favoriteLoading, onFavoriteClick }: RecipeModalControllerProps) {
+const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal) => {
+  const res = await fetch(`/api/recipes/${recipeId}`, { signal });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data?.recipe || null;
+};
+
+function RecipeModalController({ 
+  selectedRecipe, 
+  onClose,
+  isFavorite,
+  favoriteLoading,
+  onFavoriteClick 
+}: RecipeModalControllerProps) {
   const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Fetch full detail when recipe changes
+  // Check if selectedRecipe already has full detail
+  const hasFullDetail =
+    Array.isArray(selectedRecipe?.ingredients) &&
+    Array.isArray(selectedRecipe?.steps);
+
   useEffect(() => {
-    if (!selectedRecipe) {
-      setFullRecipe(null);
-      return;
-    }
+    if (!selectedRecipe) return;
 
-    // Already have full data?
-    const hasFullDetail =
-  Array.isArray(selectedRecipe?.ingredients) &&
-  Array.isArray(selectedRecipe?.steps);
-
-if (hasFullDetail) {
+    // Already have full detail - use directly
+    if (hasFullDetail) {
       setFullRecipe(selectedRecipe);
       return;
     }
@@ -74,16 +77,16 @@ if (hasFullDetail) {
           setLoading(false);
         }
       });
-  }, [selectedRecipe]);
+  }, [selectedRecipe, hasFullDetail]);
 
   const handleClose = useCallback(() => {
-  if (abortRef.current) {
-    abortRef.current.abort();
-  }
-  setLoading(false);
-  setFullRecipe(null);
-  onClose();
-}, [onClose]);
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    setLoading(false);
+    setFullRecipe(null);
+    onClose();
+  }, [onClose]);
 
   const recipe = fullRecipe || selectedRecipe;
 

@@ -4,7 +4,7 @@
  * Single source for normalizing recipe detail data.
  * Transforms raw DB response to API response shape.
  */
-import type { RecipeDetailRow } from '../services/getRecipeDetail';
+import type { RecipeDetailRow, RecipeIngredient } from '../services/getRecipeDetail';
 
 export interface NormalizedRecipe {
   id: string | number;
@@ -39,17 +39,19 @@ export interface NormalizedRecipe {
  * @returns Normalized recipe
  */
 export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe {
-  // Normalize ingredients
-  const normalizedIngredients = (recipe.ingredients || []).map((ing: any) => ({
-    id: ing.id || '',
-    name: ing.name || '',
-    quantity: 1, // Default quantity
-    unit: '',   // Default unit
-    category: ing.shopping_category || 'other'
-  }));
+  // Normalize ingredients - preserve real quantity and unit
+  const normalizedIngredients: NormalizedRecipe['ingredients'] = (recipe.ingredients || []).map(
+    (ing: RecipeIngredient) => ({
+      id: ing.id || '',
+      name: ing.name || '',
+      quantity: ing.quantity || 1,
+      unit: ing.unit || '',
+      category: ing.shopping_category || 'other'
+    })
+  );
 
   // Normalize steps - convert to string array
-  const normalizedSteps = (recipe.steps || []).map((step: any) => 
+  const normalizedSteps = (recipe.steps || []).map((step) => 
     step.text || ''
   ).filter(Boolean);
 

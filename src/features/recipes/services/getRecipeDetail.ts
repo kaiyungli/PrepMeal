@@ -6,6 +6,21 @@
  */
 import { supabase } from '@/lib/supabaseClient';
 
+export interface RecipeIngredient {
+  id: string;
+  name: string;
+  slug: string;
+  shopping_category: string | null;
+  quantity: number;
+  unit: string;
+}
+
+export interface RecipeStep {
+  step_no: number;
+  text: string;
+  time_seconds: number | null;
+}
+
 export interface RecipeDetailRow {
   id: string;
   name: string;
@@ -23,17 +38,8 @@ export interface RecipeDetailRow {
   diet: string[] | null;
   is_complete_meal: boolean;
   created_at: string;
-  ingredients: Array<{
-    id: string;
-    name: string;
-    slug: string;
-    shopping_category: string | null;
-  }>;
-  steps: Array<{
-    step_no: number;
-    text: string;
-    time_seconds: number | null;
-  }>;
+  ingredients: RecipeIngredient[];
+  steps: RecipeStep[];
 }
 
 /**
@@ -65,13 +71,30 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
     throw new Error('Recipe not found');
   }
 
-  // Transform ingredients
-  const ingredients = (ingredientsResult.data || []).map((ri: any) => ({
-    id: ri.ingredients?.id || '',
-    name: ri.ingredients?.name || '',
-    slug: ri.ingredients?.slug || '',
-    shopping_category: ri.ingredients?.shopping_category || null
-  }));
+  // Fetch all units for mapping
+  const unitIds = [...new Set((ingredientsResult.data || []).map((ri: any) => ri.unit_id).filter(Boolean))];
+  let unitsMap = new Map<string, { code: string; name: string }>();
+  
+  if (unitIds.length > 0) {
+    const { data: units } = await supabase
+      .from('units')
+      .select('id, code, name')
+      .in('id', unitIds);
+    unitsMap = new Map((units || []).map(u => [u.id, { code: u.code, name: u.name }]));
+  }
+
+  // Transform ingredients with quantity and unit
+  const ingredients = (ingredientsResult.data || []).map((ri: any) => {
+    const unit = unitsMap.get(ri.unit_id);
+    return {
+      id: ri.ingredients?.id || '',
+      name: ri.ingredients?.name || '',
+      slug: ri.ingredients?.slug || '',
+      shopping_category: ri.ingredients?.shopping_category || null,
+      quantity: ri.quantity || 1,
+      unit: unit?.code || unit?.name || ''
+    };
+  });
 
   // Transform steps
   const steps = (stepsResult.data || []).map((s: any) => ({
