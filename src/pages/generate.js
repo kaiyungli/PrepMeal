@@ -2,7 +2,7 @@
 import { getWeekDates } from '@/utils/dateUtils';
 import { perfNow, perfMeasure } from '@/utils/perf';
 import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
-import { fetchAvailableRecipes, saveGeneratedPlan, buildSavePayload, fetchGeneratedPlanShoppingList } from '@/features/generate';
+import { fetchAvailableRecipes, saveGeneratedPlan, buildSavePayload, fetchGeneratedPlanShoppingList, generateWeeklyPlan, replaceRecipeInPlan } from '@/features/generate';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
@@ -19,7 +19,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/router';
-import { planWeekAdvanced } from '@/lib/mealPlanner';
+
 import { getMaxTimeFromSpeedFilters } from '@/utils/generateTimeMapping';
 
 
@@ -197,6 +197,7 @@ export default function GeneratePage() {
   const handleGenerate = () => {
     const genStart = perfNow();
     // Build locked recipes map
+    // Build locked recipes map
     const lockedRecipes = {};
     Object.entries(lockedSlots).forEach(([key, isLocked]) => {
       if (isLocked && weeklyPlan[key.split('-')[0]]?.[parseInt(key.split('-')[1])]) {
@@ -207,8 +208,8 @@ export default function GeneratePage() {
     const slotRoles = compositionConfig.slotRoles;
 
     const plannerStart = perfNow();
-    // Call the meal planner
-    const newPlan = planWeekAdvanced(filteredRecipes, {
+    // Call the meal planner engine
+    const newPlan = generateWeeklyPlan(filteredRecipes, {
       daysPerWeek,
       dishesPerDay: effectiveDishesPerDay,
       slotRoles,
@@ -232,58 +233,15 @@ export default function GeneratePage() {
   };
 
   const replaceRecipe = (dayKey, index) => {
-    // Get current recipes for this day to use in scoring
-    const currentDayRecipes = weeklyPlan[dayKey] || [];
-    const allRecipes = Object.values(weeklyPlan).flat().filter(r => r);
+    const updatedPlan = replaceRecipeInPlan(
+      weeklyPlan,
+      dayKey,
+      index,
+      filteredRecipes
+    );
     
-    // Score each available recipe using same logic as planner
-    const scored = filteredRecipes
-      .filter(r => !weeklyPlan[dayKey]?.some(pr => pr?.id === r.id))
-      .map(r => {
-        let score = 5; // base score
-        
-        // Repeat penalty - avoid recipes already in plan
-        if (allRecipes.some(pr => pr.id === r.id)) {
-          score -= 100;
-        }
-        
-        // Protein diversity
-        const protein = r.primary_protein || r.protein?.[0];
-        const recentProteins = allRecipes.slice(-3).map(pr => pr.primary_protein || pr.protein?.[0]).filter(Boolean);
-        if (protein && recentProteins.length > 0) {
-          if (!recentProteins.includes(protein)) {
-            score += 2;
-          } else {
-            score -= 1;
-          }
-        }
-        
-        // Method diversity
-        const method = r.method;
-        const recentMethods = allRecipes.slice(-2).map(pr => pr.method).filter(Boolean);
-        if (method && recentMethods.length > 0) {
-          if (!recentMethods.includes(method)) {
-            score += 1;
-          } else {
-            score -= 1;
-          }
-        }
-        
-        return { recipe: r, score };
-      });
-    
-    if (scored.length === 0) return;
-    
-    // Sort by score and pick highest
-    scored.sort((a, b) => b.score - a.score);
-    const selected = scored[0]?.recipe;
-    
-    if (selected) {
-      setWeeklyPlan(prev => {
-        const dayRecipes = [...(prev[dayKey] || [])];
-        dayRecipes[index] = selected;
-        return { ...prev, [dayKey]: dayRecipes };
-      });
+    if (updatedPlan) {
+      setWeeklyPlan(updatedPlan);
     }
   };
 
