@@ -53,24 +53,26 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
   const requestIdRef = useRef(0);
   
   useEffect(() => {
-    // Extract recipe IDs from weeklyPlan
-    const recipeIds: string[] = [];
-    for (const day of weeklyPlan) {
-      if (day.items) {
-        for (const item of day.items) {
-          if (item.recipeId) {
-            recipeIds.push(String(item.recipeId));
+    // Debounce: cancel previous timeout on rapid changes
+    const timeoutId = setTimeout(() => {
+      // Extract recipe IDs from weeklyPlan
+      const recipeIds: string[] = [];
+      for (const day of weeklyPlan) {
+        if (day.items) {
+          for (const item of day.items) {
+            if (item.recipeId) {
+              recipeIds.push(String(item.recipeId));
+            }
           }
         }
       }
-    }
-    
-    // No recipes = no preview
-    if (recipeIds.length === 0) {
-      setPreviewList([]);
-      setError(null);
-      return;
-    }
+      
+      // No recipes = no preview
+      if (recipeIds.length === 0) {
+        setPreviewList([]);
+        setError(null);
+        return;
+      }
     
     async function fetchPreview() {
       // Increment request ID - this request is now "current"
@@ -92,7 +94,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         
         // Check if this is still the current request (not stale)
         if (currentRequestId !== requestIdRef.current) {
-          console.log('[shopping-list-preview] stale response, ignoring');
+          // stale response
           return;
         }
         
@@ -104,7 +106,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         
         // Double-check after await
         if (currentRequestId !== requestIdRef.current) {
-          console.log('[shopping-list-preview] stale response after await, ignoring');
+          // stale response after await
           return;
         }
         
@@ -128,8 +130,10 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
     }
     
     fetchPreview();
+    }, 400); // 400ms debounce
     
-    // Cleanup on effect rerun or unmount - next effect will increment requestId
+    // Cleanup: cancel debounce on unmount or dependency change
+    return () => clearTimeout(timeoutId);
   }, [weeklyPlan]);
   
   return { previewList, isLoading, error };

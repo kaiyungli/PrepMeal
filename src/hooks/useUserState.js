@@ -27,21 +27,34 @@ export function useUserState() {
   // Auth state
   const auth = useAuth();
   
-  // Token for favorites - load when auth is ready
+  // Token for favorites - only set when authenticated + token resolved
   const [token, setToken] = useState(null);
+  const [tokenReady, setTokenReady] = useState(false);
   
   useEffect(() => {
     if (!auth.loading) {
       if (auth.isAuthenticated) {
-        auth.getAccessToken().then(t => setToken(t));
+        auth.getAccessToken().then(t => {
+          setToken(t);
+          setTokenReady(true);
+        });
       } else {
         setToken(null);
+        setTokenReady(false);
       }
     }
   }, [auth.loading, auth.isAuthenticated, auth.getAccessToken]);
   
-  // Favorites state (pass token - hook handles null safely)
-  const fav = useFavorites(token);
+  // Only initialize useFavorites when token is ready (authenticated + token resolved)
+  // This prevents duplicate API calls on initial load
+  const fav = tokenReady && token ? useFavorites(token) : {
+    favorites: [],
+    isFavorite: () => false,
+    toggleFavorite: async () => {},
+    loading: true,
+    error: null,
+    isPending: false
+  };
   
   return {
     // Auth

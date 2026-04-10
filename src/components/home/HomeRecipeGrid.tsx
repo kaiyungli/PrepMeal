@@ -41,11 +41,15 @@ function RecipeGridItem({
 
 // Memoize to prevent re-renders when parent props unchanged
 const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
-  return prev.recipe?.id === next.recipe?.id &&
-    prev.onRecipeClick === next.onRecipeClick &&
-    prev.isFavorite === next.isFavorite &&
-    prev.isPending === next.isPending &&
-    prev.onFavoriteClick === next.onFavoriteClick;
+  // Compare recipe ID
+  if (prev.recipe?.id !== next.recipe?.id) return false;
+  // Compare boolean props directly (they are already evaluated)
+  if (prev.isFavorite !== next.isFavorite) return false;
+  if (prev.isPending !== next.isPending) return false;
+  // Callback function references
+  if (prev.onRecipeClick !== next.onRecipeClick) return false;
+  if (prev.onFavoriteClick !== next.onFavoriteClick) return false;
+  return true;
 });
 
 /**
@@ -59,12 +63,6 @@ function HomeRecipeGrid({
   isPending,
   onFavoriteClick,
 }: HomeRecipeGridProps) {
-  // Dev diagnostics
-  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-    console.log("[HomeRecipeGrid] isFavorite type:", typeof isFavorite);
-    console.log("[HomeRecipeGrid] isPending type:", typeof isPending);
-    console.log("[HomeRecipeGrid] onFavoriteClick type:", typeof onFavoriteClick);
-  }
   const safeRecipes = recipes || [];
   return (
     <div className="grid grid-cols-12 gap-4">
