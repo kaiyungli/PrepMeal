@@ -2,6 +2,7 @@
 import { getWeekDates } from '@/utils/dateUtils';
 import { perfNow, perfMeasure } from '@/utils/perf';
 import { useWeeklyPlanActions } from '@/hooks/useWeeklyPlanActions';
+import { fetchAvailableRecipes, saveGeneratedPlan, buildSavePayload, fetchGeneratedPlanShoppingList } from '@/features/generate';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateResults from '@/components/generate/GenerateResults';
@@ -103,16 +104,10 @@ export default function GeneratePage() {
 
   // Fetch base recipes once on mount (no refetch on filter changes)
   useEffect(() => {
-    const t0 = perfNow();
-    fetch('/api/recipes?limit=200&view=generate')
-      .then(res => res.json())
-      .then(data => {
-        perfMeasure('generate.recipesFetch', t0);
-        const recipes = data.recipes || [];
-        setAllRecipes(recipes);
-      })
+    fetchAvailableRecipes(200)
+      .then(recipes => setAllRecipes(recipes))
       .catch(() => {});
-  }, []); // Empty deps = run once on mount
+  }, []);
   
   // Compute locally filtered recipes from base dataset
   // This runs on every filter change but uses cached allRecipes - no network request
@@ -189,69 +184,8 @@ export default function GeneratePage() {
 
   // Preload shopping list - called after plan generation
   const preloadShoppingList = async (plan) => {
-    const preloadStart = perfNow();
-    
-    // Collect recipe IDs from plan
-    const recipeIds = [];
-    Object.values(plan).forEach(recipes => {
-      if (Array.isArray(recipes)) {
-        recipes.forEach(r => {
-          if (r?.id) recipeIds.push(r.id);
-        });
-      }
-    });
-    
-    // Debug logs
-    console.log('[generate] shoppingList start:', {
-      recipeIdsCount: recipeIds.length,
-      pantryCount: pantryIngredients.length,
-      servings: servings
-    });
-    
-    if (recipeIds.length === 0) {
-      setShoppingList([]);
-      setShoppingListLoaded(true);
-      perfMeasure('generate.preloadShoppingList.total', preloadStart);
-      return;
-    }
-    
     try {
-      const fetchStart = perfNow();
-      const res = await fetch('/api/shopping-list', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipeIds,
-          pantryIngredients,
-          servings
-        })
-      });
-      
-      if (!res.ok) throw new Error('Failed to fetch shopping list');
-      
-      const data = await res.json();
-      perfMeasure('generate.shoppingList.fetch', fetchStart);
-      console.log('[generate] shoppingList response:', {
-        pantryItems: data.pantry?.length || 0,
-        toBuyItems: Object.values(data.toBuy || {}).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
-      });
-      
-      // Convert API response to shopping list format
-      // Handle grouped toBuy format from API
-      const toBuyGroups = data.toBuy || {};
-      const flatToBuy = [];
-      Object.values(toBuyGroups).forEach(items => {
-        if (Array.isArray(items)) {
-          items.forEach(item => {
-            flatToBuy.push({ ...item, inPantry: false });
-          });
-        }
-      });
-      const list = [
-        ...(data.pantry || []).map(p => ({ ...p, inPantry: true })),
-        ...flatToBuy
-      ];
-      
+      const list = await fetchGeneratedPlanShoppingList(plan, pantryIngredients, servings);
       setShoppingList(list);
       setShoppingListLoaded(true);
     } catch (err) {
@@ -430,27 +364,10 @@ export default function GeneratePage() {
             const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
             if (!name) return;
             
-            // Build normalized items from weeklyPlan using explicit day mapping
-            // weeklyPlan structure: { mon: [recipe, recipe], tue: [recipe, recipe], ... }
-            const items = [];
-            Object.keys(weeklyPlan).forEach((dayKey) => {
-              const dayIndex = DAY_INDEX_MAP[dayKey];
-              if (dayIndex === undefined) return; // Skip invalid day keys
-              
-              const dayRecipes = weeklyPlan[dayKey] || [];
-              dayRecipes.forEach((recipe) => {
-                if (recipe && recipe.id) {
-                  items.push({
-                    day_index: dayIndex,
-                    meal_type: 'dinner',
-                    recipe_id: recipe.id,
-                    servings: servings,
-                  });
-                }
-              });
-            });
+            // Build save payload using service
+            const payload = buildSavePayload(weeklyPlan, servings, daysPerWeek);
             
-            if (items.length === 0) {
+            if (payload.items.length === 0) {
               alert('沒有餐單內容可以保存');
               return;
             }
@@ -465,22 +382,9 @@ export default function GeneratePage() {
             
             try {
               setIsSaving(true);
-              const res = await fetch('/api/user/menus', {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  ...(token ? { Authorization: `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({
-                  name,
-                  week_start_date: new Date().toISOString().split('T')[0],
-                  days_count: daysPerWeek,
-                  items,
-                })
-              });
-              const data = await res.json();
-              if (data.success === false && data.error) throw new Error(data.error);
-              setSaveNotice(`✅ 已保存餐單：${name}`);
+              const result = await saveGeneratedPlan(payload, token);
+              if (!result.success) throw new Error(result.error);
+              setSaveNotice(`✅ 已保存餐單：${payload.name}`);
               setTimeout(() => setSaveNotice(''), 3000);
             } catch (e) {
               alert('保存失敗: ' + e.message);
