@@ -37,12 +37,9 @@ export function recommendRecipes(
   minThreshold: number = 0.3
 ): Recommendation[] {
   if (!userIngredients?.length || !recipes?.length) {
-    console.log('[MATCHER] Empty input - userIngredients:', userIngredients?.length, 'recipes:', recipes?.length);
     return [];
   }
 
-  console.log('[MATCHER] Input ingredients:', userIngredients);
-  console.log('[MATCHER] First recipe:', recipes[0]?.name, 'ingredients_list:', recipes[0]?.ingredients_list);
 
   const scored = recipes.map(recipe => {
     // Get recipe ingredients (from API or build from text)

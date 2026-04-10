@@ -6,14 +6,12 @@ import { supabaseServer } from '@/lib/supabaseServer';
  * Only fetches fields that actually exist in the recipes table
  */
 export async function fetchRecipesForServer(limit = 24) {
-  console.log('[SSR] fetchRecipesForServer: starting...');
 
   if (!supabaseServer) {
     console.error('[SSR] ERROR: Supabase server client NOT configured');
     return [];
   }
 
-  console.log('[SSR] Supabase client configured, querying recipes...');
 
   try {
     // Only select fields that exist in recipes table
@@ -49,7 +47,6 @@ export async function fetchRecipesForServer(limit = 24) {
       return [];
     }
 
-    console.log('[SSR] Query successful, count:', data?.length || 0);
 
     if (!data || data.length === 0) {
       return [];
