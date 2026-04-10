@@ -3,15 +3,16 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 
 // Detail fetch helper - lives here, with abort signal support
-const fetchRecipeDetail = async (recipeId: string | number, signal?: AbortSignal) => {
-  const res = await fetch(`/api/recipes/${recipeId}`, { signal });
+import { loadRecipeDetail } from '@/features/recipes';
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
+const fetchRecipeDetail = async (recipeId: string | number, _signal?: AbortSignal) => {
+  const { recipe, error } = await loadRecipeDetail(String(recipeId));
+  
+  if (error || !recipe) {
+    throw new Error(error || 'Recipe not found');
   }
-
-  const data = await res.json();
-  return data?.recipe || null;
+  
+  return recipe;
 };
 
 interface HomeModalControllerProps {
@@ -51,11 +52,10 @@ if (hasFullDetail) {
       abortRef.current.abort();
     }
 
-    const controller = new AbortController();
-    abortRef.current = controller;
+    abortRef.current = new AbortController();
 
     setLoading(true);
-    fetchRecipeDetail(selectedRecipe.id, controller.signal)
+    fetchRecipeDetail(selectedRecipe.id, abortRef.current.signal)
       .then(data => {
         if (data) {
           setFullRecipe({ ...selectedRecipe, ...data });
@@ -66,7 +66,7 @@ if (hasFullDetail) {
   console.error('[HomeModalController] fetch detail failed:', err);
 })
       .finally(() => {
-  if (!controller.signal.aborted) {
+  if (!abortRef.current?.signal.aborted) {
     setLoading(false);
   }
 });

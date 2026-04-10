@@ -1,34 +1,31 @@
-import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
-import { perfNow, perfMeasure } from '@/utils/perf';
-
 /**
- * Single Recipe Detail API
- * Returns: { recipe: {...} }
+ * API: Recipe Detail
+ * 
+ * Single endpoint for recipe detail.
+ * Uses unified recipe service.
  */
+import { loadRecipeDetail } from '@/features/recipes';
+
 export default async function handler(req, res) {
-  const handlerStart = perfNow();
-  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600')
-  
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const { id } = req.query
+    const { id } = req.query;
     
     if (!id) {
-      return res.status(400).json({ error: 'Recipe ID is required' })
+      return res.status(400).json({ error: 'Recipe ID is required' });
     }
 
-    const fetchStart = perfNow();
-    const { recipe, error } = await fetchRecipeDetail(id);
-    perfMeasure('api.recipeDetail.fetch', fetchStart);
-    
+    const { recipe, error } = await loadRecipeDetail(id);
+
     if (error || !recipe) {
-      return res.status(404).json({ error: 'Recipe not found' });
+      return res.status(404).json({ error: error || 'Recipe not found' });
     }
-    
-    res.status(200).json({ recipe });
-    perfMeasure('api.recipeDetail.total', handlerStart);
-    
-  } catch (error) {
-    console.error('Recipe API error:', error)
-    res.status(500).json({ error: error.message })
+
+    return res.status(200).json({ recipe });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Internal error' });
   }
 }

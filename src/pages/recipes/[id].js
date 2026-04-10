@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
-import { fetchRecipeDetail } from '@/lib/fetchRecipeDetail';
+import { loadRecipeDetail } from '@/features/recipes';
 
 /**
  * Recipe Detail Page - dumb shell only
@@ -61,7 +61,7 @@ export default function RecipeDetail({ recipe, error }) {
 // Use shared loader
 export async function getServerSideProps({ params }) {
   
-  const { recipe, error } = await fetchRecipeDetail(params.id);
+  const { recipe, error } = await loadRecipeDetail(params.id);
   
   
   return {
