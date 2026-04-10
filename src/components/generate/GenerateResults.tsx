@@ -33,7 +33,7 @@ interface Recipe {
  *   onRecipeClick: (recipe) => void        - show recipe detail
  * 
  * RAW SETTER PROPS (should be action callbacks instead):
- *   setWeeklyPlan?: Function                 - raw setState (optional)
+
  * 
  * INLINE LOGIC (still in component):
  *   - addRandomRecipe (line ~67)
