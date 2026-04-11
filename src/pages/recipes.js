@@ -78,7 +78,7 @@ export default function RecipesPage({ initialRecipes }) {
       <Head><title>食譜 - 今晚食乜</title></Head>
 
       <div className="min-h-screen bg-[#F8F3E8] py-8">
-        <div className="max-w-[1200px] mx-auto px-4 w-full">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 w-full">
           <div className="w-full">
             <RecipeFilters
             searchQuery={searchQuery}
