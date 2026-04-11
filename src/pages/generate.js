@@ -69,27 +69,31 @@ export default function GeneratePage() {
         </section>
 
         <div className="max-w-[1200px] mx-auto px-4">
-          <GenerateSettings 
-          daysPerWeek={prefs.daysPerWeek} setDaysPerWeek={prefs.setDaysPerWeek}
-          dailyComposition={prefs.dailyComposition} setDailyComposition={prefs.setDailyComposition}
-          allowCompleteMeal={prefs.allowCompleteMeal} setAllowCompleteMeal={prefs.setAllowCompleteMeal}
-          servings={prefs.servings} setServings={prefs.setServings}
-          filters={prefs.filters}
-          setFilters={prefs.setFilters}
-          onClearAll={handleClearAll}
-        />
+          <GenerateSettings
+            daysPerWeek={prefs.daysPerWeek}
+            setDaysPerWeek={prefs.setDaysPerWeek}
+            dailyComposition={prefs.dailyComposition}
+            setDailyComposition={prefs.setDailyComposition}
+            allowCompleteMeal={prefs.allowCompleteMeal}
+            setAllowCompleteMeal={prefs.setAllowCompleteMeal}
+            servings={prefs.servings}
+            setServings={prefs.setServings}
+            filters={prefs.filters}
+            setFilters={prefs.setFilters}
+            onClearAll={handleClearAll}
+          />
 
-        <GenerateActions 
-          isSaving={isSaving}
-          selectedCount={selectedCount}
-          hasRecipes={hasRecipes}
-          onClear={handleClearAll}
-          onShoppingList={handleOpenShoppingList}
-          onGenerate={handleGenerate}
-          onSave={handleSave}
-        />
+          <GenerateActions
+            isSaving={isSaving}
+            selectedCount={selectedCount}
+            hasRecipes={hasRecipes}
+            onClear={handleClearAll}
+            onShoppingList={handleOpenShoppingList}
+            onGenerate={handleGenerate}
+            onSave={handleSave}
+          />
 
-        <GenerateResults
+          <GenerateResults
           weeklyPlan={weeklyPlan}
           lockedSlots={lockedSlots}
           daysPerWeek={daysPerWeek}
