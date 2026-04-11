@@ -91,9 +91,8 @@ export default function GenerateSettings({
 
   return (
     <div className="p-4">
-      <div className="max-w-[1200px] mx-auto">
-        {/* Planning Controls - embedded in header */}
-        <div className="bg-[#F8F3E8] rounded-t-xl border border-b-0 border-[#E5DCC8] px-4 py-3 mb-[-1px]">
+      {/* Planning Controls - embedded in header */}
+      <div className="bg-[#F8F3E8] rounded-t-xl border border-b-0 border-[#E5DCC8] px-4 py-3 mb-[-1px]">
           {/* Grouped controls - 3-column grid */}
           <div className="grid grid-cols-3 gap-6">
             {/* Group 1: 每週 */}
@@ -180,7 +179,6 @@ export default function GenerateSettings({
           onClear={onClearAll}
           clearLabel="重設所有設定"
         />
-      </div>
     </div>
   );
 }
