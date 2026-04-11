@@ -48,50 +48,60 @@ export default function Home({ initialRecipes = [] }) {
       </Head>
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-8 lg:px-10">
-        <HomeHero 
-          onPrimaryAction={handlePrimaryAction} 
-          weeklyPlan={weeklyPlan} 
-          shoppingList={shoppingList} shoppingLoading={shoppingLoading} shoppingError={shoppingError} 
+        <HomeHero
+          onPrimaryAction={handlePrimaryAction}
+          weeklyPlan={weeklyPlan}
+          shoppingList={shoppingList}
+          shoppingLoading={shoppingLoading}
+          shoppingError={shoppingError}
           onRefreshPlan={handleRefreshPlan}
         />
 
         {toast && <Toast toast={toast} />}
 
         <HomeFiltersBar
-        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-        sortBy={sortBy} setSortBy={setSortBy}
-        showFilters={showFilters} setShowFilters={setShowFilters}
-        activeFilterCount={activeFilterCount}
-      />
-
-      {showFilters && (
-        <RecipeFilters
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           sortBy={sortBy}
           setSortBy={setSortBy}
           showFilters={showFilters}
           setShowFilters={setShowFilters}
-          recipeFilterSections={recipeFilterSections}
-          hasFilters={hasFilters}
           activeFilterCount={activeFilterCount}
-          clearFilters={clearFilters}
         />
-      )}
 
-      {showEmptyState ? (
-        <div className="text-center py-20">
-          <p className="text-[var(--color-text-muted)]">未找到相符既食譜</p>
-          {hasFilters && <button onClick={clearFilters} className="mt-4 text-[var(--color-primary)]">清除篩選</button>}
-        </div>
-      ) : (
-        <HomeRecipesSection 
-          recipes={recipesList} 
-          isFavorite={isFavorite} 
-          onFavoriteClick={handleFavoriteToggle}
-          onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
-        />
-      )}
+        {showFilters && (
+          <RecipeFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            showFilters={showFilters}
+            setShowFilters={setShowFilters}
+            recipeFilterSections={recipeFilterSections}
+            hasFilters={hasFilters}
+            activeFilterCount={activeFilterCount}
+            clearFilters={clearFilters}
+          />
+        )}
+
+        {showEmptyState ? (
+          <div className="text-center py-20">
+            <p className="text-[var(--color-text-muted)]">未找到相符既食譜</p>
+            {hasFilters && (
+              <button onClick={clearFilters} className="mt-4 text-[var(--color-primary)]">
+                清除篩選
+              </button>
+            )}
+          </div>
+        ) : (
+          <HomeRecipesSection
+            recipes={recipesList}
+            isFavorite={isFavorite}
+            onFavoriteClick={handleFavoriteToggle}
+            onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
+          />
+        )}
+      </div>
     </Layout>
   );
 }
