@@ -23,7 +23,6 @@ export default function GeneratePage() {
   const {
     preferences: prefs,
     daysPerWeek,
-    servings,
     effectiveDishesPerDay,
     filteredRecipes,
     weeklyPlan,
@@ -106,6 +105,8 @@ export default function GeneratePage() {
             onRecipeClick={handleRecipeClick}
           />
         
+        </div>
+
         <ShoppingListModal 
           isOpen={showShoppingList} 
           onClose={handleCloseShoppingList}
@@ -120,8 +121,6 @@ export default function GeneratePage() {
           loading={modalLoading}
         />
 
-        </div>
-        
         <Footer />
         
         {saveNotice && (
