@@ -68,7 +68,8 @@ export default function GeneratePage() {
           </p>
         </section>
 
-        <GenerateSettings 
+        <div className="max-w-[1200px] mx-auto px-4">
+          <GenerateSettings 
           daysPerWeek={prefs.daysPerWeek} setDaysPerWeek={prefs.setDaysPerWeek}
           dailyComposition={prefs.dailyComposition} setDailyComposition={prefs.setDailyComposition}
           allowCompleteMeal={prefs.allowCompleteMeal} setAllowCompleteMeal={prefs.setAllowCompleteMeal}
@@ -116,6 +117,8 @@ export default function GeneratePage() {
           loading={modalLoading}
         />
 
+        </div>
+        
         <Footer />
         
         {saveNotice && (

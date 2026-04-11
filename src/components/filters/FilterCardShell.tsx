@@ -55,9 +55,8 @@ export default function FilterCardShell({
   const expandText = showFilters ? '▲ 收起' : '▼ 展開';
 
   return (
-    <div className="max-w-[1200px] mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
-        {/* 1. Search Bar - Primary layer */}
+    <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
+      {/* 1. Search Bar - Primary layer */}
       {onSearchChange && (
         <div className="relative px-4 py-4">
           <svg 
@@ -165,7 +164,6 @@ export default function FilterCardShell({
           )}
         </div>
       )}
-      </div>
     </div>
   );
 }
