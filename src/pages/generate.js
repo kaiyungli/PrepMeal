@@ -50,7 +50,6 @@ export default function GeneratePage() {
     removeRecipe,
     
     handleAddRandomRecipe,
-    handleResetPlan,
   } = ctrl;
   
   return (
@@ -94,18 +93,18 @@ export default function GeneratePage() {
           />
 
           <GenerateResults
-          weeklyPlan={weeklyPlan}
-          lockedSlots={lockedSlots}
-          daysPerWeek={daysPerWeek}
-          dishesPerDay={effectiveDishesPerDay}
-          filteredRecipes={filteredRecipes}
-          onLock={lockSlot}
-          onUnlock={unlockSlot}
-          onRemove={removeRecipe}
-          onReplace={handleReplaceRecipe}
-          onAddRandom={handleAddRandomRecipe}
-          onRecipeClick={handleRecipeClick}
-        />
+            weeklyPlan={weeklyPlan}
+            lockedSlots={lockedSlots}
+            daysPerWeek={daysPerWeek}
+            dishesPerDay={effectiveDishesPerDay}
+            filteredRecipes={filteredRecipes}
+            onLock={lockSlot}
+            onUnlock={unlockSlot}
+            onRemove={removeRecipe}
+            onReplace={handleReplaceRecipe}
+            onAddRandom={handleAddRandomRecipe}
+            onRecipeClick={handleRecipeClick}
+          />
         
         <ShoppingListModal 
           isOpen={showShoppingList} 
