@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Toast from '@/components/ui/Toast';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +11,7 @@ import { UI } from '@/styles/ui';
 import PlanCard from '@/components/myPlans/PlanCard';
 
 export default function MyPlansPage() {
+  const headerCtrl = useHeaderController();
   // Use centralized auth guard - includes getAccessToken
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth } = useAuthGuard();
   const [plans, setPlans] = useState([]);
@@ -73,7 +75,7 @@ export default function MyPlansPage() {
   if (authLoading || !isAuthenticated) {
     return (
       <>
-        <Header />
+        <Header {...headerCtrl} />
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
@@ -83,7 +85,7 @@ export default function MyPlansPage() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       
       <Head><title>我的餐單 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">

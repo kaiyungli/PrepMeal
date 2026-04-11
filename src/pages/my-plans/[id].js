@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useAuth } from '@/hooks/useAuth';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
@@ -12,6 +13,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { usePlanDetailController } from '@/features/plans';
 
 export default function PlanDetailPage() {
+  const headerCtrl = useHeaderController();
   const router = useRouter();
   const { id } = router.query;
   const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
@@ -39,7 +41,7 @@ export default function PlanDetailPage() {
   if (authLoading || !isAuthenticated) {
     return (
       <>
-        <Header />
+        <Header {...headerCtrl} />
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[var(--color-text-muted)]">載入中...</p>
         </div>
@@ -49,7 +51,7 @@ export default function PlanDetailPage() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>{plan?.name || '餐單詳情'} - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[800px] mx-auto px-4">

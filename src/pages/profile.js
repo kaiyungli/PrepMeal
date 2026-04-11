@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 import { Button, Input } from '@/components';
 import supabase from '@/lib/supabase';
@@ -24,6 +25,7 @@ const colors = {
 };
 
 export default function ProfilePage() {
+  const headerCtrl = useHeaderController();
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>個人資料 - 今晚食乜</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}{/* Profile */}

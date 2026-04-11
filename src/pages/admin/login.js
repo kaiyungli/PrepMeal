@@ -4,9 +4,11 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 
 export default function AdminLogin() {
+  const headerCtrl = useHeaderController();
   const router = useRouter();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -40,7 +42,7 @@ export default function AdminLogin() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head>
         <title>Admin Login - 今晚食乜</title>
       </Head>

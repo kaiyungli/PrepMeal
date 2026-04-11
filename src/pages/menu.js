@@ -4,6 +4,7 @@ import Link from 'next/link';
 import supabase from '@/lib/supabase';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
@@ -173,7 +174,7 @@ export default function MenuPage({ cuisine, time, difficulty, servings, mealsPer
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}><div style={{ background: colors.brown, padding: '24px 40px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', borderRadius: '12px', padding: '20px' }}>

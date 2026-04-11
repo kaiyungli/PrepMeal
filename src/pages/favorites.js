@@ -2,11 +2,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useUserState, getFavoriteRecipes } from '@/hooks/useUserState';
 
 export default function FavoritesPage() {
+  const headerCtrl = useHeaderController();
   // Protected page - useAuthGuard handles redirect to login
   const { loading: authLoading } = useAuthGuard();
 
@@ -58,7 +60,7 @@ export default function FavoritesPage() {
   if (authLoading || !isAuthenticated) {
     return (
       <>
-        <Header />
+        <Header {...headerCtrl} />
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
           <p className="text-[#AA7A50]">載入中...</p>
         </div>
@@ -68,7 +70,7 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
 
       <Head><title>我的收藏 - 今晚食乜</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">

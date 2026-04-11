@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { Button } from '@/components';
 import supabase from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,6 +26,7 @@ const colors = {
 };
 
 export default function LoginPage() {
+  const headerCtrl = useHeaderController();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -124,7 +126,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>登入 - 今晚食乜</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}

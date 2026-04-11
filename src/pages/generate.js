@@ -4,6 +4,7 @@ import { useGeneratePageController } from '@/features/generate';
 
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 
 import GenerateSettings from '@/components/generate/GenerateSettings';
@@ -15,6 +16,7 @@ import ShoppingListModal from '@/components/generate/ShoppingListModal';
 import { UI } from '@/styles/ui';
 
 export default function GeneratePage() {
+  const headerCtrl = useHeaderController();
   const preferences = useGeneratePreferences();
   const ctrl = useGeneratePageController({ preferences });
   
@@ -53,7 +55,7 @@ export default function GeneratePage() {
   
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div className="min-h-screen bg-[#F8F3E8]">
         

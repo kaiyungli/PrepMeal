@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 
 const colors = {
@@ -20,9 +21,10 @@ const colors = {
 };
 
 export default function AboutPage() {
+  const headerCtrl = useHeaderController();
   return (
     <>
-      <Header />
+      <Header {...headerCtrl} />
       <Head><title>今晚食乜 - 關於我們</title></Head>
       <div style={{ minHeight: '100vh', background: colors.cream, fontFamily: 'Inter, sans-serif' }}>
         {/* Header */}{/* Hero */}
