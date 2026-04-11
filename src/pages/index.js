@@ -47,16 +47,17 @@ export default function Home({ initialRecipes = [] }) {
         <meta name="description" content="搜尋食譜、生成一週餐單、自動購物清單" />
       </Head>
 
-      <HomeHero 
-        onPrimaryAction={handlePrimaryAction} 
-        weeklyPlan={weeklyPlan} 
-        shoppingList={shoppingList} shoppingLoading={shoppingLoading} shoppingError={shoppingError} 
-        onRefreshPlan={handleRefreshPlan}
-      />
+      <div className="max-w-[1100px] mx-auto px-6 md:px-8 lg:px-10">
+        <HomeHero 
+          onPrimaryAction={handlePrimaryAction} 
+          weeklyPlan={weeklyPlan} 
+          shoppingList={shoppingList} shoppingLoading={shoppingLoading} shoppingError={shoppingError} 
+          onRefreshPlan={handleRefreshPlan}
+        />
 
-      {toast && <Toast toast={toast} />}
+        {toast && <Toast toast={toast} />}
 
-      <HomeFiltersBar
+        <HomeFiltersBar
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
         sortBy={sortBy} setSortBy={setSortBy}
         showFilters={showFilters} setShowFilters={setShowFilters}
