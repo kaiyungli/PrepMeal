@@ -54,10 +54,6 @@ export function useRecipeFilters() {
 
   // Filter recipes function - memoized for stability
   const filterRecipes = useCallback((recipes) => {
-    if (!hasFilters && !searchQuery) {
-      return recipes;
-    }
-    
     let filtered = [...recipes];
     
     // Apply search
@@ -76,14 +72,20 @@ export function useRecipeFilters() {
     
     // Apply sorting
     filtered.sort((a, b) => {
-      if (sortBy === 'newest' || sortBy === 'oldest') {
+      if (sortBy === 'newest') {
         const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
         const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
-        return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
-      } else if (sortBy === 'name') {
-        return (a.name || '').localeCompare(b.name || '');
+        return dateB - dateA;
       } else if (sortBy === 'popular') {
         return (b.times_shown || b.timesShown || 0) - (a.times_shown || a.timesShown || 0);
+      } else if (sortBy === 'time_short') {
+        return (a.total_time_minutes || a.totalTimeMinutes || 999) - (b.total_time_minutes || b.totalTimeMinutes || 999);
+      } else if (sortBy === 'calories_low') {
+        return (a.calories_per_serving || a.caloriesPerServing || 999) - (b.calories_per_serving || b.caloriesPerServing || 999);
+      } else if (sortBy === 'protein_high') {
+        return (b.protein_g || b.proteinG || 0) - (a.protein_g || a.proteinG || 0);
+      } else if (sortBy === 'name') {
+        return (a.name || '').localeCompare(b.name || '');
       }
       return 0;
     });

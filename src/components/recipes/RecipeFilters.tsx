@@ -35,7 +35,7 @@ export default function RecipeFilters({
         filterSections={recipeFilterSections}
         activeFilterCount={activeFilterCount}
         onClear={clearFilters}
-        defaultExpanded={showFilters}
+        isExpanded={showFilters} onToggleExpand={() => setShowFilters(!showFilters)}
         headerContent={
           <select
             value={sortBy}
@@ -44,6 +44,7 @@ export default function RecipeFilters({
             className="ml-4 px-2 py-1 rounded border border-[#DDD0B0] text-xs bg-white"
           >
             <option value="newest">最新</option>
+            <option value="oldest">最舊</option>
             <option value="popular">最受歡迎</option>
             <option value="time_short">最快</option>
             <option value="calories_low">卡路里低到高</option>
