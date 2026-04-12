@@ -74,8 +74,22 @@ export function useRecipeFilters() {
       filtered = filtered.filter(recipe => recipeMatchesFilters(recipe, filters));
     }
     
+    // Apply sorting
+    filtered.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return (b.created_at || b.createdAt || 0) - (a.created_at || a.createdAt || 0);
+      } else if (sortBy === 'oldest') {
+        return (a.created_at || a.createdAt || 0) - (b.created_at || b.createdAt || 0);
+      } else if (sortBy === 'name') {
+        return (a.name || '').localeCompare(b.name || '');
+      } else if (sortBy === 'popular') {
+        return (b.times_shown || b.timesShown || 0) - (a.times_shown || a.timesShown || 0);
+      }
+      return 0;
+    });
+    
     return filtered;
-  }, [hasFilters, searchQuery, filters]);
+  }, [hasFilters, searchQuery, filters, sortBy]);
 
   return {
     // State
