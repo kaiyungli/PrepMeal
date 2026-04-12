@@ -76,8 +76,8 @@ export default function FilterCardShell({
         <span className="text-[#9B6035] text-sm">{expandText}</span>
       </div>
 
-      {/* 2. Search bar - below header */}
-      {onSearchChange && (
+      {/* 2. Search bar + Filter body - hidden when collapsed */}
+      {showFilters && onSearchChange && (
         <div className="relative px-6 py-4 border-b border-[#F5EDE3]">
           <svg 
             className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 

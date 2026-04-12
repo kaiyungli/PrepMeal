@@ -59,6 +59,7 @@ export default function Home({ initialRecipes = [] }) {
         {toast && <Toast toast={toast} />}
 
         {showFilters && (
+          <div className="mt-8">
           <RecipeFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -71,6 +72,7 @@ export default function Home({ initialRecipes = [] }) {
             activeFilterCount={activeFilterCount}
             clearFilters={clearFilters}
           />
+          </div>
         )}
 
         {showEmptyState ? (
