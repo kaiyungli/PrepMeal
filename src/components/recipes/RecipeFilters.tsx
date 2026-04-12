@@ -8,7 +8,6 @@ interface RecipeFiltersProps {
   showFilters: boolean;
   setShowFilters: (v: boolean) => void;
   recipeFilterSections: FilterSectionConfig[];
-  hasFilters: boolean;
   activeFilterCount: number;
   clearFilters: () => void;
 }
@@ -21,7 +20,7 @@ export default function RecipeFilters({
   showFilters,
   setShowFilters,
   recipeFilterSections,
-  hasFilters,
+
   activeFilterCount,
   clearFilters,
 }: RecipeFiltersProps) {

@@ -58,8 +58,7 @@ export default function Home({ initialRecipes = [] }) {
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
         {toast && <Toast toast={toast} />}
 
-        {showFilters && (
-          <div className="mt-8">
+        <div className="mt-8">
           <RecipeFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -68,12 +67,10 @@ export default function Home({ initialRecipes = [] }) {
             showFilters={showFilters}
             setShowFilters={setShowFilters}
             recipeFilterSections={recipeFilterSections}
-            hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}
             clearFilters={clearFilters}
           />
-          </div>
-        )}
+        </div>
 
         {showEmptyState ? (
           <div className="text-center py-20">
