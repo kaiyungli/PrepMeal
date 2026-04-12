@@ -58,16 +58,6 @@ export default function Home({ initialRecipes = [] }) {
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
         {toast && <Toast toast={toast} />}
 
-        <div className="mt-8">
-          <HomeFiltersBar
-          setSearchQuery={setSearchQuery}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          activeFilterCount={activeFilterCount}
-        />
-
         {showFilters && (
           <RecipeFilters
             searchQuery={searchQuery}
