@@ -76,6 +76,10 @@ export function useRecipeFilters() {
         const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
         const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
         return dateB - dateA;
+      } else if (sortBy === 'oldest') {
+        const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
+        const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
+        return dateA - dateB;
       } else if (sortBy === 'popular') {
         return (b.times_shown || b.timesShown || 0) - (a.times_shown || a.timesShown || 0);
       } else if (sortBy === 'time_short') {
