@@ -102,7 +102,8 @@ export default function Home({ initialRecipes = [] }) {
           />
         )}
       </div>
-    </Layout>
+    </div>
+  </Layout>
   );
 }
 
