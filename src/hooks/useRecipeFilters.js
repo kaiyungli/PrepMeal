@@ -28,7 +28,7 @@ export function useRecipeFilters() {
       const newValues = current.includes(value)
         ? current.filter(v => v !== value)
         : [...current, value];
-      setFilters({ ...filters, [groupKey]: newValues });
+      setFilters(prev => ({ ...prev, [groupKey]: newValues }));
     }
   ), [filters]);
 
@@ -40,7 +40,7 @@ export function useRecipeFilters() {
   );
 
   const clearFilters = () => {
-    setFilters({
+    setFilters(prev => ({
       cuisine: [],
       dish_type: [],
       protein: [],
@@ -49,7 +49,7 @@ export function useRecipeFilters() {
       difficulty: [],
       diet: [],
       flavor: [],
-    });
+    }));
   };
 
   // Filter recipes function - memoized for stability
