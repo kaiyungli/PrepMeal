@@ -46,7 +46,7 @@ export default function HomeRecipesSection({
 
   return (
     <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
-      <div className="max-w-[1200px] mx-auto px-4">
+      <div>
         <HomeRecipeGrid
           recipes={recipes}
           onRecipeClick={handleRecipeClick}
