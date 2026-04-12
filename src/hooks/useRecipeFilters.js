@@ -76,10 +76,10 @@ export function useRecipeFilters() {
     
     // Apply sorting
     filtered.sort((a, b) => {
-      if (sortBy === 'newest') {
-        return (b.created_at || b.createdAt || 0) - (a.created_at || a.createdAt || 0);
-      } else if (sortBy === 'oldest') {
-        return (a.created_at || a.createdAt || 0) - (b.created_at || b.createdAt || 0);
+      if (sortBy === 'newest' || sortBy === 'oldest') {
+        const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
+        const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
+        return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
       } else if (sortBy === 'name') {
         return (a.name || '').localeCompare(b.name || '');
       } else if (sortBy === 'popular') {
