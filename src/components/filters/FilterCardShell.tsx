@@ -58,7 +58,7 @@ export default function FilterCardShell({
     <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
       {/* 1. Search Bar - Primary layer */}
       {onSearchChange && (
-        <div className="relative px-4 py-4">
+        <div className="relative px-6 py-5">
           <svg 
             className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 
             fill="none" 
