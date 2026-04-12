@@ -5,7 +5,6 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
-import HomeFiltersBar from '@/components/home/HomeFiltersBar';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
