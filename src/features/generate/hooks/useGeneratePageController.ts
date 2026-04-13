@@ -2,7 +2,7 @@
  * useGeneratePageController - Main orchestration hook for Generate page
  * Composes: useGenerateData + useFilteredRecipes + useGeneratePlan + useGenerateHandlers + useGenerateActions
  */
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGenerateData } from './useGenerateData';
@@ -61,6 +61,12 @@ export function useGeneratePageController() {
     actionsClearAll: actions.handleClearAll,
     handleResetPlan: plan.handleResetPlan,
   });
+  
+  // Filter accordion state
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const handleToggleFilterExpanded = useCallback(() => {
+    setIsFilterExpanded(prev => !prev);
+  }, []);
   
   // Derived state (no setState during render)
   const hasRecipes = useMemo(() => 
