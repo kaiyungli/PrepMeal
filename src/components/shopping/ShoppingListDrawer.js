@@ -80,7 +80,7 @@ export default function ShoppingListDrawer({
                 {items.map((item, idx) => (
                   <div key={idx} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {item.unit}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {formatUnit(item.unit)}</span>
                   </div>
                 ))}
               </div>
@@ -122,7 +122,7 @@ export default function ShoppingListDrawer({
                 {recipe.toBuy.map((item, i) => (
                   <div key={i} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {item.unit}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {formatUnit(item.unit)}</span>
                   </div>
                 ))}
               </div>

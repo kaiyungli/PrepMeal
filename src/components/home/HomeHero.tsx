@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatUnit } from '@/lib/formatters'
 import { useRouter } from 'next/router';
 import { groupPlanByDay, PlanDay } from '@/services/weeklyPlan';
 
@@ -141,7 +142,7 @@ function HomeHero({
                         >
                           <span className="flex-1 text-sm text-[#3A2010] truncate">{item.name}</span>
                           <span className="text-xs text-[#AA7A50]">
-                            {item.qty ? `${item.qty}${item.unit || ''}` : ''}
+                            {item.qty ? `${item.qty}${formatUnit(item.unit)}` : ''}
                           </span>
                         </div>
                       ))
