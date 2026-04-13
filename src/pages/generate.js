@@ -27,6 +27,8 @@ export default function GeneratePage() {
     filteredRecipes,
     weeklyPlan,
     lockedSlots,
+    isFilterExpanded,
+    handleToggleFilterExpanded,
     hasRecipes,
     selectedCount,
     selectedRecipe,
@@ -79,6 +81,8 @@ export default function GeneratePage() {
             filters={prefs.filters}
             setFilters={prefs.setFilters}
             onClearAll={handleClearAll}
+            isFilterExpanded={isFilterExpanded}
+            handleToggleFilterExpanded={handleToggleFilterExpanded}
           />
 
           <GenerateActions
