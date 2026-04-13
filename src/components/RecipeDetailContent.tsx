@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { formatQuantity, formatUnit } from '@/lib/formatters'
 import { useState, useEffect, useCallback } from 'react'
 import FavoriteButton from './FavoriteButton'
 
@@ -165,7 +166,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
                   <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
-                  <span style={{ color: '#AA7A50' }}>{ing.quantity ?? '-'} {ing.unit?.name || ing.unit || ''}</span>
+                  <span style={{ color: '#AA7A50' }}>{ing.quantity ?? '-'} {formatUnit(ing.unit)}</span>
                 </li>
               ))}
             </ul>
