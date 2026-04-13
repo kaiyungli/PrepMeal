@@ -36,7 +36,7 @@ export default function GenerateActions({
             </button>
           )}
         </div>
-        <div className='flex gap-3'>
+        <div className='flex gap-3 justify-end'>
           {/* Shopping list - only when plan exists */}
           {hasRecipes && (
             <button
