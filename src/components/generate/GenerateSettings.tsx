@@ -26,8 +26,8 @@ interface GenerateSettingsProps {
   pantryIngredients?: any;
   setPantryIngredients?: any;
   // New unified filter props
-  filters?: Record<string, string[]>;
-  setFilters?: (f: Record<string, string[]>) => void;
+  filters: Record<string, string[]>;
+  setFilters: (f: Record<string, string[]>) => void;
   onClearAll?: () => void;
   isFilterExpanded?: boolean;
   setIsFilterExpanded?: (v: boolean) => void;
@@ -42,30 +42,16 @@ export default function GenerateSettings({
   daysPerWeek, setDaysPerWeek,
   dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
-  filters: externalFilters,
-  setFilters: externalSetFilters,
+  filters,
+  setFilters,
   onClearAll,
   isFilterExpanded,
   setIsFilterExpanded,
   handleToggleFilterExpanded
 }: GenerateSettingsProps) {
   
-  // Use external filters if provided, otherwise use internal state
-  const [internalFilters, setInternalFilters] = useState<Record<string, string[]>>({
-    cuisine: [],
-    dish_type: [],
-    protein: [],
-    method: [],
-    speed: [],
-    difficulty: [],
-    diet: [],
-    flavor: [],
-  });
-  
-  const filters = externalFilters || internalFilters;
-
-  // Filter card expand/collapse state
-  const setFilters = externalSetFilters || setInternalFilters;
+  // Controlled-only: filters come from parent (single source of truth)
+  // No internal filter state
 
   // Build filter sections from unified FILTER_GROUPS with defensive dedupe
   const filterSections = FILTER_GROUPS.map(group => {
