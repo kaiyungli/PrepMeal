@@ -29,6 +29,9 @@ interface GenerateSettingsProps {
   filters?: Record<string, string[]>;
   setFilters?: (f: Record<string, string[]>) => void;
   onClearAll?: () => void;
+  isFilterExpanded?: boolean;
+  setIsFilterExpanded?: (v: boolean) => void;
+  handleToggleFilterExpanded?: () => void;
 }
 
 const DAYS_OPTIONS = [3, 5, 7];
@@ -41,7 +44,10 @@ export default function GenerateSettings({
   servings, setServings,
   filters: externalFilters,
   setFilters: externalSetFilters,
-  onClearAll
+  onClearAll,
+  isFilterExpanded,
+  setIsFilterExpanded,
+  handleToggleFilterExpanded
 }: GenerateSettingsProps) {
   
   // Use external filters if provided, otherwise use internal state
@@ -59,7 +65,6 @@ export default function GenerateSettings({
   const filters = externalFilters || internalFilters;
 
   // Filter card expand/collapse state
-  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const setFilters = externalSetFilters || setInternalFilters;
 
   // Build filter sections from unified FILTER_GROUPS with defensive dedupe
@@ -182,7 +187,7 @@ export default function GenerateSettings({
           onClear={onClearAll}
           clearLabel="重設所有設定"
           isExpanded={isFilterExpanded}
-          onToggleExpand={() => setIsFilterExpanded(prev => !prev)}
+          onToggleExpand={handleToggleFilterExpanded}
         />
     </div>
   );

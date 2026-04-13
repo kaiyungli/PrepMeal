@@ -115,6 +115,11 @@ export function useGeneratePageController() {
     removeRecipe: handlers.removeRecipe,
     handleClearAll: handlers.handleClearAll,
     
+    // Filter accordion
+    isFilterExpanded,
+    setIsFilterExpanded,
+    handleToggleFilterExpanded,
+    
     // Derived
     hasGenerated,
     hasRecipes,
