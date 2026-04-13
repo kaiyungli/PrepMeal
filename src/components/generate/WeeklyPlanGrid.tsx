@@ -96,7 +96,7 @@ export default function WeeklyPlanGrid({
       {days.map(day => (
         <div 
           key={day.key}
-          className={`rounded-lg ${
+          className={`rounded-xl overflow-hidden ${
             day.isWeekend ? 'bg-[#C8D49A]/30' : 'bg-white'
           } shadow-md`}
         >
@@ -119,7 +119,7 @@ export default function WeeklyPlanGrid({
               return (
                 <div key={index} className="relative">
                   {recipe ? (
-                    <div className="bg-white rounded-lg border border-[#E5E5E5]">
+                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden">
                       <div 
                         className="h-20 relative cursor-pointer"
                         onClick={() => onRecipeClick(recipe)}

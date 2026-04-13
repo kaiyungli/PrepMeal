@@ -73,20 +73,6 @@ export default function GenerateResults({
 
   const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0)
   const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
-  
-  // Check if plan is empty
-  const isPlanEmpty = !weeklyPlan || Object.keys(weeklyPlan).length === 0 || 
-    Object.values(weeklyPlan).every(arr => !arr || arr.length === 0)
-
-  // Empty state before generation
-  if (isPlanEmpty) {
-    return (
-      <div className="p-6 text-center py-16 text-[#999]">
-        <p className="mb-3">尚未生成餐單</p>
-        <p className="text-sm">請先設定條件並點擊「一鍵生成」</p>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6">
