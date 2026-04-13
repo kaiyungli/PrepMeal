@@ -59,16 +59,14 @@ export default function GeneratePage() {
       <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div className="min-h-screen bg-[#F8F3E8]">
         
-        <section className='bg-[#9B6035] px-6 py-8 text-center'>
-          <h1 className='text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white mb-2'>
-            🍽️ 一週餐單
-          </h1>
-          <p className='text-white/80 text-base'>
-            為你安排每日晚餐，簡單方便
-          </p>
-        </section>
+        <div className="max-w-[1200px] mx-auto px-4">
+          {/* Compact header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-[#3D3D3D]">一週餐單</h1>
+            <p className="text-sm text-[#7A7A7A]">為你安排每日晚餐，簡單方便</p>
+          </div>
 
-        <div className="max-w-[1200px] mx-auto px-4 space-y-4">
+          <div className="space-y-6">
           <GenerateSettings
             daysPerWeek={prefs.daysPerWeek}
             setDaysPerWeek={prefs.setDaysPerWeek}
