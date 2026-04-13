@@ -53,7 +53,7 @@ export default function FilterCardShell({
     <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
       {/* 1. Header row - always visible */}
       <div 
-        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-[#FAF7F2] transition-colors border-b border-[#F5EDE3]"
+        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-[#FAF7F2] transition-colors"
         onClick={() => onToggleExpand?.()}
       >
         <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function FilterCardShell({
       {isExpanded && (
         <>
           {onSearchChange && (
-            <div className="relative px-6 py-4 border-b border-[#F5EDE3]">
+            <div className="relative px-6 py-4">
               <svg 
                 className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 
                 fill="none" 
@@ -146,7 +146,7 @@ export default function FilterCardShell({
 
             {/* Clear button */}
             {activeFilterCount > 0 && onClear && (
-              <div className="mt-4 pt-4 border-t border-[#F5EDE3]">
+              <div className="mt-4 pt-4 ">
                 <button 
                   onClick={onClear}
                   className="text-sm text-[#9B6035] hover:underline"
