@@ -52,13 +52,14 @@ export default function FilterCardShell({
   children,
 }: FilterCardShellProps) {
   const expandText = isExpanded ? '▲ 收起' : '▼ 展開';
+  console.log('[Shell] render isExpanded:', isExpanded, 'onToggle:', typeof onToggleExpand);
 
   return (
     <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden">
       {/* Header row - always visible, clickable button */}
       <button
         type="button"
-        onClick={onToggleExpand}
+        onClick={function() { console.log('[Shell] button clicked, calling onToggleExpand'); onToggleExpand?.(); }}
         className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-[#FAF7F2] transition-colors cursor-pointer relative z-10"
         aria-expanded={isExpanded}
       >
