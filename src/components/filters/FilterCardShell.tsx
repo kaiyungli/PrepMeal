@@ -75,7 +75,7 @@ export default function FilterCardShell({
       {isExpanded && (
         <>
           {onSearchChange && (
-            <div className="relative px-6 py-4">
+            <div className="mt-3 max-w-[700px] px-6 pb-6">
               <svg 
                 className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 
                 fill="none" 
