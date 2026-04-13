@@ -7,7 +7,7 @@ interface ShoppingListItem {
   name: string
   quantity: number
   category?: string
-  unit?: string
+  unit?: string | { code?: string; name?: string }
   inPantry?: boolean
 }
 

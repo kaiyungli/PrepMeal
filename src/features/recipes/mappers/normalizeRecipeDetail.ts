@@ -26,7 +26,7 @@ export interface NormalizedRecipe {
     id: string;
     name: string;
     quantity: number;
-    unit: string;
+    unit: string | { code: string; name: string } | null;
     category: string;
   }>;
   steps: string[];

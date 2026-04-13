@@ -12,7 +12,7 @@ export interface RecipeIngredient {
   slug: string;
   shopping_category: string | null;
   quantity: number;
-  unit: string;
+  unit: { code: string; name: string } | null;
 }
 
 export interface RecipeStep {
@@ -92,7 +92,7 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
       slug: ri.ingredients?.slug || '',
       shopping_category: ri.ingredients?.shopping_category || null,
       quantity: ri.quantity || 1,
-      unit: unit?.code || unit?.name || ''
+      unit: unit ? { code: unit?.code, name: unit?.name } : null
     };
   });
 
