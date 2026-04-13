@@ -18,6 +18,8 @@ export interface NormalizedRecipe {
   prep_time_minutes: number | null;
   calories_per_serving: number | null;
   protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
   primary_protein: string | null;
   dish_type: string | null;
   diet: string[] | null;
@@ -67,6 +69,8 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
     prep_time_minutes: recipe.prep_time_minutes || null,
     calories_per_serving: recipe.calories_per_serving || null,
     protein_g: recipe.protein_g || null,
+    carbs_g: recipe.carbs_g || null,
+    fat_g: recipe.fat_g || null,
     primary_protein: recipe.primary_protein || null,
     dish_type: recipe.dish_type || null,
     diet: recipe.diet || null,

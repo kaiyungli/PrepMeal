@@ -33,6 +33,8 @@ export interface RecipeDetailRow {
   prep_time_minutes: number | null;
   calories_per_serving: number | null;
   protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
   primary_protein: string | null;
   dish_type: string | null;
   diet: string[] | null;
