@@ -134,5 +134,6 @@ export default function GeneratePage() {
           </div>
         )}
       </div>
+    </>
   );
 }
