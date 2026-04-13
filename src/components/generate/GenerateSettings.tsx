@@ -57,6 +57,9 @@ export default function GenerateSettings({
   });
   
   const filters = externalFilters || internalFilters;
+
+  // Filter card expand/collapse state
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const setFilters = externalSetFilters || setInternalFilters;
 
   // Build filter sections from unified FILTER_GROUPS with defensive dedupe
@@ -178,6 +181,8 @@ export default function GenerateSettings({
           activeFilterCount={activeCount}
           onClear={onClearAll}
           clearLabel="重設所有設定"
+          isExpanded={isFilterExpanded}
+          onToggleExpand={() => setIsFilterExpanded(prev => !prev)}
         />
     </div>
   );
