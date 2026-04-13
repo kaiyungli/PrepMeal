@@ -17,7 +17,7 @@ export function useGeneratePageController() {
   
   // Preferences
   const preferences = useGeneratePreferences();
-  const { daysPerWeek, dailyComposition, servings, budget, filters, clearFilters } = preferences;
+  const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters } = preferences;
   
   // Data hook
   const data = useGenerateData();
@@ -114,6 +114,10 @@ export function useGeneratePageController() {
     handleAddRandomRecipe: handlers.handleAddRandomRecipe,
     removeRecipe: handlers.removeRecipe,
     handleClearAll: handlers.handleClearAll,
+    
+    // Filters
+    filters,
+    setFilters,
     
     // Filter accordion
     isFilterExpanded,
