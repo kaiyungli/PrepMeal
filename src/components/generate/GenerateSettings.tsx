@@ -1,6 +1,5 @@
 // Generate page settings - Unified filter system
 import { useState } from 'react';
-import { FilterCardShell } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 
 interface GenerateSettingsProps {
@@ -166,15 +165,55 @@ export default function GenerateSettings({
           </div>
         </div>
 
-        {/* Use shared FilterCardShell */}
-        <FilterCardShell
-          filterSections={filterSections}
-          activeFilterCount={activeCount}
-          onClear={onClearAll}
-          clearLabel="重設所有設定"
-          isExpanded={isFilterExpanded}
-          onToggleExpand={handleToggleFilterExpanded}
-        />
+        {/* Divider */}
+        <div className="border-t border-[#E5DCC8] my-3"></div>
+        
+        {/* Filter section header - collapsible */}
+        <button
+          type="button"
+          onClick={handleToggleFilterExpanded}
+          className="flex justify-between w-full text-sm text-[#9B6035] hover:bg-[#FAF7F2] p-2 rounded"
+        >
+          <span className="font-medium">篩選</span>
+          <span>{isFilterExpanded ? '收起' : '展開'}</span>
+        </button>
+        
+        {/* Filter options - only when expanded */}
+        {isFilterExpanded && (
+          <div className="grid grid-cols-2 gap-3 px-2">
+            {filterSections.map(section => (
+              <div key={section.id} className="min-w-0">
+                <div className="text-xs font-medium text-[#7A5A38] mb-1">{section.title}</div>
+                <div className="flex flex-wrap gap-1">
+                  {section.options.map(opt => (
+                    <button
+                      key={opt.value}
+                      onClick={() => section.onToggle(opt.value)}
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        section.selected.includes(opt.value)
+                          ? 'bg-[#9B6035] text-white'
+                          : 'bg-white text-[#7A5A38] border border-[#E5DCC8]'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {/* Clear all button */}
+            {activeCount > 0 && (
+              <div className="col-span-2 pt-2 border-t">
+                <button
+                  onClick={onClearAll}
+                  className="text-xs text-[#9B6035] hover:underline"
+                >
+                  重設所有設定
+                </button>
+              </div>
+            )}
+          </div>
+        )}
     </div>
   );
 }
