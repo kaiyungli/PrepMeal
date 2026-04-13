@@ -1,4 +1,4 @@
-// Shared filter card shell - used by both recipes page and generate page
+// Shared filter card shell - simplified for accordion behavior
 import { ReactNode } from 'react';
 
 interface FilterOption {
@@ -16,52 +16,55 @@ export interface FilterSectionConfig {
 }
 
 interface FilterCardShellProps {
-  // Optional search bar at top
+  // Title
+  title?: string;
+  // Search
   searchQuery?: string;
   onSearchChange?: (v: string) => void;
   searchPlaceholder?: string;
-  // Filter sections
-  filterSections: FilterSectionConfig[];
-  // Active filter count
-  activeFilterCount: number;
-  // Clear handler
-  onClear?: () => void;
-  // Clear label
-  clearLabel?: string;
-  // Expand/collapse state (controlled)
+  // Expand/collapse
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  // Filter sections
+  filterSections?: FilterSectionConfig[];
+  // Active count
+  activeFilterCount?: number;
+  // Clear handler
+  onClear?: () => void;
+  clearLabel?: string;
   // Additional header content
   headerContent?: ReactNode;
+  children?: ReactNode;
 }
 
 export default function FilterCardShell({
-  searchQuery,
-  onSearchChange,
-  searchPlaceholder = '尋食譜...',
+  title = '篩選',
+  isExpanded = false,
+  onToggleExpand,
   filterSections,
   activeFilterCount,
   onClear,
   clearLabel = '清除全部',
-  isExpanded = false,
-  onToggleExpand,
-  headerContent
+  headerContent,
+  children,
 }: FilterCardShellProps) {
   const expandText = isExpanded ? '▲ 收起' : '▼ 展開';
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm mb-6 overflow-hidden">
-      {/* 1. Header row - always visible */}
-      <div 
-        className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-[#FAF7F2] transition-colors"
-        onClick={() => onToggleExpand?.()}
+    <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden">
+      {/* Header row - always visible, clickable button */}
+      <button
+        type="button"
+        onClick={onToggleExpand}
+        className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-[#FAF7F2] transition-colors cursor-pointer relative z-10"
+        aria-expanded={isExpanded}
       >
         <div className="flex items-center gap-2">
           <svg className="w-5 h-5 text-[#9B6035]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          <span className="text-sm font-medium text-[#7A5A38]">篩選</span>
-          {activeFilterCount > 0 && (
+          <span className="text-sm font-medium text-[#7A5A38]">{title}</span>
+          {activeFilterCount != null && activeFilterCount > 0 && (
             <span className="text-xs bg-[#9B6035] text-white px-2 py-0.5 rounded-full">
               {activeFilterCount}
             </span>
@@ -69,69 +72,42 @@ export default function FilterCardShell({
           {headerContent}
         </div>
         <span className="text-[#9B6035] text-sm">{expandText}</span>
-      </div>
+      </button>
 
-      {/* 2. Search bar + Filter body - hidden when collapsed */}
+      {/* Content - controlled by isExpanded */}
       {isExpanded && (
-        <>
+        <div className="border-t border-[#F5EDE3] px-6 pb-6 pt-4">
+          {/* Search bar if provided */}
           {onSearchChange && (
-            <div className="mt-3 max-w-[700px] px-6 pb-6">
-              <svg 
-                className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-[#B79B7A] pointer-events-none" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor" 
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
+            <div className="relative mb-4">
               <input
                 type="text"
-                value={searchQuery}
+                value={searchQuery || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder={searchPlaceholder}
-                className="w-full h-12 pl-12 pr-12 rounded-xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C] transition-all"
+                placeholder={searchPlaceholder || '搜尋...'}
+                className="w-full h-12 pl-11 pr-11 rounded-xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C]"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => onSearchChange('')}
-                  className="absolute right-7 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full text-[#B79B7A] hover:bg-[#F5EDE3] transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
             </div>
           )}
-
-          {/* 3. Filter Sections */}
-          <div className="px-6 pb-6 pt-4">
-            {/* Active count */}
-            <div className="pb-3 text-xs font-medium text-[#B79B7A]">
-              {activeFilterCount > 0 ? `已選 ${activeFilterCount} 項` : '所有食譜'}
-            </div>
-
-            {/* Filter chips in grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 max-h-[300px] overflow-y-auto pr-2">
-              {(filterSections || []).map(section => (
-                <div key={section.id} className="min-w-0 space-y-1.5">
-                  <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase sticky top-0 bg-white py-1">
+          
+          {/* Filter sections */}
+          {filterSections && filterSections.length > 0 && (
+            <div className="space-y-4">
+              {filterSections.map(section => (
+                <div key={section.id}>
+                  <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2">
                     {section.title}
                   </div>
-                  <div className="flex flex-wrap gap-1.5 pb-2 pr-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {section.options.map(option => {
                       const isSelected = section.selected?.includes(option.value);
-                      const isDanger = section.variant === 'danger';
                       return (
                         <button
                           key={option.value}
                           onClick={() => section.onToggle(option.value)}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                            isSelected 
-                              ? isDanger 
-                                ? 'bg-red-100 text-red-700 border border-red-200' 
-                                : 'bg-[#9B6035] text-white border border-[#9B6035]'
+                            isSelected
+                              ? 'bg-[#9B6035] text-white border border-[#9B6035]'
                               : 'bg-white text-[#7A5A38] border border-[#E9DFC9] hover:border-[#9B6035]'
                           }`}
                         >
@@ -143,20 +119,20 @@ export default function FilterCardShell({
                 </div>
               ))}
             </div>
-
-            {/* Clear button */}
-            {activeFilterCount > 0 && onClear && (
-              <div className="mt-4 pt-4 ">
-                <button 
-                  onClick={onClear}
-                  className="text-sm text-[#9B6035] hover:underline"
-                >
-                  {clearLabel}
-                </button>
-              </div>
-            )}
-          </div>
-        </>
+          )}
+          
+          {/* Clear button */}
+          {onClear && activeFilterCount != null && activeFilterCount > 0 && (
+            <div className="mt-4 pt-4 border-t border-[#F5EDE3]">
+              <button 
+                onClick={onClear}
+                className="text-sm text-[#9B6035] hover:underline"
+              >
+                {clearLabel || '清除全部'}
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
