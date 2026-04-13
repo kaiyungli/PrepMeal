@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { formatQuantity, formatUnit } from '@/lib/formatters'
+import { formatUnit } from '@/lib/formatters'
 import { useState, useEffect, useCallback } from 'react'
 import FavoriteButton from './FavoriteButton'
 

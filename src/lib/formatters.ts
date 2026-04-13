@@ -4,26 +4,30 @@
 // Unit Normalization - converts any unit input to canonical code
 // ============================================================================
 
-// Canonical unit codes (internal representation)
-const UNIT_CODES = [
-  'g', 'gram', 'grams',
-  'kg', 'kilogram', 'kilograms',
-  'ml', 'milliliter', 'milliliters',
-  'l', 'liter', 'liters',
-  'tbsp', 'tablespoon', 'tablespoons',
-  'tsp', 'teaspoon', 'teaspoons',
-  'cup', 'cups',
-  'pc', 'piece', 'pieces', '個',
-  'clove', 'cloves', '瓣',
-  'slice', 'slices', '片',
-  'pack', 'packs', '包',
-  'bunch', '束',
-  'can', 'cans', '罐',
-  'stick', 'sticks', '條',
-  'head', 'heads', '棵',
-  'sheet', 'sheets', '張',
-  'pinch', '撮'
-];
+// Synonym normalization map - maps all variants to canonical codes
+const UNIT_NORMALIZATION_MAP: Record<string, string> = {
+  // Weight
+  'g': 'g', 'gram': 'g', 'grams': 'g',
+  'kg': 'kg', 'kilogram': 'kg', 'kilograms': 'kg',
+  // Volume
+  'ml': 'ml', 'milliliter': 'ml', 'milliliters': 'ml',
+  'l': 'l', 'liter': 'l', 'liters': 'l',
+  // Cooking measures
+  'tbsp': 'tbsp', 'tablespoon': 'tbsp', 'tablespoons': 'tbsp',
+  'tsp': 'tsp', 'teaspoon': 'tsp', 'teaspoons': 'tsp',
+  'cup': 'cup', 'cups': 'cup',
+  // Count
+  'pc': 'pc', 'piece': 'pc', 'pieces': 'pc', '個': 'pc',
+  'clove': 'clove', 'cloves': 'clove', '瓣': 'clove',
+  'slice': 'slice', 'slices': 'slice', '片': 'slice',
+  'pack': 'pack', 'packs': 'pack', '包': 'pack',
+  'bunch': 'bunch', '束': 'bunch',
+  'can': 'can', 'cans': 'can', '罐': 'can',
+  'stick': 'stick', 'sticks': 'stick', '條': 'stick',
+  'head': 'head', 'heads': 'head', '棵': 'head',
+  'sheet': 'sheet', 'sheets': 'sheet', '張': 'sheet',
+  'pinch': 'pinch', '撮': 'pinch'
+};
 
 // Chinese display labels for canonical units
 const UNIT_DISPLAY: Record<string, string> = {
@@ -57,14 +61,13 @@ const UNIT_DISPLAY: Record<string, string> = {
 export function normalizeUnitCode(unit: string | { name?: string; code?: string } | null | undefined): string {
   if (!unit) return '';
   
-  // Handle object input
-  if (typeof unit === 'object') {
-    const code = unit.code || unit.name || '';
-    return code.toLowerCase().trim();
-  }
-  
-  // Handle string input
-  return String(unit).toLowerCase().trim();
+  // Extract raw value
+  const raw = typeof unit === 'object'
+    ? String(unit.code || unit.name || '').toLowerCase().trim()
+    : String(unit).toLowerCase().trim();
+
+  // Map to canonical code
+  return UNIT_NORMALIZATION_MAP[raw] || raw;
 }
 
 /**
