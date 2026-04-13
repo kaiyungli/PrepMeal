@@ -63,7 +63,7 @@ export function useGeneratePageController() {
   });
   
   // Filter accordion state
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const handleToggleFilterExpanded = useCallback(() => {
     setIsFilterExpanded(function(prev) {
       console.log('[Toggle] prev:', prev, 'next:', !prev);
