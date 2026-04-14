@@ -8,6 +8,8 @@ const shouldLog = isServer
   ? process.env.ENABLE_PERF === 'true'
   : process.env.NEXT_PUBLIC_ENABLE_PERF === 'true';
 
+const PERF_PREFIX = '[perf]';
+
 // Get current timestamp in milliseconds
 export function perfNow(): number {
   return performance.now();
@@ -23,11 +25,9 @@ export function createPerfTraceId(prefix = 'trace'): string {
 // Forward client perf to server API
 function forwardToServer(payload: Record<string, unknown>): void {
   if (typeof window === 'undefined') return;
-  
   const duration = payload.duration_ms as number;
   if (!duration || duration < 5) return;
   
-  // Use sendBeacon if available, fallback to fetch with keepalive
   if (navigator.sendBeacon) {
     const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
     navigator.sendBeacon('/api/perf-log', blob);
@@ -53,16 +53,8 @@ interface PerfLogParams {
   meta?: Record<string, unknown> | null;
 }
 
-export function perfLog({
-  traceId = null,
-  event = null,
-  stage,
-  label,
-  start,
-  end,
-  duration,
-  meta = null
-}: PerfLogParams): void {
+export function perfLog(params: PerfLogParams): void {
+  const { traceId = null, event = null, stage, label, start, end, duration, meta = null } = params;
   if (!shouldLog || !stage || !label) return;
   
   // Calculate duration
@@ -90,26 +82,14 @@ export function perfLog({
   };
   
   const logLine = JSON.stringify(payload);
-  
-  if (isServer) {
-    console.log('[perf] ' + logLine);
-  } else {
-    console.log('[perf] ' + logLine);
-    forwardToServer(payload);
-  }
+  console.log(PERF_PREFIX + ' ' + logLine);
+  forwardToServer(payload);
 }
 
-// Simple labeled measurement - pass start timestamp from perfNow()
+// Simple labeled measurement - now uses perfLog internally
 export function perfMeasure(label: string, start: number): void {
   if (!shouldLog) return;
-  const duration = performance.now() - start;
-  
-  if (isServer) {
-    console.log(`[perf] ${label} total: ${duration.toFixed(2)}ms`);
-  } else {
-    console.log(`[perf] ${label} total: ${duration.toFixed(2)}ms`);
-    forwardToServer({ label, duration_ms: Math.round(duration * 100) / 100, ts: new Date().toISOString() });
-  }
+  perfLog({ stage: label, label, start });
 }
 
 // Conditional measurement - only logs if duration exceeds threshold (default 10ms)
@@ -121,17 +101,10 @@ export function perfMeasureIfSlow(label: string, start: number, thresholdMs = 10
   }
 }
 
-// Stage timing - aggregate multiple measurements into single log
+// Stage timing - now uses perfLog internally
 export function perfStage(name: string, start: number, end: number): void {
   if (!shouldLog) return;
-  const duration = end - start;
-  
-  if (isServer) {
-    console.log(`[perf] ${name}: ${duration.toFixed(2)}ms`);
-  } else {
-    console.log(`[perf] ${name}: ${duration.toFixed(2)}ms`);
-    forwardToServer({ label: name, duration_ms: Math.round(duration * 100) / 100, ts: new Date().toISOString() });
-  }
+  perfLog({ stage: name, label: name, start, end });
 }
 
 // Legacy alias for backward compatibility

@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { fetchAvailableRecipes } from '../index';
 import { perfNow, perfLog } from '@/utils/perf';
 
 export function useGenerateData() {
   const router = useRouter();
-  const fetchStartRef = useRef<number>(0);
   
   // Recipe state
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
@@ -18,7 +17,6 @@ export function useGenerateData() {
   useEffect(() => {
     setLoadingRecipes(true);
     const start = perfNow();
-    fetchStartRef.current = start;
     
     perfLog({
       event: 'generate_data_load',

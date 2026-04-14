@@ -23,15 +23,14 @@ export default function GeneratePage() {
   const preferences = useGeneratePreferences();
   const ctrl = useGeneratePageController({ preferences });
   
-  // Log page mount
+  // Log page mount (effect fires, so duration is 0)
   useEffect(() => {
-    const start = perfNow();
     perfLog({
       traceId: traceIdRef.current,
       event: 'generate_page_mount',
       stage: 'page_mount',
       label: 'generate.page.mount',
-      start,
+      duration: 0,
       meta: { page: '/generate' }
     });
   }, []);
