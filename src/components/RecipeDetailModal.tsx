@@ -1,6 +1,3 @@
-import RecipeDetailContent from './RecipeDetailContent'
-import { useRouter } from 'next/router'
-
 interface RecipeDetailModalProps {
   isOpen: boolean
   onClose: () => void
@@ -20,7 +17,7 @@ export default function RecipeDetailModal({
   favoriteLoading,
   onFavoriteClick
 }: RecipeDetailModalProps) {
-  // Plain fixed div wrapper - isolating Modal crash
+  // Removed RecipeDetailContent entirely - test with static text only
   if (!isOpen) return null;
 
   return (
@@ -48,13 +45,11 @@ export default function RecipeDetailModal({
         }}
       >
         <button onClick={onClose} type="button" style={{ marginBottom: '16px' }}>Close</button>
-        <RecipeDetailContent
-          recipe={recipe}
-          isLoading={loading}
-          isFavorite={isFavorite}
-          favoriteLoading={favoriteLoading}
-          onFavoriteClick={onFavoriteClick}
-        />
+        <div>
+          <h1>Recipe modal test</h1>
+          <p>ID: {recipe?.id || 'No id'}</p>
+          <p>Name: {recipe?.name || 'No name'}</p>
+        </div>
       </div>
     </div>
   )
