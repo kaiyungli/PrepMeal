@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchGeneratedPlanShoppingList, normalizePlanForSave, saveGeneratedPlan } from '../index';
+import { perfNow, perfLog } from '@/utils/perf';
 
 interface UseGenerateActionsOptions {
   weeklyPlan: any;
@@ -8,6 +9,7 @@ interface UseGenerateActionsOptions {
   daysPerWeek: number;
   isAuthenticated: boolean;
   getAccessToken: () => Promise<string | null>;
+  traceId?: string;
 }
 
 export function useGenerateActions({
@@ -17,11 +19,13 @@ export function useGenerateActions({
   daysPerWeek,
   isAuthenticated,
   getAccessToken,
+  traceId,
 }: UseGenerateActionsOptions) {
   // Modal State
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const recipeCache = useRef(new Map());
+  const clickStartRef = useRef<number>(0);
 
   // Shopping List State
   const [shoppingList, setShoppingList] = useState<any[]>([]);
@@ -35,42 +39,102 @@ export function useGenerateActions({
   // Preload shopping list
   useEffect(() => {
     if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
+      const loadStart = perfNow();
+      
       (async () => {
         try {
-          const list = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings);
+          const list = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings, traceId);
           setShoppingList(list);
           setShoppingListLoaded(true);
+          
+          // Log ready
+          perfLog({
+            traceId,
+            event: 'shopping_list',
+            stage: 'ready',
+            label: 'shopping_list.ready',
+            start: loadStart,
+            meta: { itemCount: list.length }
+          });
         } catch (err) {
           console.error('Error preloading shopping list:', err);
           setShoppingListLoaded(true);
         }
       })();
     }
-  }, [showShoppingList, shoppingListLoaded, weeklyPlan, pantryIngredients, servings]);
+  }, [showShoppingList, shoppingListLoaded, weeklyPlan, pantryIngredients, servings, traceId]);
 
   // Recipe click handler
   const handleRecipeClick = useCallback((recipe: any) => {
+    clickStartRef.current = perfNow();
+    
     if (recipeCache.current.has(recipe.id)) {
+      perfLog({
+        traceId,
+        event: 'recipe_modal',
+        stage: 'cache_hit',
+        label: 'recipe_modal.cache_hit',
+        duration: 0,
+        meta: { recipeId: recipe.id }
+      });
       setSelectedRecipe(recipeCache.current.get(recipe.id));
       return;
     }
+    
+    perfLog({
+      traceId,
+      event: 'recipe_modal',
+      stage: 'open_click',
+      label: 'recipe_modal.open_click',
+      duration: 0,
+      meta: { recipeId: recipe.id }
+    });
+    
     setModalLoading(true);
     fetch('/api/recipes/' + recipe.id)
       .then(res => res.json())
       .then(data => {
         recipeCache.current.set(recipe.id, data);
         setSelectedRecipe(data);
+        
+        perfLog({
+          traceId,
+          event: 'recipe_modal',
+          stage: 'render_ready',
+          label: 'recipe_modal.render_ready',
+          start: clickStartRef.current,
+          meta: { recipeId: recipe.id }
+        });
+      })
+      .catch(() => {
+        perfLog({
+          traceId,
+          event: 'recipe_modal',
+          stage: 'render_error',
+          label: 'recipe_modal.render_error',
+          start: clickStartRef.current,
+          meta: { recipeId: recipe.id }
+        });
       })
       .finally(() => setModalLoading(false));
-  }, []);
+  }, [traceId]);
 
   const handleCloseRecipe = useCallback(() => {
     setSelectedRecipe(null);
   }, []);
 
   const handleOpenShoppingList = useCallback(() => {
+    const recipeCount = Object.values(weeklyPlan).flat().length;
+    perfLog({
+      traceId,
+      event: 'shopping_list',
+      stage: 'open_click',
+      label: 'shopping_list.open_click',
+      duration: 0,
+      meta: { selectedRecipeCount: recipeCount }
+    });
     setShowShoppingList(true);
-  }, []);
+  }, [weeklyPlan, traceId]);
 
   const handleCloseShoppingList = useCallback(() => {
     setShowShoppingList(false);
@@ -122,20 +186,15 @@ export function useGenerateActions({
   }, []);
 
   return {
-    // Modal
     selectedRecipe,
     modalLoading,
     handleRecipeClick,
     handleCloseRecipe,
-
-    // Shopping List
     shoppingList,
     showShoppingList,
     shoppingListLoaded,
     handleOpenShoppingList,
     handleCloseShoppingList,
-
-    // Save
     saveNotice,
     isSaving,
     handleSave,

@@ -5,6 +5,7 @@
  * This is the ONLY place allowed to fetch recipe with ingredients and steps.
  */
 import { supabase } from '@/lib/supabaseClient';
+import { perfNow, perfLog } from '@/utils/perf';
 
 export interface RecipeIngredient {
   id: string;
@@ -50,9 +51,12 @@ export interface RecipeDetailRow {
  * @returns Recipe detail row
  */
 export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow> {
+  const fnStart = perfNow();
   if (!supabase) {
     throw new Error('Supabase is not configured');
   }
+
+  // Log total service timing in finally would require try-finally
 
   // Fetch recipe, ingredients, steps in parallel
   const [recipeResult, ingredientsResult, stepsResult] = await Promise.all([
@@ -72,6 +76,17 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
   if (!recipe) {
     throw new Error('Recipe not found');
   }
+
+  // Log base queries
+  const baseEnd = perfNow();
+  perfLog({
+    event: 'recipe_detail_db',
+    stage: 'base_queries',
+    label: 'recipe_detail.db.base_queries',
+    start: fnStart,
+    end: baseEnd,
+    meta: { recipeId }
+  });
 
   // Fetch all units for mapping
   const unitIds = [...new Set((ingredientsResult.data || []).map((ri: any) => ri.unit_id).filter(Boolean))];

@@ -52,6 +52,7 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
     daysPerWeek,
     isAuthenticated,
     getAccessToken,
+    traceId
   });
   
   // Handlers hook (reuses actions)

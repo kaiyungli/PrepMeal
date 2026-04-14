@@ -3,7 +3,7 @@
  * 
  * Aggregates shopping list from generated weekly plan.
  */
-import { perfNow, perfMeasure } from '@/utils/perf';
+import { perfNow, perfLog } from '@/utils/perf';
 
 export interface ShoppingListItem {
   name: string;
@@ -18,12 +18,14 @@ export interface ShoppingListItem {
  * @param weeklyPlan - Current weekly plan { dayKey: [recipes] }
  * @param pantryIngredients - Pantry ingredients to exclude
  * @param servings - Servings multiplier
+ * @param traceId - Optional trace ID for logging
  * @returns Shopping list items
  */
 export async function fetchGeneratedPlanShoppingList(
   weeklyPlan: Record<string, any[]>,
   pantryIngredients: string[] = [],
-  servings: number = 1
+  servings: number = 1,
+  traceId?: string
 ): Promise<ShoppingListItem[]> {
   const preloadStart = perfNow();
   
@@ -37,9 +39,21 @@ export async function fetchGeneratedPlanShoppingList(
     }
   });
   
-  if (recipeIds.length === 0) {
+  const recipeCount = recipeIds.length;
+  
+  if (recipeCount === 0) {
     return [];
   }
+  
+  // Log fetch start
+  perfLog({
+    traceId,
+    event: 'shopping_list',
+    stage: 'fetch_start',
+    label: 'shopping_list.fetch.start',
+    duration: 0,
+    meta: { recipeCount, pantryCount: pantryIngredients.length, servings }
+  });
   
   try {
     const fetchStart = perfNow();
@@ -58,7 +72,18 @@ export async function fetchGeneratedPlanShoppingList(
     }
     
     const data = await res.json();
-    perfMeasure('generate.shoppingList.fetch', fetchStart);
+    const fetchEnd = perfNow();
+    
+    // Log fetch total
+    perfLog({
+      traceId,
+      event: 'shopping_list',
+      stage: 'fetch_total',
+      label: 'shopping_list.fetch.total',
+      start: fetchStart,
+      end: fetchEnd,
+      meta: { recipeCount, itemCount: data.toBuy?.length || 0 }
+    });
     
     // Transform API response to flat list
     const toBuyGroups = data.toBuy || {};
@@ -71,14 +96,32 @@ export async function fetchGeneratedPlanShoppingList(
       }
     });
     
+    const totalItems = (data.pantry?.length || 0) + flatToBuy.length;
+    
     const list: ShoppingListItem[] = [
       ...(data.pantry || []).map((p: any) => ({ ...p, inPantry: true })),
       ...flatToBuy
     ];
     
-    perfMeasure('generate.preloadShoppingList.total', preloadStart);
+    perfLog({
+      traceId,
+      event: 'shopping_list',
+      stage: 'preload_total',
+      label: 'shopping_list.preload_total',
+      start: preloadStart,
+      meta: { itemCount: totalItems }
+    });
+    
     return list;
   } catch (err) {
+    perfLog({
+      traceId,
+      event: 'shopping_list',
+      stage: 'fetch_error',
+      label: 'shopping_list.fetch.error',
+      start: preloadStart,
+      meta: { recipeCount }
+    });
     console.error('Error fetching shopping list:', err);
     throw err;
   }
