@@ -84,9 +84,9 @@ export default function GenerateSettings({
   const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
 
   return (
-    <div className="p-4">
+    <div>
       {/* Planning Controls - embedded in header */}
-      <div className="bg-[#F8F3E8] rounded-t-xl border border-b-0 border-[#E5DCC8] px-4 py-3 mb-[-1px]">
+      <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls - 3-column grid */}
           <div className="grid grid-cols-3 gap-6">
             {/* Group 1: 每週 */}
