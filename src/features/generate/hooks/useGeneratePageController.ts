@@ -4,19 +4,24 @@
  */
 import { useMemo, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
+
 import { useGenerateData } from './useGenerateData';
 import { useFilteredRecipes } from './useFilteredRecipes';
 import { useGeneratePlan } from './useGeneratePlan';
 import { useGenerateHandlers } from './useGenerateHandlers';
 import { useGenerateActions } from './useGenerateActions';
 
-export function useGeneratePageController({ traceId }: { traceId?: string }) {
+export function useGeneratePageController({
+  preferences,
+  traceId
+}: {
+  preferences: any;
+  traceId?: string;
+}) {
   // Auth
   const { isAuthenticated, getAccessToken } = useAuth();
   
-  // Preferences
-  const preferences = useGeneratePreferences();
+  // Use passed-in preferences
   const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters } = preferences;
   
   // Data hook
@@ -25,7 +30,7 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
   // Filtered recipes
   const filteredRecipes = useFilteredRecipes({
     allRecipes: data.allRecipes,
-    exclusions: preferences.exclusions,
+    exclusions: (preferences as any).exclusions,
     filters,
     traceId
   });
@@ -35,10 +40,10 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
     filteredRecipes,
     dailyComposition,
     daysPerWeek,
-    effectiveDishesPerDay: preferences.dishesPerDay,
-    cuisines: preferences.cuisines,
-    exclusions: preferences.exclusions,
-    cookingConstraints: preferences.cookingConstraints,
+    effectiveDishesPerDay: (preferences as any).dishesPerDay,
+    cuisines: (preferences as any).cuisines,
+    exclusions: (preferences as any).exclusions,
+    cookingConstraints: (preferences as any).cookingConstraints,
     budget: budget || 'medium',
     pantryIngredients: data.pantryIngredients,
     traceId
@@ -91,7 +96,7 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
     preferences,
     daysPerWeek,
     servings,
-    effectiveDishesPerDay: preferences.dishesPerDay,
+    effectiveDishesPerDay: (preferences as any).dishesPerDay,
     
     // Data
     allRecipes: data.allRecipes,
