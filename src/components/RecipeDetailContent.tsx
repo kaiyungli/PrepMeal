@@ -202,7 +202,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                     {i + 1}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{step}</p>
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>const stepText = typeof step === 'string' ? step : step?.text || ''</p>
                   </div>
                 </li>
               ))}

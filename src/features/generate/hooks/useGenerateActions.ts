@@ -88,7 +88,9 @@ export function useGenerateActions({
         duration: 0,
         meta: { recipeId: recipe.id }
       });
-      setSelectedRecipe(recipeCache.current.get(recipe.id));
+      const cached = recipeCache.current.get(recipe.id);
+      const recipeDetail = cached?.recipe ?? cached;
+      setSelectedRecipe(recipeDetail);
       return;
     }
     
