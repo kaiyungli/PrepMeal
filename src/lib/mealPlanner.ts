@@ -12,7 +12,7 @@
  * - speed: quick, normal
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
-import { perfNow, perfMeasure, perfStage } from '@/utils/perf';
+import { perfNow, perfMeasure, perfStage, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 
@@ -283,8 +283,9 @@ function getCandidatesWithFallback(
 
 export function planWeekAdvanced(
   recipes: Recipe[],
-  config: PlanConfig
+  config: PlanConfig & { traceId?: string }
 ): Record<string, Recipe[]> {
+  const traceId = (config as any).traceId;
   const fnStart = perfNow();
   const {
     daysPerWeek,
@@ -383,6 +384,7 @@ export function planWeekAdvanced(
   const dayProteinHistory: string[][] = [];
   
   days.forEach((day, dayIndex) => {
+    const dayStart = perfNow();
     const dayRecipes: Recipe[] = [];
     const dayProteins: string[] = [];
     
@@ -418,6 +420,26 @@ export function planWeekAdvanced(
       
       // Get candidates matching this slot role (with fallback chain)
       let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
+      
+      // Log slot candidates
+      if (traceId) {
+        const usedCount = dayRecipes.length;
+        perfLog({
+          traceId,
+          event: 'meal_planner',
+          stage: 'slot_candidates',
+          label: 'mealPlanner.slot.candidates',
+          duration: 0,
+          meta: {
+            day,
+            dayIndex,
+            slotIndex: dish,
+            slotRole,
+            candidateCount: candidates.length,
+            usedRecipeCount: usedCount
+          }
+        });
+      }
       
       // Hard filter: exclude complete_meal in mixed mode when allowCompleteMeal=false
       const compositionKey = (config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG;
@@ -592,6 +614,28 @@ export function planWeekAdvanced(
     result[day] = dayRecipes;
   });
 
+  // Log total planner duration
+  const fnEnd = perfNow();
+  if (traceId) {
+    perfLog({
+      traceId,
+      event: 'meal_planner',
+      stage: 'planner_total',
+      label: 'mealPlanner.total',
+      start: fnStart,
+      end: fnEnd
+    });
+    perfLog({
+      traceId,
+      event: 'meal_planner',
+      stage: 'day_loop_total',
+      label: 'mealPlanner.dayLoop.total',
+      start: dayGenStart,
+      end: fnEnd,
+      meta: { dayCount: days.length }
+    });
+  }
+  
   return result;
 }
 

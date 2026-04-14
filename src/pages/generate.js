@@ -21,7 +21,7 @@ export default function GeneratePage() {
   const headerCtrl = useHeaderController();
   const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
-  const ctrl = useGeneratePageController({ preferences });
+  const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current });
   
   // Log page mount (effect fires, so duration is 0)
   useEffect(() => {
@@ -111,6 +111,7 @@ export default function GeneratePage() {
           />
 
           <GenerateResults
+            traceId={traceIdRef.current}
             weeklyPlan={weeklyPlan}
             lockedSlots={lockedSlots}
             daysPerWeek={daysPerWeek}

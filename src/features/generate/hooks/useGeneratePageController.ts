@@ -11,7 +11,7 @@ import { useGeneratePlan } from './useGeneratePlan';
 import { useGenerateHandlers } from './useGenerateHandlers';
 import { useGenerateActions } from './useGenerateActions';
 
-export function useGeneratePageController() {
+export function useGeneratePageController({ traceId }: { traceId?: string }) {
   // Auth
   const { isAuthenticated, getAccessToken } = useAuth();
   
@@ -26,7 +26,8 @@ export function useGeneratePageController() {
   const filteredRecipes = useFilteredRecipes({
     allRecipes: data.allRecipes,
     exclusions: preferences.exclusions,
-    filters
+    filters,
+    traceId
   });
   
   // Plan hook

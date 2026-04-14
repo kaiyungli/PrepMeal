@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { perfLog } from '@/utils/perf';
 import WeeklyPlanGrid from './WeeklyPlanGrid'
 
 interface Recipe {
@@ -28,6 +29,7 @@ interface Recipe {
  *   onLock, onUnlock, onRemove, onReplace, onAddRandom, onRecipeClick
  */
 interface GenerateResultsProps {
+  traceId?: string;
   weeklyPlan: Record<string, Recipe[]>
   lockedSlots: Record<string, boolean>
   daysPerWeek: number
@@ -42,6 +44,7 @@ interface GenerateResultsProps {
 }
 
 export default function GenerateResults({
+  traceId,
   weeklyPlan,
   lockedSlots,
   daysPerWeek,
@@ -73,6 +76,21 @@ export default function GenerateResults({
 
   const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0)
   const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+  
+  // Log results render when plan changes
+  useEffect(() => {
+    if (hasRecipes) {
+      const dayCount = Object.values(weeklyPlan).filter((arr: any) => arr?.length).length;
+      perfLog({
+        traceId,
+        event: 'generate_results',
+        stage: 'results_render',
+        label: 'generate.results.render',
+        duration: 0,
+        meta: { totalRecipes: selectedCount, dayCount, dishesPerDay }
+      });
+    }
+  }, [weeklyPlan]);
 
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] p-6">

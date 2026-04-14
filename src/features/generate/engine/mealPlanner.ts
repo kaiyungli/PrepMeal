@@ -19,6 +19,7 @@ export interface MealPlannerConfig {
   pantryIngredients: string[];
   lockedSlots: Record<string, boolean>;
   lockedRecipes: Record<string, any>;
+  traceId?: string;
 }
 
 /**
