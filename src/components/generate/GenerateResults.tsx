@@ -75,7 +75,7 @@ export default function GenerateResults({
   const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
 
   return (
-    <div className="p-6">
+    <div className="bg-white rounded-xl border border-[#DDD0B0] p-6">
       {/* Summary */}
       {hasRecipes && (
         <div className="mb-4 flex items-center gap-2">
