@@ -48,13 +48,14 @@ export function useGenerateActions({
           setShoppingListLoaded(true);
           
           // Log ready
+          const recipeCount = Object.values(weeklyPlan).flat().length;
           perfLog({
             traceId,
             event: 'shopping_list',
             stage: 'ready',
             label: 'shopping_list.ready',
             start: loadStart,
-            meta: { itemCount: list.length }
+            meta: { itemCount: list.length, loadedFromPlanRecipeCount: recipeCount }
           });
         } catch (err) {
           console.error('Error preloading shopping list:', err);
@@ -91,7 +92,9 @@ export function useGenerateActions({
     });
     
     setModalLoading(true);
-    fetch('/api/recipes/' + recipe.id)
+    fetch('/api/recipes/' + recipe.id, {
+        headers: traceId ? { 'x-perf-trace-id': traceId } : undefined
+      })
       .then(res => res.json())
       .then(data => {
         recipeCache.current.set(recipe.id, data);

@@ -52,11 +52,10 @@ export interface RecipeDetailRow {
  */
 export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow> {
   const fnStart = perfNow();
+  
   if (!supabase) {
     throw new Error('Supabase is not configured');
   }
-
-  // Log total service timing in finally would require try-finally
 
   // Fetch recipe, ingredients, steps in parallel
   const [recipeResult, ingredientsResult, stepsResult] = await Promise.all([
@@ -77,19 +76,24 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
     throw new Error('Recipe not found');
   }
 
+  const ingredientCount = (ingredientsResult.data || []).length;
+  const stepCount = (stepsResult.data || []).length;
+  
   // Log base queries
   const baseEnd = perfNow();
   perfLog({
+    traceId: null,
     event: 'recipe_detail_db',
     stage: 'base_queries',
     label: 'recipe_detail.db.base_queries',
     start: fnStart,
     end: baseEnd,
-    meta: { recipeId }
+    meta: { recipeId, ingredientCount, stepCount }
   });
 
   // Fetch all units for mapping
   const unitIds = [...new Set((ingredientsResult.data || []).map((ri: any) => ri.unit_id).filter(Boolean))];
+  const unitQueryStart = perfNow();
   let unitsMap = new Map<string, { code: string; name: string }>();
   
   if (unitIds.length > 0) {
@@ -99,6 +103,20 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
       .in('id', unitIds);
     unitsMap = new Map((units || []).map(u => [u.id, { code: u.code, name: u.name }]));
   }
+  
+  const unitCount = unitsMap.size;
+  
+  // Log units query
+  const unitQueryEnd = perfNow();
+  perfLog({
+    traceId: null,
+    event: 'recipe_detail_db',
+    stage: 'units_query',
+    label: 'recipe_detail.db.units',
+    start: unitQueryStart,
+    end: unitQueryEnd,
+    meta: { recipeId, unitCount: unitCount || 0 }
+  });
 
   // Transform ingredients with quantity and unit
   const ingredients = (ingredientsResult.data || []).map((ri: any) => {
@@ -119,6 +137,18 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
     text: s.text,
     time_seconds: s.time_seconds
   }));
+
+  // Log service total
+  const fnEnd = perfNow();
+  perfLog({
+    traceId: null,
+    event: 'recipe_detail_db',
+    stage: 'service_total',
+    label: 'recipe_detail.db.service_total',
+    start: fnStart,
+    end: fnEnd,
+    meta: { recipeId, ingredientCount, stepCount, unitCount }
+  });
 
   return {
     ...recipe,

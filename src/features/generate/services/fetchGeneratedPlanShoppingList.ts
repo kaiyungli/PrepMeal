@@ -74,17 +74,6 @@ export async function fetchGeneratedPlanShoppingList(
     const data = await res.json();
     const fetchEnd = perfNow();
     
-    // Log fetch total
-    perfLog({
-      traceId,
-      event: 'shopping_list',
-      stage: 'fetch_total',
-      label: 'shopping_list.fetch.total',
-      start: fetchStart,
-      end: fetchEnd,
-      meta: { recipeCount, itemCount: data.toBuy?.length || 0 }
-    });
-    
     // Transform API response to flat list
     const toBuyGroups = data.toBuy || {};
     const flatToBuy: ShoppingListItem[] = [];
@@ -96,7 +85,19 @@ export async function fetchGeneratedPlanShoppingList(
       }
     });
     
-    const totalItems = (data.pantry?.length || 0) + flatToBuy.length;
+    // Calculate item count
+    const itemCount = (data.pantry?.length || 0) + flatToBuy.length;
+    
+    // Log fetch total
+    perfLog({
+      traceId,
+      event: 'shopping_list',
+      stage: 'fetch_total',
+      label: 'shopping_list.fetch.total',
+      start: fetchStart,
+      end: fetchEnd,
+      meta: { recipeCount, itemCount }
+    });
     
     const list: ShoppingListItem[] = [
       ...(data.pantry || []).map((p: any) => ({ ...p, inPantry: true })),
@@ -109,7 +110,7 @@ export async function fetchGeneratedPlanShoppingList(
       stage: 'preload_total',
       label: 'shopping_list.preload_total',
       start: preloadStart,
-      meta: { itemCount: totalItems }
+      meta: { itemCount: itemCount }
     });
     
     return list;
