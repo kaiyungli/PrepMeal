@@ -4,6 +4,9 @@
  */
 import { useMemo, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
+
+type GeneratePreferences = ReturnType<typeof useGeneratePreferences>;
 
 import { useGenerateData } from './useGenerateData';
 import { useFilteredRecipes } from './useFilteredRecipes';
@@ -15,7 +18,7 @@ export function useGeneratePageController({
   preferences,
   traceId
 }: {
-  preferences: any;
+  preferences: GeneratePreferences;
   traceId?: string;
 }) {
   // Auth
@@ -30,7 +33,7 @@ export function useGeneratePageController({
   // Filtered recipes
   const filteredRecipes = useFilteredRecipes({
     allRecipes: data.allRecipes,
-    exclusions: (preferences as any).exclusions,
+    exclusions: preferences.exclusions,
     filters,
     traceId
   });
@@ -40,10 +43,10 @@ export function useGeneratePageController({
     filteredRecipes,
     dailyComposition,
     daysPerWeek,
-    effectiveDishesPerDay: (preferences as any).dishesPerDay,
-    cuisines: (preferences as any).cuisines,
-    exclusions: (preferences as any).exclusions,
-    cookingConstraints: (preferences as any).cookingConstraints,
+    effectiveDishesPerDay: preferences.dishesPerDay,
+    cuisines: preferences.cuisines,
+    exclusions: preferences.exclusions,
+    cookingConstraints: preferences.cookingConstraints,
     budget: budget || 'medium',
     pantryIngredients: data.pantryIngredients,
     traceId
@@ -96,7 +99,7 @@ export function useGeneratePageController({
     preferences,
     daysPerWeek,
     servings,
-    effectiveDishesPerDay: (preferences as any).dishesPerDay,
+    effectiveDishesPerDay: preferences.dishesPerDay,
     
     // Data
     allRecipes: data.allRecipes,
