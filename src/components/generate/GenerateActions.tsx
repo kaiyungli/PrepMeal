@@ -21,7 +21,8 @@ export default function GenerateActions({
   onSave
 }: GenerateActionsProps) {
   return (
-    <div className="bg-white px-6 py-4 border-b border-[#DDD0B0] flex flex-wrap justify-between items-center gap-3">
+    <div className="bg-white border-b border-[#DDD0B0]">
+        <div className="max-w-[1200px] mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
       <div className='flex gap-2 items-center'>
         <span className='text-sm font-semibold text-[#3A2010]'>
           已選擇 {selectedCount} 餐
@@ -57,6 +58,7 @@ export default function GenerateActions({
           {isSaving ? '保存中...' : '💾 保存'}
         </button>
       </div>
+        </div>
     </div>
   );
 }
