@@ -12,7 +12,7 @@
  * - speed: quick, normal
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
-import { perfNow, perfMeasure, perfStage, perfLog } from '@/utils/perf';
+import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 
