@@ -100,8 +100,12 @@ export function useGenerateActions({
       })
       .then(res => res.json())
       .then(data => {
-        recipeCache.current.set(recipe.id, data);
-        setSelectedRecipe(data);
+        const recipeDetail = data?.recipe ?? null;
+        if (!recipeDetail) {
+          throw new Error('Invalid recipe detail payload');
+        }
+        recipeCache.current.set(recipe.id, recipeDetail);
+        setSelectedRecipe(recipeDetail);
         
         perfLog({
           traceId,
