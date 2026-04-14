@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { getWeekDates } from '@/utils/dateUtils';
 import { generateWeeklyPlan, replaceRecipeInPlan } from '../index';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
