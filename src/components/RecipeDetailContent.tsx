@@ -26,7 +26,14 @@ interface RecipeDetailContentProps {
       shopping_category?: string
       source?: string
     }>
-    steps?: string[]
+    steps?: Array<
+    string
+    | {
+        step_no?: number;
+        text?: string;
+        time_seconds?: number | null;
+      }
+  >
   }
   isLoading?: boolean
   isFavorite?: boolean
@@ -60,7 +67,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
 
   // Defensive guards for arrays
   const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : []
-  const steps = Array.isArray(recipe?.steps) ? recipe.steps : []
+  const steps = Array.isArray(recipe?.steps) ? recipe.steps : [];
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F8F3E8' }}>
@@ -196,16 +203,20 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             </div>
           ) : steps.length > 0 ? (
             <ol className="space-y-4">
-              {steps.map((step: string, i: number) => (
+              {steps.map((step: any, i: number) => {
+                const stepText = typeof step === 'string' ? step : step?.text || '';
+                if (!stepText) return null;
+                return (
                 <li key={i} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{ backgroundColor: '#9B6035', color: 'white' }}>
                     {i + 1}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>const stepText = typeof step === 'string' ? step : step?.text || ''</p>
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{stepText}</p>
                   </div>
                 </li>
-              ))}
+              );
+              })}
             </ol>
           ) : (
             <p style={{ color: '#AA7A50' }}>暫無步驟資料</p>
