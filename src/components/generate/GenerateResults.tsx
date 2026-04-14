@@ -90,7 +90,7 @@ export default function GenerateResults({
         meta: { totalRecipes: selectedCount, dayCount, dishesPerDay }
       });
     }
-  }, [weeklyPlan, selectedCount, dishesPerDay, traceId]);
+  }, [weeklyPlan, hasRecipes, selectedCount, dishesPerDay, traceId]);
 
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] p-6">
