@@ -332,7 +332,23 @@ export function planWeekAdvanced(
     }
     return true;
   });
-  perfStage('mealPlanner.filtering', filterStart, perfNow());
+  const filterEnd = perfNow();
+  if (traceId) {
+    perfLog({
+      traceId,
+      event: 'meal_planner',
+      stage: 'filtering',
+      label: 'mealPlanner.filtering',
+      start: filterStart,
+      end: filterEnd,
+      meta: {
+        inputCount: recipes.length,
+        outputCount: filtered.length,
+        cuisineCount: cuisines.length,
+        exclusionCount: normExclusions.length
+      }
+    });
+  }
 
   // Pre-populate usedRecipeIds with locked recipes to prevent duplication
   if (lockedRecipes) {
@@ -375,7 +391,22 @@ export function planWeekAdvanced(
       perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
     }
   }
-  perfStage('mealPlanner.perfectPantryMatch', pantryMatchStart, perfNow());
+  const pantryEnd = perfNow();
+  if (traceId) {
+    perfLog({
+      traceId,
+      event: 'meal_planner',
+      stage: 'perfect_pantry_match',
+      label: 'mealPlanner.perfectPantryMatch',
+      start: pantryMatchStart,
+      end: pantryEnd,
+      meta: {
+        pantryCount: normPantry.length,
+        filteredCount: filtered.length,
+        perfectMatchFound: !!perfectMatchRecipe
+      }
+    });
+  }
 
   // Generate plan
   const dayGenStart = perfNow();
@@ -423,7 +454,6 @@ export function planWeekAdvanced(
       
       // Log slot candidates
       if (traceId) {
-        const usedCount = dayRecipes.length;
         perfLog({
           traceId,
           event: 'meal_planner',
@@ -436,7 +466,7 @@ export function planWeekAdvanced(
             slotIndex: dish,
             slotRole,
             candidateCount: candidates.length,
-            usedRecipeCount: usedCount
+            usedRecipeCount: usedRecipeIds.size
           }
         });
       }
@@ -609,6 +639,20 @@ export function planWeekAdvanced(
       const p = r.primary_protein || r.protein?.[0];
       if (p) dayProteins.push(p);
     });
+    // Log day total
+    const dayEnd = perfNow();
+    if (traceId) {
+      perfLog({
+        traceId,
+        event: 'meal_planner',
+        stage: 'day_total',
+        label: 'mealPlanner.day.total',
+        start: dayStart,
+        end: dayEnd,
+        meta: { day, dayIndex, selectedCount: dayRecipes.length }
+      });
+    }
+    
     dayProteinHistory.push(dayProteins);
     
     result[day] = dayRecipes;

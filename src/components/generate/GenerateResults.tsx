@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { perfLog } from '@/utils/perf';
 import WeeklyPlanGrid from './WeeklyPlanGrid'
 
@@ -90,7 +90,7 @@ export default function GenerateResults({
         meta: { totalRecipes: selectedCount, dayCount, dishesPerDay }
       });
     }
-  }, [weeklyPlan]);
+  }, [weeklyPlan, selectedCount, dishesPerDay, traceId]);
 
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] p-6">

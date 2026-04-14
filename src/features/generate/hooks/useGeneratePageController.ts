@@ -41,6 +41,7 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
     cookingConstraints: preferences.cookingConstraints,
     budget: budget || 'medium',
     pantryIngredients: data.pantryIngredients,
+    traceId
   });
   
   // Actions hook (called once)
@@ -67,7 +68,7 @@ export function useGeneratePageController({ traceId }: { traceId?: string }) {
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   const handleToggleFilterExpanded = useCallback(() => {
     setIsFilterExpanded(function(prev) {
-      console.log('[Toggle] prev:', prev, 'next:', !prev);
+      
       return !prev;
     });
   }, []);

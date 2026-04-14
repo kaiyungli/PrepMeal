@@ -14,7 +14,7 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
 
 import { UI } from '@/styles/ui';
-import { perfNow, perfLog, createPerfTraceId } from '@/utils/perf';
+import { perfLog, createPerfTraceId } from '@/utils/perf';
 import { useRef, useEffect } from 'react';
 
 export default function GeneratePage() {
