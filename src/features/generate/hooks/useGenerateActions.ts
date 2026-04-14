@@ -47,14 +47,14 @@ export function useGenerateActions({
           setShoppingList(list);
           setShoppingListLoaded(true);
           
-          // Log ready
+          // Log ready (lifecycle marker)
           const recipeCount = Object.values(weeklyPlan).flat().length;
           perfLog({
             traceId,
             event: 'shopping_list',
             stage: 'ready',
             label: 'shopping_list.ready',
-            start: loadStart,
+            duration: 0,
             meta: { itemCount: list.length, loadedFromPlanRecipeCount: recipeCount }
           });
         } catch (err) {
@@ -69,6 +69,16 @@ export function useGenerateActions({
   const handleRecipeClick = useCallback((recipe: any) => {
     clickStartRef.current = perfNow();
     
+    // Always log open_click first
+    perfLog({
+      traceId,
+      event: 'recipe_modal',
+      stage: 'open_click',
+      label: 'recipe_modal.open_click',
+      duration: 0,
+      meta: { recipeId: recipe.id }
+    });
+    
     if (recipeCache.current.has(recipe.id)) {
       perfLog({
         traceId,
@@ -81,15 +91,6 @@ export function useGenerateActions({
       setSelectedRecipe(recipeCache.current.get(recipe.id));
       return;
     }
-    
-    perfLog({
-      traceId,
-      event: 'recipe_modal',
-      stage: 'open_click',
-      label: 'recipe_modal.open_click',
-      duration: 0,
-      meta: { recipeId: recipe.id }
-    });
     
     setModalLoading(true);
     fetch('/api/recipes/' + recipe.id, {

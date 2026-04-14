@@ -14,33 +14,54 @@ export default async function handler(req, res) {
 
   const start = perfNow();
   const traceId = req.headers['x-perf-trace-id'] || null;
+  const { id } = req.query;
 
   try {
-    const { id } = req.query;
-    
     if (!id) {
+      perfLog({
+        traceId,
+        event: 'recipe_detail_api',
+        stage: 'api_total',
+        label: 'recipe_detail.api.total',
+        start,
+        meta: { recipeId: id || 'unknown', success: false }
+      });
       return res.status(400).json({ error: 'Recipe ID is required' });
     }
 
     const { recipe, error } = await loadRecipeDetail(id);
 
-    const end = perfNow();
+    if (error || !recipe) {
+      perfLog({
+        traceId,
+        event: 'recipe_detail_api',
+        stage: 'api_total',
+        label: 'recipe_detail.api.total',
+        start,
+        meta: { recipeId: id, success: false }
+      });
+      return res.status(404).json({ error: error || 'Recipe not found' });
+    }
+
     perfLog({
       traceId,
       event: 'recipe_detail_api',
       stage: 'api_total',
       label: 'recipe_detail.api.total',
       start,
-      end,
-      meta: { recipeId: id }
+      meta: { recipeId: id, success: true }
     });
-
-    if (error || !recipe) {
-      return res.status(404).json({ error: error || 'Recipe not found' });
-    }
 
     return res.status(200).json({ recipe });
   } catch (err) {
+    perfLog({
+      traceId,
+      event: 'recipe_detail_api',
+      stage: 'api_total',
+      label: 'recipe_detail.api.total',
+      start,
+      meta: { recipeId: id, success: false }
+    });
     return res.status(500).json({ error: err.message || 'Internal error' });
   }
 }
