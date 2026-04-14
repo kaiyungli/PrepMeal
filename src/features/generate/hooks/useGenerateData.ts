@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { fetchAvailableRecipes } from '../index';
+import { perfNow, perfLog } from '@/utils/perf';
 
 export function useGenerateData() {
   const router = useRouter();
+  const fetchStartRef = useRef<number>(0);
   
   // Recipe state
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
@@ -15,9 +17,39 @@ export function useGenerateData() {
   // Fetch recipes on mount
   useEffect(() => {
     setLoadingRecipes(true);
+    const start = perfNow();
+    fetchStartRef.current = start;
+    
+    perfLog({
+      event: 'generate_data_load',
+      stage: 'recipes_fetch_start',
+      label: 'generate.mount.recipes_fetch.start',
+      start
+    });
+    
     fetchAvailableRecipes(200)
-      .then(recipes => setAllRecipes(recipes))
-      .catch(() => {})
+      .then(recipes => {
+        const end = perfNow();
+        setAllRecipes(recipes);
+        perfLog({
+          event: 'generate_data_load',
+          stage: 'recipes_fetch_done',
+          label: 'generate.mount.recipes_fetch.done',
+          start,
+          end,
+          meta: { recipeCount: recipes.length }
+        });
+      })
+      .catch(() => {
+        const end = perfNow();
+        perfLog({
+          event: 'generate_data_load',
+          stage: 'recipes_fetch_error',
+          label: 'generate.mount.recipes_fetch.error',
+          start,
+          end
+        });
+      })
       .finally(() => setLoadingRecipes(false));
   }, []);
   

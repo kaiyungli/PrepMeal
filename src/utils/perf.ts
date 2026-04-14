@@ -1,5 +1,5 @@
 // Performance measurement utility
-// Usage: import { perfNow, perfMeasure, perfStage } from '@/utils/perf';
+// Usage: import { perfNow, perfMeasure, perfStage, createPerfTraceId, perfLog } from '@/utils/perf';
 
 // Server-side: use ENABLE_PERF env var
 // Client-side: use NEXT_PUBLIC_ENABLE_PERF env var
@@ -13,19 +13,19 @@ export function perfNow(): number {
   return performance.now();
 }
 
+// Create a client-side trace ID
+export function createPerfTraceId(prefix = 'trace'): string {
+  const now = Date.now();
+  const random = Math.random().toString(36).slice(2, 6);
+  return `${prefix}_${now}_${random}`;
+}
+
 // Forward client perf to server API
-function forwardToServer(label: string, duration: number): void {
+function forwardToServer(payload: Record<string, unknown>): void {
   if (typeof window === 'undefined') return;
   
-  // Only forward if duration >= 5ms to reduce noise
-  if (duration < 5) return;
-  
-  const payload = {
-    label,
-    duration_ms: Math.round(duration * 100) / 100,
-    ts: new Date().toISOString(),
-    path: window.location.pathname
-  };
+  const duration = payload.duration_ms as number;
+  if (!duration || duration < 5) return;
   
   // Use sendBeacon if available, fallback to fetch with keepalive
   if (navigator.sendBeacon) {
@@ -37,7 +37,65 @@ function forwardToServer(label: string, duration: number): void {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       keepalive: true
-    }).catch(() => {}); // Silent fail
+    }).catch(() => {});
+  }
+}
+
+// Structured perf log
+interface PerfLogParams {
+  traceId?: string | null;
+  event?: string | null;
+  stage?: string;
+  label?: string;
+  start?: number;
+  end?: number;
+  duration?: number;
+  meta?: Record<string, unknown> | null;
+}
+
+export function perfLog({
+  traceId = null,
+  event = null,
+  stage,
+  label,
+  start,
+  end,
+  duration,
+  meta = null
+}: PerfLogParams): void {
+  if (!shouldLog || !stage || !label) return;
+  
+  // Calculate duration
+  let durationMs: number;
+  if (duration !== undefined) {
+    durationMs = duration;
+  } else if (start !== undefined && end !== undefined) {
+    durationMs = end - start;
+  } else if (start !== undefined) {
+    durationMs = performance.now() - start;
+  } else {
+    return;
+  }
+  
+  const payload = {
+    type: 'perf',
+    traceId,
+    event,
+    stage,
+    label,
+    duration_ms: Math.round(durationMs * 100) / 100,
+    path: typeof window !== 'undefined' ? window.location.pathname : null,
+    ts: new Date().toISOString(),
+    meta
+  };
+  
+  const logLine = JSON.stringify(payload);
+  
+  if (isServer) {
+    console.log('[perf] ' + logLine);
+  } else {
+    console.log('[perf] ' + logLine);
+    forwardToServer(payload);
   }
 }
 
@@ -46,13 +104,11 @@ export function perfMeasure(label: string, start: number): void {
   if (!shouldLog) return;
   const duration = performance.now() - start;
   
-  // Server: console.log directly
   if (isServer) {
     console.log(`[perf] ${label} total: ${duration.toFixed(2)}ms`);
   } else {
-    // Client: console.log + forward to server
     console.log(`[perf] ${label} total: ${duration.toFixed(2)}ms`);
-    forwardToServer(label, duration);
+    forwardToServer({ label, duration_ms: Math.round(duration * 100) / 100, ts: new Date().toISOString() });
   }
 }
 
@@ -74,7 +130,7 @@ export function perfStage(name: string, start: number, end: number): void {
     console.log(`[perf] ${name}: ${duration.toFixed(2)}ms`);
   } else {
     console.log(`[perf] ${name}: ${duration.toFixed(2)}ms`);
-    forwardToServer(name, duration);
+    forwardToServer({ label: name, duration_ms: Math.round(duration * 100) / 100, ts: new Date().toISOString() });
   }
 }
 

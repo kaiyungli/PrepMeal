@@ -14,11 +14,27 @@ import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/generate/ShoppingListModal';
 
 import { UI } from '@/styles/ui';
+import { perfNow, perfLog, createPerfTraceId } from '@/utils/perf';
+import { useRef, useEffect } from 'react';
 
 export default function GeneratePage() {
   const headerCtrl = useHeaderController();
+  const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
   const ctrl = useGeneratePageController({ preferences });
+  
+  // Log page mount
+  useEffect(() => {
+    const start = perfNow();
+    perfLog({
+      traceId: traceIdRef.current,
+      event: 'generate_page_mount',
+      stage: 'page_mount',
+      label: 'generate.page.mount',
+      start,
+      meta: { page: '/generate' }
+    });
+  }, []);
   
   const {
     preferences: prefs,

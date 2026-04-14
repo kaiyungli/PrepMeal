@@ -15,19 +15,33 @@ export default async function handler(req, res) {
   try {
     const rawBody = req.body;
     const body = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
-    const { label, duration_ms, ts, path } = body || {};
     
-    // Validate payload
-    if (!label || typeof duration_ms !== 'number') {
+    // Whitelist safe fields
+    const safe = {
+      type: body.type === 'perf' ? 'perf' : undefined,
+      traceId: typeof body.traceId === 'string' ? body.traceId : null,
+      event: typeof body.event === 'string' ? body.event : null,
+      stage: typeof body.stage === 'string' ? body.stage : undefined,
+      label: typeof body.label === 'string' ? body.label : undefined,
+      duration_ms: typeof body.duration_ms === 'number' ? body.duration_ms : undefined,
+      path: typeof body.path === 'string' ? body.path : null,
+      ts: typeof body.ts === 'string' ? body.ts : undefined,
+      meta: typeof body.meta === 'object' ? body.meta : null
+    };
+    
+    // Validate required
+    if (!safe.stage || !safe.label) {
       return res.status(400).json({ error: 'Invalid payload' });
     }
 
+    // Add received timestamp
+    safe.received_at = new Date().toISOString();
+
     // Log in structured format
-    console.log(`[perf][client] ${label}: ${duration_ms}ms path=${path || 'unknown'}`);
+    console.log('[perf-log] ' + JSON.stringify(safe));
 
     return res.status(204).end();
   } catch (error) {
-    // Silent fail - don't break the client
     return res.status(204).end();
   }
 }
