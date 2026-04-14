@@ -59,7 +59,7 @@ export default function GeneratePage() {
       <Head><title>今晚食乜 - 一週餐單</title></Head>
       <div className="min-h-screen bg-[#F8F3E8]">
         
-        <div className="max-w-[1200px] mx-auto px-4 space-y-4">
+        <div className="max-w-[1400px] mx-auto px-6 space-y-4">
           {/* Hero */}
           <div className="bg-[#9B6035] rounded-xl px-6 py-8 text-center">
             <h1 className='text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white mb-2'>
