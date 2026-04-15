@@ -93,6 +93,8 @@ export function useGenerateActions({
       setShoppingListView(viewModel);
     } catch (err) {
       setShoppingListError((err as Error).message);
+    } finally {
+      setIsShoppingListLoading(false);
     }
   }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, shoppingListError]);
 
