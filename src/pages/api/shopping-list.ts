@@ -2,7 +2,7 @@
  * Shopping List API
  * 
  * POST - Generate shopping list for a weekly plan
- * Includes merge-by-(name + unit) behavior
+ * Restores old merge behavior
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -10,15 +10,35 @@ import { createClient } from '@supabase/supabase-js';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey } from '@/features/shopping-list/types';
 
-// Merge same ingredient + unit
+// Unit normalization - restore old behavior
+function normalizeUnit(unit: string | null | undefined): string {
+  if (!unit) return '';
+  const u = unit.toLowerCase().trim();
+  const map: Record<string, string> = {
+    'teaspoon': 'tsp', 'tsp': 'tsp',
+    'tablespoon': 'tbsp', 'tbsp': 'tbsp',
+    'milliliter': 'ml', 'ml': 'ml',
+    'liter': 'l', 'l': 'l',
+    'gram': 'g', 'g': 'g',
+    'kilogram': 'kg', 'kg': 'kg',
+    'cup': 'cup',
+    'piece': '件',
+  };
+  return map[u] || unit;
+}
+
+// Merge with old behavior
 function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
   const map = new Map<string, ShoppingListBuyItem>();
 
   for (const item of items) {
-    const key = `${item.name}__${item.unit}`;
+    const normalizedUnit = normalizeUnit(item.unit);
+    const key = item.ingredientId 
+      ? String(item.ingredientId) 
+      : `${item.name}__${normalizedUnit}`;
 
     if (!map.has(key)) {
-      map.set(key, { ...item });
+      map.set(key, { ...item, unit: normalizedUnit });
     } else {
       const existing = map.get(key)!;
       existing.quantity = (existing.quantity ?? 0) + (item.quantity ?? 0);
@@ -79,7 +99,6 @@ export default async function handler(
       });
     }
 
-    // Get unique ingredient IDs
     const ingredientIds = recipeIngredients
       .filter((ri) => ri.ingredient_id)
       .map((ri) => ri.ingredient_id as string);
@@ -87,10 +106,9 @@ export default async function handler(
     
     console.log('[shopping-list api] fetching ingredients:', uniqueIngredientIds.length);
     
-    // Fetch ingredient details
     const { data: ingredientsData, error: ingDetailsError } = await supabase
       .from('ingredients')
-      .select('id, name, category')
+      .select('id, name, shopping_category')
       .in('id', uniqueIngredientIds);
     
     if (ingDetailsError) {
@@ -98,10 +116,8 @@ export default async function handler(
       throw ingDetailsError;
     }
     
-    // Build ingredient lookup
     const ingredientMap = new Map((ingredientsData || []).map((i) => [i.id, i]));
     
-    // Fetch units
     const unitIds = recipeIngredients
       .filter((ri) => ri.unit_id)
       .map((ri) => ri.unit_id as string);
@@ -116,7 +132,6 @@ export default async function handler(
     const unitMap = new Map((units || []).map((u) => [u.id, u.code]));
     console.log('[shopping-list api] unitMap size:', unitMap.size);
 
-    // Merge same ingredient + unit
     console.log('[shopping-list api] building items');
     const allItems: ShoppingListBuyItem[] = [];
     
@@ -132,7 +147,7 @@ export default async function handler(
         normalizedName: ingData.name,
         quantity: (ri.quantity ?? 0) * servings,
         unit: unitMap.get(ri.unit_id ?? '') ?? '',
-        category: mapRawCategoryToKey(ingData.category ?? null),
+        category: mapRawCategoryToKey(ingData.shopping_category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
       });
@@ -140,11 +155,9 @@ export default async function handler(
 
     console.log('[shopping-list api] items before merge:', allItems.length);
     
-    // Merge
     const mergedItems = mergeItems(allItems);
     console.log('[shopping-list api] items after merge:', mergedItems.length);
 
-    // Group by category
     console.log('[shopping-list api] grouping by category');
     const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
     
@@ -153,12 +166,13 @@ export default async function handler(
       if (!categoryMap.has(cat)) {
         categoryMap.set(cat, []);
       }
-      categoryMap.get(cat)!.push(item);
+      const arr = categoryMap.get(cat)!;
+      arr.push(item);
+      categoryMap.set(cat, mergeItems(arr));
     }
 
     console.log('[shopping-list api] categoryMap keys:', Array.from(categoryMap.keys()));
 
-    // Build sections
     const toBuy: ShoppingListSection[] = [];
     categoryMap.forEach((items, cat) => {
       toBuy.push({ category: cat, items });
@@ -166,7 +180,6 @@ export default async function handler(
 
     console.log('[shopping-list api] toBuy sections:', toBuy.length);
 
-    // Build pantry
     const pantry = pantryIngredients.map((name) => ({
       ingredientId: null,
       name: String(name),
@@ -174,7 +187,6 @@ export default async function handler(
       category: 'pantry' as ShoppingCategoryKey,
     }));
 
-    // Build summary
     const summary = {
       pantryCount: pantry.length,
       toBuyCount: toBuy.reduce((sum, s) => sum + s.items.length, 0),
