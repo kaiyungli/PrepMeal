@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { fetchGeneratedPlanShoppingList, normalizePlanForSave, saveGeneratedPlan } from '../index';
-import { perfNow, perfLog } from '@/utils/perf';
+import { useState, useRef, useCallback } from 'react';
+import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
+import { normalizePlanForSave, saveGeneratedPlan } from './saveGeneratedPlan';
+import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
+import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 
 interface UseGenerateActionsOptions {
   weeklyPlan: any;
@@ -27,143 +29,123 @@ export function useGenerateActions({
   const recipeCache = useRef(new Map());
   const clickStartRef = useRef<number>(0);
 
-  // Shopping List State
-  const [shoppingList, setShoppingList] = useState<any[]>([]);
-  const [shoppingListError, setShoppingListError] = useState<string | null>(null);
+  // Shopping List State - Use new ViewModel
+  const [shoppingListView, setShoppingListView] = useState<ShoppingListViewModel | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [shoppingListLoaded, setShoppingListLoaded] = useState(false);
+  const [shoppingListError, setShoppingListError] = useState<string | null>(null);
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   // Preload shopping list
-  useEffect(() => {
+  useCallback(async () => {
     if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
-      const loadStart = perfNow();
-      
-      (async () => {
-        try {
-          const list = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings, traceId);
-          setShoppingList(list);
-          setShoppingListLoaded(true);
-          
-          // Log ready (lifecycle marker)
-          const recipeCount = Object.values(weeklyPlan).flat().length;
-          perfLog({
-            traceId,
-            event: 'shopping_list',
-            stage: 'ready',
-            label: 'shopping_list.ready',
-            duration: 0,
-            meta: { itemCount: list.length, loadedFromPlanRecipeCount: recipeCount }
-          });
-        } catch (err) {
-          console.error('Error preloading shopping list:', err);
-          setShoppingListLoaded(true);
-        }
-      })();
+      setShoppingListLoaded(true);
+      try {
+        const viewModel = await fetchGeneratedPlanShoppingList(
+          weeklyPlan,
+          pantryIngredients,
+          servings,
+          { traceId }
+        );
+        setShoppingListView(viewModel);
+      } catch (err) {
+        setShoppingListError((err as Error).message);
+        setShoppingListLoaded(true);
+      }
     }
   }, [showShoppingList, shoppingListLoaded, weeklyPlan, pantryIngredients, servings, traceId]);
 
   // Recipe click handler
-  const handleRecipeClick = useCallback((recipe: any) => {
-    clickStartRef.current = perfNow();
-    
-    // Always log open_click first
-    perfLog({
-      traceId,
-      event: 'recipe_modal',
-      stage: 'open_click',
-      label: 'recipe_modal.open_click',
-      duration: 0,
-      meta: { recipeId: recipe.id }
-    });
+  const handleRecipeClick = useCallback(async (recipe: any) => {
+    clickStartRef.current = performance.now();
     
     if (recipeCache.current.has(recipe.id)) {
-      perfLog({
-        traceId,
-        event: 'recipe_modal',
-        stage: 'cache_hit',
-        label: 'recipe_modal.cache_hit',
-        duration: 0,
-        meta: { recipeId: recipe.id }
-      });
       const cached = recipeCache.current.get(recipe.id);
       setSelectedRecipe(cached);
       return;
     }
     
     setModalLoading(true);
-    fetch('/api/recipes/' + recipe.id, {
+    
+    try {
+      const res = await fetch('/api/recipes/' + recipe.id, {
         headers: traceId ? { 'x-perf-trace-id': traceId } : undefined
-      })
-      .then(res => res.json())
-      .then(data => {
-        const recipeDetail = data?.recipe ?? null;
-        if (!recipeDetail) {
-          throw new Error('Invalid recipe detail payload');
-        }
-        recipeCache.current.set(recipe.id, recipeDetail);
-        setSelectedRecipe(recipeDetail);
-        
-        perfLog({
-          traceId,
-          event: 'recipe_modal',
-          stage: 'render_ready',
-          label: 'recipe_modal.render_ready',
-          start: clickStartRef.current,
-          meta: { recipeId: recipe.id }
-        });
-      })
-      .catch(() => {
-        perfLog({
-          traceId,
-          event: 'recipe_modal',
-          stage: 'render_error',
-          label: 'recipe_modal.render_error',
-          start: clickStartRef.current,
-          meta: { recipeId: recipe.id }
-        });
-      })
-      .finally(() => setModalLoading(false));
+      });
+      const data = await res.json();
+      
+      const recipeDetail = data?.recipe ?? null;
+      if (!recipeDetail) throw new Error('Invalid recipe detail payload');
+      
+      recipeCache.current.set(recipe.id, recipeDetail);
+      setSelectedRecipe(recipeDetail);
+    } catch (error) {
+      console.error('Recipe fetch error:', error);
+    } finally {
+      setModalLoading(false);
+    }
   }, [traceId]);
 
   const handleCloseRecipe = useCallback(() => {
     setSelectedRecipe(null);
   }, []);
 
-  const handleOpenShoppingList = useCallback(() => {
-    const recipeCount = Object.values(weeklyPlan).flat().length;
-    perfLog({
-      traceId,
-      event: 'shopping_list',
-      stage: 'open_click',
-      label: 'shopping_list.open_click',
-      duration: 0,
-      meta: { selectedRecipeCount: recipeCount }
-    });
+  // Shopping list handlers
+  const handleOpenShoppingList = useCallback(async () => {
+    if (shoppingListView || shoppingListError) {
+      setShowShoppingList(true);
+      return;
+    }
+    
     setShowShoppingList(true);
-  }, [weeklyPlan, traceId]);
+    setShoppingListLoaded(true);
+    
+    try {
+      const viewModel = await fetchGeneratedPlanShoppingList(
+        weeklyPlan,
+        pantryIngredients,
+        servings,
+        { traceId }
+      );
+      setShoppingListView(viewModel);
+    } catch (err) {
+      setShoppingListError((err as Error).message);
+    }
+  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, shoppingListError]);
 
   const handleCloseShoppingList = useCallback(() => {
     setShowShoppingList(false);
   }, []);
 
+  // Copy shopping list
+  const handleCopyShoppingList = useCallback(async () => {
+    if (!shoppingListView) return '';
+    
+    const copyText = formatShoppingListCopyText(shoppingListView);
+    
+    try {
+      await navigator.clipboard.writeText(copyText);
+      setSaveNotice('✅ 已複製到剪貼簿');
+      setTimeout(() => setSaveNotice(''), 3000);
+    } catch {
+      setSaveNotice('❌ 複製失敗');
+      setTimeout(() => setSaveNotice(''), 3000);
+    }
+  }, [shoppingListView]);
+
   // Save handler
   const handleSave = useCallback(async () => {
     if (isSaving) return;
-
     if (!isAuthenticated) {
-      alert('請先登入以保存餐單');
       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       return;
     }
 
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
-
     if (payload.items.length === 0) {
-      alert('沒有餐單內容可以保存');
+      alert('No meal plan to save');
       return;
     }
 
@@ -187,10 +169,10 @@ export function useGenerateActions({
     }
   }, [isSaving, isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek]);
 
-  // Clear all handler
   const handleClearAll = useCallback(() => {
-    setShoppingList([]);
+    setShoppingListView(null);
     setShoppingListLoaded(false);
+    setShoppingListError(null);
     setShowShoppingList(false);
     setSaveNotice('');
   }, []);
@@ -200,11 +182,13 @@ export function useGenerateActions({
     modalLoading,
     handleRecipeClick,
     handleCloseRecipe,
-    shoppingList,
+    shoppingListView,
     showShoppingList,
     shoppingListLoaded,
+    shoppingListError,
     handleOpenShoppingList,
     handleCloseShoppingList,
+    handleCopyShoppingList,
     saveNotice,
     isSaving,
     handleSave,

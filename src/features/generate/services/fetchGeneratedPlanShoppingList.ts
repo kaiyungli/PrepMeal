@@ -1,16 +1,13 @@
 /**
  * Fetch Generated Plan Shopping List Service
  * 
- * Aggregates shopping list from generated weekly plan.
+ * Uses new ShoppingListResponse format from API
  */
-import { perfNow, perfLog } from '@/utils/perf';
+import type { ShoppingListViewModel } from '@/features/shopping-list/types';
+import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
 
-export interface ShoppingListItem {
-  name: string;
-  quantity: number | string;
-  unit: string;
-  inPantry: boolean;
-  category?: string;
+export interface FetchShoppingListOptions {
+  traceId?: string;
 }
 
 /**
@@ -18,112 +15,60 @@ export interface ShoppingListItem {
  * @param weeklyPlan - Current weekly plan { dayKey: [recipes] }
  * @param pantryIngredients - Pantry ingredients to exclude
  * @param servings - Servings multiplier
- * @param traceId - Optional trace ID for logging
- * @returns Shopping list items
+ * @returns ShoppingListViewModel ready for UI
  */
 export async function fetchGeneratedPlanShoppingList(
   weeklyPlan: Record<string, any[]>,
   pantryIngredients: string[] = [],
   servings: number = 1,
-  traceId?: string
-): Promise<ShoppingListItem[]> {
-  const preloadStart = perfNow();
+  options: FetchShoppingListOptions = {}
+): Promise<ShoppingListViewModel> {
+  const { traceId } = options;
+  const preloadStart = performance.now();
   
   // Collect recipe IDs from plan
   const recipeIds: string[] = [];
-  Object.values(weeklyPlan).forEach(recipes => {
+  Object.values(weeklyPlan).forEach((recipes) => {
     if (Array.isArray(recipes)) {
-      recipes.forEach(r => {
+      recipes.forEach((r) => {
         if (r?.id) recipeIds.push(String(r.id));
       });
     }
   });
-  
-  const recipeCount = recipeIds.length;
-  
-  if (recipeCount === 0) {
-    return [];
+
+  if (recipeIds.length === 0) {
+    return {
+      pantry: [],
+      sections: [],
+      summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
+      isEmpty: true,
+    };
   }
-  
-  // Log fetch start
-  perfLog({
-    traceId,
-    event: 'shopping_list',
-    stage: 'fetch_start',
-    label: 'shopping_list.fetch.start',
-    duration: 0,
-    meta: { recipeCount, pantryCount: pantryIngredients.length, servings }
-  });
-  
+
   try {
-    const fetchStart = perfNow();
     const res = await fetch('/api/shopping-list', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        userId: 'current',
         recipeIds,
         pantryIngredients,
-        servings
-      })
+        servings,
+      }),
     });
-    
+
     if (!res.ok) {
-      throw new Error('Failed to fetch shopping list');
+      throw new Error(`API error: ${res.status}`);
     }
+
+    const response = await res.json();
     
-    const data = await res.json();
-    const fetchEnd = perfNow();
+    // Map API response to ViewModel using the new module
+    const viewModel = mapShoppingListResponseToViewModel(response);
     
-    // Transform API response to flat list
-    const toBuyGroups = data?.byCategory?.toBuy || {};
-    const flatToBuy: ShoppingListItem[] = [];
-    Object.values(toBuyGroups).forEach((items) => {
-      if (Array.isArray(items)) {
-        items.forEach((item: any) => {
-          flatToBuy.push({ ...item, inPantry: false });
-        });
-      }
-    });
-    
-    // Calculate item count
-    const itemCount = (data.pantry?.length || 0) + flatToBuy.length;
-    
-    // Log fetch total
-    perfLog({
-      traceId,
-      event: 'shopping_list',
-      stage: 'fetch_total',
-      label: 'shopping_list.fetch.total',
-      start: fetchStart,
-      end: fetchEnd,
-      meta: { recipeCount, itemCount }
-    });
-    
-    const list: ShoppingListItem[] = [
-      ...(data.pantry || []).map((p: any) => ({ ...p, inPantry: true })),
-      ...flatToBuy
-    ];
-    
-    perfLog({
-      traceId,
-      event: 'shopping_list',
-      stage: 'preload_total',
-      label: 'shopping_list.preload_total',
-      start: preloadStart,
-      meta: { itemCount: itemCount }
-    });
-    
-    return list;
-  } catch (err) {
-    perfLog({
-      traceId,
-      event: 'shopping_list',
-      stage: 'fetch_error',
-      label: 'shopping_list.fetch.error',
-      start: preloadStart,
-      meta: { recipeCount }
-    });
-    console.error('Error fetching shopping list:', err);
-    throw err;
+    return viewModel;
+  } catch (error) {
+    console.error('Error fetching shopping list:', error);
+    throw error;
   }
 }
