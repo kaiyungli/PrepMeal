@@ -194,7 +194,7 @@ function RecipeCard({
     </div>
   );
 
-  // Use Link wrapper if we need navigation, otherwise article with onClick
+  // Always use Link when slug exists for consistent navigation
   if (needsNavigation) {
     return (
       <Link
