@@ -1,4 +1,4 @@
-// Shopping List Module Types - Separate API Data Model from View Model
+// Shopping List Module Types - Strict Contract
 
 // ===== API/Data Model =====
 
@@ -51,11 +51,18 @@ export interface ShoppingListResponse {
 
 // ===== UI/View Model =====
 
+export interface ShoppingListItemViewModel {
+  ingredientId: string | null;
+  name: string;
+  quantityText: string;
+  quantityPending: boolean;
+}
+
 export interface ShoppingListSectionViewModel {
   categoryKey: ShoppingCategoryKey;
   categoryLabel: string;
   categoryIcon: string;
-  items: ShoppingListBuyItem[];
+  items: ShoppingListItemViewModel[];
 }
 
 export interface ShoppingListViewModel {
@@ -74,4 +81,20 @@ export function createEmptyViewModel(): ShoppingListViewModel {
     summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
     isEmpty: true,
   };
+}
+
+// Single source of truth for quantity display
+export function formatQuantityDisplay(
+  quantity: number | null, 
+  unit: string, 
+  quantityPending: boolean
+): string {
+  if (quantityPending) {
+    return '（數量待補）';
+  }
+  if (quantity === null || quantity === 0) {
+    return '';
+  }
+  const qtyStr = String(quantity);
+  return unit ? `${qtyStr} ${unit}` : qtyStr;
 }
