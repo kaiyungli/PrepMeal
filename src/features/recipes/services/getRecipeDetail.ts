@@ -4,7 +4,7 @@
  * Single source for fetching recipe detail from database.
  * This is the ONLY place allowed to fetch recipe with ingredients and steps.
  */
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseServer } from '@/lib/supabaseServer';
 import { perfNow, perfLog } from '@/utils/perf';
 
 export interface RecipeIngredient {
@@ -47,39 +47,46 @@ export interface RecipeDetailRow {
 
 /**
  * Load recipe detail with ingredients and steps
- * @param recipeId - Recipe ID
+ * @param recipeId - Recipe ID or slug
  * @returns Recipe detail row
  */
 export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow> {
   const fnStart = perfNow();
+  const supabase = supabaseServer;
   
   if (!supabase) {
     throw new Error('Supabase is not configured');
   }
 
-  // Fetch recipe, ingredients, steps in parallel
+  // Support both id and slug lookup
+  const query = recipeId.includes('-') 
+    ? supabase.from('recipes').select('*').eq('slug', recipeId).single()
+    : supabase.from('recipes').select('*').eq('id', recipeId).single();
+
   const [recipeResult, ingredientsResult, stepsResult] = await Promise.all([
-    supabase.from('recipes').select('*').eq('id', recipeId).single(),
-    supabase
-      .from('recipe_ingredients')
-      .select('quantity, unit_id, ingredients(id, name, slug, shopping_category)')
-      .eq('recipe_id', recipeId),
-    supabase
-      .from('recipe_steps')
-      .select('step_no, text, time_seconds')
-      .eq('recipe_id', recipeId)
-      .order('step_no')
+    query,
+    supabase.from('recipe_ingredients').select('quantity, unit_id, ingredients(id, name, slug, shopping_category)').eq('recipe_id', recipeId),
+    supabase.from('recipe_steps').select('step_no, text, time_seconds').eq('recipe_id', recipeId).order('step_no')
   ]);
 
-  const { data: recipe } = recipeResult;
+  const { data: recipe, error: recipeError } = recipeResult;
+  
+  if (recipeError) {
+    throw new Error('Recipe fetch failed: ' + recipeError.message);
+  }
+  
   if (!recipe) {
+    throw new Error('Recipe not found');
+  }
+
+  // Support is_public filter for SSR safety
+  if (!recipe.is_public) {
     throw new Error('Recipe not found');
   }
 
   const ingredientCount = (ingredientsResult.data || []).length;
   const stepCount = (stepsResult.data || []).length;
   
-  // Log base queries
   const baseEnd = perfNow();
   perfLog({
     traceId: null,
@@ -94,19 +101,15 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
   // Fetch all units for mapping
   const unitIds = [...new Set((ingredientsResult.data || []).map((ri: any) => ri.unit_id).filter(Boolean))];
   const unitQueryStart = perfNow();
-  let unitsMap = new Map<string, { code: string; name: string }>();
+  let unitsMap = new Map();
   
   if (unitIds.length > 0) {
-    const { data: units } = await supabase
-      .from('units')
-      .select('id, code, name')
-      .in('id', unitIds);
+    const { data: units } = await supabase.from('units').select('id, code, name').in('id', unitIds);
     unitsMap = new Map((units || []).map(u => [u.id, { code: u.code, name: u.name }]));
   }
   
   const unitCount = unitsMap.size;
   
-  // Log units query
   const unitQueryEnd = perfNow();
   perfLog({
     traceId: null,
@@ -127,18 +130,16 @@ export async function getRecipeDetail(recipeId: string): Promise<RecipeDetailRow
       slug: ri.ingredients?.slug || '',
       shopping_category: ri.ingredients?.shopping_category || null,
       quantity: ri.quantity || 1,
-      unit: unit ? { code: unit?.code, name: unit?.name } : null
+      unit: unit ? { code: unit.code, name: unit.name } : null
     };
   });
 
-  // Transform steps
   const steps = (stepsResult.data || []).map((s: any) => ({
     step_no: s.step_no,
     text: s.text,
     time_seconds: s.time_seconds
   }));
 
-  // Log service total
   const fnEnd = perfNow();
   perfLog({
     traceId: null,
