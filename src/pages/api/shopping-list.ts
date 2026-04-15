@@ -2,12 +2,31 @@
  * Shopping List API
  * 
  * POST - Generate shopping list for a weekly plan
+ * Includes merge-by-(name + unit) behavior
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey } from '@/features/shopping-list/types';
+
+// Merge same ingredient + unit
+function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+  const map = new Map<string, ShoppingListBuyItem>();
+
+  for (const item of items) {
+    const key = `${item.name}__${item.unit}`;
+
+    if (!map.has(key)) {
+      map.set(key, { ...item });
+    } else {
+      const existing = map.get(key)!;
+      existing.quantity = (existing.quantity ?? 0) + (item.quantity ?? 0);
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 export default async function handler(
   req: NextApiRequest,
@@ -37,8 +56,7 @@ export default async function handler(
   );
 
   try {
-    // Use a direct join query via the API
-    console.log('[shopping-list api] fetching with ingredients join for:', recipeIds);
+    console.log('[shopping-list api] fetching recipe_ingredients for:', recipeIds);
     
     const { data: recipeIngredients, error: ingError } = await supabase
       .from('recipe_ingredients')
@@ -69,7 +87,7 @@ export default async function handler(
     
     console.log('[shopping-list api] fetching ingredients:', uniqueIngredientIds.length);
     
-    // Fetch the actual ingredient details
+    // Fetch ingredient details
     const { data: ingredientsData, error: ingDetailsError } = await supabase
       .from('ingredients')
       .select('id, name, category')
@@ -80,7 +98,7 @@ export default async function handler(
       throw ingDetailsError;
     }
     
-    // Build lookup map
+    // Build ingredient lookup
     const ingredientMap = new Map((ingredientsData || []).map((i) => [i.id, i]));
     
     // Fetch units
@@ -98,9 +116,9 @@ export default async function handler(
     const unitMap = new Map((units || []).map((u) => [u.id, u.code]));
     console.log('[shopping-list api] unitMap size:', unitMap.size);
 
-    // Aggregate by category using lookup
-    console.log('[shopping-list api] aggregating by category');
-    const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
+    // Merge same ingredient + unit
+    console.log('[shopping-list api] building items');
+    const allItems: ShoppingListBuyItem[] = [];
     
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
@@ -108,21 +126,33 @@ export default async function handler(
       const ingData = ingredientMap.get(ri.ingredient_id);
       if (!ingData || !ingData.name) continue;
       
-      const cat = mapRawCategoryToKey(ingData.category ?? null);
-      if (!categoryMap.has(cat)) {
-        categoryMap.set(cat, []);
-      }
-      
-      const item: ShoppingListBuyItem = {
+      allItems.push({
         ingredientId: ri.ingredient_id,
         name: ingData.name,
         normalizedName: ingData.name,
         quantity: (ri.quantity ?? 0) * servings,
         unit: unitMap.get(ri.unit_id ?? '') ?? '',
-        category: cat,
+        category: mapRawCategoryToKey(ingData.category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
-      };
+      });
+    }
+
+    console.log('[shopping-list api] items before merge:', allItems.length);
+    
+    // Merge
+    const mergedItems = mergeItems(allItems);
+    console.log('[shopping-list api] items after merge:', mergedItems.length);
+
+    // Group by category
+    console.log('[shopping-list api] grouping by category');
+    const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
+    
+    for (const item of mergedItems) {
+      const cat = item.category;
+      if (!categoryMap.has(cat)) {
+        categoryMap.set(cat, []);
+      }
       categoryMap.get(cat)!.push(item);
     }
 
