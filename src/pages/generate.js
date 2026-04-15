@@ -49,7 +49,7 @@ export default function GeneratePage() {
     selectedRecipe,
     modalLoading,
     showShoppingList,
-    shoppingList,
+    shoppingListView,
     isShoppingListLoading,
     saveNotice,
     isSaving,
@@ -130,7 +130,7 @@ export default function GeneratePage() {
         <ShoppingListModal 
           isOpen={showShoppingList} 
           onClose={handleCloseShoppingList}
-          shoppingListView={shoppingList}
+          shoppingListView={shoppingListView}
           loading={isShoppingListLoading}
         />
 
