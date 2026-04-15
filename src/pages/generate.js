@@ -11,7 +11,7 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateResults from '@/components/generate/GenerateResults';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import ShoppingListModal from '@/components/generate/ShoppingListModal';
+import ShoppingListModal from '@/components/ShoppingListModal';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
@@ -130,8 +130,8 @@ export default function GeneratePage() {
         <ShoppingListModal 
           isOpen={showShoppingList} 
           onClose={handleCloseShoppingList}
-          shoppingList={shoppingList}
-          loading={!isShoppingListLoading}
+          shoppingListView={shoppingList}
+          loading={isShoppingListLoading}
         />
 
         <RecipeDetailModal 

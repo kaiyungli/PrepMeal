@@ -119,7 +119,7 @@ export function useGeneratePageController({
     // Actions
     selectedRecipe: actions.selectedRecipe,
     modalLoading: actions.modalLoading,
-    shoppingList: actions.shoppingListView,
+    shoppingListView: actions.shoppingListView,
     showShoppingList: actions.showShoppingList,
     isShoppingListLoading: actions.isShoppingListLoading,
     saveNotice: actions.saveNotice,
