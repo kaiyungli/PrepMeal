@@ -122,9 +122,9 @@ export default async function handler(
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
       
-      const ing = Array.isArray(ri.ingredients) ? ri.ingredients[0] : null;
-      const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : null;
-      const unitRow = Array.isArray(ri.units) ? ri.units[0] : null;
+      const ing = Array.isArray(ri.ingredients) ? ri.ingredients[0] : (ri.ingredients || null);
+      const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
+      const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
       
       allItems.push({
@@ -140,6 +140,7 @@ export default async function handler(
     }
 
     console.log('[shopping-list api] items before merge:', allItems.length);
+    console.log('[shopping-list api] first item sample:', allItems[0] || null);
     
     const mergedItems = mergeItems(allItems);
     console.log('[shopping-list api] items after merge:', mergedItems.length);
