@@ -1,4 +1,6 @@
-// Shopping List Module Types
+// Shopping List Module Types - Separate API Data Model from View Model
+
+// ===== API/Data Model =====
 
 export type ShoppingCategoryKey = 
   | 'meat' 
@@ -32,8 +34,6 @@ export interface ShoppingListBuyItem {
 
 export interface ShoppingListSection {
   category: ShoppingCategoryKey;
-  categoryLabel: string;
-  categoryIcon: string;
   items: ShoppingListBuyItem[];
 }
 
@@ -49,9 +49,29 @@ export interface ShoppingListResponse {
   summary: ShoppingListSummary;
 }
 
+// ===== UI/View Model =====
+
+export interface ShoppingListSectionViewModel {
+  categoryKey: ShoppingCategoryKey;
+  categoryLabel: string;
+  categoryIcon: string;
+  items: ShoppingListBuyItem[];
+}
+
 export interface ShoppingListViewModel {
   pantry: ShoppingListPantryItem[];
-  sections: ShoppingListSection[];
+  sections: ShoppingListSectionViewModel[];
   summary: ShoppingListSummary;
   isEmpty: boolean;
+}
+
+// ===== Helper Functions =====
+
+export function createEmptyViewModel(): ShoppingListViewModel {
+  return {
+    pantry: [],
+    sections: [],
+    summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
+    isEmpty: true,
+  };
 }
