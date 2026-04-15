@@ -58,7 +58,12 @@ export async function fetchGeneratedPlanShoppingList(
     });
 
     if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
+      let errorText = `API error: ${res.status}`;
+      try {
+        const errorBody = await res.text();
+        if (errorBody) errorText += ` - ${errorBody}`;
+      } catch {}
+      throw new Error(errorText);
     }
 
     const response = await res.json();

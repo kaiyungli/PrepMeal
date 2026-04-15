@@ -13,6 +13,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ShoppingListResponse | { error: string }>
 ) {
+  console.log('[shopping-list api] start');
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -22,6 +24,8 @@ export default async function handler(
   const recipeIds = Array.isArray(body?.recipeIds) ? body.recipeIds as string[] : [];
   const pantryIngredients = Array.isArray(body?.pantryIngredients) ? body.pantryIngredients as string[] : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
+  
+  console.log('[shopping-list api] params:', { userId, recipeIds: recipeIds.length, pantryIngredients: pantryIngredients.length, servings });
   
   if (!userId || recipeIds.length === 0) {
     return res.status(400).json({ error: 'Missing userId or recipeIds' });
@@ -34,14 +38,21 @@ export default async function handler(
 
   try {
     // 1. Fetch recipe ingredients
+    console.log('[shopping-list api] fetching recipe_ingredients for:', recipeIds);
     const { data: recipeIngredients, error: ingError } = await supabase
       .from('recipe_ingredients')
       .select('id, name, category, recipe_id, unit_id, quantity')
       .in('recipe_id', recipeIds);
     
-    if (ingError) throw ingError;
+    if (ingError) {
+      console.log('[shopping-list api] fetch error:', ingError);
+      throw ingError;
+    }
     
-    if (!recipeIngredients) {
+    console.log('[shopping-list api] fetched items:', recipeIngredients?.length ?? 0);
+    
+    if (!recipeIngredients || recipeIngredients.length === 0) {
+      console.log('[shopping-list api] no ingredients found');
       return res.status(200).json({
         pantry: [],
         toBuy: [],
@@ -54,13 +65,17 @@ export default async function handler(
     const unitIds = validIngredients.filter((i) => i.unit_id).map((i) => i.unit_id as string);
     const uniqueUnitIds = [...new Set(unitIds)];
     
+    console.log('[shopping-list api] units to fetch:', uniqueUnitIds.length);
+    
     const { data: units } = uniqueUnitIds.length > 0
       ? await supabase.from('units').select('id, code, name').in('id', uniqueUnitIds)
       : { data: [] };
     
     const unitMap = new Map((units || []).map((u) => [u.id, u.code]));
+    console.log('[shopping-list api] unitMap size:', unitMap.size);
 
-    // 3. Aggregate by category using simple approach
+    // 3. Aggregate by category
+    console.log('[shopping-list api] aggregating by category');
     const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
     
     for (const ing of validIngredients) {
@@ -82,11 +97,15 @@ export default async function handler(
       categoryMap.get(cat)!.push(item);
     }
 
+    console.log('[shopping-list api] categoryMap keys:', Array.from(categoryMap.keys()));
+
     // 4. Build sections
     const toBuy: ShoppingListSection[] = [];
     categoryMap.forEach((items, cat) => {
       toBuy.push({ category: cat, items });
     });
+
+    console.log('[shopping-list api] toBuy sections:', toBuy.length);
 
     // 5. Build pantry
     const pantry = pantryIngredients.map((name) => ({
@@ -103,9 +122,14 @@ export default async function handler(
       sectionCount: toBuy.length,
     };
 
+    console.log('[shopping-list api] summary:', summary);
+    console.log('[shopping-list api] returning response');
+
     res.status(200).json({ pantry, toBuy, summary });
-  } catch (error) {
-    console.error('Shopping list error:', error);
-    res.status(500).json({ error: (error as Error).message || 'Internal error' });
+  } catch (err) {
+    console.error('[shopping-list api] fatal error:', err);
+    res.status(500).json({ 
+      error: err instanceof Error ? err.message : 'Internal error' 
+    });
   }
 }
