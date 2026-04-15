@@ -45,6 +45,8 @@ export default function GeneratePage() {
     isFilterExpanded,
     handleToggleFilterExpanded,
     hasRecipes,
+    preloadShoppingList,
+    preloadShoppingList,
     selectedCount,
     selectedRecipe,
     modalLoading,

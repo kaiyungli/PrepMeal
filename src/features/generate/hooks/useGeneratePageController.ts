@@ -124,6 +124,7 @@ export function useGeneratePageController({
     isShoppingListLoading: actions.isShoppingListLoading,
     saveNotice: actions.saveNotice,
     isSaving: actions.isSaving,
+    preloadShoppingList: actions.preloadShoppingList,
     handleOpenShoppingList: actions.handleOpenShoppingList,
     handleCloseShoppingList: actions.handleCloseShoppingList,
     handleSave: actions.handleSave,

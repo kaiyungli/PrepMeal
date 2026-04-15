@@ -145,6 +145,53 @@ export function useGenerateActions({
     setShowShoppingList(false);
   }, []);
 
+  // Preload shopping list in background
+  const preloadShoppingList = useCallback(async () => {
+    if (shoppingListView) return;
+    if (isShoppingListLoading) return;
+    
+    const recipeCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+    if (recipeCount === 0) return;
+    
+    perfLog({
+      event: 'shopping_list',
+      stage: 'preload_start',
+      label: 'shopping_list.preload_start',
+      duration: 0,
+    });
+    
+    try {
+      const t0 = Date.now();
+      const viewModel = await fetchGeneratedPlanShoppingList(
+        weeklyPlan,
+        pantryIngredients,
+        servings,
+        { traceId }
+      );
+      setShoppingListView(viewModel);
+      
+      perfLog({
+        event: 'shopping_list',
+        stage: 'preload_ready',
+        label: 'shopping_list.preload_ready',
+        duration: Date.now() - t0,
+        meta: {
+          pantryCount: viewModel.summary?.pantryCount || 0,
+          toBuyCount: viewModel.summary?.toBuyCount || 0,
+          sectionCount: viewModel.summary?.sectionCount || 0,
+        },
+      });
+    } catch (err) {
+      perfLog({
+        event: 'shopping_list',
+        stage: 'preload_error',
+        label: 'shopping_list.preload_error',
+        duration: 0,
+        meta: { message: (err as Error).message },
+      });
+    }
+  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, isShoppingListLoading]);
+
   // Copy shopping list
   const handleCopyShoppingList = useCallback(async () => {
     if (!shoppingListView) return '';
@@ -212,6 +259,7 @@ export function useGenerateActions({
     showShoppingList,
     isShoppingListLoading,
     shoppingListError,
+    preloadShoppingList,
     handleOpenShoppingList,
     handleCloseShoppingList,
     handleCopyShoppingList,
