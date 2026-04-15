@@ -87,6 +87,16 @@ export function useGenerateActions({
     });
     
     if (shoppingListView || shoppingListError) {
+      perfLog({
+        event: 'shopping_list',
+        stage: 'memory_hit',
+        label: 'shopping_list.memory_hit',
+        duration: 0,
+        meta: {
+          hasView: !!shoppingListView,
+          hasError: !!shoppingListError,
+        },
+      });
       setShowShoppingList(true);
       return;
     }
