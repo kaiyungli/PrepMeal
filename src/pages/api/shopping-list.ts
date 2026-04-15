@@ -2,15 +2,16 @@
  * Shopping List API
  * 
  * POST - Generate shopping list for a weekly plan
- * Restores old merge behavior
+ * Optimized: single query with embedded relations
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey } from '@/features/shopping-list/types';
+import { perfLog } from '@/utils/perf';
 
-// Unit normalization - restore old behavior
+// Unit normalization
 function normalizeUnit(unit: string | null | undefined): string {
   if (!unit) return '';
   const u = unit.toLowerCase().trim();
@@ -52,7 +53,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ShoppingListResponse | { error: string }>
 ) {
-  console.log('[shopping-list api] start');
+  console.log('[shopping-list-api] handler hit');
   
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -64,8 +65,6 @@ export default async function handler(
   const pantryIngredients = Array.isArray(body?.pantryIngredients) ? body.pantryIngredients as string[] : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
   
-  console.log('[shopping-list api] params:', { userId, recipeIds: recipeIds.length, pantryIngredients: pantryIngredients.length, servings });
-  
   if (!userId || recipeIds.length === 0) {
     return res.status(400).json({ error: 'Missing userId or recipeIds' });
   }
@@ -76,17 +75,35 @@ export default async function handler(
   );
 
   try {
-    console.log('[shopping-list api] fetching recipe_ingredients for:', recipeIds);
+    const dbStart = performance.now();
+    console.log('[shopping-list-api] db fetch start', { recipeCount: recipeIds.length });
     
+    // SINGLE query with embedded relations
     const { data: recipeIngredients, error: ingError } = await supabase
       .from('recipe_ingredients')
-      .select('id, recipe_id, unit_id, quantity, ingredient_id')
+      .select(`
+        quantity,
+        recipe_id,
+        ingredient_id,
+        ingredients(id, name, shopping_category),
+        recipes(id, name),
+        units(id, code, name)
+      `)
       .in('recipe_id', recipeIds);
-    
+
     if (ingError) {
       console.log('[shopping-list api] fetch error:', ingError);
       throw ingError;
     }
+    
+    // DB timing log
+    perfLog({
+      event: 'shopping_list',
+      stage: 'db_fetch',
+      label: 'shopping_list.db.fetch',
+      start: dbStart,
+      meta: { recipeCount: recipeIds.length },
+    });
     
     console.log('[shopping-list api] fetched ri rows:', recipeIngredients?.length ?? 0);
     
@@ -99,55 +116,24 @@ export default async function handler(
       });
     }
 
-    const ingredientIds = recipeIngredients
-      .filter((ri) => ri.ingredient_id)
-      .map((ri) => ri.ingredient_id as string);
-    const uniqueIngredientIds = [...new Set(ingredientIds)];
-    
-    console.log('[shopping-list api] fetching ingredients:', uniqueIngredientIds.length);
-    
-    const { data: ingredientsData, error: ingDetailsError } = await supabase
-      .from('ingredients')
-      .select('id, name, shopping_category')
-      .in('id', uniqueIngredientIds);
-    
-    if (ingDetailsError) {
-      console.log('[shopping-list api] ingredients fetch error:', ingDetailsError);
-      throw ingDetailsError;
-    }
-    
-    const ingredientMap = new Map((ingredientsData || []).map((i) => [i.id, i]));
-    
-    const unitIds = recipeIngredients
-      .filter((ri) => ri.unit_id)
-      .map((ri) => ri.unit_id as string);
-    const uniqueUnitIds = [...new Set(unitIds)];
-    
-    console.log('[shopping-list api] fetching units:', uniqueUnitIds.length);
-    
-    const { data: units } = uniqueUnitIds.length > 0
-      ? await supabase.from('units').select('id, code, name').in('id', uniqueUnitIds)
-      : { data: [] };
-    
-    const unitMap = new Map((units || []).map((u) => [u.id, u.code]));
-    console.log('[shopping-list api] unitMap size:', unitMap.size);
-
     console.log('[shopping-list api] building items');
     const allItems: ShoppingListBuyItem[] = [];
     
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
       
-      const ingData = ingredientMap.get(ri.ingredient_id);
-      if (!ingData || !ingData.name) continue;
+      const ing = Array.isArray(ri.ingredients) ? ri.ingredients[0] : null;
+      const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : null;
+      const unitRow = Array.isArray(ri.units) ? ri.units[0] : null;
+      if (!ing || !ing.name) continue;
       
       allItems.push({
         ingredientId: ri.ingredient_id,
-        name: ingData.name,
-        normalizedName: ingData.name,
+        name: ing.name,
+        normalizedName: ing.name,
         quantity: (ri.quantity ?? 0) * servings,
-        unit: unitMap.get(ri.unit_id ?? '') ?? '',
-        category: mapRawCategoryToKey(ingData.shopping_category ?? null),
+        unit: unitRow?.code ?? '',
+        category: mapRawCategoryToKey(ing.shopping_category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
       });
@@ -158,7 +144,7 @@ export default async function handler(
     const mergedItems = mergeItems(allItems);
     console.log('[shopping-list api] items after merge:', mergedItems.length);
 
-    console.log('[shopping-list api] grouping by category');
+    // Group by category
     const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
     
     for (const item of mergedItems) {
