@@ -62,6 +62,7 @@ export async function fetchGeneratedPlanShoppingList(
     }
 
     const response = await res.json();
+    console.log('[ShoppingList] API response:', JSON.stringify(response).slice(0, 500));
     
     // Map API response to ViewModel using the new module
     const viewModel = mapShoppingListResponseToViewModel(response);
