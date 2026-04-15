@@ -55,10 +55,15 @@ export default function RecipeDetailContent({
             safeIngredients.map((ing: any, i: number) => {
               const name = ing?.ingredient_name || ing?.name || '未知材料';
               const qty = ing?.quantity ?? '';
-              const unit = ing?.unit_name || ing?.unit || '';
+              const unit =
+                ing?.unit_name ||
+                ing?.unit?.name ||
+                ing?.unit?.code ||
+                (typeof ing?.unit === 'string' ? ing.unit : '') ||
+                '';
               return (
                 <li key={i} style={{ color: '#3A2010' }}>
-                  {name} {qty && String(qty)} {unit}
+                  {name} {qty !== '' ? String(qty) : ''} {unit}
                 </li>
               );
             })
