@@ -70,7 +70,7 @@ function RecipeCard({
 
   // Build href - either from onClick prop or default routing
   const href = recipeSlug ? `/recipes/${recipeSlug}` : '#';
-  const needsNavigation = !!recipeSlug;
+  const needsNavigation = !onClick && !!recipeSlug;
 
   const handleCardClick = () => {
     if (onClick) {
