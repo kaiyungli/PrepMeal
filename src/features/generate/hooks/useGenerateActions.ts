@@ -29,6 +29,7 @@ export function useGenerateActions({
 
   // Shopping List State
   const [shoppingList, setShoppingList] = useState<any[]>([]);
+  const [shoppingListError, setShoppingListError] = useState<string | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [shoppingListLoaded, setShoppingListLoaded] = useState(false);
 

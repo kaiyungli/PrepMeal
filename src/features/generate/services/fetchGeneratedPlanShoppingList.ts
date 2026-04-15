@@ -75,7 +75,7 @@ export async function fetchGeneratedPlanShoppingList(
     const fetchEnd = perfNow();
     
     // Transform API response to flat list
-    const toBuyGroups = data.toBuy || {};
+    const toBuyGroups = data?.byCategory?.toBuy || {};
     const flatToBuy: ShoppingListItem[] = [];
     Object.values(toBuyGroups).forEach((items) => {
       if (Array.isArray(items)) {
