@@ -16,7 +16,8 @@ export default function RecipesPage({ initialRecipes }) {
     isAuthenticated,
     isFavorite,
     toggleFavorite,
-    favoritesLoading: isPending,
+    favoritesLoading,
+    isPending,
   } = useUserState();
   
   const { toast, showToast } = useToast();
