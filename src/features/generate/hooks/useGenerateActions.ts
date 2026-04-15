@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
-import { normalizePlanForSave, saveGeneratedPlan } from './saveGeneratedPlan';
+import { normalizePlanForSave, saveGeneratedPlan } from '../index';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 
@@ -32,31 +32,12 @@ export function useGenerateActions({
   // Shopping List State - Use new ViewModel
   const [shoppingListView, setShoppingListView] = useState<ShoppingListViewModel | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
-  const [shoppingListLoaded, setShoppingListLoaded] = useState(false);
+  const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
   const [shoppingListError, setShoppingListError] = useState<string | null>(null);
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-
-  // Preload shopping list
-  useCallback(async () => {
-    if (showShoppingList && !shoppingListLoaded && Object.keys(weeklyPlan).length > 0) {
-      setShoppingListLoaded(true);
-      try {
-        const viewModel = await fetchGeneratedPlanShoppingList(
-          weeklyPlan,
-          pantryIngredients,
-          servings,
-          { traceId }
-        );
-        setShoppingListView(viewModel);
-      } catch (err) {
-        setShoppingListError((err as Error).message);
-        setShoppingListLoaded(true);
-      }
-    }
-  }, [showShoppingList, shoppingListLoaded, weeklyPlan, pantryIngredients, servings, traceId]);
 
   // Recipe click handler
   const handleRecipeClick = useCallback(async (recipe: any) => {
@@ -100,7 +81,7 @@ export function useGenerateActions({
     }
     
     setShowShoppingList(true);
-    setShoppingListLoaded(true);
+    setIsShoppingListLoading(true);
     
     try {
       const viewModel = await fetchGeneratedPlanShoppingList(
@@ -171,7 +152,7 @@ export function useGenerateActions({
 
   const handleClearAll = useCallback(() => {
     setShoppingListView(null);
-    setShoppingListLoaded(false);
+    setIsShoppingListLoading(false);
     setShoppingListError(null);
     setShowShoppingList(false);
     setSaveNotice('');
@@ -184,7 +165,7 @@ export function useGenerateActions({
     handleCloseRecipe,
     shoppingListView,
     showShoppingList,
-    shoppingListLoaded,
+    isShoppingListLoading,
     shoppingListError,
     handleOpenShoppingList,
     handleCloseShoppingList,

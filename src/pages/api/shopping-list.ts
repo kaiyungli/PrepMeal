@@ -4,7 +4,6 @@
  * POST - Generate shopping list for a weekly plan
  */
 
-import { getUserFromCookie } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection } from '@/features/shopping-list/types';

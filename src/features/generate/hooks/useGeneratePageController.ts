@@ -119,9 +119,9 @@ export function useGeneratePageController({
     // Actions
     selectedRecipe: actions.selectedRecipe,
     modalLoading: actions.modalLoading,
-    shoppingList: actions.shoppingList,
+    shoppingList: actions.shoppingListView,
     showShoppingList: actions.showShoppingList,
-    shoppingListLoaded: actions.shoppingListLoaded,
+    isShoppingListLoading: actions.isShoppingListLoading,
     saveNotice: actions.saveNotice,
     isSaving: actions.isSaving,
     handleOpenShoppingList: actions.handleOpenShoppingList,
