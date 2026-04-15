@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
+import { perfLog } from '@/utils/perf';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
@@ -75,6 +76,16 @@ export function useGenerateActions({
 
   // Shopping list handlers
   const handleOpenShoppingList = useCallback(async () => {
+    // Click log
+    const selectedCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+    perfLog({
+      event: 'shopping_list',
+      stage: 'open_click',
+      label: 'shopping_list.open_click',
+      duration: 0,
+      meta: { selectedRecipeCount: selectedCount },
+    });
+    
     if (shoppingListView || shoppingListError) {
       setShowShoppingList(true);
       return;
@@ -84,6 +95,7 @@ export function useGenerateActions({
     setIsShoppingListLoading(true);
     
     try {
+      const t0 = Date.now();
       const viewModel = await fetchGeneratedPlanShoppingList(
         weeklyPlan,
         pantryIngredients,
@@ -91,7 +103,28 @@ export function useGenerateActions({
         { traceId }
       );
       setShoppingListView(viewModel);
+      
+      // Ready log
+      perfLog({
+        event: 'shopping_list',
+        stage: 'ready',
+        label: 'shopping_list.ready',
+        duration: Date.now() - t0,
+        meta: {
+          pantryCount: viewModel.summary?.pantryCount || 0,
+          toBuyCount: viewModel.summary?.toBuyCount || 0,
+          sectionCount: viewModel.summary?.sectionCount || 0,
+        },
+      });
     } catch (err) {
+      // Error log
+      perfLog({
+        event: 'shopping_list',
+        stage: 'error',
+        label: 'shopping_list.error',
+        duration: 0,
+        meta: { message: (err as Error).message },
+      });
       setShoppingListError((err as Error).message);
     } finally {
       setIsShoppingListLoading(false);

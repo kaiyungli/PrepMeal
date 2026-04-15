@@ -5,6 +5,7 @@
  */
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
+import { perfNow, perfLog } from '@/utils/perf';
 
 export interface FetchShoppingListOptions {
   traceId?: string;
@@ -23,8 +24,7 @@ export async function fetchGeneratedPlanShoppingList(
   servings: number = 1,
   options: FetchShoppingListOptions = {}
 ): Promise<ShoppingListViewModel> {
-  const { traceId } = options;
-  const preloadStart = performance.now();
+  const t0 = perfNow();
   
   // Collect recipe IDs from plan
   const recipeIds: string[] = [];
@@ -34,6 +34,18 @@ export async function fetchGeneratedPlanShoppingList(
         if (r?.id) recipeIds.push(String(r.id));
       });
     }
+  });
+
+  perfLog({
+    event: 'shopping_list',
+    stage: 'fetch_start',
+    label: 'shopping_list.fetch.start',
+    duration: 0,
+    meta: {
+      recipeCount: recipeIds.length,
+      pantryCount: pantryIngredients.length,
+      servings,
+    },
   });
 
   if (recipeIds.length === 0) {
@@ -46,6 +58,8 @@ export async function fetchGeneratedPlanShoppingList(
   }
 
   try {
+    const fetchStart = perfNow();
+    
     const res = await fetch('/api/shopping-list', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -67,15 +81,48 @@ export async function fetchGeneratedPlanShoppingList(
     }
 
     const response = await res.json();
-    console.log('[ShoppingList] API response keys:', Object.keys(response));
-    console.log('[ShoppingList] toBuy sample:', response.toBuy?.slice(0,1));
+    const fetchDuration = perfNow() - fetchStart;
     
-    // Map API response to ViewModel using the new module
+    // Map to ViewModel
+    const mapStart = perfNow();
     const viewModel = mapShoppingListResponseToViewModel(response);
+    const mapDuration = perfNow() - mapStart;
+    
+    // Log fetch_total
+    perfLog({
+      event: 'shopping_list',
+      stage: 'fetch_total',
+      label: 'shopping_list.fetch.total',
+      duration: fetchDuration,
+      meta: {
+        recipeCount: recipeIds.length,
+        pantryCount: viewModel.summary?.pantryCount || 0,
+        toBuyCount: viewModel.summary?.toBuyCount || 0,
+        sectionCount: viewModel.summary?.sectionCount || 0,
+      },
+    });
+    
+    // Log map_total
+    perfLog({
+      event: 'shopping_list',
+      stage: 'map_total',
+      label: 'shopping_list.map.total',
+      duration: mapDuration,
+    });
     
     return viewModel;
   } catch (error) {
-    console.error('Error fetching shopping list:', error);
+    const duration = perfNow() - t0;
+    perfLog({
+      event: 'shopping_list',
+      stage: 'fetch_error',
+      label: 'shopping_list.fetch.error',
+      duration,
+      meta: {
+        recipeCount: recipeIds.length,
+        message: (error as Error).message,
+      },
+    });
     throw error;
   }
 }
