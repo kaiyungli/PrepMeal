@@ -106,14 +106,17 @@ export default async function handler(req, res) {
       }
     }
     
-    // Protein filter - check BOTH primary_protein AND protein array (any matching protein)
+    // Protein filter - check BOTH primary_protein AND protein array
     if (protein && protein !== '' && typeof protein === 'string') {
       const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);
       if (proteinValues.length > 0) {
-        // Use OR: primary_protein exact match OR protein overlaps with values
-        const primaryMatch = proteinValues.map(v => `primary_protein.eq.${v}`).join(',');
-        const arrayMatch = proteinValues.map(v => `protein.overlaps.{${v}}`).join(',');
-        query = query.or(`(${primaryMatch}),(${arrayMatch})`);
+        // Build OR query with proper PostgREST syntax:
+        // - primary_protein.eq.value OR protein.cs.{value}
+        // cs = contains (array contains element)
+        const orFilters = proteinValues.map(v => 
+          `primary_protein.eq.${v},protein.cs.{${v}}`
+        ).join(',');
+        query = query.or(orFilters);
       }
     }
     
