@@ -111,8 +111,12 @@ export default async function handler(req, res) {
       const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);
       if (proteinValues.length > 0) {
         // Use OR to match: primary_protein = value OR protein array contains value
-        const orConditions = proteinValues.map(v => `primary_protein.eq.${v},protein.cs.${v}`).join(',');
-        query = query.or(orConditions);
+        // First match primary_protein
+        const primaryMatch = proteinValues.map(v => `primary_protein.eq.${v}`).join(',');
+        // Also match protein array containing any of the values
+        const arrayMatch = proteinValues.map(v => `protein.cs.${v}`).join(',');
+        // Combine as OR
+        query = query.or(`(${primaryMatch}),(${arrayMatch})`);
       }
     }
     
