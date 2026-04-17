@@ -110,12 +110,9 @@ export default async function handler(req, res) {
     if (protein && protein !== '' && typeof protein === 'string') {
       const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);
       if (proteinValues.length > 0) {
-        // Use OR to match: primary_protein = value OR protein array contains value
-        // First match primary_protein
+        // Use OR: primary_protein exact match OR protein overlaps with values
         const primaryMatch = proteinValues.map(v => `primary_protein.eq.${v}`).join(',');
-        // Also match protein array containing any of the values
-        const arrayMatch = proteinValues.map(v => `protein.cs.${v}`).join(',');
-        // Combine as OR
+        const arrayMatch = proteinValues.map(v => `protein.overlaps.{${v}}`).join(',');
         query = query.or(`(${primaryMatch}),(${arrayMatch})`);
       }
     }
