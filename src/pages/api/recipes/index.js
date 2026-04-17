@@ -106,13 +106,13 @@ export default async function handler(req, res) {
       }
     }
     
-    // Protein filter (primary_protein) - support comma-separated multi-select
+    // Protein filter - check BOTH primary_protein AND protein array (any matching protein)
     if (protein && protein !== '' && typeof protein === 'string') {
       const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);
-      if (proteinValues.length === 1) {
-        query = query.eq('primary_protein', proteinValues[0]);
-      } else if (proteinValues.length > 1) {
-        query = query.in('primary_protein', proteinValues);
+      if (proteinValues.length > 0) {
+        // Use OR to match: primary_protein = value OR protein array contains value
+        const orConditions = proteinValues.map(v => `primary_protein.eq.${v},protein.cs.${v}`).join(',');
+        query = query.or(orConditions);
       }
     }
     

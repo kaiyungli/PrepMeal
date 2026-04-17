@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
@@ -64,9 +64,15 @@ export default function RecipesPage({ initialRecipes }) {
     filters,
   } = useRecipeFilters();
 
-  // Fetch recipes from API when filters/search/sort change
+  const fetchIdRef = useRef(0);
+
+  // Fetch recipes from API when filters/search/sort change (with debounce + race prevention)
   useEffect(() => {
-    async function loadRecipes() {
+    const currentId = ++fetchIdRef.current;
+    
+    const timer = setTimeout(async () => {
+      if (currentId !== fetchIdRef.current) return; // Race condition check
+      
       setLoading(true);
       try {
         const fetched = await fetchRecipesFromAPI({
@@ -80,16 +86,21 @@ export default function RecipesPage({ initialRecipes }) {
           sort: sortBy,
           limit: 100,
         });
+        
+        if (currentId !== fetchIdRef.current) return; // Race condition check
         setRecipes(fetched);
       } catch (err) {
         console.error('Failed to fetch recipes:', err);
+        if (currentId !== fetchIdRef.current) return;
         setRecipes(initialRecipes || []);
       } finally {
-        setLoading(false);
+        if (currentId === fetchIdRef.current) {
+          setLoading(false);
+        }
       }
-    }
-    
-    loadRecipes();
+    }, 300); // Debounce 300ms
+
+    return () => clearTimeout(timer);
   }, [searchQuery, sortBy, JSON.stringify(filters), initialRecipes]);
 
   const showEmptyState = hasFilters && !loading && recipes.length === 0;
