@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
@@ -8,10 +8,9 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
-import { fetchRecipesForServer } from '@/lib/recipesServer';
+import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
 
 export default function RecipesPage({ initialRecipes }) {
-  // Central user state
   const { 
     isAuthenticated,
     isFavorite,
@@ -22,8 +21,9 @@ export default function RecipesPage({ initialRecipes }) {
   
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [recipes, setRecipes] = useState(initialRecipes || []);
+  const [loading, setLoading] = useState(false);
   
-  // Wrapper that checks auth before toggling
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
@@ -32,7 +32,6 @@ export default function RecipesPage({ initialRecipes }) {
     return toggleFavorite(recipeId);
   }, [isAuthenticated, toggleFavorite, showToast]);
   
-  // Recipe click - just set selected, modal controller handles detail fetch
   const handleRecipeClick = useCallback((recipe) => {
     setSelectedRecipe({ ...recipe });
   }, []);
@@ -41,7 +40,6 @@ export default function RecipesPage({ initialRecipes }) {
     setSelectedRecipe(null);
   }, []);
 
-  // Get favorite state for the currently selected recipe in modal
   const modalIsFavorite = selectedRecipe ? isFavorite(selectedRecipe.id) : false;
   const modalIsPending = selectedRecipe ? isPending(selectedRecipe.id) : false;
   const handleModalFavoriteClick = useCallback(() => {
@@ -54,7 +52,6 @@ export default function RecipesPage({ initialRecipes }) {
     }
   }, [isAuthenticated, selectedRecipe, toggleFavorite, showToast]);
 
-  // Use shared recipe filters hook
   const {
     searchQuery,
     setSearchQuery,
@@ -64,15 +61,39 @@ export default function RecipesPage({ initialRecipes }) {
     hasFilters,
     activeFilterCount,
     clearFilters,
-    filterRecipes
+    filters,
   } = useRecipeFilters();
 
-  // Memoized filtered recipes - derived from initialRecipes + filter function
-  const filteredRecipes = useMemo(() => {
-    return filterRecipes(initialRecipes || []);
-  }, [initialRecipes, filterRecipes]);
+  // Fetch recipes from API when filters/search/sort change
+  useEffect(() => {
+    async function loadRecipes() {
+      setLoading(true);
+      try {
+        const fetched = await fetchRecipesFromAPI({
+          search: searchQuery,
+          cuisine: filters.cuisine?.join(','),
+          dish_type: filters.dish_type?.join(','),
+          protein: filters.protein?.join(','),
+          method: filters.method?.join(','),
+          difficulty: filters.difficulty?.join(','),
+          diet: filters.diet?.join(','),
+          sort: sortBy,
+          limit: 100,
+        });
+        setRecipes(fetched);
+      } catch (err) {
+        console.error('Failed to fetch recipes:', err);
+        setRecipes(initialRecipes || []);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadRecipes();
+  }, [searchQuery, sortBy, JSON.stringify(filters), initialRecipes]);
 
-  const showEmptyState = hasFilters && filteredRecipes.length === 0;
+  const showEmptyState = hasFilters && !loading && recipes.length === 0;
+  const showResults = !loading && recipes.length > 0;
 
   return (
     <Layout>
@@ -93,6 +114,12 @@ export default function RecipesPage({ initialRecipes }) {
           />
           </div>
 
+          {loading && (
+            <div className="text-center py-16">
+              <div className="text-xl text-[#9B6035]">載入中...</div>
+            </div>
+          )}
+
           {showEmptyState && (
             <div className="text-center py-16">
               <div className="text-6xl mb-2">😕</div>
@@ -102,10 +129,10 @@ export default function RecipesPage({ initialRecipes }) {
             </div>
           )}
 
-          {!showEmptyState && (
+          {showResults && (
             <div className="mt-6">
               <RecipeList
-                recipes={filteredRecipes}
+                recipes={recipes}
                 onRecipeClick={handleRecipeClick}
                 isFavorite={isFavorite}
                 isPending={isPending}
@@ -130,6 +157,8 @@ export default function RecipesPage({ initialRecipes }) {
 }
 
 export async function getServerSideProps() {
+  // Initial SSR recipes still load for fast first paint
+  const { fetchRecipesForServer } = await import('@/lib/recipesServer');
   try {
     const initialRecipes = await fetchRecipesForServer(24);
     return { props: { initialRecipes } };
