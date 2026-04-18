@@ -6,6 +6,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
 import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
 
+// Cache configuration
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const recipeCache = new Map<string, { data: any[]; timestamp: number }>();
+
+function getCacheKey(filters: any, searchQuery: string, sortBy: string, limit: number): string {
+  return JSON.stringify({ filters, searchQuery, sortBy, limit });
+}
+
 export interface UseFilteredRecipesOptions {
   filters: { [key: string]: string[] };
   searchQuery: string;
@@ -31,9 +39,20 @@ export function useFilteredRecipes(
   
   const fetchIdRef = useRef(0);
   
-  // Debounced fetch effect
+  // Debounced fetch effect with cache
   useEffect(() => {
     const currentId = ++fetchIdRef.current;
+    const cacheKey = getCacheKey(filters, searchQuery, sortBy, limit);
+    const now = Date.now();
+    
+    // Check cache first
+    const cached = recipeCache.get(cacheKey);
+    if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
+      // Cache hit - use cached data
+      setRecipes(cached.data);
+      setLoading(false);
+      return; // Skip API call
+    }
     
     const timer = setTimeout(async () => {
       // Race condition: this request is stale
@@ -59,6 +78,8 @@ export function useFilteredRecipes(
         if (fetched && fetched.length > 0) {
           setRecipes(fetched);
           setFetchError('');
+          // Cache the successful result (not errors)
+          recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now() });
         } else {
           // Empty result - explicit empty state
           setRecipes([]);
