@@ -8,6 +8,7 @@ import HomeHero from '@/components/home/HomeHero';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
@@ -23,10 +24,11 @@ export default function Home({ initialRecipes = [] }) {
     activeFilterCount, clearFilters, filterRecipes 
   } = useRecipeFilters();
 
-  // Memoized recipes list
-  const recipesList = useMemo(() => {
-    return filterRecipes(initialRecipes || []);
-  }, [initialRecipes, filterRecipes]);
+  // API-driven filtered recipes (shared hook)
+  const { recipes: recipesList, loading, fetchError } = useFilteredRecipes(
+    initialRecipes || [],
+    { filters: filters, searchQuery, sortBy, limit: 100 }
+  );
 
   // Controller
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
