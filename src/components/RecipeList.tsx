@@ -33,7 +33,7 @@ function RecipeList({
     console.log("[RecipeList] onFavoriteClick type:", typeof onFavoriteClick);
   }
   
-  if (!recipes || recipes.length === 0) {
+  console.log("[RecipeList] Received:", recipes?.length, "recipes"); if (!recipes || recipes.length === 0) {
     return (
       <div className="text-center py-20">
         <p className="text-[#7A746B] mb-4">{emptyMessage}</p>

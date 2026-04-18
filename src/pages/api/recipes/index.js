@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+import { supabaseServer as supabase } from '@/lib/supabaseServer'
 import { perfNow, perfMeasure } from '@/utils/perf';
 
 // Recommended indexes for this query (see docs/db-indexes.md):

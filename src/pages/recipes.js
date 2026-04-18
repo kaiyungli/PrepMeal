@@ -75,7 +75,7 @@ export default function RecipesPage({ initialRecipes }) {
       
       setLoading(true);
       try {
-        const fetched = await fetchRecipesFromAPI({
+        const fetchParams = {
           search: searchQuery,
           cuisine: filters.cuisine?.join(','),
           dish_type: filters.dish_type?.join(','),
@@ -85,13 +85,18 @@ export default function RecipesPage({ initialRecipes }) {
           diet: filters.diet?.join(','),
           sort: sortBy,
           limit: 100,
-        });
+        };
+        console.log('[RECIPES] Calling fetchRecipesFromAPI with:', fetchParams);
+        
+        const fetched = await fetchRecipesFromAPI(fetchParams);
         
         if (currentId !== fetchIdRef.current) return; // Race condition check
         setRecipes(fetched);
+        console.log('[RECIPES] API success, set recipes:', fetched?.length);
       } catch (err) {
         console.error('Failed to fetch recipes:', err);
         if (currentId !== fetchIdRef.current) return;
+        console.log('[RECIPES] API failed, using fallback:', initialRecipes?.length);
         setRecipes(initialRecipes || []);
       } finally {
         if (currentId === fetchIdRef.current) {
