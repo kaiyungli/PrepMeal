@@ -106,9 +106,11 @@ export const SPEED_MAP: Record<string, string> = {
   慢: '慢',
 };
 
-export const SPEED_OPTIONS = Object.entries(SPEED_MAP)
-  .filter(([key]) => !key.includes('快') && !key.includes('慢') && !key.includes('中'))
-  .map(([value, label]) => ({ value, label }));
+export const SPEED_OPTIONS = [
+  { value: 'quick', label: '快' },
+  { value: 'normal', label: '一般' },
+  { value: 'slow', label: '慢' },
+];
 
 // ============================================
 // DIFFICULTY MAP
