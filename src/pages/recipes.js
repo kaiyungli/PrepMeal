@@ -23,6 +23,7 @@ export default function RecipesPage({ initialRecipes }) {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState('');
   
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
@@ -74,6 +75,7 @@ export default function RecipesPage({ initialRecipes }) {
       if (currentId !== fetchIdRef.current) return; // Race condition check
       
       setLoading(true);
+      setFetchError('');
       try {
         const fetchParams = {
           search: searchQuery,
@@ -86,18 +88,17 @@ export default function RecipesPage({ initialRecipes }) {
           sort: sortBy,
           limit: 100,
         };
-        console.log('[RECIPES] Calling fetchRecipesFromAPI with:', fetchParams);
         
         const fetched = await fetchRecipesFromAPI(fetchParams);
         
         if (currentId !== fetchIdRef.current) return; // Race condition check
         setRecipes(fetched);
-        console.log('[RECIPES] API success, set recipes:', fetched?.length);
+        setFetchError('');
       } catch (err) {
         console.error('Failed to fetch recipes:', err);
         if (currentId !== fetchIdRef.current) return;
-        console.log('[RECIPES] API failed, using fallback:', initialRecipes?.length);
-        setRecipes(initialRecipes || []);
+        setFetchError('暫時無法載入食譜，請稍後再試');
+        setRecipes([]);
       } finally {
         if (currentId === fetchIdRef.current) {
           setLoading(false);
