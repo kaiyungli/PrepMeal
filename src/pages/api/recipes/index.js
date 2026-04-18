@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       method,
       diet,
       protein,
+      speed,
       budget,
       complete,
       exclusions,
