@@ -10,6 +10,7 @@ import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
 import { buildRecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
+import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 
 export default function RecipesPage({ initialRecipes }) {
   const { 
@@ -22,9 +23,10 @@ export default function RecipesPage({ initialRecipes }) {
   
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [recipes, setRecipes] = useState(initialRecipes || []);
-  const [loading, setLoading] = useState(false);
-  const [fetchError, setFetchError] = useState('');
+  const { recipes, loading, fetchError } = useFilteredRecipes(
+    initialRecipes || [],
+    { filters, searchQuery, sortBy, limit: 100 }
+  );
   
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
@@ -66,9 +68,7 @@ export default function RecipesPage({ initialRecipes }) {
     filters,
   } = useRecipeFilters();
 
-  const fetchIdRef = useRef(0);
-
-  // Fetch recipes from API when filters/search/sort change (with debounce + race prevention)
+    // Fetch recipes from API when filters/search/sort change (with debounce + race prevention)
   useEffect(() => {
     const currentId = ++fetchIdRef.current;
     
