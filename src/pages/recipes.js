@@ -9,6 +9,7 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
+import { buildRecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
 
 export default function RecipesPage({ initialRecipes }) {
   const { 
@@ -77,17 +78,12 @@ export default function RecipesPage({ initialRecipes }) {
       setLoading(true);
       setFetchError('');
       try {
-        const fetchParams = {
-          search: searchQuery,
-          cuisine: filters.cuisine?.join(','),
-          dish_type: filters.dish_type?.join(','),
-          protein: filters.protein?.join(','),
-          method: filters.method?.join(','),
-          difficulty: filters.difficulty?.join(','),
-          diet: filters.diet?.join(','),
-          sort: sortBy,
+        const fetchParams = buildRecipeApiParams({
+          filters,
+          searchQuery,
+          sortBy,
           limit: 100,
-        };
+        });
         
         const fetched = await fetchRecipesFromAPI(fetchParams);
         
