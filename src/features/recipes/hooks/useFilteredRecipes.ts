@@ -37,7 +37,6 @@ export function useFilteredRecipes(
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState('');
-  console.log("[Hook] totalCount:", recipes.length);
   const totalCount = recipes.length; // Use array length for count
   
   const fetchIdRef = useRef(0);

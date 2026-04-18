@@ -120,7 +120,9 @@ export default function RecipesPage({ initialRecipes }) {
 
           {showResults && (
             <div className="mt-6">
-              {resultCountText && <div className="text-sm text-[#7A5A38] mb-2">{resultCountText}</div>}
+              <div className="mb-4 text-sm text-[#7A7A7A]">
+                共 {totalCount} 個食譜
+              </div>
               <RecipeList
                 recipes={recipes}
                 onRecipeClick={handleRecipeClick}
