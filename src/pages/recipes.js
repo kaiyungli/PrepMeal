@@ -8,8 +8,6 @@ import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
-import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
-import { buildRecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 
 export default function RecipesPage({ initialRecipes }) {
@@ -23,11 +21,6 @@ export default function RecipesPage({ initialRecipes }) {
   
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const { recipes, loading, fetchError } = useFilteredRecipes(
-    initialRecipes || [],
-    { filters, searchQuery, sortBy, limit: 100 }
-  );
-  
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
@@ -68,43 +61,11 @@ export default function RecipesPage({ initialRecipes }) {
     filters,
   } = useRecipeFilters();
 
-    // Fetch recipes from API when filters/search/sort change (with debounce + race prevention)
-  useEffect(() => {
-    const currentId = ++fetchIdRef.current;
-    
-    const timer = setTimeout(async () => {
-      if (currentId !== fetchIdRef.current) return; // Race condition check
-      
-      setLoading(true);
-      setFetchError('');
-      try {
-        const fetchParams = buildRecipeApiParams({
-          filters,
-          searchQuery,
-          sortBy,
-          limit: 100,
-        });
-        
-        const fetched = await fetchRecipesFromAPI(fetchParams);
-        
-        if (currentId !== fetchIdRef.current) return; // Race condition check
-        setRecipes(fetched);
-        setFetchError('');
-      } catch (err) {
-        console.error('Failed to fetch recipes:', err);
-        if (currentId !== fetchIdRef.current) return;
-        setFetchError('暫時無法載入食譜，請稍後再試');
-        setRecipes([]);
-      } finally {
-        if (currentId === fetchIdRef.current) {
-          setLoading(false);
-        }
-      }
-    }, 300); // Debounce 300ms
-
-    return () => clearTimeout(timer);
-  }, [searchQuery, sortBy, JSON.stringify(filters), initialRecipes]);
-
+  const { recipes, loading, fetchError } = useFilteredRecipes(
+    initialRecipes || [],
+    { filters, searchQuery, sortBy, limit: 100 }
+  );
+  
   const showEmptyState = hasFilters && !loading && recipes.length === 0;
   const showResults = !loading && recipes.length > 0;
 
