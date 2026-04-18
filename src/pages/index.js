@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useCallback } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Layout } from '@/components';
@@ -21,7 +21,7 @@ export default function Home({ initialRecipes = [] }) {
   const { 
     searchQuery, setSearchQuery, sortBy, setSortBy, 
     showFilters, setShowFilters, recipeFilterSections, hasFilters, 
-    activeFilterCount, clearFilters, filterRecipes 
+    activeFilterCount, clearFilters, filters 
   } = useRecipeFilters();
 
   // API-driven filtered recipes (shared hook)
