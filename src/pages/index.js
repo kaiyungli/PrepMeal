@@ -25,13 +25,13 @@ export default function Home({ initialRecipes = [] }) {
   } = useRecipeFilters();
 
   // API-driven filtered recipes (shared hook)
-  const { recipes: recipesList, totalCount, loading, fetchError } = useFilteredRecipes(
+  const { recipes: recipes, totalCount, loading, fetchError } = useFilteredRecipes(
     initialRecipes || [],
     { filters: filters, searchQuery, sortBy, limit: 100 }
   );
 
   // Controller
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipes, showToast });
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
@@ -40,8 +40,8 @@ export default function Home({ initialRecipes = [] }) {
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showErrorState = !loading && fetchError;
-  const showEmptyState = !loading && !fetchError && recipesList.length === 0;
-  const showResults = !loading && !fetchError && recipesList.length > 0;
+  const showEmptyState = !loading && !fetchError && recipes.length === 0;
+  const showResults = !loading && !fetchError && recipes.length > 0;
   
 
   return (
@@ -105,7 +105,7 @@ export default function Home({ initialRecipes = [] }) {
             共 {totalCount} 個食譜
           </div>
           <HomeRecipesSection
-            recipes={recipesList}
+            recipes={recipes}
             isFavorite={isFavorite}
             onFavoriteClick={handleFavoriteToggle}
             onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
