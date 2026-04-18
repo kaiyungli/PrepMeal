@@ -23,6 +23,7 @@ export interface UseFilteredRecipesOptions {
 
 export interface UseFilteredRecipesResult {
   recipes: any[];
+  totalCount: number;
   loading: boolean;
   fetchError: string;
 }
@@ -36,6 +37,8 @@ export function useFilteredRecipes(
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState('');
+  console.log("[Hook] totalCount:", recipes.length);
+  const totalCount = recipes.length; // Use array length for count
   
   const fetchIdRef = useRef(0);
   
@@ -97,5 +100,5 @@ export function useFilteredRecipes(
     return () => clearTimeout(timer);
   }, [searchQuery, sortBy, JSON.stringify(filters), limit]);
   
-  return { recipes, loading, fetchError };
+  return { recipes, totalCount, loading, fetchError };
 }

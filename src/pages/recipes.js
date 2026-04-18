@@ -63,7 +63,7 @@ export default function RecipesPage({ initialRecipes }) {
     filters,
   } = useRecipeFilters();
 
-  const { recipes, loading, fetchError } = useFilteredRecipes(
+  const { recipes, totalCount, loading, fetchError } = useFilteredRecipes(
     initialRecipes || [],
     { filters, searchQuery, sortBy, limit: 100 }
   );
@@ -71,6 +71,7 @@ export default function RecipesPage({ initialRecipes }) {
   const showErrorState = !loading && fetchError;
   const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
+  const resultCountText = hasFilters && totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
 
   return (
     <Layout>
@@ -119,6 +120,7 @@ export default function RecipesPage({ initialRecipes }) {
 
           {showResults && (
             <div className="mt-6">
+              {resultCountText && <div className="text-sm text-[#7A5A38] mb-2">{resultCountText}</div>}
               <RecipeList
                 recipes={recipes}
                 onRecipeClick={handleRecipeClick}

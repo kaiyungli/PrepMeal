@@ -25,7 +25,7 @@ export default function Home({ initialRecipes = [] }) {
   } = useRecipeFilters();
 
   // API-driven filtered recipes (shared hook)
-  const { recipes: recipesList, loading, fetchError } = useFilteredRecipes(
+  const { recipes: recipesList, totalCount, loading, fetchError } = useFilteredRecipes(
     initialRecipes || [],
     { filters: filters, searchQuery, sortBy, limit: 100 }
   );
@@ -42,6 +42,8 @@ export default function Home({ initialRecipes = [] }) {
   const showErrorState = !loading && fetchError;
   const showEmptyState = !loading && !fetchError && recipesList.length === 0;
   const showResults = !loading && !fetchError && recipesList.length > 0;
+  console.log("[Page] totalCount:", totalCount);
+  const resultCountText = totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
 
   return (
     <Layout>
@@ -100,6 +102,7 @@ export default function Home({ initialRecipes = [] }) {
         )}
 
         {showResults && (
+          {resultCountText && <div className="text-sm text-[#7A5A38] mb-2">{resultCountText}</div>}
           <HomeRecipesSection
             recipes={recipesList}
             isFavorite={isFavorite}
