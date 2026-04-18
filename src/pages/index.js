@@ -43,7 +43,7 @@ export default function Home({ initialRecipes = [] }) {
   const showEmptyState = !loading && !fetchError && recipesList.length === 0;
   const showResults = !loading && !fetchError && recipesList.length > 0;
   console.log("[Page] totalCount:", totalCount);
-  const resultCountText = totalCount > 0 ? (totalCount + " recipes") : "";
+  const resultCountText = totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
 
   return (
     <Layout>
@@ -109,7 +109,6 @@ export default function Home({ initialRecipes = [] }) {
             onFavoriteClick={handleFavoriteToggle}
             onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
           />
-          </>
         )}
       </div>
   </Layout>
