@@ -148,6 +148,24 @@ export default async function handler(req, res) {
       }
     }
     
+    // Speed filter based on total_time_minutes
+    // quick = <=20, normal = 21-40, slow = >40
+    if (speed && speed !== '' && typeof speed === 'string') {
+      const speedValues = speed.split(',').map(v => v.trim()).filter(Boolean);
+      if (speedValues.length > 0) {
+        const conditions = speedValues.map(s => {
+          if (s === 'quick') return 'total_time_minutes.lte.20';
+          if (s === 'normal') return 'and(total_time_minutes.gte.21,total_time_minutes.lte.40)';
+          if (s === 'slow') return 'total_time_minutes.gt.40';
+          return null;
+        }).filter(Boolean);
+        
+        if (conditions.length > 0) {
+          query = query.or(conditions.join(','));
+        }
+      }
+    }
+    
     // Sorting
     const safeSort = typeof sort === 'string' ? sort : 'newest'
     switch (safeSort) {
