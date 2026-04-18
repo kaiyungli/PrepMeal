@@ -52,7 +52,7 @@ export default function FilterCardShell({
   children,
 }: FilterCardShellProps) {
   const expandText = isExpanded ? '▲ 收起' : '▼ 展開';
-  console.log('[Shell] render isExpanded:', isExpanded, 'onToggle:', typeof onToggleExpand);
+  console.log('[FilterCardShell] isExpanded:', isExpanded, ' activeFilterCount:', activeFilterCount, ' has onClear:', typeof onClear);
 
   return (
     <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden">
