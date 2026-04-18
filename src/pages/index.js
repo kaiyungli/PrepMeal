@@ -39,7 +39,9 @@ export default function Home({ initialRecipes = [] }) {
   }, [router]);
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
-  const showEmptyState = recipesList.length === 0;
+  const showErrorState = !loading && fetchError;
+  const showEmptyState = !loading && !fetchError && recipesList.length === 0;
+  const showResults = !loading && !fetchError && recipesList.length > 0;
 
   return (
     <Layout>
@@ -74,7 +76,19 @@ export default function Home({ initialRecipes = [] }) {
           />
         </div>
 
-        {showEmptyState ? (
+        {loading && (
+          <div className="text-center py-20">
+            <p className="text-[var(--color-text-muted)]">載入中...</p>
+          </div>
+        )}
+
+        {showErrorState && (
+          <div className="text-center py-20">
+            <p className="text-red-500">{fetchError}</p>
+          </div>
+        )}
+
+        {showEmptyState && (
           <div className="text-center py-20">
             <p className="text-[var(--color-text-muted)]">未找到相符既食譜</p>
             {hasFilters && (
@@ -83,7 +97,9 @@ export default function Home({ initialRecipes = [] }) {
               </button>
             )}
           </div>
-        ) : (
+        )}
+
+        {showResults && (
           <HomeRecipesSection
             recipes={recipesList}
             isFavorite={isFavorite}

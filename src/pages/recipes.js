@@ -66,8 +66,9 @@ export default function RecipesPage({ initialRecipes }) {
     { filters, searchQuery, sortBy, limit: 100 }
   );
   
-  const showEmptyState = hasFilters && !loading && recipes.length === 0;
-  const showResults = !loading && recipes.length > 0;
+  const showErrorState = !loading && fetchError;
+  const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
+  const showResults = !loading && !fetchError && recipes.length > 0;
 
   return (
     <Layout>
