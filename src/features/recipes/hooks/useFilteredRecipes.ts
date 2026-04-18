@@ -48,8 +48,10 @@ export function useFilteredRecipes(
     // Check cache first
     const cached = recipeCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
-      // Cache hit - use cached data
+      // Cache hit - use cached data (with race check)
+      if (currentId !== fetchIdRef.current) return;
       setRecipes(cached.data);
+      setFetchError('');
       setLoading(false);
       return; // Skip API call
     }
@@ -75,15 +77,10 @@ export function useFilteredRecipes(
         if (currentId !== fetchIdRef.current) return;
         
         // Success path: use API result (not initialRecipes fallback)
-        if (fetched && fetched.length > 0) {
-          setRecipes(fetched);
-          setFetchError('');
-          // Cache the successful result (not errors)
-          recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now() });
-        } else {
-          // Empty result - explicit empty state
-          setRecipes([]);
-        }
+        // Cache ALL successful responses (including empty arrays)
+        setRecipes(fetched);
+        setFetchError('');
+        recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now() });
       } catch (err) {
         // Error path: explicit error, NOT fallback to initialRecipes
         console.error('[useFilteredRecipes] API error:', err);
