@@ -83,9 +83,15 @@ export const METHOD_MAP: Record<string, string> = {
   燒: '燒',
 };
 
-export const METHOD_OPTIONS = Object.entries(METHOD_MAP)
-  .filter(([key]) => !key.includes('蒸') && !key.includes('煎') && !key.includes('煮') && !key.includes('焗') && !key.includes('燒') && key.length <= 6)
-  .map(([value, label]) => ({ value, label }));
+// Only canonical method values for UI - no aliases
+export const METHOD_OPTIONS = [
+  { value: 'stir_fry', label: '炒' },
+  { value: 'steamed', label: '蒸' },
+  { value: 'fried', label: '煎' },
+  { value: 'boiled', label: '煮' },
+  { value: 'braised', label: '燜' },
+  { value: 'baked', label: '焗' },
+];
 
 // ============================================
 // SPEED MAP
@@ -121,9 +127,11 @@ export const DIFFICULTY_MAP: Record<string, string> = {
   進階: '進階',
 };
 
-export const DIFFICULTY_OPTIONS = Object.entries(DIFFICULTY_MAP)
-  .filter(([key]) => !key.includes('容易') && !key.includes('中等') && !key.includes('進階') && !key.includes('簡單') && !key.includes('複雜') && !key.includes('難'))
-  .map(([value, label]) => ({ value, label }));
+export const DIFFICULTY_OPTIONS = [
+  { value: 'easy', label: '容易' },
+  { value: 'medium', label: '中等' },
+  { value: 'hard', label: '進階' },
+];
 
 // ============================================
 // DIET MAP
@@ -146,9 +154,14 @@ export const DIET_MAP: Record<string, string> = {
   清淡: '清淡',
 };
 
-export const DIET_OPTIONS = Object.entries(DIET_MAP)
-  .filter(([key]) => !key.includes('普通') && !key.includes('素食') && !key.includes('高蛋白') && !key.includes('低'))
-  .map(([value, label]) => ({ value, label }));
+export const DIET_OPTIONS = [
+  { value: 'general', label: '普通' },
+  { value: 'vegetarian', label: '素食' },
+  { value: 'egg_lacto', label: '蛋奶素' },
+  { value: 'high_protein', label: '高蛋白' },
+  { value: 'low_fat', label: '低脂' },
+  { value: 'low_calorie', label: '低卡' },
+];
 
 // ============================================
 // FLAVOR MAP
