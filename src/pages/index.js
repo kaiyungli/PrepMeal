@@ -25,13 +25,13 @@ export default function Home({ initialRecipes = [] }) {
   } = useRecipeFilters();
 
   // API-driven filtered recipes (shared hook)
-  const { recipes: recipes, totalCount, loading, fetchError } = useFilteredRecipes(
+  const { recipes: recipesList, totalCount, loading, fetchError } = useFilteredRecipes(
     initialRecipes || [],
     { filters: filters, searchQuery, sortBy, limit: 100 }
   );
 
   // Controller
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipes, showToast });
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
@@ -40,9 +40,10 @@ export default function Home({ initialRecipes = [] }) {
 
   const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
   const showErrorState = !loading && fetchError;
-  const showEmptyState = !loading && !fetchError && recipes.length === 0;
-  const showResults = !loading && !fetchError && recipes.length > 0;
-  
+  const showEmptyState = !loading && !fetchError && recipesList.length === 0;
+  const showResults = !loading && !fetchError && recipesList.length > 0;
+  console.log("[Page] totalCount:", totalCount);
+  const resultCountText = totalCount > 0 ? (totalCount + " recipes") : "";
 
   return (
     <Layout>
@@ -101,15 +102,14 @@ export default function Home({ initialRecipes = [] }) {
         )}
 
         {showResults && (
-          <div className="text-sm text-[#7A7A7A] mb-2">
-            共 {totalCount} 個食譜
-          </div>
+          {resultCountText && <div className="text-sm text-[#7A5A38] mb-2">{resultCountText}</div>}
           <HomeRecipesSection
-            recipes={recipes}
+            recipes={recipesList}
             isFavorite={isFavorite}
             onFavoriteClick={handleFavoriteToggle}
             onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
           />
+          </>
         )}
       </div>
   </Layout>
