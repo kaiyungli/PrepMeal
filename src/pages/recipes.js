@@ -95,6 +95,15 @@ export default function RecipesPage({ initialRecipes }) {
             </div>
           )}
 
+          {showErrorState && (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-2">⚠️</div>
+              <h3 className="text-xl font-bold text-[#3A2010] mb-2">載入食譜失敗</h3>
+              <p className="text-sm text-[#C0A080] mb-6">{fetchError}</p>
+              <button onClick={clearFilters} className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">清除篩選</button>
+            </div>
+          )}
+
           {showEmptyState && (
             <div className="text-center py-16">
               <div className="text-6xl mb-2">😕</div>
