@@ -1,13 +1,3 @@
-export interface RecipeFilters {
-  cuisine: string[];
-  dish_type: string[];
-  protein: string[];
-  method: string[];
-  speed: string[];
-  difficulty: string[];
-  diet: string[];
-  flavor: string[];
-}
 // Recipe filters hook - unified filter system
 import { useState, useMemo, useCallback } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
