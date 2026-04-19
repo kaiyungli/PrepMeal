@@ -3,9 +3,6 @@ import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilt
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-/**
- * Get recent recipes for diversity (previous 1-2 days only)
- */
 function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey: string): any[] {
   const currentIdx = DAY_ORDER.indexOf(dayKey);
   if (currentIdx <= 0) return [];
@@ -21,9 +18,6 @@ function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey:
   return recent;
 }
 
-/**
- * Check if candidate repeats recent protein or method
- */
 function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
   if (!recent.length) return false;
   
@@ -34,6 +28,24 @@ function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
     (candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
     (candidate.method && recentMethods.includes(candidate.method))
   );
+}
+
+function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]): string[] {
+  const reasons: string[] = [];
+  
+  if (slotRole === 'protein_main' && candidate.primary_protein) {
+    reasons.push('protein_main');
+  } else if (slotRole === 'protein_main' && candidate.dish_type === 'main') {
+    reasons.push('protein_main (dish_type)');
+  } else if (slotRole === 'veg_side' && !candidate.primary_protein && candidate.dish_type === 'side') {
+    reasons.push('veg_side');
+  }
+  
+  if (!hasRecentDuplicate(candidate, recent)) {
+    reasons.push('diverse');
+  }
+  
+  return reasons;
 }
 
 interface UseGenerateHandlersOptions {
@@ -64,12 +76,18 @@ export function useGenerateHandlers({
     
     if (candidates.length === 0) return;
     
-    // Diversity filter (narrow window)
+    // Diversity filter
     const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
     const diverseCandidates = candidates.filter((r: any) => !hasRecentDuplicate(r, recent));
     candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
     
+    // Select random
     const random = candidates[Math.floor(Math.random() * candidates.length)];
+    
+    // Attach reasons
+    const reasons = buildSelectionReasons(random, nextSlotRole, recent);
+    (random as any)._selectionReasons = reasons;
+    
     setWeeklyPlan((prev: Record<string, any[]>) => ({
       ...prev,
       [dayKey]: [...(prev[dayKey] || []), random]
