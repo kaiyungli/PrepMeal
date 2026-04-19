@@ -127,17 +127,18 @@ const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
     
     // Apply budget preference (soft bias)
-    candidates = applyBudgetPreference(candidates, budget);
-    
-    // Ingredient reuse preference
-    candidates = applyIngredientReusePreference(candidates, weeklyPlan);
-    
     if (candidates.length === 0) return;
     
-    // Diversity filter
+    // Diversity filter (BEFORE preferences)
     const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
     const diverseCandidates = candidates.filter((r: any) => !hasRecentDuplicate(r, recent));
     candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
+    
+    // Budget preference (after diversity)
+    candidates = applyBudgetPreference(candidates, budget);
+    
+    // Ingredient reuse preference (last before random)
+    candidates = applyIngredientReusePreference(candidates, weeklyPlan);
     
     // Select random
     const random = candidates[Math.floor(Math.random() * candidates.length)];
