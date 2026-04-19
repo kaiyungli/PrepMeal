@@ -22,7 +22,7 @@ export function replaceRecipeInPlan(
   const allExistingRecipes = Object.values(weeklyPlan).flat().filter(r => r);
   
   // Simple local role filter based on requirements
-  function matchesSlotRoleLocal(recipe: Recipe, slotRole: string): boolean {
+  function matchesSlotRoleLocal(recipe: any, slotRole: string): boolean {
     if (slotRole === 'protein_main') {
       return !!recipe.primary_protein || recipe.dish_type === 'main';
     }
