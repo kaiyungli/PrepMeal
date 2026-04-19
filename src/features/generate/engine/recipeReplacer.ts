@@ -5,7 +5,7 @@
  */
 import { scoreCandidates } from './recipeScorer';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
-import { matchesSlotRole } from '@/lib/mealPlanner';
+import { matchesSlotRole, findCandidatesByFallback } from '@/lib/mealPlanner';
 
 
 
@@ -39,13 +39,16 @@ export function replaceRecipeInPlan(
     .flat()
     .filter(r => r);
   
-  // Filter by slot role - only candidates matching the target role can replace
-  const roleMatchedCandidates = availableCandidates.filter(candidate => 
-    matchesSlotRole(candidate, targetSlotRole)
+  // Use shared fallback finder (same logic as planner)
+  const usedRecipeIds = new Set(allExistingRecipes.map(r => r.id));
+  let candidatesInDay = findCandidatesByFallback(
+    availableCandidates,
+    targetSlotRole,
+    usedRecipeIds
   );
   
-  // Filter out recipes already in this day's slot
-  const candidatesInDay = roleMatchedCandidates.filter(
+  // Filter out same-day duplicates
+  candidatesInDay = candidatesInDay.filter(
     candidate => !weeklyPlan[dayKey]?.some(pr => pr?.id === candidate.id)
   );
   
