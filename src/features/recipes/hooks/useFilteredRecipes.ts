@@ -42,7 +42,8 @@ export function useFilteredRecipes(
   const fetchIdRef = useRef(0);
   
   // Debounced fetch effect with cache
-  useEffect(() => {
+  console.log('[useFilteredRecipes] EFFECT TRIGGERED, filters:', filters);
+    useEffect(() => {
     const currentId = ++fetchIdRef.current;
     const cacheKey = getCacheKey(filters, searchQuery, sortBy, limit);
     const now = Date.now();
@@ -66,7 +67,8 @@ export function useFilteredRecipes(
       setFetchError('');
       
       try {
-        const fetchParams = buildRecipeApiParams({
+        console.log('[useFilteredRecipes] building params, filters:', filters);
+      const fetchParams = buildRecipeApiParams({
           filters,
           searchQuery,
           sortBy,
