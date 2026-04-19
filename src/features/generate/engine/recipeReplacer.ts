@@ -88,10 +88,10 @@ export function replaceRecipeInPlan(
   
   // Attach reasons as metadata
   const reasons = buildSelectionReasons(selected, slotRole, recent);
-  (selected as any)._selectionReasons = reasons;
+  const selectedWithReasons = { ...selected, selectionReasons: reasons };
   
   const dayRecipes = [...(weeklyPlan[dayKey] || [])];
-  dayRecipes[index] = selected;
+  dayRecipes[index] = selectedWithReasons;
   
   return { ...weeklyPlan, [dayKey]: dayRecipes };
 }

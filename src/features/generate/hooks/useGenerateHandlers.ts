@@ -86,7 +86,7 @@ export function useGenerateHandlers({
     
     // Attach reasons
     const reasons = buildSelectionReasons(random, nextSlotRole, recent);
-    (random as any)._selectionReasons = reasons;
+    const randomWithReasons = { ...random, selectionReasons: reasons };
     
     setWeeklyPlan((prev: Record<string, any[]>) => ({
       ...prev,
