@@ -15,10 +15,10 @@ function getMealRoleLabel(recipe: Recipe): string | null {
 // Map reason key to label
 function getSelectionReasonLabel(key: string): string {
   const labels: Record<string, string> = {
-    protein_main: "主菜搭配",
-    "protein_main (dish_type)": "主菜搭配",
-    veg_side: "配菜搭配",
-    diverse: "避免重複",
+    protein_main: "配合今餐主菜位置",
+    "protein_main (dish_type)": "配合今餐主菜位置",
+    veg_side: "適合作為配菜",
+    diverse: "避免與前兩天重複",
   };
   return labels[key] || key;
 }
