@@ -25,7 +25,7 @@ export function useGeneratePageController({
   const { isAuthenticated, getAccessToken } = useAuth();
   
   // Use passed-in preferences
-  const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters } = preferences;
+  const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters, allowCompleteMeal } = preferences;
   
   // Data hook
   const data = useGenerateData();
@@ -48,6 +48,7 @@ export function useGeneratePageController({
     exclusions: preferences.exclusions,
     cookingConstraints: preferences.cookingConstraints,
     budget: budget || 'medium',
+    allowCompleteMeal: allowCompleteMeal,
     pantryIngredients: data.pantryIngredients,
     traceId
   });

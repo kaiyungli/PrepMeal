@@ -19,6 +19,7 @@ interface UseGeneratePlanOptions {
   exclusions: string[];
   cookingConstraints: any;
   budget: string;
+  allowCompleteMeal?: boolean;
   pantryIngredients: string[];
   traceId?: string;
 }
@@ -34,6 +35,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     cookingConstraints,
     budget,
     pantryIngredients,
+    allowCompleteMeal,
     traceId
   } = options;
 
