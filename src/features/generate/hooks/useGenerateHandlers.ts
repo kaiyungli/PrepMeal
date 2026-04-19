@@ -1,14 +1,24 @@
 import { useCallback } from 'react';
 import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
 
+const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
 /**
- * Get recent recipes for diversity (all days except current)
+ * Get recent recipes for diversity (previous 1-2 days only)
  */
 function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey: string): any[] {
-  return Object.entries(weeklyPlan)
-    .filter(([day]) => day !== dayKey)
-    .flatMap(([, recipes]) => recipes)
-    .filter(Boolean);
+  const currentIdx = DAY_ORDER.indexOf(dayKey);
+  if (currentIdx <= 0) return [];
+  
+  const recent: any[] = [];
+  for (let i = 1; i <= 2; i++) {
+    const prevDay = DAY_ORDER[currentIdx - i];
+    if (prevDay && weeklyPlan[prevDay]) {
+      recent.push(...weeklyPlan[prevDay].filter(Boolean));
+    }
+  }
+  
+  return recent;
 }
 
 /**
@@ -54,7 +64,7 @@ export function useGenerateHandlers({
     
     if (candidates.length === 0) return;
     
-    // Simple diversity filter
+    // Diversity filter (narrow window)
     const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
     const diverseCandidates = candidates.filter((r: any) => !hasRecentDuplicate(r, recent));
     candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
