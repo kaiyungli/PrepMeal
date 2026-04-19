@@ -237,6 +237,9 @@ export function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
 }
 
 // Fallback chain for when exact role has no candidates
+export function planWeekAdvanced(
+  recipes: Recipe[],
+  config: PlanConfig & { traceId?: string }
 ): Record<string, Recipe[]> {
   const traceId = (config as any).traceId;
   const fnStart = perfNow();
