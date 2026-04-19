@@ -13,13 +13,13 @@ function getMealRoleLabel(recipe: Recipe): string | null {
 }
 
 const DAYS = [
-  { key: 'mon', label: '星期一', isWeekend: false },
-  { key: 'tue', label: '星期二', isWeekend: false },
-  { key: 'wed', label: '星期三', isWeekend: false },
-  { key: 'thu', label: '星期四', isWeekend: false },
-  { key: 'fri', label: '星期五', isWeekend: false },
-  { key: 'sat', label: '星期六', isWeekend: true },
-  { key: 'sun', label: '星期日', isWeekend: true },
+  { key: 'mon', label: '第一天', isWeekend: false },
+  { key: 'tue', label: '第二天', isWeekend: false },
+  { key: 'wed', label: '第三天', isWeekend: false },
+  { key: 'thu', label: '第四天', isWeekend: false },
+  { key: 'fri', label: '第五天', isWeekend: false },
+  { key: 'sat', label: '第六天', isWeekend: true },
+  { key: 'sun', label: '第七天', isWeekend: true },
 ]
 
 // Generate dates for current week
