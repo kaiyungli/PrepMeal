@@ -8,6 +8,7 @@ interface UseGenerateHandlersOptions {
   clearFilters: () => void;
   actionsClearAll: () => void;
   handleResetPlan: () => void;
+  dailyComposition: string;
 }
 
 export function useGenerateHandlers({
@@ -17,18 +18,17 @@ export function useGenerateHandlers({
   clearFilters,
   actionsClearAll,
   handleResetPlan,
+  dailyComposition,
 }: UseGenerateHandlersOptions) {
-  // Add random recipe to day - respects composition slot role
-  const handleAddRandomRecipe = useCallback((dayKey: string, compositionMode?: string): void => {
-    const composition = compositionMode || 'meat_veg';
+  // Add random recipe to day - uses dailyComposition from controller
+  const handleAddRandomRecipe = useCallback((dayKey: string): void => {
+    const composition = dailyComposition || 'meat_veg';
     const config = COMPOSITION_CONFIG[composition as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
     const slotRoles = config.slotRoles || ['any'];
     
-    // Current day length determines next slot
     const currentCount = weeklyPlan[dayKey]?.length || 0;
     const nextSlotRole = slotRoles[currentCount % slotRoles.length] || 'any';
     
-    // Local role filter
     const matchRole = (r: any, sr: string): boolean => {
       if (sr === 'protein_main') return !!r.primary_protein || r.dish_type === 'main';
       if (sr === 'veg_side') return !r.primary_protein && r.dish_type === 'side';
@@ -45,7 +45,7 @@ export function useGenerateHandlers({
       ...prev,
       [dayKey]: [...(prev[dayKey] || []), random]
     }));
-  }, [weeklyPlan, filteredRecipes, setWeeklyPlan]);
+  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {

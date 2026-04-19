@@ -72,6 +72,7 @@ export function useGeneratePageController({
     clearFilters,
     actionsClearAll: actions.handleClearAll,
     handleResetPlan: plan.handleResetPlan,
+    dailyComposition,
   });
   
   // Filter accordion state
