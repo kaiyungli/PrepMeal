@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { COMPOSITION_CONFIG } from '@/constants/composition';
+import { getSlotRolesForComposition, getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
 
 interface UseGenerateHandlersOptions {
   weeklyPlan: any;
@@ -20,22 +20,14 @@ export function useGenerateHandlers({
   handleResetPlan,
   dailyComposition,
 }: UseGenerateHandlersOptions) {
-  // Add random recipe to day - uses dailyComposition from controller
   const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     const composition = dailyComposition || 'meat_veg';
-    const config = COMPOSITION_CONFIG[composition as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
-    const slotRoles = config.slotRoles || ['any'];
+    const slotRoles = getSlotRolesForComposition(composition);
     
     const currentCount = weeklyPlan[dayKey]?.length || 0;
     const nextSlotRole = slotRoles[currentCount % slotRoles.length] || 'any';
     
-    const matchRole = (r: any, sr: string): boolean => {
-      if (sr === 'protein_main') return !!r.primary_protein || r.dish_type === 'main';
-      if (sr === 'veg_side') return !r.primary_protein && r.dish_type === 'side';
-      return true;
-    };
-    
-    let candidates = filteredRecipes.filter((r: any) => matchRole(r, nextSlotRole));
+    let candidates = filteredRecipes.filter((r: any) => matchesLocalSlotRole(r, nextSlotRole));
     candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
     
     if (candidates.length === 0) return;

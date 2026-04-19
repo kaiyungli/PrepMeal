@@ -1,30 +1,19 @@
 import { scoreCandidates } from './recipeScorer';
+import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
 
 export function replaceRecipeInPlan(
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
   index: number,
   availableCandidates: any[],
-  options?: { dailyComposition?: string; }
+  options?: { dailyComposition?: string }
 ): Record<string, any[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
-  const roles = composition === 'meat_veg'
-    ? ['protein_main', 'veg_side']
-    : composition === 'two_meat_one_veg'
-    ? ['protein_main', 'protein_main', 'veg_side']
-    : ['any'];
-  
-  const slotRole = roles[index % roles.length] || 'any';
+  const slotRole = getSlotRoleForIndex(composition, index);
   
   const existing = Object.values(weeklyPlan).flat().filter(Boolean);
   
-  const matchRole = (r: any, sr: string): boolean => {
-    if (sr === 'protein_main') return !!r.primary_protein || r.dish_type === 'main';
-    if (sr === 'veg_side') return !r.primary_protein && r.dish_type === 'side';
-    return true;
-  };
-  
-  let candidates = availableCandidates.filter(c => matchRole(c, slotRole));
+  let candidates = availableCandidates.filter(c => matchesLocalSlotRole(c, slotRole));
   candidates = candidates.filter(c => !weeklyPlan[dayKey]?.some(p => p?.id === c.id));
   
   if (!candidates.length) return null;
@@ -34,7 +23,6 @@ export function replaceRecipeInPlan(
   
   if (!selected) return null;
   
-  // Replace the target slot immutably
   const dayRecipes = [...(weeklyPlan[dayKey] || [])];
   dayRecipes[index] = selected;
   
