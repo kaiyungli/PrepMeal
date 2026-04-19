@@ -82,6 +82,36 @@ function applyBudgetPreference(candidates: any[], budget?: string): any[] {
   return preferred.length > 0 ? preferred : candidates;
 }
 
+
+
+// Extract ingredient keywords from existing recipes
+function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
+  const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
+  const keywords: string[] = [];
+  
+  for (const recipe of allRecipes) {
+    const text = ((recipe.name || "") + " " + (recipe.description || "")).toLowerCase();
+    // Simple Chinese keyword extraction - look for common ingredient patterns
+    const matches = text.match(/[一-龥]{2,4}/g) || [];
+    keywords.push(...matches.slice(0, 3)); // Keep first 3 keywords per recipe
+  }
+  
+  return [...new Set(keywords)];
+}
+
+// Apply ingredient reuse preference (soft bias)
+function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<string, any[]>): any[] {
+  const keywords = getIngredientKeywords(weeklyPlan);
+  if (keywords.length === 0) return candidates;
+  
+  const reuseCandidates = candidates.filter(c => {
+    const text = ((c.name || "") + " " + (c.description || "")).toLowerCase();
+    return keywords.some(k => text.includes(k));
+  });
+  
+  return reuseCandidates.length > 0 ? reuseCandidates : candidates;
+}
+
 export function replaceRecipeInPlan(
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
@@ -107,7 +137,11 @@ export function replaceRecipeInPlan(
   const diverseCandidates = candidates.filter(c => !hasRecentDuplicate(c, recent));
   const filteredCandidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
   
-  const scored = scoreCandidates(filteredCandidates, existing);
+  // Ingredient reuse preference
+  const reuseCandidates = applyIngredientReusePreference(filteredCandidates, weeklyPlan);
+  const finalCandidates = reuseCandidates.length > 0 ? reuseCandidates : filteredCandidates;
+  
+  const scored = scoreCandidates(finalCandidates, existing);
   const selected = scored?.[0]?.recipe;
   
   if (!selected) return null;

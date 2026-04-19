@@ -90,6 +90,35 @@ function applyBudgetPreference(candidates: any[], budget?: string): any[] {
   return preferred.length > 0 ? preferred : candidates;
 }
 
+
+
+// Extract ingredient keywords from existing recipes
+function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
+  const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
+  const keywords: string[] = [];
+  
+  for (const recipe of allRecipes) {
+    const text = ((recipe.name || "") + " " + (recipe.description || "")).toLowerCase();
+    const matches = text.match(/[一-龥]{2,4}/g) || [];
+    keywords.push(...matches.slice(0, 3));
+  }
+  
+  return [...new Set(keywords)];
+}
+
+// Apply ingredient reuse preference (soft bias)
+function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<string, any[]>): any[] {
+  const keywords = getIngredientKeywords(weeklyPlan);
+  if (keywords.length === 0) return candidates;
+  
+  const reuseCandidates = candidates.filter(c => {
+    const text = ((c.name || "") + " " + (c.description || "")).toLowerCase();
+    return keywords.some(k => text.includes(k));
+  });
+  
+  return reuseCandidates.length > 0 ? reuseCandidates : candidates;
+}
+
 const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     const composition = dailyComposition || 'meat_veg';
     const nextSlotRole = getSlotRoleForIndex(composition, weeklyPlan[dayKey]?.length || 0);
@@ -99,6 +128,9 @@ const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     
     // Apply budget preference (soft bias)
     candidates = applyBudgetPreference(candidates, budget);
+    
+    // Ingredient reuse preference
+    candidates = applyIngredientReusePreference(candidates, weeklyPlan);
     
     if (candidates.length === 0) return;
     
