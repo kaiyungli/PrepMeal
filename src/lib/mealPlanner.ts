@@ -237,6 +237,50 @@ export function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
 }
 
 // Fallback chain for when exact role has no candidates
+function getCandidatesWithFallback(
+  recipes: Recipe[], 
+  slotRole: string,
+  usedRecipeIds: Set<string>
+): Recipe[] {
+  const exactMatch = recipes.filter(r => 
+    !usedRecipeIds.has(r.id) && matchesSlotRole(r, slotRole)
+  );
+  if (exactMatch.length > 0) return exactMatch;
+  
+  // Fallback chain per role - stricter for veg_side
+  const fallbacks: Record<string, string[]> = {
+    'protein_main': ['protein_main', 'main', 'any'],
+    'veg_side': ['veg_side', 'side'],  // Removed 'any' - no main dishes for veg slot
+    'soup': ['soup', 'side', 'any'],
+    'complete_meal': ['complete_meal', 'main', 'any']
+  };
+  
+  const chain = fallbacks[slotRole] || ['any'];
+  
+  // For veg_side, filter out candidates with primary_protein
+  if (slotRole === 'veg_side') {
+    for (const fallbackRole of chain) {
+      const candidates = recipes.filter(r => 
+        !usedRecipeIds.has(r.id) && 
+        matchesSlotRole(r, fallbackRole) &&
+        !r.primary_protein  // Must have NO protein for veg slot
+      );
+      if (candidates.length > 0) return candidates;
+    }
+  } else {
+    for (const fallbackRole of chain) {
+      const candidates = recipes.filter(r => 
+        !usedRecipeIds.has(r.id) && matchesSlotRole(r, fallbackRole)
+      );
+      if (candidates.length > 0) return candidates;
+    }
+  }
+  
+  // Ultimate fallback: any unused recipe
+  return recipes.filter(r => !usedRecipeIds.has(r.id));
+}
+
+
 export function planWeekAdvanced(
   recipes: Recipe[],
   config: PlanConfig & { traceId?: string }
@@ -406,7 +450,7 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      let candidates = findCandidatesByFallback(filtered, slotRole, usedRecipeIds);
+      let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
       
       // Log slot candidates
       if (traceId) {
