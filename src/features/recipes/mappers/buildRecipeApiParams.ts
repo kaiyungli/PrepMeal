@@ -30,7 +30,8 @@ export function buildRecipeApiParams({
   sortBy = 'newest',
   limit = 100,
 }: BuildParamsInput): RecipeApiParams {
-  return {
+  console.log('[buildRecipeApiParams] input filters:', filters);
+    return {
     search: searchQuery,
     cuisine: filters.cuisine?.join(',') ?? '',
     dish_type: filters.dish_type?.join(',') ?? '',
