@@ -90,7 +90,7 @@ export function useGenerateHandlers({
     
     setWeeklyPlan((prev: Record<string, any[]>) => ({
       ...prev,
-      [dayKey]: [...(prev[dayKey] || []), random]
+      [dayKey]: [...(prev[dayKey] || []), randomWithReasons]
     }));
   }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition]);
 
