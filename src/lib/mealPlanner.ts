@@ -237,52 +237,6 @@ export function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
 }
 
 // Fallback chain for when exact role has no candidates
-
-
-
-// Reusable fallback candidate finder - same logic used by planner
-export function findCandidatesByFallback(
-  recipes: Recipe[],
-  slotRole: string,
-  usedRecipeIds: Set<string>
-): Recipe[] {
-  // Strict fallback chain per role
-  const fallbacks: Record<string, string[]> = {
-    'protein_main': ['protein_main', 'main', 'any'],
-    'veg_side': ['veg_side', 'side'],  // No main for veg
-    'soup': ['soup', 'side', 'any'],
-    'complete_meal': ['complete_meal', 'main', 'any']
-  };
-  
-  const chain = fallbacks[slotRole] || ['any'];
-  
-  // For veg_side, strict filter - must have NO primary protein
-  if (slotRole === 'veg_side') {
-    for (const fallbackRole of chain) {
-      const candidates = recipes.filter(r => 
-        !usedRecipeIds.has(r.id) && 
-        matchesSlotRole(r, fallbackRole) &&
-        !r.primary_protein
-      );
-      if (candidates.length > 0) return candidates;
-    }
-  } else {
-    for (const fallbackRole of chain) {
-      const candidates = recipes.filter(r => 
-        !usedRecipeIds.has(r.id) && matchesSlotRole(r, fallbackRole)
-      );
-      if (candidates.length > 0) return candidates;
-    }
-  }
-  
-  // Ultimate fallback: any unused recipe
-  return recipes.filter(r => !usedRecipeIds.has(r.id));
-}
-
-
-export function planWeekAdvanced(
-  recipes: Recipe[],
-  config: PlanConfig & { traceId?: string }
 ): Record<string, Recipe[]> {
   const traceId = (config as any).traceId;
   const fnStart = perfNow();
