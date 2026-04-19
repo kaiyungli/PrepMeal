@@ -30,7 +30,13 @@ export function replaceRecipeInPlan(
   if (!candidates.length) return null;
   
   const scored = scoreCandidates(candidates, existing);
-  if (!scored?.[0]) return null;
+  const selected = scored?.[0]?.recipe;
   
-  return { ...weeklyPlan, [dayKey]: [...(weeklyPlan[dayKey] || [])] };
+  if (!selected) return null;
+  
+  // Replace the target slot immutably
+  const dayRecipes = [...(weeklyPlan[dayKey] || [])];
+  dayRecipes[index] = selected;
+  
+  return { ...weeklyPlan, [dayKey]: dayRecipes };
 }
