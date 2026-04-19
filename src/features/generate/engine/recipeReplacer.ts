@@ -74,7 +74,7 @@ function applyBudgetPreference(candidates: any[], budget?: string): any[] {
   } else if (budget === 'premium') {
     // Premium: >=40min or more involved
     preferred = candidates.filter(c => 
-      !c.total_time_minutes || c.total_time_minutes >= 40
+      c.total_time_minutes && c.total_time_minutes >= 40
     );
   }
   

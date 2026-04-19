@@ -129,7 +129,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     if (updatedPlan) {
       setWeeklyPlan(updatedPlan);
     }
-  }, [weeklyPlan, filteredRecipes, dailyComposition]);
+  }, [weeklyPlan, filteredRecipes, dailyComposition, budget]);
 
   // Lock/unlock slots
   const lockSlot = useCallback((dayKey: string, index: number) => {

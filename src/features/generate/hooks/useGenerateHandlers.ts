@@ -83,7 +83,7 @@ function applyBudgetPreference(candidates: any[], budget?: string): any[] {
     );
   } else if (budget === "premium") {
     preferred = candidates.filter(c => 
-      !c.total_time_minutes || c.total_time_minutes >= 40
+      c.total_time_minutes && c.total_time_minutes >= 40
     );
   }
   
