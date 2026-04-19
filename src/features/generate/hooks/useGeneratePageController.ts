@@ -73,6 +73,7 @@ export function useGeneratePageController({
     actionsClearAll: actions.handleClearAll,
     handleResetPlan: plan.handleResetPlan,
     dailyComposition,
+    budget,
   });
   
   // Filter accordion state

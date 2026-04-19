@@ -49,6 +49,7 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]):
 }
 
 interface UseGenerateHandlersOptions {
+  budget?: string;
   weeklyPlan: any;
   setWeeklyPlan: (plan: any) => void;
   filteredRecipes: any[];
@@ -66,13 +67,38 @@ export function useGenerateHandlers({
   actionsClearAll,
   handleResetPlan,
   dailyComposition,
+  budget,
 }: UseGenerateHandlersOptions) {
-  const handleAddRandomRecipe = useCallback((dayKey: string): void => {
+  
+// Apply soft budget preference (filter, not block)
+function applyBudgetPreference(candidates: any[], budget?: string): any[] {
+  if (!budget || budget === "medium") return candidates;
+  
+  let preferred: any[] = [];
+  
+  if (budget === "budget") {
+    preferred = candidates.filter(c => 
+      (c.total_time_minutes && c.total_time_minutes <= 30) ||
+      (c.method && ["stir_fry", "boiled"].includes(c.method))
+    );
+  } else if (budget === "premium") {
+    preferred = candidates.filter(c => 
+      !c.total_time_minutes || c.total_time_minutes >= 40
+    );
+  }
+  
+  return preferred.length > 0 ? preferred : candidates;
+}
+
+const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     const composition = dailyComposition || 'meat_veg';
     const nextSlotRole = getSlotRoleForIndex(composition, weeklyPlan[dayKey]?.length || 0);
     
     let candidates = filteredRecipes.filter((r: any) => matchesLocalSlotRole(r, nextSlotRole));
     candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
+    
+    // Apply budget preference (soft bias)
+    candidates = applyBudgetPreference(candidates, budget);
     
     if (candidates.length === 0) return;
     

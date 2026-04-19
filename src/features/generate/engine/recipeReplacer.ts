@@ -42,7 +42,6 @@ function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
 function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]): string[] {
   const reasons: string[] = [];
   
-  // Slot role match
   if (slotRole === 'protein_main' && candidate.primary_protein) {
     reasons.push('protein_main');
   } else if (slotRole === 'protein_main' && candidate.dish_type === 'main') {
@@ -51,7 +50,6 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]):
     reasons.push('veg_side');
   }
   
-  // Diversity bonus
   if (!hasRecentDuplicate(candidate, recent)) {
     reasons.push('diverse');
   }
@@ -59,12 +57,37 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]):
   return reasons;
 }
 
+/**
+ * Apply soft budget preference (filter, not block)
+ */
+function applyBudgetPreference(candidates: any[], budget?: string): any[] {
+  if (!budget || budget === 'medium') return candidates;
+  
+  let preferred: any[] = [];
+  
+  if (budget === 'budget') {
+    // Quick/simple: <=30min OR simple methods
+    preferred = candidates.filter(c => 
+      (c.total_time_minutes && c.total_time_minutes <= 30) ||
+      (c.method && ['stir_fry', 'boiled'].includes(c.method))
+    );
+  } else if (budget === 'premium') {
+    // Premium: >=40min or more involved
+    preferred = candidates.filter(c => 
+      !c.total_time_minutes || c.total_time_minutes >= 40
+    );
+  }
+  
+  // Soft bias: use preferred if available, else fallback to all
+  return preferred.length > 0 ? preferred : candidates;
+}
+
 export function replaceRecipeInPlan(
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
   index: number,
   availableCandidates: any[],
-  options?: { dailyComposition?: string }
+  options?: { dailyComposition?: string; budget?: string }
 ): Record<string, any[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
   const slotRole = getSlotRoleForIndex(composition, index);
@@ -76,6 +99,9 @@ export function replaceRecipeInPlan(
   
   if (!candidates.length) return null;
   
+  // Apply budget preference (soft bias)
+  candidates = applyBudgetPreference(candidates, options?.budget);
+  
   // Diversity filter
   const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
   const diverseCandidates = candidates.filter(c => !hasRecentDuplicate(c, recent));
@@ -86,7 +112,6 @@ export function replaceRecipeInPlan(
   
   if (!selected) return null;
   
-  // Attach reasons as metadata
   const reasons = buildSelectionReasons(selected, slotRole, recent);
   const selectedWithReasons = { ...selected, selectionReasons: reasons };
   
