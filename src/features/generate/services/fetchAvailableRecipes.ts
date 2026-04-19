@@ -8,6 +8,7 @@ import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 export interface Recipe {
   id: string | number;
   name: string;
+  description: string | null;
   image_url: string | null;
   cuisine: string | null;
   difficulty: string | null;
