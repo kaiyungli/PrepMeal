@@ -1,22 +1,6 @@
-/**
- * Recipe Replacer - Pure logic for replacing a single recipe in plan
- * 
- * Uses recipeScorer internally for diversity-based selection.
- */
+import { Recipe } from './recipeScorer';
 import { scoreCandidates } from './recipeScorer';
-import { COMPOSITION_CONFIG } from '@/constants/composition';
 
-
-
-
-/**
- * Replace a recipe at a specific slot in the weekly plan
- * @param weeklyPlan - Current weekly plan
- * @param dayKey - Day key (e.g., 'mon', 'tue')
- * @param index - Recipe index in that day's slots
- * @param availableCandidates - Recipes available for replacement
- * @returns Updated weekly plan or null if no replacement available
- */
 export function replaceRecipeInPlan(
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
@@ -26,49 +10,49 @@ export function replaceRecipeInPlan(
     dailyComposition?: string;
   }
 ): Record<string, any[]> | null {
-  // Determine target slot role from composition
+  // Determine target slot role from composition and index
   const compositionKey = options?.dailyComposition || 'meat_veg';
-  const config = COMPOSITION_CONFIG[compositionKey as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
-  const slotRoles = config.slotRoles || ['any'];
+  const slotRoles = compositionKey === 'meat_veg' ? ['protein_main', 'veg_side'] : 
+                   compositionKey === 'two_protein' ? ['protein_main', 'protein_main'] :
+                   ['any'];
   
-  // Determine which slot role this position should have
   const targetSlotRole = slotRoles[index % slotRoles.length] || 'any';
   
-  // Get current recipes for scoring context
-  const allExistingRecipes = Object.values(weeklyPlan)
-    .flat()
-    .filter(r => r);
+  // Get current recipes for duplicate check
+  const allExistingRecipes = Object.values(weeklyPlan).flat().filter(r => r);
   
-  // Use shared fallback finder (same logic as planner)
-  const usedRecipeIds = new Set(allExistingRecipes.map(r => r.id));
-  let candidatesInDay = findCandidatesByFallback(
-    availableCandidates,
-    targetSlotRole,
-    usedRecipeIds
-  );
+  // Simple local role filter based on requirements
+  function matchesSlotRoleLocal(recipe: Recipe, slotRole: string): boolean {
+    if (slotRole === 'protein_main') {
+      return !!recipe.primary_protein || recipe.dish_type === 'main';
+    }
+    if (slotRole === 'veg_side') {
+      return !recipe.primary_protein && recipe.dish_type === 'side';
+    }
+    return true; // 'any' allows all
+  }
   
-  // Filter out same-day duplicates
-  candidatesInDay = candidatesInDay.filter(
-    candidate => !weeklyPlan[dayKey]?.some(pr => pr?.id === candidate.id)
-  );
+  // Filter candidates by slot role
+  let candidatesInDay = availableCandidates.filter(c => matchesSlotRoleLocal(c, targetSlotRole));
   
-  // Score candidates for diversity
-  const scored = scoreCandidates(candidatesInDay, allExistingRecipes);
+  // Remove same-day duplicates
+  candidatesInDay = candidatesInDay.filter(c => !weeklyPlan[dayKey]?.some(pr => pr?.id === c.id));
   
-  if (scored.length === 0) {
+  if (candidatesInDay.length === 0) {
     return null;
   }
   
-  // Pick highest scoring recipe
-  const selected = scored[0]?.recipe;
+  // Use existing scoring for selection
+  const selected = scoreCandidates(candidatesInDay, allExistingRecipes, {} as any);
   
-  if (!selected) {
+  if (!selected || !selected[0]) {
     return null;
   }
   
-  // Return updated plan
-  const dayRecipes = [...(weeklyPlan[dayKey] || [])];
-  dayRecipes[index] = selected;
+  // Copy plan and replace
+  const newPlan = JSON.parse(JSON.stringify(weeklyPlan));
+  newPlan[dayKey] = [...(newPlan[dayKey] || [])];
+  newPlan[dayKey][index] = selected[0];
   
-  return { ...weeklyPlan, [dayKey]: dayRecipes };
+  return newPlan;
 }
