@@ -23,6 +23,19 @@ function getSelectionReasonLabel(key: string): string {
   return labels[key] || key;
 }
 
+// Sort reasons in fixed display order
+function sortSelectionReasons(reasons: string[]): string[] {
+  const order = ["protein_main", "protein_main (dish_type)", "veg_side", "diverse"];
+  return [...reasons].sort((a, b) => {
+    const aIdx = order.indexOf(a);
+    const bIdx = order.indexOf(b);
+    if (aIdx === -1 && bIdx === -1) return 0;
+    if (aIdx === -1) return 1;
+    if (bIdx === -1) return -1;
+    return aIdx - bIdx;
+  });
+}
+
 const DAYS = [
   { key: 'mon', label: '星期一', isWeekend: false },
   { key: 'tue', label: '星期二', isWeekend: false },
@@ -156,7 +169,7 @@ export default function WeeklyPlanGrid({
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
-                        {(recipe as any).selectionReasons && (recipe as any).selectionReasons.map((r: string) => (
+                        {(recipe as any).selectionReasons && sortSelectionReasons((recipe as any).selectionReasons).map((r: string) => (
                           <span key={r} className="text-[10px] px-1 py-0.5 bg-blue-100 text-blue-700 rounded mt-1 mr-1">
                             {getSelectionReasonLabel(r)}
                           </span>
