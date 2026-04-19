@@ -193,7 +193,7 @@ export interface PlanConfig {
 }
 
 // Helper to check if a recipe matches a slot role with refined priority
-function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
+export function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
   const mealRole = recipe.meal_role;
   const dishType = recipe.dish_type;
   const isCompleteMeal = recipe.is_complete_meal;

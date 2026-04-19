@@ -5,30 +5,9 @@
  */
 import { scoreCandidates } from './recipeScorer';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
+import { matchesSlotRole } from '@/lib/mealPlanner';
 
-// Inlined slot role matching (same logic as mealPlanner.ts)
-function matchesSlotRole(recipe: any, slotRole: string): boolean {
-  const mealRole = recipe.meal_role;
-  const dishType = recipe.dish_type;
-  const isCompleteMeal = recipe.is_complete_meal;
-  const primaryProtein = recipe.primary_protein;
-  
-  switch (slotRole) {
-    case 'complete_meal':
-      return mealRole === 'complete_meal' || isCompleteMeal === true;
-    case 'protein_main':
-      if (mealRole === 'protein_main') return true;
-      if (dishType === 'main') return true;
-      if (!!primaryProtein) return true;
-      return false;
-    case 'veg_side':
-      if (mealRole === 'veg_side') return true;
-      if (dishType === 'side' && !primaryProtein) return true;
-      return false;
-    default:
-      return true;
-  }
-}
+
 
 /**
  * Replace a recipe at a specific slot in the weekly plan
