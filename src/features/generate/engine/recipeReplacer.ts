@@ -5,7 +5,7 @@
  */
 import { scoreCandidates } from './recipeScorer';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
-import { matchesSlotRole, findCandidatesByFallback } from '@/lib/mealPlanner';
+import { findCandidatesByFallback } from '@/lib/mealPlanner';
 
 
 
