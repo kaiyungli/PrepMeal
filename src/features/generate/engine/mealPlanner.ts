@@ -16,6 +16,7 @@ export interface MealPlannerConfig {
   exclusions: string[];
   cookingConstraints: string[];
   budget: string;
+  allowCompleteMeal?: boolean;
   pantryIngredients: string[];
   lockedSlots: Record<string, boolean>;
   lockedRecipes: Record<string, any>;

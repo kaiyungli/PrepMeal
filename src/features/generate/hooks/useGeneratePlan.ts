@@ -90,6 +90,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
       exclusions,
       cookingConstraints,
       budget: budget || 'medium',
+      allowCompleteMeal: allowCompleteMeal,
       pantryIngredients,
       lockedSlots,
       lockedRecipes,
@@ -120,7 +121,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     });
 
     setWeeklyPlan(newPlan);
-  }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan, traceId]);
+  }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan, traceId, allowCompleteMeal]);
 
   // Replace recipe at slot
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
