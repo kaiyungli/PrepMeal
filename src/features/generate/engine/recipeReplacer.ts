@@ -1,4 +1,3 @@
-import { Recipe } from './recipeScorer';
 import { scoreCandidates } from './recipeScorer';
 
 export function replaceRecipeInPlan(
@@ -13,7 +12,7 @@ export function replaceRecipeInPlan(
   // Determine target slot role from composition and index
   const compositionKey = options?.dailyComposition || 'meat_veg';
   const slotRoles = compositionKey === 'meat_veg' ? ['protein_main', 'veg_side'] : 
-                   compositionKey === 'two_protein' ? ['protein_main', 'protein_main'] :
+                   compositionKey === 'two_meat_one_veg' ? ['protein_main', 'protein_main', 'veg_side'] :
                    ['any'];
   
   const targetSlotRole = slotRoles[index % slotRoles.length] || 'any';
@@ -21,7 +20,7 @@ export function replaceRecipeInPlan(
   // Get current recipes for duplicate check
   const allExistingRecipes = Object.values(weeklyPlan).flat().filter(r => r);
   
-  // Simple local role filter based on requirements
+  // Simple local role filter
   function matchesSlotRoleLocal(recipe: any, slotRole: string): boolean {
     if (slotRole === 'protein_main') {
       return !!recipe.primary_protein || recipe.dish_type === 'main';
@@ -29,7 +28,7 @@ export function replaceRecipeInPlan(
     if (slotRole === 'veg_side') {
       return !recipe.primary_protein && recipe.dish_type === 'side';
     }
-    return true; // 'any' allows all
+    return true;
   }
   
   // Filter candidates by slot role
@@ -42,17 +41,26 @@ export function replaceRecipeInPlan(
     return null;
   }
   
-  // Use existing scoring for selection
-  const selected = scoreCandidates(candidatesInDay, allExistingRecipes, {} as any);
+  // Use scoring (only 2 args)
+  const selected = scoreCandidates(candidatesInDay, allExistingRecipes);
   
   if (!selected || !selected[0]) {
     return null;
   }
   
-  // Copy plan and replace
-  const newPlan = JSON.parse(JSON.stringify(weeklyPlan));
-  newPlan[dayKey] = [...(newPlan[dayKey] || [])];
-  newPlan[dayKey][index] = selected[0];
-  
-  return newPlan;
+  // Immutable replacement  
+  return {
+    ...weeklyPlan,
+    [dayKey]: [
+      ...(weeklyPlan[dayKey] || [])
+    ]
+  };
 }
+
+OFFILE
+
+# Check
+grep "import" src/features/generate/engine/recipeReplacer.ts
+
+echo "=== Building ==="
+npm run build 2>&1 | tail -3
