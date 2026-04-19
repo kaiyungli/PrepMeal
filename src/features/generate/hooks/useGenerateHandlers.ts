@@ -1,6 +1,31 @@
 import { useCallback } from 'react';
 import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
 
+/**
+ * Get recent recipes for diversity (all days except current)
+ */
+function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey: string): any[] {
+  return Object.entries(weeklyPlan)
+    .filter(([day]) => day !== dayKey)
+    .flatMap(([, recipes]) => recipes)
+    .filter(Boolean);
+}
+
+/**
+ * Check if candidate repeats recent protein or method
+ */
+function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
+  if (!recent.length) return false;
+  
+  const recentProteins = recent.map(r => r.primary_protein).filter(Boolean);
+  const recentMethods = recent.map(r => r.method).filter(Boolean);
+  
+  return (
+    (candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
+    (candidate.method && recentMethods.includes(candidate.method))
+  );
+}
+
 interface UseGenerateHandlersOptions {
   weeklyPlan: any;
   setWeeklyPlan: (plan: any) => void;
@@ -28,6 +53,11 @@ export function useGenerateHandlers({
     candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
     
     if (candidates.length === 0) return;
+    
+    // Simple diversity filter
+    const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
+    const diverseCandidates = candidates.filter((r: any) => !hasRecentDuplicate(r, recent));
+    candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
     
     const random = candidates[Math.floor(Math.random() * candidates.length)];
     setWeeklyPlan((prev: Record<string, any[]>) => ({
