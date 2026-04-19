@@ -5,7 +5,7 @@
  */
 import { scoreCandidates } from './recipeScorer';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
-import { findCandidatesByFallback } from '@/lib/mealPlanner';
+
 
 
 
