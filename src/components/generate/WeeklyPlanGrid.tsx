@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { getSelectionReasonLabel, sortSelectionReasons } from '@/features/generate/config/selectionReasons';
 
 // Get meal role label for display
 function getMealRoleLabel(recipe: Recipe): string | null {
@@ -9,31 +10,6 @@ function getMealRoleLabel(recipe: Recipe): string | null {
   if (recipe.dish_type === 'side') return '配菜';
   if (recipe.dish_type === 'soup') return '湯';
   return null;
-}
-
-
-// Map reason key to label
-function getSelectionReasonLabel(key: string): string {
-  const labels: Record<string, string> = {
-    protein_main: "配合今餐主菜位置",
-    "protein_main (dish_type)": "配合今餐主菜位置",
-    veg_side: "適合作為配菜",
-    diverse: "避免與前兩天重複",
-  };
-  return labels[key] || key;
-}
-
-// Sort reasons in fixed display order
-function sortSelectionReasons(reasons: string[]): string[] {
-  const order = ["protein_main", "protein_main (dish_type)", "veg_side", "diverse"];
-  return [...reasons].sort((a, b) => {
-    const aIdx = order.indexOf(a);
-    const bIdx = order.indexOf(b);
-    if (aIdx === -1 && bIdx === -1) return 0;
-    if (aIdx === -1) return 1;
-    if (bIdx === -1) return -1;
-    return aIdx - bIdx;
-  });
 }
 
 const DAYS = [
