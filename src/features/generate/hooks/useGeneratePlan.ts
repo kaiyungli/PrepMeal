@@ -125,7 +125,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
 
   // Replace recipe at slot
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
-    const updatedPlan = replaceRecipeInPlan(weeklyPlan, dayKey, index, filteredRecipes, { dailyComposition });
+    const updatedPlan = replaceRecipeInPlan(weeklyPlan, dayKey, index, filteredRecipes, { dailyComposition, budget });
     if (updatedPlan) {
       setWeeklyPlan(updatedPlan);
     }
