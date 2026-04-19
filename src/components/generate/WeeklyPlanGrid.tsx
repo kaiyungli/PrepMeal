@@ -11,6 +11,18 @@ function getMealRoleLabel(recipe: Recipe): string | null {
   return null;
 }
 
+
+// Map reason key to label
+function getSelectionReasonLabel(key: string): string {
+  const labels: Record<string, string> = {
+    protein_main: "主菜搭配",
+    "protein_main (dish_type)": "主菜搭配",
+    veg_side: "配菜搭配",
+    diverse: "避免重複",
+  };
+  return labels[key] || key;
+}
+
 const DAYS = [
   { key: 'mon', label: '星期一', isWeekend: false },
   { key: 'tue', label: '星期二', isWeekend: false },
@@ -144,6 +156,11 @@ export default function WeeklyPlanGrid({
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
+                        {(recipe as any).selectionReasons && (recipe as any).selectionReasons.map((r: string) => (
+                          <span key={r} className="text-[10px] px-1 py-0.5 bg-blue-100 text-blue-700 rounded mt-1 mr-1">
+                            {getSelectionReasonLabel(r)}
+                          </span>
+                        ))}
                         <div className="flex gap-1 mt-1">
                           <button
                             onClick={() => onReplace(day.key, index)}
