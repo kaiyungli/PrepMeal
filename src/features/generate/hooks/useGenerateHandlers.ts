@@ -151,7 +151,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string): void => {
       ...prev,
       [dayKey]: [...(prev[dayKey] || []), randomWithReasons]
     }));
-  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition]);
+  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {
