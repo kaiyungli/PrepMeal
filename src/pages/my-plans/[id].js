@@ -82,7 +82,7 @@ export default function PlanDetailPage() {
                     </p>
                   </div>
                   {items.length > 0 && (
-                    <div className="lg:w-auto lg:max-w-[200px]">
+                    <div className="mt-4 lg:mt-0 lg:ml-4">
                       <ShoppingListSection recipeIds={recipeIds} servings={avgServings} />
                     </div>
                   )}
