@@ -74,14 +74,20 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   const handleClose = () => setIsOpen(false);
 
   return (
-    <>
-      <button
-        onClick={handleOpen}
-        disabled={loading}
-        className="w-full py-3 bg-[#C8D49A] text-[#3A2010] rounded-lg font-medium hover:bg-[#B8C489] transition-colors disabled:opacity-50"
-      >
-        {loading ? '生成中...' : '生成購物清單'}
-      </button>
+    <div 
+      onClick={handleOpen}
+      className="p-4 rounded-xl border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-2xl">🛒</span>
+        <div className="flex-1">
+          <h3 className="font-bold text-[#3A2010]">查看購物清單</h3>
+          <p className="text-sm text-[#9B6035]">可按種類或菜式查看</p>
+        </div>
+        {loading && (
+          <span className="text-xs text-[#AA7A50]">生成中...</span>
+        )}
+      </div>
       
       {error && (
         <p className="text-red-500 text-sm mt-2">{error}</p>
@@ -94,6 +100,6 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
         loading={loading}
         onFetch={fetchShoppingList}
       />
-    </>
+    </div>
   );
 }
