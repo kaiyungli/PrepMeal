@@ -39,6 +39,8 @@ export default function GeneratePage() {
   // Hydrate seed plan from homepage
   const router = useRouter();
   useEffect(() => {
+    // Wait for router to be ready and check source
+    if (!router.isReady) return;
     if (router.query.source !== 'home-plan') return;
     if (typeof window === 'undefined') return;
     
