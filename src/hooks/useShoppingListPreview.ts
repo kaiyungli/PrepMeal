@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Transform API response to flat preview list (first 5 items)
@@ -45,8 +46,8 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = []) {
-  const { user } = useAuth();
-  const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
+  // @ts-ignore - useAuth hook
+    const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -86,7 +87,8 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         const response = await fetch('/api/shopping-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: null // TODO: fix after auth import || null,
+          body: JSON.stringify({ 
+            userId: null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
@@ -95,7 +97,6 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         
         // Check if this is still the current request (not stale)
         if (currentRequestId !== requestIdRef.current) {
-          // stale response
           return;
         }
         
@@ -107,14 +108,12 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         
         // Double-check after await
         if (currentRequestId !== requestIdRef.current) {
-          // stale response after await
           return;
         }
         
         const preview = transformToPreview(data);
         setPreviewList(preview);
       } catch (err) {
-        // Check if still current request
         if (currentRequestId !== requestIdRef.current) {
           return;
         }
@@ -123,7 +122,6 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         setError(String(err));
         setPreviewList([]);
       } finally {
-        // Only update loading if still current request
         if (currentRequestId === requestIdRef.current) {
           setIsLoading(false);
         }
@@ -131,11 +129,10 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
     }
     
     fetchPreview();
-    }, 400); // 400ms debounce
+    }, 400);
     
-    // Cleanup: cancel debounce on unmount or dependency change
     return () => clearTimeout(timeoutId);
-  }, [weeklyPlan]);
+  }, [weeklyPlan, null]);
   
   return { previewList, isLoading, error };
 }
