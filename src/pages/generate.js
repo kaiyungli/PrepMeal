@@ -64,7 +64,7 @@ export default function GeneratePage() {
       
       // Apply to generate page state if has items
       if (Object.keys(hydratedPlan).some(k => hydratedPlan[k]?.length > 0)) {
-        ctrl?.setWeeklyPlan?.(hydratedPlan);
+        ctrl.setWeeklyPlan(hydratedPlan);
       }
       
       sessionStorage.removeItem('prepmeal:generateSeedPlan');

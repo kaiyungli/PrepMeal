@@ -112,6 +112,7 @@ export function useGeneratePageController({
     
     // Plan
     weeklyPlan: plan.weeklyPlan,
+    setWeeklyPlan: plan.setWeeklyPlan,
     lockedSlots: plan.lockedSlots,
     handleGenerate: plan.handleGenerate,
     handleReplaceRecipe: plan.handleReplaceRecipe,
