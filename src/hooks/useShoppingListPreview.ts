@@ -36,7 +36,8 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = []) {
-  const { user } = useAuth();
+  const auth = useAuth() as any;
+  const user = auth?.user || null;
   // @ts-ignore - useAuth hook
     const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +71,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
       // @ts-ignore
       // Guard: require user
       if (!user?.id) {
+    // Not logged in - skip fetch
         setPreviewList([]);
         setError(null);
         setIsLoading(false);
@@ -88,7 +90,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            userId: (user as any)?.id || null,
+            userId: user?.id || null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
