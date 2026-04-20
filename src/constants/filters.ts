@@ -94,10 +94,58 @@ export function getEffectiveDiet(recipe: any): string[] {
  * Returns empty array if null/undefined
  */
 export function getEffectiveFlavor(recipe: any): string[] {
-  if (recipe.flavor && Array.isArray(recipe.flavor)) {
-    return recipe.flavor;
+  // Import FLAVOR_MAP for normalization
+  const flavorMap: Record<string, string> = (require("./taxonomy") as any).FLAVOR_MAP || {
+    salty: "鹹", sweet: "甜", sour: "酸", spicy: "辣",
+    鹹: "鹹", 甜: "甜", 酸: "酸", 辣: "辣",
+    savory: "鹹", umami: "鹹", tangy: "酸", garlicky: "鹹",
+    creamy: "甜", buttery: "甜", sesame: "鹹", peppery: "辣",
+  };
+  
+  const extractCanonical = (val: string): string => {
+    if (!val) return "";
+    const lower = val.toLowerCase().trim();
+    const mapped = flavorMap[lower] || flavorMap[val] || val;
+    // Return canonical English key
+    if (mapped === "鹹") return "salty";
+    if (mapped === "甜") return "sweet";
+    if (mapped === "酸") return "sour";
+    if (mapped === "辣") return "spicy";
+    return "";
+  };
+  
+  // Handle different input types
+  let flavors: string[] = [];
+  
+  if (!recipe?.flavor) {
+    return [];
   }
-  return [];
+  
+  // String input (comma-separated or single)
+  if (typeof recipe.flavor === "string") {
+    const str = recipe.flavor as string;
+    if (str.includes(",")) {
+      flavors = str.split(",").map(s => s.trim());
+    } else {
+      flavors = [str.trim()];
+    }
+  } 
+  // Array input
+  else if (Array.isArray(recipe.flavor)) {
+    flavors = [...recipe.flavor];
+  }
+  // Fallback
+  else {
+    return [];
+  }
+  
+  // Normalize each flavor value
+  const canonicalFlavors = flavors
+    .map(f => extractCanonical(f))
+    .filter(Boolean);
+  
+  // Return unique canonical flavors only
+  return [...new Set(canonicalFlavors)];
 }
 
 /**
