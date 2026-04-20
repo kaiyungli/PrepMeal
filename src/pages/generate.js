@@ -15,7 +15,8 @@ import ShoppingListModal from '@/components/ShoppingListModal';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 
 export default function GeneratePage() {
   const headerCtrl = useHeaderController();
@@ -34,6 +35,44 @@ export default function GeneratePage() {
       meta: { page: '/generate' }
     });
   }, []);
+  
+  // Hydrate seed plan from homepage
+  const router = useRouter();
+  useEffect(() => {
+    if (router.query.source !== 'home-plan') return;
+    if (typeof window === 'undefined') return;
+    
+    const raw = sessionStorage.getItem('prepmeal:generateSeedPlan');
+    if (!raw) return;
+    
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed?.weeklyPlan || !Array.isArray(parsed.weeklyPlan)) return;
+      
+      // Map to generate page format
+      const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+      const hydratedPlan = {};
+      
+      parsed.weeklyPlan.forEach((day, idx) => {
+        const key = dayKeys[idx] || `day${idx}`;
+        hydratedPlan[key] = (day.items || []).map((item) => ({
+          id: item.recipeId,
+          recipeName: item.recipeName,
+          servings: item.servings || 2
+        }));
+      });
+      
+      // Apply to generate page state if has items
+      if (Object.keys(hydratedPlan).some(k => hydratedPlan[k]?.length > 0)) {
+        ctrl?.setWeeklyPlan?.(hydratedPlan);
+      }
+      
+      sessionStorage.removeItem('prepmeal:generateSeedPlan');
+    } catch (error) {
+      console.error('[generate] Failed to hydrate seed plan', error);
+      sessionStorage.removeItem('prepmeal:generateSeedPlan');
+    }
+  }, [router.query.source]);
   
   const {
     preferences: prefs,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { formatUnit } from '@/lib/formatters'
 import { useRouter } from 'next/router';
 import { groupPlanByDay, PlanDay } from '@/services/weeklyPlan';
@@ -32,6 +32,36 @@ function HomeHero({
 }: HomeHeroProps) {
   const router = useRouter();
   
+  // Handler to continue with current plan in Generate page
+  const handleContinueInGenerate = useCallback(() => {
+    // Filter valid items only
+    const validPlan = weeklyPlan
+      .filter(day => day.items && day.items.some(item => item.recipeId))
+      .map(day => ({
+        dayIndex: day.dayIndex,
+        dayLabel: day.dayName,
+        items: day.items
+          .filter(item => item.recipeId)
+          .map(item => ({
+            recipeId: String(item.recipeId),
+            recipeName: item.recipeName || '',
+            servings: item.servings || 2
+          }))
+      }));
+    
+    if (validPlan.length > 0 && validPlan.some(d => d.items.length > 0)) {
+      const payload = {
+        source: 'home',
+        createdAt: Date.now(),
+        weeklyPlan: validPlan
+      };
+      sessionStorage.setItem('prepmeal:generateSeedPlan', JSON.stringify(payload));
+      router.push('/generate?source=home-plan');
+    } else {
+      router.push('/generate');
+    }
+  }, [weeklyPlan, router]);
+
   const groupedDays = groupPlanByDay(weeklyPlan);
   
   // Determine shopping list display state
@@ -74,9 +104,9 @@ function HomeHero({
                 <div className="flex items-center gap-2">
                   {onRefreshPlan && (
                     <button 
-                      onClick={onRefreshPlan}
+                      onClick={handleContinueInGenerate}
                       className="w-10 h-10 rounded-xl bg-[#F8F3E8] flex items-center justify-center text-lg hover:bg-[#F4EDDD] transition-colors"
-                      title="重新生成餐單"
+                      title="用目前餐單去生成頁"
                     >
                       🔄
                     </button>
