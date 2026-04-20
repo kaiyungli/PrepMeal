@@ -36,11 +36,11 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = []) {
-  const auth = useAuth() as any;
-  const user = auth?.user || null;
+  const { user } = useAuth();
   // @ts-ignore - useAuth hook
     const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthRequired, setIsAuthRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Request safety: track current request ID
@@ -84,13 +84,14 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
       
       setIsLoading(true);
       setError(null);
+      setIsAuthRequired(false);
       
       try {
         const response = await fetch('/api/shopping-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            userId: user?.id || null,
+            userId: (user as any)?.id || null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
@@ -134,7 +135,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
     }, 400);
     
     return () => clearTimeout(timeoutId);
-  }, [weeklyPlan, null]);
+  }, [weeklyPlan]);
   
-  return { previewList, isLoading, error };
+  return { previewList, isLoading, error, isAuthRequired };
 }

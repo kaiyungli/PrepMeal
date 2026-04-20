@@ -39,7 +39,7 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
   }, [isAuthenticated, toggleFavorite, showToast]);
 
   // Shopping list preview
-  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError } = useShoppingListPreview(weeklyPlan);
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired } = useShoppingListPreview(weeklyPlan);
 
   return {
     weeklyPlan,
@@ -48,6 +48,7 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
     handleFavoriteToggle,
     shoppingList,
     shoppingLoading,
-    shoppingError
+    shoppingError,
+    isAuthRequired
   };
 }

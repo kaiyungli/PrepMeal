@@ -15,6 +15,7 @@ interface HomeHeroProps {
   shoppingList?: ShoppingItem[];
   shoppingLoading?: boolean;
   shoppingError?: string | null;
+  isAuthRequired?: boolean;
   onRefreshPlan?: () => void;
 }
 
@@ -26,6 +27,7 @@ function HomeHero({
   shoppingList = [],
   shoppingLoading = false,
   shoppingError = null,
+  isAuthRequired = false,
   onRefreshPlan 
 }: HomeHeroProps) {
   const router = useRouter();
@@ -126,7 +128,7 @@ function HomeHero({
                   <div className="space-y-1">
                     {shoppingLoading ? (
                       // Loading state
-                      <div className="py-2 px-2 text-sm text-[#AA7A50]">生成中...</div>
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">載入中...</div>
                     ) : shoppingError ? (
                       // Error state
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
