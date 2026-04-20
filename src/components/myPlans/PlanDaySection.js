@@ -26,8 +26,8 @@ export default function PlanDaySection({ dayIndex, items, weekStartDate, onRecip
     ? `${date.getMonth() + 1}/${date.getDate()}`
     : '';
   
-  const dayNames = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];
-  const dayName = dayNames[dayIndex] || `Day ${dayIndex + 1}`;
+  const chineseNums = ['一', '二', '三', '四', '五', '六', '七'];
+  const dayName = '第' + (chineseNums[dayIndex] || String(dayIndex + 1)) + '天';
   
   // Group items by meal slot
   const mealsBySlot = { breakfast: [], lunch: [], dinner: [] };
