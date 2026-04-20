@@ -17,26 +17,16 @@ import { useAuth } from '@/hooks/useAuth';
 function transformToPreview(apiResponse: any): Array<{name: string, qty: string, unit: string}> {
   if (!apiResponse) return [];
   
-  const { byCategory } = apiResponse;
-  if (!byCategory?.toBuy) return [];
-  
-  // Flatten byCategory.toBuy into simple list
-  const flatList = [];
-  const categories = Object.keys(byCategory.toBuy);
-  
-  for (const category of categories) {
-    const items = byCategory.toBuy[category] || [];
-    for (const item of items) {
-      flatList.push({
-        name: item.name,
-        qty: item.quantity != null ? String(item.quantity) : '',
-        unit: item.unit || ''
-      });
-    }
-  }
+  // Handle new API format: { toBuy: [{ category, items }] }
+  const sections = Array.isArray(apiResponse?.toBuy) ? apiResponse.toBuy : [];
+  const flatList = sections.flatMap((section: any) => section.items || []);
   
   // Return only first 5 items for preview
-  return flatList.slice(0, 5);
+  return flatList.slice(0, 5).map((item: any) => ({
+    name: item.name,
+    qty: item.quantity != null ? String(item.quantity) : '',
+    unit: item.unit || ''
+  }));
 }
 
 /**
@@ -46,6 +36,7 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = []) {
+  const { user } = useAuth();
   // @ts-ignore - useAuth hook
     const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +66,15 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         setError(null);
         return;
       }
+      
+      // @ts-ignore
+      // Guard: require user
+      if (!user?.id) {
+        setPreviewList([]);
+        setError(null);
+        setIsLoading(false);
+        return;
+      }
     
     async function fetchPreview() {
       // Increment request ID - this request is now "current"
@@ -88,7 +88,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            userId: null,
+            userId: (user as any)?.id || null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
