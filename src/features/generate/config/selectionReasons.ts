@@ -10,6 +10,8 @@ export const SELECTION_REASON_LABELS: Record<string, string> = {
   "protein_main (dish_type)": "配合今餐主菜位置",
   veg_side: "適合作為配菜",
   diverse: "避免與前兩天重複",
+  budget_match: "符合預算偏好",
+  ingredient_reuse: "幫你重用相近食材",
 };
 
 // Display order (known keys first, unknown at end)
@@ -18,6 +20,8 @@ export const SELECTION_REASON_ORDER = [
   "protein_main (dish_type)",
   "veg_side",
   "diverse",
+  "budget_match",
+  "ingredient_reuse",
 ] as const;
 
 /**
