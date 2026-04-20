@@ -76,7 +76,7 @@ export default function PlanDetailPage() {
               <div className={UI.card + " p-6 mb-6"}>
                 <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{plan.name}</h1>
                 <p className="text-sm text-[var(--color-text-muted)] mt-2">
-                  {plan.days_count}天 · 開始日期: {formatDate(plan.week_start_date)}
+                  {plan.days_count}天
                 </p>
               </div>
 

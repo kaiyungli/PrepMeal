@@ -56,11 +56,6 @@ export default function PlanDaySection({ dayIndex, items, weekStartDate, onRecip
         <span className="text-lg font-bold text-[#9B6035]">
           {dayName}
         </span>
-        {dateStr && (
-          <span className="text-sm text-[#AA7A50]">
-            {dateStr}
-          </span>
-        )}
       </div>
       
       {hasItems ? (
