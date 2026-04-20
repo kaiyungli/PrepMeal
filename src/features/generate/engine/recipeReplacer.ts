@@ -39,7 +39,7 @@ function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
 /**
  * Build reason metadata for selection
  */
-function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]): string[] {
+function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], budget?: string, weeklyPlan?: Record<string, any[]>): string[] {
   const reasons: string[] = [];
   
   if (slotRole === 'protein_main' && candidate.primary_protein) {
@@ -51,6 +51,33 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[]):
   }
   
   if (!hasRecentDuplicate(candidate, recent)) {
+
+  // Budget match (simple heuristic)
+  if (budget === 'budget' && candidate.total_time_minutes && candidate.total_time_minutes <= 30) {
+    reasons.push('budget_match');
+  } else if (budget === 'budget' && candidate.method && ['stir_fry', 'boiled'].includes(candidate.method)) {
+    reasons.push('budget_match');
+  } else if (budget === 'premium' && candidate.total_time_minutes && candidate.total_time_minutes >= 40) {
+    reasons.push('budget_match');
+  }
+
+  // Ingredient reuse (rebuild keywords)
+  if (weeklyPlan) {
+    const keywords = new Set<string>();
+    for (const dayRecipes of Object.values(weeklyPlan)) {
+      for (const r of (Array.isArray(dayRecipes) ? dayRecipes : [])) {
+        if (r?.name || r?.description) {
+          const text = (r.name + ' ' + (r.description || '')).toLowerCase();
+          const matches = text.match(/[\u4e00-\u9fa5]{2,4}/g) || [];
+          matches.slice(0, 3).forEach(m => keywords.add(m));
+        }
+      }
+    }
+    const candText = ((candidate.name || '') + ' ' + (candidate.description || '')).toLowerCase();
+    if ([...keywords].some(k => candText.includes(k))) {
+      reasons.push('ingredient_reuse');
+    }
+  }
     reasons.push('diverse');
   }
   
@@ -146,7 +173,7 @@ export function replaceRecipeInPlan(
   
   if (!selected) return null;
   
-  const reasons = buildSelectionReasons(selected, slotRole, recent);
+  const reasons = buildSelectionReasons(selected, slotRole, recent, options?.budget, weeklyPlan);
   const selectedWithReasons = { ...selected, selectionReasons: reasons };
   
   const dayRecipes = [...(weeklyPlan[dayKey] || [])];
