@@ -35,7 +35,7 @@ function HomeHero({
   const groupedDays = groupPlanByDay(weeklyPlan);
   
   // Determine shopping list display state
-  const showShoppingFallback = shoppingLoading || shoppingError || (shoppingList.length === 0);
+  const showShoppingFallback = shoppingLoading || shoppingError || isAuthRequired || (shoppingList.length === 0);
   
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
@@ -129,12 +129,15 @@ function HomeHero({
                     {shoppingLoading ? (
                       // Loading state
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">載入中...</div>
+                    ) : isAuthRequired ? (
+                      // Not authenticated
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">登入後可見</div>
                     ) : shoppingError ? (
                       // Error state
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
-                    ) : showShoppingFallback ? (
-                      // Empty/fallback state
-                      <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
+                    ) : shoppingList.length === 0 ? (
+                      // Empty but authenticated
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">無需購買</div>
                     ) : (
                       // Normal display - first 5 items
                       shoppingList.slice(0, 5).map((item, index) => (
