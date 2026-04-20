@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
+import { formatUnit } from '@/lib/formatters';
 import { CATEGORY_ORDER, CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/constants/shoppingCategories';
 
 /**
