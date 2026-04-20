@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect } from 'react';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
@@ -25,6 +26,10 @@ export default function PlanDetailPage() {
     getAccessToken
   });
 
+  // Recipe detail state for modal
+  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState(null);
+  const [recipeDetailLoading, setRecipeDetailLoading] = useState(false);
+
   const {
     plan,
     items,
@@ -35,8 +40,34 @@ export default function PlanDetailPage() {
     error,
     selectedRecipeId,
     handleRecipeClick,
-    handleCloseModal
+    handleCloseModal,
+    setSelectedRecipeId
   } = controller;
+
+  // Fetch full recipe detail when modal opens
+  useEffect(() => {
+    if (!selectedRecipeId) {
+      setSelectedRecipeDetail(null);
+      setRecipeDetailLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function run() {
+      setRecipeDetailLoading(true);
+      const result = await loadRecipeDetail(selectedRecipeId);
+      if (cancelled) return;
+      setSelectedRecipeDetail(result.recipe || null);
+      setRecipeDetailLoading(false);
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRecipeId]);
 
   // Auth redirect handled by useAuth hook
   if (authLoading || !isAuthenticated) {
