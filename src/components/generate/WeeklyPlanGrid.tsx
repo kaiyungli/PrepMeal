@@ -107,7 +107,6 @@ export default function WeeklyPlanGrid({
           }`}>
             <div>
               <span className="text-white font-bold text-sm">{day.label}</span>
-              <span className="text-white/70 text-xs ml-1">{day.date}</span>
             </div>
           </div>
 
