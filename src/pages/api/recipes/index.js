@@ -107,6 +107,17 @@ export default async function handler(req, res) {
       }
     }
     
+    
+    // Flavor filter - support comma-separated multi-select (AND logic)
+    if (flavor && flavor !== '' && typeof flavor === 'string') {
+      const flavorValues = flavor.split(',').map(v => v.trim()).filter(Boolean);
+      if (flavorValues.length > 0) {
+        // Use OR to check if recipe flavor array contains ANY of the selected flavors
+        // Then require ALL selected flavors (AND logic handled in client filter)
+        const flavorFilters = flavorValues.map(v => `flavor.cs.{${v}}`).join(',');
+        query = query.or(flavorFilters);
+      }
+    }
     // Protein filter - check BOTH primary_protein AND protein array
     if (protein && protein !== '' && typeof protein === 'string') {
       const proteinValues = protein.split(',').map(v => v.trim()).filter(Boolean);

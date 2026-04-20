@@ -18,6 +18,7 @@ export interface RecipeApiParams {
   protein: string;
   method: string;
   difficulty: string;
+  flavor: string;
   diet: string;
   speed: string;
   sort: string;
@@ -38,6 +39,7 @@ export function buildRecipeApiParams({
     method: filters.method?.join(',') ?? '',
     difficulty: filters.difficulty?.join(',') ?? '',
     diet: filters.diet?.join(',') ?? '',
+    flavor: filters.flavor?.join(",") ?? "",
     speed: filters.speed?.join(',') ?? '',
     sort: sortBy,
     limit,

@@ -8,6 +8,7 @@ export async function fetchRecipesFromAPI({
   maxTime = '',
   difficulty = '',
   method = '',
+  flavor = "",
   diet = '',
   protein = '',
   speed = '',
@@ -25,6 +26,7 @@ export async function fetchRecipesFromAPI({
   if (diet) params.set('diet', diet);
   if (protein) params.set('protein', protein);
   if (speed) params.set('speed', speed);
+  if (flavor) params.set("flavor", flavor);
   if (sort) params.set('sort', sort);
   if (limit) params.set('limit', String(limit));
   
