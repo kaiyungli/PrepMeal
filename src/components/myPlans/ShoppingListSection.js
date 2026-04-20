@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
 
 /**
@@ -28,10 +29,32 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
       if (data.error) {
         setError(data.error);
       } else {
-        // Map API response to drawer expected shape
+        // Normalize API response to drawer shape
+        const normalizedToBuy = {};
+        if (data.toBuy && Array.isArray(data.toBuy)) {
+          for (const group of data.toBuy) {
+            const catKey = group.category || 'other';
+            normalizedToBuy[catKey] = group.items || [];
+          }
+        }
+        
+        const normalizedByRecipe = [];
+        if (data.summary && data.summary.byRecipe) {
+          for (const rb of data.summary.byRecipe) {
+            normalizedByRecipe.push({
+              recipeName: rb.recipeName || rb.name,
+              pantry: rb.pantry || [],
+              toBuy: rb.toBuy || []
+            });
+          }
+        }
+        
         setShoppingList({
-          byCategory: { pantry: data.pantry || {}, toBuy: data.toBuy || {} },
-          byRecipe: data.summary || []
+          byCategory: { 
+            pantry: data.pantry || {}, 
+            toBuy: normalizedToBuy 
+          },
+          byRecipe: normalizedByRecipe
         });
       }
     } catch (err) {
@@ -41,46 +64,34 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
     }
   };
 
-  const handleOpen = () => setIsOpen(true);
+  const handleOpen = () => {
+    if (!shoppingList) {
+      fetchShoppingList();
+    }
+    setIsOpen(true);
+  };
+  
   const handleClose = () => setIsOpen(false);
 
   return (
     <>
-      {/* Premium Card-Style CTA */}
-      <div className="mb-4">
-        <button
-          onClick={handleOpen}
-          className="w-full flex items-center justify-between rounded-2xl border border-[#E5E5E5] bg-white px-4 py-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all"
-        >
-          {/* Left */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#F6F1EB]">
-              🛒
-            </div>
-
-            <div className="text-left">
-              <div className="text-[15px] font-semibold text-[#3D3D3D]">
-                查看購物清單
-              </div>
-              <div className="text-xs text-[#9A9A9A]">
-                可按種類或菜式查看
-              </div>
-            </div>
-          </div>
-
-          {/* Right */}
-          <div className="text-[#B0B0B0] text-lg">
-            →
-          </div>
-        </button>
-      </div>
-
+      <button
+        onClick={handleOpen}
+        disabled={loading}
+        className="w-full py-3 bg-[#C8D49A] text-[#3A2010] rounded-lg font-medium hover:bg-[#B8C489] transition-colors disabled:opacity-50"
+      >
+        {loading ? '生成中...' : '生成購物清單'}
+      </button>
+      
+      {error && (
+        <p className="text-red-500 text-sm mt-2">{error}</p>
+      )}
+      
       <ShoppingListDrawer
         isOpen={isOpen}
         onClose={handleClose}
         shoppingList={shoppingList}
         loading={loading}
-        error={error}
         onFetch={fetchShoppingList}
       />
     </>
