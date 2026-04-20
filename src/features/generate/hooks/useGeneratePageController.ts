@@ -4,6 +4,7 @@
  */
 import { useMemo, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 
 type GeneratePreferences = ReturnType<typeof useGeneratePreferences>;
@@ -27,6 +28,9 @@ export function useGeneratePageController({
   // Use passed-in preferences
   const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters, allowCompleteMeal } = preferences;
   
+  // Calculate effective dishes per day from composition config
+  const effectiveDishesPerDay = COMPOSITION_CONFIG[dailyComposition as keyof typeof COMPOSITION_CONFIG]?.dishesPerDay || preferences.dishesPerDay;
+  
   // Data hook
   const data = useGenerateData();
   
@@ -43,7 +47,7 @@ export function useGeneratePageController({
     filteredRecipes,
     dailyComposition,
     daysPerWeek,
-    effectiveDishesPerDay: preferences.dishesPerDay,
+    effectiveDishesPerDay,
     cuisines: preferences.cuisines,
     exclusions: preferences.exclusions,
     cookingConstraints: preferences.cookingConstraints,
@@ -102,7 +106,7 @@ export function useGeneratePageController({
     preferences,
     daysPerWeek,
     servings,
-    effectiveDishesPerDay: preferences.dishesPerDay,
+    effectiveDishesPerDay,
     
     // Data
     allRecipes: data.allRecipes,
