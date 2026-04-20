@@ -31,6 +31,7 @@ export default async function handler(req, res) {
       diet,
       protein,
       speed,
+      flavor,
       budget,
       complete,
       exclusions,
