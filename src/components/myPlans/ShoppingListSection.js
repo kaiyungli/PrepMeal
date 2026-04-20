@@ -85,7 +85,7 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
           <p className="text-sm text-[#9B6035]">可按種類或菜式查看</p>
         </div>
         {loading && (
-          <span className="text-xs text-[#AA7A50]">生成中...</span>
+          <span className="text-xs text-[#AA7A50]">載入中...</span>
         )}
       </div>
       
