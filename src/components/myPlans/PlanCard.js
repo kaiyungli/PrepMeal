@@ -140,9 +140,16 @@ export default function PlanCard({ plan, onDelete, isDeleting }) {
         <button 
           onClick={() => onDelete(plan.id)}
           disabled={isDeleting}
-          className="px-3 py-2 text-red-500 hover:text-red-600 text-sm font-medium disabled:opacity-50"
+          className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 hover:text-red-600 disabled:opacity-50 transition-colors"
+          aria-label="刪除餐單"
         >
-          {isDeleting ? '...' : '🗑'}
+          {isDeleting ? (
+            <span className="text-xs">...</span>
+          ) : (
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1H6a1 1 0 00-1 1v3M8 7h8m-8 0a1 1 0 001-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1v2a1 1 0 001 1z" />
+            </svg>
+          )}
         </button>
       </div>
     </div>
