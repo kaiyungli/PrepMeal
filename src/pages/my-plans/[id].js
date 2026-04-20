@@ -74,15 +74,20 @@ export default function PlanDetailPage() {
           ) : (
             <>
               <div className={UI.card + " p-6 mb-6"}>
-                <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{plan.name}</h1>
-                <p className="text-sm text-[var(--color-text-muted)] mt-2">
-                  {plan.days_count}天
-                </p>
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{plan.name}</h1>
+                    <p className="text-sm text-[var(--color-text-muted)] mt-2">
+                      {plan.days_count}天
+                    </p>
+                  </div>
+                  {items.length > 0 && (
+                    <div className="lg:w-auto lg:max-w-[200px]">
+                      <ShoppingListSection recipeIds={recipeIds} servings={avgServings} />
+                    </div>
+                  )}
+                </div>
               </div>
-
-              {items.length > 0 && (
-                <ShoppingListSection recipeIds={recipeIds} servings={avgServings} />
-              )}
 
               {Array.from({ length: plan.days_count || 7 }).map((_, dayIndex) => (
                 <PlanDaySection
