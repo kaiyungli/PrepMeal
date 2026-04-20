@@ -30,7 +30,7 @@ export default function RecipeFilters({
       <FilterCardShell
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="尋食譜... 例如：番茄、牛肉、咖哩"
+        searchPlaceholder="搜尋食譜... 例如：番茄、牛肉、咖哩"
         filterSections={recipeFilterSections}
         activeFilterCount={activeFilterCount}
         onClear={clearFilters}
