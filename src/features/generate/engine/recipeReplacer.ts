@@ -42,6 +42,7 @@ function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
 function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], budget?: string, weeklyPlan?: Record<string, any[]>): string[] {
   const reasons: string[] = [];
   
+  // 1. Slot role
   if (slotRole === 'protein_main' && candidate.primary_protein) {
     reasons.push('protein_main');
   } else if (slotRole === 'protein_main' && candidate.dish_type === 'main') {
@@ -50,9 +51,12 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
     reasons.push('veg_side');
   }
   
+  // 2. Diverse (independent)
   if (!hasRecentDuplicate(candidate, recent)) {
-
-  // Budget match (simple heuristic)
+    reasons.push('diverse');
+  }
+  
+  // 3. Budget match (independent)
   if (budget === 'budget' && candidate.total_time_minutes && candidate.total_time_minutes <= 30) {
     reasons.push('budget_match');
   } else if (budget === 'budget' && candidate.method && ['stir_fry', 'boiled'].includes(candidate.method)) {
@@ -60,8 +64,8 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
   } else if (budget === 'premium' && candidate.total_time_minutes && candidate.total_time_minutes >= 40) {
     reasons.push('budget_match');
   }
-
-  // Ingredient reuse (rebuild keywords)
+  
+  // 4. Ingredient reuse (independent)
   if (weeklyPlan) {
     const keywords = new Set<string>();
     for (const dayRecipes of Object.values(weeklyPlan)) {
@@ -77,8 +81,6 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
     if ([...keywords].some(k => candText.includes(k))) {
       reasons.push('ingredient_reuse');
     }
-  }
-    reasons.push('diverse');
   }
   
   return reasons;
