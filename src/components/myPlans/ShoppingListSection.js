@@ -6,6 +6,8 @@ import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
 export default function ShoppingListSection({ recipeIds, servings = 1 }) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shoppingList, setShoppingList] = useState(null);
@@ -19,14 +21,18 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
       const res = await fetch('/api/shopping-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipeIds, servings })
+        body: JSON.stringify({ userId, recipeIds, servings })
       });
       const data = await res.json();
       
       if (data.error) {
         setError(data.error);
       } else {
-        setShoppingList(data);
+        // Map API response to drawer expected shape
+        setShoppingList({
+          byCategory: { pantry: data.pantry || {}, toBuy: data.toBuy || {} },
+          byRecipe: data.summary || []
+        });
       }
     } catch (err) {
       setError(err.message || '載入失敗');
