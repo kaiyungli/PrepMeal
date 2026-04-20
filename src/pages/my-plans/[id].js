@@ -10,6 +10,7 @@ import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
+import { loadRecipeDetail } from '@/features/recipes';
 import { usePlanDetailController } from '@/features/plans';
 
 export default function PlanDetailPage() {
@@ -103,17 +104,14 @@ export default function PlanDetailPage() {
         </div>
       </div>
 
-      {selectedRecipeId && (() => {
-        const recipeItem = items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId);
-        return (
-          <RecipeDetailModal
-            isOpen={true}
-            onClose={handleCloseModal}
-            recipe={recipeItem?.recipe || null}
-            loading={!recipeItem?.recipe}
-          />
-        );
-      })()}
+      {selectedRecipeId && (
+        <RecipeDetailModal
+          isOpen={true}
+          onClose={handleCloseModal}
+          recipe={selectedRecipeDetail}
+          loading={recipeDetailLoading}
+        />
+      )}
     </>
   );
 }
