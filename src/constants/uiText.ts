@@ -109,7 +109,7 @@ export const UI_TEXT = {
     speed: '所需時間',
     difficulty: '難度',
     diet: '飲食需求',
-    flavor: '口味',
+    flavor: '口味（任選）',
   },
 
   // ============================================

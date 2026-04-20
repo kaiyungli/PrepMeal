@@ -63,7 +63,7 @@ export const RECIPE_FILTER_GROUPS = [
   },
   {
     key: 'flavor',
-    label: '口味',
+    label: '口味（任選）',
     options: FLAVOR_OPTIONS,
   },
 ];
@@ -159,5 +159,5 @@ export const FILTER_GROUPS_BY_KEY = {
   speed: { key: 'speed', label: '所需時間', options: SPEED_OPTIONS },
   difficulty: { key: 'difficulty', label: '難度', options: DIFFICULTY_OPTIONS },
   diet: { key: 'diet', label: '飲食需求', options: DIET_OPTIONS },
-  flavor: { key: 'flavor', label: '口味', options: FLAVOR_OPTIONS },
+  flavor: { key: 'flavor', label: '口味（任選）', options: FLAVOR_OPTIONS },
 };
