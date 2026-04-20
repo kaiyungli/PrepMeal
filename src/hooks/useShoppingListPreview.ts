@@ -45,6 +45,7 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = []) {
+  const { user } = useAuth();
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         const response = await fetch('/api/shopping-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body: JSON.stringify({ userId: user?.id || null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
