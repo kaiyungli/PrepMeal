@@ -86,7 +86,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = []) {
         const response = await fetch('/api/shopping-list', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user?.id || null,
+          body: JSON.stringify({ userId: null // TODO: fix after auth import || null,
             recipeIds,
             pantryIngredients: [],
             servings: 1
