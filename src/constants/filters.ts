@@ -207,7 +207,7 @@ export function recipeMatchesFilters(recipe: any, filters: Record<string, string
         break;
       case 'flavor':
         // Array intersection - recipe.flavor[] contains any selected
-        matches = normalized._effectiveFlavor.every((f: string) => selectedValues.includes(f));
+        matches = selectedValues.every((f: string) => normalized._effectiveFlavor.includes(f));
         break;
     }
     
