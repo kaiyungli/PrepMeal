@@ -92,11 +92,6 @@ export default function PlanCard({ plan, onDelete, isDeleting }) {
         </h3>
       </div>
 
-      {/* Date Range */}
-      <p className="text-sm font-medium text-[#9B6035] mb-2">
-        📅 {dateRange}
-      </p>
-
       {/* Metadata Row */}
       <div className="flex flex-wrap gap-2 mb-3">
         <span className="text-xs px-2 py-1 bg-[#F8F3E8] text-[#AA7A50] rounded">
