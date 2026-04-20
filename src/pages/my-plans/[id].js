@@ -103,12 +103,17 @@ export default function PlanDetailPage() {
         </div>
       </div>
 
-      {selectedRecipeId && (
-        <RecipeDetailModal
-          recipeId={selectedRecipeId}
-          onClose={handleCloseModal}
-        />
-      )}
+      {selectedRecipeId && (() => {
+        const recipeItem = items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId);
+        return (
+          <RecipeDetailModal
+            isOpen={true}
+            onClose={handleCloseModal}
+            recipe={recipeItem?.recipe || null}
+            loading={!recipeItem?.recipe}
+          />
+        );
+      })()}
     </>
   );
 }

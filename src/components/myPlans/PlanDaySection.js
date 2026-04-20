@@ -70,7 +70,7 @@ export default function PlanDaySection({ dayIndex, items, weekStartDate, onRecip
                     key={item.id} 
                     item={item} 
                     compact
-                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id) : undefined}
+                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id || item.recipe_id) : undefined}
                   />
                 ))}
               </div>
@@ -87,7 +87,7 @@ export default function PlanDaySection({ dayIndex, items, weekStartDate, onRecip
                     key={item.id} 
                     item={item} 
                     compact
-                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id) : undefined}
+                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id || item.recipe_id) : undefined}
                   />
                 ))}
               </div>
@@ -104,7 +104,7 @@ export default function PlanDaySection({ dayIndex, items, weekStartDate, onRecip
                     key={item.id} 
                     item={item} 
                     compact
-                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id) : undefined}
+                    onClick={onRecipeClick ? () => onRecipeClick(item.recipe?.id || item.recipe_id) : undefined}
                   />
                 ))}
               </div>
