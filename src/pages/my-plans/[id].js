@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
@@ -29,6 +29,7 @@ export default function PlanDetailPage() {
   // Recipe detail state for modal
   const [selectedRecipeDetail, setSelectedRecipeDetail] = useState(null);
   const [recipeDetailLoading, setRecipeDetailLoading] = useState(false);
+  const [recipeDetailError, setRecipeDetailError] = useState(null);
 
   const {
     plan,
@@ -40,29 +41,51 @@ export default function PlanDetailPage() {
     error,
     selectedRecipeId,
     handleRecipeClick,
-    handleCloseModal,
+    handleCloseModal: controllerHandleCloseModal,
     setSelectedRecipeId
   } = controller;
+
+  // Override close to clear all detail state
+  const handleCloseModal = useCallback(() => {
+    setSelectedRecipeId(null);
+    setSelectedRecipeDetail(null);
+    setRecipeDetailLoading(false);
+    setRecipeDetailError(null);
+  }, [setSelectedRecipeId]);
 
   // Fetch full recipe detail when modal opens
   useEffect(() => {
     if (!selectedRecipeId) {
       setSelectedRecipeDetail(null);
       setRecipeDetailLoading(false);
+      setRecipeDetailError(null);
       return;
     }
 
     let cancelled = false;
 
-    async function run() {
-      setRecipeDetailLoading(true);
-      const result = await loadRecipeDetail(selectedRecipeId);
-      if (cancelled) return;
-      setSelectedRecipeDetail(result.recipe || null);
-      setRecipeDetailLoading(false);
+    async function fetchRecipeDetail() {
+      try {
+        setRecipeDetailLoading(true);
+        setRecipeDetailError(null);
+
+        const result = await loadRecipeDetail(selectedRecipeId);
+
+        if (cancelled) return;
+
+        setSelectedRecipeDetail(result?.recipe || null);
+      } catch (error) {
+        if (cancelled) return;
+        setSelectedRecipeDetail(null);
+        setRecipeDetailError(error);
+      } finally {
+        if (!cancelled) {
+          setRecipeDetailLoading(false);
+        }
+      }
     }
 
-    run();
+    fetchRecipeDetail();
 
     return () => {
       cancelled = true;
