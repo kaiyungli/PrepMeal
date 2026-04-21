@@ -30,6 +30,8 @@ export interface ShoppingListBuyItem {
   category: ShoppingCategoryKey;
   source: 'recipe_ingredients' | 'ingredients_list';
   quantityPending: boolean;
+  recipeId?: string | null;
+  recipeName?: string | null;
 }
 
 export interface ShoppingListSection {
@@ -43,9 +45,26 @@ export interface ShoppingListSummary {
   sectionCount: number;
 }
 
+export interface ShoppingListRecipeGroup {
+  recipeId: string | null;
+  recipeName: string;
+  pantry: {
+    ingredientId?: string | null;
+    name: string;
+  }[];
+  toBuy: {
+    ingredientId?: string | null;
+    name: string;
+    quantity: number | null;
+    unit: string;
+    quantityPending?: boolean;
+  }[];
+}
+
 export interface ShoppingListResponse {
   pantry: ShoppingListPantryItem[];
   toBuy: ShoppingListSection[];
+  byRecipe: ShoppingListRecipeGroup[];
   summary: ShoppingListSummary;
 }
 

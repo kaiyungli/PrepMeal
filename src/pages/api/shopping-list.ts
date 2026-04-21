@@ -8,7 +8,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
-import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey } from '@/features/shopping-list/types';
+import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey, ShoppingListRecipeGroup } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
 
 // Unit normalization
@@ -112,6 +112,7 @@ export default async function handler(
       return res.status(200).json({
         pantry: [],
         toBuy: [],
+        byRecipe: [],
         summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 }
       });
     }
@@ -136,6 +137,8 @@ export default async function handler(
         category: mapRawCategoryToKey(ing.shopping_category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
+        recipeId: ri.recipe_id,
+        recipeName: recipe?.name || 'Unknown',
       });
     }
 
@@ -183,7 +186,7 @@ export default async function handler(
     console.log('[shopping-list api] summary:', summary);
     console.log('[shopping-list api] returning response');
 
-    res.status(200).json({ pantry, toBuy, summary });
+    res.status(200).json({ pantry, toBuy, byRecipe: [], summary });
   } catch (err) {
     console.error('[shopping-list api] fatal error:', err);
     res.status(500).json({ 
