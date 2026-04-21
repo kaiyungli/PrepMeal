@@ -39,9 +39,17 @@ export default function PlanDetailPage() {
     setSelectedRecipeId
   } = controller;
 
-  // Get embedded recipe from plan items
-  const embeddedRecipe = selectedRecipeId
-    ? items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId)?.recipe || null
+  // Get embedded recipe from plan items - ensure id is always populated
+  const recipeItem = selectedRecipeId
+    ? items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId) || null
+    : null;
+
+  // Build embeddedRecipe with guaranteed id for hook fetch
+  const embeddedRecipe = recipeItem
+    ? {
+        ...(recipeItem.recipe || {}),
+        id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
+      }
     : null;
 
   // Use shared hook for full detail (same as recipes page)
