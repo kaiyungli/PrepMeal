@@ -36,6 +36,7 @@ export default function PlanDetailPage() {
     error,
     selectedRecipeId,
     handleRecipeClick,
+    handleCloseModal,
     setSelectedRecipeId
   } = controller;
 
@@ -57,9 +58,9 @@ export default function PlanDetailPage() {
   }, [recipeItem, selectedRecipeId]);
 
   // Use shared hook for full detail (same as recipes page)
-  const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleCloseModal } = useRecipeDetailModal(
+  const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleModalClose } = useRecipeDetailModal(
     embeddedRecipe,
-    { onClose: () => setSelectedRecipeId(null) }
+    { onClose: handleCloseModal }
   );
 
   // Auth redirect handled by useAuth hook
