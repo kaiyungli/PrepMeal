@@ -7,6 +7,7 @@ interface RecipeDetailModalProps {
   onClose: () => void
   recipe?: any
   loading?: boolean
+  error?: string | null
   isFavorite?: boolean
   favoriteLoading?: boolean
   onFavoriteClick?: () => void | Promise<void>
@@ -17,6 +18,7 @@ export default function RecipeDetailModal({
   onClose, 
   recipe, 
   loading,
+  error,
   isFavorite = false,
   favoriteLoading,
   onFavoriteClick

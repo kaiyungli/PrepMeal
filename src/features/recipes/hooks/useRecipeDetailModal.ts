@@ -21,6 +21,8 @@ interface UseRecipeDetailModalResult {
   recipe: any;
   /** Whether fetch is in progress */
   loading: boolean;
+  /** Error message if fetch failed */
+  error: string | null;
   /** Close handler - aborts fetch and calls onClose */
   close: () => void;
 }
@@ -37,6 +39,7 @@ export function useRecipeDetailModal(
 ): UseRecipeDetailModalResult {
   const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const { onClose } = options;
@@ -59,6 +62,7 @@ export function useRecipeDetailModal(
 
     // Need to fetch full detail - clear stale first
     setFullRecipe(null);
+    setError(null);
 
     if (abortRef.current) {
       abortRef.current.abort();
@@ -84,7 +88,9 @@ export function useRecipeDetailModal(
       })
       .catch(err => {
         if (err?.name === 'AbortError') return;
-        console.error('[useRecipeDetailModal] fetch failed:', err);
+        const errorMsg = err?.message || 'Failed to load recipe detail';
+        console.error('[useRecipeDetailModal] fetch failed:', errorMsg);
+        setError(errorMsg);
       })
       .finally(() => {
         if (!abortRef.current?.signal.aborted) {
@@ -100,6 +106,7 @@ export function useRecipeDetailModal(
     }
     setLoading(false);
     setFullRecipe(null);
+    setError(null);
     onClose();
   }, [onClose]);
 
@@ -109,6 +116,7 @@ export function useRecipeDetailModal(
   return {
     recipe,
     loading,
+    error,
     close
   };
 }

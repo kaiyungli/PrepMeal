@@ -53,7 +53,7 @@ export default function PlanDetailPage() {
     : null;
 
   // Use shared hook for full detail (same as recipes page)
-  const { recipe: modalRecipe, loading: modalLoading, close: handleCloseModal } = useRecipeDetailModal(
+  const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleCloseModal } = useRecipeDetailModal(
     embeddedRecipe,
     { onClose: () => setSelectedRecipeId(null) }
   );
@@ -130,6 +130,7 @@ export default function PlanDetailPage() {
           onClose={handleCloseModal}
           recipe={modalRecipe}
           loading={modalLoading}
+          error={modalError}
         />
       )}
     </>
