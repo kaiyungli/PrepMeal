@@ -69,7 +69,9 @@ export default function PlanDetailPage() {
         setRecipeDetailLoading(true);
         setRecipeDetailError(null);
 
-        const result = await loadRecipeDetail(selectedRecipeId);
+        console.log('[my-plans] Fetching recipe:', selectedRecipeId);
+      const result = await loadRecipeDetail(selectedRecipeId);
+      console.log('[my-plans] Got result:', result?.recipe ? 'recipe loaded' : 'no recipe');
 
         if (cancelled) return;
 
