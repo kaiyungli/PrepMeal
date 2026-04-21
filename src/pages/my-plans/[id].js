@@ -36,58 +36,19 @@ export default function PlanDetailPage() {
     error,
     selectedRecipeId,
     handleRecipeClick,
-    handleCloseModal: controllerHandleCloseModal,
     setSelectedRecipeId
   } = controller;
 
-  // Override close to clear all detail state
-  const handleCloseModal = useCallback(() => {
-    setSelectedRecipeId(null);
-    setSelectedRecipeDetail(null);
-    setRecipeDetailLoading(false);
-    setRecipeDetailError(null);
-  }, [setSelectedRecipeId]);
+  // Get embedded recipe from plan items
+  const embeddedRecipe = selectedRecipeId
+    ? items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId)?.recipe || null
+    : null;
 
-  // Fetch full recipe detail when modal opens
-  useEffect(() => {
-    if (!selectedRecipeId) {
-      setSelectedRecipeDetail(null);
-      setRecipeDetailLoading(false);
-      setRecipeDetailError(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function fetchRecipeDetail() {
-      try {
-        setRecipeDetailLoading(true);
-        setRecipeDetailError(null);
-
-        console.log('[my-plans] Fetching recipe:', selectedRecipeId);
-      const result = await loadRecipeDetail(selectedRecipeId);
-      console.log('[my-plans] Got result:', result?.recipe ? 'recipe loaded' : 'no recipe');
-
-        if (cancelled) return;
-
-        setSelectedRecipeDetail(result?.recipe || null);
-      } catch (error) {
-        if (cancelled) return;
-        setSelectedRecipeDetail(null);
-        setRecipeDetailError(error);
-      } finally {
-        if (!cancelled) {
-          setRecipeDetailLoading(false);
-        }
-      }
-    }
-
-    fetchRecipeDetail();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedRecipeId]);
+  // Use shared hook for full detail (same as recipes page)
+  const { recipe: modalRecipe, loading: modalLoading, close: handleCloseModal } = useRecipeDetailModal(
+    embeddedRecipe,
+    { onClose: () => setSelectedRecipeId(null) }
+  );
 
   // Auth redirect handled by useAuth hook
   if (authLoading || !isAuthenticated) {
