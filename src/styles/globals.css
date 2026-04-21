@@ -61,3 +61,8 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: #7a4a2a;
 }
+
+/* Disable tap highlight on iOS */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

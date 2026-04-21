@@ -26,7 +26,7 @@ export default function Card({
   return (
     <div 
       onClick={onClick}
-      className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-${
+      className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all active:scale-[0.98] duration-100 will-change-transform touch-manipulation cursor-${
         onClick ? 'pointer' : 'default'
       } ${className}`}
     >
