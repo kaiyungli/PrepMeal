@@ -65,7 +65,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   const baseQuery = supabase
     .from('recipes')
     .select('*')
-    .eq('is_public', true);
+    .select('*');
 
   // Query by id or slug
   const recipeResult = isUuid
