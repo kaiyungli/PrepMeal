@@ -121,7 +121,7 @@ export default function ShoppingListModal({
             </div>
           )}
 
-          {viewModel.summary.toBuyCount > 0 && (
+          {viewMode === 'category' && viewModel.summary.toBuyCount > 0 && (
             <div>
               <h3 className="font-semibold text-[#9B6035] text-base mb-4 flex items-center gap-2">
                 🛒 需要購買
@@ -159,6 +159,43 @@ export default function ShoppingListModal({
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {viewMode === 'recipe' && viewModel.byRecipe && viewModel.byRecipe.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-[#9B6035] text-base mb-4 flex items-center gap-2">
+                🛒 需要購買
+              </h3>
+              
+              <div className="space-y-4">
+                {viewModel.byRecipe.map((recipe) => (
+                  <div key={recipe.recipeId || recipe.recipeName} className="border border-[#E9DFC9] rounded-xl p-4">
+                    <h4 className="font-semibold text-[#7a4a2a] text-base mb-3">{recipe.recipeName}</h4>
+                    
+                    {recipe.toBuy && recipe.toBuy.length > 0 ? (
+                      <div className="space-y-2">
+                        {recipe.toBuy.map((item, idx) => (
+                          <div key={idx} className="flex justify-between items-center py-2 px-3 bg-[#FEFCF8] rounded-lg border border-[#F0E8D8]">
+                            <span className="text-[#3A2010] font-medium">{item.name}</span>
+                            <span className="text-[#9B6035] font-semibold text-sm whitespace-nowrap">
+                              {item.quantityText}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#8B7355]">呢個菜式唔需要購買材料</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {viewMode === 'recipe' && (!viewModel.byRecipe || viewModel.byRecipe.length === 0) && viewModel.summary.toBuyCount > 0 && (
+            <div className="text-center py-8 text-[#8B7355]">
+              載入緊菜式資料...
             </div>
           )}
         </div>
