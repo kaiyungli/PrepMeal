@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
@@ -39,18 +39,22 @@ export default function PlanDetailPage() {
     setSelectedRecipeId
   } = controller;
 
-  // Get embedded recipe from plan items - ensure id is always populated
-  const recipeItem = selectedRecipeId
-    ? items.find(i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId) || null
-    : null;
+  // Stabilize recipeItem lookup with useMemo - prevents flicker
+  const recipeItem = useMemo(() => {
+    if (!selectedRecipeId) return null;
+    return items.find(
+      i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId
+    ) || null;
+  }, [items, selectedRecipeId]);
 
-  // Build embeddedRecipe with guaranteed id for hook fetch
-  const embeddedRecipe = recipeItem
-    ? {
-        ...(recipeItem.recipe || {}),
-        id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
-      }
-    : null;
+  // Stabilize embeddedRecipe with useMemo - same reference unless data changes
+  const embeddedRecipe = useMemo(() => {
+    if (!recipeItem) return null;
+    return {
+      ...(recipeItem.recipe || {}),
+      id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
+    };
+  }, [recipeItem, selectedRecipeId]);
 
   // Use shared hook for full detail (same as recipes page)
   const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleCloseModal } = useRecipeDetailModal(

@@ -97,7 +97,7 @@ export function useRecipeDetailModal(
           setLoading(false);
         }
       });
-  }, [selectedRecipe, hasFullDetail]);
+  }, [selectedRecipe?.id, hasFullDetail]);
 
   // Close handler - aborts fetch and cleans up
   const close = useCallback(() => {
