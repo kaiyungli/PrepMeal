@@ -34,7 +34,7 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
         if (data.toBuy && Array.isArray(data.toBuy)) {
           for (const group of data.toBuy) {
             const catKey = group.category || 'other';
-            normalizedToBuy[catKey] = group.items || [];
+            normalizedToBuy[catKey] = Array.isArray(group.items) ? group.items : [];
           }
         }
         
@@ -43,15 +43,15 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
           for (const rb of data.byRecipe) {
             normalizedByRecipe.push({
               recipeName: rb.recipeName || rb.name || 'Unknown',
-              pantry: rb.pantry || [],
-              toBuy: rb.toBuy || []
+              pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
+              toBuy: Array.isArray(rb.toBuy) ? rb.toBuy : []
             });
           }
         }
         
         setShoppingList({
           byCategory: { 
-            pantry: data.pantry || {}, 
+            pantry: Array.isArray(data.pantry) ? data.pantry : [], 
             toBuy: normalizedToBuy 
           },
           byRecipe: normalizedByRecipe
