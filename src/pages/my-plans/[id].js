@@ -11,7 +11,7 @@ import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
-import { loadRecipeDetail } from '@/features/recipes';
+import { useRecipeDetailModal } from '@/features/recipes/hooks/useRecipeDetailModal';
 import { usePlanDetailController } from '@/features/plans';
 
 export default function PlanDetailPage() {
@@ -25,11 +25,6 @@ export default function PlanDetailPage() {
     isAuthenticated,
     getAccessToken
   });
-
-  // Recipe detail state for modal
-  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState(null);
-  const [recipeDetailLoading, setRecipeDetailLoading] = useState(false);
-  const [recipeDetailError, setRecipeDetailError] = useState(null);
 
   const {
     plan,
@@ -162,10 +157,10 @@ export default function PlanDetailPage() {
 
       {selectedRecipeId && (
         <RecipeDetailModal
-          isOpen={true}
+          isOpen={!!selectedRecipeId}
           onClose={handleCloseModal}
-          recipe={selectedRecipeDetail}
-          loading={recipeDetailLoading}
+          recipe={modalRecipe}
+          loading={modalLoading}
         />
       )}
     </>
