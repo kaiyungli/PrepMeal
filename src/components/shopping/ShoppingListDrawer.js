@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-import { formatUnit } from '@/lib/formatters';
+import { formatUnit, formatQuantity } from '@/lib/formatters';
 import { CATEGORY_ORDER, CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/constants/shoppingCategories';
 
 /**
@@ -81,7 +81,7 @@ export default function ShoppingListDrawer({
                 {items.map((item, idx) => (
                   <div key={idx} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {formatUnit(item.unit)}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{formatQuantity(item.quantity, item.unit)} {formatUnit(item.unit)}</span>
                   </div>
                 ))}
               </div>
@@ -123,7 +123,7 @@ export default function ShoppingListDrawer({
                 {recipe.toBuy.map((item, i) => (
                   <div key={i} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{item.quantity} {formatUnit(item.unit)}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{formatQuantity(item.quantity, item.unit)} {formatUnit(item.unit)}</span>
                   </div>
                 ))}
               </div>
