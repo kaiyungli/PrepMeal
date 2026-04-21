@@ -31,6 +31,7 @@ export default function ShoppingListModal({
   onCopy,
 }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<'category' | 'recipe'>('category');
 
   const viewModel = useMemo(() => {
     if (!shoppingListView) return EMPTY_VIEW;
@@ -60,7 +61,29 @@ export default function ShoppingListModal({
 
   return (
     <Modal isOpen={isOpen} title="🛒 購物清單" onClose={onClose} maxWidth="600px">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-1 bg-[#F5F0E5] p-1 rounded-lg">
+          <button
+            onClick={() => setViewMode('category')}
+            className={`py-2 px-4 rounded-md text-sm font-medium transition ${
+              viewMode === 'category'
+                ? 'bg-white text-[#5C3D2E] shadow-sm'
+                : 'text-[#8B7355] hover:text-[#5C3D2E]'
+            }`}
+          >
+            按類別
+          </button>
+          <button
+            onClick={() => setViewMode('recipe')}
+            className={`py-2 px-4 rounded-md text-sm font-medium transition ${
+              viewMode === 'recipe'
+                ? 'bg-white text-[#5C3D2E] shadow-sm'
+                : 'text-[#8B7355] hover:text-[#5C3D2E]'
+            }`}
+          >
+            按菜式
+          </button>
+        </div>
         <button
           onClick={handleCopy}
           className="px-4 py-2 bg-[#9B6035] text-white rounded-lg text-sm hover:bg-[#7a4a2a] transition"
