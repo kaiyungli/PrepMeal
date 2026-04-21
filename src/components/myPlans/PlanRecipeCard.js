@@ -61,6 +61,7 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
     return (
       <button 
         onClick={onClick}
+          onTouchStart={() => {}}
         className="w-full text-left cursor-pointer"
       >
         {cardContent}

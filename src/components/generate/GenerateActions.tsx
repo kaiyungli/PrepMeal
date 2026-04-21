@@ -29,6 +29,7 @@ export default function GenerateActions({
         {hasRecipes && (
           <button
             onClick={onClear}
+            onTouchStart={() => {}}
             className={UI.buttonGhost}
           >
             🗑️ 清空
@@ -38,6 +39,7 @@ export default function GenerateActions({
       <div className='flex gap-2'>
         <button
           onClick={onShoppingList}
+            onTouchStart={() => {}}
           disabled={!hasRecipes}
           className={UI.buttonAccent + " disabled:opacity-50"}
         >
@@ -45,12 +47,14 @@ export default function GenerateActions({
         </button>
         <button
           onClick={onGenerate}
+            onTouchStart={() => {}}
           className={UI.buttonPrimary}
         >
           ✨ 一鍵生成
         </button>
         <button
           onClick={onSave}
+            onTouchStart={() => {}}
           disabled={!hasRecipes || isSaving}
           className={UI.buttonPrimary}
         >
