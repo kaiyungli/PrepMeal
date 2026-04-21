@@ -17,6 +17,7 @@ interface ShoppingListModalProps {
 const EMPTY_VIEW: ShoppingListViewModel = {
   pantry: [],
   sections: [],
+  byRecipe: [],
   summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
   isEmpty: true,
 };

@@ -84,9 +84,17 @@ export interface ShoppingListSectionViewModel {
   items: ShoppingListItemViewModel[];
 }
 
+export interface ShoppingListRecipeGroupViewModel {
+  recipeId: string | null;
+  recipeName: string;
+  pantry: { name: string }[];
+  toBuy: { name: string; quantityText: string }[];
+}
+
 export interface ShoppingListViewModel {
   pantry: ShoppingListPantryItem[];
   sections: ShoppingListSectionViewModel[];
+  byRecipe: ShoppingListRecipeGroupViewModel[];
   summary: ShoppingListSummary;
   isEmpty: boolean;
 }
@@ -97,6 +105,7 @@ export function createEmptyViewModel(): ShoppingListViewModel {
   return {
     pantry: [],
     sections: [],
+    byRecipe: [],
     summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
     isEmpty: true,
   };

@@ -102,9 +102,25 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
     ? response.summary 
     : { pantryCount: pantry.length, toBuyCount, sectionCount: sections.length };
   
+  // Map byRecipe if present in response
+  const byRecipe = Array.isArray(response?.byRecipe) 
+    ? response.byRecipe.map((rb: any) => ({
+        recipeId: rb.recipeId,
+        recipeName: rb.recipeName || 'Unknown',
+        pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
+        toBuy: Array.isArray(rb.toBuy) 
+          ? rb.toBuy.map((i: any) => ({
+              name: i.name,
+              quantityText: formatQuantityDisplay(i.quantity, i.unit || '', i.quantityPending),
+            }))
+          : [],
+      }))
+    : [];
+
   return {
     pantry,
     sections,
+    byRecipe,
     summary: {
       pantryCount: summary.pantryCount,
       toBuyCount: summary.toBuyCount,
