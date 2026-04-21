@@ -61,10 +61,9 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   // Detect UUID vs slug - UUIDs follow specific pattern
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(recipeIdOrSlug);
   
-  // Build base query with is_public filter at query level
+  // Build base query - no is_public filter for authenticated users
   const baseQuery = supabase
     .from('recipes')
-    .select('*')
     .select('*');
 
   // Query by id or slug
