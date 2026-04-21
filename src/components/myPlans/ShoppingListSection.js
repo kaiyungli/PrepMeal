@@ -76,7 +76,7 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   return (
     <div 
       onClick={handleOpen}
-      className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex"
+      className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex active:scale-95 transition-transform duration-100 touch-manipulation"
     >
       <div className="flex items-center gap-2">
         <span className="text-2xl">🛒</span>
