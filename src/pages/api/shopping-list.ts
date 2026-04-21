@@ -177,6 +177,39 @@ export default async function handler(
       category: 'pantry' as ShoppingCategoryKey,
     }));
 
+    // Build byRecipe from allItems (before merge to keep recipe tracking)
+    const recipeGroups = new Map<string, { recipeId: string; recipeName: string; items: any[] }>();
+    
+    for (const item of allItems) {
+      const rid = item.recipeId || 'unknown';
+      if (!recipeGroups.has(rid)) {
+        recipeGroups.set(rid, { 
+          recipeId: rid, 
+          recipeName: item.recipeName || 'Unknown',
+          items: [] 
+        });
+      }
+      recipeGroups.get(rid)!.items.push(item);
+    }
+    
+    // Merge items within each recipe group
+    const byRecipe: any[] = [];
+    for (const [, group] of recipeGroups) {
+      const mergedInRecipe = mergeItems(group.items);
+      byRecipe.push({
+        recipeId: group.recipeId,
+        recipeName: group.recipeName,
+        pantry: [],
+        toBuy: mergedInRecipe.map(item => ({
+          ingredientId: item.ingredientId,
+          name: item.name,
+          quantity: item.quantity,
+          unit: item.unit,
+          quantityPending: item.quantityPending,
+        })),
+      });
+    }
+
     const summary = {
       pantryCount: pantry.length,
       toBuyCount: toBuy.reduce((sum, s) => sum + s.items.length, 0),
@@ -184,9 +217,10 @@ export default async function handler(
     };
 
     console.log('[shopping-list api] summary:', summary);
+    console.log('[shopping-list api] byRecipe count:', byRecipe.length);
     console.log('[shopping-list api] returning response');
 
-    res.status(200).json({ pantry, toBuy, byRecipe: [], summary });
+    res.status(200).json({ pantry, toBuy, byRecipe, summary });
   } catch (err) {
     console.error('[shopping-list api] fatal error:', err);
     res.status(500).json({ 

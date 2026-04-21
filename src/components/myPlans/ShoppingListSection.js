@@ -39,10 +39,10 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
         }
         
         const normalizedByRecipe = [];
-        if (data.summary && data.summary.byRecipe) {
-          for (const rb of data.summary.byRecipe) {
+        if (data.byRecipe && Array.isArray(data.byRecipe)) {
+          for (const rb of data.byRecipe) {
             normalizedByRecipe.push({
-              recipeName: rb.recipeName || rb.name,
+              recipeName: rb.recipeName || rb.name || 'Unknown',
               pantry: rb.pantry || [],
               toBuy: rb.toBuy || []
             });
