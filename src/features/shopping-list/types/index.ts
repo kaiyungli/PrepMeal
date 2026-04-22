@@ -123,6 +123,18 @@ export function formatQuantityDisplay(
   if (quantity === null || quantity === 0) {
     return '';
   }
-  const qtyStr = String(quantity);
+  
+  // Round to max 2 decimal places, remove trailing zeros
+  let rounded = Math.round(quantity * 100) / 100;
+  
+  // Format: remove .0, keep up to 2 decimals
+  let qtyStr: string;
+  if (Number.isInteger(rounded)) {
+    qtyStr = String(rounded);
+  } else {
+    // Remove trailing zeros after decimal
+    qtyStr = rounded.toFixed(2).replace(/\.?0+$/, '');
+  }
+  
   return unit ? `${qtyStr} ${unit}` : qtyStr;
 }
