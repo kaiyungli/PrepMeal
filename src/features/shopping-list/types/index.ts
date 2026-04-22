@@ -27,8 +27,7 @@ export interface ShoppingListBuyItem {
   normalizedName: string;
   quantity: number | null;
   unit: string;
-  unitDisplayZh?: string;
-  unitDisplayEn?: string;
+  unitDisplay?: string;
   category: ShoppingCategoryKey;
   source: 'recipe_ingredients' | 'ingredients_list';
   quantityPending: boolean;

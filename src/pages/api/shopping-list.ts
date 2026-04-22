@@ -74,6 +74,20 @@ export default async function handler(
     process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  // Get user preference for unit language
+  let unitLanguage = 'zh'; // default
+  if (userId) {
+    const { data: prefs } = await supabase
+      .from('user_preferences')
+      .select('unit_language')
+      .eq('user_id', userId)
+      .single();
+    if (prefs?.unit_language) {
+      unitLanguage = prefs.unit_language;
+    }
+  }
+  console.log('[shopping-list api] user unit_language:', unitLanguage);
+
   try {
     const dbStart = performance.now();
     console.log('[shopping-list-api] db fetch start', { recipeCount: recipeIds.length });
@@ -128,14 +142,24 @@ export default async function handler(
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
       
+      // Choose display name based on user preference
+      const unitCode = unitRow?.code ?? '';
+      let unitDisplay = '';
+      if (unitLanguage === 'en' && unitRow?.display_name_en) {
+        unitDisplay = unitRow.display_name_en;
+      } else if (unitRow?.display_name_zh) {
+        unitDisplay = unitRow.display_name_zh;
+      } else {
+        unitDisplay = unitCode;
+      }
+      
       allItems.push({
         ingredientId: ri.ingredient_id,
         name: ing.name,
         normalizedName: ing.name,
         quantity: (ri.quantity ?? 0) * servings,
-        unit: unitRow?.code ?? '',
-        unitDisplayZh: unitRow?.display_name_zh ?? '',
-        unitDisplayEn: unitRow?.display_name_en ?? '',
+        unit: unitCode,
+        unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
@@ -206,7 +230,7 @@ export default async function handler(
           ingredientId: item.ingredientId,
           name: item.name,
           quantity: item.quantity,
-          unit: item.unit,
+          unit: item.unitDisplay || item.unit || '',
           quantityPending: item.quantityPending,
         })),
       });

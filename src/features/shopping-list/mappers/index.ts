@@ -79,7 +79,7 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
     const items: ShoppingListItemViewModel[] = (section.items || []).map((item): ShoppingListItemViewModel => ({
       ingredientId: item.ingredientId,
       name: item.name,
-      quantityText: formatQuantityDisplay(item.quantity, item.unitDisplayZh || item.unitDisplayEn || item.unit || '', item.quantityPending),
+      quantityText: formatQuantityDisplay(item.quantity, item.unitDisplay || item.unit || '', item.quantityPending),
       quantityPending: item.quantityPending,
     }));
     
@@ -111,7 +111,7 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
         toBuy: Array.isArray(rb.toBuy) 
           ? rb.toBuy.map((i: any) => ({
               name: i.name,
-              quantityText: formatQuantityDisplay(i.quantity, i.unitDisplayZh || i.unitDisplayEn || i.unit || '', i.quantityPending),
+              quantityText: formatQuantityDisplay(i.quantity, i.unitDisplay || i.unit || '', i.quantityPending),
             }))
           : [],
       }))
