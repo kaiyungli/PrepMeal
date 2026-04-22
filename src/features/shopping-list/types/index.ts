@@ -27,6 +27,8 @@ export interface ShoppingListBuyItem {
   normalizedName: string;
   quantity: number | null;
   unit: string;
+  unitDisplayZh?: string;
+  unitDisplayEn?: string;
   category: ShoppingCategoryKey;
   source: 'recipe_ingredients' | 'ingredients_list';
   quantityPending: boolean;
@@ -114,7 +116,7 @@ export function createEmptyViewModel(): ShoppingListViewModel {
 // Single source of truth for quantity display
 export function formatQuantityDisplay(
   quantity: number | null, 
-  unit: string, 
+  unitDisplay: string, 
   quantityPending: boolean
 ): string {
   if (quantityPending) {
@@ -136,5 +138,5 @@ export function formatQuantityDisplay(
     qtyStr = rounded.toFixed(2).replace(/\.?0+$/, '');
   }
   
-  return unit ? `${qtyStr} ${unit}` : qtyStr;
+  return unitDisplay ? `${qtyStr} ${unitDisplay}` : qtyStr;
 }

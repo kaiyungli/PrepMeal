@@ -87,7 +87,7 @@ export default async function handler(
         ingredient_id,
         ingredients(id, name, shopping_category),
         recipes(id, name),
-        units(id, code, name)
+        units(id, code, display_name_en, display_name_zh)
       `)
       .in('recipe_id', recipeIds);
 
@@ -134,6 +134,8 @@ export default async function handler(
         normalizedName: ing.name,
         quantity: (ri.quantity ?? 0) * servings,
         unit: unitRow?.code ?? '',
+        unitDisplayZh: unitRow?.display_name_zh ?? '',
+        unitDisplayEn: unitRow?.display_name_en ?? '',
         category: mapRawCategoryToKey(ing.shopping_category ?? null),
         source: 'recipe_ingredients',
         quantityPending: false,
