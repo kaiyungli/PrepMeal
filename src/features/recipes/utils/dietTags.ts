@@ -3,24 +3,21 @@ import { isRecipeHighProtein } from '@/constants/nutritionRules';
 
 /**
  * Derive diet tags from recipe nutritional data
+ * Single source of truth for diet tag logic
  */
 export function deriveDietTags(recipe: Recipe): string[] {
   const tags: string[] = [];
   
   if (!recipe) return tags;
   
-  const protein = Number(recipe.protein_g);
-  const cal = Number(recipe.calories_per_serving);
-  const dishType = (recipe.dish_type ?? '').toLowerCase().trim();
-  const isCompleteMeal = recipe.is_complete_meal === true;
-  
   // Vegetarian check
   if (recipe.is_vegetarian || recipe.diet?.includes('vegetarian')) {
     tags.push('vegetarian');
   }
   
-  // Low calorie: <= 400 kcal
-  if (cal > 0 && cal <= 400) {
+  // Low calorie: <= 400 kcal per serving
+  const calories = Number(recipe.calories_per_serving);
+  if (calories > 0 && calories <= 400) {
     tags.push('low_calorie');
   }
   
@@ -32,10 +29,10 @@ export function deriveDietTags(recipe: Recipe): string[] {
   
   // High protein: use shared rule from nutritionRules.ts
   if (isRecipeHighProtein({
-    protein_g: protein,
-    calories_per_serving: cal,
-    dish_type: dishType,
-    is_complete_meal: isCompleteMeal,
+    protein_g: recipe.protein_g,
+    calories_per_serving: recipe.calories_per_serving,
+    dish_type: recipe.dish_type,
+    is_complete_meal: recipe.is_complete_meal,
   })) {
     tags.push('high_protein');
   }
