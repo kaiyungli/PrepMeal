@@ -1,7 +1,7 @@
 /**
  * Tests for nutrition tagging rules
  */
-import { isRecipeHighProtein, HIGH_PROTEIN } from '@/constants/nutritionRules';
+import { isRecipeHighProtein, HIGH_PROTEIN_RULE } from '@/constants/nutritionRules';
 
 describe('isRecipeHighProtein', () => {
   // Valid cases
@@ -38,6 +38,26 @@ describe('isRecipeHighProtein', () => {
         protein_g: 26,
         calories_per_serving: 100,
         dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    // Edge case: dish_type = null, is_complete_meal = true
+    it('null dish_type, is_complete_meal=true, 30g protein, 400 kcal -> true', () => {
+      expect(isRecipeHighProtein({
+        protein_g: 30,
+        calories_per_serving: 400,
+        dish_type: null,
+        is_complete_meal: true,
+      })).toBe(true);
+    });
+
+    // Edge case: dish_type with whitespace
+    it('dish_type = " main " (with spaces), 30g protein, 400 kcal -> true', () => {
+      expect(isRecipeHighProtein({
+        protein_g: 30,
+        calories_per_serving: 400,
+        dish_type: ' main ',
         is_complete_meal: false,
       })).toBe(true);
     });
@@ -107,6 +127,16 @@ describe('isRecipeHighProtein', () => {
         is_complete_meal: false,
       })).toBe(false);
     });
+
+    // Edge case: null dish_type, is_complete_meal = false
+    it('null dish_type, is_complete_meal=false -> false', () => {
+      expect(isRecipeHighProtein({
+        protein_g: 30,
+        calories_per_serving: 400,
+        dish_type: null,
+        is_complete_meal: false,
+      })).toBe(false);
+    });
   });
 
   // Edge cases
@@ -127,6 +157,15 @@ describe('isRecipeHighProtein', () => {
         dish_type: 'MAIN',
         is_complete_meal: false,
       })).toBe(true);
+    });
+
+    it('undefined values -> false', () => {
+      expect(isRecipeHighProtein({
+        protein_g: undefined,
+        calories_per_serving: 400,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(false);
     });
   });
 });

@@ -6,7 +6,7 @@
  */
 
 // High Protein Rule Constants
-export const HIGH_PROTEIN = {
+export const HIGH_PROTEIN_RULE = {
   MIN_PROTEIN_G: 25,
   MIN_PROTEIN_RATIO: 0.20, // (protein_g * 4) / calories >= 0.20
   VALID_DISH_TYPES: ['main'],
@@ -29,19 +29,19 @@ export interface NutritionRuleInput {
  */
 export function isRecipeHighProtein(recipe: NutritionRuleInput): boolean {
   // Convert to number safely
-  const protein = parseFloat(String(recipe.protein_g ?? '0'));
-  const calories = parseFloat(String(recipe.calories_per_serving ?? '0'));
+  const protein = Number(recipe.protein_g);
+  const calories = Number(recipe.calories_per_serving);
   
-  // Edge cases
-  if (Number.isNaN(protein) || protein === 0) return false;
-  if (Number.isNaN(calories) || calories <= 0) return false;
+  // Edge cases - use Number.isFinite for safety
+  if (!Number.isFinite(protein) || protein <= 0) return false;
+  if (!Number.isFinite(calories) || calories <= 0) return false;
   
   // Check minimum protein
-  if (protein < HIGH_PROTEIN.MIN_PROTEIN_G) return false;
+  if (protein < HIGH_PROTEIN_RULE.MIN_PROTEIN_G) return false;
   
   // Check protein ratio: (protein * 4) / calories >= 0.20
   const ratio = (protein * 4) / calories;
-  if (ratio < HIGH_PROTEIN.MIN_PROTEIN_RATIO) return false;
+  if (ratio < HIGH_PROTEIN_RULE.MIN_PROTEIN_RATIO) return false;
   
   // Check valid dish type or complete meal
   const dishType = (recipe.dish_type ?? '').toLowerCase().trim();
