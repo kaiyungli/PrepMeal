@@ -142,15 +142,15 @@ export default async function handler(
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
       
-      // Choose display name based on user preference
+      // Choose display name based on user preference with proper fallback
       const unitCode = unitRow?.code ?? '';
       let unitDisplay = '';
-      if (unitLanguage === 'en' && unitRow?.display_name_en) {
-        unitDisplay = unitRow.display_name_en;
-      } else if (unitRow?.display_name_zh) {
-        unitDisplay = unitRow.display_name_zh;
+      if (unitLanguage === 'en') {
+        // English: prefer en, fallback to zh, then code
+        unitDisplay = unitRow?.display_name_en || unitRow?.display_name_zh || unitCode;
       } else {
-        unitDisplay = unitCode;
+        // Chinese (default): prefer zh, fallback to en, then code
+        unitDisplay = unitRow?.display_name_zh || unitRow?.display_name_en || unitCode;
       }
       
       allItems.push({
