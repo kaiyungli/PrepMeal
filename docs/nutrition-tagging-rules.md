@@ -89,7 +89,7 @@ A recipe can be tagged as `low_calorie` only if ALL of the following are true pe
 ```sql
 SELECT r.id, r.name, r.protein_g, r.calories_per_serving, r.dish_type, r.is_complete_meal
 FROM recipes r
-WHERE 'high_protein' = ANY(COALESCE(r.diet, ARRAY[]::text[])
+WHERE 'high_protein' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
   AND (
     r.protein_g < 25
     OR r.calories_per_serving IS NULL
@@ -104,10 +104,10 @@ WHERE 'high_protein' = ANY(COALESCE(r.diet, ARRAY[]::text[])
 ```sql
 SELECT r.id, r.name, r.protein_g, r.calories_per_serving, r.dish_type, r.is_complete_meal
 FROM recipes r
-WHERE 'high_protein' NOT IN (COALESCE(r.diet, ARRAY[]::text[])
+WHERE 'high_protein' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
   AND r.protein_g >= 25
   AND r.calories_per_serving > 0
-  AND ((r.protein_g * 4.0) / r.calories_per_serving >= 0.20')
+  AND ((r.protein_g * 4.0) / r.calories_per_serving) >= 0.20
   AND (r.dish_type = 'main' OR r.is_complete_meal = true);
 ```
 
@@ -131,8 +131,7 @@ WHERE 'low_fat' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
 ```sql
 SELECT r.id, r.name, r.fat_g, r.calories_per_serving, r.dish_type, r.is_complete_meal
 FROM recipes r
-WHERE 'low_fat' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
-  AND NOT 'low_fat' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
+WHERE 'low_fat' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
   AND r.fat_g <= 10
   AND r.fat_g > 0
   AND r.calories_per_serving > 0
@@ -170,18 +169,8 @@ WHERE 'low_calorie' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
   AND (
     (r.dish_type IN ('main', 'staple') OR r.is_complete_meal = true)
     AND r.calories_per_serving <= 400
-  )
-  OR (
-    r.dish_type IN ('side', 'soup', 'snack')
+    OR r.dish_type IN ('side', 'soup', 'snack')
     AND r.calories_per_serving <= 300
-  )
-  AND (
-    r.protein_g >= 25
-    OR 'low_fat' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
-  )
-  AND (
-    r.fat_g <= 10
-    OR 'low_fat' = ANY(COALESCE(r.diet, ARRAY[]::text[]))
   );
 ```
 
@@ -189,10 +178,10 @@ WHERE 'low_calorie' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
 
 ## Related Tags
 
-- `high_protein` - High protein rule
-- `low_fat` - Low fat rule
-- `low_calorie` - Low calorie rule
-- `vegetarian` - Dietary preference
+- `high_protein` — High protein rule
+- `low_fat` — Low fat rule
+- `low_calorie` — Low calorie rule
+- `vegetarian` — Dietary preference
 
 ---
 
