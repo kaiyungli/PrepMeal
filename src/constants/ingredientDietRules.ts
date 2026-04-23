@@ -24,26 +24,33 @@ const DAIRY_INGREDIENTS = [
   'cream cheese', 'sour cream',
 ];
 
-/** Combined egg + dairy positive signals for egg_lacto */
-const EGG_LACTO_POSITIVE = [...EGG_INGREDIENTS, ...DAIRY_INGREDIENTS];
-
 // ===== Negative Signals =====
 
-/** Animal meat proteins that disqualify vegetarian/egg_lacto */
+/** 
+ * Animal meat proteins that disqualify vegetarian/egg_lacto
+ * 
+ * IMPORTANT: Use specific terms only - avoid single characters or overly broad matches.
+ * For example:
+ * - '牛' is too broad (matches 牛奶, 牛油)
+ * - '肉' is too broad (matches 肉桂, 肉燥)
+ * Use specific terms like '牛肉', '雞肉' instead.
+ */
 const FORBIDDEN_ANIMAL_PROTEINS = [
-  // Poultry
-  'chicken', '鸡肉', '雞肉', 'duck', '鹅', '鵝', 'turkey', '火雞',
-  // Beef
-  'beef', '牛肉', '牛',
-  // Pork
-  'pork', '猪肉', '豬肉', 'bacon', 'ham', '香腸',
-  // Fish
-  'fish', '魚', '鱼', 'salmon', '三文魚', 'tuna', '吞拿魚', 'cod', '鱈魚',
-  // Seafood
-  'shrimp', '虾', '蝦', 'prawn', 'lobster', '龍蝦', ' crab', '蟹',
-  'seafood', '海鮮', 'oyster', '蠔', 'clam', 'mussel', '青口',
-  // Mixed
-  'mixed meat', 'mixed seafood', 'meat', '肉',
+  // Poultry (specific terms)
+  'chicken', 'duck', 'turkey',
+  '雞肉', '雞', '鸭肉', '鹅肉', '火雞',
+  // Beef (specific terms - NOT '牛')
+  'beef', '牛肉', '牛腩', '牛排', '和牛',
+  // Pork (specific terms - NOT '肉')
+  'pork', '猪肉', '豬肉', '五花肉', '里肌肉', 'bacon', 'ham', '香腸', '臘腸',
+  // Fish (specific terms)
+  'fish', 'salmon', 'tuna', 'cod', '鳕鱼', '三文鱼', '吞拿鱼',
+  '魚', '鱼', '三文魚', '吞拿魚', '鱈魚',
+  // Seafood (specific terms)
+  'shrimp', 'prawn', 'lobster', 'crab', 'oyster', 'clam', 'mussel',
+  '蝦', '虾', '龍蝦', '蟹', '青口', '蠔', '蜆',
+  // Mixed / general meat terms (specific contexts only)
+  'mixed meat', 'mixed seafood', 'meat', '肉類',
 ];
 
 // ===== Types =====
@@ -71,6 +78,7 @@ function normalizeIngredientValue(value: string | null | undefined): string {
 
 /**
  * Check if an ingredient matches any of the given signals
+ * Uses word-boundary-aware matching for better accuracy
  */
 function matchesAnySignal(ingredient: IngredientInput, signals: string[]): boolean {
   const name = normalizeIngredientValue(ingredient.name);
@@ -79,7 +87,14 @@ function matchesAnySignal(ingredient: IngredientInput, signals: string[]): boole
   // Check both name and slug against all signals
   for (const signal of signals) {
     const normSignal = normalizeIngredientValue(signal);
-    if (name.includes(normSignal) || slug.includes(normSignal)) {
+    if (!normSignal) continue;
+    
+    // Match whole word/term, not substring
+    // This prevents '牛' matching '牛奶' or '肉' matching '肉桂'
+    const nameMatch = name === normSignal || name.startsWith(normSignal + ' ') || name.endsWith(' ' + normSignal) || name.includes(' ' + normSignal + ' ');
+    const slugMatch = slug === normSignal || slug.startsWith(normSignal + '-') || slug.endsWith('-' + normSignal) || slug.includes('-' + normSignal + '-');
+    
+    if (nameMatch || slugMatch) {
       return true;
     }
   }

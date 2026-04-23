@@ -307,3 +307,65 @@ describe('deriveIngredientDietTags', () => {
     expect(deriveIngredientDietTags({ ingredients: [] })).toEqual([]);
   });
 });
+
+describe('Chinese ingredient edge cases', () => {
+  describe('should be vegetarian (no forbidden)', () => {
+    it('牛奶 (milk) -> true', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '牛奶' }, { name: '燕麥' }]
+      })).toBe(true);
+    });
+
+    it('牛油 (butter) -> true', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '牛油' }, { name: '麵包' }]
+      })).toBe(true);
+    });
+
+    it('肉桂 (cinnamon) -> true', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '肉桂' }, { name: '糖' }]
+      })).toBe(true);
+    });
+  });
+
+  describe('should NOT be vegetarian (has forbidden)', () => {
+    it('雞肉 (chicken) -> false', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '雞肉' }, { name: '蔬菜' }]
+      })).toBe(false);
+    });
+
+    it('牛肉 (beef) -> false', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '牛肉' }, { name: '洋蔥' }]
+      })).toBe(false);
+    });
+
+    it('豬肉 (pork) -> false', () => {
+      expect(isRecipeVegetarianByIngredients({
+        ingredients: [{ name: '豬肉' }, { name: '豆腐' }]
+      })).toBe(false);
+    });
+  });
+
+  describe('egg_lacto edge cases', () => {
+    it('牛油 (butter) alone -> egg_lacto true', () => {
+      expect(isRecipeEggLactoByIngredients({
+        ingredients: [{ name: '牛油' }, { name: '麵包' }]
+      })).toBe(true);
+    });
+
+    it('牛奶 alone -> egg_lacto true', () => {
+      expect(isRecipeEggLactoByIngredients({
+        ingredients: [{ name: '牛奶' }, { name: '燕麥' }]
+      })).toBe(true);
+    });
+
+    it('肉桂 alone -> egg_lacto false (no egg/dairy)', () => {
+      expect(isRecipeEggLactoByIngredients({
+        ingredients: [{ name: '肉桂' }, { name: '糖' }]
+      })).toBe(false);
+    });
+  });
+});
