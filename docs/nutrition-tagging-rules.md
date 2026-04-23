@@ -167,10 +167,15 @@ FROM recipes r
 WHERE 'low_calorie' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
   AND r.calories_per_serving > 0
   AND (
-    (r.dish_type IN ('main', 'staple') OR r.is_complete_meal = true)
-    AND r.calories_per_serving <= 400
-    OR r.dish_type IN ('side', 'soup', 'snack')
-    AND r.calories_per_serving <= 300
+    (
+      (r.dish_type IN ('main', 'staple') OR r.is_complete_meal = true)
+      AND r.calories_per_serving <= 400
+    )
+    OR
+    (
+      r.dish_type IN ('side', 'soup', 'snack')
+      AND r.calories_per_serving <= 300
+    )
   );
 ```
 
