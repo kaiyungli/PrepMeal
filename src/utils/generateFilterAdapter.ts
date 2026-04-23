@@ -47,7 +47,8 @@ const DIET_MODE_MAP: Record<string, string> = {
   'low_carb': 'low_calorie',
   'low_calorie': 'low_calorie',
   'keto': 'low_calorie',
-  'general': '', // No filter for general
+  'general': '',
+  'egg_lacto': 'egg_lacto', // Added egg_lacto mapping
 };
 
 /**
