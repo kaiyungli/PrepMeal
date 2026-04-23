@@ -32,6 +32,12 @@ export function useUserState(options = {}) {
   const [token, setToken] = useState(null);
   
   useEffect(() => {
+    // Skip token resolution when favorites are disabled
+    if (skipFavorites) {
+      setToken(null);
+      return;
+    }
+
     if (!auth.loading) {
       if (auth.isAuthenticated) {
         auth.getAccessToken().then(t => setToken(t));
@@ -39,11 +45,14 @@ export function useUserState(options = {}) {
         setToken(null);
       }
     }
-  }, [auth.loading, auth.isAuthenticated, auth.getAccessToken]);
-  
+  }, [skipFavorites, auth.loading, auth.isAuthenticated, auth.getAccessToken]);
+
   // Always call useFavorites - pass null when token not ready (SWR won't fetch with null key)
   // This respects Hooks rules while preventing duplicate fetches
-  const fav = useFavorites(token);
+  const effectiveToken = skipFavorites ? null : token;
+  const fav = useFavorites(effectiveToken);
+  
+
   
   return {
     // Auth
