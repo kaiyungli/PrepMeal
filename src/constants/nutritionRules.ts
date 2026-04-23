@@ -20,10 +20,10 @@ export const LOW_FAT_RULE = {
 } as const;
 
 export interface NutritionRuleInput {
-  protein_g: number | string | null;
-  calories_per_serving: number | string | null;
-  dish_type: string | null;
-  is_complete_meal: boolean | null;
+  protein_g?: number | string | null;
+  calories_per_serving?: number | string | null;
+  dish_type?: string | null;
+  is_complete_meal?: boolean | null;
 }
 
 export interface NutritionRuleInputWithFat extends NutritionRuleInput {
