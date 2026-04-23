@@ -17,6 +17,7 @@ import { perfNow, perfLog } from '@/utils/perf';
 export default function Home({ initialRecipes = [] }) {
   // Homepage first-load start timestamp - created at initial render
   const firstLoadStartRef = useRef(perfNow());
+  const dataReadyStartRef = useRef<number | null>(null);
   const router = useRouter();
   const { toast, showToast } = useToast();
 
@@ -48,6 +49,29 @@ export default function Home({ initialRecipes = [] }) {
       end,
     });
   }, []);
+
+  // Track when homepage data loading starts
+  useEffect(() => {
+    if (loading && dataReadyStartRef.current === null) {
+      dataReadyStartRef.current = perfNow();
+    }
+  }, [loading]);
+
+  // Log homepage data-ready metric when loading completes
+  useEffect(() => {
+    if (!loading && dataReadyStartRef.current !== null) {
+      const start = dataReadyStartRef.current;
+      const end = perfNow();
+      perfLog({
+        event: 'page_load',
+        stage: 'home_data_ready',
+        label: 'home.first_load.data_ready',
+        start,
+        end,
+      });
+      dataReadyStartRef.current = null; // Reset after logging
+    }
+  }, [loading]);
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
