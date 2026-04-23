@@ -5,7 +5,7 @@
  * Uses shared nutrition rule helpers from nutritionRules.ts
  */
 
-import { isRecipeHighProtein, isRecipeLowFat } from '@/constants/nutritionRules';
+import { isRecipeHighProtein, isRecipeLowFat, isRecipeLowCalorie } from '@/constants/nutritionRules';
 
 /**
  * Minimal recipe interface for diet tag derivation
@@ -35,9 +35,12 @@ export function deriveDietTags(recipe: DietTagRecipe): string[] {
     tags.push('vegetarian');
   }
   
-  // Low calorie: <= 400 kcal per serving
-  const calories = Number(recipe.calories_per_serving);
-  if (calories > 0 && calories <= 400) {
+  // Low calorie: use shared rule from nutritionRules.ts
+  if (isRecipeLowCalorie({
+    calories_per_serving: recipe.calories_per_serving ?? null,
+    dish_type: recipe.dish_type ?? null,
+    is_complete_meal: recipe.is_complete_meal ?? null,
+  })) {
     tags.push('low_calorie');
   }
   

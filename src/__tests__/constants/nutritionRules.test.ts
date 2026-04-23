@@ -1,7 +1,7 @@
 /**
  * Tests for nutrition tagging rules
  */
-import { isRecipeHighProtein, isRecipeLowFat, HIGH_PROTEIN_RULE, LOW_FAT_RULE } from '@/constants/nutritionRules';
+import { isRecipeHighProtein, isRecipeLowFat, isRecipeLowCalorie, HIGH_PROTEIN_RULE, LOW_FAT_RULE, LOW_CALORIE_RULE } from '@/constants/nutritionRules';
 
 describe('isRecipeHighProtein', () => {
   // Valid cases
@@ -320,6 +320,138 @@ describe('isRecipeLowFat', () => {
       expect(isRecipeLowFat({
         fat_g: undefined,
         calories_per_serving: 400,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+  });
+});
+describe('isRecipeLowCalorie', () => {
+  // Valid cases
+  describe('valid cases', () => {
+    it('main, 360 kcal -> true', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 360,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    it('staple + is_complete_meal=true, 400 kcal -> true', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 400,
+        dish_type: 'staple',
+        is_complete_meal: true,
+      })).toBe(true);
+    });
+
+    it('soup, 260 kcal -> true', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 260,
+        dish_type: 'soup',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    it('side, 300 kcal -> true', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 300,
+        dish_type: 'side',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    // Edge case: null dish_type with is_complete_meal=true
+    it('null dish_type, is_complete_meal=true, 380 kcal -> true', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 380,
+        dish_type: null,
+        is_complete_meal: true,
+      })).toBe(true);
+    });
+  });
+
+  // Invalid cases
+  describe('invalid cases', () => {
+    it('main, 450 kcal -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 450,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    it('staple, 420 kcal -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 420,
+        dish_type: 'staple',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    it('soup, 320 kcal -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 320,
+        dish_type: 'soup',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    it('side, 350 kcal -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 350,
+        dish_type: 'side',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    it('null calories -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: null,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    it('zero calories -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 0,
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+
+    // Edge case: unknown dish type without is_complete_meal
+    it('unknown dish type, 200 kcal -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 200,
+        dish_type: 'appetizer',
+        is_complete_meal: false,
+      })).toBe(false);
+    });
+  });
+
+  // Edge cases
+  describe('edge cases', () => {
+    it('string calories work', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: '360',
+        dish_type: 'main',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    it('case insensitive dish_type', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: 360,
+        dish_type: 'MAIN',
+        is_complete_meal: false,
+      })).toBe(true);
+    });
+
+    it('undefined calories -> false', () => {
+      expect(isRecipeLowCalorie({
+        calories_per_serving: undefined,
         dish_type: 'main',
         is_complete_meal: false,
       })).toBe(false);
