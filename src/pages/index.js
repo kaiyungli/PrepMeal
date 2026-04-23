@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Layout } from '@/components';
@@ -12,8 +12,11 @@ import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes'
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
+import { perfNow, perfLog } from '@/utils/perf';
 
 export default function Home({ initialRecipes = [] }) {
+  // Homepage first-load start timestamp - created at initial render
+  const firstLoadStartRef = useRef(perfNow());
   const router = useRouter();
   const { toast, showToast } = useToast();
 
@@ -32,6 +35,19 @@ export default function Home({ initialRecipes = [] }) {
 
   // Controller
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
+
+  // Log homepage first-load ready metric
+  useEffect(() => {
+    const start = firstLoadStartRef.current;
+    const end = perfNow();
+    perfLog({
+      event: 'page_load',
+      stage: 'home_ready',
+      label: 'home.first_load.ready',
+      start,
+      end,
+    });
+  }, []);
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
