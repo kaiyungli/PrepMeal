@@ -157,7 +157,6 @@ export const DIET_MAP: Record<string, string> = {
 };
 
 export const DIET_OPTIONS = [
-  { value: 'general', label: '普通' },
   { value: 'vegetarian', label: '素食' },
   { value: 'egg_lacto', label: '蛋奶素' },
   { value: 'high_protein', label: '高蛋白' },
