@@ -23,7 +23,8 @@ export function getFavoriteRecipes(recipes, favorites) {
  * - user, isAuthenticated, authLoading
  * - favorites, isFavorite, toggleFavorite, favoritesLoading
  */
-export function useUserState() {
+export function useUserState(options = {}) {
+  const { skipFavorites = false } = options || {};
   // Auth state
   const auth = useAuth();
   
@@ -55,12 +56,12 @@ export function useUserState() {
     signOut: auth.signOut,
     getAccessToken: auth.getAccessToken,
     
-    // Favorites
-    favorites: fav.favorites,
-    isFavorite: fav.isFavorite,
-    toggleFavorite: fav.toggleFavorite,
-    favoritesLoading: fav.loading,
-    favoritesError: fav.error,
-    isPending: fav.isPending,
+    // Favorites - skip when requested
+    favorites: skipFavorites ? undefined : fav.favorites,
+    isFavorite: skipFavorites ? undefined : fav.isFavorite,
+    toggleFavorite: skipFavorites ? undefined : fav.toggleFavorite,
+    favoritesLoading: skipFavorites ? undefined : fav.loading,
+    favoritesError: skipFavorites ? undefined : fav.error,
+    isPending: skipFavorites ? undefined : fav.isPending,
   };
 }

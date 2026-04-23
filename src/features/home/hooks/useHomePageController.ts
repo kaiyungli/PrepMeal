@@ -6,9 +6,10 @@ import { useUserState } from '@/hooks/useUserState';
 interface UseHomePageControllerOptions {
   recipesList: any[];
   showToast?: (message: string, type?: string) => void;
+  skipFavorites?: boolean;
 }
 
-export function useHomePageController({ recipesList = [], showToast }: UseHomePageControllerOptions) {
+export function useHomePageController({ recipesList = [], showToast, skipFavorites = true }: UseHomePageControllerOptions) {
   // Weekly plan state
   const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
 
@@ -27,10 +28,11 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
   }, [recipesList]);
 
   // User state for favorites
-  const { isAuthenticated, isFavorite, toggleFavorite } = useUserState();
+  const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites });
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
+    if (!toggleFavorite) return; // Favorites disabled
     if (!isAuthenticated) {
       if (showToast) showToast('請先登入以收藏食譜', 'info');
       return;
