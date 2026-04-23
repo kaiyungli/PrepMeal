@@ -191,3 +191,83 @@ WHERE 'low_calorie' <> ALL(COALESCE(r.diet, ARRAY[]::text[]))
 ---
 
 Last Updated: 2026-04-23
+---
+
+## Vegetarian Rule (Ingredient-Based)
+
+A recipe is considered **vegetarian** only if it contains **NO** meat, poultry, fish, or seafood.
+
+### Conditions
+
+1. Recipe must have at least one ingredient (empty = false)
+2. Recipe must contain **NO** forbidden animal proteins
+
+### Forbidden Animal Proteins
+
+| Category | Ingredients |
+|----------|-------------|
+| Poultry | chicken, duck, turkey |
+| Beef | beef, 牛 |
+| Pork | pork, bacon, ham |
+| Fish | fish, salmon, tuna, cod |
+| Seafood | shrimp, prawn, lobster, crab, oyster, clam |
+
+### Examples
+
+| Recipe Ingredients | Result |
+|-------------------|--------|
+| tomato, onion, carrot | ✅ true |
+| egg, tomato | ✅ true |
+| milk, oats, cheese | ✅ true |
+| tofu, vegetables | ✅ true |
+| shrimp, egg | ❌ false |
+| fish, butter | ❌ false |
+| chicken, milk | ❌ false |
+| (empty) | ❌ false |
+
+---
+
+## Egg Lacto Rule (Ingredient-Based)
+
+A recipe is considered **egg_lacto** only if:
+1. It is vegetarian by ingredient composition (no forbidden animal proteins)
+2. It contains **at least one** egg OR dairy ingredient
+
+### Important Notes
+
+- **egg_lacto is a subset of vegetarian**
+- All egg_lacto recipes are vegetarian, but not all vegetarian recipes are egg_lacto
+- Vegan recipes (no egg, no dairy) must NOT be tagged as egg_lacto
+- Recipes with shrimp/fish/chicken/beef/pork must NEVER be tagged as egg_lacto, even if they also contain egg or dairy
+
+### Positive Egg/Dairy Signals
+
+| Category | Ingredients |
+|----------|-------------|
+| Egg | egg, 蛋, 雞蛋 |
+| Dairy | milk, cheese, butter, cream, yogurt, 牛奶, 芝士, 牛油, 忌廉 |
+
+### Examples
+
+| Recipe Ingredients | Result |
+|-------------------|--------|
+| egg, tomato | ✅ true |
+| milk, oats | ✅ true |
+| cheese, pasta | ✅ true |
+| egg + milk + tomato | ✅ true |
+| tofu, vegetables (vegan) | ❌ false (no egg/dairy) |
+| shrimp + egg | ❌ false (not vegetarian) |
+| fish + butter | ❌ false (not vegetarian) |
+| chicken + milk | ❌ false (not vegetarian) |
+
+---
+
+## Implementation
+
+- **Source of truth**: `src/constants/ingredientDietRules.ts`
+- **Helpers**: `isRecipeVegetarianByIngredients()`, `isRecipeEggLactoByIngredients()`
+- **Input shape**: `Array<{ name?: string; slug?: string }>`
+
+---
+
+Last Updated: 2026-04-23
