@@ -158,11 +158,7 @@ export default function Home({ initialRecipes = [] }) {
 }
 
 export async function getStaticProps() {
-  const _start = Date.now();
-  console.log('[home-isr] getStaticProps_start');
   const recipes = await fetchRecipesForServer();
-  const totalMs = Date.now() - _start;
-  console.log('[home-isr] getStaticProps_done', { duration_ms: totalMs, count: recipes?.length || 0 });
   return {
     props: { initialRecipes: recipes || [] },
     revalidate: 300

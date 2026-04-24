@@ -1,63 +1,26 @@
 // Performance measurement utility
-// Usage: import { perfNow, perfMeasure, perfStage, createPerfTraceId, perfLog } from '@/utils/perf';
+// Usage: import { perfNow, perfMeasure, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
-// Server-side: use ENABLE_PERF env var
 // Client-side: use NEXT_PUBLIC_ENABLE_PERF env var
-const isServer = typeof window === 'undefined';
-const shouldLog = isServer 
-  ? process.env.ENABLE_PERF === 'true'
-  : process.env.NEXT_PUBLIC_ENABLE_PERF === 'true';
+const shouldLog = typeof window !== 'undefined' && process.env.NEXT_PUBLIC_ENABLE_PERF === 'true';
 
 const PERF_PREFIX = '[perf]';
 
-// Get current timestamp in milliseconds
 export function perfNow(): number {
   return performance.now();
 }
 
-// Create a client-side trace ID
 export function createPerfTraceId(prefix = 'trace'): string {
   const now = Date.now();
   const random = Math.random().toString(36).slice(2, 6);
   return `${prefix}_${now}_${random}`;
 }
 
-// Forward client perf to server API
-function forwardToServer(payload: Record<string, unknown>): void {
-  if (typeof window === 'undefined') return;
-  const duration = payload.duration_ms as number;
-  if (!duration || duration < 5) return;
-  
-  if (navigator.sendBeacon) {
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-    navigator.sendBeacon('/api/perf-log', blob);
-  } else {
-    fetch('/api/perf-log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true
-    }).catch(() => {});
-  }
-}
-
-// Structured perf log
-interface PerfLogParams {
-  traceId?: string | null;
-  event?: string | null;
-  stage?: string;
-  label?: string;
-  start?: number;
-  end?: number;
-  duration?: number;
-  meta?: Record<string, unknown> | null;
-}
-
-export function perfLog(params: PerfLogParams): void {
-  const { traceId = null, event = null, stage, label, start, end, duration, meta = null } = params;
+// Structured perf log - console only (no server forwarding)
+export function perfLog(params: { traceId?: string | null; event?: string | null; stage?: string; label?: string; start?: number; end?: number; duration?: number; meta?: Record<string, unknown> | null }): void {
+  const { stage, label, start, end, duration } = params;
   if (!shouldLog || !stage || !label) return;
   
-  // Calculate duration
   let durationMs: number;
   if (duration !== undefined) {
     durationMs = duration;
@@ -71,28 +34,19 @@ export function perfLog(params: PerfLogParams): void {
   
   const payload = {
     type: 'perf',
-    traceId,
-    event,
     stage,
     label,
     duration_ms: Math.round(durationMs * 100) / 100,
-    path: typeof window !== 'undefined' ? window.location.pathname : null,
-    ts: new Date().toISOString(),
-    meta
   };
   
-  const logLine = JSON.stringify(payload);
-  console.log(PERF_PREFIX + ' ' + logLine);
-  forwardToServer(payload);
+  console.log(PERF_PREFIX + ' ' + JSON.stringify(payload));
 }
 
-// Simple labeled measurement - now uses perfLog internally
 export function perfMeasure(label: string, start: number): void {
   if (!shouldLog) return;
   perfLog({ stage: label, label, start });
 }
 
-// Conditional measurement - only logs if duration exceeds threshold (default 10ms)
 export function perfMeasureIfSlow(label: string, start: number, thresholdMs = 10): void {
   if (!shouldLog) return;
   const duration = performance.now() - start;
@@ -101,53 +55,18 @@ export function perfMeasureIfSlow(label: string, start: number, thresholdMs = 10
   }
 }
 
-// Stage timing - now uses perfLog internally
 export function perfStage(name: string, start: number, end: number): void {
   if (!shouldLog) return;
   perfLog({ stage: name, label: name, start, end });
 }
 
-// Measure real browser page load metrics
-// Call in useEffect on homepage with empty deps
+// Measure page load metrics (FCP + LCP only)
 export function measurePageLoadMetrics(): () => void {
   if (typeof window === 'undefined' || !shouldLog) return () => {};
 
   const traceId = createPerfTraceId('page_load');
 
-  // 1. Navigation timings (synchronous)
-  const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-  if (navEntry) {
-    // TTFB
-    const ttfb = (navEntry.responseStart || 0) - (navEntry.requestStart || 0);
-    if (ttfb > 0) {
-      perfLog({ traceId, event: 'page_load', stage: 'nav_ttfb', label: 'TTFB', duration: ttfb });
-    }
-    // DOMContentLoaded
-    const dcl = navEntry.domContentLoadedEventEnd || 0;
-    if (dcl > 0) {
-      perfLog({ traceId, event: 'page_load', stage: 'dom_content_loaded', label: 'DCL', duration: dcl });
-    }
-    // Window load
-    const load = navEntry.loadEventEnd || 0;
-    if (load > 0) {
-      perfLog({ traceId, event: 'page_load', stage: 'window_load', label: 'load', duration: load });
-    }
-    // Document timing
-    perfLog({ 
-      traceId, event: 'page_load', stage: 'nav_response_end', label: 'responseEnd',
-      duration: navEntry.responseEnd, meta: { responseEnd: navEntry.responseEnd }
-    });
-    perfLog({ 
-      traceId, event: 'page_load', stage: 'nav_dom_interactive', label: 'domInteractive',
-      duration: navEntry.domInteractive, meta: { domInteractive: navEntry.domInteractive }
-    });
-    perfLog({ 
-      traceId, event: 'page_load', stage: 'nav_dom_complete', label: 'domComplete',
-      duration: navEntry.domComplete, meta: { domComplete: navEntry.domComplete }
-    });
-  }
-
-  // 2. Paint metrics (FCP) via PerformanceObserver
+  // FCP via PerformanceObserver
   let fcpLogged = false;
   const paintObserver = new PerformanceObserver((list) => {
     if (fcpLogged) return;
@@ -163,7 +82,7 @@ export function measurePageLoadMetrics(): () => void {
     paintObserver.observe({ type: 'paint', buffered: true });
   } catch (_) {}
 
-  // 3. LCP via PerformanceObserver (log once, debounced)
+  // LCP via PerformanceObserver
   let lcpLogged = false;
   const lcpObserver = new PerformanceObserver((list) => {
     if (lcpLogged) return;
@@ -171,12 +90,7 @@ export function measurePageLoadMetrics(): () => void {
     const lastEntry = entries[entries.length - 1] as LargestContentfulPaint | undefined;
     if (lastEntry) {
       lcpLogged = true;
-      // Extract LCP element metadata
       const el = lastEntry.element;
-      const textContent = el?.textContent?.slice(0, 80) || null;
-      const imgSrc = (el instanceof HTMLImageElement) 
-        ? (lastEntry.url ? new URL(lastEntry.url).hostname : null) 
-        : null;
       perfLog({ 
         traceId, 
         event: 'page_load', 
@@ -186,10 +100,7 @@ export function measurePageLoadMetrics(): () => void {
         meta: {
           tagName: el?.tagName || null,
           className: el?.className?.slice(0, 100) || null,
-          id: el?.id || null,
-          size: (lastEntry as any).size || null,
-          text: textContent,
-          imgSrc,
+          text: el?.textContent?.slice(0, 80) || null,
         }
       });
     }
@@ -199,66 +110,11 @@ export function measurePageLoadMetrics(): () => void {
     lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
   } catch (_) {}
 
-  // 4. Resource timing - log large JS/CSS/image resources
-  const logLargeResources = () => {
-    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-    let totalJsSize = 0;
-    let largestJs = { name: '', size: 0, duration: 0 };
-    let totalCssSize = 0;
-    let largestCss = { name: '', size: 0, duration: 0 };
-    let totalImgSize = 0;
-    let largestImg = { name: '', size: 0, duration: 0 };
-
-    for (const r of resources) {
-      const size = r.transferSize || 0;
-      const duration = r.responseEnd - r.startTime;
-      const url = r.name;
-      
-      if (url.endsWith('.js') || url.includes('_next/static')) {
-        totalJsSize += size;
-        if (size > largestJs.size) {
-          largestJs = { name: url.split('/').pop() || url, size, duration };
-        }
-      } else if (url.endsWith('.css') || url.includes('.css')) {
-        totalCssSize += size;
-        if (size > largestCss.size) {
-          largestCss = { name: url.split('/').pop() || url, size, duration };
-        }
-      } else if (r.initiatorType === 'img' || r.initiatorType === 'image') {
-        totalImgSize += size;
-        if (size > largestImg.size) {
-          largestImg = { name: url.split('/').pop() || url, size, duration };
-        }
-      }
-    }
-
-    perfLog({
-      traceId, event: 'page_load', stage: 'resources_summary', label: 'resources',
-      meta: {
-        totalJsKb: Math.round(totalJsSize / 1024),
-        largestJs: largestJs.size > 0 ? { ...largestJs, sizeKb: Math.round(largestJs.size / 1024), durMs: Math.round(largestJs.duration) } : null,
-        totalCssKb: Math.round(totalCssSize / 1024),
-        largestCss: largestCss.size > 0 ? { ...largestCss, sizeKb: Math.round(largestCss.size / 1024), durMs: Math.round(largestCss.duration) } : null,
-        totalImgKb: Math.round(totalImgSize / 1024),
-        largestImg: largestImg.size > 0 ? { ...largestImg, sizeKb: Math.round(largestImg.size / 1024), durMs: Math.round(largestImg.duration) } : null,
-      }
-    });
-  };
-
-  // Log resources on load
-  if (document.readyState === 'complete') {
-    logLargeResources();
-  } else {
-    window.addEventListener('load', logLargeResources, { once: true });
-  }
-
-  // Cleanup
   return () => {
     paintObserver.disconnect();
     lcpObserver.disconnect();
   };
 }
 
-// Legacy alias for backward compatibility
 export const perfStart = perfNow;
 export const perfEnd = (label: string, start: number) => perfMeasure(label, start);
