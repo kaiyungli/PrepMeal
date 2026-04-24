@@ -1,7 +1,7 @@
 // Favorites hook - single source of truth for favorite IDs
 import useSWR, { mutate } from 'swr';
 import { perfNow, perfMeasure } from '@/utils/perf';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 
 const normalizeId = (id) => {
   if (id === undefined || id === null) return '';
@@ -43,7 +43,17 @@ const favoritesFetcher = async ([url, token]) => {
  * - isPending(recipeId): boolean - whether this recipe is being toggled
  */
 export function useFavorites(token) {
-  const swrKey = token ? ['/api/user/favorites', token] : null;
+  const [isFetchReady, setIsFetchReady] = useState(false);
+  const swrKey = (token && isFetchReady) ? ['/api/user/favorites', token] : null;
+  
+  // Delay initial fetch by 800ms after auth is ready
+  useEffect(() => {
+    if (!token) return;
+    const timer = setTimeout(() => {
+      setIsFetchReady(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [token]);
   
   // SWR for canonical favorites data
   // Don't retry on auth failures (401/403)
