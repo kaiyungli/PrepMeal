@@ -113,23 +113,34 @@ export function measurePageLoadMetrics(): () => void {
   if (typeof window === 'undefined' || !shouldLog) return () => {};
 
   const traceId = createPerfTraceId('page_load');
-  const pageStart = performance.now();
 
   // 1. Navigation timings (synchronous)
   const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
   if (navEntry) {
     // TTFB
-    perfLog({ traceId, event: 'page_load', stage: 'nav_ttfb', label: 'TTFB', duration: navEntry.responseStart || navEntry.fetchStart });
+    const ttfb = (navEntry.responseStart || 0) - (navEntry.requestStart || 0);
+    if (ttfb > 0) {
+      perfLog({ traceId, event: 'page_load', stage: 'nav_ttfb', label: 'TTFB', duration: ttfb });
+    }
     // DOMContentLoaded
-    perfLog({ traceId, event: 'page_load', stage: 'dom_content_loaded', label: 'DCL', duration: navEntry.domContentLoadedEventEnd });
+    const dcl = navEntry.domContentLoadedEventEnd || 0;
+    if (dcl > 0) {
+      perfLog({ traceId, event: 'page_load', stage: 'dom_content_loaded', label: 'DCL', duration: dcl });
+    }
     // Window load
-    perfLog({ traceId, event: 'page_load', stage: 'window_load', label: 'load', duration: navEntry.loadEventEnd });
+    const load = navEntry.loadEventEnd || 0;
+    if (load > 0) {
+      perfLog({ traceId, event: 'page_load', stage: 'window_load', label: 'load', duration: load });
+    }
   }
 
-  // 2. Paint metrics (FCP, LCP) via PerformanceObserver
+  // 2. Paint metrics (FCP) via PerformanceObserver
+  let fcpLogged = false;
   const paintObserver = new PerformanceObserver((list) => {
+    if (fcpLogged) return;
     for (const entry of list.getEntries()) {
       if (entry.entryType === 'paint' && entry.name === 'first-contentful-paint') {
+        fcpLogged = true;
         perfLog({ traceId, event: 'page_load', stage: 'paint_fcp', label: 'FCP', duration: entry.startTime });
       }
     }
@@ -139,11 +150,14 @@ export function measurePageLoadMetrics(): () => void {
     paintObserver.observe({ type: 'paint', buffered: true });
   } catch (_) {}
 
-  // 3. LCP via PerformanceObserver
+  // 3. LCP via PerformanceObserver (log once, debounced)
+  let lcpLogged = false;
   const lcpObserver = new PerformanceObserver((list) => {
+    if (lcpLogged) return;
     const entries = list.getEntries();
     const lastEntry = entries[entries.length - 1] as LargestContentfulPaint | undefined;
     if (lastEntry) {
+      lcpLogged = true;
       perfLog({ traceId, event: 'page_load', stage: 'paint_lcp', label: 'LCP', duration: lastEntry.startTime });
     }
   });
