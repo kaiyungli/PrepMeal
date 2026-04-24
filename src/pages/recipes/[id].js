@@ -1,7 +1,9 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { loadRecipeDetail } from '@/features/recipes';
+import { measurePageLoadMetrics } from '@/utils/perf';
 
 /**
  * Recipe Detail Page - dumb shell only
@@ -32,6 +34,11 @@ export default function RecipeDetail({ recipe, error }) {
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
 
+  // Measure page load metrics
+  useEffect(() => {
+    return measurePageLoadMetrics();
+  }, []);
+
   return (
     <>
       <Head>
@@ -60,9 +67,18 @@ export default function RecipeDetail({ recipe, error }) {
 
 // Use shared loader
 export async function getServerSideProps({ params }) {
+  const _start = Date.now();
+  console.log('[recipe-page] getServerSideProps_start', { id: params.id });
   
   const { recipe, error } = await loadRecipeDetail(params.id);
   
+  const totalMs = Date.now() - _start;
+  console.log('[recipe-page] getServerSideProps_done', { 
+    duration_ms: totalMs, 
+    id: params.id, 
+    has_recipe: !!recipe, 
+    has_error: !!error 
+  });
   
   return {
     props: {

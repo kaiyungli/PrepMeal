@@ -5,7 +5,9 @@
  * This is the ONLY place allowed to fetch recipe with ingredients and steps.
  */
 import { supabaseServer } from '@/lib/supabaseServer';
-import { perfNow, perfLog } from '@/utils/perf';
+
+// Server-side timing helper
+const perfNow = () => Date.now();
 
 export interface RecipeIngredient {
   id: string;
@@ -74,6 +76,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   const { data: recipe, error: recipeError } = recipeResult;
   
   if (recipeError) {
+    console.error('[recipe-detail] recipe_query_failed', { id_or_slug: recipeIdOrSlug, error: recipeError.message });
     throw new Error('Recipe fetch failed: ' + recipeError.message);
   }
   
@@ -83,48 +86,54 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
 
   // CRITICAL: Use recipe.id from the fetched row, NOT the original route param
   const resolvedRecipeId = recipe.id;
+  console.log('[recipe-detail] recipe_query_done', { 
+    duration_ms: 0, // placeholder, actual timing merged into next
+    id_or_slug: recipeIdOrSlug, 
+    resolved_id: resolvedRecipeId 
+  });
 
   // Fetch related data in parallel using resolvedRecipeId
   const [ingredientsResult, stepsResult] = await Promise.all([
     supabase.from('recipe_ingredients').select('quantity, unit_id, ingredients(id, name, slug, shopping_category)').eq('recipe_id', resolvedRecipeId),
     supabase.from('recipe_steps').select('step_no, text, time_seconds').eq('recipe_id', resolvedRecipeId).order('step_no')
   ]);
+  
+  if (ingredientsResult.error) {
+    console.error('[recipe-detail] ingredients_query_failed', { resolved_id: resolvedRecipeId, error: ingredientsResult.error.message });
+  }
+  if (stepsResult.error) {
+    console.error('[recipe-detail] steps_query_failed', { resolved_id: resolvedRecipeId, error: stepsResult.error.message });
+  }
 
   const ingredientCount = (ingredientsResult?.data || []).length;
   const stepCount = (stepsResult?.data || []).length;
   
-  const baseEnd = perfNow();
-  perfLog({
-    traceId: null,
-    event: 'recipe_detail_db',
-    stage: 'base_queries',
-    label: 'recipe_detail.db.base_queries',
-    start: fnStart,
-    end: baseEnd,
-    meta: { recipeId: resolvedRecipeId, ingredientCount, stepCount }
+  console.log('[recipe-detail] related_queries_done', { 
+    duration_ms: Math.round((perfNow() - fnStart) * 100) / 100, 
+    id_or_slug: recipeIdOrSlug, 
+    resolved_id: resolvedRecipeId, 
+    ingredient_count: ingredientCount, 
+    step_count: stepCount 
   });
-
+  
   // Fetch all units for mapping
   const unitIds = [...new Set((ingredientsResult?.data || []).map((ri: any) => ri.unit_id).filter(Boolean))];
   const unitQueryStart = perfNow();
   let unitsMap = new Map();
   
   if (unitIds.length > 0) {
-    const { data: units } = await supabase.from('units').select('id, code, name').in('id', unitIds);
+    const { data: units, error: unitsError } = await supabase.from('units').select('id, code, name').in('id', unitIds);
+    if (unitsError) {
+      console.error('[recipe-detail] units_query_failed', { resolved_id: resolvedRecipeId, error: unitsError.message });
+    }
     unitsMap = new Map((units || []).map(u => [u.id, { code: u.code, name: u.name }]));
   }
   
   const unitCount = unitsMap.size;
-  
-  const unitQueryEnd = perfNow();
-  perfLog({
-    traceId: null,
-    event: 'recipe_detail_db',
-    stage: 'units_query',
-    label: 'recipe_detail.db.units',
-    start: unitQueryStart,
-    end: unitQueryEnd,
-    meta: { recipeId: resolvedRecipeId, unitCount: unitCount || 0 }
+  console.log('[recipe-detail] units_query_done', { 
+    duration_ms: Math.round((perfNow() - unitQueryStart) * 100) / 100, 
+    resolved_id: resolvedRecipeId, 
+    unit_count: unitCount 
   });
 
   // Transform ingredients with quantity and unit
@@ -146,15 +155,13 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
     time_seconds: s.time_seconds
   }));
 
-  const fnEnd = perfNow();
-  perfLog({
-    traceId: null,
-    event: 'recipe_detail_db',
-    stage: 'service_total',
-    label: 'recipe_detail.db.service_total',
-    start: fnStart,
-    end: fnEnd,
-    meta: { recipeId: resolvedRecipeId, ingredientCount, stepCount, unitCount }
+  const totalMs = Math.round((Date.now() - fnStart) * 100) / 100;
+  console.log('[recipe-detail] service_total', { 
+    duration_ms: totalMs, 
+    resolved_id: resolvedRecipeId, 
+    ingredient_count: ingredientCount, 
+    step_count: stepCount, 
+    unit_count: unitCount 
   });
 
   return {
