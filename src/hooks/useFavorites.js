@@ -48,6 +48,7 @@ export function useFavorites(token) {
   
   // Delay initial fetch by 800ms after auth is ready
   useEffect(() => {
+    setIsFetchReady(false); // Reset on token change
     if (!token) return;
     const timer = setTimeout(() => {
       setIsFetchReady(true);
