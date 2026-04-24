@@ -14,9 +14,7 @@ export function useHomePageController({ recipesList = [], showToast, skipFavorit
   const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
 
   // Deferred favorites loading - enable after first paint
-  const [favoritesEnabled, setFavoritesEnabled] = useState(false);
-
-  // Regenerate weekly plan when recipesList changes
+    // Regenerate weekly plan when recipesList changes
   useEffect(() => {
     if (!recipesList || recipesList.length === 0) {
       setWeeklyPlan([]);
@@ -30,16 +28,8 @@ export function useHomePageController({ recipesList = [], showToast, skipFavorit
     setWeeklyPlan(generateWeeklyPlan(recipesList));
   }, [recipesList]);
 
-  // Enable favorites loading after first paint (deferred)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setFavoritesEnabled(true);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // User state for favorites
-  const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: !favoritesEnabled });
+  // User state for favorites - load immediately (AuthContext is now shared singleton)
+  const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
