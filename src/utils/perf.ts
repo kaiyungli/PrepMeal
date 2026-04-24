@@ -158,7 +158,27 @@ export function measurePageLoadMetrics(): () => void {
     const lastEntry = entries[entries.length - 1] as LargestContentfulPaint | undefined;
     if (lastEntry) {
       lcpLogged = true;
-      perfLog({ traceId, event: 'page_load', stage: 'paint_lcp', label: 'LCP', duration: lastEntry.startTime });
+      // Extract LCP element metadata
+      const el = lastEntry.element;
+      const textContent = el?.textContent?.slice(0, 80) || null;
+      const imgSrc = (el instanceof HTMLImageElement) 
+        ? (lastEntry.url ? new URL(lastEntry.url).hostname : null) 
+        : null;
+      perfLog({ 
+        traceId, 
+        event: 'page_load', 
+        stage: 'paint_lcp', 
+        label: 'LCP', 
+        duration: lastEntry.startTime,
+        meta: {
+          tagName: el?.tagName || null,
+          className: el?.className?.slice(0, 100) || null,
+          id: el?.id || null,
+          size: (lastEntry as any).size || null,
+          text: textContent,
+          imgSrc,
+        }
+      });
     }
   });
 
