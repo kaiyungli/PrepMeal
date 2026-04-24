@@ -38,10 +38,28 @@ export async function getUserIdFromRequest(req) {
     return null;
   }
   
+  console.log('[auth-api] auth_debug_start', { has_token: true });
+  
   try {
+    // Debug: check JWT header
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length >= 1) {
+        const header = JSON.parse(Buffer.from(tokenParts[0], 'base64url').toString());
+        console.log('[auth-api] jwt_header', {
+          alg: header.alg,
+          kid: header.kid || null,
+          typ: header.typ || null
+        });
+      }
+    } catch (headerErr) {
+      // Skip header parsing error
+    }
+    
     const _verifyStart = Date.now();
     
     // Primary: verify with JWKS (Supabase Auth access tokens)
+    console.log('[auth-api] jwks_verify_start');
     const { payload } = await jwtVerify(token, JWKS);
     console.log('[auth-api] jwks_verify_done', {
       duration_ms: Date.now() - _verifyStart,
@@ -50,7 +68,11 @@ export async function getUserIdFromRequest(req) {
     return payload.sub || null;
     
   } catch (jwksErr) {
-    console.log('[auth-api] jwks_verify_failed_fallback', { reason: jwksErr?.name || 'unknown' });
+    console.log('[auth-api] jwks_verify_failed_fallback', {
+      reason: jwksErr?.name || 'unknown',
+      message: (jwksErr?.message || '').slice(0, 160)
+    });
+    console.log('[auth-api] getUser_fallback_start');
     
     // Fallback: use Supabase getUser (for legacy tokens or if JWKS unavailable)
     try {
