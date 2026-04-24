@@ -6,19 +6,21 @@ import { supabaseServer } from '@/lib/supabaseServer';
  * Only fetches fields that actually exist in the recipes table
  */
 export async function fetchRecipesForServer(limit = 24) {
+  const _fetchStart = Date.now();
+  console.log('[home-ssr] fetchRecipesForServer_start');
 
   if (!supabaseServer) {
     console.error('[SSR] ERROR: Supabase server client NOT configured');
     return [];
   }
 
-
   try {
-    // Only select fields that exist in recipes table
+    // Only select fields that exist in recipes table (including slug for navigation)
     const { data, error, status } = await supabaseServer
       .from('recipes')
       .select(`
         id,
+        slug,
         name,
         image_url,
         prep_time_minutes,
@@ -39,24 +41,19 @@ export async function fetchRecipesForServer(limit = 24) {
       .order('created_at', { ascending: false })
       .limit(limit);
 
+    const queryMs = Date.now() - _fetchStart;
+    console.log('[home-ssr] fetchRecipesForServer_done', { duration_ms: queryMs, count: data?.length || 0 });
+
     if (error) {
       console.error('[SSR] ERROR: Supabase query failed:', JSON.stringify(error));
-      console.error('[SSR] Error code:', error.code);
-      console.error('[SSR] Error message:', error.message);
-      console.error('[SSR] HTTP status:', status);
       return [];
     }
-
 
     if (!data || data.length === 0) {
       return [];
     }
 
-    // Return recipes without ingredients - ingredients come from normalized tables
-    return data.map(recipe => ({
-      ...recipe,
-      ingredients: [] // Empty - not from recipes table
-    }));
+    return data;
 
   } catch (err) {
     console.error('[SSR] FATAL EXCEPTION:', String(err));

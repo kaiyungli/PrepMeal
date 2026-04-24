@@ -156,6 +156,10 @@ export default function Home({ initialRecipes = [] }) {
 }
 
 export async function getServerSideProps() {
+  const _start = Date.now();
+  console.log('[home-ssr] getServerSideProps_start');
   const recipes = await fetchRecipesForServer();
+  const totalMs = Date.now() - _start;
+  console.log('[home-ssr] getServerSideProps_done', { duration_ms: totalMs, count: recipes?.length || 0 });
   return { props: { initialRecipes: recipes || [] } };
 }
