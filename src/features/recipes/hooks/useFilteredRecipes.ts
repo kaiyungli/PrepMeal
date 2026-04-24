@@ -37,12 +37,30 @@ export function useFilteredRecipes(
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState('');
-  const totalCount = recipes.length; // Use array length for count
+  const totalCount = recipes.length;
   
   const fetchIdRef = useRef(0);
+  const hasSkippedInitialFetchRef = useRef(false);
+  
+  // Check if we should skip initial fetch (homepage case)
+  const hasNoFilters = !filters || Object.keys(filters).every(k => !filters[k] || filters[k].length === 0);
+  const hasNoSearch = !searchQuery || searchQuery.trim() === '';
+  const isDefaultSort = sortBy === 'newest';
+  const shouldSkipInitialFetch = 
+    !hasSkippedInitialFetchRef.current &&
+    (initialRecipes?.length > 0) &&
+    hasNoFilters &&
+    hasNoSearch &&
+    isDefaultSort;
   
   // Debounced fetch effect with cache
-    useEffect(() => {
+  useEffect(() => {
+    // Skip initial fetch when homepage has initialRecipes with no filters/search/sort changes
+    if (shouldSkipInitialFetch) {
+      hasSkippedInitialFetchRef.current = true;
+      return;
+    }
+    
     const currentId = ++fetchIdRef.current;
     const cacheKey = getCacheKey(filters, searchQuery, sortBy, limit);
     const now = Date.now();
