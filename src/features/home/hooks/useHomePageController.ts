@@ -29,12 +29,6 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
   const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });
-  
-  // Debug log for favorites state
-    hasIsFavorite: typeof isFavorite === 'function',
-    hasToggleFavorite: typeof toggleFavorite === 'function',
-    isAuthenticated
-  });
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
