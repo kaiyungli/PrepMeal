@@ -1,11 +1,15 @@
 // Unified API helper for /api/user/* endpoints
 // Provides consistent auth, response patterns, and error handling
 
-import { jwtVerify } from 'jose';
-
-// Shared server-side auth client (module scope - created once per cold start)
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 import { createClient } from '@supabase/supabase-js';
 
+// JWKS for access token verification (Supabase Auth keys)
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/.well-known/jwks.json`)
+);
+
+// Shared server-side auth client (for fallback only)
 const sharedAuthClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -16,6 +20,7 @@ const sharedAuthClient = createClient(
     }
   }
 );
+
 /**
  * Extract user ID from Authorization Bearer token
  * Returns null if no valid token
@@ -34,51 +39,27 @@ export async function getUserIdFromRequest(req) {
   }
   
   try {
-    // Debug: check JWT header
-    try {
-      const tokenParts = token.split('.');
-      if (tokenParts.length >= 1) {
-        const header = JSON.parse(Buffer.from(tokenParts[0], 'base64url').toString());
-        console.log('[auth-api] jwt_header', {
-          alg: header.alg,
-          kid: header.kid || null,
-          typ: header.typ || null,
-          has_secret: !!process.env.SUPABASE_JWT_SECRET
-        });
-      }
-    } catch (headerErr) {
-      console.log('[auth-api] jwt_header_parse_failed', { reason: headerErr?.message });
-    }
-    
     const _verifyStart = Date.now();
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     
-    if (jwtSecret) {
-      // Fast path: verify JWT locally with secret
-      const encoder = new TextEncoder();
-      const key = encoder.encode(jwtSecret);
-      const { payload } = await jwtVerify(token, key, {
-        algorithms: ['HS256'],
-      });
-      console.log('[auth-api] jwt_verify_done', { duration_ms: Date.now() - _verifyStart, has_user: !!payload.sub });
-      return payload.sub || null;
-    } else {
-      // Fallback: use Supabase getUser (slower but reliable)
-      const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
-      console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _verifyStart, has_user: !!user });
-      if (error || !user) return null;
-      return user.id;
-    }
-  } catch (err) {
-    console.log('[auth-api] jwt_verify_failed_fallback', {
-      reason: err?.name || 'unknown',
-      message: (err?.message || '').substring(0, 100)
+    // Primary: verify with JWKS (Supabase Auth access tokens)
+    const { payload } = await jwtVerify(token, JWKS);
+    console.log('[auth-api] jwks_verify_done', {
+      duration_ms: Date.now() - _verifyStart,
+      has_user: !!payload.sub
     });
-    // JWT verification failed - try fallback
+    return payload.sub || null;
+    
+  } catch (jwksErr) {
+    console.log('[auth-api] jwks_verify_failed_fallback', { reason: jwksErr?.name || 'unknown' });
+    
+    // Fallback: use Supabase getUser (for legacy tokens or if JWKS unavailable)
     try {
       const _fallbackStart = Date.now();
       const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
-      console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _fallbackStart, has_user: !!user });
+      console.log('[auth-api] getUser_done', {
+        duration_ms: Date.now() - _fallbackStart,
+        has_user: !!user
+      });
       if (error || !user) return null;
       return user.id;
     } catch (fallbackErr) {
