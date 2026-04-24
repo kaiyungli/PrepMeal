@@ -67,15 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const getAccessToken = useCallback(async () => {
-    const tokenStart = perfNow();
-    try {
-      const { data: { session: s } } = await supabase?.auth.getSession();
-      perfMeasure('AuthContext.getAccessToken', tokenStart);
-      return s?.access_token || null;
-    } catch {
-      return null;
-    }
-  }, []);
+    // Use cached session directly — no extra getSession() call needed
+    return session?.access_token || null;
+  }, [session]);
 
   const signInWithGoogle = useCallback(async () => {
     const redirectTo = buildOAuthRedirectUrl();
