@@ -34,7 +34,7 @@ export function useRecipeFilters() {
 
   const hasFilters = Object.values(filters).some(arr => arr && arr.length > 0);
   
-  console.log("[useRecipeFilters] filters =", JSON.stringify(filters), "speed:", filters.speed);
+  // Development debug log - removed for cleaner console
   const activeFilterCount = Object.values(filters).reduce(
     (sum, arr) => sum + (arr?.length || 0), 
     0
