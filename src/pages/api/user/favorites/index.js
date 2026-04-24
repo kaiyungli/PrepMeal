@@ -2,6 +2,18 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 
+// Service role client for server-side DB access (bypasses RLS)
+const serverSupabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  }
+);
+
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: `Bearer ${token}` } }
@@ -19,19 +31,21 @@ export default async function handler(req, res) {
   }
   
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.substring(7);
-    
     const _authStart = Date.now();
     const userId = await requireAuth(req, res);
     console.log('[favorites-api] auth_done', { duration_ms: Date.now() - _authStart, has_user: !!userId });
     if (!userId) return;
     
-    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
-
+    // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
       const _dbStart = Date.now();
-      const { data, error } = await userSupabase
+      
+      // Verify service role client is available
+      if (!serverSupabase) {
+        return res.status(500).json(ApiResponse.error('Service role client not configured'));
+      }
+      
+      const { data, error } = await serverSupabase
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
@@ -47,6 +61,11 @@ export default async function handler(req, res) {
       return res.status(200).json(ApiResponse.success({ favorites }));
     }
 
+    // POST/DELETE: Use user's anon client (needs user token for RLS)
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.substring(7);
+    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
+
     if (req.method === 'POST') {
       const { recipe_id } = req.body;
       
@@ -54,9 +73,12 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
+      const _dbStart = Date.now();
       const { error } = await userSupabase
         .from('user_favorites')
         .insert({ user_id: userId, recipe_id });
+      
+      console.log('[favorites-api] db_query_done', { duration_ms: Date.now() - _dbStart, row_count: 1 });
       
       if (error) {
         if (error.code === '23505') {
@@ -75,11 +97,14 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
+      const _dbStart = Date.now();
       const { error } = await userSupabase
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
         .eq('recipe_id', recipe_id);
+      
+      console.log('[favorites-api] db_query_done', { duration_ms: Date.now() - _dbStart, row_count: 1 });
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));
