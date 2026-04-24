@@ -21,7 +21,6 @@ function createUserClient(supabaseUrl, anonKey, token) {
 }
 
 export default async function handler(req, res) {
-  const _start = Date.now();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
@@ -30,15 +29,15 @@ export default async function handler(req, res) {
   }
   
   try {
-    const _authStart = Date.now();
     const userId = await requireAuth(req, res);
     if (!userId) return;
     
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.substring(7);
+    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
+
     // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
-      const _dbStart = Date.now();
-      
-      // Verify service role client is available
       if (!serverSupabase) {
         return res.status(500).json(ApiResponse.error('Service role client not configured'));
       }
@@ -48,7 +47,6 @@ export default async function handler(req, res) {
         .select('recipe_id')
         .eq('user_id', userId);
       
-      
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));
       }
@@ -57,11 +55,7 @@ export default async function handler(req, res) {
       return res.status(200).json(ApiResponse.success({ favorites }));
     }
 
-    // POST/DELETE: Use user's anon client (needs user token for RLS)
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.substring(7);
-    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
-
+    // POST: Use user client (needs user token for RLS)
     if (req.method === 'POST') {
       const { recipe_id } = req.body;
       
@@ -69,11 +63,9 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
-      const _dbStart = Date.now();
       const { error } = await userSupabase
         .from('user_favorites')
         .insert({ user_id: userId, recipe_id });
-      
       
       if (error) {
         if (error.code === '23505') {
@@ -85,6 +77,7 @@ export default async function handler(req, res) {
       return res.status(201).json(ApiResponse.created({ recipe_id }));
     }
 
+    // DELETE: Use user client (needs user token for RLS ownership check)
     if (req.method === 'DELETE') {
       const { recipe_id } = req.query;
       
@@ -92,13 +85,11 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
-      const _dbStart = Date.now();
       const { error } = await userSupabase
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
         .eq('recipe_id', recipe_id);
-      
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));

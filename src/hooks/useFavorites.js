@@ -1,182 +1,145 @@
-// Favorites hook - single source of truth for favorite IDs
-import useSWR, { mutate } from 'swr';
-import { perfNow, perfMeasure } from '@/utils/perf';
-import { useCallback, useMemo, useRef } from 'react';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/swrConfig';
+import { perfMeasure } from '@/utils/perf';
 
-const normalizeId = (id) => {
+/**
+ * Normalize recipe ID to string for comparison
+ */
+function normalizeId(id) {
   if (id === undefined || id === null) return '';
   return String(id);
-};
+}
 
-// Fetcher for SWR - loads favorite IDs from API
+/**
+ * SWR key for user favorites
+ */
+function getFavoritesKey(url, token) {
+  if (!token) return null;
+  return [url, token];
+}
+
+/**
+ * Favorites fetcher
+ * - Extracts recipe IDs from favoritesData
+ * - Returns Set of normalized IDs for O(1) lookup
+ */
 const favoritesFetcher = async ([url, token]) => {
-  const fetchStart = perfNow();
-  if (!token) {
-    return [];
+  const fetchStart = perfMeasure('useFavorites.fetchStart', 0);
+  if (!token) return new Set();
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) return new Set();
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const favoritesData = data?.data?.favorites || data?.favorites || [];
+    perfMeasure('useFavorites.initialFetch', fetchStart);
+
+    return favoritesData.map(id => normalizeId(id));
+  } catch (err) {
+    console.error('Favorites fetch error:', err);
+    return new Set();
   }
-  
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  
-  if (!res.ok) {
-    const error = new Error(`Failed to load favorites: ${res.status} ${res.statusText}`);
-    error.status = res.status;
-    throw error;
-  }
-  
-  const responseReceivedAt = perfNow();
-    status: res.status,
-    duration_ms: Math.round(responseReceivedAt - fetchStart)
-  });
-  
-  const data = await res.json();
-  const jsonParsedAt = perfNow();
-    duration_ms: Math.round(jsonParsedAt - responseReceivedAt)
-  });
-  
-  const favoritesData = data?.data?.favorites || data?.favorites || [];
-  const doneAt = perfNow();
-    total_ms: Math.round(doneAt - fetchStart),
-    favorites_count: favoritesData.length
-  });
-  perfMeasure('useFavorites.initialFetch', fetchStart);
-  
-  return favoritesData.map(id => normalizeId(id));
 };
 
 /**
- * useFavorites - single source of truth for favorite IDs
- * @param {string} token - Access token (from page)
- * 
+ * useFavorites hook
  * Returns:
- * - favorites: string[] - canonical list of favorite recipe IDs
- * - isFavorite(recipeId): boolean - check if recipe is favorite
- * - toggleFavorite(recipeId): Promise<boolean> - add/remove favorite
- * - loading: boolean - initial load in progress
- * - error: any - any fetch error
- * - isPending(recipeId): boolean - whether this recipe is being toggled
+ * - favorites: Set of favorited recipe IDs
+ * - isFavorite(recipeId): boolean
+ * - toggleFavorite(recipeId): function
+ * - loading: boolean
+ * - error: Error | null
+ * - isPending: boolean (optimistic toggle pending)
  */
 export function useFavorites(token) {
-  const swrKey = token ? ['/api/user/favorites', token] : null;
-  
-  // SWR for canonical favorites data
-  // Don't retry on auth failures (401/403)
-  const { data: favorites = [], error, isLoading } = useSWR(
+  const apiUrl = '/api/user/favorites';
+  const swrKey = getFavoritesKey(apiUrl, token);
+
+  const { data, error, mutate, isLoading } = useSWR(
     swrKey,
     favoritesFetcher,
     {
       revalidateOnFocus: false,
-      dedupingInterval: 5000,
-      fallbackData: [],
+      revalidateOnReconnect: true,
       shouldRetryOnError: false,
-      onErrorRetry: (err, key, config, revalidate, options) => {
-        // Don't retry on auth errors
-        const status = err?.status;
-        if (status === 401 || status === 403) {
-          return;
-        }
-        // Otherwise retry with delay
-        setTimeout(() => revalidate(), 5000);
+      onErrorRetry: (err, key, config, revalidate, { retryCount }) => {
+        if (err.message === 'HTTP 401' || retryCount > 2) return;
+        setTimeout(() => revalidate({ retryCount }), 1000);
       },
     }
   );
 
-  // Per-recipe pending state to prevent double-clicks
-  const pendingRef = useRef(new Set());
+  // favorites is Set of recipe IDs (for O(1) lookup)
+  const favoritesSet = data instanceof Set ? data : new Set(data || []);
 
-  // Derived Set for O(1) lookups
-  const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
-
-  // Check if a specific recipe is favorite - O(1)
-  const isFavorite = useCallback((recipeId) => {
-    if (!recipeId) return false;
-    return favoriteSet.has(normalizeId(recipeId));
-  }, [favoriteSet]);
-
-  // Check if a specific recipe is currently being toggled
-  const isPending = useCallback((recipeId) => {
-    if (!recipeId) return false;
-    return pendingRef.current.has(normalizeId(recipeId));
-  }, []);
-
-  // Toggle favorite - optimistic update with rollback
-  const toggleFavorite = useCallback(async (recipeId) => {
+  // Check if a recipe is favorited
+  const isFavorite = (recipeId) => {
     const normalizedId = normalizeId(recipeId);
-    const toggleStart = perfNow();
-    
-    // Guard: no token = can't toggle
-    if (!token) {
-      return false;
-    }
-    
-    // Guard: already pending = prevent double-click
-    if (pendingRef.current.has(normalizedId)) {
-      return false;
-    }
-    
-    // Mark as pending
-    pendingRef.current.add(normalizedId);
-    
-    const isFav = favorites.includes(normalizedId);
-    const previousFavorites = [...favorites];
-    
-    // Optimistic update applied
-    
-    // Optimistic update - immediately reflect in UI
-    const newFavorites = isFav
-      ? favorites.filter(id => id !== normalizedId)
-      : [...favorites, normalizedId];
-    
-    mutate(swrKey, newFavorites, false);
+    return favoritesSet.has(normalizedId);
+  };
+
+  // Toggle favorite status
+  const toggleFavorite = async (recipeId) => {
+    if (!token) return;
+
+    const normalizedId = normalizeId(recipeId);
+    const wasFavorited = favoritesSet.has(normalizedId);
+
+    // Optimistic update
+    await mutate(
+      (currentData) => {
+        const set = currentData instanceof Set ? new Set(currentData) : new Set(currentData || []);
+        if (wasFavorited) {
+          set.delete(normalizedId);
+        } else {
+          set.add(normalizedId);
+        }
+        return set;
+      },
+      { revalidate: false }
+    );
 
     try {
-      
-      const res = isFav
-        ? await fetch(`/api/user/favorites?recipe_id=${normalizedId}`, {
-            method: 'DELETE',
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          })
-        : await fetch('/api/user/favorites', {
-            method: 'POST',
-            headers: { 
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ recipe_id: normalizedId })
-          });
+      const method = wasFavorited ? 'DELETE' : 'POST';
+      const endpoint = wasFavorited ? `/api/user/favorites?recipe_id=${normalizedId}` : '/api/user/favorites';
+      const body = wasFavorited ? null : JSON.stringify({ recipe_id: recipeId });
 
-      
+      const res = await fetch(endpoint, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        ...(body && { body }),
+      });
 
-      if (res.ok) {
-        
-        // Already applied optimistic update - no revalidation needed
-        return true;
+      if (!res.ok) {
+        // Revalidate on failure
+        await mutate();
       }
-      
-      // API returned error - rollback to previous
-      mutate(swrKey, previousFavorites, false);
-      return false;
     } catch (err) {
-      // Network error - rollback to previous
-      mutate(swrKey, previousFavorites, false);
-      return false;
-    } finally {
-      // Always clear pending state
-      pendingRef.current.delete(normalizedId);
-      perfMeasure('useFavorites.toggleFavorite', toggleStart);
+      // Revalidate on failure
+      await mutate();
     }
-  }, [token, swrKey, favoriteSet, favorites]);
+  };
 
   return {
-    favorites,
+    favorites: Array.from(favoritesSet),
+    isFavorite,
+    toggleFavorite,
     loading: isLoading,
     error,
-    isFavorite,
-    isPending,
-    toggleFavorite,
+    isPending: false,
   };
 }
+
+export default useFavorites;
