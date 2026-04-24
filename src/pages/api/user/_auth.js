@@ -3,33 +3,17 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-/**
- * Create a dedicated server-side client for auth verification
- * Uses token in Authorization header, not as getUser() argument
- */
-function createAuthClient(token) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  console.log('[Auth] Supabase URL:', supabaseUrl);
-  console.log('[Auth] Supabase ANON_KEY set:', !!supabaseAnonKey);
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    },
+// Shared server-side auth client (module scope - created once per cold start)
+const sharedAuthClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
     }
-  });
-}
+  }
+);
 
 /**
  * Extract user ID from Authorization Bearer token
@@ -44,25 +28,15 @@ export async function getUserIdFromRequest(req) {
   
   const token = authHeader.substring(7);
   
-  console.log('[Auth] Token exists:', !!token, 'Token length:', token?.length);
-  
   if (!token) {
     return null;
   }
   
   try {
-    const authClient = createAuthClient(token);
-    
-    if (!authClient) {
-      return null;
-    }
-    
     const _getUserStart = Date.now();
-    const { data: { user }, error } = await authClient.auth.getUser();
+    // Direct token verification - no per-request client creation
+    const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
     console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _getUserStart, has_user: !!user });
-    
-    console.log('[Auth] getUser error:', error);
-    console.log('[Auth] getUser success, user id:', user?.id);
     
     if (error || !user) {
       return null;
@@ -70,7 +44,6 @@ export async function getUserIdFromRequest(req) {
     
     return user.id;
   } catch (err) {
-    console.error('[Auth] Token verification exception:', err);
     return null;
   }
 }
@@ -113,8 +86,6 @@ export const ApiResponse = {
  */
 export async function requireAuth(req, res) {
   const userId = await getUserIdFromRequest(req);
-  
-  console.log('[Auth] requireAuth resolved userId:', userId);
   
   if (!userId) {
     res.status(401).json(ApiResponse.unauthorized());
