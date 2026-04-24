@@ -1,9 +1,11 @@
 // Unified API helper for /api/user/* endpoints
 // Provides consistent auth, response patterns, and error handling
 
-import { createClient } from '@supabase/supabase-js';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 // Shared server-side auth client (module scope - created once per cold start)
+import { createClient } from '@supabase/supabase-js';
+
 const sharedAuthClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -14,6 +16,21 @@ const sharedAuthClient = createClient(
     }
   }
 );
+
+// JWKS for JWT verification (cached at module scope)
+let jwks = null;
+
+/**
+ * Get JWKS - lazy initialization
+ */
+function getJWKS() {
+  if (!jwks) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const jwksUrl = `${supabaseUrl}/auth/v1/.well-known/jwks.json`;
+    jwks = createRemoteJWKSet(new URL(jwksUrl));
+  }
+  return jwks;
+}
 
 /**
  * Extract user ID from Authorization Bearer token
@@ -33,18 +50,36 @@ export async function getUserIdFromRequest(req) {
   }
   
   try {
-    const _getUserStart = Date.now();
-    // Direct token verification - no per-request client creation
-    const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
-    console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _getUserStart, has_user: !!user });
+    const _verifyStart = Date.now();
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     
-    if (error || !user) {
+    if (jwtSecret) {
+      // Fast path: verify JWT locally with secret
+      const encoder = new TextEncoder();
+      const key = encoder.encode(jwtSecret);
+      const { payload } = await jwtVerify(token, key, {
+        algorithms: ['HS256'],
+      });
+      console.log('[auth-api] jwt_verify_done', { duration_ms: Date.now() - _verifyStart, has_user: !!payload.sub });
+      return payload.sub || null;
+    } else {
+      // Fallback: use Supabase getUser (slower but reliable)
+      const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
+      console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _verifyStart, has_user: !!user });
+      if (error || !user) return null;
+      return user.id;
+    }
+  } catch (err) {
+    // JWT verification failed - try fallback
+    try {
+      const _fallbackStart = Date.now();
+      const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
+      console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _fallbackStart, has_user: !!user });
+      if (error || !user) return null;
+      return user.id;
+    } catch (fallbackErr) {
       return null;
     }
-    
-    return user.id;
-  } catch (err) {
-    return null;
   }
 }
 
