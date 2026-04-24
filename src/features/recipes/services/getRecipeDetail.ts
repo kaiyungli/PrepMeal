@@ -69,9 +69,11 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
     .select('*');
 
   // Query by id or slug
+  const recipeQueryStart = perfNow();
   const recipeResult = isUuid
     ? await baseQuery.eq('id', recipeIdOrSlug).single()
     : await baseQuery.eq('slug', recipeIdOrSlug).single();
+  const recipeQueryMs = perfNow() - recipeQueryStart;
 
   const { data: recipe, error: recipeError } = recipeResult;
   
@@ -87,16 +89,18 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   // CRITICAL: Use recipe.id from the fetched row, NOT the original route param
   const resolvedRecipeId = recipe.id;
   console.log('[recipe-detail] recipe_query_done', { 
-    duration_ms: 0, // placeholder, actual timing merged into next
+    duration_ms: Math.round(recipeQueryMs * 100) / 100, 
     id_or_slug: recipeIdOrSlug, 
     resolved_id: resolvedRecipeId 
   });
 
   // Fetch related data in parallel using resolvedRecipeId
+  const relatedQueryStart = perfNow();
   const [ingredientsResult, stepsResult] = await Promise.all([
     supabase.from('recipe_ingredients').select('quantity, unit_id, ingredients(id, name, slug, shopping_category)').eq('recipe_id', resolvedRecipeId),
     supabase.from('recipe_steps').select('step_no, text, time_seconds').eq('recipe_id', resolvedRecipeId).order('step_no')
   ]);
+  const relatedQueryMs = perfNow() - relatedQueryStart;
   
   if (ingredientsResult.error) {
     console.error('[recipe-detail] ingredients_query_failed', { resolved_id: resolvedRecipeId, error: ingredientsResult.error.message });
@@ -109,8 +113,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   const stepCount = (stepsResult?.data || []).length;
   
   console.log('[recipe-detail] related_queries_done', { 
-    duration_ms: Math.round((perfNow() - fnStart) * 100) / 100, 
-    id_or_slug: recipeIdOrSlug, 
+    duration_ms: Math.round(relatedQueryMs * 100) / 100, 
     resolved_id: resolvedRecipeId, 
     ingredient_count: ingredientCount, 
     step_count: stepCount 
