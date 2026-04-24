@@ -1,7 +1,7 @@
 // Unified API helper for /api/user/* endpoints
 // Provides consistent auth, response patterns, and error handling
 
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { jwtVerify } from 'jose';
 
 // Shared server-side auth client (module scope - created once per cold start)
 import { createClient } from '@supabase/supabase-js';
@@ -16,22 +16,6 @@ const sharedAuthClient = createClient(
     }
   }
 );
-
-// JWKS for JWT verification (cached at module scope)
-let jwks = null;
-
-/**
- * Get JWKS - lazy initialization
- */
-function getJWKS() {
-  if (!jwks) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const jwksUrl = `${supabaseUrl}/auth/v1/.well-known/jwks.json`;
-    jwks = createRemoteJWKSet(new URL(jwksUrl));
-  }
-  return jwks;
-}
-
 /**
  * Extract user ID from Authorization Bearer token
  * Returns null if no valid token
@@ -70,6 +54,7 @@ export async function getUserIdFromRequest(req) {
       return user.id;
     }
   } catch (err) {
+    console.log('[auth-api] jwt_verify_failed_fallback', { reason: err?.name || 'unknown' });
     // JWT verification failed - try fallback
     try {
       const _fallbackStart = Date.now();
