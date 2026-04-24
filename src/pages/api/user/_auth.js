@@ -57,7 +57,9 @@ export async function getUserIdFromRequest(req) {
       return null;
     }
     
+    const _getUserStart = Date.now();
     const { data: { user }, error } = await authClient.auth.getUser();
+    console.log('[auth-api] getUser_done', { duration_ms: Date.now() - _getUserStart, has_user: !!user });
     
     console.log('[Auth] getUser error:', error);
     console.log('[Auth] getUser success, user id:', user?.id);

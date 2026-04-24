@@ -11,7 +11,11 @@ const normalizeId = (id) => {
 // Fetcher for SWR - loads favorite IDs from API
 const favoritesFetcher = async ([url, token]) => {
   const fetchStart = perfNow();
-  if (!token) return [];
+  console.log('[favorites-client] fetch_start');
+  if (!token) {
+    console.log('[favorites-client] done - no token, duration_ms:', perfNow() - fetchStart);
+    return [];
+  }
   
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
@@ -23,8 +27,24 @@ const favoritesFetcher = async ([url, token]) => {
     throw error;
   }
   
+  const responseReceivedAt = perfNow();
+  console.log('[favorites-client] response_received', {
+    status: res.status,
+    duration_ms: Math.round(responseReceivedAt - fetchStart)
+  });
+  
   const data = await res.json();
+  const jsonParsedAt = perfNow();
+  console.log('[favorites-client] json_parsed', {
+    duration_ms: Math.round(jsonParsedAt - responseReceivedAt)
+  });
+  
   const favoritesData = data?.data?.favorites || data?.favorites || [];
+  const doneAt = perfNow();
+  console.log('[favorites-client] done', {
+    total_ms: Math.round(doneAt - fetchStart),
+    favorites_count: favoritesData.length
+  });
   perfMeasure('useFavorites.initialFetch', fetchStart);
   
   return favoritesData.map(id => normalizeId(id));

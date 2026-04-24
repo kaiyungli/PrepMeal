@@ -9,6 +9,8 @@ function createUserClient(supabaseUrl, anonKey, token) {
 }
 
 export default async function handler(req, res) {
+  const _start = Date.now();
+  console.log('[favorites-api] start');
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
@@ -20,22 +22,28 @@ export default async function handler(req, res) {
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
     
+    const _authStart = Date.now();
     const userId = await requireAuth(req, res);
+    console.log('[favorites-api] auth_done', { duration_ms: Date.now() - _authStart, has_user: !!userId });
     if (!userId) return;
     
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
     if (req.method === 'GET') {
+      const _dbStart = Date.now();
       const { data, error } = await userSupabase
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
+      
+      console.log('[favorites-api] db_query_done', { duration_ms: Date.now() - _dbStart, row_count: data?.length || 0 });
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));
       }
       
       const favorites = (data || []).map(f => f.recipe_id);
+      console.log('[favorites-api] response_ready', { total_ms: Date.now() - _start, favorites_count: favorites.length });
       return res.status(200).json(ApiResponse.success({ favorites }));
     }
 
