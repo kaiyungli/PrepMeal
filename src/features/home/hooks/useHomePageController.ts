@@ -31,7 +31,6 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
   const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });
   
   // Debug log for favorites state
-  console.log('[home-favorites] state', {
     hasIsFavorite: typeof isFavorite === 'function',
     hasToggleFavorite: typeof toggleFavorite === 'function',
     isAuthenticated
