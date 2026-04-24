@@ -7,6 +7,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
  */
 export async function fetchRecipesForServer(limit = 24) {
   if (!supabaseServer) {
+    console.error('[recipesServer] Supabase server client NOT configured');
     return [];
   }
 
@@ -37,6 +38,7 @@ export async function fetchRecipesForServer(limit = 24) {
       .limit(limit);
 
     if (error) {
+      console.error('[recipesServer] Supabase query failed:', error.message);
       return [];
     }
 
@@ -47,6 +49,7 @@ export async function fetchRecipesForServer(limit = 24) {
     return data;
 
   } catch (err) {
+    console.error('[recipesServer] FATAL EXCEPTION:', String(err));
     return [];
   }
 }
