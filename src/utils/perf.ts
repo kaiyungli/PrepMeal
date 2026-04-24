@@ -132,6 +132,19 @@ export function measurePageLoadMetrics(): () => void {
     if (load > 0) {
       perfLog({ traceId, event: 'page_load', stage: 'window_load', label: 'load', duration: load });
     }
+    // Document timing
+    perfLog({ 
+      traceId, event: 'page_load', stage: 'nav_response_end', label: 'responseEnd',
+      duration: navEntry.responseEnd, meta: { responseEnd: navEntry.responseEnd }
+    });
+    perfLog({ 
+      traceId, event: 'page_load', stage: 'nav_dom_interactive', label: 'domInteractive',
+      duration: navEntry.domInteractive, meta: { domInteractive: navEntry.domInteractive }
+    });
+    perfLog({ 
+      traceId, event: 'page_load', stage: 'nav_dom_complete', label: 'domComplete',
+      duration: navEntry.domComplete, meta: { domComplete: navEntry.domComplete }
+    });
   }
 
   // 2. Paint metrics (FCP) via PerformanceObserver
@@ -185,6 +198,59 @@ export function measurePageLoadMetrics(): () => void {
   try {
     lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
   } catch (_) {}
+
+  // 4. Resource timing - log large JS/CSS/image resources
+  const logLargeResources = () => {
+    const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+    let totalJsSize = 0;
+    let largestJs = { name: '', size: 0, duration: 0 };
+    let totalCssSize = 0;
+    let largestCss = { name: '', size: 0, duration: 0 };
+    let totalImgSize = 0;
+    let largestImg = { name: '', size: 0, duration: 0 };
+
+    for (const r of resources) {
+      const size = r.transferSize || 0;
+      const duration = r.responseEnd - r.startTime;
+      const url = r.name;
+      
+      if (url.endsWith('.js') || url.includes('_next/static')) {
+        totalJsSize += size;
+        if (size > largestJs.size) {
+          largestJs = { name: url.split('/').pop() || url, size, duration };
+        }
+      } else if (url.endsWith('.css') || url.includes('.css')) {
+        totalCssSize += size;
+        if (size > largestCss.size) {
+          largestCss = { name: url.split('/').pop() || url, size, duration };
+        }
+      } else if (r.initiatorType === 'img' || r.initiatorType === 'image') {
+        totalImgSize += size;
+        if (size > largestImg.size) {
+          largestImg = { name: url.split('/').pop() || url, size, duration };
+        }
+      }
+    }
+
+    perfLog({
+      traceId, event: 'page_load', stage: 'resources_summary', label: 'resources',
+      meta: {
+        totalJsKb: Math.round(totalJsSize / 1024),
+        largestJs: largestJs.size > 0 ? { ...largestJs, sizeKb: Math.round(largestJs.size / 1024), durMs: Math.round(largestJs.duration) } : null,
+        totalCssKb: Math.round(totalCssSize / 1024),
+        largestCss: largestCss.size > 0 ? { ...largestCss, sizeKb: Math.round(largestCss.size / 1024), durMs: Math.round(largestCss.duration) } : null,
+        totalImgKb: Math.round(totalImgSize / 1024),
+        largestImg: largestImg.size > 0 ? { ...largestImg, sizeKb: Math.round(largestImg.size / 1024), durMs: Math.round(largestImg.duration) } : null,
+      }
+    });
+  };
+
+  // Log resources on load
+  if (document.readyState === 'complete') {
+    logLargeResources();
+  } else {
+    window.addEventListener('load', logLargeResources, { once: true });
+  }
 
   // Cleanup
   return () => {
