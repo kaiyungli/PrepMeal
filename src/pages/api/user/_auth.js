@@ -34,6 +34,22 @@ export async function getUserIdFromRequest(req) {
   }
   
   try {
+    // Debug: check JWT header
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length >= 1) {
+        const header = JSON.parse(Buffer.from(tokenParts[0], 'base64url').toString());
+        console.log('[auth-api] jwt_header', {
+          alg: header.alg,
+          kid: header.kid || null,
+          typ: header.typ || null,
+          has_secret: !!process.env.SUPABASE_JWT_SECRET
+        });
+      }
+    } catch (headerErr) {
+      console.log('[auth-api] jwt_header_parse_failed', { reason: headerErr?.message });
+    }
+    
     const _verifyStart = Date.now();
     const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     
@@ -54,7 +70,10 @@ export async function getUserIdFromRequest(req) {
       return user.id;
     }
   } catch (err) {
-    console.log('[auth-api] jwt_verify_failed_fallback', { reason: err?.name || 'unknown' });
+    console.log('[auth-api] jwt_verify_failed_fallback', {
+      reason: err?.name || 'unknown',
+      message: (err?.message || '').substring(0, 100)
+    });
     // JWT verification failed - try fallback
     try {
       const _fallbackStart = Date.now();
