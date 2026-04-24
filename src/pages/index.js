@@ -12,7 +12,7 @@ import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes'
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServer } from '@/lib/recipesServer';
-import { perfNow, perfLog } from '@/utils/perf';
+import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
 export default function Home({ initialRecipes = [] }) {
   // Homepage first-load start timestamp - created at initial render
@@ -48,6 +48,9 @@ export default function Home({ initialRecipes = [] }) {
       start,
       end,
     });
+
+    // Measure real browser page load metrics (TTFB, FCP, LCP, DCL, load)
+    return measurePageLoadMetrics();
   }, []);
 
   // Log homepage data-ready metric when recipes data is available (only once)

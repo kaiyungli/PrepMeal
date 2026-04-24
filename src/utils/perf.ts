@@ -107,6 +107,58 @@ export function perfStage(name: string, start: number, end: number): void {
   perfLog({ stage: name, label: name, start, end });
 }
 
+// Measure real browser page load metrics
+// Call in useEffect on homepage with empty deps
+export function measurePageLoadMetrics(): () => void {
+  if (typeof window === 'undefined' || !shouldLog) return () => {};
+
+  const traceId = createPerfTraceId('page_load');
+  const pageStart = performance.now();
+
+  // 1. Navigation timings (synchronous)
+  const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+  if (navEntry) {
+    // TTFB
+    perfLog({ traceId, event: 'page_load', stage: 'nav_ttfb', label: 'TTFB', duration: navEntry.responseStart || navEntry.fetchStart });
+    // DOMContentLoaded
+    perfLog({ traceId, event: 'page_load', stage: 'dom_content_loaded', label: 'DCL', duration: navEntry.domContentLoadedEventEnd });
+    // Window load
+    perfLog({ traceId, event: 'page_load', stage: 'window_load', label: 'load', duration: navEntry.loadEventEnd });
+  }
+
+  // 2. Paint metrics (FCP, LCP) via PerformanceObserver
+  const paintObserver = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      if (entry.entryType === 'paint' && entry.name === 'first-contentful-paint') {
+        perfLog({ traceId, event: 'page_load', stage: 'paint_fcp', label: 'FCP', duration: entry.startTime });
+      }
+    }
+  });
+
+  try {
+    paintObserver.observe({ type: 'paint', buffered: true });
+  } catch (_) {}
+
+  // 3. LCP via PerformanceObserver
+  const lcpObserver = new PerformanceObserver((list) => {
+    const entries = list.getEntries();
+    const lastEntry = entries[entries.length - 1] as LargestContentfulPaint | undefined;
+    if (lastEntry) {
+      perfLog({ traceId, event: 'page_load', stage: 'paint_lcp', label: 'LCP', duration: lastEntry.startTime });
+    }
+  });
+
+  try {
+    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+  } catch (_) {}
+
+  // Cleanup
+  return () => {
+    paintObserver.disconnect();
+    lcpObserver.disconnect();
+  };
+}
+
 // Legacy alias for backward compatibility
 export const perfStart = perfNow;
 export const perfEnd = (label: string, start: number) => perfMeasure(label, start);
