@@ -6,10 +6,9 @@ import { useUserState } from '@/hooks/useUserState';
 interface UseHomePageControllerOptions {
   recipesList: any[];
   showToast?: (message: string, type?: string) => void;
-  skipFavorites?: boolean;
 }
 
-export function useHomePageController({ recipesList = [], showToast, skipFavorites = true }: UseHomePageControllerOptions) {
+export function useHomePageController({ recipesList = [], showToast }: UseHomePageControllerOptions) {
   // Weekly plan state
   const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
 
@@ -30,6 +29,13 @@ export function useHomePageController({ recipesList = [], showToast, skipFavorit
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
   const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });
+  
+  // Debug log for favorites state
+  console.log('[home-favorites] state', {
+    hasIsFavorite: typeof isFavorite === 'function',
+    hasToggleFavorite: typeof toggleFavorite === 'function',
+    isAuthenticated
+  });
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
