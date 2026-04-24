@@ -17,6 +17,8 @@ interface HomeHeroProps {
   shoppingError?: string | null;
   isAuthRequired?: boolean;
   onRefreshPlan?: () => void;
+  onRefreshShoppingList?: () => void;
+  shoppingListInitialized?: boolean;
 }
 
 const DAYS = ['週一', '週二', '週三', '週四', '週五'];
@@ -28,7 +30,9 @@ function HomeHero({
   shoppingLoading = false,
   shoppingError = null,
   isAuthRequired = false,
-  onRefreshPlan 
+  onRefreshPlan,
+  onRefreshShoppingList,
+  shoppingListInitialized = false,
 }: HomeHeroProps) {
   const router = useRouter();
   
@@ -65,7 +69,23 @@ function HomeHero({
   const groupedDays = groupPlanByDay(weeklyPlan);
   
   // Determine shopping list display state
-  const showShoppingFallback = shoppingLoading || shoppingError || isAuthRequired || (shoppingList.length === 0);
+  const showShoppingFallback = shoppingLoading || shoppingError || isAuthRequired || (!shoppingListInitialized && shoppingList.length === 0);
+  
+  const handleShoppingSectionClick = useCallback(() => {
+    // Fetch shopping list when user clicks the section
+    if (!shoppingListInitialized && onRefreshShoppingList) {
+      onRefreshShoppingList();
+    }
+  }, [shoppingListInitialized, onRefreshShoppingList]);
+  
+  const handleShoppingSectionKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!shoppingListInitialized && onRefreshShoppingList) {
+        onRefreshShoppingList();
+      }
+    }
+  }, [shoppingListInitialized, onRefreshShoppingList]);
   
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
@@ -153,7 +173,13 @@ function HomeHero({
                 </div>
                 
                 {/* 右欄：購物清單 - with loading/error states */}
-                <div>
+                <div 
+                  onClick={handleShoppingSectionClick}
+                  onKeyDown={handleShoppingSectionKeyDown}
+                  className={!shoppingListInitialized ? 'cursor-pointer select-none' : ''}
+                  role={!shoppingListInitialized ? 'button' : undefined}
+                  tabIndex={!shoppingListInitialized ? 0 : undefined}
+                >
                   <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
                   <div className="space-y-1">
                     {shoppingLoading ? (
@@ -165,6 +191,9 @@ function HomeHero({
                     ) : shoppingError ? (
                       // Error state
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
+                    ) : !shoppingListInitialized ? (
+                      // Not yet loaded - prompt user to click
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">點擊載入</div>
                     ) : shoppingList.length === 0 ? (
                       // Empty but authenticated
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">無需購買</div>

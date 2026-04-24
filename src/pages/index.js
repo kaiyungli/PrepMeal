@@ -35,7 +35,7 @@ export default function Home({ initialRecipes = [] }) {
   );
 
   // Controller
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError } = useHomePageController({ recipesList, showToast });
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({ recipesList, showToast });
 
   // Log homepage first-load ready metric
   useEffect(() => {
@@ -93,6 +93,8 @@ export default function Home({ initialRecipes = [] }) {
         shoppingLoading={shoppingLoading}
         shoppingError={shoppingError}
         onRefreshPlan={handleRefreshPlan}
+        onRefreshShoppingList={refreshShoppingList}
+        shoppingListInitialized={false}
       />
 
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">

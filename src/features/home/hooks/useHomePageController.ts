@@ -40,8 +40,8 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
     toggleFavorite(recipeId);
   }, [isAuthenticated, toggleFavorite, showToast]);
 
-  // Shopping list preview
-  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired } = useShoppingListPreview(weeklyPlan);
+  // Shopping list preview - disabled on homepage (fetch lazily on user interaction)
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false });
 
   return {
     weeklyPlan,
@@ -51,6 +51,7 @@ export function useHomePageController({ recipesList = [], showToast }: UseHomePa
     shoppingList,
     shoppingLoading,
     shoppingError,
-    isAuthRequired
+    isAuthRequired,
+    refreshShoppingList
   };
 }

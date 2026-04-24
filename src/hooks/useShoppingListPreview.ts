@@ -7,7 +7,7 @@
  *   weeklyPlan recipe IDs → /api/shopping-list → byCategory.toBuy → flat preview
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
@@ -30,112 +30,110 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
 }
 
 /**
- * Hook to fetch shopping list preview for homepage
+ * Hook to fetch shopping list preview
  * 
- * @param {Array} weeklyPlan - Array of { items: [{ recipeId }] }
- * @returns {Object} - { previewList, isLoading, error }
+ * @param {any[]} weeklyPlan - Array of { items: [{ recipeId }] }
+ * @param {Object} options - { enabled?: boolean }
+ *   - enabled: if false, only stores plan but does NOT auto-fetch (lazy mode)
+ * @returns {Object} - { previewList, isLoading, error, isAuthRequired, refresh }
  */
-export function useShoppingListPreview(weeklyPlan: any[] = []) {
+export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enabled?: boolean } = {}) {
   const { user } = useAuth();
-  // @ts-ignore - useAuth hook
-    const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
+  const { enabled = true } = options;
+  const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthRequired, setIsAuthRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Store latest weeklyPlan for manual refresh
+  const weeklyPlanRef = useRef(weeklyPlan);
+  weeklyPlanRef.current = weeklyPlan;
+  
   // Request safety: track current request ID
   const requestIdRef = useRef(0);
   
-  useEffect(() => {
-    // Debounce: cancel previous timeout on rapid changes
-    const timeoutId = setTimeout(() => {
-      // Extract recipe IDs from weeklyPlan
-      const recipeIds: string[] = [];
-      for (const day of weeklyPlan) {
-        if (day.items) {
-          for (const item of day.items) {
-            if (item.recipeId) {
-              recipeIds.push(String(item.recipeId));
-            }
+  // DoFetch - shared between auto-trigger and manual refresh
+  const doFetch = useCallback(async () => {
+    const plan = weeklyPlanRef.current;
+    const recipeIds: string[] = [];
+    for (const day of plan) {
+      if (day.items) {
+        for (const item of day.items) {
+          if (item.recipeId) {
+            recipeIds.push(String(item.recipeId));
           }
-        }
-      }
-      
-      // No recipes = no preview
-      if (recipeIds.length === 0) {
-        setPreviewList([]);
-        setError(null);
-        return;
-      }
-      
-      // @ts-ignore
-      // Guard: require user
-      if (!user?.id) {
-    // Not logged in - skip fetch
-        setPreviewList([]);
-        setError(null);
-        setIsLoading(false);
-        return;
-      }
-    
-    async function fetchPreview() {
-      // Increment request ID - this request is now "current"
-      const currentRequestId = ++requestIdRef.current;
-      
-      setIsLoading(true);
-      setError(null);
-      setIsAuthRequired(false);
-      
-      try {
-        const response = await fetch('/api/shopping-list', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            userId: (user as any)?.id || null,
-            recipeIds,
-            pantryIngredients: [],
-            servings: 1
-          })
-        });
-        
-        // Check if this is still the current request (not stale)
-        if (currentRequestId !== requestIdRef.current) {
-          return;
-        }
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Double-check after await
-        if (currentRequestId !== requestIdRef.current) {
-          return;
-        }
-        
-        const preview = transformToPreview(data);
-        setPreviewList(preview);
-      } catch (err) {
-        if (currentRequestId !== requestIdRef.current) {
-          return;
-        }
-        
-        console.error('[shopping-list-preview] fetch error:', err);
-        setError(String(err));
-        setPreviewList([]);
-      } finally {
-        if (currentRequestId === requestIdRef.current) {
-          setIsLoading(false);
         }
       }
     }
     
-    fetchPreview();
+    if (recipeIds.length === 0) {
+      setPreviewList([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+    
+    // @ts-ignore
+    if (!user?.id) {
+      setPreviewList([]);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+    
+    const currentRequestId = ++requestIdRef.current;
+    setIsLoading(true);
+    setError(null);
+    setIsAuthRequired(false);
+    
+    try {
+      const response = await fetch('/api/shopping-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: (user as any)?.id || null,
+          recipeIds,
+          pantryIngredients: [],
+          servings: 1
+        })
+      });
+      
+      if (currentRequestId !== requestIdRef.current) return;
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      
+      const data = await response.json();
+      if (currentRequestId !== requestIdRef.current) return;
+      
+      const preview = transformToPreview(data);
+      setPreviewList(preview);
+    } catch (err) {
+      if (currentRequestId !== requestIdRef.current) return;
+      console.error('[shopping-list-preview] fetch error:', err);
+      setError(String(err));
+      setPreviewList([]);
+    } finally {
+      if (currentRequestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
+    }
+  }, [user]);
+  
+  // Manual refresh function (call when user opens shopping list)
+  const refresh = useCallback(() => {
+    if (enabled) return; // Auto mode handles itself
+    doFetch();
+  }, [enabled, doFetch]);
+  
+  // Auto-fetch when enabled and weeklyPlan changes
+  useEffect(() => {
+    if (!enabled) return;
+    
+    const timeoutId = setTimeout(() => {
+      doFetch();
     }, 400);
     
     return () => clearTimeout(timeoutId);
-  }, [weeklyPlan]);
+  }, [enabled, weeklyPlan, doFetch]);
   
-  return { previewList, isLoading, error, isAuthRequired };
+  return { previewList, isLoading, error, isAuthRequired, refresh };
 }
