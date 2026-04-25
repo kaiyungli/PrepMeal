@@ -116,6 +116,25 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     }
   }, [recipes.length, totalCount, hasFilters, searchQuery, sortBy]);
   
+  // Infinite scroll detection for /recipes page
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!hasMore || loadingMore || loading) return;
+      
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Load more when 300px from bottom
+      if (scrollY + windowHeight >= documentHeight - 300) {
+        loadMore();
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, loadingMore, loading, loadMore]);
+  
   const showErrorState = !loading && fetchError;
   const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
@@ -178,6 +197,16 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
                 isPending={isPending}
                 onFavoriteClick={handleFavoriteToggle}
               />
+              {loadingMore && (
+                <div className="text-center py-6 text-[#AA7A50]">
+                  載入更多...
+                </div>
+              )}
+              {!hasMore && recipes.length > 0 && (
+                <div className="text-center py-6 text-[#AA7A50]">
+                  已顯示全部食譜
+                </div>
+              )}
             </div>
           )}
         </div>
