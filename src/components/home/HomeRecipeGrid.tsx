@@ -65,36 +65,38 @@ function HomeRecipeGrid({
 }: HomeRecipeGridProps) {
   const router = useRouter();
   const prefetchedRef = useRef(new Set());
-  const safeRecipes = recipes || [];
   
-  // Prefetch first 6 recipe detail pages after idle
+  // Stable prefetch list based on recipe IDs
+  const prefetchRecipes = (recipes || []).slice(0, 6);
+  const prefetchKey = prefetchRecipes.map(r => r.id).join(',');
+  
   useEffect(() => {
-    const toPrefetch = safeRecipes.slice(0, 6);
+    if (!prefetchKey) return;
+    
+    const timers: ReturnType<typeof setTimeout>[] = [];
     let delay = 0;
     
-    const schedulePrefetch = () => {
-      for (const recipe of toPrefetch) {
-        if (prefetchedRef.current.has(recipe.id)) continue;
-        prefetchedRef.current.add(recipe.id);
-        const path = `/recipes/${recipe.slug || recipe.id}`;
-        
-        setTimeout(() => {
-          router.prefetch(path);
-        }, delay);
-        delay += 300;
-      }
-    };
-    
-    if (typeof requestIdleCallback !== 'undefined') {
-      requestIdleCallback(schedulePrefetch);
-    } else {
-      setTimeout(schedulePrefetch, 1000);
+    for (const recipe of prefetchRecipes) {
+      if (prefetchedRef.current.has(recipe.id)) continue;
+      prefetchedRef.current.add(recipe.id);
+      const path = `/recipes/${recipe.slug || recipe.id}`;
+      
+      const timer = setTimeout(() => {
+        router.prefetch(path);
+      }, delay);
+      timers.push(timer);
+      delay += 300;
     }
-  }, [safeRecipes, router]);
+    
+    // Cleanup timers on unmount
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, [prefetchKey, router]);
   
   return (
     <div className="grid grid-cols-12 gap-4">
-      {safeRecipes.map(recipe => (
+      {prefetchRecipes.map(recipe => (
         <MemoizedGridItem
           key={recipe.id}
           recipe={recipe}
