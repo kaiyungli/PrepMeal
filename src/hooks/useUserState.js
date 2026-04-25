@@ -18,7 +18,7 @@ export function getFavoriteRecipes(recipes, favorites) {
 /**
  * useUserState - single hook for all user-related state
  * Combines useAuth + useFavorites
- * 
+ *
  * Returns:
  * - user, isAuthenticated, authLoading
  * - favorites, isFavorite, toggleFavorite, favoritesLoading
@@ -27,10 +27,10 @@ export function useUserState(options = {}) {
   const { skipFavorites = false } = options || {};
   // Auth state
   const auth = useAuth();
-  
+
   // Token for favorites - only resolve when authenticated
   const [token, setToken] = useState(null);
-  
+
   useEffect(() => {
     // Skip token resolution when favorites are disabled
     if (skipFavorites) {
@@ -50,9 +50,7 @@ export function useUserState(options = {}) {
   // Always call useFavorites - pass null when token not ready (SWR won't fetch with null key)
   // This respects Hooks rules while preventing duplicate fetches
   const effectiveToken = skipFavorites ? null : token;
-  const fav = useFavorites(effectiveToken);
-  
-
+  const fav = useFavorites(effectiveToken, auth.user?.id);
   
   return {
     // Auth
@@ -64,7 +62,7 @@ export function useUserState(options = {}) {
     signInWithFacebook: auth.signInWithFacebook,
     signOut: auth.signOut,
     getAccessToken: auth.getAccessToken,
-    
+
     // Favorites - skip when requested
     favorites: skipFavorites ? undefined : fav.favorites,
     isFavorite: skipFavorites ? undefined : fav.isFavorite,
