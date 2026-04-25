@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     
     let query = supabase
       .from('recipes')
-      .select(selectFields)
+      .select(selectFields, { count: 'exact' })
     
     // Always filter by public
     query = query.eq('is_public', true)
@@ -226,7 +226,15 @@ export default async function handler(req, res) {
 
     // Return recipes with total count for pagination
     const recipesList = Array.isArray(recipes) ? recipes : []
-    const total = count || 0;
+    const total = count ?? 0;
+    
+    console.log('[api-recipes] pagination', {
+      page: pageNum,
+      limit: limitNum,
+      offset: offsetNum,
+      returned: recipesList.length,
+      total
+    });
     
     res.status(200).json({ 
       recipes: recipesList, 
