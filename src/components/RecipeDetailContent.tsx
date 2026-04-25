@@ -67,7 +67,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
       <div className="relative h-[250px] md:h-[350px] lg:h-[400px] overflow-hidden">
         {/* Favorite Button - top right, offset from close button */}
         {onFavoriteClick && (
-          <div className="absolute top-4 right-16 z-10">
+          <div className="absolute top-4 right-24 z-10">
             <FavoriteButton
               active={isFavorite}
               loading={favoriteLoading}
