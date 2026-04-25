@@ -116,19 +116,29 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   });
 
   // Fetch related data in parallel using resolvedRecipeId
-  const relatedQueryStart = perfNow();
-  const [ingredientsResult, stepsResult] = await Promise.all([
-    supabase.from('recipe_ingredients')
-      .select(`
-        quantity,
-        unit:units(id, code, name),
-        ingredients(id, name, slug, shopping_category)
-      `)
-      .eq('recipe_id', resolvedRecipeId),
-    supabase.from('recipe_steps').select('step_no, text, time_seconds').eq('recipe_id', resolvedRecipeId).order('step_no')
-  ]);
-  const relatedQueryMs = perfNow() - relatedQueryStart;
+  const ingredientsQueryStart = perfNow();
+  const stepsQueryStart = perfNow();
   
+  const ingredientsResultPromise = supabase
+    .from('recipe_ingredients')
+    .select(`
+      quantity,
+      unit:units(id, code, name),
+      ingredients(id, name, slug, shopping_category)
+    `)
+    .eq('recipe_id', resolvedRecipeId);
+
+  const stepsResultPromise = supabase
+    .from('recipe_steps')
+    .select('step_no, text, time_seconds')
+    .eq('recipe_id', resolvedRecipeId)
+    .order('step_no');
+
+  const [ingredientsResult, stepsResult] = await Promise.all([
+    ingredientsResultPromise,
+    stepsResultPromise
+  ]);
+
   if (ingredientsResult.error) {
     console.error('[recipe-detail] ingredients_query_failed', { resolved_id: resolvedRecipeId, error: ingredientsResult.error.message });
   }
@@ -138,9 +148,20 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
 
   const ingredientCount = (ingredientsResult?.data || []).length;
   const stepCount = (stepsResult?.data || []).length;
+
+  console.log('[recipe-detail] ingredients_query_done', {
+    duration_ms: Math.round((perfNow() - ingredientsQueryStart) * 100) / 100,
+    resolved_id: resolvedRecipeId,
+    ingredient_count: ingredientCount
+  });
+  
+  console.log('[recipe-detail] steps_query_done', {
+    duration_ms: Math.round((perfNow() - stepsQueryStart) * 100) / 100,
+    resolved_id: resolvedRecipeId,
+    step_count: stepCount
+  });
   
   console.log('[recipe-detail] related_queries_done', { 
-    duration_ms: Math.round(relatedQueryMs * 100) / 100, 
     resolved_id: resolvedRecipeId, 
     ingredient_count: ingredientCount, 
     step_count: stepCount 
