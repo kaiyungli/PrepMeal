@@ -11,10 +11,10 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
-import { fetchRecipesForServer } from '@/lib/recipesServer';
+import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
-export default function Home({ initialRecipes = [] }) {
+export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
   // Homepage first-load start timestamp - created at initial render
   const firstLoadStartRef = useRef(perfNow());
   const homeDataReadyLogged = useRef(false);
@@ -31,7 +31,7 @@ export default function Home({ initialRecipes = [] }) {
   // API-driven filtered recipes (shared hook)
   const { recipes: recipesList, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
     initialRecipes || [],
-    { filters: filters, searchQuery, sortBy, limit: 24 }
+    { filters: filters, searchQuery, sortBy, limit: 24, initialTotalCount }
   );
 
   // Controller
@@ -160,9 +160,12 @@ export default function Home({ initialRecipes = [] }) {
 }
 
 export async function getStaticProps() {
-  const recipes = await fetchRecipesForServer();
+  const { recipes, total } = await fetchRecipesForServerWithTotal(24);
   return {
-    props: { initialRecipes: recipes || [] },
+    props: {
+      initialRecipes: recipes || [],
+      initialTotalCount: total || 0
+    },
     revalidate: 300
   };
 }
