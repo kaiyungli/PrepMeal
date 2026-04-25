@@ -66,8 +66,11 @@ function HomeRecipeGrid({
   const router = useRouter();
   const prefetchedRef = useRef(new Set());
   
-  // Stable prefetch list based on recipe IDs
-  const prefetchRecipes = (recipes || []).slice(0, 6);
+  // Safe recipes list for rendering
+  const safeRecipes = (recipes || []).slice(0, 24);
+  
+  // First 6 for prefetch
+  const prefetchRecipes = safeRecipes.slice(0, 6);
   const prefetchKey = prefetchRecipes.map(r => r.id).join(',');
   
   useEffect(() => {
@@ -96,7 +99,7 @@ function HomeRecipeGrid({
   
   return (
     <div className="grid grid-cols-12 gap-4">
-      {prefetchRecipes.map(recipe => (
+      {safeRecipes.map(recipe => (
         <MemoizedGridItem
           key={recipe.id}
           recipe={recipe}
