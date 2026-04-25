@@ -1,10 +1,9 @@
 // Favorites hook - single source of truth for favorite IDs
 import useSWR, { mutate } from 'swr';
-import { perfMeasure } from '@/utils/perf';
 import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 
 const normalizeId = (id) => {
-  if (id === undefined || id || null) return '';
+  if (id === undefined || id === null) return '';
   return String(id);
 };
 
@@ -36,6 +35,7 @@ function saveCachedFavorites(userIdentity, favorites) {
 
 // Clear favorites cache for user
 function clearCachedFavorites(userIdentity) {
+  if (!userIdentity) return;
   try {
     sessionStorage.removeItem(getCacheKey(userIdentity));
   } catch (_) {}
@@ -45,11 +45,11 @@ function clearCachedFavorites(userIdentity) {
 function getUserIdentity(token, userId) {
   if (userId) return userId;
   if (token) return token.slice(-12);
-  return 'anonymous';
+  return null;
 }
 
 // Fetcher for SWR - loads favorite IDs from API
-const favoritesFetcher = async ([url, token]) => {
+const favoritesFetcher = async ([url, userIdentity, token]) => {
   if (!token) return [];
   
   const res = await fetch(url, {
@@ -78,38 +78,38 @@ const favoritesFetcher = async ([url, token]) => {
  * - Optimistic toggle with rollback
  */
 export function useFavorites(token, userId) {
-  const [isFetchReady, setIsFetchReady] = useState(false);
-  
   const userIdentity = getUserIdentity(token, userId);
-  const cacheKey = getCacheKey(userIdentity);
+  
+  // SWR cache key - null until auth is ready
+  const swrKey = token ? ['/api/user/favorites', userIdentity, token] : null;
   
   // Load cached favorites synchronously on mount
   const [cachedFavorites, setCachedFavorites] = useState(() => {
     return loadCachedFavorites(userIdentity) || [];
   });
   
-  // SWR cache key includes stable user identity
-  const swrKey = token ? ['user-favorites', userIdentity, token] : null;
+  // Track if we should fetch from API
+  const [shouldFetch, setShouldFetch] = useState(false);
   
-  // Fetch from API after auth is ready
+  // Handle token changes - reset on logout
   useEffect(() => {
-    setIsFetchReady(false); // Reset on token change
     if (!token) {
-      // Clear cache on logout
-      clearCachedFavorites(userIdentity);
+      // Logout - clear cache and don't fetch
+      setShouldFetch(false);
       setCachedFavorites([]);
+      clearCachedFavorites(userIdentity);
       return;
     }
-    // Small delay for network fetch, but cache shows immediately
+    // Small delay before API fetch
     const timer = setTimeout(() => {
-      setIsFetchReady(true);
-    }, 100); // Reduced from 800ms - cache shows instantly
+      setShouldFetch(true);
+    }, 100);
     return () => clearTimeout(timer);
   }, [token, userIdentity]);
   
   // SWR for canonical favorites data
   const { data: apiFavorites = [], error, isLoading } = useSWR(
-    swrKey,
+    shouldFetch ? swrKey : null,
     favoritesFetcher,
     {
       revalidateOnFocus: false,
@@ -125,19 +125,21 @@ export function useFavorites(token, userId) {
     }
   );
   
-  // Sync API favorites to state and cache
+  // Sync API favorites to cache after successful fetch
   useEffect(() => {
-    if (apiFavorites.length > 0 && isFetchReady) {
+    if (Array.isArray(apiFavorites)) {
       setCachedFavorites(apiFavorites);
-      saveCachedFavorites(userIdentity, apiFavorites);
+      if (apiFavorites.length > 0 || cachedFavorites.length > 0) {
+        saveCachedFavorites(userIdentity, apiFavorites);
+      }
     }
-  }, [apiFavorites, userIdentity, isFetchReady]);
+  }, [apiFavorites, userIdentity]);
   
   // Per-recipe pending state
   const pendingRef = useRef(new Set());
   
   // Use API favorites when available, otherwise cached
-  const favorites = apiFavorites.length > 0 ? apiFavorites : cachedFavorites;
+  const favorites = (apiFavorites && apiFavorites.length > 0) ? apiFavorites : cachedFavorites;
   
   // Derived Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
@@ -187,7 +189,6 @@ export function useFavorites(token, userId) {
           });
       
       if (res.ok) {
-        // Success - cache already updated optimistically
         return true;
       }
       
