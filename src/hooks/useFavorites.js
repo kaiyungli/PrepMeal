@@ -46,8 +46,7 @@ function getUserIdentity(token, userId) {
 }
 
 // Fetcher for SWR - loads favorite IDs from API
-const favoritesFetcher = async (key) => {
-  const token = isBrowser ? key : null;
+const favoritesFetcher = async ([, , token]) => {
   if (!token) return [];
   
   const res = await fetch('/api/user/favorites', {
@@ -72,7 +71,9 @@ export function useFavorites(token, userId) {
   const userIdentity = getUserIdentity(token, userId);
   
   // SWR cache key - null until auth is ready
-  const swrKey = token ? token : null;
+  const swrKey = (token && shouldFetch && userIdentity)
+    ? ['user-favorites', userIdentity, token]
+    : null;
   
   // Initialize with empty array (cache loaded in useEffect)
   const [cachedFavorites, setCachedFavorites] = useState([]);
