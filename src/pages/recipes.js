@@ -9,8 +9,12 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
+import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
 export default function RecipesPage({ initialRecipes }) {
+  const firstLoadStartRef = useRef(perfNow());
+  const dataReadyLogged = useRef(false);
+  
   const { 
     isAuthenticated,
     isFavorite,
@@ -30,7 +34,18 @@ export default function RecipesPage({ initialRecipes }) {
   }, [isAuthenticated, toggleFavorite, showToast]);
   
   const handleRecipeClick = useCallback((recipe) => {
+    const start = perfNow();
     setSelectedRecipe({ ...recipe });
+    requestAnimationFrame(() => {
+      perfLog({
+        event: 'interaction',
+        stage: 'recipes_modal_open',
+        label: 'recipes.modal.open',
+        start,
+        end: perfNow(),
+        meta: { recipeId: recipe.id }
+      });
+    });
   }, []);
 
   const handleCloseModal = useCallback(() => {
@@ -67,6 +82,39 @@ export default function RecipesPage({ initialRecipes }) {
     initialRecipes || [],
     { filters, searchQuery, sortBy, limit: 100 }
   );
+  
+  // Log page ready
+  useEffect(() => {
+    perfLog({
+      event: 'page_load',
+      stage: 'recipes_ready',
+      label: 'recipes.first_load.ready',
+      start: firstLoadStartRef.current,
+      end: perfNow(),
+    });
+    return measurePageLoadMetrics();
+  }, []);
+  
+  // Log data ready
+  useEffect(() => {
+    if (recipes.length > 0 && !dataReadyLogged.current) {
+      dataReadyLogged.current = true;
+      perfLog({
+        event: 'page_load',
+        stage: 'recipes_data_ready',
+        label: 'recipes.first_load.data_ready',
+        start: firstLoadStartRef.current,
+        end: perfNow(),
+        meta: {
+          count: recipes.length,
+          totalCount,
+          hasFilters,
+          search: Boolean(searchQuery?.trim()),
+          sortBy
+        }
+      });
+    }
+  }, [recipes.length, totalCount, hasFilters, searchQuery, sortBy]);
   
   const showErrorState = !loading && fetchError;
   const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
@@ -149,12 +197,23 @@ export default function RecipesPage({ initialRecipes }) {
 }
 
 export async function getServerSideProps() {
-  // Initial SSR recipes still load for fast first paint
+  const _start = Date.now();
+  console.log('[recipes-page] getServerSideProps_start');
   const { fetchRecipesForServer } = await import('@/lib/recipesServer');
   try {
     const initialRecipes = await fetchRecipesForServer(24);
+    const duration_ms = Date.now() - _start;
+    console.log('[recipes-page] getServerSideProps_done', {
+      duration_ms,
+      count: initialRecipes?.length || 0
+    });
     return { props: { initialRecipes } };
   } catch (err) {
+    const duration_ms = Date.now() - _start;
+    console.error('[recipes-page] getServerSideProps_failed', {
+      duration_ms,
+      error: String(err)
+    });
     return { props: { initialRecipes: [] } };
   }
 }

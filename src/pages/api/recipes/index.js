@@ -212,11 +212,30 @@ export default async function handler(req, res) {
     const offsetNum = (pageNum - 1) * limitNum
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     
+    console.log('[api-recipes] request_start', {
+      page: pageNum,
+      limit: limitNum,
+      offset: offsetNum,
+      hasSearch: Boolean(search),
+      sort: safeSort,
+      filters: {
+        cuisine: Boolean(cuisine),
+        dish_type: Boolean(dish_type),
+        difficulty: Boolean(difficulty),
+        method: Boolean(method),
+        diet: Boolean(diet),
+        protein: Boolean(protein),
+        speed: Boolean(speed),
+        flavor: Boolean(flavor),
+        budget: Boolean(budget),
+        complete: Boolean(complete)
+      }
+    });
+    
     const queryStart = perfNow();
     // Use count: 'exact' to get total count
     const { data: recipes, error, count } = await query
     perfMeasure('api.recipes.supabaseQuery', queryStart);
-
 
     if (error) {
       if (process.env.NODE_ENV !== 'production') // Supabase error
@@ -227,6 +246,14 @@ export default async function handler(req, res) {
     // Return recipes with total count for pagination
     const recipesList = Array.isArray(recipes) ? recipes : []
     const total = count ?? 0;
+    
+    console.log('[api-recipes] query_done', {
+      duration_ms: Math.round(perfNow() - queryStart),
+      returned: recipesList.length,
+      total,
+      page: pageNum,
+      limit: limitNum
+    });
     
     console.log('[api-recipes] pagination', {
       page: pageNum,

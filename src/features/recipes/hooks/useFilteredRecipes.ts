@@ -67,6 +67,13 @@ export function useFilteredRecipes(
     
     const nextPage = currentPage + 1;
     
+    console.log('[recipes-client] load_more_start', {
+      nextPage,
+      currentPage,
+      currentCount: recipes.length,
+      hasMore
+    });
+    
     setLoadingMore(true);
     
     fetchRecipesFromAPI({
@@ -74,12 +81,20 @@ export function useFilteredRecipes(
       limit: PAGE_SIZE,
       page: nextPage,
     }).then(({ recipes: newRecipes, total }) => {
+      const start = Date.now();
       setRecipes(prev => {
-        // Dedupe by recipe.id
         const existingIds = new Set(prev.map((r: any) => r.id));
         const uniqueNew = newRecipes.filter((r: any) => !existingIds.has(r.id));
         const merged = [...prev, ...uniqueNew];
         setHasMore(merged.length < total);
+        console.log('[recipes-client] load_more_done', {
+          duration_ms: Date.now() - start,
+          nextPage,
+          newCount: newRecipes.length,
+          mergedCount: merged.length,
+          total,
+          hasMore: merged.length < total
+        });
         return merged;
       });
       setTotalCount(total);
@@ -89,12 +104,18 @@ export function useFilteredRecipes(
     }).finally(() => {
       setLoadingMore(false);
     });
-  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy]);
+  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy, recipes.length]);
   
   // Initial fetch effect with cache
   useEffect(() => {
     // Skip initial fetch when homepage has initialRecipes with no filters/search/sort changes
     if (shouldSkipInitialFetch) {
+      console.log('[recipes-client] initial_fetch_skipped', {
+        initial_count: initialRecipes?.length || 0,
+        hasNoFilters,
+        hasNoSearch,
+        isDefaultSort
+      });
       hasSkippedInitialFetchRef.current = true;
       return;
     }
@@ -107,6 +128,11 @@ export function useFilteredRecipes(
     const cached = recipeCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
       if (currentId !== fetchIdRef.current) return;
+      console.log('[recipes-client] cache_hit', {
+        page: 1,
+        count: cached.data.length,
+        total: cached.total
+      });
       setRecipes(cached.data);
       setTotalCount(cached.total);
       setHasMore(cached.data.length < cached.total);
@@ -121,11 +147,27 @@ export function useFilteredRecipes(
       setLoading(true);
       setFetchError('');
       
+      console.log('[recipes-client] fetch_start', {
+        page: 1,
+        filters,
+        search: Boolean(searchQuery?.trim()),
+        sortBy
+      });
+      
+      const fetchStart = Date.now();
+      
       try {
         const { recipes: fetched, total } = await fetchRecipesFromAPI({
           ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }),
           limit: PAGE_SIZE,
           page: 1,
+        });
+        
+        console.log('[recipes-client] fetch_done', {
+          duration_ms: Date.now() - fetchStart,
+          page: 1,
+          count: fetched.length,
+          total
         });
         
         if (currentId !== fetchIdRef.current) return;
