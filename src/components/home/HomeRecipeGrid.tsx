@@ -67,8 +67,12 @@ function HomeRecipeGrid({
   const loadMoreRef = useRef(loadMore);
   loadMoreRef.current = loadMore;
   
+  // Safe recipes list for rendering
+  const safeRecipes = (recipes || []);
+  
   // First 6 recipes for prefetch
-  const prefetchRecipes = (recipes || []).slice(0, 6);
+  const prefetchRecipes = safeRecipes.slice(0, 6);
+  const prefetchKey = prefetchRecipes.map(r => r.id).join(',');
   
   // Prefetch first 6 recipe detail pages
   useEffect(() => {
@@ -92,7 +96,7 @@ function HomeRecipeGrid({
     return () => {
       timers.forEach(clearTimeout);
     };
-  }, [prefetchRecipes, router]);
+  }, [prefetchKey, router]);
   
   // Infinite scroll detection
   useEffect(() => {
@@ -116,7 +120,7 @@ function HomeRecipeGrid({
   return (
     <>
       <div className="grid grid-cols-12 gap-4">
-        {recipes.map(recipe => (
+        {safeRecipes.map(recipe => (
           <MemoizedGridItem
             key={recipe.id}
             recipe={recipe}

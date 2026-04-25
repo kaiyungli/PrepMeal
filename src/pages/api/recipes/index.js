@@ -207,12 +207,14 @@ export default async function handler(req, res) {
     }
     
     // Pagination
-    const limitNum = Math.min(Math.max(parseInt(limit) || 100, 1), 100)
-    const offsetNum = Math.max(parseInt(offset) || 0, 0)
+    const limitNum = Math.min(Math.max(parseInt(limit) || 24, 1), 100)
+    const pageNum = Math.max(parseInt(req.query.page) || 1, 1)
+    const offsetNum = (pageNum - 1) * limitNum
     query = query.range(offsetNum, offsetNum + limitNum - 1)
     
     const queryStart = perfNow();
-    const { data: recipes, error } = await query
+    // Use count: 'exact' to get total count
+    const { data: recipes, error, count } = await query
     perfMeasure('api.recipes.supabaseQuery', queryStart);
 
 
@@ -224,12 +226,12 @@ export default async function handler(req, res) {
 
     // Return recipes with total count for pagination
     const recipesList = Array.isArray(recipes) ? recipes : []
-    const total = recipes?.length || 0; // Supabase doesn't provide total on range query
+    const total = count || 0;
     
     res.status(200).json({ 
       recipes: recipesList, 
       total,
-      hasMore: recipesList.length === limitNum
+      hasMore: recipesList.length === limitNum && total > offsetNum + limitNum
     })
     perfMeasure('api.recipes.total', handlerStart);
   } catch (error) {

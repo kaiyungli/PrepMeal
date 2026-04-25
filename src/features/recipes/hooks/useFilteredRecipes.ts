@@ -66,7 +66,6 @@ export function useFilteredRecipes(
     if (loadingMore || !hasMore || loading) return;
     
     const nextPage = currentPage + 1;
-    const cacheKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, nextPage);
     
     setLoadingMore(true);
     
@@ -79,17 +78,18 @@ export function useFilteredRecipes(
         // Dedupe by recipe.id
         const existingIds = new Set(prev.map((r: any) => r.id));
         const uniqueNew = newRecipes.filter((r: any) => !existingIds.has(r.id));
-        return [...prev, ...uniqueNew];
+        const merged = [...prev, ...uniqueNew];
+        setHasMore(merged.length < total);
+        return merged;
       });
       setTotalCount(total);
-      setHasMore(recipes.length + newRecipes.length < total);
       setCurrentPage(nextPage);
     }).catch(err => {
       console.error('[useFilteredRecipes] loadMore error:', err);
     }).finally(() => {
       setLoadingMore(false);
     });
-  }, [currentPage, hasMore, loadingMore, loading, recipes.length, filters, searchQuery, sortBy]);
+  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy]);
   
   // Initial fetch effect with cache
   useEffect(() => {
