@@ -65,25 +65,40 @@ export default function RecipeDetail({ recipe, error }) {
   );
 }
 
-// Use shared loader
-export async function getServerSideProps({ params }) {
+// Static generation with ISR (5 min revalidation)
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: 'blocking'
+  };
+}
+
+export async function getStaticProps({ params }) {
   const _start = Date.now();
-  console.log('[recipe-page] getServerSideProps_start', { id: params.id });
+  console.log('[recipe-page] getStaticProps_start', { id: params.id });
   
   const { recipe, error } = await loadRecipeDetail(params.id);
   
   const totalMs = Date.now() - _start;
-  console.log('[recipe-page] getServerSideProps_done', { 
+  console.log('[recipe-page] getStaticProps_done', { 
     duration_ms: totalMs, 
     id: params.id, 
     has_recipe: !!recipe, 
     has_error: !!error 
   });
   
+  if (!recipe) {
+    return {
+      notFound: true,
+      revalidate: 300
+    };
+  }
+  
   return {
     props: {
-      recipe: recipe || null,
+      recipe,
       error: error || null
-    }
+    },
+    revalidate: 300
   };
 }
