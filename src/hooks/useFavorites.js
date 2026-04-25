@@ -7,6 +7,9 @@ const normalizeId = (id) => {
   return String(id);
 };
 
+// Browser check
+const isBrowser = typeof window !== 'undefined';
+
 // Cache key for sessionStorage
 function getCacheKey(userIdentity) {
   return `favorites:${userIdentity || 'unknown'}`;
@@ -14,6 +17,7 @@ function getCacheKey(userIdentity) {
 
 // Load favorites from sessionStorage cache
 function loadCachedFavorites(userIdentity) {
+  if (!isBrowser) return null;
   try {
     const cached = sessionStorage.getItem(getCacheKey(userIdentity));
     if (cached) {
@@ -28,16 +32,9 @@ function loadCachedFavorites(userIdentity) {
 
 // Save favorites to sessionStorage cache
 function saveCachedFavorites(userIdentity, favorites) {
+  if (!isBrowser) return;
   try {
     sessionStorage.setItem(getCacheKey(userIdentity), JSON.stringify(favorites));
-  } catch (_) {}
-}
-
-// Clear favorites cache for user
-function clearCachedFavorites(userIdentity) {
-  if (!userIdentity) return;
-  try {
-    sessionStorage.removeItem(getCacheKey(userIdentity));
   } catch (_) {}
 }
 
@@ -49,10 +46,11 @@ function getUserIdentity(token, userId) {
 }
 
 // Fetcher for SWR - loads favorite IDs from API
-const favoritesFetcher = async ([url, userIdentity, token]) => {
+const favoritesFetcher = async (key) => {
+  const token = isBrowser ? key : null;
   if (!token) return [];
   
-  const res = await fetch(url, {
+  const res = await fetch('/api/user/favorites', {
     headers: { Authorization: `Bearer ${token}` }
   });
   
@@ -69,35 +67,34 @@ const favoritesFetcher = async ([url, userIdentity, token]) => {
 
 /**
  * useFavorites - single source of truth for favorite IDs
- * @param {string} token - Access token (from page)
- * @param {string} userId - User ID for cache key (optional but recommended)
- * 
- * Features:
- * - SessionStorage cache for instant UI
- * - Background API revalidation
- * - Optimistic toggle with rollback
  */
 export function useFavorites(token, userId) {
   const userIdentity = getUserIdentity(token, userId);
   
   // SWR cache key - null until auth is ready
-  const swrKey = token ? ['/api/user/favorites', userIdentity, token] : null;
+  const swrKey = token ? token : null;
   
-  // Load cached favorites synchronously on mount
-  const [cachedFavorites, setCachedFavorites] = useState(() => {
-    return loadCachedFavorites(userIdentity) || [];
-  });
+  // Initialize with empty array (cache loaded in useEffect)
+  const [cachedFavorites, setCachedFavorites] = useState([]);
   
   // Track if we should fetch from API
   const [shouldFetch, setShouldFetch] = useState(false);
   
-  // Handle token changes - reset on logout
+  // Load cache on mount and when userIdentity changes
+  useEffect(() => {
+    if (!userIdentity) {
+      setCachedFavorites([]);
+      return;
+    }
+    const loaded = loadCachedFavorites(userIdentity) || [];
+    setCachedFavorites(loaded);
+  }, [userIdentity]);
+  
+  // Handle token changes
   useEffect(() => {
     if (!token) {
-      // Logout - clear cache and don't fetch
       setShouldFetch(false);
       setCachedFavorites([]);
-      clearCachedFavorites(userIdentity);
       return;
     }
     // Small delay before API fetch
@@ -105,7 +102,7 @@ export function useFavorites(token, userId) {
       setShouldFetch(true);
     }, 100);
     return () => clearTimeout(timer);
-  }, [token, userIdentity]);
+  }, [token]);
   
   // SWR for canonical favorites data
   const { data: apiFavorites = [], error, isLoading } = useSWR(
@@ -114,8 +111,7 @@ export function useFavorites(token, userId) {
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
-      // Start with cached data, revalidate in background
-      fallbackData: cachedFavorites,
+      fallbackData: [],
       shouldRetryOnError: false,
       onErrorRetry: (err, key, config, revalidate, options) => {
         const status = err?.status;
@@ -125,21 +121,20 @@ export function useFavorites(token, userId) {
     }
   );
   
-  // Sync API favorites to cache after successful fetch
-  useEffect(() => {
-    if (Array.isArray(apiFavorites)) {
-      setCachedFavorites(apiFavorites);
-      if (apiFavorites.length > 0 || cachedFavorites.length > 0) {
-        saveCachedFavorites(userIdentity, apiFavorites);
-      }
-    }
-  }, [apiFavorites, userIdentity]);
-  
   // Per-recipe pending state
   const pendingRef = useRef(new Set());
   
-  // Use API favorites when available, otherwise cached
-  const favorites = (apiFavorites && apiFavorites.length > 0) ? apiFavorites : cachedFavorites;
+  // Use API favorites when API has loaded, otherwise cached
+  const hasApiLoaded = shouldFetch && !isLoading && !error && Array.isArray(apiFavorites);
+  const favorites = hasApiLoaded ? apiFavorites : cachedFavorites;
+  
+  // Sync API favorites to cache after successful fetch
+  useEffect(() => {
+    if (hasApiLoaded && userIdentity) {
+      setCachedFavorites(apiFavorites);
+      saveCachedFavorites(userIdentity, apiFavorites);
+    }
+  }, [hasApiLoaded, userIdentity]);
   
   // Derived Set for O(1) lookups
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
@@ -174,7 +169,9 @@ export function useFavorites(token, userId) {
     // Update both SWR cache and sessionStorage
     mutate(swrKey, newFavorites, false);
     setCachedFavorites(newFavorites);
-    saveCachedFavorites(userIdentity, newFavorites);
+    if (userIdentity) {
+      saveCachedFavorites(userIdentity, newFavorites);
+    }
     
     try {
       const res = isFav
@@ -195,13 +192,17 @@ export function useFavorites(token, userId) {
       // API error - rollback
       mutate(swrKey, previousFavorites, false);
       setCachedFavorites(previousFavorites);
-      saveCachedFavorites(userIdentity, previousFavorites);
+      if (userIdentity) {
+        saveCachedFavorites(userIdentity, previousFavorites);
+      }
       return false;
     } catch (_) {
       // Network error - rollback
       mutate(swrKey, previousFavorites, false);
       setCachedFavorites(previousFavorites);
-      saveCachedFavorites(userIdentity, previousFavorites);
+      if (userIdentity) {
+        saveCachedFavorites(userIdentity, previousFavorites);
+      }
       return false;
     } finally {
       pendingRef.current.delete(normalizedId);
