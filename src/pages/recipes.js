@@ -196,25 +196,32 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const _start = Date.now();
-  console.log('[recipes-page] getServerSideProps_start');
+  console.log('[recipes-page] getStaticProps_start');
   const { fetchRecipesForServerWithTotal } = await import('@/lib/recipesServer');
   try {
-    const { recipes: initialRecipes, total: initialTotalCount } = await fetchRecipesForServerWithTotal(24);
+    const { recipes: initialRecipes, total: initialTotalCount } =
+      await fetchRecipesForServerWithTotal(24);
     const duration_ms = Date.now() - _start;
-    console.log('[recipes-page] getServerSideProps_done', {
+    console.log('[recipes-page] getStaticProps_done', {
       duration_ms,
       count: initialRecipes?.length || 0,
       total: initialTotalCount
     });
-    return { props: { initialRecipes, initialTotalCount } };
+    return {
+      props: { initialRecipes, initialTotalCount },
+      revalidate: 60
+    };
   } catch (err) {
     const duration_ms = Date.now() - _start;
-    console.error('[recipes-page] getServerSideProps_failed', {
+    console.error('[recipes-page] getStaticProps_failed', {
       duration_ms,
       error: String(err)
     });
-    return { props: { initialRecipes: [], initialTotalCount: 0 } };
+    return {
+      props: { initialRecipes: [], initialTotalCount: 0 },
+      revalidate: 60
+    };
   }
 }
