@@ -3,7 +3,7 @@ import RecipeCard from '@/components/RecipeCard';
 
 interface HomeRecipeGridProps {
   recipes: any[];
-  onRecipeClick: (recipe: any) => void;
+  onRecipeClick?: (recipe: any) => void;
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
@@ -12,6 +12,9 @@ interface HomeRecipeGridProps {
 /**
  * RecipeGridItem - memoized individual card wrapper
  * Isolates inline callback creation to prevent grid re-renders
+ * 
+ * If onRecipeClick is provided → pass to RecipeCard as onClick
+ * If onRecipeClick is undefined → RecipeCard renders <Link> for client-side navigation
  */
 function RecipeGridItem({ 
   recipe, 
@@ -21,7 +24,7 @@ function RecipeGridItem({
   onFavoriteClick 
 }: { 
   recipe: any;
-  onRecipeClick: (recipe: any) => void;
+  onRecipeClick?: (recipe: any) => void;
   isFavorite?: boolean;
   isPending?: boolean;
   onFavoriteClick?: () => void | Promise<void>;
@@ -30,7 +33,7 @@ function RecipeGridItem({
     <div className="col-span-12 sm:col-span-6 md:col-span-4">
       <RecipeCard
         recipe={recipe}
-        onClick={() => onRecipeClick(recipe)}
+        onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
         isFavorite={isFavorite}
         favoriteLoading={isPending}
         onFavoriteClick={onFavoriteClick}
@@ -41,18 +44,16 @@ function RecipeGridItem({
 
 // Memoize to prevent re-renders when parent props unchanged
 const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
-  // Only compare UI-relevant props that should trigger re-render
   if (prev.recipe?.id !== next.recipe?.id) return false;
   if (prev.isFavorite !== next.isFavorite) return false;
   if (prev.isPending !== next.isPending) return false;
-  // Ignore callback references - they work regardless of reference equality
-  // The inline wrapper functions are recreated each render but still call the same underlying handler
   return true;
 });
 
 /**
  * HomeRecipeGrid - recipe grid for homepage with favorites support
  * - Uses memoized item component to isolate callback creation
+ * - Pass onRecipeClick to RecipeCard only if provided (enables Link navigation when undefined)
  */
 function HomeRecipeGrid({ 
   recipes, 

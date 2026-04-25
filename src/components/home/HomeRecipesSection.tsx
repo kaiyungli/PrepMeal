@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
-import HomeModalController from '@/components/home/HomeModalController';
 
 interface HomeRecipesSectionProps {
   recipes: any[];
@@ -13,10 +11,10 @@ interface HomeRecipesSectionProps {
 }
 
 /**
- * HomeRecipesSection - recipe grid + optional modal
+ * HomeRecipesSection - recipe grid for homepage
  * 
- * If onRecipeClick provided → use it for navigation (no modal)
- * If onRecipeClick NOT provided → use internal modal behavior
+ * If onRecipeClick provided → pass to RecipeCard as onClick handler
+ * If onRecipeClick NOT provided → RecipeCard renders <Link> for client-side navigation
  */
 export default function HomeRecipesSection({ 
   recipes,
@@ -25,55 +23,15 @@ export default function HomeRecipesSection({
   onFavoriteClick,
   onRecipeClick,
 }: HomeRecipesSectionProps) {
-  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
-
-  // Use external onRecipeClick if provided, otherwise internal modal
-  const hasExternalNavigation = !!onRecipeClick;
-  
-  const handleRecipeClick = useCallback((recipe: any) => {
-    if (hasExternalNavigation && onRecipeClick) {
-      onRecipeClick(recipe);
-    } else {
-      // Internal modal behavior
-      setSelectedRecipe({ ...recipe });
-    }
-  }, [hasExternalNavigation, onRecipeClick]);
-
-  const handleCloseModal = useCallback(() => {
-    setSelectedRecipe(null);
-  }, []);
-
-  // Modal favorite state
-  const modalIsFavorite = selectedRecipe && isFavorite ? isFavorite(selectedRecipe.id) : false;
-  const modalIsPending = selectedRecipe && isPending ? isPending(selectedRecipe.id) : false;
-  const handleModalFavoriteClick = useCallback(() => {
-    if (selectedRecipe?.id && onFavoriteClick) {
-      onFavoriteClick(selectedRecipe.id);
-    }
-  }, [selectedRecipe, onFavoriteClick]);
-
   return (
     <section id="recipes" className="pt-8 pb-24 bg-[#F8F3E8]">
-      <div>
-        <HomeRecipeGrid
-          recipes={recipes}
-          onRecipeClick={handleRecipeClick}
-          isFavorite={isFavorite}
-          isPending={isPending}
-          onFavoriteClick={onFavoriteClick}
-        />
-      </div>
-
-      {/* Only show modal for internal navigation */}
-      {!hasExternalNavigation && (
-        <HomeModalController
-          selectedRecipe={selectedRecipe}
-          onClose={handleCloseModal}
-          isFavorite={modalIsFavorite}
-          favoriteLoading={modalIsPending}
-          onFavoriteClick={handleModalFavoriteClick}
-        />
-      )}
+      <HomeRecipeGrid
+        recipes={recipes}
+        onRecipeClick={onRecipeClick}
+        isFavorite={isFavorite}
+        isPending={isPending}
+        onFavoriteClick={onFavoriteClick}
+      />
     </section>
   );
 }
