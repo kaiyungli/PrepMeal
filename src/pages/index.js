@@ -148,7 +148,6 @@ export default function Home({ initialRecipes = [] }) {
               recipes={recipesList}
               isFavorite={isFavorite}
               onFavoriteClick={handleFavoriteToggle}
-              onRecipeClick={(r) => router.push(`/recipes/${r.id}`)}
             />
           </>
         )}

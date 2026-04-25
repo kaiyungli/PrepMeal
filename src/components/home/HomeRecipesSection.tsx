@@ -9,27 +9,35 @@ interface HomeRecipesSectionProps {
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
+  onRecipeClick?: (recipe: any) => void;
 }
 
 /**
- * HomeRecipesSection - recipe grid + modal only
- * Handles:
- * - selectedRecipe state
- * - handleRecipeClick / handleCloseModal
- * - HomeRecipeGrid rendering
- * - HomeModalController rendering
+ * HomeRecipesSection - recipe grid + optional modal
+ * 
+ * If onRecipeClick provided → use it for navigation (no modal)
+ * If onRecipeClick NOT provided → use internal modal behavior
  */
 export default function HomeRecipesSection({ 
   recipes,
   isFavorite,
   isPending,
   onFavoriteClick,
+  onRecipeClick,
 }: HomeRecipesSectionProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
 
+  // Use external onRecipeClick if provided, otherwise internal modal
+  const hasExternalNavigation = !!onRecipeClick;
+  
   const handleRecipeClick = useCallback((recipe: any) => {
-    setSelectedRecipe({ ...recipe });
-  }, []);
+    if (hasExternalNavigation && onRecipeClick) {
+      onRecipeClick(recipe);
+    } else {
+      // Internal modal behavior
+      setSelectedRecipe({ ...recipe });
+    }
+  }, [hasExternalNavigation, onRecipeClick]);
 
   const handleCloseModal = useCallback(() => {
     setSelectedRecipe(null);
@@ -56,13 +64,16 @@ export default function HomeRecipesSection({
         />
       </div>
 
-      <HomeModalController
-        selectedRecipe={selectedRecipe}
-        onClose={handleCloseModal}
-        isFavorite={modalIsFavorite}
-        favoriteLoading={modalIsPending}
-        onFavoriteClick={handleModalFavoriteClick}
-      />
+      {/* Only show modal for internal navigation */}
+      {!hasExternalNavigation && (
+        <HomeModalController
+          selectedRecipe={selectedRecipe}
+          onClose={handleCloseModal}
+          isFavorite={modalIsFavorite}
+          favoriteLoading={modalIsPending}
+          onFavoriteClick={handleModalFavoriteClick}
+        />
+      )}
     </section>
   );
 }
