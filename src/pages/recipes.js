@@ -11,7 +11,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
-export default function RecipesPage({ initialRecipes }) {
+export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   const firstLoadStartRef = useRef(perfNow());
   const dataReadyLogged = useRef(false);
   
@@ -78,9 +78,9 @@ export default function RecipesPage({ initialRecipes }) {
     filters,
   } = useRecipeFilters();
 
-  const { recipes, totalCount, loading, fetchError } = useFilteredRecipes(
+  const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
     initialRecipes || [],
-    { filters, searchQuery, sortBy, limit: 100 }
+    { filters, searchQuery, sortBy, limit: 100, initialTotalCount }
   );
   
   // Log page ready
@@ -199,21 +199,22 @@ export default function RecipesPage({ initialRecipes }) {
 export async function getServerSideProps() {
   const _start = Date.now();
   console.log('[recipes-page] getServerSideProps_start');
-  const { fetchRecipesForServer } = await import('@/lib/recipesServer');
+  const { fetchRecipesForServerWithTotal } = await import('@/lib/recipesServer');
   try {
-    const initialRecipes = await fetchRecipesForServer(24);
+    const { recipes: initialRecipes, total: initialTotalCount } = await fetchRecipesForServerWithTotal(24);
     const duration_ms = Date.now() - _start;
     console.log('[recipes-page] getServerSideProps_done', {
       duration_ms,
-      count: initialRecipes?.length || 0
+      count: initialRecipes?.length || 0,
+      total: initialTotalCount
     });
-    return { props: { initialRecipes } };
+    return { props: { initialRecipes, initialTotalCount } };
   } catch (err) {
     const duration_ms = Date.now() - _start;
     console.error('[recipes-page] getServerSideProps_failed', {
       duration_ms,
       error: String(err)
     });
-    return { props: { initialRecipes: [] } };
+    return { props: { initialRecipes: [], initialTotalCount: 0 } };
   }
 }

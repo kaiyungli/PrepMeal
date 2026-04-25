@@ -19,6 +19,7 @@ export interface UseFilteredRecipesOptions {
   searchQuery: string;
   sortBy?: string;
   limit?: number;
+  initialTotalCount?: number;
 }
 
 export interface UseFilteredRecipesResult {
@@ -43,9 +44,9 @@ export function useFilteredRecipes(
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [fetchError, setFetchError] = useState('');
-  const [totalCount, setTotalCount] = useState(initialRecipes?.length || 0);
+  const [totalCount, setTotalCount] = useState(options.initialTotalCount ?? initialRecipes?.length ?? 0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState((initialRecipes?.length || 0) < (options.initialTotalCount ?? initialRecipes?.length ?? 0));
   
   const fetchIdRef = useRef(0);
   const hasSkippedInitialFetchRef = useRef(false);
@@ -108,17 +109,19 @@ export function useFilteredRecipes(
   
   // Initial fetch effect with cache
   useEffect(() => {
-    // Skip initial fetch when homepage has initialRecipes with no filters/search/sort changes
-    if (shouldSkipInitialFetch) {
-      console.log('[recipes-client] initial_fetch_skipped', {
-        initial_count: initialRecipes?.length || 0,
-        hasNoFilters,
-        hasNoSearch,
-        isDefaultSort
-      });
-      hasSkippedInitialFetchRef.current = true;
-      return;
-    }
+    // When initial fetch is skipped, totalCount should remain initialTotalCount
+  // hasMore should be based on whether more recipes exist than we have
+  if (shouldSkipInitialFetch) {
+    console.log('[recipes-client] initial_fetch_skipped', {
+      initial_count: initialRecipes?.length || 0,
+      initialTotalCount: options.initialTotalCount,
+      hasNoFilters,
+      hasNoSearch,
+      isDefaultSort
+    });
+    hasSkippedInitialFetchRef.current = true;
+    return;
+  }
     
     const currentId = ++fetchIdRef.current;
     const cacheKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, 1);
