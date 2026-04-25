@@ -1,5 +1,5 @@
 /**
- * Recipe API fetch service with filters
+ * Recipe API fetch service with filters and pagination
  */
 export async function fetchRecipesFromAPI({
   search = '',
@@ -13,7 +13,9 @@ export async function fetchRecipesFromAPI({
   protein = '',
   speed = '',
   sort = 'newest',
-  limit = 100,
+  limit = 24,
+  page = 1,
+  offset = 0,
 } = {}) {
   const params = new URLSearchParams();
   
@@ -29,6 +31,8 @@ export async function fetchRecipesFromAPI({
   if (flavor) params.set("flavor", flavor);
   if (sort) params.set('sort', sort);
   if (limit) params.set('limit', String(limit));
+  if (page > 1) params.set('page', String(page));
+  if (offset > 0) params.set('offset', String(offset));
   
   const url = `/api/recipes${params.toString() ? '?' + params.toString() : ''}`;
   
@@ -39,5 +43,8 @@ export async function fetchRecipesFromAPI({
   }
   
   const data = await res.json();
-  return data.recipes || [];
+  return {
+    recipes: data.recipes || [],
+    total: data.total || 0
+  };
 }

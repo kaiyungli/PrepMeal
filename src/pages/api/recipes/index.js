@@ -222,12 +222,14 @@ export default async function handler(req, res) {
     }
     
 
-    // Return recipes
+    // Return recipes with total count for pagination
     const recipesList = Array.isArray(recipes) ? recipes : []
+    const total = recipes?.length || 0; // Supabase doesn't provide total on range query
     
     res.status(200).json({ 
       recipes: recipesList, 
-      hasMore: (recipesList.length) > offsetNum + limitNum
+      total,
+      hasMore: recipesList.length === limitNum
     })
     perfMeasure('api.recipes.total', handlerStart);
   } catch (error) {

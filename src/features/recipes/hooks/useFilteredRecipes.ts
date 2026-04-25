@@ -8,10 +8,10 @@ import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mapper
 
 // Cache configuration
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const recipeCache = new Map<string, { data: any[]; timestamp: number }>();
+const recipeCache = new Map<string, { data: any[]; timestamp: number; total: number }>();
 
-function getCacheKey(filters: any, searchQuery: string, sortBy: string, limit: number): string {
-  return JSON.stringify({ filters, searchQuery, sortBy, limit });
+function getCacheKey(filters: any, searchQuery: string, sortBy: string, limit: number, page: number): string {
+  return JSON.stringify({ filters, searchQuery, sortBy, limit, page });
 }
 
 export interface UseFilteredRecipesOptions {
@@ -26,18 +26,26 @@ export interface UseFilteredRecipesResult {
   totalCount: number;
   loading: boolean;
   fetchError: string;
+  loadMore: () => void;
+  hasMore: boolean;
+  loadingMore: boolean;
 }
+
+const PAGE_SIZE = 24;
 
 export function useFilteredRecipes(
   initialRecipes: any[],
   options: UseFilteredRecipesOptions
 ): UseFilteredRecipesResult {
-  const { filters, searchQuery, sortBy = 'newest', limit = 100 } = options;
+  const { filters, searchQuery, sortBy = 'newest' } = options;
   
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [fetchError, setFetchError] = useState('');
-  const totalCount = recipes.length;
+  const [totalCount, setTotalCount] = useState(initialRecipes?.length || 0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   
   const fetchIdRef = useRef(0);
   const hasSkippedInitialFetchRef = useRef(false);
@@ -53,7 +61,37 @@ export function useFilteredRecipes(
     hasNoSearch &&
     isDefaultSort;
   
-  // Debounced fetch effect with cache
+  // Load more function for infinite scroll
+  const loadMore = useCallback(() => {
+    if (loadingMore || !hasMore || loading) return;
+    
+    const nextPage = currentPage + 1;
+    const cacheKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, nextPage);
+    
+    setLoadingMore(true);
+    
+    fetchRecipesFromAPI({
+      ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }),
+      limit: PAGE_SIZE,
+      page: nextPage,
+    }).then(({ recipes: newRecipes, total }) => {
+      setRecipes(prev => {
+        // Dedupe by recipe.id
+        const existingIds = new Set(prev.map((r: any) => r.id));
+        const uniqueNew = newRecipes.filter((r: any) => !existingIds.has(r.id));
+        return [...prev, ...uniqueNew];
+      });
+      setTotalCount(total);
+      setHasMore(recipes.length + newRecipes.length < total);
+      setCurrentPage(nextPage);
+    }).catch(err => {
+      console.error('[useFilteredRecipes] loadMore error:', err);
+    }).finally(() => {
+      setLoadingMore(false);
+    });
+  }, [currentPage, hasMore, loadingMore, loading, recipes.length, filters, searchQuery, sortBy]);
+  
+  // Initial fetch effect with cache
   useEffect(() => {
     // Skip initial fetch when homepage has initialRecipes with no filters/search/sort changes
     if (shouldSkipInitialFetch) {
@@ -62,47 +100,43 @@ export function useFilteredRecipes(
     }
     
     const currentId = ++fetchIdRef.current;
-    const cacheKey = getCacheKey(filters, searchQuery, sortBy, limit);
+    const cacheKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, 1);
     const now = Date.now();
     
     // Check cache first
     const cached = recipeCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
-      // Cache hit - use cached data (with race check)
       if (currentId !== fetchIdRef.current) return;
       setRecipes(cached.data);
+      setTotalCount(cached.total);
+      setHasMore(cached.data.length < cached.total);
       setFetchError('');
       setLoading(false);
-      return; // Skip API call
+      return;
     }
     
     const timer = setTimeout(async () => {
-      // Race condition: this request is stale
       if (currentId !== fetchIdRef.current) return;
       
       setLoading(true);
       setFetchError('');
       
       try {
-      const fetchParams = buildRecipeApiParams({
-          filters,
-          searchQuery,
-          sortBy,
-          limit,
+        const { recipes: fetched, total } = await fetchRecipesFromAPI({
+          ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }),
+          limit: PAGE_SIZE,
+          page: 1,
         });
         
-        const fetched = await fetchRecipesFromAPI(fetchParams);
-        
-        // Race condition: another request started
         if (currentId !== fetchIdRef.current) return;
         
-        // Success path: use API result (not initialRecipes fallback)
-        // Cache ALL successful responses (including empty arrays)
         setRecipes(fetched);
+        setTotalCount(total);
+        setHasMore(fetched.length < total);
+        setCurrentPage(1);
         setFetchError('');
-        recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now() });
+        recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now(), total });
       } catch (err) {
-        // Error path: explicit error, NOT fallback to initialRecipes
         console.error('[useFilteredRecipes] API error:', err);
         if (currentId !== fetchIdRef.current) return;
         setFetchError('暫時無法載入食譜，請稍後再試');
@@ -112,10 +146,16 @@ export function useFilteredRecipes(
           setLoading(false);
         }
       }
-    }, 300); // Debounce 300ms
+    }, 300);
     
     return () => clearTimeout(timer);
-  }, [searchQuery, sortBy, JSON.stringify(filters), limit]);
+  }, [searchQuery, sortBy, JSON.stringify(filters)]);
   
-  return { recipes, totalCount, loading, fetchError };
+  // Reset on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+    setHasMore(true);
+  }, [filters, searchQuery, sortBy]);
+  
+  return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore };
 }

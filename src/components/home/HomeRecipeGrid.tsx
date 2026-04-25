@@ -8,14 +8,13 @@ interface HomeRecipeGridProps {
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
+  loadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
 }
 
 /**
  * RecipeGridItem - memoized individual card wrapper
- * Isolates inline callback creation to prevent grid re-renders
- * 
- * If onRecipeClick is provided → pass to RecipeCard as onClick
- * If onRecipeClick is undefined → RecipeCard renders <Link> for client-side navigation
  */
 function RecipeGridItem({ 
   recipe, 
@@ -43,7 +42,6 @@ function RecipeGridItem({
   );
 }
 
-// Memoize to prevent re-renders when parent props unchanged
 const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
   if (prev.recipe?.id !== next.recipe?.id) return false;
   if (prev.isFavorite !== next.isFavorite) return false;
@@ -52,9 +50,7 @@ const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
 });
 
 /**
- * HomeRecipeGrid - recipe grid for homepage with favorites support
- * - Uses memoized item component to isolate callback creation
- * - Pass onRecipeClick to RecipeCard only if provided (enables Link navigation when undefined)
+ * HomeRecipeGrid - recipe grid with infinite scroll
  */
 function HomeRecipeGrid({ 
   recipes, 
@@ -62,19 +58,21 @@ function HomeRecipeGrid({
   isFavorite,
   isPending,
   onFavoriteClick,
+  loadMore,
+  hasMore,
+  loadingMore,
 }: HomeRecipeGridProps) {
   const router = useRouter();
   const prefetchedRef = useRef(new Set());
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
   
-  // Safe recipes list for rendering
-  const safeRecipes = (recipes || []).slice(0, 24);
+  // First 6 recipes for prefetch
+  const prefetchRecipes = (recipes || []).slice(0, 6);
   
-  // First 6 for prefetch
-  const prefetchRecipes = safeRecipes.slice(0, 6);
-  const prefetchKey = prefetchRecipes.map(r => r.id).join(',');
-  
+  // Prefetch first 6 recipe detail pages
   useEffect(() => {
-    if (!prefetchKey) return;
+    if (!prefetchRecipes.length) return;
     
     const timers: ReturnType<typeof setTimeout>[] = [];
     let delay = 0;
@@ -91,25 +89,52 @@ function HomeRecipeGrid({
       delay += 300;
     }
     
-    // Cleanup timers on unmount
     return () => {
       timers.forEach(clearTimeout);
     };
-  }, [prefetchKey, router]);
+  }, [prefetchRecipes, router]);
+  
+  // Infinite scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!hasMore || loadingMore || !loadMoreRef.current) return;
+      
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Load more when 200px from bottom
+      if (scrollY + windowHeight >= documentHeight - 200) {
+        loadMoreRef.current();
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasMore, loadingMore]);
   
   return (
-    <div className="grid grid-cols-12 gap-4">
-      {safeRecipes.map(recipe => (
-        <MemoizedGridItem
-          key={recipe.id}
-          recipe={recipe}
-          onRecipeClick={onRecipeClick}
-          isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
-          isPending={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
-          onFavoriteClick={typeof onFavoriteClick === "function" ? () => onFavoriteClick(recipe.id) : undefined}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-12 gap-4">
+        {recipes.map(recipe => (
+          <MemoizedGridItem
+            key={recipe.id}
+            recipe={recipe}
+            onRecipeClick={onRecipeClick}
+            isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
+            isPending={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
+            onFavoriteClick={typeof onFavoriteClick === "function" ? () => onFavoriteClick(recipe.id) : undefined}
+          />
+        ))}
+      </div>
+      
+      {/* Loading indicator */}
+      {loadingMore && (
+        <div className="text-center py-4 text-[#AA7A50]">
+          載入更多...
+        </div>
+      )}
+    </>
   );
 }
 

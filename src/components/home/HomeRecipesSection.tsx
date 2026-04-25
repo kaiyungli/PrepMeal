@@ -9,19 +9,22 @@ interface HomeRecipesSectionProps {
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
+  loadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
 }
 
 /**
  * HomeRecipesSection - recipe grid + popup modal
- * 
- * Clicking a recipe card opens a popup modal with recipe details.
- * Does NOT navigate directly to /recipes/[id] from homepage.
  */
 export default function HomeRecipesSection({ 
   recipes,
   isFavorite,
   isPending,
   onFavoriteClick,
+  loadMore,
+  hasMore,
+  loadingMore,
 }: HomeRecipesSectionProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
 
@@ -33,7 +36,6 @@ export default function HomeRecipesSection({
     setSelectedRecipe(null);
   }, []);
 
-  // Modal favorite state
   const modalIsFavorite = selectedRecipe && isFavorite ? isFavorite(selectedRecipe.id) : false;
   const modalIsPending = selectedRecipe && isPending ? isPending(selectedRecipe.id) : false;
   const handleModalFavoriteClick = useCallback(() => {
@@ -51,6 +53,9 @@ export default function HomeRecipesSection({
           isFavorite={isFavorite}
           isPending={isPending}
           onFavoriteClick={onFavoriteClick}
+          loadMore={loadMore}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
         />
       </div>
 

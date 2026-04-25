@@ -29,7 +29,7 @@ export default function Home({ initialRecipes = [] }) {
   } = useRecipeFilters();
 
   // API-driven filtered recipes (shared hook)
-  const { recipes: recipesList, totalCount, loading, fetchError } = useFilteredRecipes(
+  const { recipes: recipesList, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
     initialRecipes || [],
     { filters: filters, searchQuery, sortBy, limit: 24 }
   );
@@ -148,6 +148,9 @@ export default function Home({ initialRecipes = [] }) {
               recipes={recipesList}
               isFavorite={isFavorite}
               onFavoriteClick={handleFavoriteToggle}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
             />
           </>
         )}
