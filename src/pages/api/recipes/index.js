@@ -1,13 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Recipe search API endpoint with filters
+import { supabaseServer } from '@/lib/supabaseServer';
+import { perfNow, perfMeasure } from '@/utils/perf';
 
 export const config = {
   api: {
@@ -22,75 +15,115 @@ export default async function handler(req, res) {
 
   const { search, cuisine, dish_type, maxTime, difficulty, method, diet, protein, speed, sort, flavor, budget, complete, limit: limitParam, page: pageParam, offset: offsetParam } = req.query;
 
-  const limit = limitParam || '100';
-  const limitNum = Math.min(Math.max(parseInt(limit) || 100, 1), 100);
+  const supabase = supabaseServer;
+
+  // Validate and parse parameters
+  const safeLimit = Math.min(Math.max(parseInt(limitParam) || 100, 1), 100);
+  const safePage = Math.max(parseInt(pageParam) || 1, 1);
+  const safeOffset = offsetParam ? Math.max(parseInt(offsetParam) || 0, 0) : (safePage - 1) * safeLimit;
+
+  // Normalize sort parameter
+  const safeSort = typeof sort === 'string' ? sort.toLowerCase() : 'newest';
 
   try {
+    // Build base query with all fields needed
     let query = supabase
       .from('recipes')
-      .select(`id, name, slug, image_url, prep_time_minutes, cook_time_minutes, total_time_minutes, calories_per_serving, protein_g, carbs_g, fat_g, difficulty, cuisine, method, dish_type, primary_protein, budget_level, is_complete_meal, speed, created_at`, { count: 'exact' })
+      .select(`*`, { count: 'exact' })
       .eq('is_public', true);
 
-    if (search) {
-      query = query.ilike('name', `%${search}%`);
+    // Search - match name or description
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim()}%`;
+      query = query.or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`);
     }
 
-    if (cuisine) {
-      const cuisineValues = cuisine.split(',').map(c => c.trim());
-      query = query.in('cuisine', cuisineValues);
+    // Cuisine filter
+    if (cuisine && cuisine.trim()) {
+      const cuisineList = cuisine.split(',').map(c => c.trim()).filter(Boolean);
+      if (cuisineList.length > 0) {
+        query = query.in('cuisine', cuisineList);
+      }
     }
 
-    if (dish_type) {
-      const dishValues = dish_type.split(',').map(d => d.trim());
-      query = query.in('dish_type', dishValues);
+    // Dish type filter
+    if (dish_type && dish_type.trim()) {
+      const dishList = dish_type.split(',').map(d => d.trim()).filter(Boolean);
+      if (dishList.length > 0) {
+        query = query.in('dish_type', dishList);
+      }
     }
 
-    if (maxTime) {
-      query = query.lte('total_time_minutes', parseInt(maxTime));
+    // Time filter
+    if (maxTime && maxTime.trim()) {
+      const timeValue = parseInt(maxTime);
+      if (!isNaN(timeValue) && timeValue > 0) {
+        query = query.lte('total_time_minutes', timeValue);
+      }
     }
 
-    if (difficulty) {
-      const diffValues = difficulty.split(',').map(d => d.trim());
-      query = query.in('difficulty', diffValues);
+    // Difficulty filter
+    if (difficulty && difficulty.trim()) {
+      const diffList = difficulty.split(',').map(d => d.trim()).filter(Boolean);
+      if (diffList.length > 0) {
+        query = query.in('difficulty', diffList);
+      }
     }
 
-    if (method) {
-      const methodValues = method.split(',').map(m => m.trim());
-      query = query.in('method', methodValues);
+    // Method filter
+    if (method && method.trim()) {
+      const methodList = method.split(',').map(m => m.trim()).filter(Boolean);
+      if (methodList.length > 0) {
+        query = query.in('method', methodList);
+      }
     }
 
-    if (diet) {
-      const dietValues = diet.split(',').map(d => d.trim());
-      query = query.in('diet', dietValues);
+    // Diet filter
+    if (diet && diet.trim()) {
+      const dietList = diet.split(',').map(d => d.trim()).filter(Boolean);
+      if (dietList.length > 0) {
+        query = query.in('diet', dietList);
+      }
     }
 
-    if (protein) {
-      const proteinValues = protein.split(',').map(p => p.trim());
-      query = query.in('protein', proteinValues);
+    // Protein filter
+    if (protein && protein.trim()) {
+      const proteinList = protein.split(',').map(p => p.trim()).filter(Boolean);
+      if (proteinList.length > 0) {
+        query = query.in('primary_protein', proteinList);
+      }
     }
 
-    if (speed) {
-      const speedValues = speed.split(',').map(s => s.trim());
-      query = query.in('speed', speedValues);
+    // Speed filter
+    if (speed && speed.trim()) {
+      const speedList = speed.split(',').map(s => s.trim()).filter(Boolean);
+      if (speedList.length > 0) {
+        query = query.in('speed', speedList);
+      }
     }
 
-    if (flavor) {
-      const flavorValues = flavor.split(',').map(f => f.trim());
-      query = query.in('flavor', flavorValues);
+    // Flavor filter
+    if (flavor && flavor.trim()) {
+      const flavorList = flavor.split(',').map(f => f.trim()).filter(Boolean);
+      if (flavorList.length > 0) {
+        query = query.in('flavor', flavorList);
+      }
     }
 
-    if (budget) {
-      const budgetValues = budget.split(',').map(b => b.trim());
-      query = query.in('budget_level', budgetValues);
+    // Budget filter
+    if (budget && budget.trim()) {
+      const budgetList = budget.split(',').map(b => b.trim()).filter(Boolean);
+      if (budgetList.length > 0) {
+        query = query.in('budget_level', budgetList);
+      }
     }
 
-    if (complete) {
+    // Complete meal filter
+    if (complete && complete.trim()) {
       query = query.eq('is_complete_meal', complete === 'true');
     }
 
     // Apply sorting (primary + secondary for stable pagination)
-    const safeSort = typeof sort === 'string' ? sort : 'newest';
-
     switch (safeSort) {
       case 'quick':
         query = query
@@ -132,11 +165,11 @@ export default async function handler(req, res) {
     }
 
     // Pagination
-    const pageNum = Math.max(parseInt(pageParam) || 1, 1);
-    const offsetNum = Math.max(parseInt(offsetParam) || 0, (pageNum - 1) * limitNum);
-    query = query.range(offsetNum, offsetNum + limitNum - 1);
+    query = query.range(safeOffset, safeOffset + safeLimit - 1);
 
+    const queryStart = perfNow();
     const { data: recipes, error, count } = await query;
+    perfMeasure('api.recipes.query', queryStart);
 
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -148,7 +181,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       recipes: recipesList,
       total,
-      hasMore: recipesList.length === limitNum && total > offsetNum + limitNum
+      hasMore: recipesList.length === safeLimit && total > safeOffset + safeLimit
     });
 
   } catch (err) {
