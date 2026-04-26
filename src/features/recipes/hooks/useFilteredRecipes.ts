@@ -10,6 +10,9 @@ import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mapper
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const PAGE_SIZE = 24;
 
+// Module-level cache (shared across hook instances)
+const recipeCache = new Map<string, { data: any[]; timestamp: number; total: number }>();
+
 function getCacheKey(filters: any, searchQuery: string, sortBy: string, limit: number, page: number): string {
   return JSON.stringify({ filters, searchQuery, sortBy, limit, page });
 }
@@ -109,14 +112,14 @@ export function useFilteredRecipes(
   useEffect(() => {
     if (!hasMore) return;
     if (recipes.length === 0) return;
-    if (shouldSkipInitialFetch && currentPage === 1) return;
+    if (currentPage !== 1) return;
     
     const timer = setTimeout(() => {
       prefetchPage(currentPage + 1);
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [recipes.length, currentPage, hasMore, shouldSkipInitialFetch, prefetchPage]);
+  }, [recipes.length, currentPage, hasMore, prefetchPage]);
   
   // Clear cache when filters change
   useEffect(() => {
@@ -145,6 +148,15 @@ export function useFilteredRecipes(
         const uniqueNew = cachedPage.recipes.filter((r: any) => !existingIds.has(r.id));
         const merged = [...prev, ...uniqueNew];
         setHasMore(merged.length < cachedPage.total);
+        
+        console.log('[recipes-client] load_more_cache_merge_done', {
+          nextPage,
+          uniqueNewCount: uniqueNew.length,
+          mergedCount: merged.length,
+          total: cachedPage.total,
+          hasMore: merged.length < cachedPage.total
+        });
+        
         return merged;
       });
       setTotalCount(cachedPage.total);
@@ -314,6 +326,3 @@ export function useFilteredRecipes(
   
   return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore };
 }
-
-// Module-level cache (shared across hook instances)
-const recipeCache = new Map<string, { data: any[]; timestamp: number; total: number }>();
