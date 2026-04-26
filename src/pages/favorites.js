@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
@@ -12,6 +12,7 @@ export default function FavoritesPage() {
   const {
     loading: authLoading,
     isAuthenticated,
+    user,
     getAccessToken,
   } = useAuthGuard();
 
@@ -21,16 +22,30 @@ export default function FavoritesPage() {
   const [pendingIds, setPendingIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
-  // Fetch favorite recipes on mount
+  // Track fetched user to prevent refetch on session refresh
+  const fetchedUserIdRef = useRef(null);
+
+  // Fetch favorite recipes on mount (only once per user)
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !user?.id) return;
+
+    // Prevent refetch for same user after tab focus/session refresh
+    if (fetchedUserIdRef.current === user.id && favoriteRecipes.length > 0) {
+      return;
+    }
+
+    let cancelled = false;
 
     const fetchFavoriteRecipes = async () => {
-      setLoading(true);
+      // Only show full loading if this is first load
+      if (favoriteRecipes.length === 0) {
+        setLoading(true);
+      }
+
       try {
         const token = await getAccessToken();
-        if (!token) {
-          setLoading(false);
+        if (!token || cancelled) {
+          if (!cancelled) setLoading(false);
           return;
         }
 
@@ -38,21 +53,36 @@ export default function FavoritesPage() {
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        if (!res.ok) {
+          throw new Error(`Failed to load favorite recipes: ${res.status}`);
+        }
+
         const data = await res.json();
+        if (cancelled) return;
+
         const ids = data?.data?.favorites || [];
         const recipes = data?.data?.recipes || [];
 
         setFavoriteIds(ids.map(String));
         setFavoriteRecipes(recipes);
+        fetchedUserIdRef.current = user.id;
       } catch (err) {
-        console.error('Failed to load favorite recipes:', err);
+        if (!cancelled) {
+          console.error('Failed to load favorite recipes:', err);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchFavoriteRecipes();
-  }, [isAuthenticated, getAccessToken]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user?.id]);
 
   // Local helpers
   const favoriteIdSet = useMemo(
