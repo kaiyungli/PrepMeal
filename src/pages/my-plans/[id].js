@@ -4,11 +4,9 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
-import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { UI } from '@/styles/ui';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
-import { formatDate } from '@/utils/planUtils';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeDetailModal } from '@/features/recipes/hooks/useRecipeDetailModal';
@@ -18,11 +16,13 @@ export default function PlanDetailPage() {
   const headerCtrl = useHeaderController();
   const router = useRouter();
   const { id } = router.query;
-  const { isAuthenticated, loading: authLoading, getAccessToken } = useAuth();
+
+  const { isAuthenticated, loading: authLoading, getAccessToken, user } = useAuthGuard();
 
   const controller = usePlanDetailController({
     planId: id,
     isAuthenticated,
+    userId: user?.id,
     getAccessToken
   });
 
@@ -36,34 +36,27 @@ export default function PlanDetailPage() {
     error,
     selectedRecipeId,
     handleRecipeClick,
-    handleCloseModal,
-    setSelectedRecipeId
+    handleCloseModal
   } = controller;
 
-  // Stabilize recipeItem lookup with useMemo - prevents flicker
-  const recipeItem = useMemo(() => {
-    if (!selectedRecipeId) return null;
-    return items.find(
-      i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId
-    ) || null;
-  }, [items, selectedRecipeId]);
+  // Stabilize recipeItem lookup
+  const recipeItem = items.find(
+    i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId
+  ) || null;
 
-  // Stabilize embeddedRecipe with useMemo - same reference unless data changes
-  const embeddedRecipe = useMemo(() => {
-    if (!recipeItem) return null;
-    return {
-      ...(recipeItem.recipe || {}),
-      id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
-    };
-  }, [recipeItem, selectedRecipeId]);
+  // Stabilize embeddedRecipe
+  const embeddedRecipe = recipeItem ? {
+    ...(recipeItem.recipe || {}),
+    id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
+  } : null;
 
-  // Use shared hook for full detail (same as recipes page)
+  // Use shared hook for full detail
   const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleModalClose } = useRecipeDetailModal(
     embeddedRecipe,
     { onClose: handleCloseModal }
   );
 
-  // Auth redirect handled by useAuth hook
+  // Auth redirect handled by useAuthGuard
   if (authLoading || !isAuthenticated) {
     return (
       <>
@@ -132,7 +125,7 @@ export default function PlanDetailPage() {
       {selectedRecipeId && (
         <RecipeDetailModal
           isOpen={!!selectedRecipeId}
-          onClose={handleCloseModal}
+          onClose={handleModalClose}
           recipe={modalRecipe}
           loading={modalLoading}
           error={modalError}

@@ -29,7 +29,10 @@ export default async function handler(req, res) {
     const planId = req.query.id;
 
     if (req.method === 'GET') {
-      // Use real table: menu_plans
+      const getStart = Date.now();
+      console.log('[menus-api] detail_start', { userId, planId });
+      
+      const planStart = Date.now();
       const { data: plan, error: planError } = await userSupabase
         .from('menu_plans')
         .select('*')
@@ -37,12 +40,16 @@ export default async function handler(req, res) {
         .eq('user_id', userId)
         .single();
       
+      console.log('[menus-api] detail_plan_done', {
+        duration_ms: Date.now() - planStart,
+        hasPlan: Boolean(plan)
+      });
+      
       if (planError || !plan) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));
       }
       
       // Transform DB fields to frontend-safe response
-      // Note: menu_plans does NOT have notes column, return null
       const planResponse = {
         id: plan.id,
         user_id: plan.user_id,
@@ -55,13 +62,18 @@ export default async function handler(req, res) {
         created_at: plan.created_at,
       };
       
-      // Use real table: menu_plan_items
+      const itemsStart = Date.now();
       const { data: items, error: itemsError } = await userSupabase
         .from('menu_plan_items')
         .select('*')
         .eq('menu_plan_id', planId)
         .order('date', { ascending: true })
         .order('item_order', { ascending: true });
+      
+      console.log('[menus-api] detail_items_done', {
+        duration_ms: Date.now() - itemsStart,
+        itemCount: (items || []).length
+      });
       
       if (itemsError) {
         return res.status(500).json(ApiResponse.error(itemsError.message));
@@ -87,10 +99,16 @@ export default async function handler(req, res) {
       let recipesMap = {};
       
       if (recipeIds.length > 0) {
+        const recipesStart = Date.now();
         const { data: recipes } = await userSupabase
           .from('recipes')
           .select('id, name, image_url, total_time_minutes, difficulty, method')
           .in('id', recipeIds);
+        
+        console.log('[menus-api] detail_recipes_done', {
+          duration_ms: Date.now() - recipesStart,
+          recipeCount: (recipes || []).length
+        });
         
         if (recipes) {
           recipesMap = recipes.reduce((acc, r) => {
@@ -105,6 +123,11 @@ export default async function handler(req, res) {
         ...item,
         recipe: item.recipe_id ? recipesMap[item.recipe_id] : null,
       }));
+      
+      console.log('[menus-api] detail_total_done', {
+        duration_ms: Date.now() - getStart,
+        itemCount: itemsWithRecipes.length
+      });
       
       return res.status(200).json(ApiResponse.success({ plan: planResponse, items: itemsWithRecipes }));
     }

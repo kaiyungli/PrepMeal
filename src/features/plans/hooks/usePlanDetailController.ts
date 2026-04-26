@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getPlanDetail } from '../services/getPlanDetail';
 import { mapPlanItemsByDay } from '../mappers/mapPlanItemsByDay';
 
 interface UsePlanDetailControllerOptions {
   planId: string;
   isAuthenticated: boolean;
+  userId?: string;
   getAccessToken: () => Promise<string | null>;
 }
 
 export function usePlanDetailController({
   planId,
   isAuthenticated,
+  userId,
   getAccessToken
 }: UsePlanDetailControllerOptions) {
   const [plan, setPlan] = useState<any>(null);
@@ -22,40 +24,52 @@ export function usePlanDetailController({
 
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
 
+  // Track fetched key to prevent refetch on session refresh
+  const fetchedKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!isAuthenticated || !planId) return;
 
-    let mounted = true;
+    const fetchKey = `${userId || 'unknown'}:${planId}`;
+
+    // Prevent refetch for same user+plan after tab focus/session refresh
+    if (fetchedKeyRef.current === fetchKey && plan) {
+      return;
+    }
+
+    let cancelled = false;
 
     async function load() {
-      setLoading(true);
+      if (!plan) setLoading(true);
       setError(null);
 
       try {
         const token = await getAccessToken();
-        const { plan, items } = await getPlanDetail(planId, token || undefined);
+        const { plan: fetchedPlan, items: fetchedItems } = await getPlanDetail(planId, token || undefined);
 
-        if (!mounted) return;
+        if (cancelled) return;
 
-        setPlan(plan);
-        setItems(items);
+        setPlan(fetchedPlan);
+        setItems(fetchedItems);
 
-        const grouped = mapPlanItemsByDay(plan, items);
+        const grouped = mapPlanItemsByDay(fetchedPlan, fetchedItems);
         setGroupedItems(grouped);
+        fetchedKeyRef.current = fetchKey;
       } catch (err: any) {
-        if (!mounted) return;
-        setError(err.message || '載入失敗');
+        if (!cancelled) {
+          setError(err.message || '載入失敗');
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     load();
 
     return () => {
-      mounted = false;
+      cancelled = true;
     };
-  }, [planId, isAuthenticated, getAccessToken]);
+  }, [planId, isAuthenticated, userId]);
 
   const handleRecipeClick = (id: string) => {
     setSelectedRecipeId(id);

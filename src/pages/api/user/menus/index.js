@@ -29,12 +29,20 @@ export default async function handler(req, res) {
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
     if (req.method === 'GET') {
-      // Use real table: menu_plans
+      const getStart = Date.now();
+      console.log('[menus-api] list_start', { userId });
+      
+      const plansStart = Date.now();
       const { data: plansData, error: plansError } = await userSupabase
         .from('menu_plans')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
+      
+      console.log('[menus-api] list_plans_done', {
+        duration_ms: Date.now() - plansStart,
+        count: (plansData || []).length
+      });
       
       if (plansError) {
         return res.status(500).json(ApiResponse.error(plansError.message));
@@ -44,11 +52,18 @@ export default async function handler(req, res) {
       const planIds = (plansData || []).map(p => p.id);
       let itemsData = [];
       if (planIds.length > 0) {
+        const itemsStart = Date.now();
         const { data: items, error: itemsError } = await userSupabase
           .from('menu_plan_items')
           .select('*, recipes(id, name, image_url)')
           .in('menu_plan_id', planIds)
           .order('date', { ascending: true });
+        
+        console.log('[menus-api] list_items_done', {
+          duration_ms: Date.now() - itemsStart,
+          count: (items || []).length,
+          planCount: planIds.length
+        });
         
         if (!itemsError) {
           itemsData = items || [];
@@ -88,6 +103,11 @@ export default async function handler(req, res) {
         updated_at: plan.updated_at,
         items: itemsByPlan[plan.id] || []
       }));
+      
+      console.log('[menus-api] list_total_done', {
+        duration_ms: Date.now() - getStart,
+        planCount: plans.length
+      });
       
       return res.status(200).json(ApiResponse.success({ plans }));
     }
