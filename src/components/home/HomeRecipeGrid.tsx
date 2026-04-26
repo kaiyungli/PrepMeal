@@ -106,16 +106,26 @@ function HomeRecipeGrid({
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
+      const distanceFromBottom = documentHeight - (scrollY + windowHeight);
       
-      // Load more when 200px from bottom
-      if (scrollY + windowHeight >= documentHeight - 200) {
+      // Load more when 1000px from bottom
+      if (distanceFromBottom <= 1000) {
+        console.log('[home-scroll] load_more_triggered', {
+          scrollY,
+          windowHeight,
+          documentHeight,
+          distanceFromBottom,
+          hasMore,
+          loadingMore,
+          currentCount: safeRecipes.length
+        });
         loadMoreRef.current();
       }
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loadingMore]);
+  }, [hasMore, loadingMore, safeRecipes.length]);
   
   return (
     <>
