@@ -41,8 +41,7 @@ export default async function handler(req, res) {
           title,
           start_date,
           end_date,
-          created_at,
-          updated_at
+          created_at
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
@@ -53,6 +52,12 @@ export default async function handler(req, res) {
       });
       
       if (plansError) {
+        console.error('[menus-api] list_plans_error', {
+          message: plansError.message,
+          code: plansError.code,
+          details: plansError.details,
+          hint: plansError.hint
+        });
         return res.status(500).json(ApiResponse.error(plansError.message));
       }
       
@@ -122,7 +127,7 @@ export default async function handler(req, res) {
           : 7,
         notes: null,
         created_at: plan.created_at,
-        updated_at: plan.updated_at,
+        updated_at: plan.updated_at || plan.created_at,
         items: itemsByPlan[plan.id] || []
       }));
       
