@@ -140,20 +140,41 @@ export default async function handler(req, res) {
         });
       }
       
-      // Transform DB fields to frontend-safe response
-      const plans = (plansData || []).map(plan => ({
-        id: plan.id,
-        user_id: plan.user_id,
-        name: plan.title,
-        week_start_date: plan.start_date,
-        days_count: plan.end_date && plan.start_date 
-          ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
-          : 7,
-        notes: null,
-        created_at: plan.created_at,
-        updated_at: plan.updated_at || plan.created_at,
-        items: itemsByPlan[plan.id] || []
-      }));
+      // Transform DB fields to frontend-safe response with preview items only
+      const plans = (plansData || []).map(plan => {
+        const allPlanItems = itemsByPlan[plan.id] || [];
+        
+        // Calculate avg servings
+        const totalServings = allPlanItems.reduce((sum, i) => sum + (i.servings || 1), 0);
+        const avgServings = allPlanItems.length > 0 
+          ? Math.round(totalServings / allPlanItems.length) 
+          : 2;
+        
+        // Get first date and preview items from first day only
+        const uniqueDates = [...new Set(allPlanItems.map(i => i.date))].sort();
+        const firstDate = uniqueDates[0];
+        
+        const previewItems = allPlanItems
+          .filter(item => item.date === firstDate)
+          .sort((a, b) => (a.item_order || 0) - (b.item_order || 0))
+          .slice(0, 2);
+        
+        return {
+          id: plan.id,
+          user_id: plan.user_id,
+          name: plan.title,
+          week_start_date: plan.start_date,
+          days_count: plan.end_date && plan.start_date 
+            ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
+            : 7,
+          notes: null,
+          created_at: plan.created_at,
+          updated_at: plan.updated_at || plan.created_at,
+          item_count: allPlanItems.length,
+          avg_servings: avgServings,
+          items: previewItems
+        };
+      });
       
       console.log('[menus-api] list_total_done', {
         duration_ms: Date.now() - getStart,
