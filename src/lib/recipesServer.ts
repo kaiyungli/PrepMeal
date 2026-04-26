@@ -24,13 +24,9 @@ const CARD_FIELDS = `
 
 /**
  * Fetch recipes for server-side props
- * Only fetches fields needed for homepage cards
  */
 export async function fetchRecipesForServer(limit = 24) {
-  if (!supabaseServer) {
-    console.error('[recipesServer] Supabase server client NOT configured');
-    return [];
-  }
+  if (!supabaseServer) return [];
 
   try {
     const { data, error } = await supabaseServer
@@ -41,32 +37,18 @@ export async function fetchRecipesForServer(limit = 24) {
       .order('id', { ascending: false })
       .limit(limit);
 
-    if (error) {
-      console.error('[recipesServer] Supabase query failed:', error.message);
-      return [];
-    }
-
-    if (!data || data.length === 0) {
-      return [];
-    }
-
-    return data;
-
+    if (error) return [];
+    return data || [];
   } catch (err) {
-    console.error('[recipesServer] FATAL EXCEPTION:', String(err));
     return [];
   }
 }
 
 /**
  * Fetch recipes for server-side props with total count
- * Used by /recipes page to show correct total on first load
  */
 export async function fetchRecipesForServerWithTotal(limit = 24) {
-  if (!supabaseServer) {
-    console.error('[recipesServer] Supabase server client NOT configured');
-    return { recipes: [], total: 0 };
-  }
+  if (!supabaseServer) return { recipes: [], total: 0 };
 
   try {
     const { data, error, count } = await supabaseServer
@@ -77,18 +59,12 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
       .order('id', { ascending: false })
       .limit(limit);
 
-    if (error) {
-      console.error('[recipesServer] Supabase query failed:', error.message);
-      return { recipes: [], total: 0 };
-    }
-
+    if (error) return { recipes: [], total: 0 };
     return {
       recipes: data || [],
       total: count ?? 0
     };
-
   } catch (err) {
-    console.error('[recipesServer] FATAL EXCEPTION:', String(err));
     return { recipes: [], total: 0 };
   }
 }
