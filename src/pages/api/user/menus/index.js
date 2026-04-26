@@ -11,6 +11,18 @@ function createUserClient(supabaseUrl, anonKey, token) {
   });
 }
 
+// Service role client for server-side DB access (bypasses RLS)
+const serverSupabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  }
+);
+
 export default async function handler(req, res) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -35,12 +47,16 @@ export default async function handler(req, res) {
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
     if (req.method === 'GET') {
+      if (!serverSupabase) {
+        return res.status(500).json(ApiResponse.error('Service role client not configured'));
+      }
+      
       const getStart = Date.now();
       console.log('[menus-api] list_start', { userId });
       
       console.log('[menus-api] list_plans_query_start');
       const plansStart = Date.now();
-      const { data: plansData, error: plansError } = await userSupabase
+      const { data: plansData, error: plansError } = await serverSupabase
         .from('menu_plans')
         .select(`
           id,
@@ -74,7 +90,7 @@ export default async function handler(req, res) {
       if (planIds.length > 0) {
         console.log('[menus-api] list_items_query_start');
         const itemsStart = Date.now();
-        const { data: items, error: itemsError } = await userSupabase
+        const { data: items, error: itemsError } = await serverSupabase
           .from('menu_plan_items')
           .select(`
             id,
