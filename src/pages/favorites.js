@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
@@ -21,17 +21,6 @@ export default function FavoritesPage() {
   const [pendingIds, setPendingIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
-  // Performance timing
-  const firstLoadStartRef = useRef(Date.now());
-  const dataReadyLogged = useRef(false);
-
-  // Log page load metrics on mount
-  useEffect(() => {
-    console.log('[perf] favorites.first_load.ready', {
-      duration_ms: Math.round(Date.now() - firstLoadStartRef.current)
-    });
-  }, []);
-
   // Fetch favorite recipes on mount
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -45,28 +34,13 @@ export default function FavoritesPage() {
           return;
         }
 
-        const fetchStart = Date.now();
-        console.log('[favorites-page] favorite_recipes_fetch_start', {
-          url: '/api/user/favorites?include=recipes'
-        });
-
         const res = await fetch('/api/user/favorites?include=recipes', {
           headers: { Authorization: `Bearer ${token}` }
-        });
-
-        console.log('[favorites-page] favorite_recipes_response_received', {
-          duration_ms: Math.round(Date.now() - fetchStart),
-          status: res.status
         });
 
         const data = await res.json();
         const ids = data?.data?.favorites || [];
         const recipes = data?.data?.recipes || [];
-
-        console.log('[favorites-page] favorite_recipes_json_parsed', {
-          duration_ms: Math.round(Date.now() - fetchStart),
-          count: recipes.length
-        });
 
         setFavoriteIds(ids.map(String));
         setFavoriteRecipes(recipes);
@@ -79,21 +53,6 @@ export default function FavoritesPage() {
 
     fetchFavoriteRecipes();
   }, [isAuthenticated, getAccessToken]);
-
-  // Log when favorite data is ready
-  useEffect(() => {
-    if (dataReadyLogged.current) return;
-    if (loading) return;
-    dataReadyLogged.current = true;
-
-    console.log('[perf] favorites.first_load.data_ready', {
-      duration_ms: Math.round(Date.now() - firstLoadStartRef.current),
-      meta: {
-        favoriteIdsCount: favoriteIds.length,
-        favoriteRecipesCount: favoriteRecipes.length,
-      }
-    });
-  }, [loading, favoriteIds.length, favoriteRecipes.length]);
 
   // Local helpers
   const favoriteIdSet = useMemo(

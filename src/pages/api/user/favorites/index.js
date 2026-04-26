@@ -42,13 +42,8 @@ export default async function handler(req, res) {
         return res.status(500).json(ApiResponse.error('Service role client not configured'));
       }
       
-      const start = Date.now();
-      console.log('[favorites-api] get_start', { userId });
-      
       // Branch BEFORE querying - single query only
       if (req.query.include === 'recipes') {
-        const joinStart = Date.now();
-        
         const { data: joinData, error: joinError } = await serverSupabase
           .from('user_favorites')
           .select(`
@@ -78,12 +73,6 @@ export default async function handler(req, res) {
           `)
           .eq('user_id', userId);
         
-        console.log('[favorites-api] get_with_recipes_join_done', {
-          duration_ms: Date.now() - joinStart,
-          favoriteCount: (joinData || []).length,
-          recipeCount: (joinData || []).filter(r => r.recipes).length
-        });
-        
         if (joinError) {
           console.error('[favorites-api] join_error', {
             message: joinError.message,
@@ -108,11 +97,6 @@ export default async function handler(req, res) {
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
-      
-      console.log('[favorites-api] get_query_done', {
-        duration_ms: Date.now() - start,
-        count: (favData || []).length
-      });
       
       if (favError) {
         return res.status(500).json(ApiResponse.error(favError.message));
