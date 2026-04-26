@@ -5,24 +5,20 @@ import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useUserState } from '@/hooks/useUserState';
 
 export default function FavoritesPage() {
   const headerCtrl = useHeaderController();
-  // Protected page - useAuthGuard handles redirect to login
-  const { loading: authLoading } = useAuthGuard();
-
-  // Central user state
-  const { 
-    favorites,
+  // Only need auth guard for authentication check
+  const {
+    loading: authLoading,
     isAuthenticated,
-    isFavorite,
-    isPending,
-    toggleFavorite,
     getAccessToken,
-  } = useUserState();
+  } = useAuthGuard();
 
+  // Local state for favorites page
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState([]);
+  const [pendingIds, setPendingIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
 
   // Performance timing
@@ -35,11 +31,6 @@ export default function FavoritesPage() {
       duration_ms: Math.round(Date.now() - firstLoadStartRef.current)
     });
   }, []);
-
-  // Handle favorite toggle
-  const handleFavoriteClick = useCallback((recipeId) => {
-    return toggleFavorite(recipeId);
-  }, [toggleFavorite]);
 
   // Fetch favorite recipes on mount
   useEffect(() => {
@@ -69,14 +60,16 @@ export default function FavoritesPage() {
         });
 
         const data = await res.json();
-        const recipesData = data?.data?.recipes || [];
+        const ids = data?.data?.favorites || [];
+        const recipes = data?.data?.recipes || [];
 
         console.log('[favorites-page] favorite_recipes_json_parsed', {
           duration_ms: Math.round(Date.now() - fetchStart),
-          count: recipesData.length
+          count: recipes.length
         });
 
-        setFavoriteRecipes(recipesData);
+        setFavoriteIds(ids.map(String));
+        setFavoriteRecipes(recipes);
       } catch (err) {
         console.error('Failed to load favorite recipes:', err);
       } finally {
@@ -96,18 +89,70 @@ export default function FavoritesPage() {
     console.log('[perf] favorites.first_load.data_ready', {
       duration_ms: Math.round(Date.now() - firstLoadStartRef.current),
       meta: {
-        favoriteIdsCount: favorites?.length || 0,
+        favoriteIdsCount: favoriteIds.length,
         favoriteRecipesCount: favoriteRecipes.length,
       }
     });
-  }, [loading, favorites?.length, favoriteRecipes.length]);
+  }, [loading, favoriteIds.length, favoriteRecipes.length]);
 
-  // Derive visible recipes from fetched recipes + current favorites
-  // Cards disappear immediately when unfavorited
-  const visibleFavoriteRecipes = useMemo(() => {
-    const favSet = new Set((favorites || []).map(String));
-    return favoriteRecipes.filter(r => favSet.has(String(r.id)));
-  }, [favoriteRecipes, favorites]);
+  // Local helpers
+  const favoriteIdSet = useMemo(
+    () => new Set((favoriteIds || []).map(String)),
+    [favoriteIds]
+  );
+
+  const isFavorite = useCallback((recipeId) => {
+    return favoriteIdSet.has(String(recipeId));
+  }, [favoriteIdSet]);
+
+  const isPending = useCallback((recipeId) => {
+    return pendingIds.has(String(recipeId));
+  }, [pendingIds]);
+
+  // Local unfavorite handler - removes card immediately
+  const handleFavoriteClick = useCallback(async (recipeId) => {
+    const id = String(recipeId);
+    if (pendingIds.has(id)) return false;
+    if (!favoriteIdSet.has(id)) return false;
+
+    setPendingIds(prev => new Set(prev).add(id));
+
+    const previousIds = [...favoriteIds];
+    const previousRecipes = [...favoriteRecipes];
+
+    // Optimistic remove
+    setFavoriteIds(prev => prev.filter(x => String(x) !== id));
+    setFavoriteRecipes(prev => prev.filter(r => String(r.id) !== id));
+
+    try {
+      const token = await getAccessToken();
+      const res = await fetch(`/api/user/favorites?recipe_id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        setFavoriteIds(previousIds);
+        setFavoriteRecipes(previousRecipes);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      setFavoriteIds(previousIds);
+      setFavoriteRecipes(previousRecipes);
+      return false;
+    } finally {
+      setPendingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }, [favoriteIds, favoriteRecipes, favoriteIdSet, pendingIds, getAccessToken]);
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -133,7 +178,7 @@ export default function FavoritesPage() {
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">載入中...</p>
             </div>
-          ) : visibleFavoriteRecipes.length === 0 ? (
+          ) : favoriteRecipes.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未收藏任何食譜</p>
               <a href="/recipes" className="text-[#9B6035] font-medium hover:underline">
@@ -142,7 +187,7 @@ export default function FavoritesPage() {
             </div>
           ) : (
             <RecipeList
-              recipes={visibleFavoriteRecipes}
+              recipes={favoriteRecipes}
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
