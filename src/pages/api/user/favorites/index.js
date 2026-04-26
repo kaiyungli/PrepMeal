@@ -42,10 +42,18 @@ export default async function handler(req, res) {
         return res.status(500).json(ApiResponse.error('Service role client not configured'));
       }
       
+      const start = Date.now();
+      console.log('[favorites-api] get_start', { userId });
+      
       const { data, error } = await serverSupabase
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
+      
+      console.log('[favorites-api] get_query_done', {
+        duration_ms: Date.now() - start,
+        count: (data || []).length
+      });
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));

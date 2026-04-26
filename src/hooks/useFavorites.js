@@ -49,8 +49,16 @@ function getUserIdentity(token, userId) {
 const favoritesFetcher = async ([, , token]) => {
   if (!token) return [];
   
+  const start = Date.now();
+  console.log('[favorites-hook] fetch_start');
+  
   const res = await fetch('/api/user/favorites', {
     headers: { Authorization: `Bearer ${token}` }
+  });
+  
+  console.log('[favorites-hook] response_received', {
+    duration_ms: Date.now() - start,
+    status: res.status
   });
   
   if (!res.ok) {
@@ -61,6 +69,12 @@ const favoritesFetcher = async ([, , token]) => {
   
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
+  
+  console.log('[favorites-hook] json_parsed', {
+    duration_ms: Date.now() - start,
+    count: favoritesData.length
+  });
+  
   return favoritesData.map(id => normalizeId(id));
 };
 
