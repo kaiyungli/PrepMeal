@@ -54,9 +54,8 @@ export default async function handler(req, res) {
       const getStart = Date.now();
       console.log('[menus-api] list_start', { userId });
       
-      // Single joined query: menu_plans -> menu_plan_items -> recipes
-      console.log('[menus-api] list_join_query_start');
-      const joinStart = Date.now();
+      console.log('[menus-api] list_plans_query_start');
+      const plansStart = Date.now();
       const { data: plansData, error: plansError } = await serverSupabase
         .from('menu_plans')
         .select(`
@@ -65,9 +64,37 @@ export default async function handler(req, res) {
           title,
           start_date,
           end_date,
-          created_at,
-          menu_plan_items (
+          created_at
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      
+      console.log('[menus-api] list_plans_done', {
+        duration_ms: Date.now() - plansStart,
+        count: (plansData || []).length
+      });
+      
+      if (plansError) {
+        console.error('[menus-api] list_plans_error', {
+          message: plansError.message,
+          code: plansError.code,
+          details: plansError.details,
+          hint: plansError.hint
+        });
+        return res.status(500).json(ApiResponse.error(plansError.message));
+      }
+      
+      // Fetch items for all plans
+      const planIds = (plansData || []).map(p => p.id);
+      let itemsData = [];
+      if (planIds.length > 0) {
+        console.log('[menus-api] list_items_query_start');
+        const itemsStart = Date.now();
+        const { data: items, error: itemsError } = await serverSupabase
+          .from('menu_plan_items')
+          .select(`
             id,
+            menu_plan_id,
             date,
             meal_slot,
             servings,
@@ -78,25 +105,39 @@ export default async function handler(req, res) {
               name,
               image_url
             )
-          )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-      
-      console.log('[menus-api] list_join_done', {
-        duration_ms: Date.now() - joinStart,
-        planCount: (plansData || []).length,
-        itemCount: (plansData || []).reduce((sum, p) => sum + (p.menu_plan_items?.length || 0), 0)
-      });
-      
-      if (plansError) {
-        console.error('[menus-api] list_join_error', {
-          message: plansError.message,
-          code: plansError.code,
-          details: plansError.details,
-          hint: plansError.hint
+          `)
+          .in('menu_plan_id', planIds)
+          .order('date', { ascending: true })
+          .order('item_order', { ascending: true });
+        
+        console.log('[menus-api] list_items_done', {
+          duration_ms: Date.now() - itemsStart,
+          count: (items || []).length,
+          planCount: planIds.length
         });
-        return res.status(500).json(ApiResponse.error(plansError.message));
+        
+        if (!itemsError) {
+          itemsData = items || [];
+        }
+      }
+      
+      // Group items by plan
+      const itemsByPlan = {};
+      for (const item of itemsData) {
+        if (!itemsByPlan[item.menu_plan_id]) {
+          itemsByPlan[item.menu_plan_id] = [];
+        }
+        itemsByPlan[item.menu_plan_id].push({
+          id: item.id,
+          date: item.date,
+          meal_slot: item.meal_slot,
+          servings: item.servings,
+          recipe: item.recipes ? {
+            id: item.recipes.id,
+            name: item.recipes.name,
+            image_url: item.recipes.image_url
+          } : null
+        });
       }
       
       // Transform DB fields to frontend-safe response
@@ -111,17 +152,7 @@ export default async function handler(req, res) {
         notes: null,
         created_at: plan.created_at,
         updated_at: plan.updated_at || plan.created_at,
-        items: (plan.menu_plan_items || []).map(item => ({
-          id: item.id,
-          date: item.date,
-          meal_slot: item.meal_slot,
-          servings: item.servings,
-          recipe: item.recipes ? {
-            id: item.recipes.id,
-            name: item.recipes.name,
-            image_url: item.recipes.image_url
-          } : null
-        }))
+        items: itemsByPlan[plan.id] || []
       }));
       
       console.log('[menus-api] list_total_done', {
