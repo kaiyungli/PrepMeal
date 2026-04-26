@@ -35,7 +35,15 @@ export default async function handler(req, res) {
       const plansStart = Date.now();
       const { data: plansData, error: plansError } = await userSupabase
         .from('menu_plans')
-        .select('*')
+        .select(`
+          id,
+          user_id,
+          title,
+          start_date,
+          end_date,
+          created_at,
+          updated_at
+        `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
       
@@ -55,9 +63,23 @@ export default async function handler(req, res) {
         const itemsStart = Date.now();
         const { data: items, error: itemsError } = await userSupabase
           .from('menu_plan_items')
-          .select('*, recipes(id, name, image_url)')
+          .select(`
+            id,
+            menu_plan_id,
+            date,
+            meal_slot,
+            servings,
+            item_order,
+            recipe_id,
+            recipes (
+              id,
+              name,
+              image_url
+            )
+          `)
           .in('menu_plan_id', planIds)
-          .order('date', { ascending: true });
+          .order('date', { ascending: true })
+          .order('item_order', { ascending: true });
         
         console.log('[menus-api] list_items_done', {
           duration_ms: Date.now() - itemsStart,
