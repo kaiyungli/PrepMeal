@@ -67,11 +67,13 @@ export function useFilteredRecipes(
     if (loadingMore || !hasMore || loading) return;
     
     const nextPage = currentPage + 1;
+    const loadMoreStart = Date.now();
     
     console.log('[recipes-client] load_more_start', {
       nextPage,
       currentPage,
       currentCount: recipes.length,
+      totalCount,
       hasMore
     });
     
@@ -82,20 +84,31 @@ export function useFilteredRecipes(
       limit: PAGE_SIZE,
       page: nextPage,
     }).then(({ recipes: newRecipes, total }) => {
-      const start = Date.now();
+      const fetchDuration = Date.now() - loadMoreStart;
+      
+      console.log('[recipes-client] load_more_response', {
+        duration_ms: fetchDuration,
+        nextPage,
+        newCount: newRecipes.length,
+        total
+      });
+      
+      const mergeStart = Date.now();
       setRecipes(prev => {
         const existingIds = new Set(prev.map((r: any) => r.id));
         const uniqueNew = newRecipes.filter((r: any) => !existingIds.has(r.id));
         const merged = [...prev, ...uniqueNew];
         setHasMore(merged.length < total);
-        console.log('[recipes-client] load_more_done', {
-          duration_ms: Date.now() - start,
+        
+        console.log('[recipes-client] load_more_merge_done', {
+          duration_ms: Date.now() - mergeStart,
           nextPage,
-          newCount: newRecipes.length,
+          uniqueNewCount: uniqueNew.length,
           mergedCount: merged.length,
           total,
           hasMore: merged.length < total
         });
+        
         return merged;
       });
       setTotalCount(total);
@@ -105,7 +118,7 @@ export function useFilteredRecipes(
     }).finally(() => {
       setLoadingMore(false);
     });
-  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy, recipes.length]);
+  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy, recipes.length, totalCount]);
   
   // Initial fetch effect with cache
   useEffect(() => {

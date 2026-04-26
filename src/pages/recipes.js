@@ -124,16 +124,28 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
+      const distanceFromBottom = documentHeight - (scrollY + windowHeight);
       
-      // Load more when 300px from bottom
-      if (scrollY + windowHeight >= documentHeight - 300) {
+      // Load more when 1000px from bottom (trigger earlier)
+      if (distanceFromBottom <= 1000) {
+        console.log('[recipes-scroll] load_more_triggered', {
+          scrollY,
+          windowHeight,
+          documentHeight,
+          distanceFromBottom,
+          hasMore,
+          loadingMore,
+          loading,
+          currentCount: recipes.length,
+          totalCount
+        });
         loadMore();
       }
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loadingMore, loading, loadMore]);
+  }, [hasMore, loadingMore, loading, loadMore, recipes.length, totalCount]);
   
   const showErrorState = !loading && fetchError;
   const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
