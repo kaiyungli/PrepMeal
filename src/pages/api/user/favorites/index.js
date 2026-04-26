@@ -45,7 +45,65 @@ export default async function handler(req, res) {
       const start = Date.now();
       console.log('[favorites-api] get_start', { userId });
       
-      // Fetch favorite IDs
+      // Branch BEFORE querying - single query only
+      if (req.query.include === 'recipes') {
+        const joinStart = Date.now();
+        
+        const { data: joinData, error: joinError } = await serverSupabase
+          .from('user_favorites')
+          .select(`
+            recipe_id,
+            recipes (
+              id,
+              slug,
+              name,
+              image_url,
+              prep_time_minutes,
+              cook_time_minutes,
+              total_time_minutes,
+              calories_per_serving,
+              protein_g,
+              carbs_g,
+              fat_g,
+              difficulty,
+              cuisine,
+              method,
+              dish_type,
+              primary_protein,
+              budget_level,
+              is_complete_meal,
+              speed,
+              created_at
+            )
+          `)
+          .eq('user_id', userId);
+        
+        console.log('[favorites-api] get_with_recipes_join_done', {
+          duration_ms: Date.now() - joinStart,
+          favoriteCount: (joinData || []).length,
+          recipeCount: (joinData || []).filter(r => r.recipes).length
+        });
+        
+        if (joinError) {
+          console.error('[favorites-api] join_error', {
+            message: joinError.message,
+            details: joinError
+          });
+          return res.status(500).json(ApiResponse.error(joinError.message));
+        }
+        
+        const favorites = (joinData || []).map(row => String(row.recipe_id));
+        const recipes = (joinData || [])
+          .map(row => row.recipes)
+          .filter(Boolean);
+        
+        return res.status(200).json(ApiResponse.success({
+          favorites,
+          recipes
+        }));
+      }
+      
+      // Default ID-only behavior
       const { data: favData, error: favError } = await serverSupabase
         .from('user_favorites')
         .select('recipe_id')
@@ -60,68 +118,8 @@ export default async function handler(req, res) {
         return res.status(500).json(ApiResponse.error(favError.message));
       }
       
-      const favoriteIds = (favData || []).map(f => String(f.recipe_id));
-      
-      // Default: return just IDs
-      if (req.query.include !== 'recipes') {
-        return res.status(200).json(ApiResponse.success({ favorites: favoriteIds }));
-      }
-      
-      // include=recipes: return IDs + recipe cards via single joined query
-      console.log('[favorites-api] get_with_recipes_start', { userId });
-      
-      const joinStart = Date.now();
-      
-      const { data: joinData, error: joinError } = await serverSupabase
-        .from('user_favorites')
-        .select(`
-          recipe_id,
-          recipes (
-            id,
-            slug,
-            name,
-            image_url,
-            prep_time_minutes,
-            cook_time_minutes,
-            total_time_minutes,
-            calories_per_serving,
-            protein_g,
-            carbs_g,
-            fat_g,
-            difficulty,
-            cuisine,
-            method,
-            dish_type,
-            primary_protein,
-            budget_level,
-            is_complete_meal,
-            speed,
-            created_at
-          )
-        `)
-        .eq('user_id', userId);
-      
-      console.log('[favorites-api] get_with_recipes_join_done', {
-        duration_ms: Date.now() - joinStart,
-        favoriteCount: (joinData || []).length,
-        recipeCount: (joinData || []).filter(r => r.recipes).length
-      });
-      
-      if (joinError) {
-        console.error('[favorites-api] join_error', { message: joinError.message, details: joinError });
-        return res.status(500).json(ApiResponse.error(joinError.message));
-      }
-      
-      const joinFavoriteIds = (joinData || []).map(row => String(row.recipe_id));
-      const recipes = (joinData || [])
-        .map(row => row.recipes)
-        .filter(Boolean)
-        .filter(recipe => recipe.is_public !== false);
-      
-      return res.status(200).json(ApiResponse.success({
-        favorites: joinFavoriteIds,
-        recipes
-      }));
+      const favorites = (favData || []).map(f => String(f.recipe_id));
+      return res.status(200).json(ApiResponse.success({ favorites }));
     }
 
     // POST: Use user client (needs user token for RLS)
