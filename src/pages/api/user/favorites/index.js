@@ -20,6 +20,30 @@ function createUserClient(supabaseUrl, anonKey, token) {
   });
 }
 
+// Fields for recipe cards
+const RECIPE_CARD_FIELDS = `
+  id,
+  slug,
+  name,
+  image_url,
+  prep_time_minutes,
+  cook_time_minutes,
+  total_time_minutes,
+  calories_per_serving,
+  protein_g,
+  carbs_g,
+  fat_g,
+  difficulty,
+  cuisine,
+  method,
+  dish_type,
+  primary_protein,
+  budget_level,
+  is_complete_meal,
+  speed,
+  created_at
+`;
+
 export default async function handler(req, res) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -45,22 +69,71 @@ export default async function handler(req, res) {
       const start = Date.now();
       console.log('[favorites-api] get_start', { userId });
       
-      const { data, error } = await serverSupabase
+      // Fetch favorite IDs
+      const { data: favData, error: favError } = await serverSupabase
         .from('user_favorites')
         .select('recipe_id')
         .eq('user_id', userId);
       
       console.log('[favorites-api] get_query_done', {
         duration_ms: Date.now() - start,
-        count: (data || []).length
+        count: (favData || []).length
       });
       
-      if (error) {
-        return res.status(500).json(ApiResponse.error(error.message));
+      if (favError) {
+        return res.status(500).json(ApiResponse.error(favError.message));
       }
       
-      const favorites = (data || []).map(f => f.recipe_id);
-      return res.status(200).json(ApiResponse.success({ favorites }));
+      const favoriteIds = (favData || []).map(f => String(f.recipe_id));
+      
+      // Default: return just IDs
+      if (req.query.include !== 'recipes') {
+        return res.status(200).json(ApiResponse.success({ favorites: favoriteIds }));
+      }
+      
+      // include=recipes: return IDs + recipe cards
+      console.log('[favorites-api] get_with_recipes_start', { userId });
+      
+      if (favoriteIds.length === 0) {
+        return res.status(200).json(ApiResponse.success({
+          favorites: [],
+          recipes: []
+        }));
+      }
+      
+      // Fetch favorite recipes
+      const idsStart = Date.now();
+      console.log('[favorites-api] favorite_ids_done', {
+        duration_ms: Date.now() - idsStart,
+        count: favoriteIds.length
+      });
+      
+      const recipesStart = Date.now();
+      const { data: recipesData, error: recipesError } = await serverSupabase
+        .from('recipes')
+        .select(RECIPE_CARD_FIELDS)
+        .in('id', favoriteIds)
+        .eq('is_public', true);
+      
+      console.log('[favorites-api] favorite_recipes_done', {
+        duration_ms: Date.now() - recipesStart,
+        recipeCount: (recipesData || []).length
+      });
+      
+      if (recipesError) {
+        return res.status(500).json(ApiResponse.error(recipesError.message));
+      }
+      
+      // Sort to preserve favorite order
+      const orderMap = new Map(favoriteIds.map((id, index) => [id, index]));
+      const sortedRecipes = (recipesData || []).sort((a, b) => 
+        orderMap.get(String(a.id)) - orderMap.get(String(b.id))
+      );
+      
+      return res.status(200).json(ApiResponse.success({
+        favorites: favoriteIds,
+        recipes: sortedRecipes
+      }));
     }
 
     // POST: Use user client (needs user token for RLS)

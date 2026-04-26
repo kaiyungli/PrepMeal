@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useUserState, getFavoriteRecipes } from '@/hooks/useUserState';
+import { useUserState } from '@/hooks/useUserState';
 
 export default function FavoritesPage() {
   const headerCtrl = useHeaderController();
@@ -19,9 +19,10 @@ export default function FavoritesPage() {
     isFavorite,
     isPending,
     toggleFavorite,
+    getAccessToken,
   } = useUserState();
 
-  const [allRecipes, setAllRecipes] = useState([]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Performance timing
@@ -40,44 +41,51 @@ export default function FavoritesPage() {
     return toggleFavorite(recipeId);
   }, [toggleFavorite]);
 
-  // Fetch recipes once on mount (public recipes)
+  // Fetch favorite recipes on mount
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchRecipes = async () => {
+    const fetchFavoriteRecipes = async () => {
       setLoading(true);
       try {
-        const recipesFetchStart = Date.now();
-        console.log('[favorites-page] recipes_fetch_start', {
-          url: '/api/recipes?limit=100'
+        const token = await getAccessToken();
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const fetchStart = Date.now();
+        console.log('[favorites-page] favorite_recipes_fetch_start', {
+          url: '/api/user/favorites?include=recipes'
         });
 
-        // Use public recipes endpoint
-        const res = await fetch('/api/recipes?limit=100');
+        const res = await fetch('/api/user/favorites?include=recipes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-        console.log('[favorites-page] recipes_response_received', {
-          duration_ms: Math.round(Date.now() - recipesFetchStart),
+        console.log('[favorites-page] favorite_recipes_response_received', {
+          duration_ms: Math.round(Date.now() - fetchStart),
           status: res.status
         });
 
         const data = await res.json();
-        const recipesData = data?.recipes || [];
+        const recipesData = data?.data?.recipes || [];
 
-        console.log('[favorites-page] recipes_json_parsed', {
-          duration_ms: Math.round(Date.now() - recipesFetchStart),
+        console.log('[favorites-page] favorite_recipes_json_parsed', {
+          duration_ms: Math.round(Date.now() - fetchStart),
           count: recipesData.length
         });
 
-        setAllRecipes(recipesData);
+        setFavoriteRecipes(recipesData);
       } catch (err) {
-        console.error('Failed to load recipes:', err);
+        console.error('Failed to load favorite recipes:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecipes();
-  }, [isAuthenticated]);
+    fetchFavoriteRecipes();
+  }, [isAuthenticated, getAccessToken]);
 
   // Log when favorite data is ready
   useEffect(() => {
@@ -89,17 +97,17 @@ export default function FavoritesPage() {
       duration_ms: Math.round(Date.now() - firstLoadStartRef.current),
       meta: {
         favoriteIdsCount: favorites?.length || 0,
-        allRecipesCount: allRecipes.length,
         favoriteRecipesCount: favoriteRecipes.length,
       }
     });
-  }, [loading, favorites?.length, allRecipes.length]);
+  }, [loading, favorites?.length, favoriteRecipes.length]);
 
-  // Derive favorite recipes from allRecipes + favorites (PURE DERIVED)
-  // Updates INSTANTLY when favorites changes - no additional fetch
-  const favoriteRecipes = useMemo(() => {
-    return getFavoriteRecipes(allRecipes, favorites);
-  }, [allRecipes, favorites]);
+  // Derive visible recipes from fetched recipes + current favorites
+  // Cards disappear immediately when unfavorited
+  const visibleFavoriteRecipes = useMemo(() => {
+    const favSet = new Set((favorites || []).map(String));
+    return favoriteRecipes.filter(r => favSet.has(String(r.id)));
+  }, [favoriteRecipes, favorites]);
 
   if (authLoading || !isAuthenticated) {
     return (
@@ -125,7 +133,7 @@ export default function FavoritesPage() {
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">載入中...</p>
             </div>
-          ) : favoriteRecipes.length === 0 ? (
+          ) : visibleFavoriteRecipes.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未收藏任何食譜</p>
               <a href="/recipes" className="text-[#9B6035] font-medium hover:underline">
@@ -134,7 +142,7 @@ export default function FavoritesPage() {
             </div>
           ) : (
             <RecipeList
-              recipes={favoriteRecipes}
+              recipes={visibleFavoriteRecipes}
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
