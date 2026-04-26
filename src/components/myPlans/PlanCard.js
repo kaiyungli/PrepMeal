@@ -39,10 +39,15 @@ export default function PlanCard({ plan, onDelete, isDeleting }) {
   // Get metadata - use actual values from plan
   const getMetadata = (plan) => {
     const days = plan.days_count || 7;
-    // Get servings from items or use default
-    const servings = plan.items?.length > 0 
-      ? Math.round(plan.items.reduce((sum, i) => sum + (i.servings || 0), 0) / Math.max(plan.items.filter(i => i.servings).length, 1))
-      : 2;
+    // Use avg_servings from API, fallback to calculation from items
+    const servings = plan.avg_servings || (
+      plan.items?.length > 0
+        ? Math.round(
+            plan.items.reduce((sum, i) => sum + (i.servings || 0), 0) /
+            Math.max(plan.items.filter(i => i.servings).length, 1)
+          )
+        : 2
+    );
     
     return { days, servings };
   };
