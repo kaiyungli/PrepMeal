@@ -1,4 +1,5 @@
 'use client';
+import { useMemo } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -40,15 +41,21 @@ export default function PlanDetailPage() {
   } = controller;
 
   // Stabilize recipeItem lookup
-  const recipeItem = items.find(
-    i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId
-  ) || null;
+  const recipeItem = useMemo(() => {
+    if (!selectedRecipeId) return null;
+    return items.find(
+      i => i.recipe?.id === selectedRecipeId || i.recipe_id === selectedRecipeId
+    ) || null;
+  }, [items, selectedRecipeId]);
 
   // Stabilize embeddedRecipe
-  const embeddedRecipe = recipeItem ? {
-    ...(recipeItem.recipe || {}),
-    id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
-  } : null;
+  const embeddedRecipe = useMemo(() => {
+    if (!recipeItem) return null;
+    return {
+      ...(recipeItem.recipe || {}),
+      id: recipeItem.recipe?.id || recipeItem.recipe_id || selectedRecipeId,
+    };
+  }, [recipeItem, selectedRecipeId]);
 
   // Use shared hook for full detail
   const { recipe: modalRecipe, loading: modalLoading, error: modalError, close: handleModalClose } = useRecipeDetailModal(
