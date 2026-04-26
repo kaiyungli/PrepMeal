@@ -20,30 +20,6 @@ function createUserClient(supabaseUrl, anonKey, token) {
   });
 }
 
-// Fields for recipe cards
-const RECIPE_CARD_FIELDS = `
-  id,
-  slug,
-  name,
-  image_url,
-  prep_time_minutes,
-  cook_time_minutes,
-  total_time_minutes,
-  calories_per_serving,
-  protein_g,
-  carbs_g,
-  fat_g,
-  difficulty,
-  cuisine,
-  method,
-  dish_type,
-  primary_protein,
-  budget_level,
-  is_complete_meal,
-  speed,
-  created_at
-`;
-
 export default async function handler(req, res) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -91,48 +67,60 @@ export default async function handler(req, res) {
         return res.status(200).json(ApiResponse.success({ favorites: favoriteIds }));
       }
       
-      // include=recipes: return IDs + recipe cards
+      // include=recipes: return IDs + recipe cards via single joined query
       console.log('[favorites-api] get_with_recipes_start', { userId });
       
-      if (favoriteIds.length === 0) {
-        return res.status(200).json(ApiResponse.success({
-          favorites: [],
-          recipes: []
-        }));
-      }
+      const joinStart = Date.now();
       
-      // Fetch favorite recipes
-      const idsStart = Date.now();
-      console.log('[favorites-api] favorite_ids_done', {
-        duration_ms: Date.now() - idsStart,
-        count: favoriteIds.length
+      const { data: joinData, error: joinError } = await serverSupabase
+        .from('user_favorites')
+        .select(`
+          recipe_id,
+          recipes (
+            id,
+            slug,
+            name,
+            image_url,
+            prep_time_minutes,
+            cook_time_minutes,
+            total_time_minutes,
+            calories_per_serving,
+            protein_g,
+            carbs_g,
+            fat_g,
+            difficulty,
+            cuisine,
+            method,
+            dish_type,
+            primary_protein,
+            budget_level,
+            is_complete_meal,
+            speed,
+            created_at
+          )
+        `)
+        .eq('user_id', userId);
+      
+      console.log('[favorites-api] get_with_recipes_join_done', {
+        duration_ms: Date.now() - joinStart,
+        favoriteCount: (joinData || []).length,
+        recipeCount: (joinData || []).filter(r => r.recipes).length
       });
       
-      const recipesStart = Date.now();
-      const { data: recipesData, error: recipesError } = await serverSupabase
-        .from('recipes')
-        .select(RECIPE_CARD_FIELDS)
-        .in('id', favoriteIds)
-        .eq('is_public', true);
-      
-      console.log('[favorites-api] favorite_recipes_done', {
-        duration_ms: Date.now() - recipesStart,
-        recipeCount: (recipesData || []).length
-      });
-      
-      if (recipesError) {
-        return res.status(500).json(ApiResponse.error(recipesError.message));
+      if (joinError) {
+        console.error('[favorites-api] join_error', { message: joinError.message, details: joinError });
+        return res.status(500).json(ApiResponse.error(joinError.message));
       }
       
-      // Sort to preserve favorite order
-      const orderMap = new Map(favoriteIds.map((id, index) => [id, index]));
-      const sortedRecipes = (recipesData || []).sort((a, b) => 
-        orderMap.get(String(a.id)) - orderMap.get(String(b.id))
-      );
+      const joinFavoriteIds = (joinData || []).map(row => String(row.recipe_id));
+      const recipes = (joinData || [])
+        .map(row => row.recipes)
+        .filter(Boolean)
+        .filter(recipe => recipe.is_public !== false);
       
       return res.status(200).json(ApiResponse.success({
-        favorites: favoriteIds,
-        recipes: sortedRecipes
+        favorites: joinFavoriteIds,
+        recipes
       }));
     }
 
