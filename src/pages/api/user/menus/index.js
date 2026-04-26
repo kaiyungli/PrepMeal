@@ -20,11 +20,17 @@ export default async function handler(req, res) {
   }
   
   try {
+    const authStart = Date.now();
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
     
     const userId = await requireAuth(req, res);
     if (!userId) return;
+    
+    console.log('[menus-api] auth_done', {
+      duration_ms: Date.now() - authStart,
+      hasUserId: Boolean(userId)
+    });
     
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
@@ -32,6 +38,7 @@ export default async function handler(req, res) {
       const getStart = Date.now();
       console.log('[menus-api] list_start', { userId });
       
+      console.log('[menus-api] list_plans_query_start');
       const plansStart = Date.now();
       const { data: plansData, error: plansError } = await userSupabase
         .from('menu_plans')
@@ -65,6 +72,7 @@ export default async function handler(req, res) {
       const planIds = (plansData || []).map(p => p.id);
       let itemsData = [];
       if (planIds.length > 0) {
+        console.log('[menus-api] list_items_query_start');
         const itemsStart = Date.now();
         const { data: items, error: itemsError } = await userSupabase
           .from('menu_plan_items')
@@ -224,6 +232,11 @@ export default async function handler(req, res) {
 
     return res.status(405).json(ApiResponse.methodNotAllowed());
   } catch (err) {
+    console.log('[menus-api] list_failed', {
+      duration_ms: Date.now(),
+      message: err.message,
+      stack: err.stack
+    });
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
   }
 }
