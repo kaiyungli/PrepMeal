@@ -38,6 +38,7 @@ export async function fetchRecipesForServer(limit = 24) {
       .select(CARD_FIELDS)
       .eq('is_public', true)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .limit(limit);
 
     if (error) {
@@ -73,6 +74,7 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
       .select(CARD_FIELDS, { count: 'exact' })
       .eq('is_public', true)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .limit(limit);
 
     if (error) {
