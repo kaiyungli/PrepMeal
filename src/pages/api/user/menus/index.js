@@ -4,6 +4,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 import { transformItemsToInsert } from '@/lib/menuItemTransform';
+import { buildMenuPlanSummary } from '@/lib/menuPlanSummary';
 
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
@@ -54,7 +55,6 @@ export default async function handler(req, res) {
       const getStart = Date.now();
       console.log('[menus-api] list_start', { userId });
       
-      console.log('[menus-api] list_plans_query_start');
       const plansStart = Date.now();
       const { data: plansData, error: plansError } = await serverSupabase
         .from('menu_plans')
@@ -64,7 +64,10 @@ export default async function handler(req, res) {
           title,
           start_date,
           end_date,
-          created_at
+          created_at,
+          avg_servings,
+          item_count,
+          preview_items
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
@@ -84,97 +87,21 @@ export default async function handler(req, res) {
         return res.status(500).json(ApiResponse.error(plansError.message));
       }
       
-      // Fetch items for all plans
-      const planIds = (plansData || []).map(p => p.id);
-      let itemsData = [];
-      if (planIds.length > 0) {
-        console.log('[menus-api] list_items_query_start');
-        const itemsStart = Date.now();
-        const { data: items, error: itemsError } = await serverSupabase
-          .from('menu_plan_items')
-          .select(`
-            id,
-            menu_plan_id,
-            date,
-            meal_slot,
-            servings,
-            item_order,
-            recipe_id,
-            recipes (
-              id,
-              name,
-              image_url
-            )
-          `)
-          .in('menu_plan_id', planIds)
-          .order('date', { ascending: true })
-          .order('item_order', { ascending: true });
-        
-        console.log('[menus-api] list_items_done', {
-          duration_ms: Date.now() - itemsStart,
-          count: (items || []).length,
-          planCount: planIds.length
-        });
-        
-        if (!itemsError) {
-          itemsData = items || [];
-        }
-      }
-      
-      // Group items by plan
-      const itemsByPlan = {};
-      for (const item of itemsData) {
-        if (!itemsByPlan[item.menu_plan_id]) {
-          itemsByPlan[item.menu_plan_id] = [];
-        }
-        itemsByPlan[item.menu_plan_id].push({
-          id: item.id,
-          date: item.date,
-          meal_slot: item.meal_slot,
-          servings: item.servings,
-          recipe: item.recipes ? {
-            id: item.recipes.id,
-            name: item.recipes.name,
-            image_url: item.recipes.image_url
-          } : null
-        });
-      }
-      
-      // Transform DB fields to frontend-safe response with preview items only
-      const plans = (plansData || []).map(plan => {
-        const allPlanItems = itemsByPlan[plan.id] || [];
-        
-        // Calculate avg servings
-        const totalServings = allPlanItems.reduce((sum, i) => sum + (i.servings || 1), 0);
-        const avgServings = allPlanItems.length > 0 
-          ? Math.round(totalServings / allPlanItems.length) 
-          : 2;
-        
-        // Get first date and preview items from first day only
-        const uniqueDates = [...new Set(allPlanItems.map(i => i.date))].sort();
-        const firstDate = uniqueDates[0];
-        
-        const previewItems = allPlanItems
-          .filter(item => item.date === firstDate)
-          .sort((a, b) => (a.item_order || 0) - (b.item_order || 0))
-          .slice(0, 2);
-        
-        return {
-          id: plan.id,
-          user_id: plan.user_id,
-          name: plan.title,
-          week_start_date: plan.start_date,
-          days_count: plan.end_date && plan.start_date 
-            ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
-            : 7,
-          notes: null,
-          created_at: plan.created_at,
-          updated_at: plan.updated_at || plan.created_at,
-          item_count: allPlanItems.length,
-          avg_servings: avgServings,
-          items: previewItems
-        };
-      });
+      const plans = (plansData || []).map(plan => ({
+        id: plan.id,
+        user_id: plan.user_id,
+        name: plan.title,
+        week_start_date: plan.start_date,
+        days_count: plan.end_date && plan.start_date 
+          ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
+          : 7,
+        notes: null,
+        created_at: plan.created_at,
+        updated_at: plan.created_at,
+        item_count: plan.item_count || 0,
+        avg_servings: plan.avg_servings || 2,
+        items: Array.isArray(plan.preview_items) ? plan.preview_items : []
+      }));
       
       console.log('[menus-api] list_total_done', {
         duration_ms: Date.now() - getStart,
@@ -259,6 +186,47 @@ export default async function handler(req, res) {
         
         if (itemsError) {
           throw itemsError;
+        }
+
+        // Query inserted items to build summary
+        const { data: summaryItems, error: summaryItemsError } = await userSupabase
+          .from('menu_plan_items')
+          .select(`
+            id,
+            menu_plan_id,
+            date,
+            meal_slot,
+            servings,
+            item_order,
+            recipe_id,
+            recipes (
+              id,
+              name,
+              image_url
+            )
+          `)
+          .eq('menu_plan_id', planId)
+          .order('date', { ascending: true })
+          .order('item_order', { ascending: true });
+
+        if (summaryItemsError) {
+          throw summaryItemsError;
+        }
+
+        // Build and update summary fields
+        const summary = buildMenuPlanSummary(summaryItems || []);
+
+        const { error: summaryUpdateError } = await userSupabase
+          .from('menu_plans')
+          .update({
+            avg_servings: summary.avg_servings,
+            item_count: summary.item_count,
+            preview_items: summary.preview_items
+          })
+          .eq('id', planId);
+
+        if (summaryUpdateError) {
+          throw summaryUpdateError;
         }
 
         return res.status(201).json(ApiResponse.created({ plan_id: planId }));
