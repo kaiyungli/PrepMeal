@@ -8,12 +8,66 @@ export const config = {
   },
 };
 
+// Fields needed for generate page
+const GENERATE_FIELDS = `
+  id,
+  slug,
+  name,
+  description,
+  image_url,
+  cuisine,
+  dish_type,
+  method,
+  speed,
+  difficulty,
+  protein,
+  primary_protein,
+  diet,
+  flavor,
+  is_complete_meal,
+  meal_role,
+  budget_level,
+  base_servings,
+  calories_per_serving,
+  protein_g,
+  carbs_g,
+  fat_g,
+  prep_time_minutes,
+  cook_time_minutes,
+  total_time_minutes,
+  is_public
+`;
+
+// Fields for normal recipe list
+const LIST_FIELDS = `
+  id,
+  slug,
+  name,
+  image_url,
+  prep_time_minutes,
+  cook_time_minutes,
+  total_time_minutes,
+  calories_per_serving,
+  protein_g,
+  carbs_g,
+  fat_g,
+  difficulty,
+  cuisine,
+  method,
+  dish_type,
+  primary_protein,
+  budget_level,
+  is_complete_meal,
+  speed,
+  created_at
+`;
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { search, cuisine, dish_type, maxTime, difficulty, method, diet, protein, speed, sort, flavor, budget, complete, limit: limitParam, page: pageParam, offset: offsetParam } = req.query;
+  const { search, cuisine, dish_type, maxTime, difficulty, method, diet, protein, speed, sort, flavor, budget, complete, limit: limitParam, page: pageParam, offset: offsetParam, view } = req.query;
 
   const supabase = supabaseServer;
 
@@ -26,10 +80,13 @@ export default async function handler(req, res) {
   const safeSort = typeof sort === 'string' ? sort.toLowerCase() : 'newest';
 
   try {
-    // Build base query with all fields needed
+    // Use explicit fields based on view
+    const fields = view === 'generate' ? GENERATE_FIELDS : LIST_FIELDS;
+    
+    // Build base query with explicit fields
     let query = supabase
       .from('recipes')
-      .select(`*`, { count: 'exact' })
+      .select(fields, { count: 'exact' })
       .eq('is_public', true);
 
     // Search - match name or description
@@ -172,7 +229,17 @@ export default async function handler(req, res) {
     perfMeasure('api.recipes.query', queryStart);
 
     if (error) {
-      return res.status(500).json({ error: error.message });
+      console.error('[api/recipes] query_error', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        view,
+      });
+      return res.status(500).json({ 
+        error: 'Failed to load recipes',
+        detail: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
 
     const recipesList = Array.isArray(recipes) ? recipes : [];
@@ -185,6 +252,16 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('[api/recipes] failed', {
+      message: err.message,
+      code: err.code,
+      details: err.details,
+      hint: err.hint,
+      view,
+    });
+    return res.status(500).json({ 
+      error: 'Failed to load recipes',
+      detail: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 }
