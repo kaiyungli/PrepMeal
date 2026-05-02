@@ -43,6 +43,7 @@ const LIST_FIELDS = `
   id,
   slug,
   name,
+  description,
   image_url,
   prep_time_minutes,
   cook_time_minutes,
@@ -59,6 +60,10 @@ const LIST_FIELDS = `
   budget_level,
   is_complete_meal,
   speed,
+  protein,
+  diet,
+  flavor,
+  is_public,
   created_at
 `;
 
@@ -237,6 +242,7 @@ export default async function handler(req, res) {
         view,
       });
       return res.status(500).json({ 
+        recipes: [],
         error: 'Failed to load recipes',
         detail: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
@@ -260,8 +266,9 @@ export default async function handler(req, res) {
       view,
     });
     return res.status(500).json({ 
+      recipes: [],
       error: 'Failed to load recipes',
-      detail: process.env.NODE_ENV === 'development' ? err.message : undefined
+      detail: process.env.NODE_ENV === 'development' ? err?.message : undefined
     });
   }
 }
