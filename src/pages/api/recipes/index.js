@@ -144,7 +144,7 @@ export default async function handler(req, res) {
     if (diet && diet.trim()) {
       const dietList = diet.split(',').map(d => d.trim()).filter(Boolean);
       if (dietList.length > 0) {
-        query = query.in('diet', dietList);
+        query = query.contains('diet', dietList);
       }
     }
 
@@ -168,7 +168,7 @@ export default async function handler(req, res) {
     if (flavor && flavor.trim()) {
       const flavorList = flavor.split(',').map(f => f.trim()).filter(Boolean);
       if (flavorList.length > 0) {
-        query = query.in('flavor', flavorList);
+        query = query.contains('flavor', flavorList);
       }
     }
 
