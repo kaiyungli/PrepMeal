@@ -10,7 +10,7 @@
  * - Cleanup on close/unmount
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getCachedRecipeDetail, setCachedRecipeDetail } from '../services/recipeDetailClientCache';
+import { getCachedRecipeDetail, setCachedRecipeDetail, getInflightRecipeDetail } from '../services/recipeDetailClientCache';
 
 interface UseRecipeDetailModalOptions {
   /** Called when modal should close */
@@ -72,6 +72,52 @@ export function useRecipeDetailModal(
     console.log('[recipe-modal] detail_cache_miss', {
       recipeId: selectedRecipe.id
     });
+
+    // Check if prefetch is already inflight
+    const inflightDetail = getInflightRecipeDetail(selectedRecipe.id);
+
+    if (inflightDetail) {
+      const traceId = `${selectedRecipe.id}-modal-inflight-${Date.now()}`;
+      const inflightStart = Date.now();
+
+      console.log('[recipe-modal] inflight_reuse_start', {
+        traceId,
+        recipeId: selectedRecipe.id
+      });
+
+      setLoading(true);
+      setError(null);
+
+      inflightDetail
+        .then(recipe => {
+          console.log('[recipe-modal] inflight_reuse_done', {
+            traceId,
+            recipeId: selectedRecipe.id,
+            duration_ms: Date.now() - inflightStart,
+            hasRecipe: Boolean(recipe),
+            ingredientCount: recipe?.ingredients?.length || 0,
+            stepCount: recipe?.steps?.length || 0
+          });
+
+          if (recipe) {
+            setFullRecipe({ ...selectedRecipe, ...recipe });
+          }
+        })
+        .catch(err => {
+          const errorMsg = err?.message || 'Failed to load recipe detail';
+          console.error('[recipe-modal] inflight_reuse_failed', {
+            traceId,
+            recipeId: selectedRecipe.id,
+            message: errorMsg
+          });
+          setError(errorMsg);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+
+      return;
+    }
 
     // Already have full detail - use directly
     if (hasFullDetail) {

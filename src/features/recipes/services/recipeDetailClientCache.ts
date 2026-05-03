@@ -56,6 +56,15 @@ export function setCachedRecipeDetail(recipeId: string, recipe: any): void {
  * Prefetch recipe detail in background
  * Returns cached result if available, or starts new fetch
  */
+/**
+ * Get inflight request for a recipe ID if one exists
+ */
+export function getInflightRecipeDetail(recipeId: string): Promise<any> | null {
+  const key = String(recipeId || '');
+  if (!key) return null;
+  return inflightRequests.get(key) || null;
+}
+
 export function prefetchRecipeDetail(recipeId: string): Promise<any | null> {
   const key = String(recipeId || '');
   if (!key) return Promise.resolve(null);
