@@ -2,7 +2,8 @@
  * Recipe Detail Service
  *
  * Single source for fetching recipe detail from database.
- * This is the ONLY place allowed to fetch recipe with ingredients and steps.
+ * Uses RPC function get_recipe_detail_json for single DB round trip.
+ * Falls back to multi-query approach if RPC fails.
  */
 import { supabaseServer } from '@/lib/supabaseServer';
 
@@ -61,6 +62,49 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     throw new Error('Supabase is not configured');
   }
 
+  // Try RPC first for single DB round trip
+  const rpcStart = perfNow();
+  const { data: rpcRecipe, error: rpcError } = await supabase.rpc(
+    'get_recipe_detail_json',
+    { p_id_or_slug: recipeIdOrSlug }
+  );
+
+  console.log('[recipe-detail] rpc_done', {
+    traceId,
+    duration_ms: Math.round((perfNow() - rpcStart) * 100) / 100,
+    id_or_slug: recipeIdOrSlug,
+    hasRecipe: Boolean(rpcRecipe),
+    hasError: Boolean(rpcError)
+  });
+
+  // If RPC succeeds, return directly
+  if (!rpcError && rpcRecipe) {
+    const resolvedId = rpcRecipe.id;
+    const ingredientCount = Array.isArray(rpcRecipe.ingredients) ? rpcRecipe.ingredients.length : 0;
+    const stepCount = Array.isArray(rpcRecipe.steps) ? rpcRecipe.steps.length : 0;
+
+    console.log('[recipe-detail] service_total', {
+      traceId,
+      duration_ms: Math.round((perfNow() - fnStart) * 100) / 100,
+      resolved_id: resolvedId,
+      ingredient_count: ingredientCount,
+      step_count: stepCount,
+      source: 'rpc'
+    });
+
+    return rpcRecipe as RecipeDetailRow;
+  }
+
+  // Fallback: RPC failed or returned null, use old multi-query approach
+  if (rpcError) {
+    console.error('[recipe-detail] rpc_failed_fallback', {
+      traceId,
+      id_or_slug: recipeIdOrSlug,
+      error: rpcError.message
+    });
+  }
+
+  // Legacy multi-query approach
   // Detect UUID vs slug - UUIDs follow specific pattern
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(recipeIdOrSlug);
 
@@ -209,7 +253,8 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     duration_ms: totalMs,
     resolved_id: resolvedRecipeId,
     ingredient_count: ingredientCount,
-    step_count: stepCount
+    step_count: stepCount,
+    source: 'fallback'
   });
 
   return {
