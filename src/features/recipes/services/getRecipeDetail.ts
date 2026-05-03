@@ -50,9 +50,10 @@ export interface RecipeDetailRow {
 /**
  * Load recipe detail with ingredients and steps
  * @param recipeIdOrSlug - Recipe ID or slug
+ * @param traceId - Optional trace ID for performance tracking
  * @returns Recipe detail row
  */
-export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDetailRow> {
+export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string): Promise<RecipeDetailRow> {
   const fnStart = perfNow();
   const supabase = supabaseServer;
 
@@ -99,7 +100,11 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   const { data: recipe, error: recipeError } = recipeResult;
 
   if (recipeError) {
-    console.error('[recipe-detail] recipe_query_failed', { id_or_slug: recipeIdOrSlug, error: recipeError.message });
+    console.error('[recipe-detail] recipe_query_failed', { 
+      traceId,
+      id_or_slug: recipeIdOrSlug, 
+      error: recipeError.message 
+    });
     throw new Error('Recipe fetch failed: ' + recipeError.message);
   }
 
@@ -110,6 +115,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   // CRITICAL: Use recipe.id from the fetched row, NOT the original route param
   const resolvedRecipeId = recipe.id;
   console.log('[recipe-detail] recipe_query_done', {
+    traceId,
     duration_ms: Math.round(recipeQueryMs * 100) / 100,
     id_or_slug: recipeIdOrSlug,
     resolved_id: resolvedRecipeId
@@ -140,28 +146,39 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
   ]);
 
   if (ingredientsResult.error) {
-    console.error('[recipe-detail] ingredients_query_failed', { resolved_id: resolvedRecipeId, error: ingredientsResult.error.message });
+    console.error('[recipe-detail] ingredients_query_failed', { 
+      traceId,
+      resolved_id: resolvedRecipeId, 
+      error: ingredientsResult.error.message 
+    });
   }
   if (stepsResult.error) {
-    console.error('[recipe-detail] steps_query_failed', { resolved_id: resolvedRecipeId, error: stepsResult.error.message });
+    console.error('[recipe-detail] steps_query_failed', { 
+      traceId,
+      resolved_id: resolvedRecipeId, 
+      error: stepsResult.error.message 
+    });
   }
 
   const ingredientCount = (ingredientsResult?.data || []).length;
   const stepCount = (stepsResult?.data || []).length;
 
   console.log('[recipe-detail] ingredients_query_done', {
+    traceId,
     duration_ms: Math.round((perfNow() - ingredientsQueryStart) * 100) / 100,
     resolved_id: resolvedRecipeId,
     ingredient_count: ingredientCount
   });
   
   console.log('[recipe-detail] steps_query_done', {
+    traceId,
     duration_ms: Math.round((perfNow() - stepsQueryStart) * 100) / 100,
     resolved_id: resolvedRecipeId,
     step_count: stepCount
   });
   
   console.log('[recipe-detail] related_queries_done', { 
+    traceId,
     resolved_id: resolvedRecipeId, 
     ingredient_count: ingredientCount, 
     step_count: stepCount 
@@ -188,6 +205,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string): Promise<RecipeDet
 
   const totalMs = Math.round((Date.now() - fnStart) * 100) / 100;
   console.log('[recipe-detail] service_total', {
+    traceId,
     duration_ms: totalMs,
     resolved_id: resolvedRecipeId,
     ingredient_count: ingredientCount,

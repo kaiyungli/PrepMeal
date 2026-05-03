@@ -17,6 +17,11 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
+    console.log('[recipe-detail-api] request_start', {
+      traceId,
+      id
+    });
+
     if (!id) {
       perfLog({
         traceId,
@@ -26,10 +31,25 @@ export default async function handler(req, res) {
         start,
         meta: { recipeId: id || 'unknown', success: false }
       });
+      console.log('[recipe-detail-api] response_not_found', {
+        traceId,
+        id,
+        duration_ms: Math.round(perfNow() - start),
+        error: 'Recipe ID is required'
+      });
       return res.status(400).json({ error: 'Recipe ID is required' });
     }
 
-    const { recipe, error } = await loadRecipeDetail(id);
+    const loadStart = perfNow();
+    const { recipe, error } = await loadRecipeDetail(id, traceId);
+
+    console.log('[recipe-detail-api] load_done', {
+      traceId,
+      id,
+      duration_ms: Math.round(perfNow() - loadStart),
+      hasRecipe: Boolean(recipe),
+      hasError: Boolean(error)
+    });
 
     if (error || !recipe) {
       perfLog({
@@ -39,6 +59,12 @@ export default async function handler(req, res) {
         label: 'recipe_detail.api.total',
         start,
         meta: { recipeId: id, success: false }
+      });
+      console.log('[recipe-detail-api] response_not_found', {
+        traceId,
+        id,
+        duration_ms: Math.round(perfNow() - start),
+        error: error || 'Recipe not found'
       });
       return res.status(404).json({ error: error || 'Recipe not found' });
     }
@@ -52,8 +78,21 @@ export default async function handler(req, res) {
       meta: { recipeId: id, success: true }
     });
 
+    console.log('[recipe-detail-api] response_ready', {
+      traceId,
+      id,
+      duration_ms: Math.round(perfNow() - start)
+    });
+
     return res.status(200).json({ recipe });
   } catch (err) {
+    console.error('[recipe-detail-api] request_failed', {
+      traceId,
+      id,
+      duration_ms: Math.round(perfNow() - start),
+      message: err.message,
+      stack: err.stack
+    });
     perfLog({
       traceId,
       event: 'recipe_detail_api',
