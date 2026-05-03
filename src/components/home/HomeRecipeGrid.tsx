@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import RecipeCard from '@/components/RecipeCard';
+import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 
 interface HomeRecipeGridProps {
   recipes: any[];
@@ -29,8 +30,23 @@ function RecipeGridItem({
   isPending?: boolean;
   onFavoriteClick?: () => void | Promise<void>;
 }) {
+  const handlePrefetch = (source: string) => {
+    if (recipe?.id) {
+      console.log('[home-recipe-card] prefetch_triggered', {
+        recipeId: recipe.id,
+        source
+      });
+      prefetchRecipeDetail(recipe.id);
+    }
+  };
+
   return (
-    <div className="col-span-12 sm:col-span-6 md:col-span-4">
+    <div 
+      className="col-span-12 sm:col-span-6 md:col-span-4"
+      onMouseEnter={() => handlePrefetch('hover')}
+      onFocus={() => handlePrefetch('focus')}
+      onTouchStart={() => handlePrefetch('touch')}
+    >
       <RecipeCard
         recipe={recipe}
         onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
