@@ -95,6 +95,10 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     });
     return measurePageLoadMetrics();
   }, []);
+  // Prefetch dependency key
+  const recipesPrefetchKey = Array.isArray(recipes)
+    ? recipes.slice(0, 8).map(r => r.id).filter(Boolean).join(",")
+    : "";
 
   // Prefetch first 8 recipes in background
   useEffect(() => {
@@ -102,6 +106,11 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
 
     // Only prefetch first 8 recipes to avoid overwhelming
     const firstBatch = recipes.slice(0, 8);
+
+    console.log('[recipe-prefetch] schedule_batch', {
+      count: firstBatch.length,
+      recipeIds: firstBatch.map(r => r.id)
+    });
 
     const runPrefetch = () => {
       firstBatch.forEach((recipe, index) => {
@@ -122,7 +131,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
 
     const timer = setTimeout(runPrefetch, 1000);
     return () => clearTimeout(timer);
-  }, [recipes?.length]);
+  }, [recipesPrefetchKey]);
   
   // Log data ready
   useEffect(() => {

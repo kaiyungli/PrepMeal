@@ -40,7 +40,13 @@ export function getCachedRecipeDetail(recipeId: string): any | null {
 export function setCachedRecipeDetail(recipeId: string, recipe: any): void {
   if (!recipeId || !recipe) return;
   
-  detailCache.set(String(recipeId), {
+  console.log('[recipe-prefetch] cache_set', {
+      recipeId: String(recipeId),
+      ingredientCount: recipe?.ingredients?.length || 0,
+      stepCount: recipe?.steps?.length || 0
+    });
+
+    detailCache.set(String(recipeId), {
     recipe,
     cachedAt: Date.now()
   });

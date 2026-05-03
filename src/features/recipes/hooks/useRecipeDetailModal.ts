@@ -68,6 +68,10 @@ export function useRecipeDetailModal(
       setFullRecipe({ ...selectedRecipe, ...cachedDetail });
       return;
     }
+    // Cache miss - need to fetch
+    console.log('[recipe-modal] detail_cache_miss', {
+      recipeId: selectedRecipe.id
+    });
 
     // Already have full detail - use directly
     if (hasFullDetail) {
