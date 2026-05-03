@@ -56,11 +56,26 @@ export function useRecipeDetailModal(
 
     // Already have full detail - use directly
     if (hasFullDetail) {
+      console.log('[recipe-modal] full_detail_cache_hit', {
+        recipeId: selectedRecipe.id,
+        ingredientCount: selectedRecipe.ingredients?.length || 0,
+        stepCount: selectedRecipe.steps?.length || 0
+      });
       setFullRecipe(selectedRecipe);
       return;
     }
 
-    // Need to fetch full detail - clear stale first
+    // Need to fetch full detail
+    const traceId = `${selectedRecipe.id}-${Date.now()}`;
+    const fetchStart = Date.now();
+
+    console.log('[recipe-modal] fetch_start', {
+      traceId,
+      recipeId: selectedRecipe.id,
+      hasFullDetail
+    });
+
+    // Clear stale first
     setFullRecipe(null);
     setError(null);
 
@@ -73,23 +88,61 @@ export function useRecipeDetailModal(
     setLoading(true);
 
     // Fetch via API endpoint (client-safe)
-    fetch(`/api/recipes/${selectedRecipe.id}`, { signal: abortRef.current.signal })
+    fetch(`/api/recipes/${selectedRecipe.id}`, { 
+      signal: abortRef.current.signal,
+      headers: {
+        'x-perf-trace-id': traceId
+      }
+    })
       .then(res => {
+        console.log('[recipe-modal] response_received', {
+          traceId,
+          recipeId: selectedRecipe.id,
+          duration_ms: Date.now() - fetchStart,
+          status: res.status
+        });
+
         if (!res.ok) {
           throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
         }
         return res.json();
       })
       .then(data => {
+        console.log('[recipe-modal] json_parsed', {
+          traceId,
+          recipeId: selectedRecipe.id,
+          duration_ms: Date.now() - fetchStart,
+          hasRecipe: Boolean(data?.recipe),
+          ingredientCount: data?.recipe?.ingredients?.length || 0,
+          stepCount: data?.recipe?.steps?.length || 0
+        });
+
         if (data?.recipe) {
           // Merge selected recipe with full detail
           setFullRecipe({ ...selectedRecipe, ...data.recipe });
+          
+          console.log('[recipe-modal] render_ready', {
+            traceId,
+            recipeId: selectedRecipe.id,
+            duration_ms: Date.now() - fetchStart
+          });
         }
       })
       .catch(err => {
-        if (err?.name === 'AbortError') return;
+        if (err?.name === 'AbortError') {
+          console.log('[recipe-modal] fetch_aborted', {
+            traceId,
+            recipeId: selectedRecipe.id
+          });
+          return;
+        }
+        
         const errorMsg = err?.message || 'Failed to load recipe detail';
-        console.error('[useRecipeDetailModal] fetch failed:', errorMsg);
+        console.error('[recipe-modal] fetch_failed', {
+          traceId,
+          recipeId: selectedRecipe.id,
+          message: errorMsg
+        });
         setError(errorMsg);
       })
       .finally(() => {
