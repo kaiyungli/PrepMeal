@@ -9,6 +9,7 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
+import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
 export default function RecipesPage({ initialRecipes, initialTotalCount }) {
@@ -94,6 +95,34 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     });
     return measurePageLoadMetrics();
   }, []);
+
+  // Prefetch first 8 recipes in background
+  useEffect(() => {
+    if (!recipes || recipes.length === 0) return;
+
+    // Only prefetch first 8 recipes to avoid overwhelming
+    const firstBatch = recipes.slice(0, 8);
+
+    const runPrefetch = () => {
+      firstBatch.forEach((recipe, index) => {
+        if (recipe?.id) {
+          // Stagger prefetches by 250ms to spread network load
+          setTimeout(() => {
+            prefetchRecipeDetail(recipe.id);
+          }, index * 250);
+        }
+      });
+    };
+
+    // Use requestIdleCallback if available, otherwise timeout
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(runPrefetch, { timeout: 2000 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timer = setTimeout(runPrefetch, 1000);
+    return () => clearTimeout(timer);
+  }, [recipes?.length]);
   
   // Log data ready
   useEffect(() => {

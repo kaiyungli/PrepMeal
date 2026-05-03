@@ -10,6 +10,7 @@
  * - Cleanup on close/unmount
  */
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getCachedRecipeDetail, setCachedRecipeDetail } from '../services/recipeDetailClientCache';
 
 interface UseRecipeDetailModalOptions {
   /** Called when modal should close */
@@ -53,6 +54,20 @@ export function useRecipeDetailModal(
   // Fetch full detail when needed
   useEffect(() => {
     if (!selectedRecipe) return;
+
+    // Check in-memory cache first
+    const cachedDetail = getCachedRecipeDetail(selectedRecipe.id);
+
+    if (cachedDetail) {
+      console.log('[recipe-modal] detail_cache_hit', {
+        recipeId: selectedRecipe.id,
+        ingredientCount: cachedDetail.ingredients?.length || 0,
+        stepCount: cachedDetail.steps?.length || 0
+      });
+
+      setFullRecipe({ ...selectedRecipe, ...cachedDetail });
+      return;
+    }
 
     // Already have full detail - use directly
     if (hasFullDetail) {
@@ -119,7 +134,12 @@ export function useRecipeDetailModal(
 
         if (data?.recipe) {
           // Merge selected recipe with full detail
-          setFullRecipe({ ...selectedRecipe, ...data.recipe });
+          const mergedRecipe = { ...selectedRecipe, ...data.recipe };
+          
+          // Cache for future modal opens
+          setCachedRecipeDetail(selectedRecipe.id, mergedRecipe);
+          
+          setFullRecipe(mergedRecipe);
           
           console.log('[recipe-modal] render_ready', {
             traceId,
