@@ -153,10 +153,55 @@ export function replaceRecipeInPlan(
   
   const existing = Object.values(weeklyPlan).flat().filter(Boolean);
   
-  let candidates = availableCandidates.filter(c => matchesLocalSlotRole(c, slotRole));
-  candidates = candidates.filter(c => !weeklyPlan[dayKey]?.some(p => p?.id === c.id));
+  // Get current recipe to exclude it from candidates
+  const currentRecipe = weeklyPlan[dayKey]?.[index];
   
-  if (!candidates.length) return null;
+  // Get all used recipe IDs from entire weekly plan
+  const usedRecipeIds = new Set(
+    Object.values(weeklyPlan)
+      .flat()
+      .filter(Boolean)
+      .map((r: any) => r.id)
+  );
+  
+  // Exclude current recipe from used set so it can be reselected
+  if (currentRecipe?.id) {
+    usedRecipeIds.delete(currentRecipe.id);
+  }
+  
+  // Filter out recipes already used in entire week
+  const unusedCandidates = availableCandidates.filter(
+    (c: any) => c?.id && !usedRecipeIds.has(c.id)
+  );
+  
+  // Prefer exact slot role match
+  const exactCandidates = unusedCandidates.filter(
+    (c: any) => matchesLocalSlotRole(c, slotRole)
+  );
+  
+  let candidates = exactCandidates.length > 0 ? exactCandidates : unusedCandidates;
+  
+  // If all unused candidates are exhausted, fallback to any non-current recipe
+  if (!candidates.length) {
+    const nonCurrent = availableCandidates.filter(
+      (c: any) => c?.id && c.id !== currentRecipe?.id
+    );
+    const exactNonCurrent = nonCurrent.filter(
+      (c: any) => matchesLocalSlotRole(c, slotRole)
+    );
+    candidates = exactNonCurrent.length > 0 ? exactNonCurrent : nonCurrent;
+  }
+  
+  if (!candidates.length) {
+    console.warn('[generate] replace failed: no candidates', {
+      dayKey,
+      index,
+      slotRole,
+      availableCount: availableCandidates.length,
+      currentRecipeId: currentRecipe?.id,
+    });
+    return null;
+  }
   
   // Apply budget preference (soft bias)
   candidates = applyBudgetPreference(candidates, options?.budget);
@@ -171,7 +216,10 @@ export function replaceRecipeInPlan(
   const finalCandidates = reuseCandidates.length > 0 ? reuseCandidates : filteredCandidates;
   
   const scored = scoreCandidates(finalCandidates, existing);
-  const selected = scored?.[0]?.recipe;
+  // Pick randomly from top 5 to create variety
+  const topCandidates = scored.slice(0, Math.min(5, scored.length));
+  const selected =
+    topCandidates[Math.floor(Math.random() * topCandidates.length)]?.recipe;
   
   if (!selected) return null;
   
