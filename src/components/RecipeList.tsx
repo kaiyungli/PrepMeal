@@ -1,5 +1,6 @@
 import React from 'react';
 import RecipeCard from '@/components/RecipeCard';
+import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 
 interface RecipeListProps {
   recipes: any[];
@@ -48,17 +49,35 @@ function RecipeList({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {(recipes || []).map((recipe) => (
-        <RecipeCard
-          key={recipe.id}
-          recipe={recipe}
-          onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
-          isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
-          favoriteLoading={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
-          onFavoriteClick={typeof onFavoriteClick === 'function' ? () => onFavoriteClick(recipe.id) : undefined}
-          isAuthenticated={isAuthenticated}
-        />
-      ))}
+      {(recipes || []).map((recipe) => {
+        const handlePrefetch = (source: string) => {
+          if (recipe?.id) {
+            console.log('[recipe-card] prefetch_triggered', {
+              recipeId: recipe.id,
+              source
+            });
+            prefetchRecipeDetail(recipe.id);
+          }
+        };
+
+        return (
+          <div
+            key={recipe.id}
+            onMouseEnter={() => handlePrefetch('hover')}
+            onFocus={() => handlePrefetch('focus')}
+            onTouchStart={() => handlePrefetch('touch')}
+          >
+            <RecipeCard
+              recipe={recipe}
+              onClick={onRecipeClick ? () => onRecipeClick(recipe) : undefined}
+              isFavorite={typeof isFavorite === 'function' ? isFavorite(recipe.id) : undefined}
+              favoriteLoading={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
+              onFavoriteClick={typeof onFavoriteClick === 'function' ? () => onFavoriteClick(recipe.id) : undefined}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
