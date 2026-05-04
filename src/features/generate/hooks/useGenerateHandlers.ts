@@ -75,6 +75,32 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
   return reasons;
 }
 
+/**
+ * Get candidates for add-random: exact role first, fallback to any unused recipe
+ * so + 添加 never silently fails
+ */
+function getCandidatesForAddRandom(
+  filteredRecipes: any[],
+  weeklyPlan: Record<string, any[]>,
+  dayKey: string,
+  slotRole: string
+): any[] {
+  // Get recipes already in this day
+  const dayRecipes = (weeklyPlan[dayKey] || []).filter(Boolean);
+  const dayRecipeIds = new Set(dayRecipes.map((r: any) => r.id));
+
+  // Filter out already-used recipes
+  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id));
+
+  // Exact role match first
+  const exact = unused.filter((r: any) => matchesLocalSlotRole(r, slotRole));
+  if (exact.length > 0) return exact;
+
+  // Fallback: allow any unused recipe
+  return unused;
+}
+
+
 interface UseGenerateHandlersOptions {
   budget?: string;
   weeklyPlan: any;
@@ -150,11 +176,24 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
     const composition = dailyComposition || 'meat_veg';
     const nextSlotRole = getSlotRoleForIndex(composition, slotIndex);
     
-    let candidates = filteredRecipes.filter((r: any) => matchesLocalSlotRole(r, nextSlotRole));
-    candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
+    // Get candidates - exact role first, fallback to any unused
+    let candidates = getCandidatesForAddRandom(
+      filteredRecipes,
+      weeklyPlan,
+      dayKey,
+      nextSlotRole
+    );
     
-    // Apply budget preference (soft bias)
-    if (candidates.length === 0) return;
+    if (candidates.length === 0) {
+      console.warn('[generate] add random failed: no candidates', {
+        dayKey,
+        slotIndex,
+        nextSlotRole,
+        filteredCount: filteredRecipes.length,
+        dayRecipeCount: (weeklyPlan[dayKey] || []).filter(Boolean).length,
+      });
+      return;
+    }
     
     // Diversity filter (BEFORE preferences)
     const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
