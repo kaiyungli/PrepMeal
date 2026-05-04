@@ -136,7 +136,29 @@ export default function WeeklyPlanGrid({
                     <div className="bg-[#F8F3E8] rounded-lg overflow-hidden">
                       <div 
                         className="h-20 relative cursor-pointer"
+                        onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
+                        onFocus={() => handleRecipePrefetch(recipe, 'focus')}
+                        onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
+                        onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
+                        onFocus={() => handleRecipePrefetch(recipe, 'focus')}
+                        onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
                         onClick={() => onRecipeClick(recipe)}
+                        tabIndex={0}
+                        role="button"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onRecipeClick(recipe);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onRecipeClick(recipe);
+                          }
+                        }}
                       >
                         {recipe.image_url ? (
                           <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
