@@ -1,6 +1,12 @@
 import { scoreCandidates } from './recipeScorer';
 import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
 
+// Shuffle array helper for randomization
+function shuffle<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 /**
@@ -146,14 +152,14 @@ export function replaceRecipeInPlan(
   dayKey: string,
   index: number,
   availableCandidates: any[],
-  options?: { dailyComposition?: string; budget?: string }
+  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[] }
 ): Record<string, any[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
   const slotRole = getSlotRoleForIndex(composition, index);
   
   const existing = Object.values(weeklyPlan).flat().filter(Boolean);
   
-  // Get current recipe to exclude it from candidates
+  // Get current recipe
   const currentRecipe = weeklyPlan[dayKey]?.[index];
   
   // Get all used recipe IDs from entire weekly plan
@@ -164,32 +170,53 @@ export function replaceRecipeInPlan(
       .map((r: any) => r.id)
   );
   
-  // Exclude current recipe from used set so it can be reselected
-  if (currentRecipe?.id) {
-    usedRecipeIds.delete(currentRecipe.id);
+  // Keep current in used set to exclude it from self-replacement
+  // (only if we want to prevent same recipe immediately)
+  
+  // Filter out candidates already used in weekly plan (but allow current)
+  const unusedCandidates = availableCandidates.filter(
+    (c: any) => c?.id && c.id !== currentRecipe?.id && !usedRecipeIds.has(c.id)
+  );
+  
+  // Get history IDs to exclude recent selections for this slot
+  const historyIds = new Set(options?.excludeRecipeIds || []);
+  
+  // Priority A: exact role + unused + not history
+  let candidates = unusedCandidates.filter(
+    (c: any) => matchesLocalSlotRole(c, slotRole) && !historyIds.has(c.id)
+  );
+  
+  // Priority B: exact role + not current + not history
+  if (!candidates.length) {
+    candidates = availableCandidates.filter(
+      (c: any) => c.id !== currentRecipe?.id && matchesLocalSlotRole(c, slotRole) && !historyIds.has(c.id)
+    );
   }
   
-  // Filter out recipes already used in entire week
-  const unusedCandidates = availableCandidates.filter(
-    (c: any) => c?.id && !usedRecipeIds.has(c.id)
-  );
-  
-  // Prefer exact slot role match
-  const exactCandidates = unusedCandidates.filter(
-    (c: any) => matchesLocalSlotRole(c, slotRole)
-  );
-  
-  let candidates = exactCandidates.length > 0 ? exactCandidates : unusedCandidates;
-  
-  // If all unused candidates are exhausted, fallback to any non-current recipe
+  // Priority C: unused + not history
   if (!candidates.length) {
-    const nonCurrent = availableCandidates.filter(
-      (c: any) => c?.id && c.id !== currentRecipe?.id
+    candidates = unusedCandidates.filter((c: any) => !historyIds.has(c.id));
+  }
+  
+  // Priority D: any non-current + not history  
+  if (!candidates.length) {
+    candidates = availableCandidates.filter(
+      (c: any) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
     );
-    const exactNonCurrent = nonCurrent.filter(
+  }
+  
+  // Priority E: exact role + unused
+  if (!candidates.length) {
+    candidates = unusedCandidates.filter(
       (c: any) => matchesLocalSlotRole(c, slotRole)
     );
-    candidates = exactNonCurrent.length > 0 ? exactNonCurrent : nonCurrent;
+  }
+  
+  // Priority F: any non-current
+  if (!candidates.length) {
+    candidates = availableCandidates.filter(
+      (c: any) => c.id !== currentRecipe?.id
+    );
   }
   
   if (!candidates.length) {
