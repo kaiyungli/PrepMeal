@@ -15,19 +15,6 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
   
   const { recipe, meal_type, servings } = item;
   const mealLabel = MEAL_TYPES[meal_type] || meal_type;
-  const recipeUrl = getRecipeUrl(recipe);
-
-  const handlePrefetch = (source: string) => {
-    if (!recipe?.id) return;
-
-    console.log('[recipe-card] prefetch_triggered', {
-      recipeId: recipe.id,
-      source,
-      entry: 'my-plans'
-    });
-
-    prefetchRecipeDetail(recipe.id);
-  };
   const hasValidRecipe = recipe && recipeUrl;
   const handlePrefetch = (source: string) => {
     if (!recipe?.id) return;
