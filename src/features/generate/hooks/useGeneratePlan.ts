@@ -44,6 +44,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}) as WeeklyPlan
   );
   const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
+  const [replacementHistory, setReplacementHistory] = useState<Record<string, string[]>>({});
 
   const compositionKey = dailyComposition || 'meat_veg';
   const compositionConfig = COMPOSITION_CONFIG[compositionKey as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
