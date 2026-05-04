@@ -146,9 +146,9 @@ function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<st
   return reuseCandidates.length > 0 ? reuseCandidates : candidates;
 }
 
-const handleAddRandomRecipe = useCallback((dayKey: string): void => {
+const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): void => {
     const composition = dailyComposition || 'meat_veg';
-    const nextSlotRole = getSlotRoleForIndex(composition, weeklyPlan[dayKey]?.length || 0);
+    const nextSlotRole = getSlotRoleForIndex(composition, slotIndex);
     
     let candidates = filteredRecipes.filter((r: any) => matchesLocalSlotRole(r, nextSlotRole));
     candidates = candidates.filter((r: any) => !weeklyPlan[dayKey]?.some((pr: any) => pr?.id === r.id));
@@ -174,16 +174,17 @@ const handleAddRandomRecipe = useCallback((dayKey: string): void => {
     const reasons = buildSelectionReasons(random, nextSlotRole, recent, budget, weeklyPlan);
     const randomWithReasons = { ...random, selectionReasons: reasons };
     
-    setWeeklyPlan((prev: Record<string, any[]>) => ({
-      ...prev,
-      [dayKey]: [...(prev[dayKey] || []), randomWithReasons]
-    }));
+    setWeeklyPlan((prev: Record<string, any[]>) => {
+      const dayRecipes = [...(prev[dayKey] || [])];
+      dayRecipes[slotIndex] = randomWithReasons;
+      return { ...prev, [dayKey]: dayRecipes };
+    });
   }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {
       const dayRecipes = [...(prev[dayKey] || [])];
-      dayRecipes.splice(index, 1);
+      dayRecipes[index] = null;
       return { ...prev, [dayKey]: dayRecipes };
     });
   }, [setWeeklyPlan]);

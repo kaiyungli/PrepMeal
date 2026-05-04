@@ -63,7 +63,7 @@ interface Recipe {
  *   onLock: (dayKey, index) => void    - lock slot
  *   onUnlock: (dayKey, index) => void  - unlock slot
  *   onRemove: (dayKey, index) => void  - remove recipe
- *   onAddRandom: (dayKey) => void     - add random recipe
+ *   onAddRandom: (dayKey, index) => void - add random recipe
  */
 interface WeeklyPlanGridProps {
   weeklyPlan: Record<string, Recipe[]>
@@ -75,7 +75,7 @@ interface WeeklyPlanGridProps {
   onLock: (dayKey: string, index: number) => void
   onUnlock: (dayKey: string, index: number) => void
   onRemove: (dayKey: string, index: number) => void
-  onAddRandom: (dayKey: string) => void
+  onAddRandom: (dayKey: string, index: number) => void
 }
 
 export default function WeeklyPlanGrid({
@@ -192,7 +192,7 @@ export default function WeeklyPlanGrid({
                     </div>
                   ) : (
                     <button
-                      onClick={() => onAddRandom(day.key)}
+                      onClick={() => onAddRandom(day.key, index)}
                       className="w-full py-3 border-2 border-dashed border-[#DDD0B0] rounded-lg text-[#AA7A50] text-sm hover:border-[#9B6035] hover:text-[#9B6035] transition-colors"
                     >
                       + 添加

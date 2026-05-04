@@ -39,7 +39,7 @@ interface GenerateResultsProps {
   onUnlock: (dayKey: string, index: number) => void
   onRemove: (dayKey: string, index: number) => void
   onReplace: (dayKey: string, index: number) => void
-  onAddRandom: (dayKey: string) => void
+  onAddRandom: (dayKey: string, index: number) => void
   onRecipeClick: (recipe: Recipe) => void
 }
 
@@ -66,16 +66,16 @@ export default function GenerateResults({
     // Fallback: do nothing if no callback
   }
 
-  const addRandomRecipe = (dayKey: string) => {
+  const addRandomRecipe = (dayKey: string, index: number) => {
     if (onAddRandom) {
-      onAddRandom(dayKey);
+      onAddRandom(dayKey, index);
       return;
     }
     // Fallback: do nothing if no callback
   }
 
-  const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0)
-  const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+  const hasRecipes = Object.values(weeklyPlan).some(arr => Array.isArray(arr) && arr.some(Boolean))
+  const selectedCount = Object.values(weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0)
   
   // Log results render when plan changes
   useEffect(() => {
