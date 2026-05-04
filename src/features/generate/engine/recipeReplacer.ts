@@ -242,9 +242,9 @@ export function replaceRecipeInPlan(
   const reuseCandidates = applyIngredientReusePreference(filteredCandidates, weeklyPlan);
   const finalCandidates = reuseCandidates.length > 0 ? reuseCandidates : filteredCandidates;
   
-  const scored = scoreCandidates(finalCandidates, existing);
-  // Pick randomly from top 5 to create variety
-  const topCandidates = scored.slice(0, Math.min(5, scored.length));
+  const scored = scoreCandidates(shuffle(finalCandidates), existing);
+  // Pick randomly from a wider pool to create visible variety
+  const topCandidates = scored.slice(0, Math.min(15, scored.length));
   const selected =
     topCandidates[Math.floor(Math.random() * topCandidates.length)]?.recipe;
   
