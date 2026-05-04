@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { getRecipeUrl } from '@/utils/planUtils';
 
 const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
@@ -61,7 +62,11 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
     return (
       <button 
         onClick={onClick}
-          onTouchStart={() => {}}
+          onMouseEnter={() => handlePrefetch('hover')}
+                      onFocus={() => handlePrefetch('focus')}
+                      onTouchStart={() => {
+                        handlePrefetch('touch');
+                      }}
         className="w-full text-left cursor-pointer"
       >
         {cardContent}
