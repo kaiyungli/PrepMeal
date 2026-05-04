@@ -29,6 +29,11 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
     prefetchRecipeDetail(recipe.id);
   };
   const hasValidRecipe = recipe && recipeUrl;
+  const handlePrefetch = (source: string) => {
+    if (!recipe?.id) return;
+    console.log('[recipe-card] prefetch_triggered', { recipeId: recipe.id, source, entry: 'my-plans' });
+    prefetchRecipeDetail(recipe.id);
+  };
   
   const cardContent = (
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] active:scale-[0.99]">

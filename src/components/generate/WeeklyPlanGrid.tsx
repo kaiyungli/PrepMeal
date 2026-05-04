@@ -1,3 +1,4 @@
+import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import Image from 'next/image'
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { getSelectionReasonLabel, sortSelectionReasons } from '@/features/generate/config/selectionReasons';
@@ -92,6 +93,11 @@ export default function WeeklyPlanGrid({
 }: WeeklyPlanGridProps) {
   const weekDates = getWeekDates()
   const days = weekDates.slice(0, daysPerWeek)
+  const handleRecipePrefetch = (recipe: any, source: string) => {
+    if (!recipe?.id) return;
+    console.log('[recipe-card] prefetch_triggered', { recipeId: recipe.id, source, entry: 'generate' });
+    prefetchRecipeDetail(recipe.id);
+  }
 
   // Prefetch helper
   const handleRecipePrefetch = (recipe: any, source: string) => {
