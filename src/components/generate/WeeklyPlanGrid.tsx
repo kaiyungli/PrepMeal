@@ -1,6 +1,5 @@
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import Image from 'next/image'
-import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { getSelectionReasonLabel, sortSelectionReasons } from '@/features/generate/config/selectionReasons';
 
 // Get meal role label for display
@@ -100,17 +99,6 @@ export default function WeeklyPlanGrid({
   }
 
   // Prefetch helper
-  const handleRecipePrefetch = (recipe: any, source: string) => {
-    if (!recipe?.id) return;
-
-    console.log('[recipe-card] prefetch_triggered', {
-      recipeId: recipe.id,
-      source,
-      entry: 'generate'
-    });
-
-    prefetchRecipeDetail(recipe.id);
-  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
@@ -145,18 +133,7 @@ export default function WeeklyPlanGrid({
                         onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
                         onFocus={() => handleRecipePrefetch(recipe, 'focus')}
                         onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
-                        onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
-                        onFocus={() => handleRecipePrefetch(recipe, 'focus')}
-                        onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
                         onClick={() => onRecipeClick(recipe)}
-                        tabIndex={0}
-                        role="button"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            onRecipeClick(recipe);
-                          }
-                        }}
                         tabIndex={0}
                         role="button"
                         onKeyDown={(e) => {
