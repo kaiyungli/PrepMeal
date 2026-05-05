@@ -35,6 +35,7 @@ export function useGenerateActions({
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
   const [shoppingListError, setShoppingListError] = useState<string | null>(null);
+  const [shoppingListPlanSignature, setShoppingListPlanSignature] = useState<string | null>(null);
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
@@ -86,7 +87,17 @@ export function useGenerateActions({
       meta: { selectedRecipeCount: selectedCount },
     });
     
-    if (shoppingListView || shoppingListError) {
+    // Build signature to detect plan changes
+    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-${servings}-${pantryIngredients?.length || 0}`;
+    
+    // If plan changed, clear stale cache
+    if (currentSignature !== shoppingListPlanSignature && shoppingListView) {
+      setShoppingListView(null);
+      setShoppingListError(null);
+    }
+    
+    // Reuse only if signature matches
+    if ((shoppingListView || shoppingListError) && currentSignature === shoppingListPlanSignature) {
       perfLog({
         event: 'shopping_list',
         stage: 'memory_hit',
