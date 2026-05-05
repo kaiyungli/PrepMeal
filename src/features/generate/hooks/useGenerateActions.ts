@@ -35,7 +35,6 @@ export function useGenerateActions({
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
   const [shoppingListError, setShoppingListError] = useState<string | null>(null);
-  const [shoppingListPlanSignature, setShoppingListPlanSignature] = useState<string | null>(null);
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
