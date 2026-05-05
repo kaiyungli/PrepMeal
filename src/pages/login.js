@@ -37,6 +37,7 @@ export default function LoginPage() {
   const [appleLoading, setAppleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
 
   // Use auth state with loading indicator
   const { user, isAuthenticated, loading: authLoading, signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
@@ -55,7 +56,6 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     console.log('🔥 Google login clicked');
-    setLocalLoading(true);
     setError('');
     try {
       await signInWithGoogle();
@@ -69,7 +69,6 @@ export default function LoginPage() {
 
   const handleAppleLogin = async () => {
     console.log('🔥 Apple login clicked');
-    setLocalLoading(true);
     setError('');
     try {
       await signInWithApple();
@@ -83,7 +82,6 @@ export default function LoginPage() {
 
   const handleFacebookLogin = async () => {
     console.log('🔥 Facebook login clicked');
-    setLocalLoading(true);
     setError('');
     try {
       await signInWithFacebook();
@@ -97,7 +95,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLocalLoading(true);
     setError('');
     setMessage('');
 
@@ -125,7 +122,7 @@ export default function LoginPage() {
     }
   };
 
-  const loading = localLoading || authLoading;
+  const submitting = emailSubmitting || authLoading;
 
   return (
     <>
@@ -157,7 +154,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            disabled={loading || googleLoading || appleLoading || facebookLoading}
+            disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -172,7 +169,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => { setAppleLoading(true); handleAppleLogin(); }}
-            disabled={loading || googleLoading || appleLoading || facebookLoading}
+            disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -184,7 +181,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => { setFacebookLoading(true); handleFacebookLogin(); }}
-            disabled={loading || googleLoading || appleLoading || facebookLoading}
+            disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
@@ -217,8 +214,8 @@ export default function LoginPage() {
               required
             />
 
-            <Button type="submit" disabled={loading || googleLoading || appleLoading || facebookLoading} style={{ width: '100%', marginBottom: '16px' }}>
-              {loading ? '載入中...' : (isSignUp ? '註冊' : '登入')}
+            <Button type="submit" disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading} style={{ width: '100%', marginBottom: '16px' }}>
+              {emailSubmitting ? '載入中...' : (isSignUp ? '註冊' : '登入')}
             </Button>
           </form>
 
