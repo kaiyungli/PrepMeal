@@ -148,7 +148,7 @@ export default function FavoritesPage() {
       <>
         <Header {...headerCtrl} />
         <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
-          <p className="text-[#AA7A50]">載入中...</p>
+          <p className="text-[#AA7A50]">請先登入以查看收藏</p>
         </div>
       </>
     );
@@ -165,7 +165,7 @@ export default function FavoritesPage() {
 
           {loading ? (
             <div className="text-center py-20">
-              <p className="text-[#AA7A50]">載入中...</p>
+              <p className="text-[#AA7A50]">請先登入以查看收藏</p>
             </div>
           ) : favoriteRecipes.length === 0 ? (
             <div className="text-center py-20">
