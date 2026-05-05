@@ -28,7 +28,7 @@ export function useGeneratePreferences() {
   // === Planning Settings ===
   const [daysPerWeek, setDaysPerWeek] = useState(7);
   const [dishesPerDay, setDishesPerDay] = useState(2); // Legacy - prefer dailyComposition
-  const [dailyComposition, setDailyComposition] = useState('meat_veg');
+  const [dailyComposition, setDailyComposition] = useState('complete_meal');
   const [allowCompleteMeal, setAllowCompleteMeal] = useState(true);
   const [servings, setServings] = useState(2);
   
