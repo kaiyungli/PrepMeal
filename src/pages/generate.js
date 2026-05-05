@@ -92,6 +92,7 @@ export default function GeneratePage() {
     modalLoading,
     showShoppingList,
     shoppingListView,
+    shoppingListError,
     isShoppingListLoading,
     saveNotice,
     isSaving,
@@ -103,6 +104,7 @@ export default function GeneratePage() {
     handleRecipeClick,
     handleCloseRecipe,
     handleCloseShoppingList,
+    handleCopyShoppingList,
     lockSlot,
     unlockSlot,
     removeRecipe,
@@ -174,6 +176,8 @@ export default function GeneratePage() {
           onClose={handleCloseShoppingList}
           shoppingListView={shoppingListView}
           loading={isShoppingListLoading}
+          error={shoppingListError}
+          onCopy={handleCopyShoppingList}
         />
 
         <RecipeDetailModal 
