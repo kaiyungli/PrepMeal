@@ -120,7 +120,7 @@ export default function GeneratePage() {
           {/* Hero */}
           <div className="bg-[#9B6035] rounded-xl px-6 py-8 text-center">
             <h1 className='text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white mb-2'>
-              🍽️ 一週餐單
+              一週餐單
             </h1>
             <p className='text-white/80 text-base'>
               為你安排每日晚餐，簡單方便

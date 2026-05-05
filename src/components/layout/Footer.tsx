@@ -29,7 +29,7 @@ export default function Footer() {
               <Link href="/login" className="hover:opacity-100">登入</Link>
               <Link href="/profile" className="hover:opacity-100">個人資料</Link>
               <Link href="/favorites" className="hover:opacity-100">收藏</Link>
-              <Link href="/my-plans" className="hover:opacity-100">我既餐單</Link>
+              <Link href="/my-plans" className="hover:opacity-100">我的餐單</Link>
             </div>
           </div>
 
