@@ -35,6 +35,7 @@ export function useGenerateActions({
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
   const [shoppingListError, setShoppingListError] = useState<string | null>(null);
+    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
   const [shoppingListPlanSignature, setShoppingListPlanSignature] = useState<string | null>(null);
 
   // Save State
@@ -124,6 +125,8 @@ export function useGenerateActions({
         { traceId }
       );
       setShoppingListView(viewModel);
+    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
+      setShoppingListPlanSignature(currentSignature);
       
       // Ready log
       perfLog({
@@ -150,7 +153,7 @@ export function useGenerateActions({
     } finally {
       setIsShoppingListLoading(false);
     }
-  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, shoppingListError]);
+  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature]);
 
   const handleCloseShoppingList = useCallback(() => {
     setShowShoppingList(false);
@@ -180,6 +183,8 @@ export function useGenerateActions({
         { traceId }
       );
       setShoppingListView(viewModel);
+    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
+      setShoppingListPlanSignature(currentSignature);
       
       perfLog({
         event: 'shopping_list',
