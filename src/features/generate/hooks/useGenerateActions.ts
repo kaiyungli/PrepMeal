@@ -35,8 +35,27 @@ export function useGenerateActions({
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
   const [shoppingListError, setShoppingListError] = useState<string | null>(null);
-    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
   const [shoppingListPlanSignature, setShoppingListPlanSignature] = useState<string | null>(null);
+
+  // Build plan signature helper
+  const buildPlanSignature = useCallback(() => {
+    const recipeIds = Object.values(weeklyPlan || {})
+      .flat()
+      .filter(Boolean)
+      .map((r: any) => r.id)
+      .sort()
+      .join(',');
+
+    const pantrySignature = (pantryIngredients || [])
+      .slice()
+      .sort()
+      .join(',');
+
+    return `${recipeIds}|${servings}|${pantrySignature}`;
+  }, [weeklyPlan, servings, pantryIngredients]);
+
+  // Save State
+    const currentSignature = buildPlanSignature();
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
@@ -124,8 +143,8 @@ export function useGenerateActions({
         servings,
         { traceId }
       );
+      const currentSignature = buildPlanSignature();
       setShoppingListView(viewModel);
-    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
       setShoppingListPlanSignature(currentSignature);
       
       // Ready log
@@ -182,8 +201,8 @@ export function useGenerateActions({
         servings,
         { traceId }
       );
+      const currentSignature = buildPlanSignature();
       setShoppingListView(viewModel);
-    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-\${servings}-\${pantryIngredients?.length || 0}`;
       setShoppingListPlanSignature(currentSignature);
       
       perfLog({
