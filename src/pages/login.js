@@ -31,7 +31,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [localLoading, setLocalLoading] = useState(false);
+  // removed localLoading - use emailSubmitting
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
@@ -63,7 +63,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error('Google login error:', err);
       setError(err.message || 'Google 登入失敗');
-      setLocalLoading(false);
+      setEmailSubmitting(false);
     }
   };
 
@@ -76,7 +76,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error('Apple login error:', err);
       setError(err.message || 'Apple 登入失敗');
-      setLocalLoading(false);
+      setEmailSubmitting(false);
     }
   };
 
@@ -89,7 +89,7 @@ export default function LoginPage() {
     } catch (err) {
       console.error('Facebook login error:', err);
       setError(err.message || 'Facebook 登入失敗');
-      setLocalLoading(false);
+      setEmailSubmitting(false);
     }
   };
 
@@ -118,7 +118,7 @@ export default function LoginPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLocalLoading(false);
+      setEmailSubmitting(false);
     }
   };
 
