@@ -122,7 +122,7 @@ export default function LoginPage() {
     }
   };
 
-  const submitting = emailSubmitting || authLoading;
+  const submitting = emailSubmitting;
 
   return (
     <>
