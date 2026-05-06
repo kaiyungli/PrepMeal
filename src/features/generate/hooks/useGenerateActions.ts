@@ -105,7 +105,7 @@ export function useGenerateActions({
     });
     
     // Build signature to detect plan changes
-    const currentSignature = `${Object.values(weeklyPlan || {}).flat().filter(Boolean).map((r: any) => r.id).sort().join(',')}-${servings}-${pantryIngredients?.length || 0}`;
+    const currentSignature = buildPlanSignature();
     
     // If plan changed, clear stale cache
     if (currentSignature !== shoppingListPlanSignature && shoppingListView) {
@@ -169,7 +169,7 @@ export function useGenerateActions({
     } finally {
       setIsShoppingListLoading(false);
     }
-  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature]);
+  }, [weeklyPlan, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature, buildPlanSignature]);
 
   const handleCloseShoppingList = useCallback(() => {
     setShowShoppingList(false);
@@ -222,7 +222,7 @@ export function useGenerateActions({
         meta: { message: (err as Error).message },
       });
     }
-  }, [weeklyPlan, pantryIngredients, servings, traceId, shoppingListView, isShoppingListLoading]);
+  }, [weeklyPlan, traceId, shoppingListView, isShoppingListLoading, buildPlanSignature]);
 
   // Copy shopping list
   const handleCopyShoppingList = useCallback(async () => {
