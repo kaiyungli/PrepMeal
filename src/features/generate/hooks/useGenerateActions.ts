@@ -55,9 +55,6 @@ export function useGenerateActions({
   }, [weeklyPlan, servings, pantryIngredients]);
 
   // Save State
-    const currentSignature = buildPlanSignature();
-
-  // Save State
   const [saveNotice, setSaveNotice] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
