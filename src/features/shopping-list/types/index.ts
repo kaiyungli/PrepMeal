@@ -128,5 +128,5 @@ export function formatQuantityDisplay(
   }
   
   const formatted = formatQuantityForDisplay(quantity, unitDisplay);
-  return formatted;
+  return unitDisplay ? `${formatted} ${unitDisplay}` : formatted;
 }
