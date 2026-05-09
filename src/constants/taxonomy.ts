@@ -73,6 +73,7 @@ export const METHOD_MAP: Record<string, string> = {
   boil: '煮',
   bake: '焗',
   grill: '燒',
+  grilled: '燒',
   // Legacy/alt values
   炒: '炒',
   蒸: '蒸',
