@@ -47,9 +47,9 @@ const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', bo
 const getDifficultyLabel = (v?: string | null) => v ? (DIFFICULTY_MAP[v] || '其他') : '';
 const getSpeedLabel = (v?: string | null) => v ? (SPEED_MAP[v] || '其他') : '';
 const getMethodLabel = (v?: string | null) => v ? (METHOD_MAP[v] || '其他') : '';
-const getUnitLabel = (unit?: { code?: string; name?: string } | null) => {
+const getUnitLabel = (unit?: { code?: string; name?: string; display_name_zh?: string } | null) => {
   if (!unit) return '';
-  return unit.name || unit.code || '';
+  return unit.display_name_zh || unit.name || '其他';
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
@@ -175,7 +175,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
                   <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
-                  <span style={{ color: '#AA7A50' }}>{ing.quantity ?? '-'} getUnitLabel(ing.unit)</span>
+                  <span style={{ color: '#AA7A50' }}>{ing.quantity ?? '-'} {getUnitLabel(ing.unit)}</span>
                 </li>
               ))}
             </ul>

@@ -173,7 +173,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     .from('recipe_ingredients')
     .select(`
       quantity,
-      unit:units(id, code, name),
+      unit:units(id, code, name, display_name_zh),
       ingredients(id, name, slug, shopping_category)
     `)
     .eq('recipe_id', resolvedRecipeId);
