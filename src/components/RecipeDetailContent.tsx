@@ -39,9 +39,6 @@ function SectionSkeleton({ height = 'h-4' }: { height?: string }) {
   return <div className={`${height} w-full bg-[#E5DCC8] animate-pulse rounded`} />
 }
 
-const difficultyLabels: Record<string, string> = { easy: '易', medium: '中', hard: '難', 易: '易', 中: '中', 難: '難' }
-const speedLabels: Record<string, string> = { quick: '快', normal: '中', slow: '慢', 快: '快', 中: '中', 慢: '慢' }
-const methodLabels: Record<string, string> = { stir_fry: '炒', steam: '蒸', boil: '煮', bake: '焗', braised: '炆', grill: '燒', fried: '炸', 炒: '炒', 蒸: '蒸', 煮: '煮', 焗: '焗', 炆: '炆', 燒: '燒' }
 
 // Label helpers with safe fallback
 const getDifficultyLabel = (v?: string | null) => v ? (DIFFICULTY_MAP[v] || '其他') : '';
@@ -106,7 +103,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               {recipe.difficulty && (
                 <div className="rounded-lg px-4 py-2 shadow-lg" style={{ backgroundColor: '#C8D49A' }}>
                   <span style={{ fontSize: '0.875rem', fontWeight: 800, color: '#3A2010' }}>
-                    getDifficultyLabel(recipe.difficulty)
+                    {getDifficultyLabel(recipe.difficulty)}
                   </span>
                 </div>
               )}
@@ -114,7 +111,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                 <div className="rounded-lg px-4 py-2 shadow-lg flex items-center gap-1" style={{ backgroundColor: '#F8F3E8' }}>
                   <Clock className="w-4 h-4" style={{ color: '#9B6035' }} />
                   <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#9B6035' }}>
-                    getSpeedLabel(recipe.speed)
+                    {getSpeedLabel(recipe.speed)}
                   </span>
                 </div>
               )}
@@ -122,7 +119,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                 <div className="rounded-lg px-4 py-2 shadow-lg flex items-center gap-1" style={{ backgroundColor: '#F8F3E8' }}>
                   <ChefHat className="w-4 h-4" style={{ color: '#9B6035' }} />
                   <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#9B6035' }}>
-                    getMethodLabel(recipe.method)
+                    {getMethodLabel(recipe.method)}
                   </span>
                 </div>
               )}
