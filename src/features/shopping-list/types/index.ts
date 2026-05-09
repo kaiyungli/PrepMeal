@@ -112,6 +112,8 @@ export function createEmptyViewModel(): ShoppingListViewModel {
   };
 }
 
+import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+
 // Single source of truth for quantity display
 export function formatQuantityDisplay(
   quantity: number | null, 
@@ -125,17 +127,6 @@ export function formatQuantityDisplay(
     return '';
   }
   
-  // Round to max 2 decimal places, remove trailing zeros
-  let rounded = Math.round(quantity * 100) / 100;
-  
-  // Format: remove .0, keep up to 2 decimals
-  let qtyStr: string;
-  if (Number.isInteger(rounded)) {
-    qtyStr = String(rounded);
-  } else {
-    // Remove trailing zeros after decimal
-    qtyStr = rounded.toFixed(2).replace(/\.?0+$/, '');
-  }
-  
-  return unitDisplay ? `${qtyStr} ${unitDisplay}` : qtyStr;
+  const formatted = formatQuantityForDisplay(quantity, unitDisplay);
+  return formatted;
 }

@@ -98,21 +98,11 @@ export function formatUnitEnglish(unit: string | null | undefined): string {
 // Quantity formatting (unchanged)
 // ============================================================================
 
+import { formatQuantityForDisplay } from './quantityFormatter';
+
 export function formatQuantity(quantity: number | null | undefined, unit: string | null | undefined): string {
   if (quantity === null || quantity === undefined) return '-';
-  
-  const unitCode = unit?.toLowerCase() || '';
-  let qty = quantity;
-  
-  if (unitCode === 'g' || unitCode === 'ml' || unitCode === 'kg' || unitCode === 'l') {
-    qty = Math.round(qty);
-  } else if (unitCode === 'tbsp' || unitCode === 'tsp') {
-    qty = Math.round(qty * 2) / 2;
-  } else {
-    qty = Math.round(qty * 100) / 100;
-  }
-  
-  return qty.toString();
+  return formatQuantityForDisplay(quantity, unit);
 }
 
 export function formatIngredientDisplay(
