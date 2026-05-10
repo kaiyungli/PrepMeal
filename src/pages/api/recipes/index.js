@@ -153,7 +153,7 @@ export default async function handler(req, res) {
       let proteinList = protein.split(',').map(p => p.trim()).filter(Boolean);
       // Expand seafood to include shrimp
       if (proteinList.includes('seafood')) {
-        proteinList = proteinList.filter(p => p !== 'seafood').concat(['seafood', 'shrimp']);
+        proteinList = proteinList.filter(p => p !== 'seafood').concat(['seafood', 'shrimp', 'fish']);
       }
       if (proteinList.length > 0) {
         query = query.in('primary_protein', proteinList);
