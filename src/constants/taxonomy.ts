@@ -48,6 +48,7 @@ export const PROTEIN_MAP: Record<string, string> = {
   egg: '蛋',
   tofu: '豆腐',
   shrimp: '蝦',
+  seafood: '海鮮',
   fish: '魚',
   mixed: '混合蛋白',
 };
