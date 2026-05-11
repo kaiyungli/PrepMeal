@@ -223,22 +223,22 @@ export default function WeeklyPlanGrid({
                             )}
                           </div>
                         ) : null}
-                        <div className="mt-auto pt-2 flex gap-2">
+                        <div className="mt-4 flex items-center gap-2">
                           <button
                             onClick={() => onReplace(day.key, index)}
-                            className="text-xs px-2.5 py-1 bg-gray-200 rounded-full text-[#8B6914] hover:bg-gray-300 active:scale-95 transition-all"
+                            className="flex-1 text-sm font-medium bg-[#A66336] text-white rounded-full px-4 py-1.5 shadow-sm hover:bg-[#8B5230] active:scale-95 transition-all"
                           >
-                            替換
+                            換一道
                           </button>
                           <button
                             onClick={() => isLocked ? onUnlock(day.key, index) : onLock(day.key, index)}
-                            className="text-xs px-2.5 py-1 bg-gray-200 rounded-full text-[#8B6914] hover:bg-gray-300 active:scale-95 transition-all"
+                            className="text-sm bg-white/70 border border-[#E0CBB2] text-[#8B5A2B] rounded-full px-3 py-1.5 hover:bg-white active:scale-95 transition-all"
                           >
                             {isLocked ? '解鎖' : '鎖定'}
                           </button>
                           <button
                             onClick={() => onRemove(day.key, index)}
-                            className="text-xs px-2.5 py-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200 active:scale-95 transition-all"
+                            className="text-sm bg-red-50 border border-red-100 text-red-500 rounded-full px-3 py-1.5 hover:bg-red-100 active:scale-95 transition-all"
                           >
                             移除
                           </button>
