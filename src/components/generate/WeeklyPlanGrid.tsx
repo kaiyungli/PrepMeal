@@ -195,20 +195,30 @@ export default function WeeklyPlanGrid({
                         )}
                       </div>
                       <div className="p-3 flex flex-col">
-                        <div className="text-sm font-semibold text-[#3A2010] truncate mb-1">{recipe.name}</div>
+                        <div className="text-base font-bold text-[#3A2010] truncate mb-1.5">{recipe.name}</div>
                         {getMealRoleLabel(recipe) && (
                           <span className="text-[10px] px-2 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded-full mt-2 inline-block">
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
                         {/* Metadata: time, calories, difficulty, cuisine, speed */}
-                        {recipe.difficulty || recipe.cuisine || recipe.speed || getTimeLabel(recipe) || recipe.calories_per_serving ? (
-                          <div className="text-[10px] text-gray-500 mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5">
-                            {getTimeLabel(recipe) ? <><span>⏱ </span>{getTimeLabel(recipe)}</> : null}
-                            {recipe.calories_per_serving ? <><span>🔥 </span>{recipe.calories_per_serving}<span> kcal</span></> : null}
-                            {getDifficultyLabel(recipe.difficulty) ? <span>{getDifficultyLabel(recipe.difficulty)}</span> : null}
-                            {getCuisineLabel(recipe.cuisine) ? <span>{getCuisineLabel(recipe.cuisine)}</span> : null}
-                            {getSpeedLabel(recipe.speed) ? <span>{getSpeedLabel(recipe.speed)}</span> : null}
+                        {recipe.difficulty || getTimeLabel(recipe) || recipe.calories_per_serving ? (
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {getTimeLabel(recipe) && (
+                              <span className="text-xs px-2.5 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
+                                ⏱ {getTimeLabel(recipe)}
+                              </span>
+                            )}
+                            {recipe.calories_per_serving && (
+                              <span className="text-xs px-2.5 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
+                                🔥 {recipe.calories_per_serving} kcal
+                              </span>
+                            )}
+                            {getDifficultyLabel(recipe.difficulty) && (
+                              <span className="text-xs px-2.5 py-1 bg-[#E8F4E8] text-[#4A7040] rounded-full">
+                                {getDifficultyLabel(recipe.difficulty)}
+                              </span>
+                            )}
                           </div>
                         ) : null}
                         <div className="mt-auto pt-2 flex gap-1.5 items-center">
