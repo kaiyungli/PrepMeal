@@ -195,7 +195,7 @@ export default function WeeklyPlanGrid({
                         )}
                       </div>
                       <div className="p-3 flex flex-col">
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap mb-3">
                           <span className="text-base font-bold text-[#3A2010] truncate">{recipe.name}</span>
                           {getMealRoleLabel(recipe) && (
                             <span className="text-[10px] px-2 py-0.5 bg-[#E8E4DC] text-[#8B7355] rounded-full">
@@ -205,7 +205,7 @@ export default function WeeklyPlanGrid({
                         </div>
                         {/* Metadata: time, calories, difficulty, cuisine, speed */}
                         {recipe.difficulty || getTimeLabel(recipe) || recipe.calories_per_serving ? (
-                          <div className="mt-2 flex flex-wrap gap-2">
+                          <div className="mb-3 flex flex-wrap gap-2">
                             {getTimeLabel(recipe) && (
                               <span className="text-sm px-3 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
                                 ⏱ {getTimeLabel(recipe)}
@@ -223,7 +223,7 @@ export default function WeeklyPlanGrid({
                             )}
                           </div>
                         ) : null}
-                        <div className="mt-auto pt-2 flex gap-1.5 items-center">
+                        <div className="mt-auto pt-2 flex gap-2">
                           <button
                             onClick={() => onReplace(day.key, index)}
                             className="text-xs px-2.5 py-1 bg-gray-200 rounded-full text-[#8B6914] hover:bg-gray-300 active:scale-95 transition-all"
