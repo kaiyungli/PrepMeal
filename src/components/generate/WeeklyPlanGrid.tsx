@@ -13,6 +13,38 @@ function getMealRoleLabel(recipe: Recipe): string | null {
   return null;
 }
 
+// Get total time in minutes
+function getTimeLabel(recipe: Recipe): string | null {
+  const total = recipe.total_time_minutes || 
+    ((recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0));
+  return total > 0 ? `${total}分鐘` : null;
+}
+
+// Get difficulty label
+function getDifficultyLabel(difficulty?: string): string | null {
+  if (!difficulty) return null;
+  const map: Record<string, string> = { easy: '簡單', medium: '中等', hard: '困難' };
+  return map[difficulty] || null;
+}
+
+// Get cuisine label
+function getCuisineLabel(cuisine?: string): string | null {
+  if (!cuisine) return null;
+  const map: Record<string, string> = { 
+    japanese: '日式', chinese: '中式', western: '西式', 
+    italian: '意大利', korean: '韓式', thai: '泰式',
+    港式: '港式', 川菜: '川菜', 臺式: '臺式'
+  };
+  return map[cuisine] || cuisine;
+}
+
+// Get speed label  
+function getSpeedLabel(speed?: string): string | null {
+  if (!speed) return null;
+  const map: Record<string, string> = { quick: '快手', normal: '普通', slow: '慢煮' };
+  return map[speed] || null;
+}
+
 const DAYS = [
   { key: 'mon', label: '第一天', isWeekend: false },
   { key: 'tue', label: '第二天', isWeekend: false },
@@ -46,6 +78,12 @@ interface Recipe {
   dish_type?: string
   meal_role?: string
   is_complete_meal?: boolean
+  total_time_minutes?: number
+  prep_time_minutes?: number
+  cook_time_minutes?: number
+  calories_per_serving?: number
+  difficulty?: string
+  speed?: string
 }
 
 /**
@@ -163,11 +201,16 @@ export default function WeeklyPlanGrid({
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
-                        {(recipe as any).selectionReasons && sortSelectionReasons((recipe as any).selectionReasons).map((r: string) => (
-                          <span key={r} className="text-[10px] px-1 py-0.5 bg-blue-100 text-blue-700 rounded mt-1 mr-1">
-                            {getSelectionReasonLabel(r)}
-                          </span>
-                        ))}
+                        {/* Metadata: time, calories, difficulty, cuisine, speed */}
+                        {recipe.difficulty || recipe.cuisine || recipe.speed || getTimeLabel(recipe) || recipe.calories_per_serving ? (
+                          <div className="text-[10px] text-gray-500 mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5">
+                            {getTimeLabel(recipe) ? <><span>⏱ </span>{getTimeLabel(recipe)}</> : null}
+                            {recipe.calories_per_serving ? <><span>🔥 </span>{recipe.calories_per_serving}<span> kcal</span></> : null}
+                            {getDifficultyLabel(recipe.difficulty) ? <span>{getDifficultyLabel(recipe.difficulty)}</span> : null}
+                            {getCuisineLabel(recipe.cuisine) ? <span>{getCuisineLabel(recipe.cuisine)}</span> : null}
+                            {getSpeedLabel(recipe.speed) ? <span>{getSpeedLabel(recipe.speed)}</span> : null}
+                          </div>
+                        ) : null}
                         <div className="mt-auto pt-2 flex gap-1.5 items-center">
                           <button
                             onClick={() => onReplace(day.key, index)}
