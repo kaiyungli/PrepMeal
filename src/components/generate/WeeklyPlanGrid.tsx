@@ -127,9 +127,9 @@ export default function WeeklyPlanGrid({
               return (
                 <div key={index} className="relative">
                   {recipe ? (
-                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden flex flex-col sm:flex-row">
+                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden flex flex-col sm:flex-row sm:min-h-[128px]">
                       <div 
-                        className="sm:w-2/5 h-32 sm:h-auto relative cursor-pointer overflow-hidden"
+                        className="sm:w-[45%] h-32 sm:h-[128px] relative cursor-pointer overflow-hidden"
                         onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
                         onFocus={() => handleRecipePrefetch(recipe, 'focus')}
                         onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
@@ -157,9 +157,9 @@ export default function WeeklyPlanGrid({
                         )}
                       </div>
                       <div className="flex-1 p-3 flex flex-col justify-between">
-                        <div className="text-xs font-medium text-[#3A2010] truncate">{recipe.name}</div>
+                        <div className="text-sm font-semibold text-[#3A2010] truncate">{recipe.name}</div>
                         {getMealRoleLabel(recipe) && (
-                          <span className="text-[10px] px-1 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded mt-1 inline-block">
+                          <span className="text-[10px] px-1.5 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded mt-1.5 inline-block">
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
@@ -168,7 +168,7 @@ export default function WeeklyPlanGrid({
                             {getSelectionReasonLabel(r)}
                           </span>
                         ))}
-                        <div className="flex gap-1 mt-1">
+                        <div className="mt-auto pt-2 flex gap-1.5 items-center">
                           <button
                             onClick={() => onReplace(day.key, index)}
                             className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
