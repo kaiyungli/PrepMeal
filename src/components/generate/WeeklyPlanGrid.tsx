@@ -127,9 +127,9 @@ export default function WeeklyPlanGrid({
               return (
                 <div key={index} className="relative">
                   {recipe ? (
-                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden">
+                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden flex flex-col sm:flex-row">
                       <div 
-                        className="h-20 relative cursor-pointer"
+                        className="sm:w-2/5 h-32 sm:h-auto relative cursor-pointer overflow-hidden"
                         onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
                         onFocus={() => handleRecipePrefetch(recipe, 'focus')}
                         onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
@@ -156,7 +156,7 @@ export default function WeeklyPlanGrid({
                           </div>
                         )}
                       </div>
-                      <div className="p-2">
+                      <div className="flex-1 p-3 flex flex-col justify-between">
                         <div className="text-xs font-medium text-[#3A2010] truncate">{recipe.name}</div>
                         {getMealRoleLabel(recipe) && (
                           <span className="text-[10px] px-1 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded mt-1 inline-block">
