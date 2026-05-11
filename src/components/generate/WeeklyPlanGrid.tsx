@@ -127,7 +127,7 @@ export default function WeeklyPlanGrid({
               return (
                 <div key={index} className="relative">
                   {recipe ? (
-                    <div className="bg-[#F8F3E8] rounded-lg overflow-hidden flex flex-col sm:flex-row sm:min-h-[128px]">
+                    <div className="bg-[#F8F3E8] rounded-xl shadow-md overflow-hidden flex flex-col sm:flex-row sm:min-h-[128px] hover:shadow-lg transition-shadow">
                       <div 
                         className="sm:w-[62%] h-32 sm:h-[128px] relative cursor-pointer overflow-hidden"
                         onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
@@ -157,9 +157,9 @@ export default function WeeklyPlanGrid({
                         )}
                       </div>
                       <div className="flex-1 p-2.5 sm:p-3 flex flex-col">
-                        <div className="text-sm font-semibold text-[#3A2010] truncate">{recipe.name}</div>
+                        <div className="text-sm font-semibold text-[#3A2010] truncate mb-1">{recipe.name}</div>
                         {getMealRoleLabel(recipe) && (
-                          <span className="text-[10px] px-1.5 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded mt-1.5 inline-block">
+                          <span className="text-[10px] px-2 py-0.5 bg-[#F4EDDD] text-[#9B6035] rounded-full mt-2 inline-block">
                             {getMealRoleLabel(recipe)}
                           </span>
                         )}
@@ -171,19 +171,19 @@ export default function WeeklyPlanGrid({
                         <div className="mt-auto pt-2 flex gap-1.5 items-center">
                           <button
                             onClick={() => onReplace(day.key, index)}
-                            className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
+                            className="text-xs px-2.5 py-1 bg-gray-200 rounded-full text-[#8B6914] hover:bg-gray-300 active:scale-95 transition-all"
                           >
                             替換
                           </button>
                           <button
                             onClick={() => isLocked ? onUnlock(day.key, index) : onLock(day.key, index)}
-                            className="text-[10px] px-1 py-0.5 bg-gray-200 rounded text-[#AA7A50]"
+                            className="text-xs px-2.5 py-1 bg-gray-200 rounded-full text-[#8B6914] hover:bg-gray-300 active:scale-95 transition-all"
                           >
                             {isLocked ? '解鎖' : '鎖定'}
                           </button>
                           <button
                             onClick={() => onRemove(day.key, index)}
-                            className="text-[10px] px-1 py-0.5 bg-red-100 rounded text-red-600"
+                            className="text-xs px-2.5 py-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200 active:scale-95 transition-all"
                           >
                             移除
                           </button>
