@@ -65,7 +65,7 @@ function FavoriteButton({
         hover:scale-110 
         transition-transform
         ${active ? 'bg-rose-500 text-white' : 'bg-white/80 text-rose-400 hover:bg-white'}
-        cursor-pointer ${isDisabled ? 'cursor-not-allowed' : ''}
+        ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}
         ${className}
       `}
       aria-label={active ? "取消收藏" : "收藏"}
