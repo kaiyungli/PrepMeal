@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect, useCallback } from 'react'
+import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
 import FavoriteButton from './FavoriteButton'
 
 interface RecipeDetailContentProps {
@@ -48,39 +49,6 @@ const getUnitLabel = (unit?: { code?: string; name?: string; display_name_zh?: s
   if (!unit) return '';
   return unit.display_name_zh || unit.name || '其他';
 };
-
-// Format ingredient quantity for display (fractions, trim decimals)
-function formatIngredientQuantity(qty: number | null | undefined): string {
-  if (qty === null || qty === undefined) return '-';
-  
-  const q = Number(qty);
-  if (Number.isInteger(q)) return q.toString();
-  
-  // Common fractions
-  const fractions: Record<number, string> = {
-    0.3333333333333333: '1/3',
-    0.6666666666666666: '2/3',
-    0.5: '1/2',
-    0.25: '1/4',
-    0.75: '3/4',
-    0.125: '1/8',
-    0.375: '3/8',
-    0.625: '5/8',
-    0.875: '7/8',
-  };
-  
-  // Check exact match
-  if (fractions[q]) return fractions[q];
-  
-  // Check close to fraction
-  for (const [key, label] of Object.entries(fractions)) {
-    if (Math.abs(q - Number(key)) < 0.01) return label;
-  }
-  
-  // Round to max 2 decimals, trim trailing zeros
-  const rounded = Math.round(q * 100) / 100;
-  return rounded.toString();
-}
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
   if (!recipe) return null
@@ -205,7 +173,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
                   <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
-                  <span style={{ color: '#AA7A50' }}>{formatIngredientQuantity(ing.quantity)} {getUnitLabel(ing.unit)}</span>
+                  <span style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit)}</span>
                 </li>
               ))}
             </ul>
