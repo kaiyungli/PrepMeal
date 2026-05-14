@@ -173,7 +173,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
                   <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
-                  <span style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit)}</span>
+                  <span style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit)} {getUnitLabel(ing.unit)}</span>
                 </li>
               ))}
             </ul>
