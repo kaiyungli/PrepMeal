@@ -50,6 +50,7 @@ function FavoriteButton({
     <button 
       onClick={handleClick}
       disabled={isDisabled}
+      onTouchStart={() => {}}
       style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
       className={`
         rounded-full 
@@ -64,10 +65,11 @@ function FavoriteButton({
         hover:scale-110 
         transition-transform
         ${active ? 'bg-rose-500 text-white' : 'bg-white/80 text-rose-400 hover:bg-white'}
-        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        cursor-pointer ${isDisabled ? 'cursor-not-allowed' : ''}
         ${className}
       `}
       aria-label={active ? "取消收藏" : "收藏"}
+      aria-busy={loading}
       type="button"
     >
       <svg 
