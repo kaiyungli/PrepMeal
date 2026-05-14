@@ -104,7 +104,18 @@ export default function MyPlansPage() {
     }
   };
 
-  if (authLoading || !isAuthenticated) {
+  if (authLoading) {
+    return (
+      <>
+        <Header {...headerCtrl} />
+        <div className="min-h-screen bg-[#F8F3E8] flex items-center justify-center">
+          <p className="text-[#AA7A50]">載入中...</p>
+        </div>
+      </>
+    );
+  }
+
+  if (!isAuthenticated) {
     return (
       <>
         <Header {...headerCtrl} />
@@ -131,7 +142,7 @@ export default function MyPlansPage() {
 
           {loading ? (
             <div className="text-center py-20">
-              <p className="text-[#AA7A50]">登入後可查看你的餐單</p>
+              <p className="text-[#AA7A50]">正在載入餐單...</p>
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center py-20">
