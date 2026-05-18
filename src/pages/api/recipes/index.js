@@ -64,6 +64,7 @@ const LIST_FIELDS = `
   diet,
   flavor,
   is_public,
+  times_shown,
   created_at
 `;
 
