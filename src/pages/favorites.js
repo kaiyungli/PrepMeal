@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import RecipeFilters from '@/components/recipes/RecipeFilters';
+import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
@@ -21,6 +23,21 @@ export default function FavoritesPage() {
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [pendingIds, setPendingIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
+
+  // Recipe filtering - only filters locally, no refetch
+  const {
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    showFilters,
+    setShowFilters,
+    recipeFilterSections,
+    hasFilters,
+    activeFilterCount,
+    clearFilters,
+    filterRecipes,
+  } = useRecipeFilters();
 
   // Track fetched user to prevent refetch on session refresh
   const fetchedUserIdRef = useRef(null);
@@ -143,6 +160,12 @@ export default function FavoritesPage() {
     }
   }, [favoriteIds, favoriteRecipes, favoriteIdSet, pendingIds, getAccessToken]);
 
+  // Local filtered favorites - only recomputes when favorites or filters change
+  const filteredFavoriteRecipes = useMemo(
+    () => filterRecipes(favoriteRecipes),
+    [favoriteRecipes, filterRecipes]
+  );
+
   if (authLoading) {
     return (
       <>
@@ -174,6 +197,21 @@ export default function FavoritesPage() {
         <div className="max-w-[1200px] mx-auto px-4">
           <h1 className="text-2xl font-bold text-[#3A2010] mb-6">我的收藏</h1>
 
+          {!loading && favoriteRecipes.length > 0 && (
+            <RecipeFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              showFilters={showFilters}
+              setShowFilters={setShowFilters}
+              filterSections={recipeFilterSections}
+              hasFilters={hasFilters}
+              activeFilterCount={activeFilterCount}
+              clearFilters={clearFilters}
+            />
+          )}
+
           {loading ? (
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">正在載入收藏...</p>
@@ -184,6 +222,16 @@ export default function FavoritesPage() {
               <a href="/recipes" className="text-[#9B6035] font-medium hover:underline">
                 去搵啱你嘅食譜 →
               </a>
+            </div>
+          ) : filteredFavoriteRecipes.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-[#7A746B] mb-4">暫時冇符合條件嘅收藏食譜</p>
+              <button 
+                onClick={clearFilters}
+                className="text-[#9B6035] font-medium hover:underline"
+              >
+                清除篩選 →
+              </button>
             </div>
           ) : (
             <RecipeList
