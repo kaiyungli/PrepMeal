@@ -235,7 +235,7 @@ export default function FavoritesPage() {
             </div>
           ) : (
             <RecipeList
-              recipes={favoriteRecipes}
+              recipes={filteredFavoriteRecipes}
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
