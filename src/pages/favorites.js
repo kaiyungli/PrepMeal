@@ -205,7 +205,7 @@ export default function FavoritesPage() {
               setSortBy={setSortBy}
               showFilters={showFilters}
               setShowFilters={setShowFilters}
-              filterSections={recipeFilterSections}
+              recipeFilterSections={recipeFilterSections}
               hasFilters={hasFilters}
               activeFilterCount={activeFilterCount}
               clearFilters={clearFilters}
