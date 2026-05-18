@@ -223,6 +223,16 @@ export default async function handler(req, res) {
           .order('id', { ascending: false });
         break;
 
+      case 'oldest':
+        query = query
+          .order('created_at', { ascending: true })
+          .order('id', { ascending: true });
+        break;
+      case 'popular':
+        query = query
+          .order('times_shown', { ascending: false, nullsFirst: false })
+          .order('id', { ascending: false });
+        break;
       case 'newest':
       default:
         query = query
