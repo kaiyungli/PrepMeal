@@ -38,7 +38,7 @@ export default function FavoritesPage() {
     clearFilters,
     filterRecipes,
   } = useRecipeFilters();
-  
+
   // Track fetched user to prevent refetch on session refresh
   const fetchedUserIdRef = useRef(null);
 
@@ -166,15 +166,7 @@ export default function FavoritesPage() {
     [favoriteRecipes, filterRecipes]
   );
 
-    // Handle recipe click for view tracking
-  const handleRecipeClick = (recipe) => {
-    if (recipe?.id) {
-      trackView(String(recipe.id));
-    }
-  };
-
-  // Track when clicking  const handleRecipeClick = (recipe) => { if (recipe?.id) trackView(String(recipe.id)); };
-if (authLoading) {
+  if (authLoading) {
     return (
       <>
         <Header {...headerCtrl} />
