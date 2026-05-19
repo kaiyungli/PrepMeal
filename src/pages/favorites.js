@@ -175,6 +175,7 @@ export default function FavoritesPage() {
     }
   };
 
+  // Track when clicking  const handleRecipeClick = (recipe) => { if (recipe?.id) trackView(String(recipe.id)); };
 if (authLoading) {
     return (
       <>
@@ -248,6 +249,7 @@ if (authLoading) {
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
+              onRecipeClick={handleRecipeClick}
               onRecipeClick={handleRecipeClick}
             />
           )}
