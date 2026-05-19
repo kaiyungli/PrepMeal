@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useHomePageActions } from '@/features/home/hooks/useHomePageActions';
 import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
@@ -16,10 +16,13 @@ import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
-  const router = useRouter();
+
   const { toast, showToast } = useToast();
 
   // Performance logging
+
+  // Navigation actions via hook
+  const { handlePrimaryAction } = useHomePageActions();
 
   // Filters (temporarily kept in page)
   // Recipe filtering via hook
@@ -51,14 +54,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({ recipesList, showToast });
 
   // Performance logging via hook
-  const { markDataReady } = useHomePerfLogging();
 
-  
-
-  // Navigate to /generate
-  const handlePrimaryAction = useCallback(() => {
-    router.push('/generate');
-  }, [router]);
+  // Navigation actions via hook
 
   // Derived view state via hook
   const {
