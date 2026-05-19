@@ -220,11 +220,6 @@ export default async function handler(req, res) {
 
     return res.status(405).json(ApiResponse.methodNotAllowed());
   } catch (err) {
-    console.log('[menus-api] list_failed', {
-      duration_ms: Date.now(),
-      message: err.message,
-      stack: err.stack
-    });
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
   }
 }
