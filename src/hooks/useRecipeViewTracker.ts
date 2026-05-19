@@ -1,5 +1,5 @@
 // Track recipe views for popular sorting
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 let globalTrackView: ((id: string) => void) | null = null;
 
 // Initialize global tracker
@@ -32,7 +32,7 @@ export function useRecipeViewTracker() {
     }
   };
 
-  return { trackView: track };
+  return { trackView: useCallback(track, []) };
 }
 
 export default useRecipeViewTracker;

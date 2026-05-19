@@ -35,6 +35,16 @@ export default function RecipeDetail({ recipe, error }) {
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
 
+  // Track view on page visit
+  const { trackView } = useRecipeViewTracker();
+
+  // Track when detail page loads
+  useEffect(() => {
+    if (safeRecipe?.id) {
+      trackView(String(safeRecipe.id));
+    }
+  }, [safeRecipe?.id, trackView]);
+
   // Measure page load metrics
   useEffect(() => {
     return measurePageLoadMetrics();
