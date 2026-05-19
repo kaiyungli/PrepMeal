@@ -29,12 +29,8 @@ function RecipeList({
 }: RecipeListProps) {
   // Dev diagnostics - only runs in development
   if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-    console.log("[RecipeList] isFavorite type:", typeof isFavorite);
-    console.log("[RecipeList] isPending type:", typeof isPending);
-    console.log("[RecipeList] onFavoriteClick type:", typeof onFavoriteClick);
   }
   
-  console.log("[RecipeList] Received:", recipes?.length, "recipes"); if (!recipes || recipes.length === 0) {
     return (
       <div className="text-center py-20">
         <p className="text-[#7A746B] mb-4">{emptyMessage}</p>
@@ -52,7 +48,6 @@ function RecipeList({
       {(recipes || []).map((recipe) => {
         const handlePrefetch = (source: string) => {
           if (recipe?.id) {
-            console.log('[recipe-card] prefetch_triggered', {
               recipeId: recipe.id,
               source
             });
