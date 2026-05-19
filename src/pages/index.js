@@ -9,6 +9,7 @@ import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
+import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
@@ -73,11 +74,21 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
     router.push('/generate');
   }, [router]);
 
-  const hasSearchOrFilters = hasFilters || Boolean(searchQuery?.trim());
-  const showErrorState = !loading && fetchError;
-  const showEmptyState = !loading && !fetchError && recipesList.length === 0;
-  const showResults = !loading && !fetchError && recipesList.length > 0;
-    const resultCountText = totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
+  // Derived view state via hook
+  const {
+    hasSearchOrFilters,
+    showErrorState,
+    showEmptyState,
+    showResults,
+    resultCountText,
+  } = useHomePageViewState({
+    loading: loading,
+    fetchError: fetchError,
+    recipesList: recipesList,
+    totalCount: totalCount,
+    hasFilters: hasFilters,
+    searchQuery: searchQuery,
+  });
 
   return (
     <Layout>
