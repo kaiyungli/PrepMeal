@@ -40,11 +40,6 @@ export default async function handler(req, res) {
     const userId = await requireAuth(req, res);
     if (!userId) return;
     
-    console.log('[menus-api] auth_done', {
-      duration_ms: Date.now() - authStart,
-      hasUserId: Boolean(userId)
-    });
-    
     const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
 
     if (req.method === 'GET') {
@@ -53,8 +48,6 @@ export default async function handler(req, res) {
       }
       
       const getStart = Date.now();
-      console.log('[menus-api] list_start', { userId });
-      
       const plansStart = Date.now();
       const { data: plansData, error: plansError } = await serverSupabase
         .from('menu_plans')
@@ -71,11 +64,6 @@ export default async function handler(req, res) {
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      
-      console.log('[menus-api] list_plans_done', {
-        duration_ms: Date.now() - plansStart,
-        count: (plansData || []).length
-      });
       
       if (plansError) {
         console.error('[menus-api] list_plans_error', {
@@ -102,11 +90,6 @@ export default async function handler(req, res) {
         avg_servings: plan.avg_servings || 2,
         items: Array.isArray(plan.preview_items) ? plan.preview_items : []
       }));
-      
-      console.log('[menus-api] list_total_done', {
-        duration_ms: Date.now() - getStart,
-        planCount: plans.length
-      });
       
       return res.status(200).json(ApiResponse.success({ plans }));
     }
