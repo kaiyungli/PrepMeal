@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
