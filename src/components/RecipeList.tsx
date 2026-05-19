@@ -13,10 +13,6 @@ interface RecipeListProps {
   emptyLink?: string;
 }
 
-/**
- * RecipeList - shared component for rendering recipe card grids
- * Prepares per-recipe favorite props before passing to cards
- */
 function RecipeList({
   recipes,
   onRecipeClick,
@@ -27,10 +23,7 @@ function RecipeList({
   emptyMessage = '暫時未有食譜',
   emptyLink,
 }: RecipeListProps) {
-  // Dev diagnostics - only runs in development
-  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-  }
-  
+  if (!recipes || recipes.length === 0) {
     return (
       <div className="text-center py-20">
         <p className="text-[#7A746B] mb-4">{emptyMessage}</p>
@@ -45,8 +38,8 @@ function RecipeList({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {(recipes || []).map((recipe) => {
-        const handlePrefetch = (source: string) => {
+      {recipes.map((recipe) => {
+        const handlePrefetch = () => {
           if (recipe?.id) {
             prefetchRecipeDetail(recipe.id);
           }
@@ -55,9 +48,9 @@ function RecipeList({
         return (
           <div
             key={recipe.id}
-            onMouseEnter={() => handlePrefetch('hover')}
-            onFocus={() => handlePrefetch('focus')}
-            onTouchStart={() => handlePrefetch('touch')}
+            onMouseEnter={handlePrefetch}
+            onFocus={handlePrefetch}
+            onTouchStart={handlePrefetch}
           >
             <RecipeCard
               recipe={recipe}
