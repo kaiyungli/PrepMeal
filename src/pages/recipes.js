@@ -6,6 +6,7 @@ import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
@@ -37,6 +38,10 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   const handleRecipeClick = useCallback((recipe) => {
     const start = perfNow();
     setSelectedRecipe({ ...recipe });
+    // Track view for popular sorting
+    if (recipe?.id) {
+      trackView(recipe.id);
+    }
     requestAnimationFrame(() => {
       perfLog({
         event: 'interaction',
@@ -78,6 +83,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     clearFilters,
     filters,
   } = useRecipeFilters();
+  const { trackView } = useRecipeViewTracker();
 
   const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
     initialRecipes || [],

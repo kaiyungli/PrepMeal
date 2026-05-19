@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import { getPlanDetail } from '../services/getPlanDetail';
 import { mapPlanItemsByDay } from '../mappers/mapPlanItemsByDay';
 
@@ -71,8 +72,14 @@ export function usePlanDetailController({
     };
   }, [planId, isAuthenticated, userId]);
 
-  const handleRecipeClick = (id: string) => {
-    setSelectedRecipeId(id);
+  const { trackView } = useRecipeViewTracker();
+  
+  const handleRecipeClick = (id: string | number) => {
+    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
+    if (!isNaN(numericId)) {
+      setSelectedRecipeId(String(numericId));
+      trackView(numericId);
+    }
   };
 
   const handleCloseModal = () => {

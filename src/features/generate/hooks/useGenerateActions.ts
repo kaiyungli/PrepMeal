@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
 import { perfLog } from '@/utils/perf';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
@@ -29,6 +30,7 @@ export function useGenerateActions({
   const [modalLoading, setModalLoading] = useState(false);
   const recipeCache = useRef(new Map());
   const clickStartRef = useRef<number>(0);
+  const { trackView } = useRecipeViewTracker();
 
   // Shopping List State - Use new ViewModel
   const [shoppingListView, setShoppingListView] = useState<ShoppingListViewModel | null>(null);
@@ -81,6 +83,9 @@ export function useGenerateActions({
       
       recipeCache.current.set(recipe.id, recipeDetail);
       setSelectedRecipe(recipeDetail);
+      
+      // Track view for popular sorting
+      trackView(recipe.id);
     } catch (error) {
       console.error('Recipe fetch error:', error);
     } finally {
