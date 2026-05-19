@@ -48,9 +48,6 @@ function RecipeList({
       {(recipes || []).map((recipe) => {
         const handlePrefetch = (source: string) => {
           if (recipe?.id) {
-              recipeId: recipe.id,
-              source
-            });
             prefetchRecipeDetail(recipe.id);
           }
         };
