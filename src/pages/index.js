@@ -8,19 +8,18 @@ import HomeHero from '@/components/home/HomeHero';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useHomePerfLogging } from '@/features/home/hooks/useHomePerfLogging';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
-import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
-  // Homepage first-load start timestamp - created at initial render
-  const firstLoadStartRef = useRef(perfNow());
-  const homeDataReadyLogged = useRef(false);
   const router = useRouter();
   const { toast, showToast } = useToast();
+
+  // Performance logging
 
   // Filters (temporarily kept in page)
   const { 
@@ -38,36 +37,10 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
   // Controller
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({ recipesList, showToast });
 
-  // Log homepage first-load ready metric
-  useEffect(() => {
-    const start = firstLoadStartRef.current;
-    const end = perfNow();
-    perfLog({
-      event: 'page_load',
-      stage: 'home_ready',
-      label: 'home.first_load.ready',
-      start,
-      end,
-    });
+  // Performance logging via hook
+  const { markDataReady } = useHomePerfLogging();
 
-    // Measure real browser page load metrics (TTFB, FCP, LCP, DCL, load)
-    return measurePageLoadMetrics();
-  }, []);
-
-  // Log homepage data-ready metric when recipes data is available (only once)
-  useEffect(() => {
-    if (!recipesList || recipesList.length === 0) return;
-    if (homeDataReadyLogged.current) return;
-
-    homeDataReadyLogged.current = true;
-    perfLog({
-      event: 'page_load',
-      stage: 'home_data_ready',
-      label: 'home.first_load.data_ready',
-      start: firstLoadStartRef.current,
-      end: perfNow(),
-    });
-  }, [recipesList]);
+  
 
   // Navigate to /generate
   const handlePrimaryAction = useCallback(() => {
