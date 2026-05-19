@@ -7,9 +7,9 @@ import { Layout } from '@/components';
 import HomeHero from '@/components/home/HomeHero';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
-import { useRecipeFilters } from '@/hooks/useRecipeFilters';
+import { useHomeRecipeFilters } from '@/features/home/hooks/useHomeRecipeFilters';
 import { useHomePerfLogging } from '@/features/home/hooks/useHomePerfLogging';
-import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
+
 import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
 import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
@@ -22,17 +22,30 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
   // Performance logging
 
   // Filters (temporarily kept in page)
-  const { 
-    searchQuery, setSearchQuery, sortBy, setSortBy, 
-    showFilters, setShowFilters, recipeFilterSections, hasFilters, 
-    activeFilterCount, clearFilters, filters 
-  } = useRecipeFilters();
-
-  // API-driven filtered recipes (shared hook)
-  const { recipes: recipesList, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
-    initialRecipes || [],
-    { filters: filters, searchQuery, sortBy, limit: 24, initialTotalCount }
-  );
+  // Recipe filtering via hook
+  const {
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    showFilters,
+    setShowFilters,
+    recipeFilterSections,
+    hasFilters,
+    activeFilterCount,
+    clearFilters,
+    filters,
+    recipesList,
+    totalCount,
+    loading,
+    fetchError,
+    loadMore,
+    hasMore,
+    loadingMore,
+  } = useHomeRecipeFilters({
+    initialRecipes: initialRecipes || [],
+    initialTotalCount,
+  });
 
   // Controller
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({ recipesList, showToast });
