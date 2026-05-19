@@ -85,7 +85,7 @@ export function useGenerateActions({
       setSelectedRecipe(recipeDetail);
       
       // Track view for popular sorting
-      trackView(recipe.id);
+      trackView(String(recipe.id));
     } catch (error) {
       console.error('Recipe fetch error:', error);
     } finally {

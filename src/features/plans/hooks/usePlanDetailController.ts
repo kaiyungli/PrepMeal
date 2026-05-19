@@ -78,7 +78,7 @@ export function usePlanDetailController({
     const numericId = typeof id === "string" ? parseInt(id, 10) : id;
     if (!isNaN(numericId)) {
       setSelectedRecipeId(String(numericId));
-      trackView(numericId);
+      trackView(String(numericId));
     }
   };
 

@@ -1,14 +1,15 @@
 // Track recipe views for popular sorting
 import { useRef } from 'react';
+let globalTrackView: ((id: string) => void) | null = null;
 
-let globalTrackView: ((id: number) => void) | null = null;
-
-// Initialize tracking on first use
+// Initialize global tracker
 if (typeof window !== 'undefined' && !globalTrackView) {
-  const trackedRecipes = new Set<number>();
-  globalTrackView = async (recipeId: number) => {
+  const trackedRecipes = new Set<string>();
+  
+  globalTrackView = async (recipeId: string) => {
     if (!recipeId || trackedRecipes.has(recipeId)) return;
     trackedRecipes.add(recipeId);
+    
     try {
       await fetch(`/api/recipes/${recipeId}/track-view`, {
         method: 'POST',
@@ -21,12 +22,13 @@ if (typeof window !== 'undefined' && !globalTrackView) {
 }
 
 export function useRecipeViewTracker() {
-  const trackedRef = useRef(new Set<number>());
+  const trackedRef = useRef(new Set<string>());
 
-  const track = (recipeId: number) => {
-    if (globalTrackView && !trackedRef.current.has(recipeId)) {
-      trackedRef.current.add(recipeId);
-      globalTrackView(recipeId);
+  const track = (recipeId: string | number) => {
+    const id = String(recipeId);
+    if (globalTrackView && !trackedRef.current.has(id)) {
+      trackedRef.current.add(id);
+      globalTrackView(id);
     }
   };
 
