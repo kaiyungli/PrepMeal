@@ -30,7 +30,6 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const getStart = Date.now();
-      console.log('[menus-api] detail_start', { userId, planId });
       
       const planStart = Date.now();
       const { data: plan, error: planError } = await userSupabase
@@ -39,11 +38,6 @@ export default async function handler(req, res) {
         .eq('id', planId)
         .eq('user_id', userId)
         .single();
-      
-      console.log('[menus-api] detail_plan_done', {
-        duration_ms: Date.now() - planStart,
-        hasPlan: Boolean(plan)
-      });
       
       if (planError || !plan) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));
@@ -69,11 +63,6 @@ export default async function handler(req, res) {
         .eq('menu_plan_id', planId)
         .order('date', { ascending: true })
         .order('item_order', { ascending: true });
-      
-      console.log('[menus-api] detail_items_done', {
-        duration_ms: Date.now() - itemsStart,
-        itemCount: (items || []).length
-      });
       
       if (itemsError) {
         return res.status(500).json(ApiResponse.error(itemsError.message));
@@ -105,11 +94,6 @@ export default async function handler(req, res) {
           .select('id, name, image_url, total_time_minutes, difficulty, method')
           .in('id', recipeIds);
         
-        console.log('[menus-api] detail_recipes_done', {
-          duration_ms: Date.now() - recipesStart,
-          recipeCount: (recipes || []).length
-        });
-        
         if (recipes) {
           recipesMap = recipes.reduce((acc, r) => {
             acc[r.id] = r;
@@ -123,11 +107,6 @@ export default async function handler(req, res) {
         ...item,
         recipe: item.recipe_id ? recipesMap[item.recipe_id] : null,
       }));
-      
-      console.log('[menus-api] detail_total_done', {
-        duration_ms: Date.now() - getStart,
-        itemCount: itemsWithRecipes.length
-      });
       
       return res.status(200).json(ApiResponse.success({ plan: planResponse, items: itemsWithRecipes }));
     }
