@@ -32,10 +32,6 @@ function RecipeGridItem({
 }) {
   const handlePrefetch = (source: string) => {
     if (recipe?.id) {
-      console.log('[home-recipe-card] prefetch_triggered', {
-        recipeId: recipe.id,
-        source
-      });
       prefetchRecipeDetail(recipe.id);
     }
   };
@@ -126,15 +122,6 @@ function HomeRecipeGrid({
       
       // Load more when 1000px from bottom
       if (distanceFromBottom <= 1000) {
-        console.log('[home-scroll] load_more_triggered', {
-          scrollY,
-          windowHeight,
-          documentHeight,
-          distanceFromBottom,
-          hasMore,
-          loadingMore,
-          currentCount: safeRecipes.length
-        });
         loadMoreRef.current();
       }
     };
