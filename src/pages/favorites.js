@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 
 export default function FavoritesPage() {
   const headerCtrl = useHeaderController();
@@ -38,6 +39,7 @@ export default function FavoritesPage() {
     clearFilters,
     filterRecipes,
   } = useRecipeFilters();
+  const { trackView } = useRecipeViewTracker();
 
   // Track fetched user to prevent refetch on session refresh
   const fetchedUserIdRef = useRef(null);
@@ -166,7 +168,14 @@ export default function FavoritesPage() {
     [favoriteRecipes, filterRecipes]
   );
 
-  if (authLoading) {
+    // Handle recipe click for view tracking
+  const handleRecipeClick = (recipe) => {
+    if (recipe?.id) {
+      trackView(String(recipe.id));
+    }
+  };
+
+if (authLoading) {
     return (
       <>
         <Header {...headerCtrl} />
@@ -239,6 +248,7 @@ export default function FavoritesPage() {
               isFavorite={isFavorite}
               isPending={isPending}
               onFavoriteClick={handleFavoriteClick}
+              onRecipeClick={handleRecipeClick}
             />
           )}
         </div>
