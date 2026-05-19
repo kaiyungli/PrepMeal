@@ -75,11 +75,11 @@ export function usePlanDetailController({
   const { trackView } = useRecipeViewTracker();
   
   const handleRecipeClick = (id: string | number) => {
-    const numericId = typeof id === "string" ? parseInt(id, 10) : id;
-    if (!isNaN(numericId)) {
-      setSelectedRecipeId(String(numericId));
-      trackView(String(numericId));
-    }
+    const recipeId = String(id);
+    if (!recipeId) return;
+    
+    setSelectedRecipeId(recipeId);
+    trackView(recipeId);
   };
 
   const handleCloseModal = () => {
