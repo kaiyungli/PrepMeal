@@ -3,12 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 import { mapPlanResponse, mapItemResponse, mapItemsWithRecipes } from '@/features/plans/mappers/mapMenuPlanResponse';
-
-function createUserClient(supabaseUrl, anonKey, token) {
-  return createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } }
-  });
-}
+import { createUserSupabaseClient } from '@/lib/supabaseUserClient';
 
 export default async function handler(req, res) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -25,7 +20,7 @@ export default async function handler(req, res) {
     const userId = await requireAuth(req, res);
     if (!userId) return;
     
-    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
+    const userSupabase = createUserSupabaseClient({ supabaseUrl, anonKey: supabaseAnonKey, token });
 
     const planId = req.query.id;
 
