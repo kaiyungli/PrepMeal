@@ -1,6 +1,5 @@
 // Get single menu plan with items - uses real schema: menu_plans, menu_plan_items
 
-import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 import { mapPlanResponse, mapItemResponse, mapItemsWithRecipes } from '@/features/plans/mappers/mapMenuPlanResponse';
 import { getMenuPlanDetail } from '@/features/plans/server/getMenuPlanDetail';
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
       const getStart = Date.now();
       
       // Get plan detail from server
-      const { plan, items, error } = await getMenuPlanDetail(userSupabase, planId, userId);
+      const { plan, items, recipes, error } = await getMenuPlanDetail(userSupabase, planId, userId);
       
       if (error || !plan) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));
