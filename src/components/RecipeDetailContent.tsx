@@ -1,5 +1,4 @@
 import Image from 'next/image'
-import { ADS_CONFIG } from '@/constants/ads';
 import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect, useCallback } from 'react'
@@ -194,9 +193,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         )}
 
         {/* Ad between ingredients and steps */}
-        {ADS_CONFIG.isEnabled && (
-          <RecipeDetailInArticleAd className="my-6" />
-        )}
+        <RecipeDetailInArticleAd className="my-6" />
 
         {/* Steps Card - Deferred */}
         {showHeavySections ? (
