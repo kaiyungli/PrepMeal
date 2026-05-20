@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
+import { mapPlanResponse, mapItemResponse, mapItemsWithRecipes } from '@/features/plans/mappers/mapMenuPlanResponse';
 
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
@@ -44,17 +45,7 @@ export default async function handler(req, res) {
       }
       
       // Transform DB fields to frontend-safe response
-      const planResponse = {
-        id: plan.id,
-        user_id: plan.user_id,
-        name: plan.title,
-        week_start_date: plan.start_date,
-        days_count: plan.end_date && plan.start_date 
-          ? (new Date(plan.end_date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24) + 1 
-          : 7,
-        notes: null,
-        created_at: plan.created_at,
-      };
+      const planResponse = mapPlanResponse(plan);
       
       const itemsStart = Date.now();
       const { data: items, error: itemsError } = await userSupabase
@@ -69,19 +60,7 @@ export default async function handler(req, res) {
       }
       
       // Transform items to frontend-safe response
-      const itemsResponse = (items || []).map(item => ({
-        id: item.id,
-        menu_plan_id: item.menu_plan_id,
-        date: item.date,
-        day_index: item.date && plan.start_date 
-          ? (new Date(item.date) - new Date(plan.start_date)) / (1000 * 60 * 60 * 24)
-          : 0,
-        meal_type: item.meal_slot,
-        recipe_id: item.recipe_id,
-        servings: item.servings,
-        item_order: item.item_order,
-        source: item.source,
-      }));
+      const itemsResponse = (items || []).map(item => mapItemResponse(item, plan.start_date));
       
       // Get recipe details
       const recipeIds = itemsResponse.map(i => i.recipe_id).filter(Boolean);
@@ -103,10 +82,7 @@ export default async function handler(req, res) {
       }
       
       // Attach recipe details
-      const itemsWithRecipes = itemsResponse.map(item => ({
-        ...item,
-        recipe: item.recipe_id ? recipesMap[item.recipe_id] : null,
-      }));
+      const itemsWithRecipes = mapItemsWithRecipes(itemsResponse, recipes);
       
       return res.status(200).json(ApiResponse.success({ plan: planResponse, items: itemsWithRecipes }));
     }
