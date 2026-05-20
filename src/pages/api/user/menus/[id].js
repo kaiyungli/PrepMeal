@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 import { mapPlanResponse, mapItemResponse, mapItemsWithRecipes } from '@/features/plans/mappers/mapMenuPlanResponse';
+import { getMenuPlanDetail } from '@/features/plans/server/getMenuPlanDetail';
 import { createUserSupabaseClient } from '@/lib/supabaseUserClient';
 
 export default async function handler(req, res) {
@@ -27,56 +28,16 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const getStart = Date.now();
       
-      const planStart = Date.now();
-      const { data: plan, error: planError } = await userSupabase
-        .from('menu_plans')
-        .select('*')
-        .eq('id', planId)
-        .eq('user_id', userId)
-        .single();
+      // Get plan detail from server
+      const { plan, items, error } = await getMenuPlanDetail(userSupabase, planId, userId);
       
-      if (planError || !plan) {
+      if (error || !plan) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));
       }
       
-      // Transform DB fields to frontend-safe response
+      // Map to response
       const planResponse = mapPlanResponse(plan);
-      
-      const itemsStart = Date.now();
-      const { data: items, error: itemsError } = await userSupabase
-        .from('menu_plan_items')
-        .select('*')
-        .eq('menu_plan_id', planId)
-        .order('date', { ascending: true })
-        .order('item_order', { ascending: true });
-      
-      if (itemsError) {
-        return res.status(500).json(ApiResponse.error(itemsError.message));
-      }
-      
-      // Transform items to frontend-safe response
-      const itemsResponse = (items || []).map(item => mapItemResponse(item, plan.start_date));
-      
-      // Get recipe details
-      const recipeIds = itemsResponse.map(i => i.recipe_id).filter(Boolean);
-      let recipesMap = {};
-      
-      if (recipeIds.length > 0) {
-        const recipesStart = Date.now();
-        const { data: recipes } = await userSupabase
-          .from('recipes')
-          .select('id, name, image_url, total_time_minutes, difficulty, method')
-          .in('id', recipeIds);
-        
-        if (recipes) {
-          recipesMap = recipes.reduce((acc, r) => {
-            acc[r.id] = r;
-            return acc;
-          }, {});
-        }
-      }
-      
-      // Attach recipe details
+      const itemsResponse = (items || []).map((item) => mapItemResponse(item, plan.start_date));
       const itemsWithRecipes = mapItemsWithRecipes(itemsResponse, recipes);
       
       return res.status(200).json(ApiResponse.success({ plan: planResponse, items: itemsWithRecipes }));
