@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { isAdSenseEnabled, ADS_CONFIG } from '@/constants/ads';
+import { ADS_CONFIG, AD_SLOT_IDS } from '@/constants/ads';
 
 /**
  * Client-side Google AdSense slot
@@ -63,22 +63,22 @@ export default function AdSlot({ slotId, adFormat = 'auto', className = '' }: Ad
   );
 }
 
-// Recipe detail page ad
+// Recipe detail page ad - use slot ID from constants
 export function RecipeDetailInArticleAd({ className = 'my-6' }: { className?: string }) {
   return (
     <AdSlot 
-      slotId={ADS_CONFIG.pubId ? 'recipe-detail-in-article' : undefined}
+      slotId={AD_SLOT_IDS.recipeDetailInArticle}
       adFormat="horizontal"
       className={className}
     />
   );
 }
 
-// Ad below recipe content
+// Ad below recipe content - use slot ID from constants
 export function RecipeDetailBelowContentAd({ className = 'my-6' }: { className?: string }) {
   return (
     <AdSlot 
-      slotId={ADS_CONFIG.pubId ? 'recipe-detail-below-content' : undefined}
+      slotId={AD_SLOT_IDS.recipeDetailBelowContent}
       adFormat="horizontal"
       className={className}
     />
