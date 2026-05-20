@@ -99,18 +99,45 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
             hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}
           />
-          <HomeRecipesSection
-            recipesList={recipesList}
-            loading={loading}
-            showErrorState={showErrorState}
-            showEmptyState={showEmptyState}
-            showResults={showResults}
-            resultCountText={resultCountText}
-            loadMore={loadMore}
-            hasMore={hasMore}
-            loadingMore={loadingMore}
-            clearFilters={clearFilters}
-          />
+          {showResults && (
+          <>
+            {resultCountText && (
+              <div className="text-sm text-[#7A5A38] mb-2">
+                {resultCountText}
+              </div>
+            )}
+            <HomeRecipesSection
+              recipes={recipesList}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+            />
+          </>
+        )}
+
+        {loading && (
+          <div className="text-center py-12 text-[#AA7A50]">載入中...</div>
+        )}
+
+        {showErrorState && (
+          <div className="text-center py-12 text-red-600">
+            載入失敗，請重試
+          </div>
+        )}
+
+        {showEmptyState && (
+          <div className="text-center py-12">
+            <p className="text-[#AA7A50] mb-4">沒有找到食譜</p>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-[#9B6035] underline"
+              >
+                清除篩選
+              </button>
+            )}
+          </div>
+        )}
         </main>
         <Footer />
         {toast && <Toast {...toast} />}
