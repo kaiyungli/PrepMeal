@@ -18,12 +18,12 @@ export const ADS_CONFIG = {
     favorites: false,
     profile: false,
   },
-  
-  // Ad slot IDs (replace with actual IDs from AdSense)
-  slots: {
-    recipeDetailInArticle: '1234567890',
-    recipeDetailBelowContent: '0987654321',
-  },
+};
+
+// Ad slot IDs - set via environment for production
+export const AD_SLOT_IDS = {
+  recipeDetailInArticle: process.env.NEXT_PUBLIC_AD_SLOT_IN_ARTICLE || '',
+  recipeDetailBelowContent: process.env.NEXT_PUBLIC_AD_SLOT_BELOW_CONTENT || '',
 };
 
 export function isAdSenseEnabled(): boolean {
