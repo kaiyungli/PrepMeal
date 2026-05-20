@@ -6,31 +6,30 @@
  */
 
 import { useRef, useEffect } from 'react';
-import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
+import { useRouter } from 'next/router';
 
-// No options - logging is automatic based on component lifecycle
+// Lazy-loaded perf utils to avoid init order issues
+const getPerfUtils = () => {
+  try {
+    return require('@/utils/perf');
+  } catch {
+    return { perfNow: () => Date.now(), perfLog: () => {}, measurePageLoadMetrics: () => {} };
+  }
+};
+
 export function useHomePerfLogging() {
   // First load start timestamp ref - created once on component mount
-  const firstLoadStartRef = useRef(perfNow());
+  const firstLoadStartRef = useRef<number>(0);
   
   // Track if data ready has been logged
   const homeDataReadyLogged = useRef(false);
 
   // Log initial page ready (run once on mount)
   useEffect(() => {
-    const start = firstLoadStartRef.current;
-    const end = perfNow();
-    
-    perfLog({
-      event: 'page_load',
-      stage: 'home_ready',
-      label: 'home.first_load.ready',
-      start,
-      end,
-    });
-
-    // Measure real browser page load metrics (TTFB, FCP, LCP, DCL, load)
-    return measurePageLoadMetrics();
+    // Initialize start time
+    if (firstLoadStartRef.current === 0) {
+      firstLoadStartRef.current = Date.now();
+    }
   }, []);
 
   // Function to mark data ready - call this when recipes load completes
@@ -39,17 +38,22 @@ export function useHomePerfLogging() {
     
     homeDataReadyLogged.current = true;
     
-    const start = firstLoadStartRef.current;
-    const end = perfNow();
-    
-    perfLog({
-      event: 'page_load',
-      stage: 'data_ready',
-      label: 'home.first_load.data_ready',
-      start,
-      end,
-      duration: end - start,
-    });
+    try {
+      const { perfLog } = getPerfUtils();
+      const start = firstLoadStartRef.current;
+      const end = Date.now();
+      
+      perfLog({
+        event: 'page_load',
+        stage: 'data_ready',
+        label: 'home.first_load.data_ready',
+        start,
+        end,
+        duration: end - start,
+      });
+    } catch {
+      // Silent fail for perf logging
+    }
   };
 
   return {
