@@ -108,6 +108,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
             )}
             <HomeRecipesSection
               recipes={recipesList}
+              isFavorite={isFavorite}
+              onFavoriteClick={handleFavoriteToggle}
               loadMore={loadMore}
               hasMore={hasMore}
               loadingMore={loadingMore}
