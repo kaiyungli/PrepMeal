@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import SEO from '@/components/seo/SEO';
 import Header from '@/components/layout/Header';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
 
 /**
@@ -20,7 +21,7 @@ export default function Privacy() {
       </Head>
       
       <div className="min-h-screen bg-[#F8F3E8]">
-        <Header />
+        <Header {...useHeaderController()} />
         
         <main className="max-w-3xl mx-auto px-4 py-12">
           <h1 className="text-2xl font-bold text-[#3A2010] mb-6">隱私政策</h1>

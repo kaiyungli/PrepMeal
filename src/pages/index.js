@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Head from 'next/head';
 import SEO from '@/components/seo/SEO';
 import { useHomePageActions } from '@/features/home/hooks/useHomePageActions';
+import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useHomeRecipeFilters } from '@/features/home/hooks/useHomeRecipeFilters';
 import { useHomePerfLogging } from '@/features/home/hooks/useHomePerfLogging';
 import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
@@ -92,7 +93,10 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
         description="AI智能食譜搜尋及每週餐單生成。一click生成一週餐單，簡化每日晚飯選擇。"
         ogType="website"
       />
-        <Header showNav />
+        <Header
+          showNav
+          {...useHeaderController()}
+        />
         <main className="flex-1">
           <HomeHero onPrimaryAction={handlePrimaryAction} />
           <RecipeFilters
