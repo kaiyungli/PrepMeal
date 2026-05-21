@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import SEO from '@/components/seo/SEO';
 import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import Link from 'next/link';
 import { useEffect } from 'react';

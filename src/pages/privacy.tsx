@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import SEO from '@/components/seo/SEO';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
@@ -8,9 +9,13 @@ import Footer from '@/components/layout/Footer';
 export default function Privacy() {
   return (
     <>
+      <SEO
+        title="隱私政策"
+        description="PrepMeal 隱私政策 - 了解我們如何收集、使用、保護您的個人資料。"
+        canonical="https://eatwhathk.com/privacy"
+      />
       <Head>
         <title>隱私政策 | PrepMeal</title>
-        <meta name="description" content="PrepMeal 隱私政策 - 了解我們如何保護您的個人資料" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       
