@@ -1,5 +1,5 @@
 /**
- * sitemap.xml API
+ * sitemap.xml for SEO
  */
 import { fetchRecipesForServer } from '@/lib/recipesServer';
 
@@ -14,7 +14,11 @@ const STATIC_PAGES = [
   { path: '/privacy', priority: '0.5', freq: 'monthly' },
 ];
 
-export default async function handler(req, res) {
+export default function SitemapXml() {
+  return null;
+}
+
+export async function getServerSideProps({ res }) {
   let recipes = [];
   try {
     recipes = await fetchRecipesForServer(500) || [];
@@ -52,4 +56,5 @@ export default async function handler(req, res) {
 
   res.setHeader('Content-Type', 'application/xml');
   res.send(xml);
+  return { props: {} };
 }
