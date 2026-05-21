@@ -36,7 +36,7 @@ function FavoriteButton({
     e.nativeEvent?.stopImmediatePropagation?.();
     
     // Don't call onClick if disabled or loading
-    if (disabled || loading || !onClick) {
+    if (disabled || !onClick) {
       return;
     }
     
@@ -44,7 +44,7 @@ function FavoriteButton({
   }, [disabled, loading, onClick]);
 
   // Compute button state
-  const isDisabled = disabled || loading;
+  const isDisabled = disabled;
 
   return (
     <button 

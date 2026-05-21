@@ -169,8 +169,7 @@ export function useFavorites(token, userId) {
     const normalizedId = normalizeId(recipeId);
     
     if (!token) return false;
-    if (pendingRef.current.has(normalizedId)) return false;
-    
+    // Note: allow concurrent clicks - latest wins
     pendingRef.current.add(normalizedId);
     
     const isFav = favorites.includes(normalizedId);
