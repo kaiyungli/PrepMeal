@@ -49,16 +49,8 @@ function getUserIdentity(token, userId) {
 const favoritesFetcher = async ([, , token]) => {
   if (!token) return [];
   
-  const start = Date.now();
-  console.log('[favorites-hook] fetch_start');
-  
   const res = await fetch('/api/user/favorites', {
     headers: { Authorization: `Bearer ${token}` }
-  });
-  
-  console.log('[favorites-hook] response_received', {
-    duration_ms: Date.now() - start,
-    status: res.status
   });
   
   if (!res.ok) {
@@ -70,19 +62,21 @@ const favoritesFetcher = async ([, , token]) => {
   const data = await res.json();
   const favoritesData = data?.data?.favorites || data?.favorites || [];
   
-  console.log('[favorites-hook] json_parsed', {
-    duration_ms: Date.now() - start,
-    count: favoritesData.length
-  });
-  
   return favoritesData.map(id => normalizeId(id));
 };
 
 /**
  * useFavorites - single source of truth for favorite IDs
+ * Handles rapid consecutive toggles with latest-wins semantics
  */
 export function useFavorites(token, userId) {
   const userIdentity = getUserIdentity(token, userId);
+  
+  // Track latest favorites via ref to avoid stale closure
+  const latestFavoritesRef = useRef([]);
+  
+  // Sequence ID - increment to invalidate older requests
+  const sequenceRef = useRef(0);
   
   // Initialize with empty array (cache loaded in useEffect)
   const [cachedFavorites, setCachedFavorites] = useState([]);
@@ -99,10 +93,12 @@ export function useFavorites(token, userId) {
   useEffect(() => {
     if (!userIdentity) {
       setCachedFavorites([]);
+      latestFavoritesRef.current = [];
       return;
     }
     const loaded = loadCachedFavorites(userIdentity) || [];
     setCachedFavorites(loaded);
+    latestFavoritesRef.current = loaded;
   }, [userIdentity]);
   
   // Handle token changes
@@ -110,6 +106,7 @@ export function useFavorites(token, userId) {
     if (!token) {
       setShouldFetch(false);
       setCachedFavorites([]);
+      latestFavoritesRef.current = [];
       return;
     }
     // Small delay before API fetch
@@ -128,25 +125,26 @@ export function useFavorites(token, userId) {
       dedupingInterval: 5000,
       fallbackData: [],
       shouldRetryOnError: false,
-      onErrorRetry: (err, key, config, revalidate, options) => {
-        const status = err?.status;
-        if (status === 401 || status === 403) return;
-        setTimeout(() => revalidate(), 5000);
-      },
     }
   );
   
-  // Per-recipe pending state
+  // Per-recipe pending state (visual only, not blocking)
   const pendingRef = useRef(new Set());
   
   // Use API favorites when API has loaded, otherwise cached
   const hasApiLoaded = shouldFetch && !isLoading && !error && Array.isArray(apiFavorites);
   const favorites = hasApiLoaded ? apiFavorites : cachedFavorites;
   
+  // Always keep ref in sync with latest
+  if (favorites !== latestFavoritesRef.current) {
+    latestFavoritesRef.current = favorites;
+  }
+  
   // Sync API favorites to cache after successful fetch
   useEffect(() => {
     if (hasApiLoaded && userIdentity) {
       setCachedFavorites(apiFavorites);
+      latestFavoritesRef.current = apiFavorites;
       saveCachedFavorites(userIdentity, apiFavorites);
     }
   }, [hasApiLoaded, userIdentity]);
@@ -164,25 +162,31 @@ export function useFavorites(token, userId) {
     return pendingRef.current.has(normalizeId(recipeId));
   }, []);
   
-  // Toggle favorite - optimistic update with cache sync
+  // Toggle favorite - optimistic update with latest-wins
   const toggleFavorite = useCallback(async (recipeId) => {
     const normalizedId = normalizeId(recipeId);
     
     if (!token) return false;
-    // Note: allow concurrent clicks - latest wins
-    pendingRef.current.add(normalizedId);
     
-    const isFav = favorites.includes(normalizedId);
-    const previousFavorites = [...favorites];
+    // Capture current sequence and latest favorites
+    const mySequence = ++sequenceRef.current;
+    const currentFavorites = latestFavoritesRef.current;
+    
+    // Mark as pending (for UI)
+    pendingRef.current.add(normalizedId);
+    pendingRef.current = new Set(pendingRef.current); // trigger re-render
+    
+    const isFav = currentFavorites.includes(normalizedId);
+    
+    // Calculate new state based on LATEST, not closure
+    const newFavorites = isFav
+      ? currentFavorites.filter(id => id !== normalizedId)
+      : [...currentFavorites, normalizedId];
     
     // Optimistic update
-    const newFavorites = isFav
-      ? favorites.filter(id => id !== normalizedId)
-      : [...favorites, normalizedId];
-    
-    // Update both SWR cache and sessionStorage
     mutate(swrKey, newFavorites, false);
     setCachedFavorites(newFavorites);
+    latestFavoritesRef.current = newFavorites;
     if (userIdentity) {
       saveCachedFavorites(userIdentity, newFavorites);
     }
@@ -199,29 +203,30 @@ export function useFavorites(token, userId) {
             body: JSON.stringify({ recipe_id: normalizedId })
           });
       
-      if (res.ok) {
+      // Check if this request is still the latest
+      if (sequenceRef.current !== mySequence) {
+        // Newer request came in, ignore this result
         return true;
       }
       
-      // API error - rollback
-      mutate(swrKey, previousFavorites, false);
-      setCachedFavorites(previousFavorites);
-      if (userIdentity) {
-        saveCachedFavorites(userIdentity, previousFavorites);
+      if (res.ok) {
+        // Success - trigger revalidate to ensure sync
+        mutate(swrKey);
+        return true;
       }
+      
+      // API error - rollback to server state via revalidate
+      mutate(swrKey, undefined, { revalidate: true });
       return false;
     } catch (_) {
-      // Network error - rollback
-      mutate(swrKey, previousFavorites, false);
-      setCachedFavorites(previousFavorites);
-      if (userIdentity) {
-        saveCachedFavorites(userIdentity, previousFavorites);
-      }
+      // Network error - rollback to server state via revalidate
+      mutate(swrKey, undefined, { revalidate: true });
       return false;
     } finally {
       pendingRef.current.delete(normalizedId);
+      pendingRef.current = new Set(pendingRef.current); // trigger re-render
     }
-  }, [token, swrKey, userIdentity, favorites]);
+  }, [token, swrKey, userIdentity]);
   
   return {
     favorites,
