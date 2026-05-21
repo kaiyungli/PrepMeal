@@ -58,6 +58,7 @@ export default function RecipeDetail({ recipe, error }) {
         <title>{safeRecipe.name} - 今晚食乜</title>
         <meta name="description" content={safeRecipe.description || safeRecipe.name} />
       </Head>
+      <RecipeStructuredData recipe={safeRecipe} />
       
       {/* Page Shell - dumb wrapper */}
       <header className="sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3">
@@ -87,11 +88,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const _start = Date.now();
   
   const { recipe, error } = await loadRecipeDetail(params.id);
   
-  const totalMs = Date.now() - _start;
   
   if (!recipe) {
     return {
