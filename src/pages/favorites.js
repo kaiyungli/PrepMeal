@@ -37,7 +37,7 @@ export default function FavoritesPage() {
     activeFilterCount,
     clearFilters,
     filterRecipes,
-  } = useRecipeFilters();
+  } = useRecipeFilters({ initialShowFilters: false });
 
   // Track fetched user to prevent refetch on session refresh
   const fetchedUserIdRef = useRef(null);

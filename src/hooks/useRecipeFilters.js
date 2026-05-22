@@ -3,7 +3,8 @@ import { useState, useMemo, useCallback } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
 import { RECIPE_FILTER_GROUPS, buildFilterSections } from '@/constants/filterGroups';
 
-export function useRecipeFilters() {
+export function useRecipeFilters(options = {}) {
+  const { initialShowFilters = true } = options;
   const [filters, setFilters] = useState({
     cuisine: [],
     dish_type: [],
@@ -17,7 +18,7 @@ export function useRecipeFilters() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(initialShowFilters);
 
   // Build filter sections using centralized config - memoized
   const recipeFilterSections = useMemo(() => buildFilterSections(
