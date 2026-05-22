@@ -124,9 +124,9 @@ function HomeHero({
                 <div className="flex items-center gap-2">
                   {onRefreshPlan && (
                     <button 
-                      onClick={handleContinueInGenerate}
+                      onClick={onRefreshPlan}
                       className="w-10 h-10 rounded-xl bg-[#F8F3E8] flex items-center justify-center text-lg hover:bg-[#F4EDDD] transition-colors"
-                      title="用目前餐單去生成頁"
+                      title="刷新本週餐單" aria-label="刷新本週餐單"
                     >
                       🔄
                     </button>
