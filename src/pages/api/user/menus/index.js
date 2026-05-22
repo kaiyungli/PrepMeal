@@ -109,56 +109,22 @@ export default async function handler(req, res) {
         endDate.setDate(endDate.getDate() + days - 1);
         const end_date = endDate.toISOString().split('T')[0];
 
-        // Check if plan already exists for this user+week (upsert logic)
-        const { data: existingPlan, error: existingPlanError } = await userSupabase
+        // Always create a NEW plan (no upsert/overwrite)
+        const { data: plan, error: planError } = await userSupabase
           .from('menu_plans')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('start_date', week_start_date)
-          .maybeSingle();
+          .insert({
+            user_id: userId,
+            title: name,
+            start_date: week_start_date,
+            end_date: end_date,
+          })
+          .select()
+          .single();
         
-        if (existingPlanError) {
-          throw existingPlanError;
+        if (planError) {
+          throw planError;
         }
-        
-        let planId;
-        
-        if (existingPlan) {
-          // Update existing plan - delete old items first
-          planId = existingPlan.id;
-          
-          const { error: deleteError } = await userSupabase
-            .from('menu_plan_items')
-            .delete()
-            .eq('menu_plan_id', planId);
-          
-          if (deleteError) {
-            throw deleteError;
-          }
-          
-          // Update plan timestamp
-          await userSupabase
-            .from('menu_plans')
-            .update({ title: name, end_date: end_date, updated_at: new Date().toISOString() })
-            .eq('id', planId);
-        } else {
-          // Insert new plan
-          const { data: plan, error: planError } = await userSupabase
-            .from('menu_plans')
-            .insert({
-              user_id: userId,
-              title: name,
-              start_date: week_start_date,
-              end_date: end_date,
-            })
-            .select()
-            .single();
-          
-          if (planError) {
-            throw planError;
-          }
-          planId = plan.id;
-        }
+        const planId = plan.id;
 
         // Insert items using helper (computes item_order per group)
         const itemsToInsert = transformItemsToInsert(items, planId, week_start_date);
