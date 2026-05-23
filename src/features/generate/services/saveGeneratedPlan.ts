@@ -88,7 +88,16 @@ export function buildSavePayload(
     }
   }
   
-  const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
+  const now = new Date();
+  const formatted = now.toLocaleString('zh-HK', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const name = `${servings}人 ${daysPerWeek}日餐單 ${formatted}`;
   
   return {
     name,
