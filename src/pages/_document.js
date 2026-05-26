@@ -27,7 +27,7 @@ export default function Document() {
         {/* AdSense - visible in view-source */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7449807221408111"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7449807224140811"
           crossOrigin="anonymous"
         />
       </Head>
