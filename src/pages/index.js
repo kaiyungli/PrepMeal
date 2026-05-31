@@ -83,6 +83,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
       <Head>
         <title>今晚食乜 🥘 - 智能食譜搜尋及餐單生成</title>
         <meta name="description" content="AI智能食譜搜尋及每週餐單生成" />
+        <meta name="description" content="AI智能食譜搜尋及每週餐單生成" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -97,6 +98,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
           {...useHeaderController()}
         />
         <main className="flex-1">
+          <HomeHero onPrimaryAction={handlePrimaryAction} />
           <div className="max-w-[1200px] mx-auto px-4">
           <RecipeFilters
             searchQuery={searchQuery}
@@ -127,6 +129,30 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
           </>
           )}
           </div>
+
+        {loading && (
+          <div className="text-center py-12 text-[#AA7A50]">載入中...</div>
+        )}
+
+        {showErrorState && (
+          <div className="text-center py-12 text-red-600">
+            載入失敗，請重試
+          </div>
+        )}
+
+        {showEmptyState && (
+          <div className="text-center py-12">
+            <p className="text-[#AA7A50] mb-4">沒有找到食譜</p>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-[#9B6035] underline"
+              >
+                清除篩選
+              </button>
+            )}
+          </div>
+        )}
         </main>
         <Footer />
         {toast && <Toast {...toast} />}
