@@ -1,7 +1,5 @@
-import Head from 'next/head';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import SEO from '@/components/seo/SEO';
+import Layout from '@/components/layout/Layout';
 
 const faqItems = [
   {
@@ -48,43 +46,34 @@ const faqItems = [
 
 export default function Faq() {
   return (
-    <>
+    <Layout>
       <SEO
         title="常見問題"
         description="今晚食乜常見問題解答"
         canonical="https://eatwhathk.com/faq"
       />
-      <Head>
-        <title>常見問題 | 今晚食乜</title>
-      </Head>
       
-      <div className="min-h-screen bg-[#F8F3E8]">
-        <Header />
+      <main className="max-w-3xl mx-auto px-4 py-12">
+        <h1 className="text-2xl font-bold text-[#3A2010] mb-8 text-center">
+          常見問題
+        </h1>
         
-        <main className="max-w-3xl mx-auto px-4 py-12">
-          <h1 className="text-2xl font-bold text-[#3A2010] mb-8 text-center">
-            常見問題
-          </h1>
-          
-          <div className="space-y-6">
-            {faqItems.map((item, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-6 shadow-sm"
-              >
-                <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-                  {index + 1}. {item.question}
-                </h2>
-                <p className="text-[#5A4030] leading-relaxed">
-                  {item.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
-    </>
+        <div className="space-y-6">
+          {faqItems.map((item, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl p-6 shadow-sm"
+            >
+              <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
+                {index + 1}. {item.question}
+              </h2>
+              <p className="text-[#5A4030] leading-relaxed">
+                {item.answer}
+              </p>
+            </div>
+          ))}
+        </div>
+      </main>
+    </Layout>
   );
 }

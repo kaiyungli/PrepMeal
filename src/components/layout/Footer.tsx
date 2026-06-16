@@ -39,12 +39,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[#E7E0D4] pt-8 text-center text-sm opacity-60">
-            <Link href="/privacy" className="hover:opacity-100 mr-4">隱私政策</Link>
-              <Link href="/faq" className="hover:opacity-100 mr-4">常見問題</Link>
+        <div className="border-t border-[#E7E0D4] pt-8">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 text-sm opacity-60">
+            <div className="flex gap-4">
+              <Link href="/privacy" className="hover:opacity-100">隱私政策</Link>
+              <Link href="/faq" className="hover:opacity-100">常見問題</Link>
               <Link href="/terms" className="hover:opacity-100">服務條款</Link>
-            © 2026 今晚食乜 Made with ❤️
+            </div>
+            <div>
+              © 2026 今晚食乜 Made with ❤️
+            </div>
           </div>
+        </div>
       </div>
     </footer>
   );
