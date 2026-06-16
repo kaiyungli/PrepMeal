@@ -15,6 +15,7 @@ import Footer from '@/components/layout/Footer';
 import HomeHero from '@/components/home/HomeHero';
 import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
+import HomeFeaturedRecipes from '@/components/home/HomeFeaturedRecipes';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
@@ -103,6 +104,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
           <HomeHero onPrimaryAction={handlePrimaryAction} />
           <HomeHowItWorks />
           <HomeAboutSection />
+          <HomeFeaturedRecipes recipes={recipesList} />
           <div className="max-w-[1200px] mx-auto px-4">
           <RecipeFilters
             searchQuery={searchQuery}
