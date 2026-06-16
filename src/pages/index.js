@@ -13,6 +13,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HomeHero from '@/components/home/HomeHero';
+import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
