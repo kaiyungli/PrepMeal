@@ -19,6 +19,7 @@ export default function Footer() {
               <Link href="/" className="hover:opacity-100">首頁</Link>
               <Link href="/generate" className="hover:opacity-100">生成餐單</Link>
               <Link href="/recipes" className="hover:opacity-100">食譜</Link>
+              <Link href="/hk-dinner-ideas">晚餐靈感</Link>
               <Link href="/meal-plan-example">一週餐單範例</Link>
               <Link href="/contact">聯絡我們</Link>
               <Link href="/about" className="hover:opacity-100">關於</Link>
