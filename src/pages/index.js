@@ -101,6 +101,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
         />
         <main className="flex-1">
           <HomeHero onPrimaryAction={handlePrimaryAction} />
+          <HomeHowItWorks />
+          <HomeAboutSection />
           <div className="max-w-[1200px] mx-auto px-4">
           <RecipeFilters
             searchQuery={searchQuery}
