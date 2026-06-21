@@ -71,7 +71,33 @@ export default function Privacy() {
               <p>如有任何疑問，請透過應用程式內的支援渠道聯繫我們。</p>
             </section>
 
-            <p className="text-sm text-[#AA7A50] pt-4">最後更新：2026年5月21日</p>
+            <p className="text-sm text-[#AA7A50] pt-4">最後更新：2026年6月21日</p>
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">資料保留期限</h2>
+            <p>我們只會於達成相關用途所需期間內保留個人資料。</p>
+            <p className="mt-2">帳戶資料一般會於帳戶存在期間保留。</p>
+            <p className="mt-2">用戶建立的餐單、收藏及相關設定會於帳戶存續期間保存，以提供服務功能。</p>
+            <p className="mt-2">如用戶要求刪除帳戶，我們會於合理期間內刪除或匿名化相關資料，惟法律、保安或技術需要保留的資料除外。</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">用戶權利</h2>
+            <p>你有權查閱、更正或刪除你的個人資料。</p>
+            <p className="mt-2">如希望查詢、更正或刪除相關資料，可透過本頁提供的聯絡方式與我們聯絡。</p>
+            <p className="mt-2">我們會於合理時間內處理相關要求，並於適用情況下作出回覆。</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">第三方服務</h2>
+            <p>為提供網站功能及改善服務質素，我們可能使用第三方服務供應商，包括但不限於：</p>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>Google Authentication（登入服務）</li>
+              <li>Google AdSense（廣告服務）</li>
+              <li>Vercel（網站託管服務）</li>
+            </ul>
+            <p className="mt-2">上述第三方服務可能根據其自身私隱政策處理相關資料。</p>
+          </section>
+
           </div>
         </main>
         

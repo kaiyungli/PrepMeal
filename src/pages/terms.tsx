@@ -22,6 +22,12 @@ export default function Terms() {
         <main className="max-w-3xl mx-auto px-4 py-12">
           <h1 className="text-2xl font-bold text-[#3A2010] mb-6">服務條款</h1>
           
+          <p className="text-sm text-[#AA7A50] mb-4">最後更新日期：2026年6月</p>
+          
+          <p className="mb-6">
+            使用今晚食乜（eatwhathk.com）即表示你同意遵守本服務條款及相關政策。
+          </p>
+          
           <div className="space-y-6 text-[#5A4030]">
             <section>
               <h2 className="text-lg font-semibold text-[#3A2010] mb-2">服務說明</h2>
@@ -68,7 +74,32 @@ export default function Terms() {
               <p>如對本服務條款有任何疑問，請透過應用程式內的支援渠道聯繫我們。</p>
             </section>
 
-            <p className="text-sm text-[#AA7A50] pt-4">生效日期：2026年5月21日</p>
+            <p className="text-sm text-[#AA7A50] pt-4">生效日期：2026年6月21日</p>
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">AI生成內容聲明</h2>
+            <p>本網站部分功能會利用人工智能技術協助生成餐單建議、食譜推薦及購物清單。</p>
+            <p className="mt-2">相關內容僅供一般參考用途，可能出現不完整、過時或不適用於特定人士的情況。</p>
+            <p className="mt-2">用戶應自行判斷相關內容是否符合個人需要，並於有需要時自行作出調整。</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">健康與營養免責聲明</h2>
+            <p>本網站提供的食譜、營養及飲食相關內容僅供一般資訊用途，並不構成醫療、營養或專業健康建議。</p>
+            <p className="mt-2">如你有食物過敏、慢性疾病、懷孕、特殊飲食需求或其他健康狀況，應先諮詢醫生、註冊營養師或其他專業人士意見。</p>
+            <p className="mt-2">用戶因使用本網站內容而產生的任何風險，需自行承擔。</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">知識產權</h2>
+            <p>除另有註明外，本網站之內容、文字、圖片、設計、標誌及相關資料均屬今晚食乜所有或獲授權使用。</p>
+            <p className="mt-2">未經書面同意，不得複製、修改、重新發布或作商業用途使用。</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">帳戶終止</h2>
+            <p>如發現用戶濫用服務、從事違法活動、干擾網站運作、進行未經授權的自動化存取或其他損害網站及其他用戶利益的行為，我們有權暫停或終止相關帳戶及服務存取權限。</p>
+          </section>
+
           </div>
         </main>
         
