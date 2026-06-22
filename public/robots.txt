@@ -1,4 +1,4 @@
-User-agent: *
+-e User-agent: *
 Allow: /
 
-Sitemap: https://eatwhathk.com/sitemap.xml
+Sitemap: https://eatwhathk.com/sitemap-v2.xml
