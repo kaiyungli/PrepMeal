@@ -8,13 +8,14 @@ interface LayoutProps {
 }
 
 export default function Layout({ children, showNav = true }: LayoutProps) {
-  const { isAuthenticated, loading, loggingOut, navLinks, isActiveRoute, handleLogout } = useHeaderController();
+  const { isAuthenticated, loading, loggingOut, navLinks, trustLinks, isActiveRoute, handleLogout } = useHeaderController();
 
   return (
     <div className="min-h-screen bg-bg font-sans">
       <Header 
         showNav={showNav}
         navLinks={navLinks}
+        trustLinks={trustLinks}
         isAuthenticated={isAuthenticated}
         loading={loading}
         loggingOut={loggingOut}

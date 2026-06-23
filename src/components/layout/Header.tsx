@@ -12,6 +12,7 @@ interface HeaderProps {
   showNav?: boolean;
   // Data props
   navLinks?: NavLink[];
+  trustLinks?: NavLink[];
   isAuthenticated?: boolean;
   loading?: boolean;
   loggingOut?: boolean;
@@ -24,6 +25,7 @@ interface HeaderProps {
 export default function Header({ 
   showNav = true,
   navLinks = [],
+  trustLinks = [],
   isAuthenticated = false,
   loading = false,
   loggingOut = false,
@@ -117,6 +119,8 @@ export default function Header({
         <div className="md:hidden bg-[#F8F3E8] border-b border-[#DDD0B0] px-4 py-4">
           <nav className="flex flex-col gap-4">
             {navLinks.map((link) => renderNavLink(link, true))}
+            <hr className="border-[#E5DCC8]" />
+            {trustLinks.map((link) => renderNavLink(link, true))}
             <hr className="border-[#E5DCC8]" />
             {!loading && (
               isAuthenticated ? (
