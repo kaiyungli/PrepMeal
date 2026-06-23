@@ -1,5 +1,40 @@
 // Dynamic sitemap with recipe URLs
-import { fetchRecipesForServer } from '@/lib/recipesServer';
+// Use Supabase directly to avoid import issues
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+const getSupabase = () => {
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+};
+
+async function fetchRecipeSlugs() {
+  const supabase = getSupabase();
+  if (!supabase) {
+    console.log('[sitemap] no supabase client');
+    return [];
+  }
+  
+  try {
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('slug')
+      .eq('is_public', true)
+      .limit(500);
+    
+    if (error) {
+      console.log('[sitemap] query error:', error.message);
+      return [];
+    }
+    
+    return data || [];
+  } catch (err) {
+    console.log('[sitemap] exception:', err.message);
+    return [];
+  }
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -52,7 +87,7 @@ export async function getServerSideProps({ res }) {
     const urls = [...STATIC_URLS];
     
     try {
-      const recipes = await fetchRecipesForServer(500);
+      const recipes = await fetchRecipeSlugs();
       if (recipes && Array.isArray(recipes)) {
         for (const recipe of recipes) {
           if (recipe.slug && typeof recipe.slug === 'string') {
