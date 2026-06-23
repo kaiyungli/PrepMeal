@@ -115,11 +115,11 @@ export async function getServerSideProps({ res }) {
     
     res.setHeader('Content-Type', 'application/xml');
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-    res.status(200).send(sitemap);
+    res.statusCode = 200; res.setHeader("Content-Type", "application/xml"); res.end(sitemap);
   } catch (err) {
     console.error('[sitemap] total error:', err.message);
     res.setHeader('Content-Type', 'application/xml');
-    res.status(200).send(generateSitemap(STATIC_URLS));
+    res.statusCode = 200; res.setHeader("Content-Type", "application/xml"); res.end(generateSitemap(STATIC_URLS));
   }
   
   return { props: {} };
