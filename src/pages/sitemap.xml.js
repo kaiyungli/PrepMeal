@@ -56,6 +56,12 @@ const STATIC_URLS = [
 
 const BASE_URL = 'https://eatwhathk.com';
 
+function toAbsoluteUrl(loc) {
+  if (!loc) return BASE_URL;
+  if (loc.startsWith('http')) return loc;
+  return `${BASE_URL}${loc.startsWith('/') ? loc : '/' + loc}`;
+}
+
 function escapeXml(text) {
   if (!text) return '';
   return String(text)
@@ -68,7 +74,7 @@ function escapeXml(text) {
 
 function generateUrlEntry(url) {
   return `  <url>
-    <loc>${escapeXml(url.loc)}</loc>
+    <loc>${escapeXml(toAbsoluteUrl(url.loc))}</loc>
     <changefreq>${escapeXml(url.changefreq)}</changefreq>
     <priority>${url.priority}</priority>
   </url>`;
