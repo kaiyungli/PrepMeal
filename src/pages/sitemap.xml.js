@@ -1,5 +1,5 @@
-// Dynamic sitemap - returns static URLs
-// Recipe URLs can be added when Supabase is properly configured in Vercel
+// Dynamic sitemap with recipe URLs
+import { createClient } from '@supabase/supabase-js';
 
 const BASE_URL = 'https://eatwhathk.com';
 
@@ -44,8 +44,56 @@ ${urls.map(generateUrlEntry).join('\n')}
 </urlset>`;
 }
 
+async function fetchRecipeSlugs() {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseKey) {
+      console.log('[sitemap] no supabase key');
+      return [];
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('slug')
+      .eq('is_public', true)
+      .limit(500);
+    
+    if (error) {
+      console.log('[sitemap] query error:', error.message);
+      return [];
+    }
+    
+    return data || [];
+  } catch (err) {
+    console.log('[sitemap] exception:', err.message);
+    return [];
+  }
+}
+
 export async function getServerSideProps({ res }) {
-  const sitemap = generateSitemap(STATIC_URLS);
+  const urls = [...STATIC_URLS];
+  
+  // Fetch recipe slugs
+  const recipes = await fetchRecipeSlugs();
+  
+  // Add recipe URLs
+  if (recipes && recipes.length > 0) {
+    for (const recipe of recipes) {
+      if (recipe.slug) {
+        urls.push({
+          loc: `/recipes/${recipe.slug}`,
+          changefreq: 'weekly',
+          priority: 0.8,
+        });
+      }
+    }
+  }
+  
+  const sitemap = generateSitemap(urls);
   
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/xml');
