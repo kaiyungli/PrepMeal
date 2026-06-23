@@ -101,6 +101,100 @@ export default function FiftyClassicHKRecipes() {
         </p>
 
 
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">蛋類食譜詳細介紹</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            蛋係香港屋企既必備材料，成本低、營養高、做法簡單。以下係5款蛋類食譜既詳細做法：
+          </p>
+          
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">青瓜炒蛋</h3>
+              <p className="text-sm text-[#5A4030]">材料：青瓜1條、雞蛋3隻、鹽少少、白胡椒少少。做法：青瓜切片，雞蛋撈勻，落油先炒青瓜，之後撈埋蛋，等佢凝固就可以上碟。適合夏天食，清爽。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">豆角炒蛋</h3>
+              <p className="text-sm text-[#5A4030]">材料：豆角半斤、雞蛋3隻、蒜蓉少少。做法：豆角切段，飛水備用。蒜蓉爆香，落豆角炒幾下，最後撈埋蛋液，等凝固就得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">洋蔥炒蛋</h3>
+              <p className="text-sm text-[#5A4030]">材料：洋蔥1個、雞蛋3隻。做法：洋蔥切條，雞蛋撈勻。落油先炒洋蔥，撈到半熟之後撈埋蛋液，等凝固就可以。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">番茄炒蛋</h3>
+              <p className="text-sm text-[#5A4030]">材料：番茄2個、雞蛋3隻。做法：番茄切件，雞蛋撈勻。番茄先用少少糖水煮過，等佢出味，再撈埋蛋就得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">粟米蛋花湯</h3>
+              <p className="text-sm text-[#5A4030]">材料：粟米1條、雞蛋2隻、鹽少少。做法：粟米粒用水煮滾，生粉水埋芡，最後撈入蛋液，撈幾下就熄火，咁樣先滑。</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">雞類食譜詳細介紹</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            雞係香港人最常食既肉類之一，蛋白質高、脂肪低。以下係5款雞類食譜：
+          </p>
+          
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">鹵水雞翼</h3>
+              <p className="text-sm text-[#5A4030]">材料：雞翼1斤、鹵水汁。做法：雞翼出水備用，鹵水汁煮滾，放低雞翼，中火煮15分鐘，熄火浸15分鐘，就可以食。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">蜜糖雞翼</h3>
+              <p className="text-sm text-[#5A4030]">材料：雞翼1斤、蜜糖2湯匙、豉油1湯匙。做法：雞翼醃30分鐘，落鑊煎到金黃，加入蜜糖同豉油，快手兜勻，等糖漿掛埋雞翼就食得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">鹽焗雞翼</h3>
+              <p className="text-sm text-[#5A4030]">材料：雞翼1斤、鹽焗粉1包。做法：雞翼醃鹽焗粉30分鐘，放到焗爐或者鹽度度焗20分鐘，出嚟就金黃香脆。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">咖喱雞</h3>
+              <p className="text-sm text-[#5A4030]">材料：雞件半斤、咖喱磚1磚、薯仔1個、洋蔥1個。做法：落油爆香洋蔥同薯仔，加入雞件炒幾下，放水蓋過面，加入咖喱磚，細火煮20分鐘就得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">蒸滑雞</h3>
+              <p className="text-sm text-[#5A4030]">材料：雞件半斤、薑絲、蔥絲、豉油。做法：雞件醃味，放到碟上面，薑絲蔥絲鋪面，蒸10分鐘，之後淋熱油同豉油，就可以食。</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">海鮮食譜詳細介紹</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            海鮮廣東人既最愛，高蛋白、低脂肪。以下係5款海鮮食譜：
+          </p>
+          
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">蒜蓉蒸蝦</h3>
+              <p className="text-sm text-[#5A4030]">材料：蝦1斤、蒜蓉大量。做法：蝦開背，去腸，擺到碟上面。蒜蓉落油撈勻，鋪係蝦上面，蒸5分鐘就得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">清蒸石斑</h3>
+              <p className="text-sm text-[#5A4030]">材料：石斑1條、薑蔥。做法：魚洗乾淨，薑蔥鋪面，蒸10分鐘，之後倒汁，淋新既熱油，先好味。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">香煎三文魚</h3>
+              <p className="text-sm text-[#5A4030]">材料：三文魚扒1件、檸檬。做法：三文魚兩面灑鹽，煎3分鐘反面，再煎3分鐘，熄火食既時候擠啲檸檬汁落去，正呀。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">薑蔥炒蟹</h3>
+              <p className="text-sm text-[#5A4030]">材料：蟹1隻、薑蔥。做法：蟹切件，薑蔥爆香，落蟹兜幾下，兜汁，焗2分鐘，就食得。</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">蝦米粉絲煲</h3>
+              <p className="text-sm text-[#5A4030]">材料：米粉1扎、蝦半斤、銀芽。做法：米粉浸軟，蝦出水，薑蔥爆香，落蝦炒幾下，放米粉加水埋芡，就成一煲。</p>
+            </div>
+          </div>
+        </section>
+
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">點解呢50款係香港家庭必備？</h2>
           
@@ -302,6 +396,102 @@ export default function FiftyClassicHKRecipes() {
             </div>
           </section>
         ))}
+
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">買餸小貼士</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            要煮得好食，材料既選擇非常重要。以下係我既多年經驗：
+          </p>
+          
+          <h3 className="text-lg font-medium text-[#3A2010] mb-2 mt-4">街市 vs 超市</h3>
+          <p className="text-[#5A4030] mb-2">
+            如果想買最新鮮既材料，最好早啲去街市。通常清晨6-7點既街市係最新鮮既，啲菜同肉都係啱啱到既。不過超市既包裝就比較整齊，適合時間唔係咁方便既人士。
+          </p>
+          
+          <h3 className="text-lg font-medium text-[#3A2010] mb-2 mt-4">點樣揀靚材料？</h3>
+          <ul className="list-disc pl-5 space-y-2 text-[#5A4030]">
+            <li><strong>雞蛋</strong> - 搵殼光滑、無裂痕既，新鮮既蛋黃會凸啲</li>
+            <li><strong>牛肉</strong> - 睇脂肪分布，油花越多越靱，但係唔好太肥</li>
+            <li><strong>豬肉</strong> - 睇顏色，粉紅色既係最啱，唔好買太白或者太深色既</li>
+            <li><strong>雞翼</strong> - 揀皮膚完整、無異味既，雪親既雞翼會出水</li>
+            <li><strong>海鮮</strong> - 魚要眼睛清晰、鰓紅色，蝦要殼有光澤</li>
+            <li><strong>蔬菜</strong> - 葉要翠綠、莖要硬淨，黃左既就唔好買</li>
+          </ul>
+          
+          <h3 className="text-lg font-medium text-[#3A2010] mb-2 mt-4">保存技巧</h3>
+          <ul className="list-disc pl-5 space-y-2 text-[#5A4030]">
+            <li>雞蛋放入雪櫃既時候，尖端向下，可以保存更耐</li>
+            <li>肉類切好之後，放入保鮮袋，排除空氣，可以保存3-5日</li>
+            <li>蔬菜清洗後，用保鮮紙包好，放入雪櫃，可以保存5-7日</li>
+            <li>海鮮最好今日買今日食，唔好雪過夜</li>
+          </ul>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">一週晚餐完整攻略</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            以下係一個詳細既一週晚餐計劃，等你唔洗每日都諗今晚煮咩：
+          </p>
+          
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期一 - 青瓜炒蛋 + 粟米蛋花湯</h3>
+              <p className="text-sm text-[#5A4030]">星期一最忙，放工就想快啲食到。青瓜炒蛋15分鐘就搞掂，粟米湯配埋，一餐夠哂營養。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期二 - 咖哩牛腩飯</h3>
+              <p className="text-sm text-[#5A4030]">咖哩牛腩要啲時間整，可以週末預先整定，放工翻熱就有得食。配埋白飯，一個人都可以食到好滿足。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期三 - 鹽焗雞翼 + 蒜蓉炒菜心</h3>
+              <p className="text-sm text-[#5A4030]">雞翼用鹽焗既話好香，配埋一碟蔬菜，營養均衡。屋企細路哥一定鍾意。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期四 - 清蒸石斑 + 白飯</h3>
+              <p className="text-sm text-[#5A4030]">星期四要補下，蒸魚最健康。搵條石斑或者紅衫，整一碟清蒸，既鮮甜又低脂肪。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期五 - 楊州炒飯</h3>
+              <p className="text-sm text-[#5A4030]">星期五放工心情好，整多啲配料既炒飯一家人食。記住要落幾多蛋先好味。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期六 - 乾炒牛河</h3>
+              <p className="text-sm text-[#5A4030]">週末整啲濕濕地既嘢食，乾炒牛河就最好選擇。可以加多啲配菜，例如牛丸、雲吞。</p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <h3 className="font-medium text-[#9B6035]">星期日 - 煲仔飯</h3>
+              <p className="text-sm text-[#5A4030]">星期日最悠閒，整煲仔飯慢慢享受。記住要用香既米，撈埋啲臘味，正呀！</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">煮餸小技巧</h2>
+          
+          <p className="text-[#5A4030] mb-4">
+            除左食譜，本身仲有幾個小技巧想同大家分享：
+          </p>
+          
+          <ul className="list-disc pl-5 space-y-3 text-[#5A4030]">
+            <li><strong>點解啲菜唔夠綠？</strong> - 炒既時候最後先落鹽，咁樣葉綠素唔會流失，睇落去會綠啲。</li>
+            <li><strong>點解啲牛肉炒完好靭？</strong> - 切既時候要逆住紋切，仲有唔好炒太耐，熱水就會靭。</li>
+            <li><strong>點解啲魚會腥？</strong> - 清洗既時候要抹乾水，仲有可以用檸檬汁或者薑蔥撈過可以去腥。</li>
+            <li><strong>點樣整雞翼好味啲？</strong> - 醃既時候加少少生粉，撈完之後雪佢半個鐘，撈啲外皮會滑啲。</li>
+            <li><strong>點解人哋既炒飯一粒粒？</strong> - 隔夜飯同埋大火快炒係關鍵，仲有落油既時候要邊炒邊兜。</li>
+            <li><strong>點樣整湯甜啲？</strong> - 落齊材料之後，大火燒滾轉細火，個湯自然會甜。</li>
+            <li><strong>點解煎東西黐鑊？</strong> - 隻鑊要夠熱，先落油，等油熱先落嘢，唔好心急。</li>
+            <li><strong>點樣整豆腐唔會爛？</strong> - 整之前用鹽水浸下，撈下再整，豆腐會實淨啲。</li>
+          </ul>
+        </section>
 
         <section className="bg-white rounded-xl p-6 shadow-sm mt-12">
           <h2 className="text-xl font-semibold text-[#3A2010] mb-4">常見問題</h2>
