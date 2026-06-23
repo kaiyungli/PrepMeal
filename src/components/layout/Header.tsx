@@ -33,6 +33,7 @@ export default function Header({
   handleLogout = () => {},
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   // Generate nav link class based on active state
   const getNavLinkClass = (isActive: boolean) => {
@@ -57,6 +58,21 @@ export default function Header({
     );
   };
 
+  // Render trust link for dropdown
+  const renderTrustLink = (link: { label: string; path: string }) => {
+    const isActive = isActiveRoute(link.path);
+    return (
+      <Link
+        key={link.path}
+        href={link.path}
+        className="block text-sm text-[#AA7A50] hover:text-[#9B6035] py-2"
+        onClick={() => setMoreOpen(false)}
+      >
+        {link.label}
+      </Link>
+    );
+  };
+
   return (
     <>
       <header className="h-16 bg-[#F8F3E8] border-b border-[#DDD0B0]">
@@ -69,8 +85,23 @@ export default function Header({
 
           {/* Desktop Nav */}
           {showNav && (
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => renderNavLink(link))}
+              {/* More dropdown */}
+              <div className="relative">
+                <button
+                  className="text-sm font-medium text-[#AA7A50] hover:text-[#9B6035] flex items-center gap-1"
+                  onClick={() => setMoreOpen(!moreOpen)}
+                >
+                  更多
+                  <span className="text-xs">▼</span>
+                </button>
+                {moreOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-[#F8F3E8] border border-[#DDD0B0] rounded-lg shadow-lg py-2 z-50">
+                    {trustLinks.map((link) => renderTrustLink(link))}
+                  </div>
+                )}
+              </div>
             </nav>
           )}
 
