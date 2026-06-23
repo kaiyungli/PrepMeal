@@ -78,7 +78,15 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
         ogType="website"
       />
       <main className="flex-1">
-        <HomeHero onPrimaryAction={handlePrimaryAction} />
+        <HomeHero
+          onPrimaryAction={handlePrimaryAction}
+          weeklyPlan={weeklyPlan}
+          shoppingList={shoppingList}
+          shoppingLoading={shoppingLoading}
+          shoppingError={shoppingError}
+          onRefreshPlan={handleRefreshPlan}
+          onRefreshShoppingList={refreshShoppingList}
+        />
         <HomeHowItWorks />
         <HomeAboutSection />
         <div className="max-w-[1200px] mx-auto px-4">
