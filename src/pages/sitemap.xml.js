@@ -3,11 +3,13 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-
 const getSupabase = () => {
-  if (!supabaseUrl || !supabaseKey) return null;
-  return createClient(supabaseUrl, supabaseKey);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hivnajhqqvaokthzhugx.supabase.co';
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY 
+    || process.env.SUPABASE_SERVICE_KEY
+    || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) return null;
+  return createClient(url, key);
 };
 
 async function fetchRecipeSlugs() {
