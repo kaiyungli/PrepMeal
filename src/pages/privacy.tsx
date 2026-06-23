@@ -68,7 +68,11 @@ export default function Privacy() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#3A2010] mb-2">聯絡我們</h2>
-              <p>如有任何疑問，請透過應用程式內的支援渠道聯繫我們。</p>
+              <p>如有任何疑問，請聯繫我們：
+              <br />
+              電郵：eatwhathk247@gmail.com
+              <br />
+              電話：+852 9495 9673</p>
             </section>
 
             <p className="text-sm text-[#AA7A50] pt-4">最後更新：2026年6月21日</p>

@@ -20,12 +20,13 @@ export default function Contact() {
             <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
               聯絡今晚食乜
             </h2>
-            <p>
-              如果你有任何問題、建議或查詢，歡迎電郵比我哋：
-              <br />
-              <a href="mailto:hello@eatwhathk.com" className="text-[#9B6035] underline font-medium">
-                hello@eatwhathk.com
-              </a>
+            <p className="mb-2">
+              <span className="font-medium">電話：</span>
+              <a href="tel:+85294959673" className="text-[#9B6035] underline">+852 9495 9673</a>
+            </p>
+            <p className="mb-2">
+              <span className="font-medium">電郵：</span>
+              <a href="mailto:eatwhathk247@gmail.com" className="text-[#9B6035] underline">eatwhathk247@gmail.com</a>
             </p>
             <p className="mt-3 text-sm opacity-70">
               我們一般會於 3-5 個工作天內回覆。多謝支持！
@@ -63,7 +64,7 @@ export default function Contact() {
             </h2>
             <p>
               如果你有興趣同今晚食乜合作，例如餐廳推廣、品牌合作或其他商業機會，
-              歡迎電郵至 hello@eatwhathk.com 提出。我哋會盡快回覆。
+              歡迎電郵至 eatwhathk247@gmail.com 提出。我哋會盡快回覆。
             </p>
           </section>
         </div>
