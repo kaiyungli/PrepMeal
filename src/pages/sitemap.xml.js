@@ -48,30 +48,36 @@ ${urlEntries}
 }
 
 export async function getServerSideProps({ res }) {
-  const urls = [...STATIC_URLS];
-  
   try {
-    const recipes = await fetchRecipesForServer(500);
-    if (recipes && Array.isArray(recipes)) {
-      for (const recipe of recipes) {
-        if (recipe.slug && typeof recipe.slug === 'string') {
-          urls.push({
-            loc: `${BASE_URL}/recipes/${recipe.slug}`,
-            changefreq: 'weekly',
-            priority: 0.8,
-          });
+    const urls = [...STATIC_URLS];
+    
+    try {
+      const recipes = await fetchRecipesForServer(500);
+      if (recipes && Array.isArray(recipes)) {
+        for (const recipe of recipes) {
+          if (recipe.slug && typeof recipe.slug === 'string') {
+            urls.push({
+              loc: `${BASE_URL}/recipes/${recipe.slug}`,
+              changefreq: 'weekly',
+              priority: 0.8,
+            });
+          }
         }
       }
+    } catch (fetchErr) {
+      console.error('[sitemap] recipe fetch error:', fetchErr.message);
     }
+    
+    const sitemap = generateSitemap(urls);
+    
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    res.status(200).send(sitemap);
   } catch (err) {
-    console.error('[sitemap] recipe fetch error:', err.message);
+    console.error('[sitemap] total error:', err.message);
+    res.setHeader('Content-Type', 'application/xml');
+    res.status(200).send(generateSitemap(STATIC_URLS));
   }
-  
-  const sitemap = generateSitemap(urls);
-  
-  res.setHeader('Content-Type', 'application/xml');
-  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
-  res.status(200).send(sitemap);
   
   return { props: {} };
 }
