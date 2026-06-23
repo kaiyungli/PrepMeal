@@ -100,6 +100,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
             recipeFilterSections={recipeFilterSections}
             hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}
+            clearFilters={clearFilters}
           />
           {showResults && (
             <>
