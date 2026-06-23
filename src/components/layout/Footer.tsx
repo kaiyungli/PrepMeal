@@ -40,8 +40,12 @@ export default function Footer() {
 
           <div>
             <h4 className="mb-4 font-semibold">聯絡我們</h4>
-            <p className="text-sm opacity-80">eatwhathk247@gmail.com</p>
-            <p className="text-sm opacity-80">+852 9495 9673</p>
+            <a href="mailto:eatwhathk247@gmail.com" className="text-sm hover:opacity-100 underline">
+              eatwhathk247@gmail.com
+            </a>
+            <a href="tel:+85294959673" className="text-sm hover:opacity-100 underline">
+              +852 9495 9673
+            </a>
           </div>
         </div>
 
