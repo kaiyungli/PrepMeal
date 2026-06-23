@@ -65,7 +65,7 @@ export default function Header({
       <Link
         key={link.path}
         href={link.path}
-        className="block text-sm text-[#AA7A50] hover:text-[#9B6035] py-2"
+        className="block px-4 py-2.5 text-sm text-[#5A4030] hover:bg-[#F8F3E8] hover:text-[#9B6035] transition-colors"
         onClick={() => setMoreOpen(false)}
       >
         {link.label}
@@ -90,14 +90,14 @@ export default function Header({
               {/* More dropdown */}
               <div className="relative">
                 <button
-                  className="text-sm font-medium text-[#AA7A50] hover:text-[#9B6035] flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-[#7A5A38] hover:text-[#9B6035]"
                   onClick={() => setMoreOpen(!moreOpen)}
                 >
                   更多
                   <span className="text-xs">▼</span>
                 </button>
                 {moreOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-[#F8F3E8] border border-[#DDD0B0] rounded-lg shadow-lg py-2 z-50">
+                  <div className="absolute right-0 mt-3 w-44 rounded-2xl border border-[#E8D9C9] bg-[#FFFDF8] shadow-[0_12px_32px_rgba(58,32,16,0.12)] py-2 z-50">
                     {trustLinks.map((link) => renderTrustLink(link))}
                   </div>
                 )}
