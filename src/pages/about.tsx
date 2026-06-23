@@ -83,11 +83,19 @@ export default function About() {
             <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
               聯絡方式
             </h2>
+            <p className="mb-2">
+              有問題或建議？歡迎聯絡我哋！
+            </p>
+            <p className="mb-1">
+              <span className="font-medium">Email：</span>
+              <a href="mailto:eatwhathk247@gmail.com" className="text-[#9B6035] underline">
+                eatwhathk247@gmail.com
+              </a>
+            </p>
             <p>
-              如果你有任何意見或疑問，歡迎電郵比我哋：
-              <br />
-              <a href="mailto:hello@eatwhathk.com" className="text-[#9B6035] underline">
-                hello@eatwhathk.com
+              <span className="font-medium">電話：</span>
+              <a href="tel:+85294959673" className="text-[#9B6035] underline">
+                +852 9495 9673
               </a>
             </p>
           </section>
