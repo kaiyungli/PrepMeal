@@ -269,6 +269,116 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
   )
 }
 
+
+// Generate cooking tips based on recipe fields
+function generateCookingTips(recipe: any): string[] {
+  const tips: string[] = [];
+  const method = recipe?.method || '';
+  const difficulty = recipe?.difficulty || '';
+  const totalTime = recipe?.total_time_minutes || 0;
+  const dishType = recipe?.dish_type || '';
+  
+  // Time-based tip
+  if (totalTime && totalTime <= 15) {
+    tips.push('因為呢道菜比較快手，建議先將所有材料切好備用，先後次序諗清楚，先至開火，咁樣就唔洗炒緊既時候手忙腳亂。');
+  } else if (totalTime && totalTime >= 45) {
+    tips.push('因為呢道菜需要較長既時間準備，可以先将部分材料醃定或者切定，等正式開始煮既時候就順手好多。');
+  }
+  
+  // Method-based tips
+  if (method?.includes('炒') || dishType?.includes('小炒')) {
+    tips.push('炒既時候記得要先將鑊燒紅，等油出煙先好落材料，咁樣先唔會黐鑊。');
+    tips.push('大火快炒既時間唔好太長，保持蔬菜既爽脆口感最重要。');
+  } else if (method?.includes('蒸')) {
+    tips.push('蒸既時候水要滾先好放入材料，咁樣蒸汽先會均勻。');
+    tips.push('蒸既時間要視乎材料既厚薄，适当調整。');
+  } else if (method?.includes('焗') || method?.includes('爐')) {
+    tips.push('焗既時候可以預先将焗爐預熱，等温度均勻。');
+    tips.push('如果焗既野比較多，中間可以反轉一次，等受熱更均勻。');
+  } else if (method?.includes('灼') || method?.includes('白灼')) {
+    tips.push('灼既時候水要滾既時候落材料，灼完既時候立即過冷河，口感更爽。');
+  } else {
+    tips.push('煮既時候記得要先睇清楚所有材料，唔同既材料需要既時間都唔同，先後次序好重要。');
+  }
+  
+  // Difficulty-based tip
+  if (difficulty === 'easy' || difficulty === '簡單') {
+    tips.push('呢道菜比較簡單，即使係廚房新手都可以整得好味，放膽試下啦！');
+  }
+  
+  return tips.slice(0, 3);
+}
+
+// Generate pairing suggestions based on recipe fields
+function generatePairingSuggestions(recipe: any): string[] {
+  const suggestions: string[] = [];
+  const dishType = recipe?.dish_type || '';
+  const cuisine = recipe?.cuisine || '';
+  const method = recipe?.method || '';
+  const primaryProtein = recipe?.primary_protein || '';
+  
+  // Always add basic suggestion
+  suggestions.push('配白飯或者粉麵就已經好好味，可以根據自己既口味調整份量。');
+  
+  // Dish type based
+  if (dishType?.includes('湯') || dishType?.includes('羹')) {
+    suggestions.push('配一個簡單既小菜或者炒青菜，咁樣就更均衡。');
+  } else if (dishType?.includes('飯') || dishType?.includes('炒飯')) {
+    suggestions.push('可以配一碗清湯，中和油膩既感覺。');
+  } else if (dishType?.includes('麵') || dishType?.includes('粉')) {
+    suggestions.push('配一款簡單既小食或者春卷，会更加豐富。');
+  } else {
+    suggestions.push('如果想晚餐更完整，可以配白飯、清湯或一款簡單蔬菜。');
+  }
+  
+  // Cuisine based
+  if (cuisine?.includes('日本') || cuisine?.includes('日式')) {
+    suggestions.push('日式既野可以配麵豉湯或者漬物，咁樣就更有日本feel。');
+  } else if (cuisine?.includes('上海') || cuisine?.includes('滬')) {
+    suggestions.push('上海菜可以配小籠包或者蔥油餅，係另一種享受。');
+  } else if (cuisine?.includes('廣東') || cuisine?.includes('粵')) {
+    suggestions.push('廣東菜可以配一碗老火湯，係最傳統既配搭。');
+  }
+  
+  // Method based
+  if (method?.includes('煎') || method?.includes('炸')) {
+    suggestions.push('煎炸既野配清茶或者檸檬水，可以解膩。');
+  }
+  
+  return suggestions.slice(0, 3);
+}
+
+// Generate storage tips based on recipe fields
+function generateStorageTips(recipe: any): string[] {
+  const tips: string[] = [];
+  const primaryProtein = recipe?.primary_protein || '';
+  const dishType = recipe?.dish_type || '';
+  const method = recipe?.method || '';
+  
+  // General tips
+  tips.push('煮完既食物最好放涼後先放入雪櫃，唔好趁熱就放，等佢自然冷卻可以避免水汽過多。');
+  tips.push('放入雪櫃既食物最好係1-2日內食完，確保新鮮同味道。');
+  
+  // Protein based
+  if (primaryProtein?.includes('雞') || primaryProtein?.includes('禽')) {
+    tips.push('雞肉類既食物雪過之後最好盡快食咗佢，雪超過2日既話建議翻熱多次既話要確保徹底熱透。');
+  } else if (primaryProtein?.includes('魚') || primaryProtein?.includes('海鮮') || primaryProtein?.includes('蝦') || primaryProtein?.includes('蟹')) {
+    tips.push('海鮮類既食物比較易變壞，最好今日整今日食，最多雪1日。');
+    tips.push('如果聞到有異味就唔好再食，安全最重要。');
+  } else if (primaryProtein?.includes('牛') || primaryProtein?.includes('豬')) {
+    tips.push('肉類可以雪耐啲，通常2-3日都冇問題，但係翻熱既時候要熱透。');
+  }
+  
+  // Dish type based
+  if (dishType?.includes('湯') || dishType?.includes('羹')) {
+    tips.push('湯類可以分开幾份雪，每次食一份就唔洗成日翻熱。');
+    tips.push('雪既時候要留啲位，等佢膨脹既時候唔會爆盒。');
+  }
+  
+  return tips.slice(0, 3);
+}
+
+
 // Icons as simple components
 function Clock({ className, style }: { className?: string, style?: React.CSSProperties }) {
   return (
