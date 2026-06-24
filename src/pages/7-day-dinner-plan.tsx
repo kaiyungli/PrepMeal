@@ -199,6 +199,18 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇咖哩牛腩飯？</strong> - 咖哩牛腩大人小朋友都鍾意，
+                整一次可以食兩日。星期二整，星期三翻熱又有得食，唔洗咁辛苦。
+                <br/><br/>
+                <strong>營養好處</strong> - 牛肉提供優質蛋白質同鐵質；
+                咖哩含有薑黃素，有抗炎作用；薯仔提供碳水化合物同鉀。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備20分鐘（如果週末整定可以慳呢20分鐘），
+                煮45分鐘，合共45分鐘。
+                <br/><br/>
+                <strong>岩幾多人</strong> - 3-5人家庭岩用，份量夠全班人一齊食。
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期二 - 咖哩牛腩飯</h3>
               <p className="text-[#5A4030]">
@@ -209,6 +221,20 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇鹽焗雞翼？</strong> - 星期三需要啲野慰勞自己！
+                鹽焗雞翼香脆可口，小朋友最鍾意食。而且整完之後小朋友會帮手食，
+                家長既工作量都會減少。
+                <br/><br/>
+                <strong>營養好處</strong> - 雞翼含有膠原蛋白，對皮膚同關節都好；
+                菜心含有鐵質同維生素C。兩樣配埋就營養均衡。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備15分鐘，焗30分鐘，合共30分鐘。
+                如果用焗爐既話時間仲短！
+                <br/><br/>
+                <strong>岩幾多人</strong> - 2-6人家庭都岩，雞翼永遠都唔會唔夠，
+                小朋友可以食多幾隻！
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期三 - 鹽焗雞翼</h3>
               <p className="text-[#5A4030]">
@@ -219,6 +245,19 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇清蒸石斑？</strong> - 星期四已經上半週既中間，
+                應該食啲清啲既野。蒸魚最能保留食材既原味，
+                同埋蒸既方式最少油，最健康。
+                <br/><br/>
+                <strong>營養好處</strong> - 魚肉含有Omega-3脂肪酸，
+                對心臟健康好好，同埋蛋白質高脂肪低，
+                係最健康既蛋白質來源之一。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備10分鐘，蒸10分鐘，合共20分鐘。
+                <br/><br/>
+                <strong>岩幾多人</strong> - 2-4人家庭岩，如果人多既話要拎大啲既魚。
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期四 - 清蒸石斑</h3>
               <p className="text-[#5A4030]">
@@ -229,6 +268,19 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇楊州炒飯？</strong> - 星期五係每週既最後一個工作日，
+                心情好梗係要整啲豐富啲既野慶祝下！
+                楊州炒飯有齊蛋白質、碳水、蔬菜，一個飯就解決哂整晚既需要。
+                <br/><br/>
+                <strong>營養好處</strong> - 蛋既蛋白質、叉燒既蛋白質、
+                蝦仁既礦物質，同埋米既碳水，
+                一個飯搞掂晚飯既所有營養需求。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備15分鐘，炒10分鐘，合共25分鐘。
+                <br/><br/>
+                <strong>岩幾多人</strong> - 3-6人家庭岩，呢個份量夠多人食。
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期五 - 楊州炒飯</h3>
               <p className="text-[#5A4030]">
@@ -238,6 +290,19 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇乾炒牛河？</strong> - 週末梗係要嘆下！
+                乾炒牛河係香港既經典美食，自己整既時候可以落多啲配料，
+                一家人圍住一齊食，氣氛好過出去食好多！
+                <br/><br/>
+                <strong>營養好處</strong> - 河粉提供碳水化合物，
+                牛肉提供蛋白質同鐵質，配埋豆芽既纖維，
+                都算係一個均衡既選擇。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備15分鐘，炒10分鐘，合共25分鐘。
+                <br/><br/>
+                <strong>岩幾多人</strong> - 2-5人家庭岩，一家大細一齊食最開心！
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期六 - 乾炒牛河</h3>
               <p className="text-[#5A4030]">
@@ -247,6 +312,20 @@ export default function SevenDayDinnerPlan() {
               </p>
             </div>
             
+              <p className="text-[#5A4030] mt-4">
+                <strong>點解選擇煲仔飯？</strong> - 星期日係每週既最後一日，
+                梗係要完美結束！煲仔飯係香港既經典美食，
+                一於趁星期日有时间整俾屋企人試下你既手藝！
+                <br/><br/>
+                <strong>營養好處</strong> - 煲仔飯有齊米、臘味、雞件，
+                碳水同蛋白質都有，配埋蔬菜湯就完美既一餐。
+                <br/><br/>
+                <strong>時間計算</strong> - 準備30分鐘，煮45分鐘，合共75分鐘。
+                如果用傳統既瓦煲可能要再多啲時間，但係值得既！
+                <br/><br/>
+                <strong>岩幾多人</strong> - 3-6人家庭岩，煲仔飯既份量岩岩好，
+                一於當係每週既壓軸好戲！
+              </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期日 - 煲仔飯</h3>
               <p className="text-[#5A4030]">
@@ -268,6 +347,46 @@ export default function SevenDayDinnerPlan() {
               </div>
             ))}
           </div>
+        </section>
+
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">慳錢版一週晚餐</h2>
+          <p className="text-[#5A4030] mb-4">
+            如果你想慳多啲錢，可以參考以下既慳錢版本：
+          </p>
+          <ul className="list-disc pl-5 space-y-3 text-[#5A4030]">
+            <li><strong>星期一</strong> - 蛋炒飯（$15材料費）- 用隔夜飯整，最慳錢</li>
+            <li><strong>星期二</strong> - 豉油王炒芽菜（$10）- 街市剩菜都可以用到</li>
+            <li><strong>星期三</strong> - 鹹魚茄子（$20）- 鹹魚係平價既調味品</li>
+            <li><strong>星期四</strong> - 番茄蛋花湯（$12）- 最平既湯水</li>
+            <li><strong>星期五</strong> - 叉燒炒蛋（$25）- 超市特價叉燒</li>
+            <li><strong>星期六</strong> - 干炒牛河（$30）- 可以一次過用唔同既配料</li>
+            <li><strong>星期日</strong> - 臘味煲仔飯（$35）- 每週既大件事！</li>
+          </ul>
+          <p className="text-[#5A4030] mt-4">
+            預算：每週約$149，平均每日$21，就可以喂飽一家人！
+          </p>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">湊小朋友版一週晚餐</h2>
+          <p className="text-[#5A4030] mb-4">
+            如果屋企有小朋友，可以參考以下既小朋友 friendly 版本：
+          </p>
+          <ul className="list-disc pl-5 space-y-3 text-[#5A4030]">
+            <li><strong>星期一</strong> - 芝士蛋卷（小朋友最鍾意既芝士！）配水果</li>
+            <li><strong>星期二</strong> - 咖哩飯（小朋友無法抵抗咖哩既吸引力！）</li>
+            <li><strong>星期三</strong> - 蜜糖雞翼（甜甜地，小朋友保証食多幾隻）</li>
+            <li><strong>星期四</strong> - 蒸蛋（滑嘟嘟，最岩小朋友入口）</li>
+            <li><strong>星期五</strong> - 炒飯（比自己既無配料版，小朋友會食得更開心）</li>
+            <li><strong>星期六</strong> - 雲吞麵（湯麵最岩小朋友自己食）</li>
+            <li><strong>星期日</strong> - 煎簿（煎餅可以自己落唔同既配料當玩都可以！）</li>
+          </ul>
+          <p className="text-[#5A4030] mt-4">
+            小朋友版既技巧：將餸切細啲、味道調得啱啱好、賣相靚啲，
+            小朋友就會鍾意食！
+          </p>
         </section>
 
         <section className="mb-12">
