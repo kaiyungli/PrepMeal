@@ -264,6 +264,45 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </div>
         </div>
 
+        {/* SEO Section: 烹飪貼士 */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>💡 烹飪貼士</h3>
+          <ul className="space-y-2" style={{ color: '#5A4030' }}>
+            {generateCookingTips(recipe).map((tip: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span>•</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* SEO Section: 配搭建議 */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🍽️ 配搭建議</h3>
+          <ul className="space-y-2" style={{ color: '#5A4030' }}>
+            {generatePairingSuggestions(recipe).map((tip: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span>•</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* SEO Section: 保存方法 */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>❄️ 保存方法</h3>
+          <ul className="space-y-2" style={{ color: '#5A4030' }}>
+            {generateStorageTips(recipe).map((tip: string, i: number) => (
+              <li key={i} className="flex gap-2">
+                <span>•</span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
       </div>
     </div>
   )
