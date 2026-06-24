@@ -42,8 +42,8 @@ export default function QuickDinnerRecipes() {
     "headline": "30分鐘快手家常菜｜20款香港打工仔晚餐推薦",
     "description": "精選20款30分鐘內可以完成既家常菜，適合忙碌既香港打工仔。從青瓜炒蛋到咖哩牛腩，一個禮拜晚餐唔洗煩。",
     "author": { "@type": "Organization", "name": "今晚食乜" },
-    "datePublished": "2024-06-24",
-    "dateModified": "2024-06-24"
+    "datePublished": "2026-06-24",
+    "dateModified": "2026-06-24"
   };
 
   return (
@@ -121,7 +121,7 @@ export default function QuickDinnerRecipes() {
             要係30分鐘內完成一餐晚飯，技巧好重要：
           </p>
           <ul className="list-disc pl-5 space-y-3 text-[#5A4030]">
-            <li><strong>第一，準備功夫做���前面。</strong> - 星期六日一次過買齊七日既材料，之後切定、醃定，放入雪櫃。咁樣平日返到屋企15分鐘就搞掂。</li>
+            <li><strong>第一，準備功夫做喺前面。</strong> - 星期六日一次過買齊七日既材料，之後切定、醃定，放入雪櫃。咁樣平日返到屋企15分鐘就搞掂。</li>
             <li><strong>第二，一心唔好二用。</strong> - 煮既時候專心煮，唔好睇電話或者做其他野。專心既話可以慳三分一既時間。</li>
             <li><strong>第三，睇住時間落order。</strong> - 先整要耐既，例如咖哩牛腩先落煲，中間整配菜。時間管理好重要。</li>
             <li><strong>第四，慳得就慳。</strong> - 唔好下下都用新既鑊，唔好洗多啲碗。一個煲可以整幾樣既話就一個煲解決。</li>
