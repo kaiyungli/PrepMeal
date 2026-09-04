@@ -9,6 +9,7 @@
  */
 import { useCallback } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ErrorState } from '@/components/ErrorState';
 import { LoadingState } from '@/components/LoadingState';
@@ -36,11 +37,22 @@ function EmptyRecipes() {
 }
 
 export function RecipeListScreen() {
+  const router = useRouter();
   const { status, recipes, error, refetch } = useRecipes();
 
   const renderItem = useCallback(
-    ({ item }: { item: RecipeSummary }) => <RecipeCard recipe={item} />,
-    [],
+    ({ item }: { item: RecipeSummary }) => (
+      <RecipeCard
+        recipe={item}
+        onPress={() =>
+          router.push({
+            pathname: '/recipes/[id]',
+            params: { id: item.slug ?? String(item.id) },
+          })
+        }
+      />
+    ),
+    [router],
   );
 
   return (
