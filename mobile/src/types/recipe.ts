@@ -72,3 +72,14 @@ export interface RecipeDetail {
   ingredients: RecipeDetailIngredient[];
   steps: RecipeDetailStep[];
 }
+
+/**
+ * One row from `get_recipe_list_with_detail_json` — a `RecipeSummary` row
+ * with full `RecipeDetail` embedded, so a list-originated detail open needs
+ * zero additional network round trips. Structurally satisfies `RecipeSummary`
+ * (existing list/card code accepts it unchanged) — it's exactly
+ * `RecipeDetail` plus the one summary field that RPC doesn't return
+ * (`slug`; the single-recipe RPC omits it because the caller already
+ * supplies an identifier).
+ */
+export type RecipeListDetail = RecipeDetail & Pick<RecipeSummary, 'slug'>;

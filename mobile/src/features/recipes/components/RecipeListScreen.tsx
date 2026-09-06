@@ -18,6 +18,8 @@ import { colors, spacing, typography } from '@/constants/theme';
 import type { RecipeSummary } from '@/types/recipe';
 
 import { useRecipes } from '../hooks/useRecipes';
+import { encodeRecipeSeed } from '../lib/recipeSeedParam';
+import { prefetchRecipeDetail } from '../services/recipeDetailPrefetch';
 import { RecipeCard } from './RecipeCard';
 
 function keyExtractor(recipe: RecipeSummary): string {
@@ -47,9 +49,10 @@ export function RecipeListScreen() {
         onPress={() =>
           router.push({
             pathname: '/recipes/[id]',
-            params: { id: item.slug ?? String(item.id) },
+            params: { id: item.slug ?? String(item.id), seed: encodeRecipeSeed(item) },
           })
         }
+        onPressIn={() => prefetchRecipeDetail(item.slug ?? String(item.id))}
       />
     ),
     [router],

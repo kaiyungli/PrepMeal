@@ -9,19 +9,21 @@
  * `get_recipe_detail_json` RPC) and hands it to the feature screen, which owns
  * the fetch and every loading / error / not-found / success state.
  */
+import { useMemo } from 'react';
 import { Stack, useLocalSearchParams } from 'expo-router';
 
-import { RecipeDetailScreen } from '@/features/recipes';
+import { decodeRecipeSeed, RecipeDetailScreen } from '@/features/recipes';
 
 export default function RecipeDetailRoute() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, seed } = useLocalSearchParams<{ id: string; seed?: string }>();
+  const seedSummary = useMemo(() => decodeRecipeSeed(seed), [seed]);
 
   return (
     <>
       <Stack.Screen
         options={{ headerShown: true, title: '', headerBackTitle: '返回' }}
       />
-      <RecipeDetailScreen idOrSlug={id} />
+      <RecipeDetailScreen idOrSlug={id} seed={seedSummary} />
     </>
   );
 }

@@ -24,3 +24,13 @@ export {
   mapRecipeDetail,
   RecipeNotFoundError,
 } from './services/fetchRecipeDetail';
+export { prefetchRecipeDetail } from './services/recipeDetailPrefetch';
+export {
+  preloadRecipeSummaries,
+  getCachedRecipeSummaries,
+  hasCachedRecipeSummaries,
+  clearRecipeSummaryCache,
+  RECIPE_SUMMARY_REFRESH_MIN_INTERVAL_MS,
+} from './services/recipeSummaryCache';
+export type { RecipeSummaryCacheEntry } from './services/recipeSummaryCache';
+export { encodeRecipeSeed, decodeRecipeSeed } from './lib/recipeSeedParam';
