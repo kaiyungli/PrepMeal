@@ -20,13 +20,13 @@
  * modal logic is duplicated here.
  */
 import { useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ErrorState } from '@/components/ErrorState';
 import { LoadingState } from '@/components/LoadingState';
 import { ScreenContainer } from '@/components/ScreenContainer';
-import { colors, spacing, typography } from '@/constants/theme';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 import { SignedOutNotice, useAuthSession } from '@/features/auth';
 import { encodeRecipeSeed, prefetchRecipeDetail } from '@/features/recipes';
 import type { RecipeSummary } from '@/types/recipe';
@@ -94,6 +94,16 @@ export function PlanDetailScreen({
     prefetchRecipeDetail(recipe.slug ?? recipe.id);
   }, []);
 
+  const openShoppingList = useCallback(
+    (id: string) => {
+      router.push({
+        pathname: '/my-plans/[id]/shopping-list',
+        params: { id },
+      });
+    },
+    [router],
+  );
+
   if (authStatus === 'restoring') {
     return (
       <ScreenContainer scroll={false} edges={['bottom']}>
@@ -154,6 +164,20 @@ export function PlanDetailScreen({
 
       {meta.length > 0 && <Text style={styles.meta}>{meta.join(' · ')}</Text>}
 
+      <Pressable
+        onPress={() => openShoppingList(plan.id)}
+        accessibilityRole="button"
+        accessibilityLabel="查看購物清單"
+        style={({ pressed }) => [
+          styles.shoppingButton,
+          pressed && styles.shoppingButtonPressed,
+        ]}
+      >
+        <Text style={styles.shoppingButtonIcon}>🛒</Text>
+        <Text style={styles.shoppingButtonLabel}>購物清單</Text>
+        <Text style={styles.shoppingButtonChevron}>›</Text>
+      </Pressable>
+
       {days.length === 0 ? (
         <Text style={styles.emptyText}>呢個餐單暫時未有餐點。</Text>
       ) : (
@@ -181,6 +205,33 @@ const styles = StyleSheet.create({
   },
   meta: {
     fontSize: typography.caption,
+    color: colors.textMuted,
+  },
+  shoppingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  shoppingButtonPressed: {
+    opacity: 0.6,
+  },
+  shoppingButtonIcon: {
+    fontSize: typography.title,
+  },
+  shoppingButtonLabel: {
+    flex: 1,
+    fontSize: typography.body,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  shoppingButtonChevron: {
+    fontSize: typography.title,
     color: colors.textMuted,
   },
   centered: {
