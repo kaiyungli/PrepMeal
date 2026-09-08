@@ -1,0 +1,57 @@
+{
+  "description": "Provenance for the vendored web planner engine. Each entry records the exact web source file, the repo commit it was copied from, and its SHA-256 at that commit. `provenance.test.ts` recomputes the hash of the live web file and fails if it drifts (re-review + re-vendor + regenerate parity vectors). For `verbatim: true` files it also asserts the vendored copy is byte-identical to the web source. For transformed files (`verbatim: false`) `replacements` is the CLOSED set of literal string swaps allowed between the web source and the vendored copy — import specifiers only, no logic change — and the test proves the vendored file equals the web source after applying exactly those swaps and nothing else (so any edit to the mobile planner logic fails the test).",
+  "webRepoCommit": "7e20c0b483dd6117e9cdab4f46568e881e961001",
+  "webRepoBranch": "main",
+  "recordedAt": "2026-09-08",
+  "files": [
+    {
+      "vendored": "ingredientNormalizer.ts",
+      "webSource": "src/lib/ingredientNormalizer.ts",
+      "webSha256": "2501e3edd275822a9078718f1508dee90215f775113ffc429a7a6fc34f6fafd0",
+      "webGitBlob": "8e8ffb21f26ab29b02a1db83bf9b02e4a39abd5e",
+      "verbatim": true,
+      "transform": "none"
+    },
+    {
+      "vendored": "constants/planner.ts",
+      "webSource": "src/constants/planner.ts",
+      "webSha256": "b02d4e3249a4af34cb676e2d67f471428d11c7a32e5e3843b6dfe4c8ce2cc507",
+      "webGitBlob": "0315499c2c39edd97584f6a1bc193985199ec76a",
+      "verbatim": true,
+      "transform": "none"
+    },
+    {
+      "vendored": "constants/composition.ts",
+      "webSource": "src/constants/composition.ts",
+      "webSha256": "c6b786ecccc92c34b9d63e4ef554436e8cfeb4838b56d173468ac2e73dfbde87",
+      "webGitBlob": "84d9b2278de03b71a7bb83783cec2060f049259d",
+      "verbatim": true,
+      "transform": "none"
+    },
+    {
+      "vendored": "mealPlanner.ts",
+      "webSource": "src/lib/mealPlanner.ts",
+      "webSha256": "f61311d54a6e848e79858220017d3ba8232acfaa38263b04c2d1b1f895cc314e",
+      "webGitBlob": "ed52cc07ad37290733879c656bc1115910fc062e",
+      "verbatim": false,
+      "transform": "import specifiers only (no logic change): './ingredientNormalizer' -> './ingredientNormalizer.ts'; '@/utils/perf' -> './perfStub.ts'; '@/constants/planner' -> './constants/planner.ts'; '@/constants/composition' -> './constants/composition.ts'",
+      "replacements": [
+        { "from": "from './ingredientNormalizer'", "to": "from './ingredientNormalizer.ts'" },
+        { "from": "from '@/utils/perf'", "to": "from './perfStub.ts'" },
+        { "from": "from '@/constants/planner'", "to": "from './constants/planner.ts'" },
+        { "from": "from '@/constants/composition'", "to": "from './constants/composition.ts'" }
+      ]
+    },
+    {
+      "vendored": "generateWeeklyPlan.ts",
+      "webSource": "src/features/generate/engine/mealPlanner.ts",
+      "webSha256": "99e31f5eecbb0f0d9ecd6bf382d4892ce5789960004d1f6327070a582bc230d3",
+      "webGitBlob": "fdb3f300e24b7355f0c02ef29bf899c737e0f26d",
+      "verbatim": false,
+      "transform": "import specifier only (no logic change): '@/lib/mealPlanner' -> './mealPlanner.ts'",
+      "replacements": [
+        { "from": "from '@/lib/mealPlanner'", "to": "from './mealPlanner.ts'" }
+      ]
+    }
+  ]
+}

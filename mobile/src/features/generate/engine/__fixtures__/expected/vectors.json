@@ -1,0 +1,6498 @@
+{
+  "generatedFromWebCommit": "7e20c0b483dd6117e9cdab4f46568e881e961001",
+  "generator": "scratchpad/gen-vectors.mjs",
+  "count": 27,
+  "vectors": [
+    {
+      "name": "qa/complete_meal#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 1,
+        "slotRoles": [
+          "complete_meal"
+        ],
+        "dailyComposition": "complete_meal",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/complete_meal#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 1,
+        "slotRoles": [
+          "complete_meal"
+        ],
+        "dailyComposition": "complete_meal",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/complete_meal#3",
+      "fixture": "qa",
+      "seed": 3,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 1,
+        "slotRoles": [
+          "complete_meal"
+        ],
+        "dailyComposition": "complete_meal",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/meat_veg#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/meat_veg#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/meat_veg#3",
+      "fixture": "qa",
+      "seed": 3,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/meat_veg/allowCompleteFalse#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": false,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/meat_veg/allowCompleteFalse#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": false,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/meat_veg/excl_beef#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [
+          "beef"
+        ],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/meat_veg/excl_beef#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [
+          "beef"
+        ],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/two_meat_one_veg#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/two_meat_one_veg#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/two_meat_one_veg/allowCompleteFalse#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": false,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [],
+        "sat": [],
+        "sun": []
+      }
+    },
+    {
+      "name": "qa/meat_veg/locked_mon0#1",
+      "fixture": "qa",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {
+          "mon-0": true
+        }
+      },
+      "lockedRecipeRefs": {
+        "mon-0": 3
+      },
+      "plan": {
+        "mon": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "qa/meat_veg/locked_mon0#2",
+      "fixture": "qa",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {
+          "mon-0": true
+        }
+      },
+      "lockedRecipeRefs": {
+        "mon-0": 3
+      },
+      "plan": {
+        "mon": [
+          {
+            "id": "4",
+            "name": "煎雞扒",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "中式"
+          },
+          {
+            "id": "11",
+            "name": "涼拌黃瓜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "拌",
+            "cuisine": "中式"
+          }
+        ],
+        "tue": [
+          {
+            "id": "8",
+            "name": "清蒸魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "12",
+            "name": "番茄炒蛋",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "wed": [
+          {
+            "id": "6",
+            "name": "牛排",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煎",
+            "cuisine": "西式"
+          },
+          {
+            "id": "10",
+            "name": "炒青菜",
+            "primary_protein": null,
+            "protein": [],
+            "dish_type": "side",
+            "meal_role": "veg_side",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "thu": [
+          {
+            "id": "14",
+            "name": "東坡肉",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "燉",
+            "cuisine": "中式"
+          },
+          {
+            "id": "13",
+            "name": "蝦仁炒飯",
+            "primary_protein": "蝦",
+            "protein": [
+              "蝦"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "fri": [
+          {
+            "id": "1",
+            "name": "海南雞飯",
+            "primary_protein": "雞",
+            "protein": [
+              "雞"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "蒸",
+            "cuisine": "中式"
+          },
+          {
+            "id": "5",
+            "name": "糖醋排骨",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ],
+        "sat": [
+          {
+            "id": "9",
+            "name": "番茄煮魚",
+            "primary_protein": "魚",
+            "protein": [
+              "魚"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "煮",
+            "cuisine": "中式"
+          },
+          {
+            "id": "3",
+            "name": "咖喱牛腩飯",
+            "primary_protein": "牛",
+            "protein": [
+              "牛"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燉",
+            "cuisine": "中式"
+          }
+        ],
+        "sun": [
+          {
+            "id": "2",
+            "name": "叉燒飯",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "complete_meal",
+            "is_complete_meal": true,
+            "method": "燒",
+            "cuisine": "中式"
+          },
+          {
+            "id": "7",
+            "name": "魚香肉絲",
+            "primary_protein": "豬",
+            "protein": [
+              "豬"
+            ],
+            "dish_type": "main",
+            "meal_role": "protein_main",
+            "is_complete_meal": false,
+            "method": "炒",
+            "cuisine": "中式"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/complete_meal#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 1,
+        "slotRoles": [
+          "complete_meal"
+        ],
+        "dailyComposition": "complete_meal",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p28",
+            "slug": "pool-recipe-28",
+            "name": "Pool Recipe 28",
+            "image_url": null,
+            "description": "synthetic main egg #28",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 35,
+            "difficulty": "hard"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p39",
+            "slug": "pool-recipe-39",
+            "name": "Pool Recipe 39",
+            "image_url": null,
+            "description": "synthetic main tofu #39",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p48",
+            "slug": "pool-recipe-48",
+            "name": "Pool Recipe 48",
+            "image_url": null,
+            "description": "synthetic main pork #48",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p56",
+            "slug": "pool-recipe-56",
+            "name": "Pool Recipe 56",
+            "image_url": null,
+            "description": "synthetic main chicken #56",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 49,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p16",
+            "slug": "pool-recipe-16",
+            "name": "Pool Recipe 16",
+            "image_url": null,
+            "description": "synthetic main beef #16",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 54,
+            "difficulty": "hard"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p51",
+            "slug": "pool-recipe-51",
+            "name": "Pool Recipe 51",
+            "image_url": null,
+            "description": "synthetic main pork #51",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 35,
+            "difficulty": "hard"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p22",
+            "slug": "pool-recipe-22",
+            "name": "Pool Recipe 22",
+            "image_url": null,
+            "description": "synthetic main beef #22",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 51,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/complete_meal#2",
+      "fixture": "pool",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 1,
+        "slotRoles": [
+          "complete_meal"
+        ],
+        "dailyComposition": "complete_meal",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p16",
+            "slug": "pool-recipe-16",
+            "name": "Pool Recipe 16",
+            "image_url": null,
+            "description": "synthetic main beef #16",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 54,
+            "difficulty": "hard"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p39",
+            "slug": "pool-recipe-39",
+            "name": "Pool Recipe 39",
+            "image_url": null,
+            "description": "synthetic main tofu #39",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p56",
+            "slug": "pool-recipe-56",
+            "name": "Pool Recipe 56",
+            "image_url": null,
+            "description": "synthetic main chicken #56",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 49,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p23",
+            "slug": "pool-recipe-23",
+            "name": "Pool Recipe 23",
+            "image_url": null,
+            "description": "synthetic main egg #23",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 27,
+            "difficulty": "medium"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p48",
+            "slug": "pool-recipe-48",
+            "name": "Pool Recipe 48",
+            "image_url": null,
+            "description": "synthetic main pork #48",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p32",
+            "slug": "pool-recipe-32",
+            "name": "Pool Recipe 32",
+            "image_url": null,
+            "description": "synthetic main pork #32",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "quick",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 54,
+            "difficulty": "hard"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p22",
+            "slug": "pool-recipe-22",
+            "name": "Pool Recipe 22",
+            "image_url": null,
+            "description": "synthetic main beef #22",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": true,
+            "meal_role": "complete_meal",
+            "total_time_minutes": 51,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p20",
+            "slug": "pool-recipe-20",
+            "name": "Pool Recipe 20",
+            "image_url": null,
+            "description": "synthetic main chicken #20",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 22,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p57",
+            "slug": "pool-recipe-57",
+            "name": "Pool Recipe 57",
+            "image_url": null,
+            "description": "synthetic side veg #57",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 57,
+            "difficulty": "medium"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p53",
+            "slug": "pool-recipe-53",
+            "name": "Pool Recipe 53",
+            "image_url": null,
+            "description": "synthetic side veg #53",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 24,
+            "difficulty": "easy"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p21",
+            "slug": "pool-recipe-21",
+            "name": "Pool Recipe 21",
+            "image_url": null,
+            "description": "synthetic main fish #21",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 32,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p8",
+            "slug": "pool-recipe-8",
+            "name": "Pool Recipe 8",
+            "image_url": null,
+            "description": "synthetic side veg #8",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 46,
+            "difficulty": "hard"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p17",
+            "slug": "pool-recipe-17",
+            "name": "Pool Recipe 17",
+            "image_url": null,
+            "description": "synthetic main egg #17",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p24",
+            "slug": "pool-recipe-24",
+            "name": "Pool Recipe 24",
+            "image_url": null,
+            "description": "synthetic main chicken #24",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 33,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p12",
+            "slug": "pool-recipe-12",
+            "name": "Pool Recipe 12",
+            "image_url": null,
+            "description": "synthetic side veg #12",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 19,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p58",
+            "slug": "pool-recipe-58",
+            "name": "Pool Recipe 58",
+            "image_url": null,
+            "description": "synthetic main fish #58",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 20,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p25",
+            "slug": "pool-recipe-25",
+            "name": "Pool Recipe 25",
+            "image_url": null,
+            "description": "synthetic side veg #25",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 41,
+            "difficulty": "easy"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p40",
+            "slug": "pool-recipe-40",
+            "name": "Pool Recipe 40",
+            "image_url": null,
+            "description": "synthetic main egg #40",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p3",
+            "slug": "pool-recipe-3",
+            "name": "Pool Recipe 3",
+            "image_url": null,
+            "description": "synthetic side veg #3",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 17,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg#2",
+      "fixture": "pool",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p52",
+            "slug": "pool-recipe-52",
+            "name": "Pool Recipe 52",
+            "image_url": null,
+            "description": "synthetic main pork #52",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 28,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p12",
+            "slug": "pool-recipe-12",
+            "name": "Pool Recipe 12",
+            "image_url": null,
+            "description": "synthetic side veg #12",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 19,
+            "difficulty": "easy"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p45",
+            "slug": "pool-recipe-45",
+            "name": "Pool Recipe 45",
+            "image_url": null,
+            "description": "synthetic main egg #45",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p13",
+            "slug": "pool-recipe-13",
+            "name": "Pool Recipe 13",
+            "image_url": null,
+            "description": "synthetic side veg #13",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 51,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p34",
+            "slug": "pool-recipe-34",
+            "name": "Pool Recipe 34",
+            "image_url": null,
+            "description": "synthetic main fish #34",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p46",
+            "slug": "pool-recipe-46",
+            "name": "Pool Recipe 46",
+            "image_url": null,
+            "description": "synthetic side veg #46",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 38,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p15",
+            "slug": "pool-recipe-15",
+            "name": "Pool Recipe 15",
+            "image_url": null,
+            "description": "synthetic main pork #15",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 24,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p4",
+            "slug": "pool-recipe-4",
+            "name": "Pool Recipe 4",
+            "image_url": null,
+            "description": "synthetic side veg #4",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 39,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p24",
+            "slug": "pool-recipe-24",
+            "name": "Pool Recipe 24",
+            "image_url": null,
+            "description": "synthetic main chicken #24",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 33,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p6",
+            "slug": "pool-recipe-6",
+            "name": "Pool Recipe 6",
+            "image_url": null,
+            "description": "synthetic side veg #6",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 43,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p25",
+            "slug": "pool-recipe-25",
+            "name": "Pool Recipe 25",
+            "image_url": null,
+            "description": "synthetic side veg #25",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 41,
+            "difficulty": "easy"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p42",
+            "slug": "pool-recipe-42",
+            "name": "Pool Recipe 42",
+            "image_url": null,
+            "description": "synthetic main shrimp #42",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "shrimp",
+            "protein": [
+              "shrimp"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 16,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p49",
+            "slug": "pool-recipe-49",
+            "name": "Pool Recipe 49",
+            "image_url": null,
+            "description": "synthetic side veg #49",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 15,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg#3",
+      "fixture": "pool",
+      "seed": 3,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p27",
+            "slug": "pool-recipe-27",
+            "name": "Pool Recipe 27",
+            "image_url": null,
+            "description": "synthetic main pork #27",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 35,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p13",
+            "slug": "pool-recipe-13",
+            "name": "Pool Recipe 13",
+            "image_url": null,
+            "description": "synthetic side veg #13",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 51,
+            "difficulty": "medium"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p45",
+            "slug": "pool-recipe-45",
+            "name": "Pool Recipe 45",
+            "image_url": null,
+            "description": "synthetic main egg #45",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p57",
+            "slug": "pool-recipe-57",
+            "name": "Pool Recipe 57",
+            "image_url": null,
+            "description": "synthetic side veg #57",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 57,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p21",
+            "slug": "pool-recipe-21",
+            "name": "Pool Recipe 21",
+            "image_url": null,
+            "description": "synthetic main fish #21",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 32,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p6",
+            "slug": "pool-recipe-6",
+            "name": "Pool Recipe 6",
+            "image_url": null,
+            "description": "synthetic side veg #6",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 43,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p3",
+            "slug": "pool-recipe-3",
+            "name": "Pool Recipe 3",
+            "image_url": null,
+            "description": "synthetic side veg #3",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 17,
+            "difficulty": "medium"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p52",
+            "slug": "pool-recipe-52",
+            "name": "Pool Recipe 52",
+            "image_url": null,
+            "description": "synthetic main pork #52",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 28,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p4",
+            "slug": "pool-recipe-4",
+            "name": "Pool Recipe 4",
+            "image_url": null,
+            "description": "synthetic side veg #4",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 39,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p31",
+            "slug": "pool-recipe-31",
+            "name": "Pool Recipe 31",
+            "image_url": null,
+            "description": "synthetic main fish #31",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 38,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p2",
+            "slug": "pool-recipe-2",
+            "name": "Pool Recipe 2",
+            "image_url": null,
+            "description": "synthetic side veg #2",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 18,
+            "difficulty": "hard"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p1",
+            "slug": "pool-recipe-1",
+            "name": "Pool Recipe 1",
+            "image_url": null,
+            "description": "synthetic main tofu #1",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 53,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p0",
+            "slug": "pool-recipe-0",
+            "name": "Pool Recipe 0",
+            "image_url": null,
+            "description": "synthetic side veg #0",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 43,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg/allowCompleteFalse#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": false,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p21",
+            "slug": "pool-recipe-21",
+            "name": "Pool Recipe 21",
+            "image_url": null,
+            "description": "synthetic main fish #21",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 32,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p7",
+            "slug": "pool-recipe-7",
+            "name": "Pool Recipe 7",
+            "image_url": null,
+            "description": "synthetic side veg #7",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 21,
+            "difficulty": "hard"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p42",
+            "slug": "pool-recipe-42",
+            "name": "Pool Recipe 42",
+            "image_url": null,
+            "description": "synthetic main shrimp #42",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "shrimp",
+            "protein": [
+              "shrimp"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 16,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p11",
+            "slug": "pool-recipe-11",
+            "name": "Pool Recipe 11",
+            "image_url": null,
+            "description": "synthetic side veg #11",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p17",
+            "slug": "pool-recipe-17",
+            "name": "Pool Recipe 17",
+            "image_url": null,
+            "description": "synthetic main egg #17",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p0",
+            "slug": "pool-recipe-0",
+            "name": "Pool Recipe 0",
+            "image_url": null,
+            "description": "synthetic side veg #0",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 43,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p19",
+            "slug": "pool-recipe-19",
+            "name": "Pool Recipe 19",
+            "image_url": null,
+            "description": "synthetic side veg #19",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p47",
+            "slug": "pool-recipe-47",
+            "name": "Pool Recipe 47",
+            "image_url": null,
+            "description": "synthetic main pork #47",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p13",
+            "slug": "pool-recipe-13",
+            "name": "Pool Recipe 13",
+            "image_url": null,
+            "description": "synthetic side veg #13",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 51,
+            "difficulty": "medium"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p34",
+            "slug": "pool-recipe-34",
+            "name": "Pool Recipe 34",
+            "image_url": null,
+            "description": "synthetic main fish #34",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p25",
+            "slug": "pool-recipe-25",
+            "name": "Pool Recipe 25",
+            "image_url": null,
+            "description": "synthetic side veg #25",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 41,
+            "difficulty": "easy"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p54",
+            "slug": "pool-recipe-54",
+            "name": "Pool Recipe 54",
+            "image_url": null,
+            "description": "synthetic main tofu #54",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p49",
+            "slug": "pool-recipe-49",
+            "name": "Pool Recipe 49",
+            "image_url": null,
+            "description": "synthetic side veg #49",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 15,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg/excl_beef_shrimp#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [
+          "beef",
+          "shrimp"
+        ],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p35",
+            "slug": "pool-recipe-35",
+            "name": "Pool Recipe 35",
+            "image_url": null,
+            "description": "synthetic main pork #35",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p49",
+            "slug": "pool-recipe-49",
+            "name": "Pool Recipe 49",
+            "image_url": null,
+            "description": "synthetic side veg #49",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 15,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p40",
+            "slug": "pool-recipe-40",
+            "name": "Pool Recipe 40",
+            "image_url": null,
+            "description": "synthetic main egg #40",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p7",
+            "slug": "pool-recipe-7",
+            "name": "Pool Recipe 7",
+            "image_url": null,
+            "description": "synthetic side veg #7",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 21,
+            "difficulty": "hard"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p13",
+            "slug": "pool-recipe-13",
+            "name": "Pool Recipe 13",
+            "image_url": null,
+            "description": "synthetic side veg #13",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 51,
+            "difficulty": "medium"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p27",
+            "slug": "pool-recipe-27",
+            "name": "Pool Recipe 27",
+            "image_url": null,
+            "description": "synthetic main pork #27",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 35,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p4",
+            "slug": "pool-recipe-4",
+            "name": "Pool Recipe 4",
+            "image_url": null,
+            "description": "synthetic side veg #4",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 39,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p54",
+            "slug": "pool-recipe-54",
+            "name": "Pool Recipe 54",
+            "image_url": null,
+            "description": "synthetic main tofu #54",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p19",
+            "slug": "pool-recipe-19",
+            "name": "Pool Recipe 19",
+            "image_url": null,
+            "description": "synthetic side veg #19",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p24",
+            "slug": "pool-recipe-24",
+            "name": "Pool Recipe 24",
+            "image_url": null,
+            "description": "synthetic main chicken #24",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 33,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p57",
+            "slug": "pool-recipe-57",
+            "name": "Pool Recipe 57",
+            "image_url": null,
+            "description": "synthetic side veg #57",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 57,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg/excl_beef_shrimp#2",
+      "fixture": "pool",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [
+          "beef",
+          "shrimp"
+        ],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p47",
+            "slug": "pool-recipe-47",
+            "name": "Pool Recipe 47",
+            "image_url": null,
+            "description": "synthetic main pork #47",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p57",
+            "slug": "pool-recipe-57",
+            "name": "Pool Recipe 57",
+            "image_url": null,
+            "description": "synthetic side veg #57",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 57,
+            "difficulty": "medium"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p31",
+            "slug": "pool-recipe-31",
+            "name": "Pool Recipe 31",
+            "image_url": null,
+            "description": "synthetic main fish #31",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 38,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p3",
+            "slug": "pool-recipe-3",
+            "name": "Pool Recipe 3",
+            "image_url": null,
+            "description": "synthetic side veg #3",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 17,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p53",
+            "slug": "pool-recipe-53",
+            "name": "Pool Recipe 53",
+            "image_url": null,
+            "description": "synthetic side veg #53",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 24,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p27",
+            "slug": "pool-recipe-27",
+            "name": "Pool Recipe 27",
+            "image_url": null,
+            "description": "synthetic main pork #27",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 35,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p46",
+            "slug": "pool-recipe-46",
+            "name": "Pool Recipe 46",
+            "image_url": null,
+            "description": "synthetic side veg #46",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 38,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p41",
+            "slug": "pool-recipe-41",
+            "name": "Pool Recipe 41",
+            "image_url": null,
+            "description": "synthetic main egg #41",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 57,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p25",
+            "slug": "pool-recipe-25",
+            "name": "Pool Recipe 25",
+            "image_url": null,
+            "description": "synthetic side veg #25",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 41,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p1",
+            "slug": "pool-recipe-1",
+            "name": "Pool Recipe 1",
+            "image_url": null,
+            "description": "synthetic main tofu #1",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 53,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p52",
+            "slug": "pool-recipe-52",
+            "name": "Pool Recipe 52",
+            "image_url": null,
+            "description": "synthetic main pork #52",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 28,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p12",
+            "slug": "pool-recipe-12",
+            "name": "Pool Recipe 12",
+            "image_url": null,
+            "description": "synthetic side veg #12",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 19,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/two_meat_one_veg#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p20",
+            "slug": "pool-recipe-20",
+            "name": "Pool Recipe 20",
+            "image_url": null,
+            "description": "synthetic main chicken #20",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 22,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p45",
+            "slug": "pool-recipe-45",
+            "name": "Pool Recipe 45",
+            "image_url": null,
+            "description": "synthetic main egg #45",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p2",
+            "slug": "pool-recipe-2",
+            "name": "Pool Recipe 2",
+            "image_url": null,
+            "description": "synthetic side veg #2",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 18,
+            "difficulty": "hard"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p9",
+            "slug": "pool-recipe-9",
+            "name": "Pool Recipe 9",
+            "image_url": null,
+            "description": "synthetic main pork #9",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p13",
+            "slug": "pool-recipe-13",
+            "name": "Pool Recipe 13",
+            "image_url": null,
+            "description": "synthetic side veg #13",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 51,
+            "difficulty": "medium"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p58",
+            "slug": "pool-recipe-58",
+            "name": "Pool Recipe 58",
+            "image_url": null,
+            "description": "synthetic main fish #58",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 20,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p42",
+            "slug": "pool-recipe-42",
+            "name": "Pool Recipe 42",
+            "image_url": null,
+            "description": "synthetic main shrimp #42",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "shrimp",
+            "protein": [
+              "shrimp"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 16,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p46",
+            "slug": "pool-recipe-46",
+            "name": "Pool Recipe 46",
+            "image_url": null,
+            "description": "synthetic side veg #46",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 38,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p24",
+            "slug": "pool-recipe-24",
+            "name": "Pool Recipe 24",
+            "image_url": null,
+            "description": "synthetic main chicken #24",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 33,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p47",
+            "slug": "pool-recipe-47",
+            "name": "Pool Recipe 47",
+            "image_url": null,
+            "description": "synthetic main pork #47",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p25",
+            "slug": "pool-recipe-25",
+            "name": "Pool Recipe 25",
+            "image_url": null,
+            "description": "synthetic side veg #25",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 41,
+            "difficulty": "easy"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p43",
+            "slug": "pool-recipe-43",
+            "name": "Pool Recipe 43",
+            "image_url": null,
+            "description": "synthetic main egg #43",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p34",
+            "slug": "pool-recipe-34",
+            "name": "Pool Recipe 34",
+            "image_url": null,
+            "description": "synthetic main fish #34",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p19",
+            "slug": "pool-recipe-19",
+            "name": "Pool Recipe 19",
+            "image_url": null,
+            "description": "synthetic side veg #19",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p55",
+            "slug": "pool-recipe-55",
+            "name": "Pool Recipe 55",
+            "image_url": null,
+            "description": "synthetic main beef #55",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 36,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p54",
+            "slug": "pool-recipe-54",
+            "name": "Pool Recipe 54",
+            "image_url": null,
+            "description": "synthetic main tofu #54",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p7",
+            "slug": "pool-recipe-7",
+            "name": "Pool Recipe 7",
+            "image_url": null,
+            "description": "synthetic side veg #7",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 21,
+            "difficulty": "hard"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p15",
+            "slug": "pool-recipe-15",
+            "name": "Pool Recipe 15",
+            "image_url": null,
+            "description": "synthetic main pork #15",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 24,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/two_meat_one_veg#2",
+      "fixture": "pool",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 7,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p52",
+            "slug": "pool-recipe-52",
+            "name": "Pool Recipe 52",
+            "image_url": null,
+            "description": "synthetic main pork #52",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 28,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p34",
+            "slug": "pool-recipe-34",
+            "name": "Pool Recipe 34",
+            "image_url": null,
+            "description": "synthetic main fish #34",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p19",
+            "slug": "pool-recipe-19",
+            "name": "Pool Recipe 19",
+            "image_url": null,
+            "description": "synthetic side veg #19",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p55",
+            "slug": "pool-recipe-55",
+            "name": "Pool Recipe 55",
+            "image_url": null,
+            "description": "synthetic main beef #55",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 36,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p7",
+            "slug": "pool-recipe-7",
+            "name": "Pool Recipe 7",
+            "image_url": null,
+            "description": "synthetic side veg #7",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 21,
+            "difficulty": "hard"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p45",
+            "slug": "pool-recipe-45",
+            "name": "Pool Recipe 45",
+            "image_url": null,
+            "description": "synthetic main egg #45",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p46",
+            "slug": "pool-recipe-46",
+            "name": "Pool Recipe 46",
+            "image_url": null,
+            "description": "synthetic side veg #46",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 38,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p47",
+            "slug": "pool-recipe-47",
+            "name": "Pool Recipe 47",
+            "image_url": null,
+            "description": "synthetic main pork #47",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p31",
+            "slug": "pool-recipe-31",
+            "name": "Pool Recipe 31",
+            "image_url": null,
+            "description": "synthetic main fish #31",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 38,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p36",
+            "slug": "pool-recipe-36",
+            "name": "Pool Recipe 36",
+            "image_url": null,
+            "description": "synthetic side veg #36",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 23,
+            "difficulty": "hard"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p5",
+            "slug": "pool-recipe-5",
+            "name": "Pool Recipe 5",
+            "image_url": null,
+            "description": "synthetic main tofu #5",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p17",
+            "slug": "pool-recipe-17",
+            "name": "Pool Recipe 17",
+            "image_url": null,
+            "description": "synthetic main egg #17",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ],
+        "sat": [
+          {
+            "id": "p50",
+            "slug": "pool-recipe-50",
+            "name": "Pool Recipe 50",
+            "image_url": null,
+            "description": "synthetic main beef #50",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 27,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p44",
+            "slug": "pool-recipe-44",
+            "name": "Pool Recipe 44",
+            "image_url": null,
+            "description": "synthetic main pork #44",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 31,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p11",
+            "slug": "pool-recipe-11",
+            "name": "Pool Recipe 11",
+            "image_url": null,
+            "description": "synthetic side veg #11",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          }
+        ],
+        "sun": [
+          {
+            "id": "p20",
+            "slug": "pool-recipe-20",
+            "name": "Pool Recipe 20",
+            "image_url": null,
+            "description": "synthetic main chicken #20",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 22,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p40",
+            "slug": "pool-recipe-40",
+            "name": "Pool Recipe 40",
+            "image_url": null,
+            "description": "synthetic main egg #40",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "steamed",
+            "speed": "slow",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "hard"
+          },
+          {
+            "id": "p49",
+            "slug": "pool-recipe-49",
+            "name": "Pool Recipe 49",
+            "image_url": null,
+            "description": "synthetic side veg #49",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 15,
+            "difficulty": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/meat_veg/days3#1",
+      "fixture": "pool",
+      "seed": 1,
+      "config": {
+        "daysPerWeek": 3,
+        "dishesPerDay": 2,
+        "slotRoles": [
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "meat_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p20",
+            "slug": "pool-recipe-20",
+            "name": "Pool Recipe 20",
+            "image_url": null,
+            "description": "synthetic main chicken #20",
+            "cuisine": "japanese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 22,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p57",
+            "slug": "pool-recipe-57",
+            "name": "Pool Recipe 57",
+            "image_url": null,
+            "description": "synthetic side veg #57",
+            "cuisine": "korean",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 57,
+            "difficulty": "medium"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p53",
+            "slug": "pool-recipe-53",
+            "name": "Pool Recipe 53",
+            "image_url": null,
+            "description": "synthetic side veg #53",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 24,
+            "difficulty": "easy"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p21",
+            "slug": "pool-recipe-21",
+            "name": "Pool Recipe 21",
+            "image_url": null,
+            "description": "synthetic main fish #21",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 32,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p8",
+            "slug": "pool-recipe-8",
+            "name": "Pool Recipe 8",
+            "image_url": null,
+            "description": "synthetic side veg #8",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 46,
+            "difficulty": "hard"
+          }
+        ]
+      }
+    },
+    {
+      "name": "pool/two_meat_one_veg/days5#2",
+      "fixture": "pool",
+      "seed": 2,
+      "config": {
+        "daysPerWeek": 5,
+        "dishesPerDay": 3,
+        "slotRoles": [
+          "protein_main",
+          "protein_main",
+          "veg_side"
+        ],
+        "dailyComposition": "two_meat_one_veg",
+        "allowCompleteMeal": true,
+        "cuisines": [],
+        "exclusions": [],
+        "cookingConstraints": [],
+        "budget": "medium",
+        "pantryIngredients": [],
+        "lockedSlots": {}
+      },
+      "lockedRecipeRefs": {},
+      "plan": {
+        "mon": [
+          {
+            "id": "p52",
+            "slug": "pool-recipe-52",
+            "name": "Pool Recipe 52",
+            "image_url": null,
+            "description": "synthetic main pork #52",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 28,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p34",
+            "slug": "pool-recipe-34",
+            "name": "Pool Recipe 34",
+            "image_url": null,
+            "description": "synthetic main fish #34",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p19",
+            "slug": "pool-recipe-19",
+            "name": "Pool Recipe 19",
+            "image_url": null,
+            "description": "synthetic side veg #19",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 25,
+            "difficulty": "easy"
+          }
+        ],
+        "tue": [
+          {
+            "id": "p55",
+            "slug": "pool-recipe-55",
+            "name": "Pool Recipe 55",
+            "image_url": null,
+            "description": "synthetic main beef #55",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "slow",
+            "primary_protein": "beef",
+            "protein": [
+              "beef"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 36,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p14",
+            "slug": "pool-recipe-14",
+            "name": "Pool Recipe 14",
+            "image_url": null,
+            "description": "synthetic main tofu #14",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 54,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p7",
+            "slug": "pool-recipe-7",
+            "name": "Pool Recipe 7",
+            "image_url": null,
+            "description": "synthetic side veg #7",
+            "cuisine": "thai",
+            "dish_type": "side",
+            "method": "baked",
+            "speed": "slow",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 21,
+            "difficulty": "hard"
+          }
+        ],
+        "wed": [
+          {
+            "id": "p45",
+            "slug": "pool-recipe-45",
+            "name": "Pool Recipe 45",
+            "image_url": null,
+            "description": "synthetic main egg #45",
+            "cuisine": "korean",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 49,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p29",
+            "slug": "pool-recipe-29",
+            "name": "Pool Recipe 29",
+            "image_url": null,
+            "description": "synthetic main chicken #29",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "fried",
+            "speed": "normal",
+            "primary_protein": "chicken",
+            "protein": [
+              "chicken"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 50,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p46",
+            "slug": "pool-recipe-46",
+            "name": "Pool Recipe 46",
+            "image_url": null,
+            "description": "synthetic side veg #46",
+            "cuisine": "japanese",
+            "dish_type": "side",
+            "method": "steamed",
+            "speed": "normal",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 38,
+            "difficulty": "easy"
+          }
+        ],
+        "thu": [
+          {
+            "id": "p47",
+            "slug": "pool-recipe-47",
+            "name": "Pool Recipe 47",
+            "image_url": null,
+            "description": "synthetic main pork #47",
+            "cuisine": "thai",
+            "dish_type": "main",
+            "method": "boiled",
+            "speed": "normal",
+            "primary_protein": "pork",
+            "protein": [
+              "pork"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 19,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p31",
+            "slug": "pool-recipe-31",
+            "name": "Pool Recipe 31",
+            "image_url": null,
+            "description": "synthetic main fish #31",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "braised",
+            "speed": "normal",
+            "primary_protein": "fish",
+            "protein": [
+              "fish"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 38,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p36",
+            "slug": "pool-recipe-36",
+            "name": "Pool Recipe 36",
+            "image_url": null,
+            "description": "synthetic side veg #36",
+            "cuisine": "western",
+            "dish_type": "side",
+            "method": "fried",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 23,
+            "difficulty": "hard"
+          }
+        ],
+        "fri": [
+          {
+            "id": "p5",
+            "slug": "pool-recipe-5",
+            "name": "Pool Recipe 5",
+            "image_url": null,
+            "description": "synthetic main tofu #5",
+            "cuisine": "western",
+            "dish_type": "main",
+            "method": "stir_fry",
+            "speed": "quick",
+            "primary_protein": "tofu",
+            "protein": [
+              "tofu"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 44,
+            "difficulty": "easy"
+          },
+          {
+            "id": "p17",
+            "slug": "pool-recipe-17",
+            "name": "Pool Recipe 17",
+            "image_url": null,
+            "description": "synthetic main egg #17",
+            "cuisine": "chinese",
+            "dish_type": "main",
+            "method": "baked",
+            "speed": "quick",
+            "primary_protein": "egg",
+            "protein": [
+              "egg"
+            ],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "protein_main",
+            "total_time_minutes": 42,
+            "difficulty": "medium"
+          },
+          {
+            "id": "p33",
+            "slug": "pool-recipe-33",
+            "name": "Pool Recipe 33",
+            "image_url": null,
+            "description": "synthetic side veg #33",
+            "cuisine": "chinese",
+            "dish_type": "side",
+            "method": "braised",
+            "speed": "quick",
+            "primary_protein": null,
+            "protein": [],
+            "diet": [],
+            "flavor": [],
+            "is_complete_meal": false,
+            "meal_role": "veg_side",
+            "total_time_minutes": 47,
+            "difficulty": "easy"
+          }
+        ]
+      }
+    }
+  ]
+}
