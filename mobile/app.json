@@ -8,9 +8,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.prepmeal.app",
+      "usesAppleSignIn": true
     },
     "android": {
+      "package": "com.prepmeal.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -24,7 +27,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-image"
-    ]
+      "expo-image",
+      "expo-apple-authentication"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cb95c052-ac9d-4332-a593-3f3ca3e32492"
+      }
+    },
+    "owner": "gumlei"
   }
 }
