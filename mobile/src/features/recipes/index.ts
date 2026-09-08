@@ -7,6 +7,10 @@
 export { RecipeListScreen } from './components/RecipeListScreen';
 export { RecipeDetailScreen } from './components/RecipeDetailScreen';
 export { RecipeCard } from './components/RecipeCard';
+// Reused by the plans feature for plan-item thumbnails, so the
+// variant -> original -> emoji fallback stays a single implementation.
+export { RecipeImage } from './components/RecipeImage';
+export { recipeThumbSources } from './lib/recipeImageUrl';
 export { useRecipes } from './hooks/useRecipes';
 export type { RecipesStatus, UseRecipesResult } from './hooks/useRecipes';
 export { useRecipeDetail } from './hooks/useRecipeDetail';

@@ -1,10 +1,13 @@
-import { PlaceholderScreen } from '@/components/PlaceholderScreen';
+/**
+ * 餐單 tab — saved meal plans.
+ *
+ * Thin route: delegates to the plans feature screen, which owns the auth gate
+ * (`useAuthSession`), data loading (`useMyPlans` -> `fetchMyPlans` -> Supabase)
+ * and every list / loading / error / empty / signed-out state. See
+ * `src/features/plans/`.
+ */
+import { PlansListScreen } from '@/features/plans';
 
 export default function PlansScreen() {
-  return (
-    <PlaceholderScreen
-      title="餐單"
-      description="已儲存的餐單會在這裡列出。"
-    />
-  );
+  return <PlansListScreen />;
 }
