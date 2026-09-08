@@ -12,6 +12,7 @@ interface UseGenerateActionsOptions {
   servings: number;
   daysPerWeek: number;
   isAuthenticated: boolean;
+  userId: string | null;
   getAccessToken: () => Promise<string | null>;
   traceId?: string;
 }
@@ -22,6 +23,7 @@ export function useGenerateActions({
   servings,
   daysPerWeek,
   isAuthenticated,
+  userId,
   getAccessToken,
   traceId,
 }: UseGenerateActionsOptions) {
@@ -138,12 +140,14 @@ export function useGenerateActions({
     setIsShoppingListLoading(true);
     
     try {
+      const token = await getAccessToken();
+      if (!token || !userId) throw new Error('請先登入以查看購物清單');
       const t0 = Date.now();
       const viewModel = await fetchGeneratedPlanShoppingList(
         weeklyPlan,
         pantryIngredients,
         servings,
-        { traceId }
+        { traceId, token, cacheScope: userId }
       );
       const currentSignature = buildPlanSignature();
       setShoppingListView(viewModel);
@@ -174,7 +178,7 @@ export function useGenerateActions({
     } finally {
       setIsShoppingListLoading(false);
     }
-  }, [weeklyPlan, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature, buildPlanSignature]);
+  }, [weeklyPlan, pantryIngredients, servings, userId, getAccessToken, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature, buildPlanSignature]);
 
   const handleCloseShoppingList = useCallback(() => {
     setShowShoppingList(false);
@@ -196,12 +200,14 @@ export function useGenerateActions({
     });
     
     try {
+      const token = await getAccessToken();
+      if (!token || !userId) return;
       const t0 = Date.now();
       const viewModel = await fetchGeneratedPlanShoppingList(
         weeklyPlan,
         pantryIngredients,
         servings,
-        { traceId }
+        { traceId, token, cacheScope: userId }
       );
       const currentSignature = buildPlanSignature();
       setShoppingListView(viewModel);
@@ -227,7 +233,7 @@ export function useGenerateActions({
         meta: { message: (err as Error).message },
       });
     }
-  }, [weeklyPlan, traceId, shoppingListView, isShoppingListLoading, buildPlanSignature]);
+  }, [weeklyPlan, pantryIngredients, servings, userId, getAccessToken, traceId, shoppingListView, isShoppingListLoading, buildPlanSignature]);
 
   // Copy shopping list
   const handleCopyShoppingList = useCallback(async () => {

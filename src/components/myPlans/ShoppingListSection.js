@@ -7,8 +7,7 @@ import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
 export default function ShoppingListSection({ recipeIds, servings = 1 }) {
-  const { user } = useAuth();
-  const userId = user?.id;
+  const { getAccessToken } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shoppingList, setShoppingList] = useState(null);
@@ -19,10 +18,15 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
     setError(null);
     
     try {
+      const token = await getAccessToken();
+      if (!token) throw new Error('請先登入以查看購物清單');
       const res = await fetch('/api/shopping-list', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, recipeIds, servings })
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ recipeIds, servings })
       });
       const data = await res.json();
       

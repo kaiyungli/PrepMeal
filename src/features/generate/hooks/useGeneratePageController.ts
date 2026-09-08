@@ -23,7 +23,7 @@ export function useGeneratePageController({
   traceId?: string;
 }) {
   // Auth
-  const { isAuthenticated, getAccessToken } = useAuth();
+  const { isAuthenticated, user, getAccessToken } = useAuth();
   
   // Use passed-in preferences
   const { daysPerWeek, dailyComposition, servings, budget, filters, setFilters, clearFilters, allowCompleteMeal } = preferences;
@@ -64,6 +64,7 @@ export function useGeneratePageController({
     servings,
     daysPerWeek,
     isAuthenticated,
+    userId: user?.id ?? null,
     getAccessToken,
     traceId
   });

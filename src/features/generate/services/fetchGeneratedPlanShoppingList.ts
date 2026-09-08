@@ -9,6 +9,8 @@ import { perfNow, perfLog } from '@/utils/perf';
 
 export interface FetchShoppingListOptions {
   traceId?: string;
+  token: string;
+  cacheScope: string;
 }
 
 const CACHE_KEY = 'shopping_list_v1';
@@ -20,10 +22,10 @@ interface CachePayload {
   data: ShoppingListViewModel;
 }
 
-function getCacheKey(recipeIds: string[], pantryIngredients: string[], servings: number): string {
+function getCacheKey(cacheScope: string, recipeIds: string[], pantryIngredients: string[], servings: number): string {
   const recipeHash = recipeIds.slice().sort().join(',');
   const pantryHash = pantryIngredients.slice().sort().join(',');
-  return `${recipeHash}|${pantryHash}|${servings}`;
+  return `${cacheScope}|${recipeHash}|${pantryHash}|${servings}`;
 }
 
 function getFromCache(key: string): ShoppingListViewModel | null {
@@ -80,9 +82,9 @@ function setToCache(key: string, data: ShoppingListViewModel): void {
  */
 export async function fetchGeneratedPlanShoppingList(
   weeklyPlan: Record<string, any[]>,
-  pantryIngredients: string[] = [],
-  servings: number = 1,
-  options: FetchShoppingListOptions = {}
+  pantryIngredients: string[],
+  servings: number,
+  options: FetchShoppingListOptions
 ): Promise<ShoppingListViewModel> {
   const t0 = perfNow();
   
@@ -97,7 +99,7 @@ export async function fetchGeneratedPlanShoppingList(
   });
 
   // Build cache key
-  const cacheKey = getCacheKey(recipeIds, pantryIngredients, servings);
+  const cacheKey = getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings);
   
   // Check cache first
   const cachedData = getFromCache(cacheKey);
@@ -142,9 +144,11 @@ export async function fetchGeneratedPlanShoppingList(
     
     const res = await fetch('/api/shopping-list', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${options.token}`,
+      },
       body: JSON.stringify({
-        userId: 'current',
         recipeIds,
         pantryIngredients,
         servings,
