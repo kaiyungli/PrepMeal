@@ -15,20 +15,20 @@ const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 }
  * @returns SavePlanPayload
  */
 export function normalizePlanForSave(
-  weeklyPlan: Record<string, any[]>,
+  weeklyPlan: Record<string, Array<{ id?: string | number } | null | undefined>>,
   servings: number,
   daysPerWeek: number
 ): SavePlanPayload {
   const items: Array<{
     day_index: number;
     meal_type: string;
-    recipe_id: string | number;
+    recipe_id: string;
     servings: number;
   }> = [];
 
   const dayKeys = Object.keys(weeklyPlan);
   for (const dayKey of dayKeys) {
-    const dayIndex = (DAY_INDEX_MAP as any)[dayKey];
+    const dayIndex = DAY_INDEX_MAP[dayKey as keyof typeof DAY_INDEX_MAP];
     if (dayIndex === undefined) continue;
 
     const dayRecipes = weeklyPlan[dayKey] || [];
@@ -37,7 +37,7 @@ export function normalizePlanForSave(
         items.push({
           day_index: dayIndex,
           meal_type: 'dinner',
-          recipe_id: recipe.id,
+          recipe_id: String(recipe.id),
           servings: servings,
         });
       }

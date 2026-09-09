@@ -8,7 +8,7 @@ import { perfNow, perfMeasure } from '@/utils/perf';
 export interface PlanItem {
   day_index: number;
   meal_type: string;
-  recipe_id: string | number;
+  recipe_id: string;
   servings: number;
 }
 
@@ -42,9 +42,11 @@ export async function saveGeneratedPlan(payload: SavePlanPayload, token: string)
     
     const data = await res.json();
     
-    if (data.success === false && data.error) {
-      throw new Error(data.error);
+    if (!res.ok || data.success === false) {
+      throw new Error(data.error || 'Failed to save plan');
     }
+
+    if (!data.data?.plan_id) throw new Error('Invalid save response');
     
     return { success: true };
   } catch (err) {
@@ -63,16 +65,16 @@ export async function saveGeneratedPlan(payload: SavePlanPayload, token: string)
  * @returns SavePlanPayload
  */
 export function buildSavePayload(
-  weeklyPlan: any,
+  weeklyPlan: Record<string, Array<{ id?: string | number } | null | undefined>>,
   servings: number,
   daysPerWeek: number
 ): SavePlanPayload {
   const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
   
-  const items: any[] = [];
+  const items: PlanItem[] = [];
   const dayKeys = Object.keys(weeklyPlan);
   for (const dayKey of dayKeys) {
-    const dayIndex = (DAY_INDEX_MAP as any)[dayKey];
+    const dayIndex = DAY_INDEX_MAP[dayKey as keyof typeof DAY_INDEX_MAP];
     if (dayIndex === undefined) continue;
     
     const dayRecipes = weeklyPlan[dayKey] || [];
@@ -81,7 +83,7 @@ export function buildSavePayload(
         items.push({
           day_index: dayIndex,
           meal_type: 'dinner',
-          recipe_id: recipe.id,
+          recipe_id: String(recipe.id),
           servings: servings,
         });
       }
