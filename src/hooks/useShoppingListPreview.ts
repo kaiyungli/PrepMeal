@@ -38,7 +38,7 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @returns {Object} - { previewList, isLoading, error, isAuthRequired, refresh }
  */
 export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enabled?: boolean } = {}) {
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
   const { enabled = true } = options;
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -87,11 +87,18 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
     setIsAuthRequired(false);
     
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        setIsAuthRequired(true);
+        throw new Error('Authentication required');
+      }
       const response = await fetch('/api/shopping-list', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ 
-          userId: (user as any)?.id || null,
           recipeIds,
           pantryIngredients: [],
           servings: 1
@@ -116,7 +123,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
         setIsLoading(false);
       }
     }
-  }, [user]);
+  }, [user, getAccessToken]);
   
   // Manual refresh function (call when user opens shopping list)
   const refresh = useCallback(() => {

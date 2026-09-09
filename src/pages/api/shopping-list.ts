@@ -7,6 +7,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuth } from './user/_auth';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey, ShoppingListRecipeGroup } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
@@ -59,19 +60,38 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const userId = await requireAuth(req, res);
+  if (!userId) return;
+
   const body = req.body as Record<string, unknown>;
-  const userId = String(body?.userId ?? '');
-  const recipeIds = Array.isArray(body?.recipeIds) ? body.recipeIds as string[] : [];
-  const pantryIngredients = Array.isArray(body?.pantryIngredients) ? body.pantryIngredients as string[] : [];
+  const recipeIds = Array.isArray(body?.recipeIds)
+    ? [...new Set(body.recipeIds.filter((id): id is string => typeof id === 'string' && id.trim() !== ''))]
+    : [];
+  const pantryIngredients = Array.isArray(body?.pantryIngredients)
+    ? body.pantryIngredients.filter((name): name is string => typeof name === 'string')
+    : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
   
-  if (!userId || recipeIds.length === 0) {
-    return res.status(400).json({ error: 'Missing userId or recipeIds' });
+  if (recipeIds.length === 0) {
+    return res.status(400).json({ error: 'Missing recipeIds' });
+  }
+  if (recipeIds.length > 200) {
+    return res.status(400).json({ error: 'Too many recipeIds' });
+  }
+  if (!Number.isFinite(servings) || servings <= 0) {
+    return res.status(400).json({ error: 'Invalid servings' });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    return res.status(500).json({ error: 'Server configuration error' });
   }
 
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    supabaseUrl,
+    serviceRoleKey,
+    { auth: { persistSession: false, autoRefreshToken: false } }
   );
 
   // Get user preference for unit language
@@ -89,6 +109,21 @@ export default async function handler(
   console.log('[shopping-list api] user unit_language:', unitLanguage);
 
   try {
+    // The service-role client bypasses RLS, so recipe visibility must be
+    // enforced explicitly before related ingredient rows are queried.
+    const { data: visibleRecipes, error: visibilityError } = await supabase
+      .from('recipes')
+      .select('id')
+      .in('id', recipeIds)
+      .eq('is_public', true);
+
+    if (visibilityError) throw visibilityError;
+
+    const visibleRecipeIds = (visibleRecipes || []).map((recipe) => String(recipe.id));
+    if (visibleRecipeIds.length !== recipeIds.length) {
+      return res.status(403).json({ error: 'One or more recipes are unavailable' });
+    }
+
     const dbStart = performance.now();
     console.log('[shopping-list-api] db fetch start', { recipeCount: recipeIds.length });
     
@@ -103,7 +138,7 @@ export default async function handler(
         recipes(id, name),
         units(id, code, display_name_en, display_name_zh)
       `)
-      .in('recipe_id', recipeIds);
+      .in('recipe_id', visibleRecipeIds);
 
     if (ingError) {
       console.log('[shopping-list api] fetch error:', ingError);
