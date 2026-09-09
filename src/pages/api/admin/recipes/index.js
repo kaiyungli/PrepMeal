@@ -1,25 +1,24 @@
-import { supabase } from '@/lib/supabaseClient'
 import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
 
 const isAdmin = (req) => requireAdmin(req)
 
-// Use service role client for admin operations (bypasses RLS)
-const db = supabaseServer || supabase
-const usingServiceRole = !!supabaseServer
-
 export default async function handler(req, res) {
   const { method, query, body } = req;
-  
+
   // Log request
   console.log(`[ADMIN RECIPES] ${method} ${JSON.stringify(query)}`)
-  
-  // Check DB connection
+
+  // Admin recipe operations run privileged RPCs and bypass RLS, so they MUST
+  // use the service-role client. Fail closed if it is not configured -- never
+  // fall back to the public anon client (which cannot be trusted with admin
+  // RPCs and would silently change the security model).
+  const db = supabaseServer
   if (!db) {
-    console.error('[ADMIN RECIPES] FATAL: Supabase not configured')
-    return res.status(500).json({ error: 'Supabase is not configured', hint: 'Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY' })
+    console.error('[ADMIN RECIPES] FATAL: service-role client not configured')
+    return res.status(500).json({ error: 'Admin API is not configured', hint: 'Set SUPABASE_SERVICE_ROLE_KEY (and NEXT_PUBLIC_SUPABASE_URL) for admin recipe operations' })
   }
-  
+
   // Check auth
   if (!isAdmin(req)) {
     console.log('[ADMIN RECIPES] Unauthorized access attempt')
