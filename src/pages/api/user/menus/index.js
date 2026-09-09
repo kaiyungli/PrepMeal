@@ -3,8 +3,6 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
-import { transformItemsToInsert } from '@/lib/menuItemTransform';
-import { buildMenuPlanSummary } from '@/lib/menuPlanSummary';
 
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
@@ -33,7 +31,6 @@ export default async function handler(req, res) {
   }
   
   try {
-    const authStart = Date.now();
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
     
@@ -47,8 +44,6 @@ export default async function handler(req, res) {
         return res.status(500).json(ApiResponse.error('Service role client not configured'));
       }
       
-      const getStart = Date.now();
-      const plansStart = Date.now();
       const { data: plansData, error: plansError } = await serverSupabase
         .from('menu_plans')
         .select(`
@@ -95,91 +90,35 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { name, week_start_date, days_count, items, notes } = req.body;
+      const { name, week_start_date, days_count, items } = req.body || {};
       
-      if (!name || !week_start_date || !items || !Array.isArray(items)) {
+      if (
+        typeof name !== 'string' ||
+        typeof week_start_date !== 'string' ||
+        !Number.isInteger(days_count) ||
+        !Array.isArray(items)
+      ) {
         return res.status(400).json(ApiResponse.badRequest('name, week_start_date, and items are required'));
       }
 
       try {
-        // Compute end_date from week_start_date + days_count
-        const startDate = new Date(week_start_date);
-        const days = days_count || 7;
-        const endDate = new Date(startDate);
-        endDate.setDate(endDate.getDate() + days - 1);
-        const end_date = endDate.toISOString().split('T')[0];
+        const { data: planId, error: planError } = await userSupabase.rpc(
+          'create_menu_plan_atomic',
+          {
+            p_name: name,
+            p_week_start_date: week_start_date,
+            p_days_count: days_count,
+            p_items: items,
+          }
+        );
 
-        // Always create a NEW plan (no upsert/overwrite)
-        const { data: plan, error: planError } = await userSupabase
-          .from('menu_plans')
-          .insert({
-            user_id: userId,
-            title: name,
-            start_date: week_start_date,
-            end_date: end_date,
-          })
-          .select()
-          .single();
-        
-        if (planError) {
-          throw planError;
-        }
-        const planId = plan.id;
-
-        // Insert items using helper (computes item_order per group)
-        const itemsToInsert = transformItemsToInsert(items, planId, week_start_date);
-
-        const { error: itemsError } = await userSupabase
-          .from('menu_plan_items')
-          .insert(itemsToInsert);
-        
-        if (itemsError) {
-          throw itemsError;
-        }
-
-        // Query inserted items to build summary
-        const { data: summaryItems, error: summaryItemsError } = await userSupabase
-          .from('menu_plan_items')
-          .select(`
-            id,
-            menu_plan_id,
-            date,
-            meal_slot,
-            servings,
-            item_order,
-            recipe_id,
-            recipes (
-              id,
-              name,
-              image_url
-            )
-          `)
-          .eq('menu_plan_id', planId)
-          .order('date', { ascending: true })
-          .order('item_order', { ascending: true });
-
-        if (summaryItemsError) {
-          throw summaryItemsError;
-        }
-
-        // Build and update summary fields
-        const summary = buildMenuPlanSummary(summaryItems || []);
-
-        const { error: summaryUpdateError } = await userSupabase
-          .from('menu_plans')
-          .update({
-            avg_servings: summary.avg_servings,
-            item_count: summary.item_count,
-            preview_items: summary.preview_items
-          })
-          .eq('id', planId);
-
-        if (summaryUpdateError) {
-          throw summaryUpdateError;
-        }
+        if (planError) throw planError;
 
         return res.status(201).json(ApiResponse.created({ plan_id: planId }));
       } catch (err) {
+        if (['22023', '22P02', '23503', '23514'].includes(err?.code)) {
+          return res.status(400).json(ApiResponse.badRequest(err.message));
+        }
         return res.status(500).json(ApiResponse.error(err.message));
       }
     }
