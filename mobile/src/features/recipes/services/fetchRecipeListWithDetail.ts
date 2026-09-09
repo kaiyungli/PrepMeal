@@ -3,8 +3,8 @@
  *
  * Single authoritative source: the `public.get_recipe_list_with_detail_json()`
  * RPC — a migration-managed `SECURITY DEFINER` function (see
- * `supabase/migrations/010_get_recipe_list_with_detail_json.sql`, NOT yet
- * applied to any live database) that returns every current public recipe,
+ * `supabase/migrations/20260905034023_get_recipe_list_with_detail_json.sql`)
+ * that returns every current public recipe,
  * newest first, with full detail embedded per row, so a list-originated
  * detail open costs zero additional round trips.
  *
