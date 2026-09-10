@@ -68,14 +68,11 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
     setUploading(true);
     setError('');
     try {
-      const slug = form.slug || 'recipe';
-      const ext = file.name.split('.').pop() || 'jpg';
-      const fileName = `recipes/${slug}-${Date.now()}.${ext}`;
-
-      // Step 1: Get upload URL
-      const res = await fetch('/api/admin/uploads/image', {
+      // Step 1: Get upload URL. The server owns the Storage object key; we only
+      // declare the MIME type and never send a file name or path.
+      const res = await fetch('/api/admin/uploads/recipe-image', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileName, fileType: file.type }),
+        body: JSON.stringify({ fileType: file.type }),
       });
       if (!res.ok) throw new Error('Failed to get upload URL');
 
