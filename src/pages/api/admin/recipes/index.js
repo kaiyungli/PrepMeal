@@ -1,7 +1,14 @@
 import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
+import { buildRecipeAtomicParams } from '@/lib/adminRecipeAtomicParams'
 
 const isAdmin = (req) => requireAdmin(req)
+
+// Request-body validation + canonical RPC payload construction for
+// admin_(create|update)_recipe_atomic lives in the pure, route-agnostic module
+// `@/lib/adminRecipeAtomicParams` (shared with the future bulk-import route).
+// This file is only route orchestration: auth, the service-role client, method
+// routing, calling the helper, and mapping RPC results to HTTP responses.
 
 export default async function handler(req, res) {
   const { method, query, body } = req;
@@ -121,32 +128,14 @@ export default async function handler(req, res) {
     
     // POST - Create new recipe
     if (method === 'POST') {
-      console.log('[ADMIN RECIPES] Creating recipe via RPC:', body.name)
+      console.log('[ADMIN RECIPES] Creating recipe via RPC:', body?.name)
 
-      const { data, error } = await db.rpc('admin_create_recipe_atomic', {
-        p_name: body.name,
-        p_slug: body.slug,
-        p_description: body.description,
-        p_cuisine: body.cuisine,
-        p_dish_type: body.dish_type,
-        p_difficulty: body.difficulty,
-        p_prep_time_minutes: body.prep_time,
-        p_cook_time_minutes: body.cook_time,
-        p_base_servings: body.servings,
-        p_image_url: body.image_url,
-        p_calories_per_serving: body.calories_per_serving,
-        p_is_public: body.is_public,
-        p_method: body.method,
-        p_speed: body.speed,
-        p_servings_unit: body.servings_unit,
-        p_meal_role: body.meal_role || null,
-        p_is_complete_meal: body.is_complete_meal,
-        p_primary_protein: body.primary_protein || null,
-        p_budget_level: body.budget_level || null,
-        p_reuse_group: body.reuse_group || null,
-        p_ingredients: body.ingredients || [],
-        p_steps: body.steps || []
-      });
+      const built = buildRecipeAtomicParams(body);
+      if (built.error) {
+        return res.status(400).json({ error: built.error });
+      }
+
+      const { data, error } = await db.rpc('admin_create_recipe_atomic', built.params);
 
       if (error) {
         console.error('[ADMIN RECIPES] RPC error:', error);
@@ -174,33 +163,17 @@ export default async function handler(req, res) {
       if (!id) return res.status(400).json({ error: 'Recipe ID is required' });
       
       console.log('[ADMIN RECIPES] Updating recipe atomically:', id);
-      
+
+      const built = buildRecipeAtomicParams(body);
+      if (built.error) {
+        return res.status(400).json({ error: built.error });
+      }
+
       const { data, error } = await db.rpc('admin_update_recipe_atomic', {
         p_recipe_id: id,
-        p_name: body.name,
-        p_slug: body.slug,
-        p_description: body.description,
-        p_cuisine: body.cuisine,
-        p_dish_type: body.dish_type,
-        p_difficulty: body.difficulty,
-        p_prep_time_minutes: body.prep_time,
-        p_cook_time_minutes: body.cook_time,
-        p_base_servings: body.servings,
-        p_image_url: body.image_url,
-        p_calories_per_serving: body.calories_per_serving,
-        p_is_public: body.is_public,
-        p_method: body.method,
-        p_speed: body.speed,
-        p_servings_unit: body.servings_unit,
-        p_meal_role: body.meal_role || null,
-        p_is_complete_meal: body.is_complete_meal,
-        p_primary_protein: body.primary_protein || null,
-        p_budget_level: body.budget_level || null,
-        p_reuse_group: body.reuse_group || null,
-        p_ingredients: body.ingredients || [],
-        p_steps: body.steps || []
+        ...built.params
       });
-      
+
       if (error) {
         console.error('[ADMIN RECIPES] RPC error:', error);
         return res.status(500).json({ error: 'Failed to update recipe: ' + error.message, details: error });
