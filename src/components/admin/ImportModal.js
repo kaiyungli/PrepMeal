@@ -1,6 +1,9 @@
 'use client';
 import { useState } from 'react';
 
+const EXPECTED_FORMAT = 'prepmeal.recipe-export';
+const EXPECTED_VERSION = 1;
+
 export default function ImportModal({ onClose, onSuccess }) {
   const [jsonInput, setJsonInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,26 +14,50 @@ export default function ImportModal({ onClose, onSuccess }) {
     setError('');
     let parsed;
     try { parsed = JSON.parse(jsonInput); } catch (e) { setError('Invalid JSON format'); return; }
-    const recipes = Array.isArray(parsed) ? parsed : [parsed];
-    if (recipes.length === 0) { setError('No recipes to import'); return; }
-    setResults({ preview: true, total: recipes.length, recipes });
+    if (Array.isArray(parsed)) {
+      setError('不支援舊版陣列格式，請使用「匯出」重新產生檔案後再匯入');
+      return;
+    }
+    if (!parsed || typeof parsed !== 'object') {
+      setError('Invalid JSON format');
+      return;
+    }
+    if (parsed.format !== EXPECTED_FORMAT || parsed.version !== EXPECTED_VERSION) {
+      setError(`不支援的匯入格式，需要 format="${EXPECTED_FORMAT}"、version=${EXPECTED_VERSION}`);
+      return;
+    }
+    if (!Array.isArray(parsed.recipes) || parsed.recipes.length === 0) {
+      setError('No recipes to import');
+      return;
+    }
+    setResults({ preview: true, total: parsed.recipes.length, envelope: parsed });
   };
 
   const handleImport = async () => {
-    if (!results?.recipes) return;
+    if (!results?.envelope) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/recipes/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recipes: results.recipes }) });
+      const res = await fetch('/api/admin/recipes/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(results.envelope) });
       const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Import failed');
+        setResults(null);
+        return;
+      }
       setResults(data);
       if (data.success > 0) onSuccess();
     } catch (err) { setError('Import failed'); }
     finally { setLoading(false); }
   };
 
-  const sampleJson = `[
-  { "name": "蒜蓉西蘭花", "slug": "garlic-broccoli", "cuisine": "chinese", "dish_type": "side", "difficulty": "easy", "ingredients": [{ "name": "西蘭花", "quantity": 1, "unit": "棵" }], "steps": [{ "text": "焯水備用" }] }
-]`;
+  const sampleJson = `{
+  "format": "prepmeal.recipe-export",
+  "version": 1,
+  "exported_at": "2026-01-01T00:00:00.000Z",
+  "recipes": [
+    { "name": "蒜蓉西蘭花", "slug": "garlic-broccoli", "cuisine": "chinese", "dish_type": "side", "difficulty": "easy", "ingredients": [{ "ingredient_slug": "broccoli", "unit_code": "piece", "quantity": 1 }], "steps": [{ "text": "焯水備用" }] }
+  ]
+}`;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -63,7 +90,7 @@ export default function ImportModal({ onClose, onSuccess }) {
             </div>
           ) : (
             <>
-              <p className="text-[#AA7A50] text-sm mb-2">貼上或輸入 JSON 陣列：</p>
+              <p className="text-[#AA7A50] text-sm mb-2">貼上匯出檔案的 JSON 內容：</p>
               <textarea value={jsonInput} onChange={e => setJsonInput(e.target.value)} rows={12} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010] font-mono text-sm" placeholder={sampleJson} />
               <div className="flex gap-2 mt-4">
                 <button onClick={handlePreview} disabled={!jsonInput.trim()} className="flex-1 bg-[#9B6035] text-white py-3 rounded-lg hover:bg-[#7a4a2a] disabled:opacity-50">預覽</button>

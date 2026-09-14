@@ -63,6 +63,34 @@ export default function AdminRecipes() {
     router.push('/admin/login');
   };
 
+  const handleExport = async () => {
+    try {
+      const res = await fetch('/api/admin/recipes/export');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || '匯出失敗');
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const match = disposition.match(/filename="([^"]+)"/);
+      const filename = match ? match[1] : 'prepmeal-recipes-export.json';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // Revoke on a later task, not synchronously: some browsers haven't
+      // finished handing the blob off to the download machinery by the time
+      // click() returns, and revoking too early can cancel/corrupt it.
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    } catch (err) {
+      console.error('[EXPORT] Error:', err);
+      alert('匯出失敗: ' + err.message);
+    }
+  };
+
   const handleSave = async () => {
     try {
       setListError('');
@@ -146,6 +174,7 @@ export default function AdminRecipes() {
                   </select>
                   <button onClick={() => { setEditingRecipe(null); setView('form'); }} className="bg-[#9B6035] text-white px-5 py-2 rounded-lg hover:bg-[#7a4a2a]">+ 新增食譜</button>
                   <button onClick={() => setShowImportModal(true)} className="bg-[#C8D49A] text-[#3A2010] px-5 py-2 rounded-lg hover:bg-[#b5c288]">📥 匯入</button>
+                  <button onClick={handleExport} className="bg-[#F0A060] text-white px-5 py-2 rounded-lg hover:bg-[#d88a4a]">📤 匯出</button>
                 </div>
                 <p className="text-[#AA7A50] text-sm mt-2">{filteredRecipes.length} 個食譜</p>
               </div>
