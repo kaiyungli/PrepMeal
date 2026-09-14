@@ -2,15 +2,17 @@
 import { useState, useEffect } from 'react';
 import RecipeIngredientsEditor from './RecipeIngredientsEditor';
 import RecipeStepsEditor from './RecipeStepsEditor';
+import {
+  CUISINES,
+  DISH_TYPES,
+  DIFFICULTIES,
+  METHODS,
+  SPEEDS,
+  MEAL_ROLES,
+  PRIMARY_PROTEINS,
+  BUDGET_LEVELS,
+} from '@/constants/recipeContract';
 
-const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'];
-const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack'];
-const difficultyOptions = ['easy', 'medium', 'hard'];
-const methodOptions = ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked'];
-const speedOptions = ['quick', 'normal', 'slow'];
-const mealRoleOptions = ['complete_meal', 'protein_main', 'veg_side', 'protein_side', 'soup'];
-const primaryProteinOptions = ['chicken', 'beef', 'pork', 'fish', 'shrimp', 'tofu', 'egg', 'vegetarian', 'mixed'];
-const budgetLevelOptions = ['budget', 'normal', 'premium'];
 export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCancel }) {
   const [ingredients, setIngredients] = useState([]);
   const [units, setUnits] = useState([]);
@@ -210,23 +212,23 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1"> cuisine</label>
-            <select value={form.cuisine} onChange={e => handleChange('cuisine', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{cuisineOptions.map(c => <option key={c} value={c}>{c}</option>)}</select>
+            <select value={form.cuisine} onChange={e => handleChange('cuisine', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{CUISINES.map(c => <option key={c} value={c}>{c}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">菜式類型</label>
-            <select value={form.dish_type} onChange={e => handleChange('dish_type', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{dishTypeOptions.map(d => <option key={d} value={d}>{d}</option>)}</select>
+            <select value={form.dish_type} onChange={e => handleChange('dish_type', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{DISH_TYPES.map(d => <option key={d} value={d}>{d}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">難度</label>
-            <select value={form.difficulty} onChange={e => handleChange('difficulty', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{difficultyOptions.map(d => <option key={d} value={d}>{d}</option>)}</select>
+            <select value={form.difficulty} onChange={e => handleChange('difficulty', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">烹調方式</label>
-            <select value={form.method} onChange={e => handleChange('method', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{methodOptions.map(m => <option key={m} value={m}>{m}</option>)}</select>
+            <select value={form.method} onChange={e => handleChange('method', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{METHODS.map(m => <option key={m} value={m}>{m}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">時間類型</label>
-            <select value={form.speed} onChange={e => handleChange('speed', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{speedOptions.map(s => <option key={s} value={s}>{s}</option>)}</select>
+            <select value={form.speed} onChange={e => handleChange('speed', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{SPEEDS.map(s => <option key={s} value={s}>{s}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">公開</label>
@@ -238,7 +240,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">餐點角色</label>
-            <select value={form.meal_role || ''} onChange={e => handleChange('meal_role', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{mealRoleOptions.map(m => <option key={m} value={m}>{m}</option>)}</select>
+            <select value={form.meal_role || ''} onChange={e => handleChange('meal_role', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{MEAL_ROLES.map(m => <option key={m} value={m}>{m}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">完整餐點</label>
@@ -246,11 +248,11 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">主要蛋白質</label>
-            <select value={form.primary_protein || ''} onChange={e => handleChange('primary_protein', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{primaryProteinOptions.map(p => <option key={p} value={p}>{p}</option>)}</select>
+            <select value={form.primary_protein || ''} onChange={e => handleChange('primary_protein', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{PRIMARY_PROTEINS.map(p => <option key={p} value={p}>{p}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">預算級別</label>
-            <select value={form.budget_level || ''} onChange={e => handleChange('budget_level', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{budgetLevelOptions.map(b => <option key={b} value={b}>{b}</option>)}</select>
+            <select value={form.budget_level || ''} onChange={e => handleChange('budget_level', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">{BUDGET_LEVELS.map(b => <option key={b} value={b}>{b}</option>)}</select>
           </div>
           <div>
             <label className="block text-sm font-medium text-[#AA7A50] mb-1">重用組</label>

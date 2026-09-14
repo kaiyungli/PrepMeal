@@ -4,9 +4,7 @@ import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
 import RecipeForm from '@/components/admin/RecipeForm';
 import ImportModal from '@/components/admin/ImportModal';
-
-const cuisineOptions = ['chinese', 'western', 'japanese', 'korean', 'thai', 'taiwanese', 'indian', 'italian', 'fusion'];
-const dishTypeOptions = ['main', 'side', 'soup', 'staple', 'snack', 'dessert'];
+import { CUISINES, DISH_TYPES } from '@/constants/recipeContract';
 
 export default function AdminRecipes() {
   const router = useRouter();
@@ -166,11 +164,11 @@ export default function AdminRecipes() {
                   <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="搜尋食譜..." className="flex-1 min-w-[200px] px-4 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" />
                   <select value={cuisineFilter} onChange={e => setCuisineFilter(e.target.value)} className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">
                     <option value="all">全部菜系</option>
-                    {cuisineOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                    {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <select value={dishTypeFilter} onChange={e => setDishTypeFilter(e.target.value)} className="px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]">
                     <option value="all">全部類型</option>
-                    {dishTypeOptions.map(d => <option key={d} value={d}>{d}</option>)}
+                    {DISH_TYPES.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                   <button onClick={() => { setEditingRecipe(null); setView('form'); }} className="bg-[#9B6035] text-white px-5 py-2 rounded-lg hover:bg-[#7a4a2a]">+ 新增食譜</button>
                   <button onClick={() => setShowImportModal(true)} className="bg-[#C8D49A] text-[#3A2010] px-5 py-2 rounded-lg hover:bg-[#b5c288]">📥 匯入</button>
