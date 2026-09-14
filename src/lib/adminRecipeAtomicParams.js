@@ -48,25 +48,25 @@
 // explicit-value happy path only. is_complete_meal absent/null -> false.
 //
 // ENUM SETS below are the CANONICAL BACKEND copy, verbatim from the live CHECK
-// constraints. There is no existing shared module whose values match: this repo
-// has no meal_role / budget_level allow-list outside this file;
-// src/constants/taxonomy.ts is display-oriented and diverges (its DISH_TYPE_MAP
-// omits 'snack', its PROTEIN_MAP omits 'vegetarian'). Converging RecipeForm.js
-// (whose primaryProteinOptions omits 'seafood') and taxonomy.ts onto this
-// module is a separate, bounded follow-up -- it touches client display code and
-// is out of scope for this backend-contract slice.
+// constraints, sourced from src/constants/recipeContract.js -- the single
+// shared module also consumed by RecipeForm.js, the admin recipes list page,
+// and the display-oriented src/constants/taxonomy.ts, so all four layers stay
+// converged on the same production contract. Re-exported here for backward
+// compatibility with existing importers/tests of this module.
 // ===========================================================================
 
-export const CUISINES = ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'];
-export const DISH_TYPES = ['main', 'side', 'soup', 'staple', 'snack'];
-export const DIFFICULTIES = ['easy', 'medium', 'hard'];
-export const METHODS = ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked'];
-export const SPEEDS = ['quick', 'normal', 'slow'];
-export const MEAL_ROLES = ['complete_meal', 'protein_main', 'veg_side', 'protein_side', 'soup'];
-export const PRIMARY_PROTEINS = [
-  'chicken', 'beef', 'pork', 'fish', 'seafood', 'shrimp', 'tofu', 'egg', 'vegetarian', 'mixed',
-];
-export const BUDGET_LEVELS = ['budget', 'normal', 'premium'];
+import {
+  CUISINES,
+  DISH_TYPES,
+  DIFFICULTIES,
+  METHODS,
+  SPEEDS,
+  MEAL_ROLES,
+  PRIMARY_PROTEINS,
+  BUDGET_LEVELS,
+} from '@/constants/recipeContract';
+
+export { CUISINES, DISH_TYPES, DIFFICULTIES, METHODS, SPEEDS, MEAL_ROLES, PRIMARY_PROTEINS, BUDGET_LEVELS };
 
 const invalidMsg = (field) => `Invalid value for "${field}"`;
 

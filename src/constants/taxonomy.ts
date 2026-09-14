@@ -4,6 +4,8 @@
 // Centralized enum value -> Chinese label mappings
 // Used throughout the app for display labels
 
+import { CUISINES, DISH_TYPES, PRIMARY_PROTEINS } from './recipeContract';
+
 // ============================================
 // CUISINE MAP
 // ============================================
@@ -17,10 +19,8 @@ export const CUISINE_MAP: Record<string, string> = {
   fusion: 'Fusion',
 };
 
-// Use primary keys only - no duplicates
-export const CUISINE_OPTIONS = Object.keys(CUISINE_MAP)
-  .filter(key => !key.includes('中') && !key.includes('西') && !key.includes('日') && !key.includes('韓') && !key.includes('泰'))
-  .map(value => ({ value, label: CUISINE_MAP[value] }));
+// Canonical order + labels, derived from the shared production contract.
+export const CUISINE_OPTIONS = CUISINES.map(value => ({ value, label: CUISINE_MAP[value] }));
 
 // ============================================
 // DISH TYPE MAP
@@ -31,11 +31,11 @@ export const DISH_TYPE_MAP: Record<string, string> = {
   side: '配菜',
   staple: '主食',
   soup: '湯',
+  snack: '小食',
 };
 
-// Use primary keys only - no duplicates
-export const DISH_TYPE_OPTIONS = Object.keys(DISH_TYPE_MAP)
-  .map(value => ({ value, label: DISH_TYPE_MAP[value] }));
+// Canonical order + labels, derived from the shared production contract.
+export const DISH_TYPE_OPTIONS = DISH_TYPES.map(value => ({ value, label: DISH_TYPE_MAP[value] }));
 
 // ============================================
 // PROTEIN MAP
@@ -50,13 +50,12 @@ export const PROTEIN_MAP: Record<string, string> = {
   shrimp: '蝦',
   seafood: '海鮮',
   fish: '魚',
+  vegetarian: '素食',
   mixed: '混合蛋白',
 };
 
-// Use primary keys only - no duplicates
-export const PROTEIN_OPTIONS = Object.keys(PROTEIN_MAP)
-  .filter(key => key.length <= 10)
-  .map(value => ({ value, label: PROTEIN_MAP[value] }));
+// Canonical order + labels, derived from the shared production contract.
+export const PROTEIN_OPTIONS = PRIMARY_PROTEINS.map(value => ({ value, label: PROTEIN_MAP[value] }));
 
 // ============================================
 // METHOD MAP
