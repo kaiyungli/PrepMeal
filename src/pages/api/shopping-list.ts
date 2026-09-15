@@ -29,15 +29,20 @@ function normalizeUnit(unit: string | null | undefined): string {
   return map[u] || unit;
 }
 
-// Merge with old behavior
+// Merge rows only when both their identity AND normalized unit match, so an
+// ingredient recorded under incompatible units (e.g. 2 tsp + 3 tbsp) is never
+// raw-summed into one mathematically-invalid line. Aliases of the same unit
+// (e.g. "gram" and "g") still merge, since both normalize to "g" first.
+// Explicit `id:`/`name:` prefixes keep the two key spaces from ever colliding
+// (an ingredientId could otherwise coincide with a `name` string).
 function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
   const map = new Map<string, ShoppingListBuyItem>();
 
   for (const item of items) {
     const normalizedUnit = normalizeUnit(item.unit);
-    const key = item.ingredientId 
-      ? String(item.ingredientId) 
-      : `${item.name}__${normalizedUnit}`;
+    const key = item.ingredientId
+      ? `id:${item.ingredientId}__${normalizedUnit}`
+      : `name:${item.name}__${normalizedUnit}`;
 
     if (!map.has(key)) {
       map.set(key, { ...item, unit: normalizedUnit });

@@ -378,6 +378,11 @@ export interface ShoppingListLine {
   name: string;
   /** Pre-formatted "6 隻" / "" -- ready to render. */
   quantityText: string;
+  /** Canonical, quantity-independent unit key for stable list-item identity
+   *  (not for display -- quantityText already carries the localized unit).
+   *  Derived from `unit_code` via the same normalizer used for display, so
+   *  it never duplicates the alias table. */
+  unitKey: string;
 }
 
 export interface ShoppingListCategory {
@@ -428,6 +433,7 @@ export function groupPlanShoppingList(
         toDisplayUnit(row),
         false,
       ),
+      unitKey: normalizeUnitCode(row.unit_code),
     };
 
     const bucket = byKey.get(key);
@@ -443,4 +449,29 @@ export function groupPlanShoppingList(
     result.push({ key, label: meta.label, icon: meta.icon, items });
   }
   return result;
+}
+
+/**
+ * Stable React-list-item identity for one `ShoppingListLine`.
+ *
+ *   - Identified rows (`ingredientId` present): keyed by `ingredientId` PLUS
+ *     `unitKey` -- so the same ingredient recorded under incompatible units
+ *     (e.g. tsp vs. tbsp, made reachable by the unit-safe SQL aggregation)
+ *     never collides. `unitKey` is canonical and quantity-independent, so
+ *     the key stays identical across rerenders of the same row.
+ *   - Rows without an `ingredientId`: same fallback identity the component
+ *     already used (`categoryKey:name:index`), now centralized here so the
+ *     component and its tests share one definition.
+ *   - The `id:` / `name:` prefixes keep the two key spaces from ever
+ *     colliding with each other (mirrors the same prefixing already applied
+ *     in `src/pages/api/shopping-list.ts::mergeItems`).
+ */
+export function buildShoppingListLineKey(
+  line: ShoppingListLine,
+  categoryKey: string,
+  index: number,
+): string {
+  return line.ingredientId != null
+    ? `id:${line.ingredientId}__${line.unitKey}`
+    : `name:${categoryKey}:${line.name}:${index}`;
 }

@@ -210,4 +210,84 @@ describe('/api/shopping-list security boundary', () => {
       expect.objectContaining({ ingredientId: 'beef-1', quantity: 10, unit: 'g' }),
     ]);
   });
+
+  it('keeps the same ingredient in incompatible mass units (g vs kg) as two separate, un-summed items', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const database = createDatabase({
+      ingredientRows: [
+        {
+          quantity: 200,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'beef-1',
+          ingredients: { id: 'beef-1', name: '牛肉', shopping_category: 'meat' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          units: { id: 'u1', code: 'g', display_name_en: 'gram', display_name_zh: '克' },
+        },
+        {
+          quantity: 0.2,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'beef-1',
+          ingredients: { id: 'beef-1', name: '牛肉', shopping_category: 'meat' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          units: { id: 'u2', code: 'kg', display_name_en: 'kilogram', display_name_zh: '千克' },
+        },
+      ],
+    });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
+    // Must NOT raw-sum to 200.2 under one unit -- each normalized unit is its own line.
+    expect(items).toEqual([
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 200, unit: 'g' }),
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 0.2, unit: 'kg' }),
+    ]);
+  });
+
+  it('keeps the same ingredient in incompatible volume-ish units (tsp vs tbsp) as two separate, un-summed items', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const database = createDatabase({
+      ingredientRows: [
+        {
+          quantity: 2,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'ginger-1',
+          ingredients: { id: 'ginger-1', name: '薑', shopping_category: 'vegetable' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          units: { id: 'u1', code: 'tsp', display_name_en: 'teaspoon', display_name_zh: '茶匙' },
+        },
+        {
+          quantity: 3,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'ginger-1',
+          ingredients: { id: 'ginger-1', name: '薑', shopping_category: 'vegetable' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          units: { id: 'u2', code: 'tbsp', display_name_en: 'tablespoon', display_name_zh: '湯匙' },
+        },
+      ],
+    });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
+    // Must NOT raw-sum to 5 tsp -- no conversion factor between tsp and tbsp is applied.
+    expect(items).toEqual([
+      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 2, unit: 'tsp' }),
+      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 3, unit: 'tbsp' }),
+    ]);
+  });
 });

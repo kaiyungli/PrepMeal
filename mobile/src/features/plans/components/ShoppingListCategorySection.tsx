@@ -11,7 +11,10 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/constants/theme';
 
-import type { ShoppingListCategory } from '../lib/shoppingListModel';
+import {
+  buildShoppingListLineKey,
+  type ShoppingListCategory,
+} from '../lib/shoppingListModel';
 
 export function ShoppingListCategorySection({
   category,
@@ -26,7 +29,7 @@ export function ShoppingListCategorySection({
       <View style={styles.card}>
         {category.items.map((line, index) => (
           <View
-            key={line.ingredientId ?? `${category.key}:${line.name}:${index}`}
+            key={buildShoppingListLineKey(line, category.key, index)}
             style={[styles.row, index > 0 && styles.rowDivider]}
             accessible
             accessibilityLabel={
