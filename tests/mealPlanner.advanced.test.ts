@@ -334,3 +334,70 @@ describe('planWeekAdvanced pantry match respects slot role', () => {
     expect(proteinMainSlot.meal_role).not.toBe('soup');
   });
 });
+
+// Test H: Deterministic diversity over a full week (replaces the removed
+// statistical plannerSimulation.test.ts metrics with a single fixed-random run)
+describe('planWeekAdvanced diversity', () => {
+  beforeEach(() => {
+    mockRandom(0.5);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const DIVERSITY_PROTEINS = ['chicken', 'beef', 'pork', 'fish', 'tofu'];
+  const DIVERSITY_METHODS = ['stir_fry', 'steamed', 'braised', 'fried', 'boiled'];
+
+  function createProteinMainPool(count: number) {
+    return Array.from({ length: count }, (_, i) => createMockRecipe({
+      id: `diverse-main-${i}`,
+      name: `Main ${i}`,
+      dish_type: 'main',
+      primary_protein: DIVERSITY_PROTEINS[i % DIVERSITY_PROTEINS.length],
+      method: DIVERSITY_METHODS[i % DIVERSITY_METHODS.length],
+    }));
+  }
+
+  function createVegSidePool(count: number) {
+    return Array.from({ length: count }, (_, i) => createMockRecipe({
+      id: `diverse-side-${i}`,
+      name: `Side ${i}`,
+      dish_type: 'side',
+      primary_protein: '',
+      method: DIVERSITY_METHODS[i % DIVERSITY_METHODS.length],
+    }));
+  }
+
+  const diverseRecipes = [...createProteinMainPool(25), ...createVegSidePool(25)];
+  const diverseConfig = {
+    daysPerWeek: 7,
+    dishesPerDay: 2,
+    slotRoles: ['protein_main', 'veg_side'],
+    isWeekend: () => false,
+    lockedSlots: {},
+    lockedRecipes: {},
+  };
+
+  it('never repeats a recipe across the week when the pool is large enough', () => {
+    const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
+    const ids = Object.values(plan).flat().map((r) => r.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('selects at least 3 distinct proteins across the week', () => {
+    const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
+    const proteins = new Set(
+      Object.values(plan).flat().map((r) => r.primary_protein).filter(Boolean)
+    );
+    expect(proteins.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it('selects at least 2 distinct cooking methods across the week', () => {
+    const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
+    const methods = new Set(
+      Object.values(plan).flat().map((r) => r.method).filter(Boolean)
+    );
+    expect(methods.size).toBeGreaterThanOrEqual(2);
+  });
+});

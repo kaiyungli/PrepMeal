@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import type { ShoppingListResponse } from '@/features/shopping-list/types';
 
 const { requireAuthMock, createClientMock } = vi.hoisted(() => ({
   requireAuthMock: vi.fn(),
@@ -41,7 +42,10 @@ function createRequest(value: Partial<NextApiRequest>): NextApiRequest {
   return value as NextApiRequest;
 }
 
-function createDatabase({ visibleRecipeIds = ['recipe-1'] }: { visibleRecipeIds?: string[] } = {}) {
+function createDatabase({
+  visibleRecipeIds = ['recipe-1'],
+  ingredientRows = [] as unknown[],
+}: { visibleRecipeIds?: string[]; ingredientRows?: unknown[] } = {}) {
   const preferenceUserIds: string[] = [];
   let ingredientQueryCount = 0;
 
@@ -76,7 +80,7 @@ function createDatabase({ visibleRecipeIds = ['recipe-1'] }: { visibleRecipeIds?
           select: () => ({
             in: async () => {
               ingredientQueryCount += 1;
-              return { data: [], error: null };
+              return { data: ingredientRows, error: null };
             },
           }),
         };
@@ -164,5 +168,46 @@ describe('/api/shopping-list security boundary', () => {
 
     expect(response.statusCode).toBe(500);
     expect(createClientMock).not.toHaveBeenCalled();
+  });
+
+  it('merges the same ingredient across rows whose raw unit codes normalize to the same canonical unit, and applies the servings multiplier', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const database = createDatabase({
+      ingredientRows: [
+        {
+          quantity: 2,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'beef-1',
+          ingredients: { id: 'beef-1', name: '牛肉', shopping_category: 'meat' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          // Raw code 'gram' normalizes to 'g'
+          units: { id: 'u1', code: 'gram', display_name_en: 'gram', display_name_zh: '克' },
+        },
+        {
+          quantity: 3,
+          recipe_id: 'recipe-1',
+          ingredient_id: 'beef-1',
+          ingredients: { id: 'beef-1', name: '牛肉', shopping_category: 'meat' },
+          recipes: { id: 'recipe-1', name: 'Recipe One' },
+          // Raw code 'g' is already the canonical unit
+          units: { id: 'u2', code: 'g', display_name_en: 'gram', display_name_zh: '克' },
+        },
+      ],
+    });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 2 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
+    // (2 * 2 servings) + (3 * 2 servings) = 10
+    expect(items).toEqual([
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 10, unit: 'g' }),
+    ]);
   });
 });
