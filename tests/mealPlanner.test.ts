@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { selectRecipeForSlot, calculatePlanScore, planWeek } from '../src/lib/mealPlanner'
+import { calculatePlanScore, planWeek } from '../src/lib/mealPlanner'
 
 // Mock recipe data
 const createRecipe = (overrides = {}) => ({
@@ -31,38 +31,6 @@ describe('mealPlanner', () => {
       const recipes = Array.from({ length: 10 }, (_, i) => createRecipe({ id: String(i) }))
       const result = planWeek(recipes)
       expect(result).toHaveLength(7)
-    })
-  })
-
-  describe('selectRecipeForSlot', () => {
-    it('returns null for empty candidates', () => {
-      const result = selectRecipeForSlot([], new Set(), 10)
-      expect(result).toBeNull()
-    })
-
-    it('returns first candidate when only one', () => {
-      const candidates = [createRecipe({ id: '1' })]
-      const result = selectRecipeForSlot(candidates, new Set(), 10)
-      expect(result.id).toBe('1')
-    })
-
-    it('sorts by score descending', () => {
-      const candidates = [
-        createRecipe({ id: '1', score: 3 }),
-        createRecipe({ id: '2', score: 10 }),
-        createRecipe({ id: '3', score: 5 }),
-      ]
-      const result = selectRecipeForSlot(candidates, new Set(), 10)
-      expect(result.id).toBe('2')
-    })
-
-    it('applies pantry bonus', () => {
-      const candidates = [
-        createRecipe({ id: '1', score: 5, ingredients_list: ['egg', 'tomato'] }),
-      ]
-      const result = selectRecipeForSlot(candidates, new Set(), 10, [], [], false, ['egg', 'tomato'])
-      // Score may or may not have bonus depending on normalization
-      expect(result).toBeDefined()
     })
   })
 

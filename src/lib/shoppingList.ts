@@ -30,7 +30,7 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   
   // Filter to only include items with ingredient_id (from DB source)
   // Skip fallback items (they don't have proper ingredient_id)
-  const validItems = list.filter(item => item.ingredient_id)
+  const validItems = list.filter(item => item && item.ingredient_id)
   
   const map = new Map<string, Ingredient>()
   

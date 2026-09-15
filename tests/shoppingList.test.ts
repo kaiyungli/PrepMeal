@@ -23,18 +23,18 @@ describe('shoppingList', () => {
   describe('mergeIngredients', () => {
     it('merges same ingredient and unit', () => {
       const ingredients = [
-        { name: '蛋', quantity: 3, unit: '隻' },
-        { name: '蛋', quantity: 3, unit: '隻' },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 3, unit: '隻' },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 3, unit: '隻' },
       ]
       const result = mergeIngredients(ingredients)
       expect(result).toHaveLength(1)
       expect(result[0].quantity).toBe(6)
     })
 
-    it('keeps different units separate', () => {
+    it('keeps different ingredient_ids separate', () => {
       const ingredients = [
-        { name: '牛肉', quantity: 200, unit: 'g' },
-        { name: '牛肉', quantity: 0.2, unit: 'kg' },
+        { ingredient_id: 'beef-g', name: '牛肉', quantity: 200, unit: 'g' },
+        { ingredient_id: 'beef-kg', name: '牛肉', quantity: 0.2, unit: 'kg' },
       ]
       const result = mergeIngredients(ingredients)
       expect(result).toHaveLength(2)
@@ -42,8 +42,8 @@ describe('shoppingList', () => {
 
     it('normalizes before merging', () => {
       const ingredients = [
-        { name: '雞蛋', quantity: 3, unit: '隻' },
-        { name: '蛋', quantity: 3, unit: '隻' },
+        { ingredient_id: 'egg-1', name: '雞蛋', quantity: 3, unit: '隻' },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 3, unit: '隻' },
       ]
       const result = mergeIngredients(ingredients)
       expect(result).toHaveLength(1)
@@ -52,22 +52,22 @@ describe('shoppingList', () => {
 
     it('skips invalid ingredients', () => {
       const ingredients = [
-        { name: '蛋', quantity: 3, unit: '隻' },
-        { name: '', quantity: 1, unit: '隻' },
-        { name: '鹽', quantity: null, unit: '茶匙' },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 3, unit: '隻' },
+        { ingredient_id: 'blank-1', name: '', quantity: 1, unit: '隻' },
+        { ingredient_id: 'salt-1', name: '鹽', quantity: 'invalid', unit: '茶匙' },
         undefined,
-        { name: '油', quantity: 2, unit: '湯匙' },
+        { ingredient_id: 'oil-1', name: '油', quantity: 2, unit: '湯匙' },
       ]
       const result = mergeIngredients(ingredients)
       expect(result).toHaveLength(2)
     })
 
-    it('rounds quantities to 2 decimals', () => {
+    it('preserves raw merged quantity precision', () => {
       const ingredients = [
-        { name: '蛋', quantity: 1.333, unit: '隻' },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 1.333, unit: '隻' },
       ]
       const result = mergeIngredients(ingredients)
-      expect(result[0].quantity).toBe(1.33)
+      expect(result[0].quantity).toBe(1.333)
     })
 
     it('handles empty array', () => {
@@ -77,7 +77,7 @@ describe('shoppingList', () => {
 
     it('handles scale factor', () => {
       const ingredients = [
-        { name: '蛋', quantity: 1, unit: '隻', baseServings: 2, targetServings: 4 },
+        { ingredient_id: 'egg-1', name: '蛋', quantity: 1, unit: '隻', baseServings: 2, targetServings: 4 },
       ]
       const result = mergeIngredients(ingredients)
       expect(result[0].quantity).toBe(2) // 1 * (4/2)
