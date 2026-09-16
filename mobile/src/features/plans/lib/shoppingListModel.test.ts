@@ -10,6 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  buildShoppingListLineKey,
   groupPlanShoppingList,
   formatQuantityDisplay,
   formatQuantityForDisplay,
@@ -175,7 +176,7 @@ test('groupPlanShoppingList: quantity text uses unit_display, else the normalise
   const flat = out.flatMap((s) => s.items);
   assert.deepEqual(
     flat.find((i) => i.name === '雞蛋'),
-    { ingredientId: 'egg', name: '雞蛋', quantityText: '6 隻' },
+    { ingredientId: 'egg', name: '雞蛋', quantityText: '6 隻', unitKey: '件' },
   );
   assert.equal(
     flat.find((i) => i.name === '麵粉')?.quantityText,
@@ -221,4 +222,56 @@ test('groupPlanShoppingList: a null ingredient_id still produces a stable, uniqu
     out[0].items.map((i) => i.ingredientId),
     [null, null],
   );
+  assert.deepEqual(
+    out[0].items.map((i) => i.unitKey),
+    ['', ''],
+  );
+  assert.equal(
+    buildShoppingListLineKey(out[0].items[1], out[0].key, 1),
+    `name:${out[0].key}:${out[0].items[1].name}:1`,
+  );
+});
+
+test('two rows sharing one ingredient_id under incompatible units get distinct stable keys', () => {
+  const out = groupPlanShoppingList([
+    row({
+      ingredient_id: 'ginger-1',
+      name: '薑',
+      shopping_category: 'vegetable',
+      quantity: 2,
+      unit_code: 'tsp',
+      unit_display: '茶匙',
+    }),
+    row({
+      ingredient_id: 'ginger-1',
+      name: '薑',
+      shopping_category: 'vegetable',
+      quantity: 3,
+      unit_code: 'tbsp',
+      unit_display: '湯匙',
+    }),
+  ]);
+
+  assert.equal(out.length, 1);
+  const items = out[0].items;
+  assert.equal(items.length, 2);
+
+  assert.deepEqual(items[0], {
+    ingredientId: 'ginger-1',
+    name: '薑',
+    quantityText: '2 茶匙',
+    unitKey: 'tsp',
+  });
+  assert.deepEqual(items[1], {
+    ingredientId: 'ginger-1',
+    name: '薑',
+    quantityText: '3 湯匙',
+    unitKey: 'tbsp',
+  });
+
+  const keyA = buildShoppingListLineKey(items[0], out[0].key, 0);
+  const keyB = buildShoppingListLineKey(items[1], out[0].key, 1);
+  assert.equal(keyA, 'id:ginger-1__tsp');
+  assert.equal(keyB, 'id:ginger-1__tbsp');
+  assert.notEqual(keyA, keyB);
 });
