@@ -36,11 +36,24 @@ function loadMigration(): { file: string; sql: string; executable: string } {
   const file = matches[0];
   // CLI-generated name: 14-digit timestamp prefix, not a hand-invented name.
   expect(file).toMatch(/^\d{14}_baseline_and_harden_set_updated_at\.sql$/);
-  // Must sort after every other tracked migration -- set_updated_at must
-  // exist before anything that will later depend on it (e.g. a future
-  // profiles baseline), and must not be reordered ahead of history that
-  // already shipped.
-  expect(file, 'must sort last among all tracked migrations').toBe(all[all.length - 1]);
+  // Must sort after every migration that existed when this one shipped --
+  // set_updated_at must exist before anything that depends on it (e.g.
+  // the profiles baseline/privilege migrations) -- without asserting it
+  // stays the literal last file forever as later migrations are added on
+  // top of it.
+  const priorVersions = [
+    '20260905034023',
+    '20260909050201',
+    '20260909061735',
+    '20260909135709',
+    '20260910060642',
+    '20260915053240',
+  ];
+  for (const v of priorVersions) {
+    const priorFile = all.find((f) => f.startsWith(`${v}_`));
+    expect(priorFile, `expected a migration for version ${v}`).toBeDefined();
+    expect(file > (priorFile as string), `must sort after ${priorFile}`).toBe(true);
+  }
 
   const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
   return { file, sql, executable: stripLineComments(sql) };
