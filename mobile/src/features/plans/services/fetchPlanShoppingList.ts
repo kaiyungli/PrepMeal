@@ -2,10 +2,14 @@
  * Plan shopping-list read service (mobile, Slice 4C). Read-only.
  *
  * Single authoritative source: the `public.get_menu_plan_shopping_list_json(
- * p_plan_id uuid)` RPC (see
- * `supabase/migrations/012_get_menu_plan_shopping_list_json.sql`). One
- * authenticated round trip returns the aggregated "to buy" lines for a saved
- * plan the caller owns.
+ * p_plan_id uuid)` RPC. The earliest definition retained in this repository
+ * is `docs/database/legacy-migrations-untracked/012_get_menu_plan_shopping_list_json.sql`
+ * -- that file was never recorded in the linked project's migration
+ * history. The current live body is defined by the active,
+ * already-applied
+ * `supabase/migrations/20260915053240_unit_safe_shopping_list_aggregation.sql`.
+ * One authenticated round trip returns the aggregated "to buy" lines for a
+ * saved plan the caller owns.
  *
  * ACCESS MODEL: the shared authenticated Supabase singleton -- NO service-role
  * key. The RPC is `SECURITY DEFINER` and enforces ownership itself
