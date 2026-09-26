@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import SEO from '@/components/seo/SEO';
 import { RecipeStructuredData } from '@/lib/recipeStructuredData.tsx';
-import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
@@ -36,16 +35,6 @@ export default function RecipeDetail({ recipe, error }) {
     ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
-
-  // Track view on page visit
-  const { trackView } = useRecipeViewTracker();
-
-  // Track when detail page loads
-  useEffect(() => {
-    if (safeRecipe?.id) {
-      trackView(String(safeRecipe.id));
-    }
-  }, [safeRecipe?.id, trackView]);
 
   // Measure page load metrics
   useEffect(() => {
