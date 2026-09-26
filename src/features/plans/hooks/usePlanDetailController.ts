@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useRecipeViewTracker } from '@/hooks/useRecipeViewTracker';
 import { getPlanDetail } from '../services/getPlanDetail';
 import { mapPlanItemsByDay } from '../mappers/mapPlanItemsByDay';
 
@@ -72,14 +71,12 @@ export function usePlanDetailController({
     };
   }, [planId, isAuthenticated, userId]);
 
-  const { trackView } = useRecipeViewTracker();
   
   const handleRecipeClick = (id: string | number) => {
     const recipeId = String(id);
     if (!recipeId) return;
     
     setSelectedRecipeId(recipeId);
-    trackView(recipeId);
   };
 
   const handleCloseModal = () => {
