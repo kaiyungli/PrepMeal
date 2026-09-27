@@ -94,18 +94,10 @@ export function getEffectiveDiet(recipe: any): string[] {
  * Returns empty array if null/undefined
  */
 export function getEffectiveFlavor(recipe: any): string[] {
-  // Import FLAVOR_MAP for normalization
-  const flavorMap: Record<string, string> = (require("./taxonomy") as any).FLAVOR_MAP || {
-    salty: "鹹", sweet: "甜", sour: "酸", spicy: "辣",
-    鹹: "鹹", 甜: "甜", 酸: "酸", 辣: "辣",
-    savory: "鹹", umami: "鹹", tangy: "酸", garlicky: "鹹",
-    creamy: "甜", buttery: "甜", sesame: "鹹", peppery: "辣",
-  };
-  
   const extractCanonical = (val: string): string => {
     if (!val) return "";
     const lower = val.toLowerCase().trim();
-    const mapped = flavorMap[lower] || flavorMap[val] || val;
+    const mapped = FLAVOR_MAP[lower] || FLAVOR_MAP[val] || val;
     // Return canonical English key
     if (mapped === "鹹") return "salty";
     if (mapped === "甜") return "sweet";
@@ -207,7 +199,7 @@ export function recipeMatchesFilters(recipe: any, filters: Record<string, string
         break;
       case 'flavor':
         // Array intersection - recipe.flavor[] contains any selected
-        matches = selectedValues.every((f: string) => normalized._effectiveFlavor.includes(f));
+        matches = selectedValues.some((f: string) => normalized._effectiveFlavor.includes(f));
         break;
     }
     
