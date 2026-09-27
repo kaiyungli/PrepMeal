@@ -140,6 +140,9 @@ export default function FavoritesPage() {
         }
       });
 
+      // A stale favorite removed in another tab is already absent on the server.
+      if (res.status === 404) return true;
+
       if (!res.ok) {
         setFavoriteIds(previousIds);
         setFavoriteRecipes(previousRecipes);
