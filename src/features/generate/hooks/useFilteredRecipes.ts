@@ -46,8 +46,9 @@ export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }:
       if (filters && Object.keys(filters).length > 0) {
         try {
           if (!recipeMatchesFilters(recipe as any, filters as any)) return false;
-        } catch (e) {
-          // Include on error
+        } catch {
+          // A recipe that cannot be checked must not bypass active filters.
+          return false;
         }
       }
       return true;
