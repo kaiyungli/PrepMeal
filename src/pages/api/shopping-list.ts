@@ -33,7 +33,7 @@ function normalizeUnit(unit: string | null | undefined): string {
 // names only; broad substring matches can incorrectly treat a different food
 // (for example, sesame oil) as an item the user already has (plain oil).
 const PANTRY_NAME_ALIASES: Record<string, string> = {
-  egg: 'egg', eggs: 'egg', '蛋': 'egg', '雞蛋': 'egg',
+  egg: 'egg', eggs: 'egg', '蛋': 'egg', '雞蛋': 'egg', '鸡蛋': 'egg',
   tomato: 'tomato', tomatoes: 'tomato', '番茄': 'tomato', '蕃茄': 'tomato',
   tofu: 'tofu', '豆腐': 'tofu',
   onion: 'onion', '洋蔥': 'onion',
@@ -236,6 +236,22 @@ export default async function handler(
 
     const pantryNames = new Set(pantryIngredients.map(pantryNameKey).filter(Boolean));
     const isInPantry = (item: ShoppingListBuyItem) => pantryNames.has(pantryNameKey(item.name));
+    const pantryIdentityKey = (item: ShoppingListBuyItem) => item.ingredientId
+      ? `id:${item.ingredientId}`
+      : `name:${pantryNameKey(item.name)}`;
+
+    // Report only planned ingredients actually covered by the user's pantry.
+    // Different units for the same ingredient are one pantry item, while all
+    // their quantities remain excluded from the buy lists.
+    const pantry = [...new Map(mergedItems.filter(isInPantry).map(item => [
+      pantryIdentityKey(item),
+      {
+        ingredientId: item.ingredientId,
+        name: item.name,
+        normalizedName: pantryNameKey(item.name),
+        category: 'pantry' as ShoppingCategoryKey,
+      },
+    ])).values()];
 
     // Group by category
     const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
@@ -260,13 +276,6 @@ export default async function handler(
 
     console.log('[shopping-list api] toBuy sections:', toBuy.length);
 
-    const pantry = pantryIngredients.map((name) => ({
-      ingredientId: null,
-      name: String(name),
-      normalizedName: String(name),
-      category: 'pantry' as ShoppingCategoryKey,
-    }));
-
     // Build byRecipe from allItems (before merge to keep recipe tracking)
     const recipeGroups = new Map<string, { recipeId: string; recipeName: string; items: ShoppingListBuyItem[] }>();
     
@@ -290,7 +299,7 @@ export default async function handler(
       byRecipe.push({
         recipeId: group.recipeId,
         recipeName: group.recipeName,
-        pantry: [...new Map(pantryInRecipe.map(item => [pantryNameKey(item.name), {
+        pantry: [...new Map(pantryInRecipe.map(item => [pantryIdentityKey(item), {
           ingredientId: item.ingredientId,
           name: item.name,
         }])).values()],
