@@ -136,14 +136,19 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
-      const { error } = await userSupabase
+      const { data: deletedFavorites, error } = await userSupabase
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
-        .eq('recipe_id', recipe_id);
+        .eq('recipe_id', recipe_id)
+        .select('recipe_id');
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));
+      }
+
+      if (!deletedFavorites?.length) {
+        return res.status(404).json(ApiResponse.notFound('Favorite not found'));
       }
       
       return res.status(200).json(ApiResponse.success({ recipe_id }));
