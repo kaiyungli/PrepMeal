@@ -90,7 +90,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
       cuisines,
       exclusions,
       cookingConstraints,
-      budget: budget || 'medium',
+      budget: budget || 'normal',
       allowCompleteMeal: allowCompleteMeal,
       pantryIngredients,
       lockedSlots,

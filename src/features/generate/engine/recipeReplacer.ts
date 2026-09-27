@@ -1,5 +1,6 @@
 import { scoreCandidates } from './recipeScorer';
 import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
+import { matchesBudgetPreference, preferBudgetRecipes } from './budgetPreference';
 
 // Shuffle array helper for randomization
 function shuffle<T>(arr: T[]): T[] {
@@ -63,11 +64,7 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
   }
   
   // 3. Budget match (independent)
-  if (budget === 'budget' && candidate.total_time_minutes && candidate.total_time_minutes <= 30) {
-    reasons.push('budget_match');
-  } else if (budget === 'budget' && candidate.method && ['stir_fry', 'boiled'].includes(candidate.method)) {
-    reasons.push('budget_match');
-  } else if (budget === 'premium' && candidate.total_time_minutes && candidate.total_time_minutes >= 40) {
+  if (matchesBudgetPreference(candidate, budget)) {
     reasons.push('budget_match');
   }
   
@@ -95,30 +92,6 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
 /**
  * Apply soft budget preference (filter, not block)
  */
-function applyBudgetPreference(candidates: any[], budget?: string): any[] {
-  if (!budget || budget === 'medium') return candidates;
-  
-  let preferred: any[] = [];
-  
-  if (budget === 'budget') {
-    // Quick/simple: <=30min OR simple methods
-    preferred = candidates.filter(c => 
-      (c.total_time_minutes && c.total_time_minutes <= 30) ||
-      (c.method && ['stir_fry', 'boiled'].includes(c.method))
-    );
-  } else if (budget === 'premium') {
-    // Premium: >=40min or more involved
-    preferred = candidates.filter(c => 
-      c.total_time_minutes && c.total_time_minutes >= 40
-    );
-  }
-  
-  // Soft bias: use preferred if available, else fallback to all
-  return preferred.length > 0 ? preferred : candidates;
-}
-
-
-
 // Extract ingredient keywords from existing recipes
 function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
   const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
@@ -231,7 +204,7 @@ export function replaceRecipeInPlan(
   }
   
   // Apply budget preference (soft bias)
-  candidates = applyBudgetPreference(candidates, options?.budget);
+  candidates = preferBudgetRecipes(candidates, options?.budget);
   
   // Diversity filter
   const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);

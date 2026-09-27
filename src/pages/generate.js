@@ -137,6 +137,8 @@ export default function GeneratePage() {
             setAllowCompleteMeal={prefs.setAllowCompleteMeal}
             servings={prefs.servings}
             setServings={prefs.setServings}
+            budget={prefs.budget}
+            setBudget={prefs.setBudget}
             filters={prefs.filters}
             setFilters={prefs.setFilters}
             onClearAll={handleClearAll}
