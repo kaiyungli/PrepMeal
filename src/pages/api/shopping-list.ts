@@ -29,6 +29,23 @@ function normalizeUnit(unit: string | null | undefined): string {
   return map[u] || unit;
 }
 
+// Pantry input contains names, not ingredient IDs or quantities. Match whole
+// names only; broad substring matches can incorrectly treat a different food
+// (for example, sesame oil) as an item the user already has (plain oil).
+const PANTRY_NAME_ALIASES: Record<string, string> = {
+  egg: 'egg', eggs: 'egg', '蛋': 'egg', '雞蛋': 'egg', '鸡蛋': 'egg',
+  tomato: 'tomato', tomatoes: 'tomato', '番茄': 'tomato', '蕃茄': 'tomato',
+  tofu: 'tofu', '豆腐': 'tofu',
+  onion: 'onion', '洋蔥': 'onion',
+};
+
+function pantryNameKey(name: string): string {
+  const normalized = name.trim().toLowerCase().replace(/\s+/g, ' ');
+  return Object.prototype.hasOwnProperty.call(PANTRY_NAME_ALIASES, normalized)
+    ? PANTRY_NAME_ALIASES[normalized]
+    : normalized;
+}
+
 // Merge rows only when both their identity AND normalized unit match, so an
 // ingredient recorded under incompatible units (e.g. 2 tsp + 3 tbsp) is never
 // raw-summed into one mathematically-invalid line. Aliases of the same unit
@@ -73,7 +90,10 @@ export default async function handler(
     ? [...new Set(body.recipeIds.filter((id): id is string => typeof id === 'string' && id.trim() !== ''))]
     : [];
   const pantryIngredients = Array.isArray(body?.pantryIngredients)
-    ? body.pantryIngredients.filter((name): name is string => typeof name === 'string')
+    ? body.pantryIngredients
+        .filter((name): name is string => typeof name === 'string')
+        .map((name) => name.trim())
+        .filter(Boolean)
     : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
   
@@ -214,10 +234,30 @@ export default async function handler(
     const mergedItems = mergeItems(allItems);
     console.log('[shopping-list api] items after merge:', mergedItems.length);
 
+    const pantryNames = new Set(pantryIngredients.map(pantryNameKey).filter(Boolean));
+    const isInPantry = (item: ShoppingListBuyItem) => pantryNames.has(pantryNameKey(item.name));
+    const pantryIdentityKey = (item: ShoppingListBuyItem) => item.ingredientId
+      ? `id:${item.ingredientId}`
+      : `name:${pantryNameKey(item.name)}`;
+
+    // Report only planned ingredients actually covered by the user's pantry.
+    // Different units for the same ingredient are one pantry item, while all
+    // their quantities remain excluded from the buy lists.
+    const pantry = [...new Map(mergedItems.filter(isInPantry).map(item => [
+      pantryIdentityKey(item),
+      {
+        ingredientId: item.ingredientId,
+        name: item.name,
+        normalizedName: pantryNameKey(item.name),
+        category: 'pantry' as ShoppingCategoryKey,
+      },
+    ])).values()];
+
     // Group by category
     const categoryMap = new Map<ShoppingCategoryKey, ShoppingListBuyItem[]>();
     
     for (const item of mergedItems) {
+      if (isInPantry(item)) continue;
       const cat = item.category;
       if (!categoryMap.has(cat)) {
         categoryMap.set(cat, []);
@@ -236,15 +276,8 @@ export default async function handler(
 
     console.log('[shopping-list api] toBuy sections:', toBuy.length);
 
-    const pantry = pantryIngredients.map((name) => ({
-      ingredientId: null,
-      name: String(name),
-      normalizedName: String(name),
-      category: 'pantry' as ShoppingCategoryKey,
-    }));
-
     // Build byRecipe from allItems (before merge to keep recipe tracking)
-    const recipeGroups = new Map<string, { recipeId: string; recipeName: string; items: any[] }>();
+    const recipeGroups = new Map<string, { recipeId: string; recipeName: string; items: ShoppingListBuyItem[] }>();
     
     for (const item of allItems) {
       const rid = item.recipeId || 'unknown';
@@ -259,14 +292,18 @@ export default async function handler(
     }
     
     // Merge items within each recipe group
-    const byRecipe: any[] = [];
+    const byRecipe: ShoppingListRecipeGroup[] = [];
     for (const [, group] of recipeGroups) {
       const mergedInRecipe = mergeItems(group.items);
+      const pantryInRecipe = mergedInRecipe.filter(isInPantry);
       byRecipe.push({
         recipeId: group.recipeId,
         recipeName: group.recipeName,
-        pantry: [],
-        toBuy: mergedInRecipe.map(item => ({
+        pantry: [...new Map(pantryInRecipe.map(item => [pantryIdentityKey(item), {
+          ingredientId: item.ingredientId,
+          name: item.name,
+        }])).values()],
+        toBuy: mergedInRecipe.filter(item => !isInPantry(item)).map(item => ({
           ingredientId: item.ingredientId,
           name: item.name,
           quantity: item.quantity,
