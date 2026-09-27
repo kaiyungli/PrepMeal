@@ -24,7 +24,8 @@ export interface Recipe {
   budget_level?: 'budget' | 'normal' | 'premium' | null;
 }
 
-const CACHE_KEY = 'generate_recipes_v1';
+// v1 cached only the first page even when the caller requested 200 recipes.
+const CACHE_KEY = 'generate_recipes_v2';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface CachePayload {
@@ -98,14 +99,20 @@ export async function fetchAvailableRecipes(limit = 200): Promise<Recipe[]> {
     duration: 0,
   });
   
-  const res = await fetch(`/api/recipes?limit=${limit}&view=generate`);
-  
-  if (!res.ok) {
-    throw new Error(`Failed to fetch recipes: HTTP ${res.status}`);
+  const recipes: Recipe[] = [];
+  // The recipes API caps each response at 100. Fetch every requested page so
+  // budget tiers and slot roles on later pages can participate in selection.
+  while (recipes.length < limit) {
+    const pageSize = Math.min(100, limit - recipes.length);
+    const res = await fetch(`/api/recipes?limit=${pageSize}&offset=${recipes.length}&view=generate`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch recipes: HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const page: Recipe[] = Array.isArray(data.recipes) ? data.recipes : [];
+    recipes.push(...page);
+    if (page.length < pageSize || data.hasMore === false || page.length === 0) break;
   }
-  
-  const data = await res.json();
-  const recipes = data.recipes || [];
   
   // Write to cache
   setToCache(recipes);

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { planWeekAdvanced } from '@/lib/mealPlanner';
 import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
 import { replaceRecipeInPlan } from '@/features/generate/engine/recipeReplacer';
+import { fetchAvailableRecipes } from '@/features/generate/services/fetchAvailableRecipes';
 
 const recipe = (id: string, budget_level: string | null, extra = {}) => ({
   id, name: id, budget_level, meal_role: 'complete_meal', is_complete_meal: true,
@@ -14,7 +15,10 @@ const cheap = recipe('cheap', 'budget');
 const expensive = recipe('expensive', 'premium');
 const unlabelled = recipe('unlabelled', null);
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe('canonical recipe budget preference', () => {
   it('uses budget_level rather than cooking time or method', () => {
@@ -55,5 +59,59 @@ describe('canonical recipe budget preference', () => {
     expect(replaceRecipeInPlan(plan, 'mon', 0, [expensive], {
       dailyComposition: 'complete_meal', budget: 'budget',
     })?.mon[0].id).toBe('expensive');
+  });
+
+  it('prefers the requested tier among equally perfect pantry matches', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const config = {
+      daysPerWeek: 1, dishesPerDay: 1, slotRoles: ['complete_meal'],
+      dailyComposition: 'complete_meal', isWeekend: () => false,
+      pantryIngredients: ['雞蛋'], budget: 'premium',
+    };
+    const recipes = [
+      recipe('pantry-budget', 'budget', { ingredients_list: ['雞蛋'] }),
+      recipe('pantry-premium', 'premium', { ingredients_list: ['雞蛋'] }),
+    ];
+    expect(planWeekAdvanced(recipes, config).mon[0].id).toBe('pantry-premium');
+  });
+});
+
+describe('generate catalogue pagination', () => {
+  it('fetches the later page containing a premium protein main', async () => {
+    const firstPage = Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, 'normal'));
+    const laterPage = [recipe('premium-main', 'premium', { meal_role: 'protein_main' })];
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ recipes: firstPage, hasMore: true }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ recipes: laterPage, hasMore: false }) });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const recipes = await fetchAvailableRecipes(200);
+
+    expect(recipes).toHaveLength(101);
+    expect(recipes.at(-1)?.budget_level).toBe('premium');
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      '/api/recipes?limit=100&offset=0&view=generate',
+      '/api/recipes?limit=100&offset=100&view=generate',
+    ]);
+  });
+
+  it('does not fetch past the requested limit', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true, json: async () => ({ recipes: [recipe('one', 'normal')], hasMore: false }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await fetchAvailableRecipes(1)).toHaveLength(1);
+    expect(fetchMock).toHaveBeenCalledWith('/api/recipes?limit=1&offset=0&view=generate');
+  });
+
+  it('rejects a failed later page instead of caching an incomplete pool', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ recipes: Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, null)), hasMore: true }),
+      })
+      .mockResolvedValueOnce({ ok: false, status: 500 });
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(fetchAvailableRecipes(200)).rejects.toThrow('HTTP 500');
   });
 });

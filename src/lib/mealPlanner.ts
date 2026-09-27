@@ -15,7 +15,7 @@ import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredien
 import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
-import { matchesBudgetPreference } from '@/features/generate/engine/budgetPreference';
+import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
 function getRecipeSearchText(recipe: Recipe): string {
@@ -389,7 +389,8 @@ export function planWeekAdvanced(
     
     if (perfectMatches.length > 0) {
       // Pick one random perfect match
-      perfectMatchRecipe = perfectMatches[Math.floor(Math.random() * perfectMatches.length)];
+      const preferredMatches = preferBudgetRecipes(perfectMatches, budget);
+      perfectMatchRecipe = preferredMatches[Math.floor(Math.random() * preferredMatches.length)];
     }
   }
   const pantryEnd = perfNow();
