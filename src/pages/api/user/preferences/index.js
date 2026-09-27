@@ -1,8 +1,8 @@
 // User Preferences API - GET, PUT
 // Unified contract using _auth helper with lazy create
 
-import supabase from '@/lib/supabase';
 import { requireAuth, ApiResponse } from '../_auth';
+import { createUserSupabaseClient } from '@/lib/supabaseUserClient';
 
 // Default preferences for new users
 const DEFAULT_PREFERENCES = {
@@ -14,11 +14,32 @@ const DEFAULT_PREFERENCES = {
   difficulty_level: null
 };
 
+// Writable fields - must match public.user_preferences columns exactly
+const ALLOWED_FIELDS = [
+  'default_servings',
+  'preferred_cuisines',
+  'preferred_proteins',
+  'excluded_ingredients',
+  'max_cook_time',
+  'difficulty_level',
+  'unit_language',
+];
+
 export default async function handler(req, res) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return res.status(500).json(ApiResponse.error('Missing Supabase config'));
+  }
+
   // Require auth for all methods
   const userId = await requireAuth(req, res);
   if (!userId) return;
-  
+
+  const token = req.headers.authorization?.substring(7);
+  const supabase = createUserSupabaseClient({ supabaseUrl, anonKey: supabaseAnonKey, token });
+
   console.log('[Preferences] UserId:', userId);
 
   if (req.method === 'GET') {
@@ -72,25 +93,19 @@ export default async function handler(req, res) {
     }
 
     console.log('[Preferences] PUT - updating preferences');
-    
-    // Allowed fields for update
-    const allowedFields = [
-      'default_servings',
-      'preferred_cuisines',
-      'preferred_proteins',
-      'excluded_ingredients',
-      'max_cook_time',
-      'difficulty_level',
-      'notifications_enabled',
-      'theme',
-      'diet_preference',
-      'allergies'
-    ];
-    
+
+    // Reject any field that isn't a real, writable column
+    const unsupportedFields = Object.keys(updates).filter((field) => !ALLOWED_FIELDS.includes(field));
+    if (unsupportedFields.length > 0) {
+      return res.status(400).json(
+        ApiResponse.badRequest(`Unsupported field(s): ${unsupportedFields.join(', ')}`)
+      );
+    }
+
     // Build update payload
     const updatePayload = { user_id: userId };
-    
-    for (const field of allowedFields) {
+
+    for (const field of ALLOWED_FIELDS) {
       if (updates[field] !== undefined) {
         updatePayload[field] = updates[field];
       }
