@@ -51,7 +51,7 @@ export function useGeneratePageController({
     cuisines: preferences.cuisines,
     exclusions: preferences.exclusions,
     cookingConstraints: preferences.cookingConstraints,
-    budget: budget || 'medium',
+    budget: budget || 'normal',
     allowCompleteMeal: allowCompleteMeal,
     pantryIngredients: data.pantryIngredients,
     traceId

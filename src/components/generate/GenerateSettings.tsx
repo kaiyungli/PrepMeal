@@ -13,6 +13,8 @@ interface GenerateSettingsProps {
   setAllowCompleteMeal: (v: boolean) => void;
   servings: number;
   setServings: (v: number) => void;
+  budget: string;
+  setBudget: (v: string) => void;
   // Legacy props - ignored in unified mode
   dietMode?: any;
   exclusions?: any;
@@ -37,11 +39,17 @@ interface GenerateSettingsProps {
 const DAYS_OPTIONS = [3, 5, 7];
 
 const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
+const BUDGET_OPTIONS = [
+  { value: 'budget', label: '省錢' },
+  { value: 'normal', label: '一般' },
+  { value: 'premium', label: '寬裕' },
+];
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
   dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
+  budget, setBudget,
   filters,
   setFilters,
   onClearAll,
@@ -87,8 +95,8 @@ export default function GenerateSettings({
     <div>
       {/* Planning Controls - embedded in header */}
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
-          {/* Grouped controls - 3-column grid */}
-          <div className="grid grid-cols-3 gap-6">
+          {/* Grouped controls */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Group 1: 每週 */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-medium text-[#7A5A38]">每週</span>
@@ -162,6 +170,26 @@ export default function GenerateSettings({
                   <option key={s} value={s}>{s}人</option>
                 ))}
               </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-[#7A5A38]">預算偏好</span>
+              <div className="flex flex-wrap gap-1">
+                {BUDGET_OPTIONS.map(option => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={budget === option.value}
+                    onClick={() => setBudget(option.value)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      budget === option.value
+                        ? 'bg-[#9B6035] text-white'
+                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

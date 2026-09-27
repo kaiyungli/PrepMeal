@@ -15,6 +15,7 @@ import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredien
 import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
+import { matchesBudgetPreference } from '@/features/generate/engine/budgetPreference';
 
 // Helper to build recipe search text (optimization: avoid repeated construction)
 function getRecipeSearchText(recipe: Recipe): string {
@@ -64,7 +65,7 @@ interface Recipe {
   primary_protein?: string
   dish_type?: string
   ingredients_list?: string[]
-  budget_level?: string
+  budget_level?: string | null
   cuisine?: string
   score?: number
   [key: string]: any
@@ -489,6 +490,11 @@ export function planWeekAdvanced(
         
         for (const r of candidates) {
         let score = 5; // base score
+
+        // Editorial budget tier is the only price signal in the recipe catalogue.
+        // A bonus preserves role, diversity and pantry scoring, and unlabelled
+        // recipes remain eligible when there are no tier matches.
+        if (matchesBudgetPreference(r, budget)) score += 5;
         
         // Repeat penalty - exclude already used recipes or heavily penalize
         if (usedRecipeIds.has(r.id)) {

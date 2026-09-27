@@ -21,6 +21,7 @@ export interface Recipe {
   dish_type: string | null;
   diet: string[];
   is_complete_meal: boolean;
+  budget_level?: 'budget' | 'normal' | 'premium' | null;
 }
 
 const CACHE_KEY = 'generate_recipes_v1';

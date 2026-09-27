@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
+import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -44,11 +45,7 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
   if (!hasRecentDuplicate(candidate, recent)) {
 
   // Budget match
-  if (budget === 'budget' && candidate.total_time_minutes && candidate.total_time_minutes <= 30) {
-    reasons.push('budget_match');
-  } else if (budget === 'budget' && candidate.method && ['stir_fry', 'boiled'].includes(candidate.method)) {
-    reasons.push('budget_match');
-  } else if (budget === 'premium' && candidate.total_time_minutes && candidate.total_time_minutes >= 40) {
+  if (matchesBudgetPreference(candidate, budget)) {
     reasons.push('budget_match');
   }
 
@@ -124,27 +121,6 @@ export function useGenerateHandlers({
 }: UseGenerateHandlersOptions) {
   
 // Apply soft budget preference (filter, not block)
-function applyBudgetPreference(candidates: any[], budget?: string): any[] {
-  if (!budget || budget === "medium") return candidates;
-  
-  let preferred: any[] = [];
-  
-  if (budget === "budget") {
-    preferred = candidates.filter(c => 
-      (c.total_time_minutes && c.total_time_minutes <= 30) ||
-      (c.method && ["stir_fry", "boiled"].includes(c.method))
-    );
-  } else if (budget === "premium") {
-    preferred = candidates.filter(c => 
-      c.total_time_minutes && c.total_time_minutes >= 40
-    );
-  }
-  
-  return preferred.length > 0 ? preferred : candidates;
-}
-
-
-
 // Extract ingredient keywords from existing recipes
 function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
   const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
@@ -201,7 +177,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
     candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
     
     // Budget preference (after diversity)
-    candidates = applyBudgetPreference(candidates, budget);
+    candidates = preferBudgetRecipes(candidates, budget);
     
     // Ingredient reuse preference (last before random)
     candidates = applyIngredientReusePreference(candidates, weeklyPlan);
