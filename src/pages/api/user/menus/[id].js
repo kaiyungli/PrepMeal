@@ -43,19 +43,9 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      // Use real tables: menu_plan_items, menu_plans
+      // The menu_plan_items FK cascades from menu_plans. A single parent DELETE
+      // keeps the plan and its items in the same database transaction.
       try {
-        // Delete items first
-        const { error: itemsError } = await userSupabase
-          .from('menu_plan_items')
-          .delete()
-          .eq('menu_plan_id', planId);
-        
-        if (itemsError) {
-          throw itemsError;
-        }
-        
-        // Delete plan
         const { data: deletedPlans, error: planError } = await userSupabase
           .from('menu_plans')
           .delete()

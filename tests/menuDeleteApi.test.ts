@@ -29,9 +29,6 @@ function response() {
 }
 
 function clientWithDeleteResult(result: { data: unknown[] | null; error: { message: string } | null }) {
-  const itemsQuery = {
-    eq: vi.fn().mockResolvedValue({ error: null }),
-  };
   const planQuery: {
     eq: ReturnType<typeof vi.fn>;
     select: ReturnType<typeof vi.fn>;
@@ -40,11 +37,9 @@ function clientWithDeleteResult(result: { data: unknown[] | null; error: { messa
     select: vi.fn().mockResolvedValue(result),
   };
   planQuery.eq.mockReturnValue(planQuery);
-  const from = vi.fn((table: string) => ({
-    delete: () => table === 'menu_plan_items' ? itemsQuery : planQuery,
-  }));
+  const from = vi.fn(() => ({ delete: () => planQuery }));
   mocks.createClient.mockReturnValue({ from });
-  return { from, itemsQuery, planQuery };
+  return { from, planQuery };
 }
 
 const req = () => ({ method: 'DELETE', headers: { authorization: 'Bearer user-token' }, query: { id: 'plan-1' } });
@@ -61,7 +56,8 @@ describe('DELETE /api/user/menus/[id] response contract', () => {
     const query = clientWithDeleteResult({ data: [{ id: 'plan-1' }], error: null });
     const res = response();
     await handler(req() as never, res as never);
-    expect(query.itemsQuery.eq).toHaveBeenCalledWith('menu_plan_id', 'plan-1');
+    expect(query.from).toHaveBeenCalledTimes(1);
+    expect(query.from).toHaveBeenCalledWith('menu_plans');
     expect(query.planQuery.select).toHaveBeenCalledWith('id');
     expect(query.planQuery.eq).toHaveBeenCalledWith('id', 'plan-1');
     expect(query.planQuery.eq).toHaveBeenCalledWith('user_id', 'owner-id');
@@ -78,9 +74,11 @@ describe('DELETE /api/user/menus/[id] response contract', () => {
   });
 
   it('returns 500 on a database error rather than reporting deletion', async () => {
-    clientWithDeleteResult({ data: null, error: { message: 'database unavailable' } });
+    const query = clientWithDeleteResult({ data: null, error: { message: 'database unavailable' } });
     const res = response();
     await handler(req() as never, res as never);
+    expect(query.from).toHaveBeenCalledTimes(1);
+    expect(query.from).toHaveBeenCalledWith('menu_plans');
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual({ success: false, error: 'database unavailable' });
   });
