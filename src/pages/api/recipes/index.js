@@ -145,7 +145,7 @@ export default async function handler(req, res) {
     if (diet && diet.trim()) {
       const dietList = diet.split(',').map(d => d.trim()).filter(Boolean);
       if (dietList.length > 0) {
-        query = query.contains('diet', dietList);
+        query = query.overlaps('diet', dietList);
       }
     }
 
