@@ -151,7 +151,7 @@ describe('GET /api/user/preferences', () => {
   });
 });
 
-describe('PUT/PUT /api/user/preferences', () => {
+describe('PUT/POST /api/user/preferences', () => {
   it('upserts only the allowed fields plus user_id', async () => {
     const updated = { ...existingRow, default_servings: 4, unit_language: 'en' };
     mocks.single.mockResolvedValueOnce({ data: updated, error: null });
@@ -236,6 +236,18 @@ describe('PUT/PUT /api/user/preferences', () => {
 
     await handler(
       { method: 'PUT', headers: { authorization: 'Bearer token' }, body: null } as never,
+      response as never,
+    );
+
+    expect(response.statusCode).toBe(400);
+    expect(mocks.single).not.toHaveBeenCalled();
+  });
+
+  it('rejects an array body (e.g. []) with 400 and never touches the database', async () => {
+    const response = createResponse();
+
+    await handler(
+      { method: 'PUT', headers: { authorization: 'Bearer token' }, body: [] } as never,
       response as never,
     );
 

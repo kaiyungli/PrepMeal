@@ -88,7 +88,7 @@ export default async function handler(req, res) {
   if (req.method === 'PUT' || req.method === 'POST') {
     const updates = req.body;
     
-    if (!updates || typeof updates !== 'object') {
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
       return res.status(400).json(ApiResponse.badRequest('Request body required'));
     }
 
