@@ -80,6 +80,8 @@ export default function GeneratePage() {
     preferences: prefs,
     daysPerWeek,
     effectiveDishesPerDay,
+    allRecipes,
+    loadingRecipes,
     filteredRecipes,
     weeklyPlan,
     lockedSlots,
@@ -148,6 +150,9 @@ export default function GeneratePage() {
 
           <GenerateActions
             isSaving={isSaving}
+            isLoadingRecipes={loadingRecipes}
+            availableRecipeCount={allRecipes.length}
+            filteredRecipeCount={filteredRecipes.length}
             selectedCount={selectedCount}
             hasRecipes={hasRecipes}
             onClear={handleClearAll}

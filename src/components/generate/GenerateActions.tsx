@@ -3,6 +3,9 @@ import { UI } from '@/styles/ui';
 
 interface GenerateActionsProps {
   isSaving: boolean;
+  isLoadingRecipes: boolean;
+  availableRecipeCount: number;
+  filteredRecipeCount: number;
   selectedCount: number;
   hasRecipes: boolean;
   onClear: () => void;
@@ -13,6 +16,9 @@ interface GenerateActionsProps {
 
 export default function GenerateActions({ 
   isSaving,
+  isLoadingRecipes,
+  availableRecipeCount,
+  filteredRecipeCount,
   selectedCount,
   hasRecipes,
   onClear,
@@ -20,6 +26,8 @@ export default function GenerateActions({
   onGenerate,
   onSave
 }: GenerateActionsProps) {
+  const cannotGenerate = isLoadingRecipes || filteredRecipeCount === 0;
+
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] px-6 py-4 flex flex-wrap justify-between items-center gap-3">
       <div className='flex gap-2 items-center'>
@@ -48,7 +56,8 @@ export default function GenerateActions({
         <button
           onClick={onGenerate}
             onTouchStart={() => {}}
-          className={UI.buttonPrimary}
+          disabled={cannotGenerate}
+          className={UI.buttonPrimary + " disabled:opacity-50"}
         >
           ✨ 一鍵生成
         </button>
@@ -61,6 +70,15 @@ export default function GenerateActions({
           {isSaving ? '保存中...' : '💾 保存'}
         </button>
       </div>
+      {isLoadingRecipes ? (
+        <p role="status" className="w-full text-sm text-[#3A2010]">正在載入食譜…</p>
+      ) : filteredRecipeCount === 0 ? (
+        <p role="status" className="w-full text-sm text-[#3A2010]">
+          {availableRecipeCount === 0
+            ? '暫時沒有可用食譜，請稍後再試。'
+            : '沒有食譜符合目前條件，請調整篩選條件。'}
+        </p>
+      ) : null}
     </div>
   );
 }
