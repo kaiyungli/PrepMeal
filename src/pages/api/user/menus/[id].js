@@ -56,14 +56,19 @@ export default async function handler(req, res) {
         }
         
         // Delete plan
-        const { error: planError } = await userSupabase
+        const { data: deletedPlans, error: planError } = await userSupabase
           .from('menu_plans')
           .delete()
           .eq('id', planId)
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .select('id');
         
         if (planError) {
           throw planError;
+        }
+
+        if (!deletedPlans?.length) {
+          return res.status(404).json(ApiResponse.notFound('Plan not found'));
         }
         
         return res.status(200).json(ApiResponse.success({ deleted: true }));
