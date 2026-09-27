@@ -1,6 +1,7 @@
 /**
  * Tests for ingredient-based diet rules
  */
+import { describe, expect, it } from 'vitest';
 import {
   isRecipeVegetarianByIngredients,
   isRecipeEggLactoByIngredients,
@@ -9,7 +10,7 @@ import {
   containsDairy,
   containsEggOrDairy,
   deriveIngredientDietTags,
-  IngredientInput,
+  type IngredientInput,
 } from '@/constants/ingredientDietRules';
 
 describe('containsForbiddenAnimalProtein', () => {
@@ -64,7 +65,7 @@ describe('containsForbiddenAnimalProtein', () => {
     });
 
     it('null ingredients -> false', () => {
-      const input = { ingredients: null as any };
+      const input = { ingredients: null as unknown as IngredientInput[] };
       expect(containsForbiddenAnimalProtein(input)).toBe(false);
     });
 
@@ -87,6 +88,11 @@ describe('containsEgg', () => {
 
   it('鸡蛋 -> true (Chinese)', () => {
     expect(containsEgg({ ingredients: [{ name: '鸡蛋' }] })).toBe(true);
+  });
+
+  it('鸡蛋 derives the egg_lacto tag for a vegetarian recipe', () => {
+    expect(deriveIngredientDietTags({ ingredients: [{ name: '鸡蛋' }, { name: '番茄' }] }))
+      .toEqual(['vegetarian', 'egg_lacto']);
   });
 
   it('milk -> false', () => {
@@ -191,7 +197,7 @@ describe('isRecipeVegetarianByIngredients', () => {
     });
 
     it('null ingredients -> false', () => {
-      expect(isRecipeVegetarianByIngredients({ ingredients: null as any })).toBe(false);
+      expect(isRecipeVegetarianByIngredients({ ingredients: null as unknown as IngredientInput[] })).toBe(false);
     });
   });
 });
@@ -255,7 +261,7 @@ describe('isRecipeEggLactoByIngredients', () => {
     });
 
     it('null ingredients -> false', () => {
-      expect(isRecipeEggLactoByIngredients({ ingredients: null as any })).toBe(false);
+      expect(isRecipeEggLactoByIngredients({ ingredients: null as unknown as IngredientInput[] })).toBe(false);
     });
 
     it('case insensitive ingredient names', () => {

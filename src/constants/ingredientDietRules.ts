@@ -13,7 +13,7 @@
 /** Egg ingredients (positive indicator for egg_lacto) */
 const EGG_INGREDIENTS = [
   'egg', 'eggs',
-  '蛋', '雞蛋', '鵪鶉蛋',
+  '蛋', '雞蛋', '鸡蛋', '鵪鶉蛋',
 ];
 
 /** Dairy ingredients (positive indicator for egg_lacto) */

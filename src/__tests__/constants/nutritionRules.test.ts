@@ -1,7 +1,8 @@
 /**
  * Tests for nutrition tagging rules
  */
-import { isRecipeHighProtein, isRecipeLowFat, isRecipeLowCalorie, HIGH_PROTEIN_RULE, LOW_FAT_RULE, LOW_CALORIE_RULE } from '@/constants/nutritionRules';
+import { describe, expect, it } from 'vitest';
+import { isRecipeHighProtein, isRecipeLowFat, isRecipeLowCalorie } from '@/constants/nutritionRules';
 
 describe('isRecipeHighProtein', () => {
   // Valid cases
@@ -318,7 +319,8 @@ describe('isRecipeLowFat', () => {
 
     it('undefined values -> false', () => {
       expect(isRecipeLowFat({
-        fat_g: undefined,
+        // Exercise malformed runtime data beyond the typed input contract.
+        fat_g: undefined as unknown as null,
         calories_per_serving: 400,
         dish_type: 'main',
         is_complete_meal: false,
