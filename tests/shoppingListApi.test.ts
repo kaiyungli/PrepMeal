@@ -290,4 +290,55 @@ describe('/api/shopping-list security boundary', () => {
       expect.objectContaining({ ingredientId: 'ginger-1', quantity: 3, unit: 'tbsp' }),
     ]);
   });
+
+  it('removes pantry ingredients from both buy views without matching a different oil', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const row = (recipeId: string, id: string, name: string, quantity: number, unit = 'g') => ({
+      quantity,
+      recipe_id: recipeId,
+      ingredient_id: id,
+      ingredients: { id, name, shopping_category: 'other' },
+      recipes: { id: recipeId, name: recipeId },
+      units: { id: unit, code: unit, display_name_en: unit, display_name_zh: unit },
+    });
+    const database = createDatabase({
+      visibleRecipeIds: ['recipe-1', 'recipe-2'],
+      ingredientRows: [
+        row('recipe-1', 'egg-1', '雞蛋', 2, 'piece'),
+        row('recipe-1', 'tomato-1', '番茄', 3),
+        row('recipe-1', 'sesame-oil-1', '芝麻油', 1, 'tsp'),
+        row('recipe-2', 'egg-1', '雞蛋', 1, 'piece'),
+        row('recipe-2', 'oil-1', '油', 2, 'tbsp'),
+      ],
+    });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1', 'recipe-2'], pantryIngredients: [' egg ', '油'], servings: 2 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    const result = response.body as ShoppingListResponse;
+    expect(result.pantry.map(item => item.name)).toEqual(['egg', '油']);
+    expect(result.toBuy.flatMap(section => section.items)).toEqual([
+      expect.objectContaining({ ingredientId: 'tomato-1', quantity: 6 }),
+      expect.objectContaining({ ingredientId: 'sesame-oil-1', quantity: 2 }),
+    ]);
+    expect(result.byRecipe).toEqual([
+      expect.objectContaining({
+        recipeId: 'recipe-1',
+        pantry: [expect.objectContaining({ ingredientId: 'egg-1', name: '雞蛋' })],
+        toBuy: [expect.objectContaining({ ingredientId: 'tomato-1' }), expect.objectContaining({ ingredientId: 'sesame-oil-1' })],
+      }),
+      expect.objectContaining({
+        recipeId: 'recipe-2',
+        pantry: [expect.objectContaining({ ingredientId: 'egg-1' }), expect.objectContaining({ ingredientId: 'oil-1' })],
+        toBuy: [],
+      }),
+    ]);
+    expect(result.summary).toEqual({ pantryCount: 2, toBuyCount: 2, sectionCount: 1 });
+  });
 });
