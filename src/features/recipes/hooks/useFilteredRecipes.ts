@@ -23,6 +23,7 @@ export interface UseFilteredRecipesOptions {
   sortBy?: string;
   limit?: number;
   initialTotalCount?: number;
+  enabled?: boolean;
 }
 
 export interface UseFilteredRecipesResult {
@@ -39,7 +40,7 @@ export function useFilteredRecipes(
   initialRecipes: any[],
   options: UseFilteredRecipesOptions
 ): UseFilteredRecipesResult {
-  const { filters, searchQuery, sortBy = 'newest' } = options;
+  const { filters, searchQuery, sortBy = 'newest', enabled = true } = options;
   
   const [recipes, setRecipes] = useState(initialRecipes || []);
   const [loading, setLoading] = useState(false);
@@ -69,6 +70,7 @@ export function useFilteredRecipes(
   
   // Prefetch a page
   const prefetchPage = useCallback((page: number) => {
+    if (!enabled) return;
     if (!hasMore) return;
     if (pageCacheRef.current.has(page)) return;
     if (prefetchingPagesRef.current.has(page)) return;
@@ -106,10 +108,11 @@ export function useFilteredRecipes(
       .finally(() => {
         prefetchingPagesRef.current.delete(page);
       });
-  }, [hasMore, filters, searchQuery, sortBy, recipes.length, totalCount]);
+  }, [enabled, hasMore, filters, searchQuery, sortBy, recipes.length, totalCount]);
   
   // Prefetch page 2 after initial data is ready
   useEffect(() => {
+    if (!enabled) return;
     if (!hasMore) return;
     if (recipes.length === 0) return;
     if (currentPage !== 1) return;
@@ -119,7 +122,7 @@ export function useFilteredRecipes(
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [recipes.length, currentPage, hasMore, prefetchPage]);
+  }, [enabled, recipes.length, currentPage, hasMore, prefetchPage]);
   
   // Clear cache when filters change
   useEffect(() => {
@@ -228,6 +231,7 @@ export function useFilteredRecipes(
   
   // Initial fetch effect with cache
   useEffect(() => {
+    if (!enabled) return;
     if (shouldSkipInitialFetch) {
       console.log('[recipes-client] initial_fetch_skipped', {
         initial_count: initialRecipes?.length || 0,
@@ -316,7 +320,7 @@ export function useFilteredRecipes(
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [searchQuery, sortBy, JSON.stringify(filters)]);
+  }, [enabled, searchQuery, sortBy, JSON.stringify(filters)]);
   
   // Reset on filter change
   useEffect(() => {

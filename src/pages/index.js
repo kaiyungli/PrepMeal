@@ -14,9 +14,9 @@ import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
-import { fetchRecipesForServerWithTotal } from '@/lib/recipesServer';
+import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
 
-export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
+export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
   const { toast, showToast } = useToast();
 
   const { markDataReady } = useHomePerfLogging();
@@ -44,6 +44,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
   } = useHomeRecipeFilters({
     initialRecipes: initialRecipes || [],
     initialTotalCount,
+    catalog,
   });
 
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({
@@ -151,7 +152,10 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0 }) {
 }
 
 export async function getStaticProps() {
-  const { recipes: initialRecipes, totalCount, error } = await fetchRecipesForServerWithTotal(24);
+  const catalog = await fetchHomeRecipeCatalog();
+  const { recipes: initialRecipes, total: totalCount, error } = catalog
+    ? { recipes: catalog.slice(0, 24), total: catalog.length }
+    : await fetchRecipesForServerWithTotal(24);
   if (error) {
     console.error('error loading homepage recipes:', error);
   }
@@ -159,6 +163,7 @@ export async function getStaticProps() {
     props: {
       initialRecipes: initialRecipes || [],
       initialTotalCount: totalCount || 0,
+      catalog,
     },
     revalidate: 300,
   };

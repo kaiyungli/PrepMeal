@@ -22,6 +22,29 @@ const CARD_FIELDS = `
   created_at
 `;
 
+// The home catalogue is regenerated with the page every five minutes. Fetching
+// the filter fields once avoids a network round trip on every filter click.
+const HOME_FIELDS = `${CARD_FIELDS.trim()}, description, speed, diet, flavor, times_shown`;
+const HOME_CATALOG_LIMIT = 1000;
+
+export async function fetchHomeRecipeCatalog() {
+  if (!supabaseServer) return null;
+  try {
+    const { data, error, count } = await supabaseServer
+      .from('recipes')
+      .select(HOME_FIELDS, { count: 'exact' })
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(HOME_CATALOG_LIMIT);
+    // Never filter a truncated catalogue: fall back to the paginated API.
+    if (error || !data || count == null || data.length !== count) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Fetch recipes for server-side props
  */
