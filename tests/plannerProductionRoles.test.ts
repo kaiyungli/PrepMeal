@@ -22,6 +22,14 @@ describe('production-shaped mixed meal roles', () => {
     expect(matchesSlotRole(proteinSide, 'protein_main')).toBe(true);
   });
 
+  it('keeps explicitly classified vegetarian mains eligible without admitting sides or soups', () => {
+    expect(matchesSlotRole(makeRecipe('素食主菜', 'protein_main', 'main', 'vegetarian'), 'protein_main')).toBe(true);
+    expect(matchesSlotRole(makeRecipe('舊式素食主菜', '', 'main', 'vegetarian'), 'protein_main')).toBe(true);
+    expect(matchesSlotRole(makeRecipe('素食套餐', 'complete_meal', 'main', 'vegetarian'), 'complete_meal')).toBe(true);
+    expect(matchesSlotRole(makeRecipe('錯標蔬菜', 'veg_side', 'main', 'vegetarian'), 'protein_main')).toBe(false);
+    expect(matchesSlotRole(makeRecipe('錯標湯', 'soup', 'main', 'egg'), 'protein_main')).toBe(false);
+  });
+
   it('fills three one-protein-one-veg days with the intended roles', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     const recipes = [
