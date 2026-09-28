@@ -131,6 +131,27 @@ describe('homepage filter redesign: select-then-confirm is preserved', () => {
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
   });
 
+  it('keeps a visible apply button beside search for search, sort and collapsed filter edits', () => {
+    render(createElement(HomeFilterHarness));
+    const apply = screen.getByRole('button', { name: '顯示食譜' });
+    expect(apply.hasAttribute('disabled')).toBe(true);
+
+    fireEvent.change(screen.getByRole('combobox', { name: '排序方式' }), { target: { value: 'oldest' } });
+    expect(apply.hasAttribute('disabled')).toBe(false);
+    expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯,意粉');
+    fireEvent.click(apply);
+    expect(screen.getByTestId('result-names').textContent).toBe('意粉,中式魚飯');
+    expect(apply.hasAttribute('disabled')).toBe(true);
+
+    openPanel();
+    fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
+    openPanel();
+    expect(apply.hasAttribute('disabled')).toBe(false);
+    fireEvent.click(apply);
+    expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
+    expect(apply.hasAttribute('disabled')).toBe(true);
+  });
+
   it('waits for confirmation before changing the sort order', () => {
     render(createElement(HomeFilterHarness));
     fireEvent.change(screen.getByRole('combobox', { name: '排序方式' }), { target: { value: 'oldest' } });
@@ -151,7 +172,7 @@ describe('homepage filter redesign: applied count vs pending indicator', () => {
     expect(within(screen.getByTestId('home-filter-toggle-button')).getByText('1')).toBeTruthy();
   });
 
-  it('shows a distinct pending-changes notice while the panel is closed with unconfirmed edits', () => {
+  it('announces pending changes while the panel is closed with unconfirmed edits', () => {
     render(createElement(HomeFilterHarness));
     openPanel();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));

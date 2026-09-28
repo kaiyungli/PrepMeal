@@ -3,7 +3,6 @@ import { FilterSectionConfig } from '@/components/filters';
 import HomeFilterBar from './HomeFilterBar';
 import HomeFilterDesktopPanel from './HomeFilterDesktopPanel';
 import HomeFilterMobileTray from './HomeFilterMobileTray';
-import PendingChangesNotice from './PendingChangesNotice';
 
 interface HomeRecipeFilterControlsProps {
   searchQuery: string;
@@ -44,7 +43,7 @@ export default function HomeRecipeFilterControls({
         ref={triggerButtonRef}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onSubmitSearch={applyFilters}
+        onApply={applyFilters}
         sortBy={sortBy}
         setSortBy={setSortBy}
         showFilters={showFilters}
@@ -52,11 +51,6 @@ export default function HomeRecipeFilterControls({
         appliedFilterCount={appliedFilterCount}
         hasPendingChanges={hasPendingChanges}
         panelId={PANEL_ID}
-      />
-
-      <PendingChangesNotice
-        show={hasPendingChanges && !showFilters}
-        onApply={applyFilters}
       />
 
       <HomeFilterDesktopPanel
