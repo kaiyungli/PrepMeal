@@ -13,7 +13,7 @@ interface HomeFilterFooterProps {
  * These are intentionally two different actions from "重設篩選" (which also
  * clears the already-applied selection) shown elsewhere (AppliedFiltersSummary).
  *
- * Composes the shared FilterFooter primitive (also used by FilterCardShell),
+ * Composes the shared FilterFooter primitive (also used by FilterShell),
  * supplying the draft-clear button through its leadingActions slot rather
  * than duplicating the confirm row markup.
  */

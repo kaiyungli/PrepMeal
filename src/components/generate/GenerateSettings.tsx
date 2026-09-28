@@ -1,6 +1,6 @@
 // Generate page settings - Unified filter system
 import { useState } from 'react';
-import { FilterCardShell } from '@/components/filters';
+import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 
 interface GenerateSettingsProps {
@@ -90,6 +90,7 @@ export default function GenerateSettings({
 
   // Count active filters
   const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
+  const showClear = Boolean(onClearAll) && activeCount > 0;
 
   return (
     <div>
@@ -194,15 +195,15 @@ export default function GenerateSettings({
           </div>
         </div>
 
-        {/* Use shared FilterCardShell */}
-        <FilterCardShell
-          filterSections={filterSections}
+        {/* Use the shared canonical FilterShell */}
+        <FilterShell
           activeFilterCount={activeCount}
-          onClear={onClearAll}
-          clearLabel="重設所有設定"
           isExpanded={isFilterExpanded}
           onToggleExpand={handleToggleFilterExpanded}
-        />
+        >
+          {filterSections.length > 0 && <FilterGroupList sections={filterSections} />}
+          <FilterFooter onClear={showClear ? onClearAll : undefined} clearLabel="重設所有設定" />
+        </FilterShell>
     </div>
   );
 }

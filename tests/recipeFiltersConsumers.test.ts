@@ -15,7 +15,7 @@ const recipes = [
 // Mirrors recipes.js's own wiring: useRecipeFilters() with no options, and
 // RecipeFilters called without applyFilters/hasPendingChanges - chip
 // selection, sort, and clear all take effect immediately, with no confirm
-// step, through the shared FilterCardShell/FilterGroupList/FilterFooter
+// step, through the shared FilterShell/FilterGroupList/FilterFooter
 // primitives.
 function RecipesPageFilterHarness() {
   const {

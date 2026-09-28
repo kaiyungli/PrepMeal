@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { FilterSectionConfig } from '@/components/filters';
-import HomeFilterGroups from './HomeFilterGroups';
+import { FilterGroupList, FilterSectionConfig } from '@/components/filters';
 import HomeFilterFooter from './HomeFilterFooter';
 
 interface HomeFilterMobileTrayProps {
@@ -169,7 +168,7 @@ export default function HomeFilterMobileTray({
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          <HomeFilterGroups sections={sections} />
+          <FilterGroupList sections={sections} />
         </div>
 
         <div className="px-5 pb-5">

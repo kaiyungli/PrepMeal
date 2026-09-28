@@ -413,8 +413,9 @@ describe('homepage filter redesign: desktop bar and expanded panel share one vis
     const card = screen.getByTestId('home-filter-section-card');
     // Both pieces must be descendants of the SAME card element - this is
     // what "one visually grouped component" actually means structurally.
-    // If HomeFilterBar or HomeFilterDesktopPanel ever regain their own
-    // independent card wrapper, this containment breaks.
+    // If the toggle button or the desktop content region ever regain their
+    // own independent card wrapper (instead of sharing FilterShell's single
+    // card), this containment breaks.
     expect(within(card).getByTestId('home-filter-toggle-button')).toBeTruthy();
     expect(within(card).getByTestId('home-filter-desktop-panel')).toBeTruthy();
   });

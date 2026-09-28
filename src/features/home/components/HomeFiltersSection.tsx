@@ -1,7 +1,6 @@
 import { useRef } from 'react';
-import { FilterSectionConfig } from '@/components/filters';
-import HomeFilterBar from './HomeFilterBar';
-import HomeFilterDesktopPanel from './HomeFilterDesktopPanel';
+import { FilterShell, FilterGroupList, FilterSectionConfig, RecipeSortSelect } from '@/components/filters';
+import HomeFilterFooter from './HomeFilterFooter';
 import HomeFilterMobileTray from './HomeFilterMobileTray';
 import AppliedFiltersSummary, { type AppliedFilterChip } from './AppliedFiltersSummary';
 
@@ -37,8 +36,11 @@ const PANEL_ID = 'home-recipe-filter-panel';
  * Owns the complete homepage filter presentation as one public boundary:
  * persistent search/sort/trigger bar, expanded desktop panel, mobile tray,
  * and the applied-filter summary. All filtering/business state stays in
- * useHomeRecipeFilters (via index.js) - this component only arranges
- * already-focused private subcomponents.
+ * useHomeRecipeFilters (via index.js) - this component only arranges the
+ * shared FilterShell (search bar, toggle, desktop content region) plus the
+ * homepage-specific mobile tray, which is a separate modal presentation of
+ * the same FilterGroupList/FilterFooter primitives rather than something the
+ * base shell needs to know about.
  */
 export default function HomeFiltersSection({
   searchQuery,
@@ -62,43 +64,57 @@ export default function HomeFiltersSection({
   clearAppliedFilters,
 }: HomeFiltersSectionProps) {
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopPanelId = `${PANEL_ID}-desktop`;
+  const mobilePanelId = `${PANEL_ID}-mobile`;
 
   return (
     <div className="mb-4">
-      {/* The bar and the expanded panel share ONE visual card/boundary - no
-          gap-separated double card. HomeFilterDesktopPanel contributes only
-          an internal border-t divider when expanded; neither subcomponent
-          owns its own border/shadow/rounding any more. The mobile tray
-          stays a separate fixed-overlay subtree below - a modal can't be
-          visually merged into a static card. */}
-      <div
-        data-testid="home-filter-section-card"
-        className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden"
+      <FilterShell
+        ref={triggerButtonRef}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="搜尋食譜... 例如：番茄、牛肉、咖哩"
+        onSearchSubmit={applyFilters}
+        searchApplyButton={{ label: '顯示食譜', shortLabel: '顯示', pending: hasPendingChanges }}
+        isExpanded={showFilters}
+        onToggleExpand={() => setShowFilters(!showFilters)}
+        activeFilterCount={appliedFilterCount}
+        hasPendingChanges={hasPendingChanges}
+        headerContent={
+          <RecipeSortSelect
+            id="home-recipe-sort"
+            value={sortBy}
+            onChange={setSortBy}
+            wrapperClassName="flex min-w-0 items-center gap-2"
+            labelClassName="shrink-0 text-sm text-[#7A5A38]"
+            selectClassName="h-10 max-w-[155px] min-w-0 px-2 rounded-xl border border-[#DDD0B0] text-sm bg-white text-[#5C4033]"
+          />
+        }
+        cardTestId="home-filter-section-card"
+        searchWrapperClassName="px-4 pt-3"
+        headerWrapperClassName="flex items-center justify-between gap-3 px-4 pb-3 mt-2.5"
+        toggleButtonClassName="relative h-10 px-3 rounded-xl border border-[#DDD0B0] bg-white hover:bg-[#FAF7F2] transition-colors text-sm font-medium text-[#7A5A38] flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
+        toggleTestId="home-filter-toggle-button"
+        iconClassName="w-4 h-4 text-[#9B6035]"
+        titleClassName=""
+        badgeClassName="text-xs bg-[#9B6035] text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+        expandLabelClassName="text-[#9B6035]"
+        expandedLabel="▲"
+        collapsedLabel="▼"
+        contentId={desktopPanelId}
+        contentTestId="home-filter-desktop-panel"
+        ariaControls={`${desktopPanelId} ${mobilePanelId}`}
+        contentExpandedClassName="border-t border-[#E8D9C9] px-6 pb-6 pt-5 hidden md:block"
+        contentCollapsedClassName="border-t border-[#E8D9C9] px-6 pb-6 pt-5 hidden"
       >
-        <HomeFilterBar
-          ref={triggerButtonRef}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onApply={applyFilters}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
-          appliedFilterCount={appliedFilterCount}
-          hasPendingChanges={hasPendingChanges}
-          panelId={PANEL_ID}
-        />
-
-        <HomeFilterDesktopPanel
-          panelId={PANEL_ID}
-          show={showFilters}
-          sections={recipeFilterSections}
+        <FilterGroupList sections={recipeFilterSections} />
+        <HomeFilterFooter
           hasDraftSelection={hasDraftSelection}
           hasPendingChanges={hasPendingChanges}
           onClearDraft={clearFilters}
           onApply={applyFilters}
         />
-      </div>
+      </FilterShell>
 
       <HomeFilterMobileTray
         panelId={PANEL_ID}

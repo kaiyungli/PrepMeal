@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createElement, useState, type ChangeEvent } from 'react';
 import RecipeSearchBar from '@/components/filters/RecipeSearchBar';
-import FilterCardShell from '@/components/filters/FilterCardShell';
+import FilterShell from '@/components/filters/FilterShell';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 
@@ -75,11 +75,11 @@ describe('RecipeSearchBar: the single shared search input implementation', () =>
   });
 });
 
-describe('FilterCardShell: sort control is a sibling of the toggle button, not nested inside it', () => {
+describe('FilterShell: sort control is a sibling of the toggle button, not nested inside it', () => {
   function ShellHarness() {
     const [expanded, setExpanded] = useState(false);
     const [sort, setSort] = useState('newest');
-    return createElement(FilterCardShell, {
+    return createElement(FilterShell, {
       searchQuery: '',
       onSearchChange: () => {},
       isExpanded: expanded,
@@ -124,7 +124,7 @@ describe('FilterCardShell: sort control is a sibling of the toggle button, not n
   it('the search bar stays visible and usable while the panel is collapsed', () => {
     const onSearchChange = vi.fn();
     render(
-      createElement(FilterCardShell, {
+      createElement(FilterShell, {
         searchQuery: '',
         onSearchChange,
         searchPlaceholder: '搜尋食譜...',
@@ -145,19 +145,19 @@ describe('FilterCardShell: sort control is a sibling of the toggle button, not n
   });
 });
 
-describe('FilterCardShell: each instance gets its own stable content id', () => {
+describe('FilterShell: each instance gets its own stable content id', () => {
   function TwoShellsHarness() {
     return createElement(
       'div',
       null,
-      createElement(FilterCardShell, {
+      createElement(FilterShell, {
         title: '篩選 A',
         searchQuery: '',
         onSearchChange: () => {},
         isExpanded: false,
         onToggleExpand: () => {},
       }),
-      createElement(FilterCardShell, {
+      createElement(FilterShell, {
         title: '篩選 B',
         searchQuery: '',
         onSearchChange: () => {},

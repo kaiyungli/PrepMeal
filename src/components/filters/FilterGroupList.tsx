@@ -17,7 +17,7 @@ interface FilterGroupListProps {
 }
 
 /**
- * Renders filter groups as toggle chips. Shared by FilterCardShell
+ * Renders filter groups as toggle chips. Shared by FilterShell
  * (/recipes, /favorites, /generate) and the homepage's desktop panel and
  * mobile tray - this is the one place chip markup/behavior is defined.
  */

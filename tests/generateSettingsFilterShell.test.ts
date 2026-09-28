@@ -6,7 +6,7 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 
 afterEach(cleanup);
 
-// GenerateSettings is a third, silent consumer of the shared FilterCardShell
+// GenerateSettings is a third, silent consumer of the shared FilterShell
 // (alongside /recipes and /favorites via RecipeFilters, and the homepage via
 // its own composition). This is a smoke test proving its filter shell still
 // expands, renders groups, toggles a filter, and stays connected to clear -
