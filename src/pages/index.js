@@ -33,7 +33,9 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     hasFilters,
     activeFilterCount,
     clearFilters,
-    filters,
+    clearAppliedFilters,
+    applyFilters,
+    hasPendingChanges,
     recipesList,
     totalCount,
     loading,
@@ -102,6 +104,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             hasFilters={hasFilters}
             activeFilterCount={activeFilterCount}
             clearFilters={clearFilters}
+            applyFilters={applyFilters}
+            hasPendingChanges={hasPendingChanges}
           />
           {showResults && (
             <>
@@ -137,7 +141,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             <p className="text-[#AA7A50] mb-4">沒有找到食譜</p>
             {hasFilters && (
               <button
-                onClick={clearFilters}
+                onClick={clearAppliedFilters}
                 className="text-[#9B6035] underline"
               >
                 清除篩選

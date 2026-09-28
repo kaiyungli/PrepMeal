@@ -10,6 +10,8 @@ interface RecipeFiltersProps {
   recipeFilterSections: FilterSectionConfig[];
   activeFilterCount: number;
   clearFilters: () => void;
+  applyFilters: () => void;
+  hasPendingChanges: boolean;
 }
 
 export default function RecipeFilters({
@@ -23,6 +25,8 @@ export default function RecipeFilters({
 
   activeFilterCount,
   clearFilters,
+  applyFilters,
+  hasPendingChanges,
 }: RecipeFiltersProps) {
   return (
     <div className="mb-6">
@@ -34,6 +38,8 @@ export default function RecipeFilters({
         filterSections={recipeFilterSections}
         activeFilterCount={activeFilterCount}
         onClear={clearFilters}
+        onApply={applyFilters}
+        hasPendingChanges={hasPendingChanges}
         isExpanded={showFilters} onToggleExpand={() => setShowFilters(!showFilters)}
         headerContent={
           <select

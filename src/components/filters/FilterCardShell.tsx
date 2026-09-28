@@ -32,6 +32,8 @@ interface FilterCardShellProps {
   // Clear handler
   onClear?: () => void;
   clearLabel?: string;
+  onApply?: () => void;
+  hasPendingChanges?: boolean;
   // Additional header content
   headerContent?: ReactNode;
   children?: ReactNode;
@@ -48,6 +50,8 @@ export default function FilterCardShell({
   activeFilterCount,
   onClear,
   clearLabel = '清除全部',
+  onApply,
+  hasPendingChanges = false,
   headerContent,
   children,
 }: FilterCardShellProps) {
@@ -100,6 +104,12 @@ export default function FilterCardShell({
                 type="text"
                 value={searchQuery || ''}
                 onChange={(e) => onSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && onApply) {
+                    e.preventDefault();
+                    onApply();
+                  }
+                }}
                 placeholder={searchPlaceholder || '搜尋...'}
                 className="w-full h-12 pl-11 pr-11 rounded-xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C]"
               />
@@ -119,6 +129,7 @@ export default function FilterCardShell({
                       const isSelected = section.selected?.includes(option.value);
                       return (
                         <button
+                          type="button"
                           key={option.value}
                           onClick={() => section.onToggle(option.value)}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -138,13 +149,29 @@ export default function FilterCardShell({
           )}
           
           {/* Clear button */}
-          {onClear && activeFilterCount != null && activeFilterCount > 0 && (
+          {onClear && ((activeFilterCount != null && activeFilterCount > 0) || Boolean(searchQuery)) && (
             <div className="mt-4 pt-4 border-t border-[#F5EDE3]">
               <button 
+                type="button"
                 onClick={onClear}
                 className="text-sm text-[#9B6035] hover:underline"
               >
                 {clearLabel || '清除全部'}
+              </button>
+            </div>
+          )}
+          {onApply && (
+            <div className="mt-5 pt-4 border-t border-[#F5EDE3] flex items-center justify-between gap-3">
+              <span className="text-xs text-[#7A5A38]" aria-live="polite">
+                {hasPendingChanges ? '有未套用的選項' : '目前顯示已確認的結果'}
+              </span>
+              <button
+                type="button"
+                onClick={onApply}
+                disabled={!hasPendingChanges}
+                className="rounded-lg bg-[#9B6035] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
+              >
+                確認篩選
               </button>
             </div>
           )}
