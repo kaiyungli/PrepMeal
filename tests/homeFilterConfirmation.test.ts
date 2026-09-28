@@ -2,8 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { createElement } from 'react';
-import HomeRecipeFilterControls from '@/features/home/components/HomeRecipeFilterControls';
-import AppliedFiltersSummary from '@/features/home/components/AppliedFiltersSummary';
+import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
 import { useHomeRecipeFilters } from '@/features/home/hooks/useHomeRecipeFilters';
 import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
 
@@ -14,11 +13,12 @@ const catalog = [
   { id: '2', name: '意粉', cuisine: 'italian', created_at: '2026-01-01' },
 ];
 
-// Mirrors src/pages/index.js's own gating: AppliedFiltersSummary only shows
-// while the page has a definitive (non-loading, non-error) result state -
-// covering BOTH showResults and showEmptyState, which is exactly what issue
-// 4 requires and what a harness that always rendered the summary could not
-// have caught.
+// Mirrors src/pages/index.js's own gating and single-component wiring: the
+// whole filter presentation (bar, desktop panel, mobile tray, applied
+// summary) renders through the one HomeFiltersSection boundary, with
+// showSummary covering BOTH showResults and showEmptyState - exactly what
+// issue 4 requires and what a harness that always rendered the summary
+// could not have caught.
 function HomeFilterHarness() {
   const state = useHomeRecipeFilters({ catalog, initialRecipes: catalog, initialTotalCount: 2 });
   const { showResults, showEmptyState, resultCountText } = useHomePageViewState({
@@ -32,7 +32,7 @@ function HomeFilterHarness() {
   return createElement(
     'div',
     null,
-    createElement(HomeRecipeFilterControls, {
+    createElement(HomeFiltersSection, {
       searchQuery: state.searchQuery,
       setSearchQuery: state.setSearchQuery,
       sortBy: state.sortBy,
@@ -45,16 +45,14 @@ function HomeFilterHarness() {
       appliedFilterCount: state.appliedFilterCount,
       clearFilters: state.clearFilters,
       applyFilters: state.applyFilters,
+      showSummary: showResults || showEmptyState,
+      appliedFilterChips: state.appliedFilterChips,
+      appliedSearchQuery: state.appliedSearchQuery,
+      resultCountText,
+      removeDraftFilterValue: state.removeDraftFilterValue,
+      removeDraftSearch: state.removeDraftSearch,
+      clearAppliedFilters: state.clearAppliedFilters,
     }),
-    (showResults || showEmptyState) &&
-      createElement(AppliedFiltersSummary, {
-        chips: state.appliedFilterChips,
-        appliedSearchQuery: state.appliedSearchQuery,
-        resultCountText,
-        onRemoveChip: state.removeDraftFilterValue,
-        onRemoveSearch: state.removeDraftSearch,
-        onResetAll: state.clearAppliedFilters,
-      }),
     createElement(
       'output',
       { 'data-testid': 'result-names' },
@@ -405,5 +403,37 @@ describe('homepage filter redesign: accessibility structure', () => {
     for (const id of controlsIds) {
       expect(document.getElementById(id), `expected #${id} to exist while expanded`).not.toBeNull();
     }
+  });
+});
+
+describe('homepage filter redesign: desktop bar and expanded panel share one visual card boundary', () => {
+  it('the toggle button and the expanded desktop panel are both inside the single home-filter-section-card container', () => {
+    render(createElement(HomeFilterHarness));
+    openPanel();
+    const card = screen.getByTestId('home-filter-section-card');
+    // Both pieces must be descendants of the SAME card element - this is
+    // what "one visually grouped component" actually means structurally.
+    // If HomeFilterBar or HomeFilterDesktopPanel ever regain their own
+    // independent card wrapper, this containment breaks.
+    expect(within(card).getByTestId('home-filter-toggle-button')).toBeTruthy();
+    expect(within(card).getByTestId('home-filter-desktop-panel')).toBeTruthy();
+  });
+
+  it('neither the bar nor the expanded panel carries its own independent card styling (border/shadow/rounding)', () => {
+    render(createElement(HomeFilterHarness));
+    openPanel();
+    const panel = desktopPanel();
+    // The desktop panel contributes only an internal divider (border-t) when
+    // expanded, never a full card of its own - regressing to `rounded-2xl`
+    // and/or `shadow-sm` here would recreate the second, gap-separated card
+    // this grouping fixes.
+    expect(panel.className).not.toMatch(/\brounded-2xl\b/);
+    expect(panel.className).not.toMatch(/\bshadow-sm\b/);
+
+    const card = screen.getByTestId('home-filter-section-card');
+    // The shared card boundary is exactly one level of rounded/border/shadow
+    // wrapping both pieces.
+    expect(card.className).toMatch(/\brounded-2xl\b/);
+    expect(card.className).toMatch(/\bshadow-sm\b/);
   });
 });

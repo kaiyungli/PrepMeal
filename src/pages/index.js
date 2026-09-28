@@ -13,8 +13,7 @@ import HomeHero from '@/components/home/HomeHero';
 import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
-import HomeRecipeFilterControls from '@/features/home/components/HomeRecipeFilterControls';
-import AppliedFiltersSummary from '@/features/home/components/AppliedFiltersSummary';
+import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
 import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
@@ -99,7 +98,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
         <HomeHowItWorks />
         <HomeAboutSection />
         <div className="max-w-[1200px] mx-auto px-4">
-          <HomeRecipeFilterControls
+          <HomeFiltersSection
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
@@ -112,17 +111,14 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             appliedFilterCount={appliedFilterCount}
             clearFilters={clearFilters}
             applyFilters={applyFilters}
+            showSummary={showResults || showEmptyState}
+            appliedFilterChips={appliedFilterChips}
+            appliedSearchQuery={appliedSearchQuery}
+            resultCountText={resultCountText}
+            removeDraftFilterValue={removeDraftFilterValue}
+            removeDraftSearch={removeDraftSearch}
+            clearAppliedFilters={clearAppliedFilters}
           />
-          {(showResults || showEmptyState) && (
-            <AppliedFiltersSummary
-              chips={appliedFilterChips}
-              appliedSearchQuery={appliedSearchQuery}
-              resultCountText={resultCountText}
-              onRemoveChip={removeDraftFilterValue}
-              onRemoveSearch={removeDraftSearch}
-              onResetAll={clearAppliedFilters}
-            />
-          )}
           {showResults && (
             <HomeRecipesSection
               recipes={recipesList}

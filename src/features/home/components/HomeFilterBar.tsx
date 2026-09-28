@@ -19,6 +19,10 @@ interface HomeFilterBarProps {
  * The sort <select> is a sibling of the toggle button, never nested inside
  * it (a <button> must not contain interactive descendants - see
  * https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element).
+ *
+ * This is a content region only - no border/shadow/rounding of its own.
+ * HomeFiltersSection supplies the single shared card boundary this and
+ * HomeFilterDesktopPanel both render inside.
  */
 const HomeFilterBar = forwardRef<HTMLButtonElement, HomeFilterBarProps>(function HomeFilterBar({
   searchQuery,
@@ -33,7 +37,7 @@ const HomeFilterBar = forwardRef<HTMLButtonElement, HomeFilterBarProps>(function
   panelId,
 }, ref) {
   return (
-    <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm px-4 py-3 space-y-2.5">
+    <div className="px-4 py-3 space-y-2.5">
       <RecipeSearchBar
         value={searchQuery}
         onChange={setSearchQuery}

@@ -20,6 +20,11 @@ interface HomeFilterDesktopPanelProps {
  * `aria-hidden` + Tailwind's `hidden` class when collapsed, never
  * unmounted) so the trigger button's `aria-controls` always references a
  * real, resolvable element regardless of expanded/collapsed state.
+ *
+ * No border/shadow/rounding of its own - it renders inside the same shared
+ * card as HomeFilterBar (see HomeFiltersSection) and contributes only an
+ * internal `border-t` divider when expanded, instead of a second,
+ * gap-separated card.
  */
 export default function HomeFilterDesktopPanel({
   panelId,
@@ -35,7 +40,7 @@ export default function HomeFilterDesktopPanel({
       id={`${panelId}-desktop`}
       data-testid="home-filter-desktop-panel"
       aria-hidden={!show}
-      className={`mt-3 rounded-2xl border border-[#E8D9C9] bg-white shadow-sm px-6 pb-6 pt-5 ${
+      className={`border-t border-[#E8D9C9] px-6 pb-6 pt-5 ${
         show ? 'hidden md:block' : 'hidden'
       }`}
     >
