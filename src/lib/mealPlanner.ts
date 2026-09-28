@@ -206,6 +206,9 @@ export function matchesSlotRole(recipe: Recipe, slotRole: string): boolean {
       return mealRole === 'complete_meal' || isCompleteMeal === true;
     
     case 'protein_main':
+      // Production veg sides use primary_protein='vegetarian', and soups can
+      // also carry a protein tag. Neither belongs in a protein-main slot.
+      if (mealRole === 'veg_side' || mealRole === 'soup' || dishType === 'soup' || primaryProtein === 'vegetarian') return false;
       // Priority 1: explicit meal_role
       if (mealRole === 'protein_main') return true;
       // Priority 2: dish_type === 'main' (main course)
