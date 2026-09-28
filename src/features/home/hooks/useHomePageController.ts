@@ -1,31 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateWeeklyPlan } from '@/services/weeklyPlan';
+import { generateWeeklyPlan, type PlanDay, type Recipe } from '@/services/weeklyPlan';
 import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 import { useUserState } from '@/hooks/useUserState';
 
 interface UseHomePageControllerOptions {
-  recipesList: any[];
+  planRecipes: Recipe[];
   showToast?: (message: string, type?: string) => void;
 }
 
-export function useHomePageController({ recipesList = [], showToast }: UseHomePageControllerOptions) {
+export function useHomePageController({ planRecipes = [], showToast }: UseHomePageControllerOptions) {
   // Weekly plan state
-  const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
+  const [weeklyPlan, setWeeklyPlan] = useState<PlanDay[]>([]);
 
-  // Deferred favorites loading - enable after first paint
-    // Regenerate weekly plan when recipesList changes
+  // The hero plan is independent of the filtered/paginated recipe results.
+  // Generate it after mount so server and client render the same initial markup.
   useEffect(() => {
-    if (!recipesList || recipesList.length === 0) {
+    // Defer generation until hydration so random plan selection cannot differ
+    // between server and client markup.
+    if (!planRecipes || planRecipes.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeeklyPlan([]);
     } else {
-      setWeeklyPlan(generateWeeklyPlan(recipesList));
+      setWeeklyPlan(generateWeeklyPlan(planRecipes));
     }
-  }, [recipesList]);
+  }, [planRecipes]);
 
   // Refresh plan handler
   const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(generateWeeklyPlan(recipesList));
-  }, [recipesList]);
+    setWeeklyPlan(generateWeeklyPlan(planRecipes));
+  }, [planRecipes]);
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
   const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });

@@ -56,7 +56,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
   });
 
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({
-    recipesList,
+    planRecipes: initialRecipes,
     showToast,
   });
 
