@@ -1,3 +1,5 @@
+import FilterFooter from '@/components/filters/FilterFooter';
+
 interface HomeFilterFooterProps {
   hasDraftSelection: boolean;
   hasPendingChanges: boolean;
@@ -10,6 +12,10 @@ interface HomeFilterFooterProps {
  * "確認篩選" commits the draft as the applied selection.
  * These are intentionally two different actions from "重設篩選" (which also
  * clears the already-applied selection) shown elsewhere (AppliedFiltersSummary).
+ *
+ * Composes the shared FilterFooter primitive (also used by FilterCardShell),
+ * supplying the draft-clear button through its leadingActions slot rather
+ * than duplicating the confirm row markup.
  */
 export default function HomeFilterFooter({
   hasDraftSelection,
@@ -18,29 +24,18 @@ export default function HomeFilterFooter({
   onApply,
 }: HomeFilterFooterProps) {
   return (
-    <div className="mt-5 pt-4 border-t border-[#F5EDE3] flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
-        {hasDraftSelection && (
-          <button
-            type="button"
-            onClick={onClearDraft}
-            className="text-sm text-[#9B6035] hover:underline"
-          >
-            清空選擇
-          </button>
-        )}
-        <span className="text-xs text-[#7A5A38]" aria-live="polite">
-          {hasPendingChanges ? '有未套用的選項' : '目前顯示已確認的結果'}
-        </span>
-      </div>
-      <button
-        type="button"
-        onClick={onApply}
-        disabled={!hasPendingChanges}
-        className="rounded-lg bg-[#9B6035] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
-      >
-        確認篩選
-      </button>
-    </div>
+    <FilterFooter
+      onApply={onApply}
+      hasPendingChanges={hasPendingChanges}
+      leadingActions={hasDraftSelection ? (
+        <button
+          type="button"
+          onClick={onClearDraft}
+          className="text-sm text-[#9B6035] hover:underline"
+        >
+          清空選擇
+        </button>
+      ) : null}
+    />
   );
 }

@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import RecipeSearchBar from '@/components/filters/RecipeSearchBar';
+import RecipeSortSelect from '@/components/filters/RecipeSortSelect';
 
 interface HomeFilterBarProps {
   searchQuery: string;
@@ -70,23 +71,14 @@ const HomeFilterBar = forwardRef<HTMLButtonElement, HomeFilterBarProps>(function
           <span className="text-[#9B6035]">{showFilters ? '▲' : '▼'}</span>
         </button>
 
-      <div className="flex min-w-0 items-center gap-2">
-        <label htmlFor="home-recipe-sort" className="shrink-0 text-sm text-[#7A5A38]">排序</label>
-        <select
+        <RecipeSortSelect
           id="home-recipe-sort"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          aria-label="排序方式"
-          className="h-10 max-w-[155px] min-w-0 px-2 rounded-xl border border-[#DDD0B0] text-sm bg-white text-[#5C4033]"
-        >
-          <option value="newest">最新</option>
-          <option value="oldest">最舊</option>
-          <option value="popular">最受歡迎</option>
-          <option value="time_short">最快</option>
-          <option value="calories_low">卡路里低到高</option>
-          <option value="protein_high">蛋白質高到低</option>
-        </select>
-      </div>
+          onChange={setSortBy}
+          wrapperClassName="flex min-w-0 items-center gap-2"
+          labelClassName="shrink-0 text-sm text-[#7A5A38]"
+          selectClassName="h-10 max-w-[155px] min-w-0 px-2 rounded-xl border border-[#DDD0B0] text-sm bg-white text-[#5C4033]"
+        />
       </div>
       <span className="sr-only" role="status">{hasPendingChanges ? '有未確認的更改，尚未影響下方結果' : ''}</span>
     </div>

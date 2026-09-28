@@ -1,20 +1,10 @@
 // Shared filter card shell - simplified for accordion behavior
 import { ReactNode, useId } from 'react';
 import RecipeSearchBar from './RecipeSearchBar';
+import FilterGroupList, { type FilterSectionConfig } from './FilterGroupList';
+import FilterFooter from './FilterFooter';
 
-interface FilterOption {
-  value: string;
-  label: string;
-}
-
-export interface FilterSectionConfig {
-  id: string;
-  title: string;
-  options: FilterOption[];
-  selected: string[];
-  onToggle: (value: string) => void;
-  variant?: 'default' | 'danger';
-}
+export type { FilterSectionConfig };
 
 interface FilterCardShellProps {
   // Title
@@ -64,6 +54,8 @@ export default function FilterCardShell({
   // mounted at once.
   const contentId = `filter-card-shell-content-${useId()}`;
   const hasSearch = Boolean(onSearchChange);
+  const showClear = Boolean(onClear) &&
+    ((activeFilterCount != null && activeFilterCount > 0) || Boolean(searchQuery));
 
   return (
     <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden">
@@ -119,64 +111,15 @@ export default function FilterCardShell({
       >
         {/* Filter sections */}
         {filterSections && filterSections.length > 0 && (
-          <div className="space-y-4">
-            {filterSections.map(section => (
-              <div key={section.id}>
-                <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2">
-                  {section.title}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {section.options.map(option => {
-                    const isSelected = section.selected?.includes(option.value);
-                    return (
-                      <button
-                        type="button"
-                        key={option.value}
-                        aria-pressed={isSelected}
-                        onClick={() => section.onToggle(option.value)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'bg-[#9B6035] text-white border border-[#9B6035]'
-                            : 'bg-white text-[#7A5A38] border border-[#E9DFC9] hover:border-[#9B6035]'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <FilterGroupList sections={filterSections} />
         )}
 
-        {/* Clear button */}
-        {onClear && ((activeFilterCount != null && activeFilterCount > 0) || Boolean(searchQuery)) && (
-          <div className="mt-4 pt-4 border-t border-[#F5EDE3]">
-            <button
-              type="button"
-              onClick={onClear}
-              className="text-sm text-[#9B6035] hover:underline"
-            >
-              {clearLabel || '清除全部'}
-            </button>
-          </div>
-        )}
-        {onApply && (
-          <div className="mt-5 pt-4 border-t border-[#F5EDE3] flex items-center justify-between gap-3">
-            <span className="text-xs text-[#7A5A38]" aria-live="polite">
-              {hasPendingChanges ? '有未套用的選項' : '目前顯示已確認的結果'}
-            </span>
-            <button
-              type="button"
-              onClick={onApply}
-              disabled={!hasPendingChanges}
-              className="rounded-lg bg-[#9B6035] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
-            >
-              確認篩選
-            </button>
-          </div>
-        )}
+        <FilterFooter
+          onClear={showClear ? onClear : undefined}
+          clearLabel={clearLabel}
+          onApply={onApply}
+          hasPendingChanges={hasPendingChanges}
+        />
         {children}
       </div>
     </div>
