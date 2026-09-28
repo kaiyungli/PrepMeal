@@ -36,7 +36,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     appliedFilterCount,
     appliedFilterChips,
     appliedSearchQuery,
-    toggleDraftFilter,
+    removeDraftFilterValue,
     removeDraftSearch,
     clearFilters,
     clearAppliedFilters,
@@ -113,25 +113,25 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             clearFilters={clearFilters}
             applyFilters={applyFilters}
           />
+          {(showResults || showEmptyState) && (
+            <AppliedFiltersSummary
+              chips={appliedFilterChips}
+              appliedSearchQuery={appliedSearchQuery}
+              resultCountText={resultCountText}
+              onRemoveChip={removeDraftFilterValue}
+              onRemoveSearch={removeDraftSearch}
+              onResetAll={clearAppliedFilters}
+            />
+          )}
           {showResults && (
-            <>
-              <AppliedFiltersSummary
-                chips={appliedFilterChips}
-                appliedSearchQuery={appliedSearchQuery}
-                resultCountText={resultCountText}
-                onRemoveChip={toggleDraftFilter}
-                onRemoveSearch={removeDraftSearch}
-                onResetAll={clearAppliedFilters}
-              />
-              <HomeRecipesSection
-                recipes={recipesList}
-                isFavorite={isFavorite}
-                onFavoriteClick={handleFavoriteToggle}
-                loadMore={loadMore}
-                hasMore={hasMore}
-                loadingMore={loadingMore}
-              />
-            </>
+            <HomeRecipesSection
+              recipes={recipesList}
+              isFavorite={isFavorite}
+              onFavoriteClick={handleFavoriteToggle}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+            />
           )}
         </div>
 
@@ -147,15 +147,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
 
         {showEmptyState && (
           <div className="text-center py-12">
-            <p className="text-[#AA7A50] mb-4">沒有找到食譜</p>
-            {hasFilters && (
-              <button
-                onClick={clearAppliedFilters}
-                className="text-[#9B6035] underline"
-              >
-                重設篩選
-              </button>
-            )}
+            <p className="text-[#AA7A50]">沒有找到食譜</p>
           </div>
         )}
       </main>

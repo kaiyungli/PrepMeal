@@ -15,12 +15,31 @@ interface HomeFilterMobileTrayProps {
   onApply: () => void;
 }
 
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)';
+
+function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  return Array.from(
+    container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  );
+}
+
 /**
  * Mobile (<768px): filters open in a full-height tray from the bottom.
  * - Closing without confirming (backdrop click, Esc, close button) keeps the
- *   draft as-is; nothing is applied until "確認篩選".
- * - Locks background scroll while open, restores it on close/unmount.
- * - Moves focus into the tray on open and back to the trigger button on close.
+ *   draft as-is; nothing is applied until "確認篩選" - which, inside this
+ *   tray, also closes it and restores focus, same as every other close path.
+ * - Locks background scroll only while the tray is the actual visible
+ *   presentation, and re-evaluates that on every viewport/breakpoint change
+ *   while open (not just once at open time) so resizing past 768px while
+ *   open can't leave the background permanently unscrollable.
+ * - Traps Tab/Shift+Tab within the tray while open, and returns focus to the
+ *   trigger button on every close path.
+ * - The root element always stays in the DOM (visually + a11y hidden via
+ *   `aria-hidden` + Tailwind's `hidden` class when closed, never unmounted)
+ *   so the trigger button's `aria-controls` always references a real,
+ *   resolvable element regardless of open/closed state.
  */
 export default function HomeFilterMobileTray({
   panelId,
@@ -35,44 +54,90 @@ export default function HomeFilterMobileTray({
 }: HomeFilterMobileTrayProps) {
   const trayRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousOverflowRef = useRef('');
 
-  // Lock background scroll only while the tray is actually the visible
-  // presentation (i.e. on a <768px viewport) - on desktop `show` is driven by
-  // the same state but the tray stays CSS-hidden, so locking scroll there
-  // would block the inline desktop panel from being scrolled to.
+  // Scroll lock, kept in sync with the actual breakpoint for as long as the
+  // tray is open (not just evaluated once at open time).
   useEffect(() => {
     if (!show) return;
-    const isMobileViewport = typeof window.matchMedia === 'function'
-      && window.matchMedia('(max-width: 767px)').matches;
-    if (!isMobileViewport) return;
+    if (typeof window.matchMedia !== 'function') return;
 
-    const previousOverflow = document.body.style.overflow;
-    const trigger = triggerRef.current;
-    document.body.style.overflow = 'hidden';
-    closeButtonRef.current?.focus();
+    previousOverflowRef.current = document.body.style.overflow;
+    const mql = window.matchMedia(MOBILE_MEDIA_QUERY);
+
+    const syncScrollLock = (isMobile: boolean) => {
+      document.body.style.overflow = isMobile ? 'hidden' : previousOverflowRef.current;
+    };
+    syncScrollLock(mql.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => syncScrollLock(e.matches);
+    mql.addEventListener('change', handleChange);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      mql.removeEventListener('change', handleChange);
+      document.body.style.overflow = previousOverflowRef.current;
+    };
+  }, [show]);
+
+  // Initial focus on open, and focus restore to the trigger on close.
+  useEffect(() => {
+    if (!show) return;
+    closeButtonRef.current?.focus();
+    const trigger = triggerRef.current;
+    return () => {
       trigger?.focus();
     };
   }, [show, triggerRef]);
 
+  // Esc to close, and a Tab/Shift+Tab focus trap so keyboard users can't
+  // tab out into the (visually hidden but otherwise still-present) page
+  // behind the tray.
   useEffect(() => {
     if (!show) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const container = trayRef.current;
+      if (!container) return;
+      const focusable = getFocusableElements(container);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!container.contains(active)) {
+        // Focus somehow landed outside the tray (e.g. a prior state left it
+        // there) - pull it back in rather than letting Tab continue outside.
+        e.preventDefault();
+        first.focus();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [show, onClose]);
 
-  if (!show) return null;
+  // Confirming inside the tray also dismisses it and restores focus, same
+  // as Esc / backdrop / the close button - handled by the effects above via
+  // the `show` transition this triggers.
+  const handleApply = () => {
+    onApply();
+    onClose();
+  };
 
   return (
-    <div className="md:hidden fixed inset-0 z-50">
+    <div
+      aria-hidden={!show}
+      className={show ? 'md:hidden fixed inset-0 z-50' : 'hidden'}
+    >
       <div
         className="absolute inset-0 bg-black/40"
         onClick={onClose}
@@ -109,7 +174,7 @@ export default function HomeFilterMobileTray({
             hasDraftSelection={hasDraftSelection}
             hasPendingChanges={hasPendingChanges}
             onClearDraft={onClearDraft}
-            onApply={onApply}
+            onApply={handleApply}
           />
         </div>
       </div>

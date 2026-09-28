@@ -5,7 +5,7 @@
  * Combines useRecipeFilters + useFilteredRecipes
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { filterHomeCatalog, PAGE_SIZE, HomeCatalogRecipe } from '@/features/home/filterHomeCatalog';
@@ -41,6 +41,7 @@ export function useHomeRecipeFilters({
     activeFilterCount,
     clearFilters: clearDraftFilters,
     filters,
+    setFilters,
   } = useRecipeFilters({ initialShowFilters: false });
 
   // Editing the controls does not change the results until the user confirms.
@@ -85,9 +86,18 @@ export function useHomeRecipeFilters({
   const appliedSearchQuery = applied.searchQuery;
 
   // Removing a chip from the applied summary only edits the draft - the
-  // same "select first, confirm second" rule as every other control.
-  const toggleDraftFilter = (sectionId: string, value: string) => {
-    recipeFilterSections.find(section => section.id === sectionId)?.onToggle(value);
+  // same "select first, confirm second" rule as every other control. This
+  // must be an unconditional removal, not a toggle: if the user already
+  // unchecked this value inside the panel (so the draft no longer has it),
+  // clicking the same chip again in the summary must stay a no-op instead
+  // of re-adding it.
+  const setDraftFilters = setFilters as unknown as Dispatch<SetStateAction<Record<string, string[]>>>;
+  const removeDraftFilterValue = (sectionId: string, value: string) => {
+    setDraftFilters(prev => {
+      const current = prev[sectionId] || [];
+      if (!current.includes(value)) return prev;
+      return { ...prev, [sectionId]: current.filter(v => v !== value) };
+    });
   };
   const removeDraftSearch = () => setSearchQuery('');
 
@@ -140,7 +150,7 @@ export function useHomeRecipeFilters({
     appliedFilterCount,
     appliedFilterChips,
     appliedSearchQuery,
-    toggleDraftFilter,
+    removeDraftFilterValue,
     removeDraftSearch,
     clearFilters,
     clearAppliedFilters,

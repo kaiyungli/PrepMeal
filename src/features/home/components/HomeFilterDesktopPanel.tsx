@@ -15,6 +15,11 @@ interface HomeFilterDesktopPanelProps {
 /**
  * Desktop (>=768px): filters expand inline, below the search/sort/filter bar.
  * Hidden entirely on mobile - HomeFilterMobileTray takes over there.
+ *
+ * The root element always stays in the DOM (visually + a11y hidden via
+ * `aria-hidden` + Tailwind's `hidden` class when collapsed, never
+ * unmounted) so the trigger button's `aria-controls` always references a
+ * real, resolvable element regardless of expanded/collapsed state.
  */
 export default function HomeFilterDesktopPanel({
   panelId,
@@ -25,13 +30,14 @@ export default function HomeFilterDesktopPanel({
   onClearDraft,
   onApply,
 }: HomeFilterDesktopPanelProps) {
-  if (!show) return null;
-
   return (
     <div
       id={`${panelId}-desktop`}
       data-testid="home-filter-desktop-panel"
-      className="hidden md:block mt-3 rounded-2xl border border-[#E8D9C9] bg-white shadow-sm px-6 pb-6 pt-5"
+      aria-hidden={!show}
+      className={`mt-3 rounded-2xl border border-[#E8D9C9] bg-white shadow-sm px-6 pb-6 pt-5 ${
+        show ? 'hidden md:block' : 'hidden'
+      }`}
     >
       <HomeFilterGroups sections={sections} />
       <HomeFilterFooter
