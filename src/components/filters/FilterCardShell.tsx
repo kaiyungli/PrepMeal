@@ -1,5 +1,5 @@
 // Shared filter card shell - simplified for accordion behavior
-import { ReactNode } from 'react';
+import { ReactNode, useId } from 'react';
 import RecipeSearchBar from './RecipeSearchBar';
 
 interface FilterOption {
@@ -41,8 +41,6 @@ interface FilterCardShellProps {
   children?: ReactNode;
 }
 
-const CONTENT_ID = 'filter-card-shell-content';
-
 export default function FilterCardShell({
   title = '篩選',
   isExpanded = false,
@@ -60,20 +58,40 @@ export default function FilterCardShell({
   children,
 }: FilterCardShellProps) {
   const expandText = isExpanded ? '▲ 收起' : '▼ 展開';
+  // Stable per-instance id (React 18+ useId), so aria-controls always
+  // resolves to the panel this specific instance controls - a module-level
+  // constant here would collide if more than one FilterCardShell is ever
+  // mounted at once.
+  const contentId = `filter-card-shell-content-${useId()}`;
+  const hasSearch = Boolean(onSearchChange);
 
   return (
     <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden">
+      {/* Search bar - persistent and independent of the collapsible detail
+          panel below, matching the homepage's layout: it stays visible
+          whether or not the filter chips are expanded. */}
+      {hasSearch && (
+        <div className="px-6 pt-4">
+          <RecipeSearchBar
+            value={searchQuery || ''}
+            onChange={onSearchChange as (v: string) => void}
+            onSubmit={onApply}
+            placeholder={searchPlaceholder || '搜尋...'}
+          />
+        </div>
+      )}
+
       {/* Header row - the toggle button and any extra header content (e.g. a
           sort <select>) are siblings, never nested: a <button> must not
           contain interactive descendants per the HTML content model
           (https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element),
           and a nested <select> breaks keyboard/screen-reader interaction. */}
-      <div className="flex w-full items-center justify-between gap-3 px-6 py-4">
+      <div className={`flex w-full items-center justify-between gap-3 px-6 ${hasSearch ? 'pt-3 pb-4' : 'py-4'}`}>
         <button
           type="button"
           onClick={onToggleExpand}
           aria-expanded={isExpanded}
-          aria-controls={CONTENT_ID}
+          aria-controls={contentId}
           className="flex items-center gap-2 text-left hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
         >
           <svg className="w-5 h-5 text-[#9B6035]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -92,23 +110,13 @@ export default function FilterCardShell({
 
       {/* Content - always in the DOM so `aria-controls` above always
           resolves to a real element; visibility (not mounting) is what
-          `isExpanded` controls. */}
+          `isExpanded` controls. Only the detailed filter chips (and the
+          clear/apply footer) live here now - search moved out above. */}
       <div
-        id={CONTENT_ID}
+        id={contentId}
         aria-hidden={!isExpanded}
         className={isExpanded ? 'border-t border-[#F5EDE3] px-6 pb-6 pt-4' : 'hidden'}
       >
-        {/* Search bar if provided */}
-        {onSearchChange && (
-          <RecipeSearchBar
-            value={searchQuery || ''}
-            onChange={onSearchChange}
-            onSubmit={onApply}
-            placeholder={searchPlaceholder || '搜尋...'}
-            className="mb-4"
-          />
-        )}
-
         {/* Filter sections */}
         {filterSections && filterSections.length > 0 && (
           <div className="space-y-4">

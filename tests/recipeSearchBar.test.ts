@@ -120,6 +120,73 @@ describe('FilterCardShell: sort control is a sibling of the toggle button, not n
     fireEvent.click(toggle);
     expect(document.getElementById(id as string)).not.toBeNull();
   });
+
+  it('the search bar stays visible and usable while the panel is collapsed', () => {
+    const onSearchChange = vi.fn();
+    render(
+      createElement(FilterCardShell, {
+        searchQuery: '',
+        onSearchChange,
+        searchPlaceholder: '搜尋食譜...',
+        isExpanded: false,
+        onToggleExpand: () => {},
+      })
+    );
+    const input = screen.getByPlaceholderText('搜尋食譜...');
+    expect(input).toBeTruthy();
+    fireEvent.change(input, { target: { value: '牛肉' } });
+    expect(onSearchChange).toHaveBeenCalledWith('牛肉');
+    // The collapsed detail panel must not claim the search input - it lives
+    // outside the aria-hidden content region.
+    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const contentId = toggle.getAttribute('aria-controls') as string;
+    const content = document.getElementById(contentId);
+    expect(content?.contains(input)).toBe(false);
+  });
+});
+
+describe('FilterCardShell: each instance gets its own stable content id', () => {
+  function TwoShellsHarness() {
+    return createElement(
+      'div',
+      null,
+      createElement(FilterCardShell, {
+        title: '篩選 A',
+        searchQuery: '',
+        onSearchChange: () => {},
+        isExpanded: false,
+        onToggleExpand: () => {},
+      }),
+      createElement(FilterCardShell, {
+        title: '篩選 B',
+        searchQuery: '',
+        onSearchChange: () => {},
+        isExpanded: false,
+        onToggleExpand: () => {},
+      })
+    );
+  }
+
+  it('two simultaneously mounted instances get distinct, non-colliding content ids, each valid for its own toggle button', () => {
+    render(createElement(TwoShellsHarness));
+    const [toggleA, toggleB] = screen.getAllByRole('button', { name: /篩選/ });
+    const idA = toggleA.getAttribute('aria-controls');
+    const idB = toggleB.getAttribute('aria-controls');
+    expect(idA).toBeTruthy();
+    expect(idB).toBeTruthy();
+    expect(idA).not.toBe(idB);
+
+    // No duplicate ids anywhere in the document (invalid HTML if there were).
+    const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+    expect(new Set(allIds).size).toBe(allIds.length);
+
+    // Each id resolves, and resolves to the panel that instance actually owns.
+    const contentA = document.getElementById(idA as string);
+    const contentB = document.getElementById(idB as string);
+    expect(contentA).not.toBeNull();
+    expect(contentB).not.toBeNull();
+    expect(contentA).not.toBe(contentB);
+  });
 });
 
 // Reproduces /recipes' actual wiring: useRecipeFilters() with no options
@@ -210,6 +277,19 @@ describe('the shared search bar on /recipes: search applies live, no confirm ste
     render(createElement(RecipesPageFilterHarness));
     expect(screen.getByRole('button', { name: /篩選/ }).getAttribute('aria-expanded')).toBe('true');
   });
+
+  it('search stays visible and live-updating even after the user manually collapses the detail panel', () => {
+    render(createElement(RecipesPageFilterHarness));
+    const toggle = screen.getByRole('button', { name: /篩選/ });
+    expect(toggle.getAttribute('aria-expanded')).toBe('true'); // /recipes defaults expanded
+    fireEvent.click(toggle); // user collapses it
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');
+    expect(input).toBeTruthy(); // still there, still findable, not hidden with the chips
+    fireEvent.change(input, { target: { value: '意粉' } });
+    expect(screen.getByTestId('live-search-query').textContent).toBe('意粉');
+  });
 });
 
 describe('the shared search bar on /favorites: search filters an in-memory list live, no confirm step', () => {
@@ -232,5 +312,16 @@ describe('the shared search bar on /favorites: search filters an in-memory list 
   it('panel is collapsed by default on /favorites (matches its initialShowFilters: false)', () => {
     render(createElement(FavoritesPageFilterHarness, { recipes }));
     expect(screen.getByRole('button', { name: /篩選/ }).getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('the search bar is visible and functional on first render, without opening the panel (the reported bug: /favorites defaults collapsed, search used to be hidden with it)', () => {
+    render(createElement(FavoritesPageFilterHarness, { recipes }));
+    const toggle = screen.getByRole('button', { name: /篩選/ });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false'); // never opened
+
+    const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');
+    expect(input).toBeTruthy();
+    fireEvent.change(input, { target: { value: '番茄' } });
+    expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉');
   });
 });
