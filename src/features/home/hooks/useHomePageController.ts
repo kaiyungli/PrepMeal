@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { generateWeeklyPlan, type PlanDay, type Recipe } from '@/services/weeklyPlan';
+import { type PlanDay, type Recipe } from '@/services/weeklyPlan';
+import { getOrCreateWeeklyPlan, refreshWeeklyPlan } from '@/features/home/homeWeeklyPlanCache';
 import { useShoppingListPreview } from '@/hooks/useShoppingListPreview';
 import { useUserState } from '@/hooks/useUserState';
 
@@ -13,21 +14,22 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
   const [weeklyPlan, setWeeklyPlan] = useState<PlanDay[]>([]);
 
   // The hero plan is independent of the filtered/paginated recipe results.
-  // Generate it after mount so server and client render the same initial markup.
+  // Generate it after mount so server and client render the same initial
+  // markup, and reuse the module-lifetime cache so navigating away and back
+  // to "/" (a client-side remount, not a reload) shows the same plan - see
+  // homeWeeklyPlanCache.ts for what "module-lifetime" means and why.
   useEffect(() => {
-    // Defer generation until hydration so random plan selection cannot differ
-    // between server and client markup.
     if (!planRecipes || planRecipes.length === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeeklyPlan([]);
     } else {
-      setWeeklyPlan(generateWeeklyPlan(planRecipes));
+      setWeeklyPlan(getOrCreateWeeklyPlan(planRecipes));
     }
   }, [planRecipes]);
 
-  // Refresh plan handler
+  // Refresh plan handler - always bypasses the cache and generates a new plan.
   const handleRefreshPlan = useCallback(() => {
-    setWeeklyPlan(generateWeeklyPlan(planRecipes));
+    setWeeklyPlan(refreshWeeklyPlan(planRecipes));
   }, [planRecipes]);
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
