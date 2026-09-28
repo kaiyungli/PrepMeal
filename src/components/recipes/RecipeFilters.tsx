@@ -10,8 +10,12 @@ interface RecipeFiltersProps {
   recipeFilterSections: FilterSectionConfig[];
   activeFilterCount: number;
   clearFilters: () => void;
-  applyFilters: () => void;
-  hasPendingChanges: boolean;
+  // Only /recipes-family pages that require an explicit confirm step (none
+  // currently) need these - /recipes and /favorites filter live as you
+  // type/toggle and correctly omit them, so FilterCardShell falls back to
+  // its no-confirm-footer behavior.
+  applyFilters?: () => void;
+  hasPendingChanges?: boolean;
 }
 
 export default function RecipeFilters({
@@ -42,19 +46,23 @@ export default function RecipeFilters({
         hasPendingChanges={hasPendingChanges}
         isExpanded={showFilters} onToggleExpand={() => setShowFilters(!showFilters)}
         headerContent={
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            className="ml-4 px-2 py-1 rounded border border-[#DDD0B0] text-xs bg-white"
-          >
-            <option value="newest">最新</option>
-            <option value="oldest">最舊</option>
-            <option value="popular">最受歡迎</option>
-            <option value="time_short">最快</option>
-            <option value="calories_low">卡路里低到高</option>
-            <option value="protein_high">蛋白質高到低</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <label htmlFor="recipe-filters-sort" className="text-xs text-[#7A5A38]">排序</label>
+            <select
+              id="recipe-filters-sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="排序方式"
+              className="px-2 py-1 rounded border border-[#DDD0B0] text-xs bg-white"
+            >
+              <option value="newest">最新</option>
+              <option value="oldest">最舊</option>
+              <option value="popular">最受歡迎</option>
+              <option value="time_short">最快</option>
+              <option value="calories_low">卡路里低到高</option>
+              <option value="protein_high">蛋白質高到低</option>
+            </select>
+          </div>
         }
       />
     </div>

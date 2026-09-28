@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import RecipeSearchBar from '@/components/filters/RecipeSearchBar';
 
 interface HomeFilterBarProps {
   searchQuery: string;
@@ -33,49 +34,13 @@ const HomeFilterBar = forwardRef<HTMLButtonElement, HomeFilterBarProps>(function
 }, ref) {
   return (
     <div className="rounded-2xl border border-[#E8D9C9] bg-white shadow-sm px-4 py-3 space-y-2.5">
-      <div className="flex items-center gap-2 sm:gap-3">
-        <div className="relative min-w-0 flex-1">
-          <svg
-            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#B79B7A]"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0a7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                onApply();
-              }
-            }}
-            placeholder="搜尋食譜... 例如：番茄、牛肉、咖哩"
-            aria-label="搜尋食譜"
-            className="w-full h-11 pl-11 pr-4 rounded-xl border border-[#E9DFC9] bg-[#FFFDF8] text-[15px] text-[#5C4033] placeholder:text-[#B79B7A] focus:outline-none focus:ring-2 focus:ring-[#D9B98C]/30 focus:border-[#D9B98C]"
-          />
-        </div>
-
-        <button
-          type="button"
-          onClick={onApply}
-          disabled={!hasPendingChanges}
-          className="h-11 shrink-0 rounded-xl bg-[#9B6035] px-3 sm:px-5 text-sm font-medium text-white transition-colors hover:bg-[#784A29] disabled:cursor-default disabled:bg-[#F3EBE2] disabled:text-[#876F5A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
-          aria-label="顯示食譜"
-        >
-          <span className="sm:hidden">顯示</span>
-          <span className="hidden sm:inline">顯示食譜</span>
-        </button>
-      </div>
+      <RecipeSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onSubmit={onApply}
+        placeholder="搜尋食譜... 例如：番茄、牛肉、咖哩"
+        applyButton={{ label: '顯示食譜', shortLabel: '顯示', pending: hasPendingChanges }}
+      />
 
       <div className="flex items-center justify-between gap-3">
         <button
