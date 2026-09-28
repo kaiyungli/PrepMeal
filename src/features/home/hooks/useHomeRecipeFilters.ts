@@ -16,6 +16,12 @@ interface UseHomeRecipeFiltersOptions {
   catalog?: HomeCatalogRecipe[] | null;
 }
 
+interface AppliedSelection {
+  filters: Record<string, string[]>;
+  searchQuery: string;
+  sortBy: string;
+}
+
 export function useHomeRecipeFilters({
   initialRecipes = [],
   initialTotalCount = 0,
@@ -31,11 +37,32 @@ export function useHomeRecipeFilters({
     showFilters,
     setShowFilters,
     recipeFilterSections,
-    hasFilters,
+    hasFilters: hasDraftFilters,
     activeFilterCount,
-    clearFilters,
+    clearFilters: clearDraftFilters,
     filters,
   } = useRecipeFilters();
+
+  // Editing the controls does not change the results until the user confirms.
+  const [applied, setApplied] = useState<AppliedSelection>(() => ({ filters, searchQuery, sortBy }));
+  const pendingKey = JSON.stringify({ filters, searchQuery, sortBy });
+  const appliedKey = JSON.stringify(applied);
+  const hasPendingChanges = pendingKey !== appliedKey;
+  const applyFilters = () => setApplied({
+    filters: Object.fromEntries(Object.entries(filters).map(([key, values]) => [key, [...values]])),
+    searchQuery,
+    sortBy,
+  });
+  const clearFilters = () => {
+    clearDraftFilters();
+    setSearchQuery('');
+  };
+  const clearAppliedFilters = () => {
+    clearFilters();
+    setSortBy(applied.sortBy);
+    setApplied({ filters: Object.fromEntries(Object.keys(filters).map(key => [key, []])), searchQuery: '', sortBy: applied.sortBy });
+  };
+  const hasFilters = Object.values(applied.filters).some(values => values.length > 0);
 
   // API-driven filtered recipes
   const {
@@ -47,18 +74,18 @@ export function useHomeRecipeFilters({
     hasMore: apiHasMore,
     loadingMore: apiLoadingMore,
   } = useFilteredRecipes(initialRecipes, {
-    filters,
-    searchQuery,
-    sortBy,
+    filters: applied.filters,
+    searchQuery: applied.searchQuery,
+    sortBy: applied.sortBy,
     limit: 24,
     initialTotalCount,
     enabled: catalog === null,
   });
 
   const filteredCatalog = useMemo(() => catalog === null ? null :
-    filterHomeCatalog(catalog, filters, searchQuery, sortBy),
-  [catalog, filters, searchQuery, sortBy]);
-  const filterKey = JSON.stringify({ filters, searchQuery, sortBy });
+    filterHomeCatalog(catalog, applied.filters, applied.searchQuery, applied.sortBy),
+  [catalog, applied]);
+  const filterKey = appliedKey;
   const visibleCount = pagination.key === filterKey ? pagination.count : PAGE_SIZE;
   const recipesList = filteredCatalog?.slice(0, visibleCount) ?? apiRecipes;
   const totalCount = filteredCatalog?.length ?? apiTotal;
@@ -78,8 +105,12 @@ export function useHomeRecipeFilters({
     setShowFilters,
     recipeFilterSections,
     hasFilters,
+    hasDraftFilters,
+    hasPendingChanges,
+    applyFilters,
     activeFilterCount,
     clearFilters,
+    clearAppliedFilters,
     filters,
     // Recipe data
     recipesList,
