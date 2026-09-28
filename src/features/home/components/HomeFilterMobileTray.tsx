@@ -56,36 +56,36 @@ export default function HomeFilterMobileTray({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousOverflowRef = useRef('');
 
-  // Scroll lock, kept in sync with the actual breakpoint for as long as the
-  // tray is open (not just evaluated once at open time).
+  // Keep modal behavior in sync with the visible presentation. When a user
+  // resizes to desktop, the tray is CSS-hidden, so its focus trap must stop
+  // and focus must leave the now-hidden dialog.
   useEffect(() => {
     if (!show) return;
-    if (typeof window.matchMedia !== 'function') return;
-
     previousOverflowRef.current = document.body.style.overflow;
-    const mql = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const mql = typeof window.matchMedia === 'function'
+      ? window.matchMedia(MOBILE_MEDIA_QUERY) : null;
+    const trigger = triggerRef.current;
+    const tray = trayRef.current;
+    let wasMobile = false;
 
     const syncScrollLock = (isMobile: boolean) => {
       document.body.style.overflow = isMobile ? 'hidden' : previousOverflowRef.current;
+      if (isMobile && !wasMobile) {
+        closeButtonRef.current?.focus();
+      } else if (!isMobile && wasMobile && tray?.contains(document.activeElement)) {
+        trigger?.focus();
+      }
+      wasMobile = isMobile;
     };
-    syncScrollLock(mql.matches);
+    syncScrollLock(mql?.matches ?? true);
 
     const handleChange = (e: MediaQueryListEvent) => syncScrollLock(e.matches);
-    mql.addEventListener('change', handleChange);
+    mql?.addEventListener('change', handleChange);
 
     return () => {
-      mql.removeEventListener('change', handleChange);
+      mql?.removeEventListener('change', handleChange);
       document.body.style.overflow = previousOverflowRef.current;
-    };
-  }, [show]);
-
-  // Initial focus on open, and focus restore to the trigger on close.
-  useEffect(() => {
-    if (!show) return;
-    closeButtonRef.current?.focus();
-    const trigger = triggerRef.current;
-    return () => {
-      trigger?.focus();
+      if (wasMobile && tray?.contains(document.activeElement)) trigger?.focus();
     };
   }, [show, triggerRef]);
 
@@ -94,7 +94,10 @@ export default function HomeFilterMobileTray({
   // behind the tray.
   useEffect(() => {
     if (!show) return;
+    const mql = typeof window.matchMedia === 'function'
+      ? window.matchMedia(MOBILE_MEDIA_QUERY) : null;
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (mql && !mql.matches) return;
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();

@@ -290,6 +290,32 @@ describe('homepage filter redesign: issue 3 - breakpoint changes while the tray 
     mock.uninstall();
   });
 
+  it('releases the hidden mobile focus trap on desktop and restores it on mobile', () => {
+    const mock = installMatchMediaMock(true);
+    render(createElement(HomeFilterHarness));
+    openPanel();
+    const toggle = screen.getByTestId('home-filter-toggle-button');
+    const tray = screen.getByTestId('home-filter-mobile-tray');
+    const close = within(tray).getByRole('button', { name: /關閉篩選/ });
+    expect(document.activeElement).toBe(close);
+
+    mock.setMatches(false);
+    expect(document.activeElement).toBe(toggle);
+    const desktopTab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    document.dispatchEvent(desktopTab);
+    expect(desktopTab.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+    mock.setMatches(true);
+    expect(document.activeElement).toBe(close);
+    close.focus();
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).not.toBe(toggle);
+    mock.uninstall();
+  });
+
   it('leaves body scroll untouched when the tray never became the mobile presentation', () => {
     const mock = installMatchMediaMock(false); // desktop from the start
     render(createElement(HomeFilterHarness));
