@@ -324,9 +324,10 @@ export function useFilteredRecipes(
   
   // Reset on filter change
   useEffect(() => {
+    if (!enabled) return;
     setCurrentPage(1);
     setHasMore(true);
-  }, [filters, searchQuery, sortBy]);
+  }, [enabled, filters, searchQuery, sortBy]);
   
   return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore };
 }
