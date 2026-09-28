@@ -13,7 +13,8 @@ import HomeHero from '@/components/home/HomeHero';
 import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
-import RecipeFilters from '@/components/recipes/RecipeFilters';
+import HomeRecipeFilterControls from '@/features/home/components/HomeRecipeFilterControls';
+import AppliedFiltersSummary from '@/features/home/components/AppliedFiltersSummary';
 import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
@@ -31,7 +32,12 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     setShowFilters,
     recipeFilterSections,
     hasFilters,
-    activeFilterCount,
+    hasDraftSelection,
+    appliedFilterCount,
+    appliedFilterChips,
+    appliedSearchQuery,
+    toggleDraftFilter,
+    removeDraftSearch,
     clearFilters,
     clearAppliedFilters,
     applyFilters,
@@ -93,7 +99,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
         <HomeHowItWorks />
         <HomeAboutSection />
         <div className="max-w-[1200px] mx-auto px-4">
-          <RecipeFilters
+          <HomeRecipeFilterControls
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
@@ -101,19 +107,22 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             showFilters={showFilters}
             setShowFilters={setShowFilters}
             recipeFilterSections={recipeFilterSections}
-            hasFilters={hasFilters}
-            activeFilterCount={activeFilterCount}
+            hasDraftSelection={hasDraftSelection}
+            hasPendingChanges={hasPendingChanges}
+            appliedFilterCount={appliedFilterCount}
             clearFilters={clearFilters}
             applyFilters={applyFilters}
-            hasPendingChanges={hasPendingChanges}
           />
           {showResults && (
             <>
-              {resultCountText && (
-                <div className="text-sm text-[#7A5A38] mb-2">
-                  {resultCountText}
-                </div>
-              )}
+              <AppliedFiltersSummary
+                chips={appliedFilterChips}
+                appliedSearchQuery={appliedSearchQuery}
+                resultCountText={resultCountText}
+                onRemoveChip={toggleDraftFilter}
+                onRemoveSearch={removeDraftSearch}
+                onResetAll={clearAppliedFilters}
+              />
               <HomeRecipesSection
                 recipes={recipesList}
                 isFavorite={isFavorite}
@@ -144,7 +153,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
                 onClick={clearAppliedFilters}
                 className="text-[#9B6035] underline"
               >
-                清除篩選
+                重設篩選
               </button>
             )}
           </div>
