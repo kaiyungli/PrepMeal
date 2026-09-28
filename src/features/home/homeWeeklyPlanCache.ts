@@ -23,10 +23,24 @@
  * render body - so this module is never touched during SSR/static
  * generation, where module state could otherwise leak across requests.
  */
-import { generateWeeklyPlan, type PlanDay, type Recipe } from '@/services/weeklyPlan';
+import { generateWeeklyPlan, type PlanDay, type PlanItem, type Recipe } from '@/services/weeklyPlan';
 
+// PlanItem.recipeId is typed as `string | number | null` in weeklyPlan.ts,
+// but generateWeeklyPlan()'s actual (current) implementation can never
+// produce a null recipeId: when the recipe pool runs out for a slot, the
+// loop's `if (idx < selectedRecipes.length)` guard skips pushing an item
+// entirely for that slot rather than pushing a `{ recipeId: null, ... }`
+// placeholder - a day simply ends up with fewer items than itemsPerDay. This
+// is verified directly against the real (unmocked) generateWeeklyPlan() in
+// tests/homeWeeklyPlanStability.test.ts.
+//
+// The cache only ever stores plans that came from generateWeeklyPlan(), so
+// CachedSlot intentionally narrows recipeId to non-null - there is nothing
+// legitimate to preserve on remount for a slot that was never generated in
+// the first place; a day with fewer cached items behaves exactly like a day
+// generateWeeklyPlan() itself produced with fewer items.
 interface CachedSlot {
-  recipeId: string | number | null;
+  recipeId: string | number;
   mealSlot: string;
   servings: number;
   done: boolean;
@@ -41,12 +55,24 @@ interface CachedDay {
 
 let cachedSelection: CachedDay[] | null = null;
 
+function hasRecipeId(item: PlanItem): item is PlanItem & { recipeId: string | number } {
+  return item.recipeId != null;
+}
+
 function toSelection(plan: PlanDay[]): CachedDay[] {
   return plan.map(day => ({
     dayIndex: day.dayIndex,
     dayName: day.dayName,
     date: day.date,
-    items: day.items.map(item => ({
+    // Defensive only: PlanItem's wider type (from weeklyPlan.ts, which is
+    // out of scope to change here) still technically allows a null
+    // recipeId even though the real generator never produces one today. If
+    // it ever did, dropping that slot here is the correct behavior - it
+    // becomes indistinguishable from "no item was generated for this slot",
+    // which is exactly how the rest of the system already represents that
+    // case (see the comment above). This must never silently pass a null
+    // through into the narrower CachedSlot type.
+    items: day.items.filter(hasRecipeId).map(item => ({
       recipeId: item.recipeId,
       mealSlot: item.mealSlot,
       servings: item.servings,
@@ -65,7 +91,6 @@ function hydrate(selection: CachedDay[], planRecipes: Recipe[]): PlanDay[] | nul
   for (const day of selection) {
     const items = [];
     for (const slot of day.items) {
-      if (slot.recipeId == null) continue;
       const recipe = byId.get(String(slot.recipeId));
       if (!recipe) return null;
       items.push({
@@ -95,7 +120,13 @@ export function getOrCreateWeeklyPlan(planRecipes: Recipe[]): PlanDay[] {
   }
   const fresh = generateWeeklyPlan(planRecipes);
   cachedSelection = toSelection(fresh);
-  return fresh;
+  // Return what was just cached, re-hydrated, rather than `fresh` directly -
+  // this guarantees the first-mount result is always byte-for-byte what a
+  // remount would reconstruct from the cache (e.g. any slot toSelection()
+  // would drop is dropped here too, on first mount, not just after
+  // navigating away and back). Every id in cachedSelection was just read off
+  // planRecipes above, so this can never fail to resolve.
+  return hydrate(cachedSelection, planRecipes) ?? fresh;
 }
 
 /** Always generates a new plan, bypassing any cached selection, and replaces
@@ -103,5 +134,8 @@ export function getOrCreateWeeklyPlan(planRecipes: Recipe[]): PlanDay[] {
 export function refreshWeeklyPlan(planRecipes: Recipe[]): PlanDay[] {
   const fresh = generateWeeklyPlan(planRecipes);
   cachedSelection = toSelection(fresh);
-  return fresh;
+  // Same reasoning as getOrCreateWeeklyPlan(): return the re-hydrated cache,
+  // not `fresh` directly, so what's shown immediately after a manual refresh
+  // always matches what a subsequent remount would reconstruct.
+  return hydrate(cachedSelection, planRecipes) ?? fresh;
 }
