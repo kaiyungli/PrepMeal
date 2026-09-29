@@ -165,13 +165,12 @@ describe('homepage filter redesign: applied count vs pending indicator', () => {
     render(createElement(HomeFilterHarness));
     openPanel();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
-    // The active-count badge sits beside the "篩選" heading, in the same
-    // cluster as the disclosure button (Option A's borderless header
-    // split), not inside the disclosure button itself.
-    const headingCluster = screen.getByTestId('home-filter-toggle-button').parentElement as HTMLElement;
-    expect(within(headingCluster).queryByText('1')).toBeNull();
+    // The active-count badge lives inside the unified disclosure button
+    // itself (hybrid correction - see filterShellCanonical.test.ts).
+    const toggle = screen.getByTestId('home-filter-toggle-button');
+    expect(within(toggle).queryByText('1')).toBeNull();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
-    expect(within(headingCluster).getByText('1')).toBeTruthy();
+    expect(within(toggle).getByText('1')).toBeTruthy();
   });
 
   it('announces pending changes while the panel is closed with unconfirmed edits', () => {
