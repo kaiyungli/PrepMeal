@@ -89,8 +89,6 @@ describe('/recipes: chip selection, sort, and clear apply live through the share
     const toggle = screen.getByRole('button', { name: /^篩選/ });
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉');
-    // The active-count badge lives inside the unified disclosure button
-    // itself (hybrid correction - see filterShellCanonical.test.ts).
     expect(within(toggle).getByText('1')).toBeTruthy();
   });
 

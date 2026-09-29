@@ -65,8 +65,6 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
     fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('true');
-    // The active-count badge lives inside the unified disclosure button
-    // itself (hybrid correction - see filterShellCanonical.test.ts).
     expect(within(toggle).getByText('1')).toBeTruthy();
   });
 

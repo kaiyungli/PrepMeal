@@ -93,13 +93,19 @@ export default function HomeFiltersSection({
         cardTestId="home-filter-section-card"
         searchWrapperClassName="px-4 pt-3"
         headerWrapperClassName="flex items-center justify-between gap-3 px-4 pb-3 mt-2.5"
+        toggleButtonClassName="relative h-10 px-3 rounded-xl border border-[#DDD0B0] bg-white hover:bg-[#FAF7F2] transition-colors text-sm font-medium text-[#7A5A38] flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
         toggleTestId="home-filter-toggle-button"
+        iconClassName="w-4 h-4 text-[#9B6035]"
+        titleClassName=""
         badgeClassName="text-xs bg-[#9B6035] text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+        expandLabelClassName="text-[#9B6035]"
+        expandedLabel="▲"
+        collapsedLabel="▼"
         contentId={desktopPanelId}
         contentTestId="home-filter-desktop-panel"
         ariaControls={`${desktopPanelId} ${mobilePanelId}`}
-        contentExpandedClassName="pt-4 pb-6 hidden md:block"
-        contentCollapsedClassName="pt-4 pb-6 hidden"
+        contentExpandedClassName="border-t border-[#E8D9C9] px-6 pb-6 pt-5 hidden md:block"
+        contentCollapsedClassName="border-t border-[#E8D9C9] px-6 pb-6 pt-5 hidden"
       >
         <FilterGroupList sections={recipeFilterSections} />
         <HomeFilterFooter

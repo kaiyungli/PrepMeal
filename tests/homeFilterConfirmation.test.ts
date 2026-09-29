@@ -165,12 +165,9 @@ describe('homepage filter redesign: applied count vs pending indicator', () => {
     render(createElement(HomeFilterHarness));
     openPanel();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
-    // The active-count badge lives inside the unified disclosure button
-    // itself (hybrid correction - see filterShellCanonical.test.ts).
-    const toggle = screen.getByTestId('home-filter-toggle-button');
-    expect(within(toggle).queryByText('1')).toBeNull();
+    expect(within(screen.getByTestId('home-filter-toggle-button')).queryByText('1')).toBeNull();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
-    expect(within(toggle).getByText('1')).toBeTruthy();
+    expect(within(screen.getByTestId('home-filter-toggle-button')).getByText('1')).toBeTruthy();
   });
 
   it('announces pending changes while the panel is closed with unconfirmed edits', () => {
@@ -423,22 +420,21 @@ describe('homepage filter redesign: desktop bar and expanded panel share one vis
     expect(within(card).getByTestId('home-filter-desktop-panel')).toBeTruthy();
   });
 
-  it('neither the bar nor the expanded panel carries a bordered/shadowed card treatment - the shell is borderless by design', () => {
+  it('neither the bar nor the expanded panel carries its own independent card styling (border/shadow/rounding)', () => {
     render(createElement(HomeFilterHarness));
     openPanel();
     const panel = desktopPanel();
-    const card = screen.getByTestId('home-filter-section-card');
-    // Option A (borderless tool section): the outer FilterShell wrapper is
-    // no longer a bordered/shadowed/rounded card, and the expanded content
-    // region never grows its own independent one either - both stay
-    // borderless. Regressing either one back to rounded-2xl/shadow-sm/a
-    // border would recreate the "search and filters trapped inside one
-    // large card" look this redesign specifically removes.
+    // The desktop panel contributes only an internal divider (border-t) when
+    // expanded, never a full card of its own - regressing to `rounded-2xl`
+    // and/or `shadow-sm` here would recreate the second, gap-separated card
+    // this grouping fixes.
     expect(panel.className).not.toMatch(/\brounded-2xl\b/);
     expect(panel.className).not.toMatch(/\bshadow-sm\b/);
-    expect(panel.className).not.toMatch(/\bborder\b/);
-    expect(card.className).not.toMatch(/\brounded-2xl\b/);
-    expect(card.className).not.toMatch(/\bshadow-sm\b/);
-    expect(card.className).not.toMatch(/\bborder\b/);
+
+    const card = screen.getByTestId('home-filter-section-card');
+    // The shared card boundary is exactly one level of rounded/border/shadow
+    // wrapping both pieces.
+    expect(card.className).toMatch(/\brounded-2xl\b/);
+    expect(card.className).toMatch(/\bshadow-sm\b/);
   });
 });
