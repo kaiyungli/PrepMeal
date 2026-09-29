@@ -69,4 +69,18 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
     fireEvent.click(screen.getByRole('button', { name: '重設所有設定' }));
     expect(screen.getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('false');
   });
+
+  it('now that it is routed through the shared buildFilterSections, /generate gets the same primary/secondary disclosure as Home and /recipes', () => {
+    render(createElement(GenerateSettingsHarness));
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
+    // Primary (cuisine/protein/speed) is immediately visible...
+    expect(screen.getByText('菜系')).toBeTruthy();
+    expect(screen.getByText('主要蛋白')).toBeTruthy();
+    expect(screen.getByText('所需時間')).toBeTruthy();
+    // ...secondary (method/diet/etc.) needs "更多篩選".
+    expect(screen.queryByRole('button', { name: '烹調方式' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '＋ 更多篩選' }));
+    expect(screen.getByText('烹調方式')).toBeTruthy();
+    expect(screen.getByText('飲食需求')).toBeTruthy();
+  });
 });

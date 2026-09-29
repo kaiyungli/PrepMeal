@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
+import { buildFilterSections } from '@/constants/filterGroups';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface GenerateSettingsProps {
@@ -89,32 +90,21 @@ export default function GenerateSettings({
   // Controlled-only: filters come from parent (single source of truth)
   // No internal filter state
 
-  // Build filter sections from unified FILTER_GROUPS with defensive dedupe
-  const filterSections = FILTER_GROUPS.map(group => {
-    const groupKey = group.key as string;
-    
-    // Defensive dedupe by value - ensure no duplicate options in UI
-    const seen = new Set<string>();
-    const dedupedOptions = (group.options || []).filter(opt => {
-      if (!opt || !opt.value || seen.has(opt.value)) return false;
-      seen.add(opt.value);
-      return true;
-    });
-    
-    return {
-      id: group.key,
-      title: group.label,
-      options: dedupedOptions,
-      selected: filters[groupKey] || [],
-      onToggle: (value: string) => {
-        const current = filters[groupKey] || [];
-        const newValues = current.includes(value)
-          ? current.filter(v => v !== value)
-          : [...current, value];
-        setFilters({ ...filters, [groupKey]: newValues });
-      }
-    };
-  });
+  // Build filter sections from unified FILTER_GROUPS via the shared helper
+  // (also used by Home and /recipes/favorites) - same defensive dedupe and
+  // shape as before (see tests/generateFilterSectionConstructionEquivalence.test.ts),
+  // now also carrying each group's presentation tier through consistently.
+  const filterSections = buildFilterSections(
+    FILTER_GROUPS,
+    filters,
+    (groupKey, value) => {
+      const current = filters[groupKey] || [];
+      const newValues = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      setFilters({ ...filters, [groupKey]: newValues });
+    }
+  );
 
   // Count active filters
   const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
