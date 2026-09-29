@@ -38,7 +38,7 @@ function buildSectionsLikeOldGenerateSettings(
 }
 
 describe('Generate filter section construction: buildFilterSections is a behavioral drop-in for the old hand-rolled map', () => {
-  const filters = { cuisine: ['chinese'], protein: [], speed: ['quick'] };
+  const filters: Record<string, string[]> = { cuisine: ['chinese'], protein: [], speed: ['quick'] };
 
   it('produces the same ids, titles, options (post-dedupe) and selected arrays', () => {
     const oldWay = buildSectionsLikeOldGenerateSettings(filters, () => {});
