@@ -23,6 +23,24 @@ interface FilterGroupListProps {
   sections: FilterSectionConfig[];
 }
 
+// Decorative only - the accessible name of the option button must stay the
+// option label itself ("中式", never "✓ 中式" to assistive tech), so this
+// icon is aria-hidden and carries no text content.
+function CheckIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 16 16"
+      className="h-3 w-3 shrink-0"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3.5 8.5l3 3 6-7" />
+    </svg>
+  );
+}
+
 function FilterSectionBlock({ section }: { section: FilterSectionConfig }) {
   return (
     <div>
@@ -38,12 +56,13 @@ function FilterSectionBlock({ section }: { section: FilterSectionConfig }) {
               key={option.value}
               aria-pressed={isSelected}
               onClick={() => section.onToggle(option.value)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] ${
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] ${
                 isSelected
                   ? 'bg-[#9B6035] text-white border border-[#9B6035]'
                   : 'bg-white text-[#7A5A38] border border-[#E9DFC9] hover:border-[#9B6035]'
               }`}
             >
+              {isSelected && <CheckIcon />}
               {option.label}
             </button>
           );

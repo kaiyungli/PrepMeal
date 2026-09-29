@@ -169,6 +169,49 @@ describe('RecipeSortSelect: value/change behavior and accessible label', () => {
   });
 });
 
+describe('FilterGroupList: Soft Tile visual - accessible name and semantics survive the leading check icon', () => {
+  it('keeps aria-pressed semantics unchanged', () => {
+    render(createElement(FilterGroupList, {
+      sections: [{
+        id: 'cuisine', title: '菜系',
+        options: [{ value: 'chinese', label: '中式' }],
+        selected: [], onToggle: vi.fn(),
+      }],
+    }));
+    const button = screen.getByRole('button', { name: '中式' });
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(button);
+  });
+
+  it('renders a decorative, aria-hidden check icon only when selected, and the accessible name stays exactly the option label', () => {
+    render(createElement(FilterGroupList, {
+      sections: [{
+        id: 'cuisine', title: '菜系',
+        options: [{ value: 'chinese', label: '中式' }],
+        selected: ['chinese'], onToggle: vi.fn(),
+      }],
+    }));
+    // Exact-name match (not a substring/regex) - this fails if the check
+    // icon ever leaks visible text into the accessible name.
+    const button = screen.getByRole('button', { name: '中式' });
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    const icon = button.querySelector('svg');
+    expect(icon).not.toBeNull();
+    expect(icon?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('renders no check icon when unselected', () => {
+    render(createElement(FilterGroupList, {
+      sections: [{
+        id: 'cuisine', title: '菜系',
+        options: [{ value: 'chinese', label: '中式' }],
+        selected: [], onToggle: vi.fn(),
+      }],
+    }));
+    expect(screen.getByRole('button', { name: '中式' }).querySelector('svg')).toBeNull();
+  });
+});
+
 describe('FilterGroupList: presentation-only primary/secondary disclosure', () => {
   function sections(overrides: Partial<Record<string, 'primary' | 'secondary' | undefined>> = {}) {
     return [
