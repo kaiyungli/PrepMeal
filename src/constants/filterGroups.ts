@@ -25,46 +25,60 @@ import {
 // ============================================
 // RECIPE FILTER GROUPS (8 groups)
 // ============================================
+// `tier` is PRESENTATION metadata only (which groups a filter UI shows
+// immediately vs behind a "more filters" disclosure) - it must never be
+// read by filtering/matching logic. The array order below is the canonical
+// domain order and must not be physically reordered to achieve a different
+// presentation grouping; a renderer partitions by `tier` while preserving
+// each tier's relative source order instead.
 export const RECIPE_FILTER_GROUPS = [
   {
     key: 'cuisine',
     label: '菜系',
     options: CUISINE_OPTIONS,
+    tier: 'primary' as const,
   },
   {
     key: 'dish_type',
     label: '類型',
     options: DISH_TYPE_OPTIONS,
+    tier: 'secondary' as const,
   },
   {
     key: 'protein',
     label: '主要蛋白',
     options: PROTEIN_OPTIONS,
+    tier: 'primary' as const,
   },
   {
     key: 'method',
     label: '烹調方式',
     options: METHOD_OPTIONS,
+    tier: 'secondary' as const,
   },
   {
     key: 'speed',
     label: '所需時間',
     options: SPEED_OPTIONS,
+    tier: 'primary' as const,
   },
   {
     key: 'difficulty',
     label: '難度',
     options: DIFFICULTY_OPTIONS,
+    tier: 'secondary' as const,
   },
   {
     key: 'diet',
     label: '飲食需求',
     options: DIET_OPTIONS,
+    tier: 'secondary' as const,
   },
   {
     key: 'flavor',
     label: '口味（任選）',
     options: FLAVOR_OPTIONS,
+    tier: 'secondary' as const,
   },
 ];
 
@@ -119,6 +133,7 @@ export function buildFilterSections(
     key: string;
     label: string;
     options: Array<{ value: string; label: string }>;
+    tier?: 'primary' | 'secondary';
   }>,
   selected: Record<string, string[]>,
   onToggle: (key: string, value: string) => void
@@ -128,6 +143,7 @@ export function buildFilterSections(
   options: Array<{ value: string; label: string }>;
   selected: string[];
   onToggle: (value: string) => void;
+  tier?: 'primary' | 'secondary';
 }> {
   return groups.map(group => {
     // Defensive dedupe by value - ensure no duplicate options in UI
@@ -137,13 +153,14 @@ export function buildFilterSections(
       seen.add(opt.value);
       return true;
     });
-    
+
     return {
       id: group.key,
       title: group.label,
       options: dedupedOptions,
       selected: selected[group.key] || [],
       onToggle: (value: string) => onToggle(group.key, value),
+      tier: group.tier,
     };
   });
 }
