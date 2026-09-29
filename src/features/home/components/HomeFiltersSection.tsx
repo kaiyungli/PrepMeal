@@ -67,17 +67,6 @@ export default function HomeFiltersSection({
   const desktopPanelId = `${PANEL_ID}-desktop`;
   const mobilePanelId = `${PANEL_ID}-mobile`;
 
-  // Desktop-only orchestration: confirming applies the draft AND returns the
-  // user to browsing results, mirroring what HomeFilterMobileTray already
-  // does for itself via its own local handleApply (apply, then close). This
-  // is Home-specific interaction behavior ("confirming closes the panel"),
-  // so it lives here rather than in the generic FilterFooter/FilterShell -
-  // those stay unaware that Home's confirm action also closes anything.
-  const handleDesktopApplyAndClose = () => {
-    applyFilters();
-    setShowFilters(false);
-  };
-
   return (
     <div className="mb-4">
       <FilterShell
@@ -123,7 +112,7 @@ export default function HomeFiltersSection({
           hasDraftSelection={hasDraftSelection}
           hasPendingChanges={hasPendingChanges}
           onClearDraft={clearFilters}
-          onApply={handleDesktopApplyAndClose}
+          onApply={applyFilters}
         />
       </FilterShell>
 

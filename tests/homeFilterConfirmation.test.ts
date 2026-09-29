@@ -160,8 +160,8 @@ describe('homepage filter redesign: select-then-confirm is preserved', () => {
   });
 });
 
-describe('homepage filter redesign: basic filter interaction (open -> select -> confirm -> closes -> reopen)', () => {
-  it('covers the complete expected basic flow end to end', () => {
+describe('homepage filter redesign: desktop basic filter interaction (confirm stays open)', () => {
+  it('covers the complete expected basic flow: open, select, confirm without closing, edit again, confirm again', () => {
     render(createElement(HomeFilterHarness));
     const toggle = screen.getByTestId('home-filter-toggle-button');
 
@@ -185,29 +185,52 @@ describe('homepage filter redesign: basic filter interaction (open -> select -> 
     // 4. Click 確認篩選.
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
 
-    // -> applied state/results/badge/summary all update.
+    // -> applied state/results/badge/summary all update...
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
     expect(within(toggle).getByText('1')).toBeTruthy();
     const summary = screen.getByTestId('home-filter-applied-summary');
     expect(within(summary).getByText('中式')).toBeTruthy();
-    // -> and the filter panel collapses on its own.
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(isHidden(desktopPanel())).toBe(true);
-
-    // 5. Click 篩選 again -> reopens, previous selection still shown selected.
-    openPanel();
+    // ...but the desktop filter panel STAYS OPEN - the user can keep editing
+    // without reopening it.
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(within(desktopPanel()).getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('true');
+    expect(isHidden(desktopPanel())).toBe(false);
 
-    // 6. Change another filter -> pending returns.
+    // 5. Change another filter WITHOUT reopening (it never closed) -> pending
+    //    returns.
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '日式' }));
     expect(within(desktopPanel()).getByText('有未套用的選項')).toBeTruthy();
 
-    // 7. Confirm again -> new state applies, panel collapses again.
+    // 6. Confirm again -> second change applies, panel STILL remains open.
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
     expect(within(toggle).getByText('2')).toBeTruthy();
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    expect(isHidden(desktopPanel())).toBe(true);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(isHidden(desktopPanel())).toBe(false);
+  });
+
+  it('the reset/clear action is a real, enabled button that invokes the existing draft-only clear behavior (no semantic change)', () => {
+    render(createElement(HomeFilterHarness));
+    openPanel();
+    fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
+
+    const clearBtn = within(desktopPanel()).getByRole('button', { name: '清空選擇' });
+    expect(clearBtn.tagName).toBe('BUTTON');
+    expect(clearBtn.hasAttribute('disabled')).toBe(false);
+
+    fireEvent.click(clearBtn);
+    // Draft-only clear: the still-unconfirmed selection is undone, but
+    // nothing was ever applied, so results are simply unaffected either way.
+    expect(within(desktopPanel()).getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('false');
+    expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯,意粉');
+
+    // Confirm, then prove clear only ever touches the draft, never applied
+    // results (the pre-existing distinction from AppliedFiltersSummary's
+    // separate, wider-scoped 重設篩選).
+    fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
+    fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
+    expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
+
+    fireEvent.click(within(desktopPanel()).getByRole('button', { name: '清空選擇' }));
+    expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
   });
 });
 
@@ -239,14 +262,10 @@ describe('homepage filter redesign: issue 1 - applied-summary removal must not r
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
-    // Confirming closes the panel (desktop basic-flow behavior) - reopen it
-    // before interacting with its contents again below.
-    expect(screen.getByTestId('home-filter-toggle-button').getAttribute('aria-expanded')).toBe('false');
 
     const summary = screen.getByTestId('home-filter-applied-summary');
     fireEvent.click(within(summary).getByRole('button', { name: /中式/ }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
-    openPanel();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯,意粉');
   });
@@ -258,9 +277,7 @@ describe('homepage filter redesign: issue 1 - applied-summary removal must not r
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
 
-    // User reopens the panel (confirming closed it) and unchecks it in the
-    // draft, WITHOUT confirming.
-    openPanel();
+    // User reopens the panel and unchecks it in the draft, WITHOUT confirming.
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '中式' }));
     expect(within(desktopPanel()).getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('false');
 
@@ -285,8 +302,6 @@ describe('homepage filter redesign: issue 1 - applied-summary removal must not r
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '確認篩選' }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
 
-    // Confirming closed the panel - reopen it to reach 清空選擇.
-    openPanel();
     fireEvent.click(within(desktopPanel()).getByRole('button', { name: '清空選擇' }));
     expect(screen.getByTestId('result-names').textContent).toBe('中式魚飯');
 
