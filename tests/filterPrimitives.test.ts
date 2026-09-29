@@ -90,20 +90,32 @@ describe('FilterFooter: instant/no-apply configuration', () => {
   });
 });
 
-describe('FilterFooter: confirm configuration, pending/disabled state, leading slot', () => {
-  it('disables the confirm button while there are no pending changes, and enables it when there are', () => {
+describe('FilterFooter: confirm configuration - actionable while pending, non-interactive applied indicator otherwise', () => {
+  it('renders a real, enabled 確認篩選 button while there are pending changes, and it invokes onApply', () => {
     const onApply = vi.fn();
-    const { rerender } = render(createElement(FilterFooter, { onApply, hasPendingChanges: false }));
+    render(createElement(FilterFooter, { onApply, hasPendingChanges: true }));
     const confirm = screen.getByRole('button', { name: '確認篩選' });
-    expect(confirm.hasAttribute('disabled')).toBe(true);
-    expect(screen.getByText('目前顯示已確認的結果')).toBeTruthy();
-
-    rerender(createElement(FilterFooter, { onApply, hasPendingChanges: true }));
-    expect(screen.getByRole('button', { name: '確認篩選' }).hasAttribute('disabled')).toBe(false);
+    expect(confirm.hasAttribute('disabled')).toBe(false);
     expect(screen.getByText('有未套用的選項')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: '確認篩選' }));
+    fireEvent.click(confirm);
     expect(onApply).toHaveBeenCalledTimes(1);
+  });
+
+  it('replaces the confirm button with a non-interactive "✓ 已套用" indicator once there is nothing pending', () => {
+    const onApply = vi.fn();
+    const { rerender } = render(createElement(FilterFooter, { onApply, hasPendingChanges: false }));
+    // No button at all named 確認篩選 - not merely disabled.
+    expect(screen.queryByRole('button', { name: '確認篩選' })).toBeNull();
+    expect(screen.getByText('目前顯示已確認的結果')).toBeTruthy();
+
+    const indicator = screen.getByText('已套用');
+    expect(indicator.closest('button')).toBeNull();
+    expect(indicator.closest('[role="button"]')).toBeNull();
+
+    // Flipping back to pending brings the real button back.
+    rerender(createElement(FilterFooter, { onApply, hasPendingChanges: true }));
+    expect(screen.getByRole('button', { name: '確認篩選' })).toBeTruthy();
   });
 
   it('renders an optional leading action beside the status text', () => {
@@ -121,7 +133,7 @@ describe('FilterFooter: confirm configuration, pending/disabled state, leading s
   });
 
   it('can render both the standalone clear block and the confirm row together', () => {
-    render(createElement(FilterFooter, { onClear: vi.fn(), onApply: vi.fn(), hasPendingChanges: false }));
+    render(createElement(FilterFooter, { onClear: vi.fn(), onApply: vi.fn(), hasPendingChanges: true }));
     expect(screen.getByRole('button', { name: '清除全部' })).toBeTruthy();
     expect(screen.getByRole('button', { name: '確認篩選' })).toBeTruthy();
   });

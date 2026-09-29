@@ -20,6 +20,14 @@ interface FilterFooterProps {
  * instant-apply /recipes, /favorites and /generate case), onApply drives the
  * confirm row with its own leading-action slot (the homepage's draft/confirm
  * case). Neither block knows anything about which page it is rendered from.
+ *
+ * The confirm row's right-hand action is entirely derived from
+ * hasPendingChanges, not a new prop: while pending, it's the real "確認篩選"
+ * button; once there is nothing left to confirm, a disabled-looking button
+ * still labelled "確認篩選" reads as ambiguous ("is this applied or not?"),
+ * so it's replaced by a non-interactive "✓ 已套用" indicator instead - never
+ * a <button>, never clickable. The moment hasPendingChanges flips back to
+ * true (the caller changes another filter), the real button returns.
  */
 export default function FilterFooter({
   onClear,
@@ -49,14 +57,20 @@ export default function FilterFooter({
               {hasPendingChanges ? '有未套用的選項' : '目前顯示已確認的結果'}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={onApply}
-            disabled={!hasPendingChanges}
-            className="rounded-lg bg-[#9B6035] px-5 py-2.5 text-sm font-medium text-white disabled:cursor-default disabled:opacity-50"
-          >
-            確認篩選
-          </button>
+          {hasPendingChanges ? (
+            <button
+              type="button"
+              onClick={onApply}
+              className="rounded-lg bg-[#9B6035] px-5 py-2.5 text-sm font-medium text-white"
+            >
+              確認篩選
+            </button>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-5 py-2.5 text-sm font-medium text-[#7A5A38]">
+              <span aria-hidden="true">✓</span>
+              已套用
+            </span>
+          )}
         </div>
       )}
     </>
