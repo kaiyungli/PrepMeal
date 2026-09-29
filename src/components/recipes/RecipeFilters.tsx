@@ -1,4 +1,4 @@
-import { FilterCardShell, FilterSectionConfig } from '@/components/filters';
+import { FilterShell, FilterGroupList, FilterFooter, FilterSectionConfig, RecipeSortSelect } from '@/components/filters';
 
 interface RecipeFiltersProps {
   searchQuery: string;
@@ -10,8 +10,12 @@ interface RecipeFiltersProps {
   recipeFilterSections: FilterSectionConfig[];
   activeFilterCount: number;
   clearFilters: () => void;
-  applyFilters: () => void;
-  hasPendingChanges: boolean;
+  // Only /recipes-family pages that require an explicit confirm step (none
+  // currently) need these - /recipes and /favorites filter live as you
+  // type/toggle and correctly omit them, so the footer falls back to its
+  // no-confirm-row behavior.
+  applyFilters?: () => void;
+  hasPendingChanges?: boolean;
 }
 
 export default function RecipeFilters({
@@ -28,35 +32,30 @@ export default function RecipeFilters({
   applyFilters,
   hasPendingChanges,
 }: RecipeFiltersProps) {
+  const showClear = activeFilterCount > 0 || Boolean(searchQuery);
+
   return (
     <div className="mb-6">
-      {/* Use shared FilterCardShell */}
-      <FilterCardShell
+      {/* Use the shared canonical FilterShell */}
+      <FilterShell
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="搜尋食譜... 例如：番茄、牛肉、咖哩"
-        filterSections={recipeFilterSections}
+        onSearchSubmit={applyFilters}
         activeFilterCount={activeFilterCount}
-        onClear={clearFilters}
-        onApply={applyFilters}
         hasPendingChanges={hasPendingChanges}
         isExpanded={showFilters} onToggleExpand={() => setShowFilters(!showFilters)}
         headerContent={
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            className="ml-4 px-2 py-1 rounded border border-[#DDD0B0] text-xs bg-white"
-          >
-            <option value="newest">最新</option>
-            <option value="oldest">最舊</option>
-            <option value="popular">最受歡迎</option>
-            <option value="time_short">最快</option>
-            <option value="calories_low">卡路里低到高</option>
-            <option value="protein_high">蛋白質高到低</option>
-          </select>
+          <RecipeSortSelect id="recipe-filters-sort" value={sortBy} onChange={setSortBy} />
         }
-      />
+      >
+        {recipeFilterSections.length > 0 && <FilterGroupList sections={recipeFilterSections} />}
+        <FilterFooter
+          onClear={showClear ? clearFilters : undefined}
+          onApply={applyFilters}
+          hasPendingChanges={hasPendingChanges}
+        />
+      </FilterShell>
     </div>
   );
 }

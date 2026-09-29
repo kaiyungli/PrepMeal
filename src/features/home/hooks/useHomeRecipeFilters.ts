@@ -5,7 +5,7 @@
  * Combines useRecipeFilters + useFilteredRecipes
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { filterHomeCatalog, PAGE_SIZE, HomeCatalogRecipe } from '@/features/home/filterHomeCatalog';
@@ -41,7 +41,8 @@ export function useHomeRecipeFilters({
     activeFilterCount,
     clearFilters: clearDraftFilters,
     filters,
-  } = useRecipeFilters();
+    setFilters,
+  } = useRecipeFilters({ initialShowFilters: false });
 
   // Editing the controls does not change the results until the user confirms.
   const [applied, setApplied] = useState<AppliedSelection>(() => ({ filters, searchQuery, sortBy }));
@@ -63,6 +64,42 @@ export function useHomeRecipeFilters({
     setApplied({ filters: Object.fromEntries(Object.keys(filters).map(key => [key, []])), searchQuery: '', sortBy: applied.sortBy });
   };
   const hasFilters = Object.values(applied.filters).some(values => values.length > 0);
+  const hasDraftSelection = hasDraftFilters || Boolean(searchQuery.trim());
+
+  // The "篩選" button badge must reflect what is actually filtering the
+  // results right now (applied), never the in-progress draft.
+  const appliedFilterCount = Object.values(applied.filters).reduce(
+    (sum, values) => sum + values.length,
+    0
+  );
+
+  // Chips for the "已套用" summary above the results. Labels come from the
+  // (static) option lists in recipeFilterSections regardless of their
+  // current draft-selected state.
+  const appliedFilterChips = recipeFilterSections.flatMap(section =>
+    (applied.filters[section.id] || []).map(value => ({
+      sectionId: section.id,
+      value,
+      label: section.options.find(opt => opt.value === value)?.label || value,
+    }))
+  );
+  const appliedSearchQuery = applied.searchQuery;
+
+  // Removing a chip from the applied summary only edits the draft - the
+  // same "select first, confirm second" rule as every other control. This
+  // must be an unconditional removal, not a toggle: if the user already
+  // unchecked this value inside the panel (so the draft no longer has it),
+  // clicking the same chip again in the summary must stay a no-op instead
+  // of re-adding it.
+  const setDraftFilters = setFilters as unknown as Dispatch<SetStateAction<Record<string, string[]>>>;
+  const removeDraftFilterValue = (sectionId: string, value: string) => {
+    setDraftFilters(prev => {
+      const current = prev[sectionId] || [];
+      if (!current.includes(value)) return prev;
+      return { ...prev, [sectionId]: current.filter(v => v !== value) };
+    });
+  };
+  const removeDraftSearch = () => setSearchQuery('');
 
   // API-driven filtered recipes
   const {
@@ -106,9 +143,15 @@ export function useHomeRecipeFilters({
     recipeFilterSections,
     hasFilters,
     hasDraftFilters,
+    hasDraftSelection,
     hasPendingChanges,
     applyFilters,
     activeFilterCount,
+    appliedFilterCount,
+    appliedFilterChips,
+    appliedSearchQuery,
+    removeDraftFilterValue,
+    removeDraftSearch,
     clearFilters,
     clearAppliedFilters,
     filters,

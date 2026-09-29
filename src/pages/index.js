@@ -13,7 +13,7 @@ import HomeHero from '@/components/home/HomeHero';
 import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
-import RecipeFilters from '@/components/recipes/RecipeFilters';
+import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
 import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
@@ -31,7 +31,12 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     setShowFilters,
     recipeFilterSections,
     hasFilters,
-    activeFilterCount,
+    hasDraftSelection,
+    appliedFilterCount,
+    appliedFilterChips,
+    appliedSearchQuery,
+    removeDraftFilterValue,
+    removeDraftSearch,
     clearFilters,
     clearAppliedFilters,
     applyFilters,
@@ -50,7 +55,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
   });
 
   const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({
-    recipesList,
+    planRecipes: initialRecipes,
     showToast,
   });
 
@@ -93,7 +98,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
         <HomeHowItWorks />
         <HomeAboutSection />
         <div className="max-w-[1200px] mx-auto px-4">
-          <RecipeFilters
+          <HomeFiltersSection
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             sortBy={sortBy}
@@ -101,28 +106,28 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             showFilters={showFilters}
             setShowFilters={setShowFilters}
             recipeFilterSections={recipeFilterSections}
-            hasFilters={hasFilters}
-            activeFilterCount={activeFilterCount}
+            hasDraftSelection={hasDraftSelection}
+            hasPendingChanges={hasPendingChanges}
+            appliedFilterCount={appliedFilterCount}
             clearFilters={clearFilters}
             applyFilters={applyFilters}
-            hasPendingChanges={hasPendingChanges}
+            showSummary={showResults || showEmptyState}
+            appliedFilterChips={appliedFilterChips}
+            appliedSearchQuery={appliedSearchQuery}
+            resultCountText={resultCountText}
+            removeDraftFilterValue={removeDraftFilterValue}
+            removeDraftSearch={removeDraftSearch}
+            clearAppliedFilters={clearAppliedFilters}
           />
           {showResults && (
-            <>
-              {resultCountText && (
-                <div className="text-sm text-[#7A5A38] mb-2">
-                  {resultCountText}
-                </div>
-              )}
-              <HomeRecipesSection
-                recipes={recipesList}
-                isFavorite={isFavorite}
-                onFavoriteClick={handleFavoriteToggle}
-                loadMore={loadMore}
-                hasMore={hasMore}
-                loadingMore={loadingMore}
-              />
-            </>
+            <HomeRecipesSection
+              recipes={recipesList}
+              isFavorite={isFavorite}
+              onFavoriteClick={handleFavoriteToggle}
+              loadMore={loadMore}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+            />
           )}
         </div>
 
@@ -138,15 +143,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
 
         {showEmptyState && (
           <div className="text-center py-12">
-            <p className="text-[#AA7A50] mb-4">沒有找到食譜</p>
-            {hasFilters && (
-              <button
-                onClick={clearAppliedFilters}
-                className="text-[#9B6035] underline"
-              >
-                清除篩選
-              </button>
-            )}
+            <p className="text-[#AA7A50]">沒有找到食譜</p>
           </div>
         )}
       </main>
