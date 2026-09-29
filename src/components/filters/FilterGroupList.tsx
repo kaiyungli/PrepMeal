@@ -43,7 +43,7 @@ function CheckIcon() {
 
 function FilterSectionBlock({ section }: { section: FilterSectionConfig }) {
   return (
-    <div className="md:flex md:items-baseline md:gap-3">
+    <div className="md:flex md:items-baseline md:gap-2">
       {/* Below md: label above options (unchanged mobile layout). At md and
           above: label moves to a fixed-width left column and options fill
           the remaining row width, instead of a 2-column category grid -
@@ -96,13 +96,22 @@ export default function FilterGroupList({ sections }: FilterGroupListProps) {
   const secondarySections = sections.filter(section => section.tier === 'secondary');
 
   return (
-    <div className="space-y-4">
-      {primarySections.map(section => (
-        <FilterSectionBlock key={section.id} section={section} />
-      ))}
+    <div>
+      {/* Desktop density: primary rows sit closer together (md:space-y-3)
+          while staying clearly separable by their own bold labels; mobile
+          keeps its original spacing (space-y-4) unchanged. */}
+      <div className="space-y-4 md:space-y-3">
+        {primarySections.map(section => (
+          <FilterSectionBlock key={section.id} section={section} />
+        ))}
+      </div>
 
       {secondarySections.length > 0 && (
-        <>
+        // A subtle top divider + modest top padding, directly following the
+        // primary rows, so this reads as the boundary between primary and
+        // secondary filters rather than a fourth category floating in its
+        // own empty space (the old space-y-4 gap on every side of it).
+        <div className="mt-4 md:mt-3 pt-3 border-t border-[#F5EDE3]">
           <button
             type="button"
             onClick={() => setSecondaryExpanded(v => !v)}
@@ -116,17 +125,18 @@ export default function FilterGroupList({ sections }: FilterGroupListProps) {
           {/* Always in the DOM so aria-controls always resolves to a real
               element; visibility (not mounting) is what secondaryExpanded
               controls - same pattern FilterShell uses for its own content
-              region. */}
+              region. Modest top margin (not another full space-y-4 gap) so
+              secondary groups follow the disclosure naturally once opened. */}
           <div
             id={secondaryContentId}
             aria-hidden={!secondaryExpanded}
-            className={secondaryExpanded ? 'space-y-4' : 'hidden'}
+            className={secondaryExpanded ? 'mt-3 space-y-4 md:space-y-3' : 'hidden'}
           >
             {secondarySections.map(section => (
               <FilterSectionBlock key={section.id} section={section} />
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
