@@ -38,7 +38,7 @@ function GenerateSettingsHarness() {
 describe('GenerateSettings: filter shell regression smoke test', () => {
   it('expands and collapses the shared filter shell', () => {
     render(createElement(GenerateSettingsHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
@@ -46,14 +46,14 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
 
   it('renders filter groups with selectable chips once expanded', () => {
     render(createElement(GenerateSettingsHarness));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
     const chip = screen.getByRole('button', { name: '中式' });
     expect(chip.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('toggling a filter chip updates the active count badge', () => {
     render(createElement(GenerateSettingsHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('true');
@@ -62,7 +62,7 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
 
   it('clear stays connected: 重設所有設定 clears active filters', () => {
     render(createElement(GenerateSettingsHarness));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('true');
 

@@ -92,7 +92,7 @@ describe('Shared Filter Shell: canonical FilterShell markup, not parallel implem
     render(createElement(RecipesFilterHarness));
     const roots = document.querySelectorAll(SHELL_ROOT_SELECTOR);
     expect(roots.length).toBe(1);
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(roots[0].contains(toggle)).toBe(true);
   });
 
@@ -100,7 +100,7 @@ describe('Shared Filter Shell: canonical FilterShell markup, not parallel implem
     render(createElement(GenerateSettingsHarness));
     const roots = document.querySelectorAll(SHELL_ROOT_SELECTOR);
     expect(roots.length).toBe(1);
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(roots[0].contains(toggle)).toBe(true);
   });
 
@@ -123,7 +123,7 @@ describe('Shared Filter Shell: canonical FilterShell markup, not parallel implem
 
   it('Home and /recipes both go through the identical FilterShell markup: same root marker, same toggle-button DOM shape (icon + title + expand indicator, no page-specific extra structural wrapper)', () => {
     const { unmount } = render(createElement(RecipesFilterHarness));
-    const recipesToggle = screen.getByRole('button', { name: /篩選/ });
+    const recipesToggle = screen.getByRole('button', { name: /^篩選/ });
     const recipesShape = {
       hasSvgIcon: recipesToggle.querySelector('svg') !== null,
       childElementCount: recipesToggle.childElementCount,
