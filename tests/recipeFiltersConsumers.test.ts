@@ -89,7 +89,9 @@ describe('/recipes: chip selection, sort, and clear apply live through the share
     const toggle = screen.getByRole('button', { name: /^篩選/ });
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉');
-    expect(within(toggle).getByText('1')).toBeTruthy();
+    // The active-count badge sits beside the "篩選" heading, in the same
+    // cluster as the disclosure button, not inside the button itself.
+    expect(within(toggle.parentElement as HTMLElement).getByText('1')).toBeTruthy();
   });
 
   it('changing sort updates state immediately, with no confirm step', () => {

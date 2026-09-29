@@ -1,22 +1,28 @@
-// Canonical shared filter shell - the one card/search/header/toggle/
-// expanded-content markup for every page that presents recipe filters
-// (/recipes, /favorites, /generate, and the homepage). Page-specific
-// differences (instant-apply vs draft/confirm, a bespoke mobile tray, extra
-// header affordances like a pending-change dot) are expressed as explicit
+// Canonical shared filter shell - the one search/header/toggle/expanded-
+// content markup for every page that presents recipe filters (/recipes,
+// /favorites, /generate, and the homepage). Page-specific differences
+// (instant-apply vs draft/confirm, a bespoke mobile tray, extra header
+// affordances like a pending-change dot) are expressed as explicit
 // props/slots here, never as branching on which page is rendering - the
 // filter *content* itself (chips, footer) is composed by the caller as
 // `children`, not auto-rendered by this shell.
+//
+// Borderless tool section (Option A): this shell is deliberately NOT a
+// bordered/shadowed/rounded card. Search stands on its own (it already has
+// its own input border via RecipeSearchBar); the header is a static "篩選
+// [count]" heading next to a small, visually subordinate disclosure button
+// (not one big all-in-one clickable control); expanded content follows the
+// header through spacing, not another framed subsection.
 import { ReactNode, forwardRef, useId } from 'react';
 import RecipeSearchBar, { type RecipeSearchBarApplyButton } from './RecipeSearchBar';
 
-const DEFAULT_CARD_CLASS = 'rounded-2xl border border-[#E8D9C9] bg-white shadow-sm overflow-hidden';
-const DEFAULT_SEARCH_WRAPPER_CLASS = 'px-6 pt-4';
-const DEFAULT_TOGGLE_BUTTON_CLASS = 'flex items-center gap-2 text-left hover:opacity-80 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]';
-const DEFAULT_ICON_CLASS = 'w-5 h-5 text-[#9B6035]';
+const DEFAULT_CARD_CLASS = '';
+const DEFAULT_SEARCH_WRAPPER_CLASS = 'mb-3';
+const DEFAULT_TOGGLE_BUTTON_CLASS = 'inline-flex items-center gap-1 text-sm text-[#9B6035] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]';
 const DEFAULT_TITLE_CLASS = 'text-sm font-medium text-[#7A5A38]';
 const DEFAULT_BADGE_CLASS = 'text-xs bg-[#9B6035] text-white px-2 py-0.5 rounded-full';
-const DEFAULT_EXPAND_LABEL_CLASS = 'text-[#9B6035] text-sm';
-const DEFAULT_CONTENT_EXPANDED_CLASS = 'border-t border-[#F5EDE3] px-6 pb-6 pt-4';
+const DEFAULT_EXPAND_LABEL_CLASS = '';
+const DEFAULT_CONTENT_EXPANDED_CLASS = 'pt-3 pb-4';
 const DEFAULT_CONTENT_COLLAPSED_CLASS = 'hidden';
 
 interface FilterShellProps {
@@ -34,15 +40,16 @@ interface FilterShellProps {
   // Expand/collapse
   isExpanded?: boolean;
   onToggleExpand?: () => void;
-  // Active count badge on the toggle button
+  // Active count badge, shown next to the static heading (never inside the
+  // disclosure button itself).
   activeFilterCount?: number;
-  // Draft/confirm affordance on the toggle button itself (a small dot plus
-  // an sr-only announcement, and a standing aria-live status line below the
+  // Draft/confirm affordance next to the heading (a small dot plus an
+  // sr-only announcement, and a standing aria-live status line below the
   // header row) - false/omitted renders neither, which is a no-op for
   // instant-apply pages.
   hasPendingChanges?: boolean;
-  // Additional header content (rendered next to the toggle button, never
-  // inside it - e.g. a sort <select>)
+  // Additional header content (rendered opposite the heading/disclosure
+  // cluster, never inside the disclosure button - e.g. a sort <select>)
   headerContent?: ReactNode;
   // Filter content (chips, footer) - fully composed by the caller.
   children?: ReactNode;
@@ -57,7 +64,6 @@ interface FilterShellProps {
   headerWrapperClassName?: string;
   toggleButtonClassName?: string;
   toggleTestId?: string;
-  iconClassName?: string;
   titleClassName?: string;
   badgeClassName?: string;
   expandLabelClassName?: string;
@@ -92,33 +98,40 @@ const FilterShell = forwardRef<HTMLButtonElement, FilterShellProps>(function Fil
   headerWrapperClassName,
   toggleButtonClassName = DEFAULT_TOGGLE_BUTTON_CLASS,
   toggleTestId,
-  iconClassName = DEFAULT_ICON_CLASS,
   titleClassName = DEFAULT_TITLE_CLASS,
   badgeClassName = DEFAULT_BADGE_CLASS,
   expandLabelClassName = DEFAULT_EXPAND_LABEL_CLASS,
-  expandedLabel = '▲ 收起',
-  collapsedLabel = '▼ 展開',
+  expandedLabel = '收起',
+  collapsedLabel = '展開',
   contentId: contentIdProp,
   contentTestId,
   ariaControls,
   contentExpandedClassName = DEFAULT_CONTENT_EXPANDED_CLASS,
   contentCollapsedClassName = DEFAULT_CONTENT_COLLAPSED_CLASS,
 }, ref) {
-  // Stable per-instance id (React 18+ useId) when the caller doesn't supply
-  // its own - a module-level constant would collide if more than one
-  // FilterShell is ever mounted at once.
+  // Stable per-instance ids (React 18+ useId) when the caller doesn't supply
+  // its own - module-level constants would collide if more than one
+  // FilterShell is ever mounted at once. headingId/disclosureLabelId are
+  // internal only (never caller-supplied) - they exist purely so the
+  // disclosure button's accessible name can be composed from the static
+  // heading text + its own visible label via aria-labelledby, without
+  // requiring every caller to invent and pass ids of their own.
   const autoContentId = `filter-shell-content-${useId()}`;
   const contentId = contentIdProp ?? autoContentId;
   const resolvedAriaControls = ariaControls ?? contentId;
+  const headingId = `filter-shell-heading-${useId()}`;
+  const disclosureLabelId = `filter-shell-disclosure-${useId()}`;
   const hasSearch = Boolean(onSearchChange);
   const resolvedHeaderWrapperClassName = headerWrapperClassName
-    ?? `flex w-full items-center justify-between gap-3 px-6 ${hasSearch ? 'pt-3 pb-4' : 'py-4'}`;
+    ?? `flex w-full items-center justify-between gap-3 ${hasSearch ? 'pt-1 pb-3' : 'py-2'}`;
 
   return (
     <div className={cardClassName} data-testid={cardTestId} data-filter-shell-root="true">
-      {/* Search bar - persistent and independent of the collapsible detail
-          panel below: it stays visible whether or not the filter chips are
-          expanded. */}
+      {/* Search bar - stands on its own, persistent and independent of the
+          collapsible detail panel below: it stays visible whether or not
+          the filter chips are expanded. It keeps its own existing
+          input border/background/radius (see RecipeSearchBar) - this shell
+          adds no card around it. */}
       {hasSearch && (
         <div className={searchWrapperClassName}>
           <RecipeSearchBar
@@ -131,39 +144,52 @@ const FilterShell = forwardRef<HTMLButtonElement, FilterShellProps>(function Fil
         </div>
       )}
 
-      {/* Header row - the toggle button and any extra header content (e.g. a
-          sort <select>) are siblings, never nested: a <button> must not
-          contain interactive descendants per the HTML content model
-          (https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element),
-          and a nested <select> breaks keyboard/screen-reader interaction. */}
+      {/* Header row: a static "篩選 [count]" heading (never itself
+          clickable) sits next to a small, separate disclosure button - not
+          one large all-in-one clickable control. headerContent (e.g. a
+          sort <select>) is a sibling of that whole cluster, never nested
+          inside the disclosure button: a <button> must not contain
+          interactive descendants per the HTML content model
+          (https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element). */}
       <div className={resolvedHeaderWrapperClassName}>
-        <button
-          ref={ref}
-          type="button"
-          data-testid={toggleTestId}
-          onClick={onToggleExpand}
-          aria-expanded={isExpanded}
-          aria-controls={resolvedAriaControls}
-          className={toggleButtonClassName}
-        >
-          <svg className={iconClassName} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          <span className={titleClassName}>{title}</span>
+        <div className="flex items-center gap-2">
+          <span id={headingId} className={titleClassName}>{title}</span>
           {activeFilterCount != null && activeFilterCount > 0 && (
             <span className={badgeClassName}>{activeFilterCount}</span>
           )}
           {hasPendingChanges && <span className="w-2 h-2 rounded-full bg-[#F0A060]" aria-hidden="true" />}
-          <span className="sr-only">{hasPendingChanges ? '，有未確認的更改' : ''}</span>
-          <span className={expandLabelClassName}>{isExpanded ? expandedLabel : collapsedLabel}</span>
-        </button>
+          <button
+            ref={ref}
+            type="button"
+            data-testid={toggleTestId}
+            onClick={onToggleExpand}
+            aria-expanded={isExpanded}
+            aria-controls={resolvedAriaControls}
+            // The visible button text alone ("收起"/"展開") lacks context on
+            // its own - aria-labelledby composes the accessible name from
+            // the static heading span plus this button's own label span
+            // (in that order), so assistive tech hears e.g. "篩選 收起"
+            // rather than just "收起". The count badge/pending dot above are
+            // deliberately NOT part of this reference chain, so they never
+            // leak into the disclosure's accessible name.
+            aria-labelledby={`${headingId} ${disclosureLabelId}`}
+            className={toggleButtonClassName}
+          >
+            <span id={disclosureLabelId} className={expandLabelClassName}>
+              {isExpanded ? expandedLabel : collapsedLabel}
+            </span>
+            <span aria-hidden="true">{isExpanded ? '↑' : '↓'}</span>
+          </button>
+        </div>
         {headerContent}
       </div>
       <span className="sr-only" role="status">{hasPendingChanges ? '有未確認的更改，尚未影響下方結果' : ''}</span>
 
       {/* Content - always in the DOM so `aria-controls` above always
           resolves to a real element; visibility (not mounting) is what
-          `isExpanded` controls. */}
+          `isExpanded` controls. Follows the header through spacing only -
+          no border/card of its own; FilterGroupList owns its own internal
+          divider before "更多篩選". */}
       <div
         id={contentId}
         data-testid={contentTestId}

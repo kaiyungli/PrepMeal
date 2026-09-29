@@ -9,7 +9,7 @@
 // (instead of composing FilterShell) fails here even if it happens to keep
 // the same visual classes.
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { createElement, useState } from 'react';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
@@ -121,12 +121,13 @@ describe('Shared Filter Shell: canonical FilterShell markup, not parallel implem
     expect(tray.querySelector(SHELL_ROOT_SELECTOR)).toBeNull();
   });
 
-  it('Home and /recipes both go through the identical FilterShell markup: same root marker, same toggle-button DOM shape (icon + title + expand indicator, no page-specific extra structural wrapper)', () => {
+  it('Home and /recipes both go through the identical FilterShell markup: same root marker, same disclosure-button DOM shape (label + directional indicator, no icon, no page-specific extra structural wrapper)', () => {
     const { unmount } = render(createElement(RecipesFilterHarness));
     const recipesToggle = screen.getByRole('button', { name: /^篩選/ });
     const recipesShape = {
       hasSvgIcon: recipesToggle.querySelector('svg') !== null,
       childElementCount: recipesToggle.childElementCount,
+      clusterChildElementCount: recipesToggle.parentElement?.childElementCount,
     };
     unmount();
 
@@ -135,13 +136,82 @@ describe('Shared Filter Shell: canonical FilterShell markup, not parallel implem
     const homeShape = {
       hasSvgIcon: homeToggle.querySelector('svg') !== null,
       childElementCount: homeToggle.childElementCount,
+      clusterChildElementCount: homeToggle.parentElement?.childElementCount,
     };
 
-    expect(homeShape.hasSvgIcon).toBe(true);
-    expect(recipesShape.hasSvgIcon).toBe(true);
-    // Same element count: icon + title + (badge only when active, absent on
-    // both here) + expand-label span - proving both are built from the same
-    // FilterShell button, not two independently maintained implementations.
+    // Option A (borderless tool section) intentionally removes the funnel
+    // icon from the disclosure button - neither consumer should have one.
+    expect(homeShape.hasSvgIcon).toBe(false);
+    expect(recipesShape.hasSvgIcon).toBe(false);
+    // Same element count: label span + directional-indicator span - proving
+    // both are built from the same FilterShell disclosure button, not two
+    // independently maintained implementations.
     expect(homeShape.childElementCount).toBe(recipesShape.childElementCount);
+    // Same for the surrounding heading/badge/disclosure cluster (both here
+    // have zero active filters, so heading span + disclosure button = 2
+    // children each).
+    expect(homeShape.clusterChildElementCount).toBe(recipesShape.clusterChildElementCount);
+  });
+});
+
+describe('FilterShell borderless header: static heading vs. disclosure button are genuinely separate', () => {
+  it('the "篩選" heading text is not itself the disclosure button, and only the disclosure button is a <button>', () => {
+    render(createElement(RecipesFilterHarness));
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
+    expect(toggle.tagName).toBe('BUTTON');
+
+    const cluster = toggle.parentElement as HTMLElement;
+    const heading = within(cluster).getByText('篩選');
+    // The heading is its own element, a sibling of (not the same node as,
+    // and not itself) the disclosure button.
+    expect(heading).not.toBe(toggle);
+    expect(heading.tagName).not.toBe('BUTTON');
+    expect(cluster.contains(heading)).toBe(true);
+    expect(cluster.contains(toggle)).toBe(true);
+  });
+
+  it('the disclosure button remains a real, keyboard-operable <button> with aria-expanded/aria-controls intact', () => {
+    render(createElement(RecipesFilterHarness));
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
+    expect(toggle.tagName).toBe('BUTTON');
+    expect(toggle.getAttribute('type')).toBe('button');
+    expect(toggle.getAttribute('aria-expanded')).toBe('true'); // /recipes defaults to expanded
+    expect(toggle.getAttribute('aria-controls')).toBeTruthy();
+  });
+
+  it('the disclosure\'s computed accessible name includes the heading context ("篩選 ... 展開/收起"), not just the disclosure word alone', () => {
+    render(createElement(GenerateSettingsHarness));
+    // Generate starts collapsed.
+    const collapsed = screen.getByRole('button', { name: /^篩選/ });
+    expect(collapsed.getAttribute('aria-expanded')).toBe('false');
+    // testing-library's accessible-name computation already found this by
+    // matching /^篩選/ above; assert the full expected name explicitly too.
+    expect(screen.getByRole('button', { name: '篩選 展開' })).toBe(collapsed);
+
+    fireEvent.click(collapsed);
+    expect(screen.getByRole('button', { name: '篩選 收起' })).toBeTruthy();
+  });
+
+  it('the active-count badge is excluded from the disclosure button itself, not just "findable nearby"', () => {
+    render(createElement(RecipesFilterHarness));
+    fireEvent.click(screen.getByRole('button', { name: '中式' }));
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
+    // The badge must not be a descendant of the button - it lives beside
+    // the heading in the same cluster instead (Option A's borderless
+    // header split intentionally keeps it out of the disclosure control).
+    expect(within(toggle).queryByText('1')).toBeNull();
+    expect(within(toggle.parentElement as HTMLElement).getByText('1')).toBeTruthy();
+    // ...and per the previous test, it therefore doesn't appear in the
+    // disclosure's accessible name either.
+    expect(toggle.getAttribute('aria-labelledby')).toBeTruthy();
+    expect(screen.getByRole('button', { name: '篩選 收起' })).toBe(toggle);
+  });
+
+  it('Home\'s disclosure button does not recreate the old bordered/rounded pill chrome', () => {
+    render(createElement(HomeFilterHarness));
+    const toggle = screen.getByTestId('home-filter-toggle-button');
+    expect(toggle.className).not.toMatch(/\brounded-xl\b/);
+    expect(toggle.className).not.toMatch(/\bborder\b/);
+    expect(toggle.className).not.toMatch(/\bbg-white\b/);
   });
 });

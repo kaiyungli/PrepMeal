@@ -65,7 +65,11 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
     fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByRole('button', { name: '中式' }).getAttribute('aria-pressed')).toBe('true');
-    expect(within(toggle).getByText('1')).toBeTruthy();
+    // The active-count badge sits beside the "篩選" heading, in the same
+    // cluster as the disclosure button (not inside the button itself -
+    // Option A's borderless header split) - not part of the disclosure's
+    // own accessible name either (see the accessible-name test below).
+    expect(within(toggle.parentElement as HTMLElement).getByText('1')).toBeTruthy();
   });
 
   it('clear stays connected: 重設所有設定 clears active filters', () => {
