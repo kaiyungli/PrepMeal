@@ -212,6 +212,23 @@ describe('FilterGroupList: Soft Tile visual - accessible name and semantics surv
   });
 });
 
+describe('FilterGroupList: desktop label-left responsive classes (source-level only - not a substitute for visual QA)', () => {
+  it('carries the md: label-left row classes and stacked mobile classes on each section', () => {
+    render(createElement(FilterGroupList, {
+      sections: [{
+        id: 'cuisine', title: '菜系',
+        options: [{ value: 'chinese', label: '中式' }],
+        selected: [], onToggle: vi.fn(),
+      }],
+    }));
+    const heading = screen.getByText('菜系');
+    const row = heading.parentElement as HTMLElement;
+    expect(row.className).toMatch(/\bmd:flex\b/);
+    expect(heading.className).toMatch(/\bmd:w-24\b/);
+    expect(heading.className).toMatch(/\bmb-2\b/); // mobile: label sits above options
+  });
+});
+
 describe('FilterGroupList: presentation-only primary/secondary disclosure', () => {
   function sections(overrides: Partial<Record<string, 'primary' | 'secondary' | undefined>> = {}) {
     return [

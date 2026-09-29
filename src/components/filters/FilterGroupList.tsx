@@ -43,11 +43,16 @@ function CheckIcon() {
 
 function FilterSectionBlock({ section }: { section: FilterSectionConfig }) {
   return (
-    <div>
-      <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2">
+    <div className="md:flex md:items-baseline md:gap-3">
+      {/* Below md: label above options (unchanged mobile layout). At md and
+          above: label moves to a fixed-width left column and options fill
+          the remaining row width, instead of a 2-column category grid -
+          every row stays independently sized, so an uneven-length section
+          (e.g. protein's 10 options) never distorts a neighboring row. */}
+      <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2 md:mb-0 md:w-24 md:shrink-0 md:pt-1.5">
         {section.title}
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1.5 md:flex-1 md:min-w-0">
         {section.options.map(option => {
           const isSelected = section.selected?.includes(option.value);
           return (
