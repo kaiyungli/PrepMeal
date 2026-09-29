@@ -6,6 +6,14 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 
 afterEach(cleanup);
 
+function isHidden(el: HTMLElement) {
+  // Secondary filter groups stay mounted (never unmounted) behind the
+  // "更多篩選" disclosure, same pattern as FilterShell's own content region -
+  // a descendant of an aria-hidden ancestor is excluded from the a11y tree
+  // even though it is still present in the DOM.
+  return el.closest('[aria-hidden="true"]') !== null;
+}
+
 // GenerateSettings is a third, silent consumer of the shared FilterShell
 // (alongside /recipes and /favorites via RecipeFilters, and the homepage via
 // its own composition). This is a smoke test proving its filter shell still
@@ -77,10 +85,12 @@ describe('GenerateSettings: filter shell regression smoke test', () => {
     expect(screen.getByText('菜系')).toBeTruthy();
     expect(screen.getByText('主要蛋白')).toBeTruthy();
     expect(screen.getByText('所需時間')).toBeTruthy();
-    // ...secondary (method/diet/etc.) needs "更多篩選".
-    expect(screen.queryByRole('button', { name: '烹調方式' })).toBeNull();
+    // ...secondary (method/diet/etc.) is in the DOM but aria-hidden until
+    // "更多篩選" is opened - not merely "not a button" (the label itself
+    // never was one), but genuinely excluded from the accessibility tree.
+    expect(isHidden(screen.getByText('烹調方式'))).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: '＋ 更多篩選' }));
-    expect(screen.getByText('烹調方式')).toBeTruthy();
-    expect(screen.getByText('飲食需求')).toBeTruthy();
+    expect(isHidden(screen.getByText('烹調方式'))).toBe(false);
+    expect(isHidden(screen.getByText('飲食需求'))).toBe(false);
   });
 });

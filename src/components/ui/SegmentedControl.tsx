@@ -24,10 +24,14 @@ interface SegmentedControlProps {
  *
  * Built on native <fieldset>/<legend>/<input type="radio"> rather than a
  * hand-rolled role="radio"/aria-checked/roving-tabindex implementation, so
- * grouping, labelling, Tab-into-group-once, and native
- * ArrowLeft/ArrowRight-to-switch-selection keyboard behavior all come from
- * the browser for free. The radio inputs are visually hidden (not
- * display:none) so they stay focusable and in the tab order; the visible
+ * grouping, labelling and keyboard interaction rely entirely on the
+ * browser's native radio-group semantics - no custom keyboard handlers are
+ * added here. That native behavior (Tab into the group once,
+ * ArrowLeft/ArrowRight to move selection) is a browser guarantee for
+ * <input type="radio">, but it is still subject to manual keyboard QA in an
+ * actual browser before being relied on, same as any other native control.
+ * The radio inputs are visually hidden (not display:none) so they stay
+ * focusable and in the tab order; the visible
  * segment styling lives on their <label>.
  */
 export default function SegmentedControl({
