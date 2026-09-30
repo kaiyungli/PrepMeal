@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
+import { buildFilterSections } from '@/constants/filterGroups';
+import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface GenerateSettingsProps {
   daysPerWeek: number;
@@ -37,6 +39,13 @@ interface GenerateSettingsProps {
 }
 
 const DAYS_OPTIONS = [3, 5, 7];
+const DAYS_SEGMENTED_OPTIONS = DAYS_OPTIONS.map(d => ({ value: String(d), label: `${d}天` }));
+
+const DAILY_COMPOSITION_OPTIONS = [
+  { value: 'complete_meal', label: '一份完整餐' },
+  { value: 'meat_veg', label: '一肉一菜' },
+  { value: 'two_meat_one_veg', label: '二肉一菜' },
+];
 
 const SERVINGS_OPTIONS = [1, 2, 3, 4, 5, 6];
 const BUDGET_OPTIONS = [
@@ -44,6 +53,26 @@ const BUDGET_OPTIONS = [
   { value: 'normal', label: '一般' },
   { value: 'premium', label: '寬裕' },
 ];
+
+// Decorative only, same convention as FilterGroupList's Soft Tile check icon
+// (kept as a separate, un-exported copy here rather than importing that
+// module's private helper - this is a distinct presentation-only boolean
+// toggle, not a filter option). aria-pressed already carries the state;
+// this is purely reinforcement, so it is aria-hidden and carries no text.
+function CheckIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 16 16"
+      className="h-3 w-3 shrink-0"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3.5 8.5l3 3 6-7" />
+    </svg>
+  );
+}
 
 export default function GenerateSettings({ 
   daysPerWeek, setDaysPerWeek,
@@ -61,32 +90,21 @@ export default function GenerateSettings({
   // Controlled-only: filters come from parent (single source of truth)
   // No internal filter state
 
-  // Build filter sections from unified FILTER_GROUPS with defensive dedupe
-  const filterSections = FILTER_GROUPS.map(group => {
-    const groupKey = group.key as string;
-    
-    // Defensive dedupe by value - ensure no duplicate options in UI
-    const seen = new Set<string>();
-    const dedupedOptions = (group.options || []).filter(opt => {
-      if (!opt || !opt.value || seen.has(opt.value)) return false;
-      seen.add(opt.value);
-      return true;
-    });
-    
-    return {
-      id: group.key,
-      title: group.label,
-      options: dedupedOptions,
-      selected: filters[groupKey] || [],
-      onToggle: (value: string) => {
-        const current = filters[groupKey] || [];
-        const newValues = current.includes(value)
-          ? current.filter(v => v !== value)
-          : [...current, value];
-        setFilters({ ...filters, [groupKey]: newValues });
-      }
-    };
-  });
+  // Build filter sections from unified FILTER_GROUPS via the shared helper
+  // (also used by Home and /recipes/favorites) - same defensive dedupe and
+  // shape as before (see tests/generateFilterSectionConstructionEquivalence.test.ts),
+  // now also carrying each group's presentation tier through consistently.
+  const filterSections = buildFilterSections(
+    FILTER_GROUPS,
+    filters,
+    (groupKey, value) => {
+      const current = filters[groupKey] || [];
+      const newValues = current.includes(value)
+        ? current.filter(v => v !== value)
+        : [...current, value];
+      setFilters({ ...filters, [groupKey]: newValues });
+    }
+  );
 
   // Count active filters
   const activeCount = Object.values(filters).reduce((sum, arr) => sum + (arr?.length || 0), 0);
@@ -98,68 +116,52 @@ export default function GenerateSettings({
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Group 1: 每週 */}
+            {/* Group 1: 每週 - single-choice: exactly one of 3/5/7 days */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-medium text-[#7A5A38]">每週</span>
-              <div className="flex flex-wrap gap-1">
-                {DAYS_OPTIONS.map(d => (
-                  <button
-                    key={d}
-                    onClick={() => setDaysPerWeek(d)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      daysPerWeek === d
-                        ? 'bg-[#9B6035] text-white'
-                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
-                    }`}
-                  >
-                    {d}天
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                name="generate-days-per-week"
+                legend="每週日數"
+                options={DAYS_SEGMENTED_OPTIONS}
+                value={String(daysPerWeek)}
+                onChange={(v) => setDaysPerWeek(Number(v))}
+              />
             </div>
 
             {/* Group 2: 餐單 */}
             <div className="flex flex-col gap-2">
-              {/* Row 1: Label + Toggle */}
+              {/* Row 1: Label + independent boolean toggle (not part of the
+                  dailyComposition single-choice group below - it stays its
+                  own conditionally-visible on/off setting). */}
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-[#7A5A38]">餐單</span>
                 {(dailyComposition === 'meat_veg' || dailyComposition === 'two_meat_one_veg') && (
                   <button
                     type="button"
+                    aria-pressed={allowCompleteMeal}
                     onClick={() => setAllowCompleteMeal(!allowCompleteMeal)}
-                    className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] ${
                       allowCompleteMeal
-                        ? 'bg-[#F4EDDD] text-[#9B6035] border-[#E5D5C0]'
-                        : 'bg-white text-[#9B8B7A] border-[#E5D5C0]'
+                        ? 'bg-[#9B6035] text-white border-[#9B6035]'
+                        : 'bg-white text-[#7A5A38] border-[#E5D5C0] hover:border-[#9B6035]'
                     }`}
                   >
-                    {allowCompleteMeal ? '✓ ' : ''}可接受完整餐
+                    {allowCompleteMeal && <CheckIcon />}
+                    可接受完整餐
                   </button>
                 )}
               </div>
-              {/* Row 2: Composition chips */}
-              <div className="flex flex-wrap gap-1">
-                {[
-                  { value: 'complete_meal', label: '一份完整餐' },
-                  { value: 'meat_veg', label: '一肉一菜' },
-                  { value: 'two_meat_one_veg', label: '二肉一菜' }
-                ].map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setDailyComposition(opt.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      dailyComposition === opt.value
-                        ? 'bg-[#9B6035] text-white'
-                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              {/* Row 2: single-choice: exactly one meal composition */}
+              <SegmentedControl
+                name="generate-daily-composition"
+                legend="每餐菜式"
+                options={DAILY_COMPOSITION_OPTIONS}
+                value={dailyComposition}
+                onChange={setDailyComposition}
+              />
             </div>
 
-            {/* Group 3: 份量 */}
+            {/* Group 3: 份量 - out of scope: remains the existing native select */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-medium text-[#7A5A38]">份量</span>
               <select
@@ -174,23 +176,13 @@ export default function GenerateSettings({
             </div>
             <div className="flex flex-col gap-2">
               <span className="text-xs font-medium text-[#7A5A38]">預算偏好</span>
-              <div className="flex flex-wrap gap-1">
-                {BUDGET_OPTIONS.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-pressed={budget === option.value}
-                    onClick={() => setBudget(option.value)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      budget === option.value
-                        ? 'bg-[#9B6035] text-white'
-                        : 'bg-white text-[#3A2010] border border-[#E5DCC8] hover:bg-[#F4EDDD]'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                name="generate-budget"
+                legend="預算偏好"
+                options={BUDGET_OPTIONS}
+                value={budget}
+                onChange={setBudget}
+              />
             </div>
           </div>
         </div>

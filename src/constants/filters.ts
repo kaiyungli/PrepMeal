@@ -62,21 +62,11 @@ export const FILTER_GROUPS = RECIPE_FILTER_GROUPS;
 // ============================================
 // DATA COMPATIBILITY HELPERS
 // ============================================
-
-/**
- * Get effective protein array for filtering
- * Falls back to primary_protein if protein[] is empty
- */
-export function getEffectiveProtein(recipe: any): string[] {
-  if (recipe.protein && Array.isArray(recipe.protein) && recipe.protein.length > 0) {
-    return recipe.protein;
-  }
-  // Fallback to primary_protein
-  if (recipe.primary_protein) {
-    return [recipe.primary_protein];
-  }
-  return [];
-}
+// NOTE: there is intentionally no "effective protein" helper here. The
+// "主要蛋白" filter group matches recipe.primary_protein directly -
+// protein[] is not read as a matching source (see recipeMatchesFilters
+// below), and fish/seafood/shrimp are sibling primary_protein values with
+// no umbrella expansion.
 
 /**
  * Get effective diet array for filtering
@@ -147,7 +137,6 @@ export function getEffectiveFlavor(recipe: any): string[] {
 export function normalizeRecipeForFilter(recipe: any) {
   return {
     ...recipe,
-    _effectiveProtein: getEffectiveProtein(recipe),
     _effectiveDiet: getEffectiveDiet(recipe),
     _effectiveFlavor: getEffectiveFlavor(recipe),
   };
@@ -162,17 +151,20 @@ export function normalizeRecipeForFilter(recipe: any) {
  * - Same group: OR logic (e.g., chinese OR japanese)
  * - Different groups: AND logic
  * - Empty selection: no filter applied
+ * - protein matches primary_protein only ("主要蛋白"); fish/seafood/shrimp
+ *   are sibling values, not an umbrella - no expansion between them
+ * - diet/flavor arrays match if the recipe contains ANY selected value
  */
 export function recipeMatchesFilters(recipe: any, filters: Record<string, string[]>): boolean {
   const normalized = normalizeRecipeForFilter(recipe);
-  
+
   for (const [groupKey, selectedValues] of Object.entries(filters)) {
     if (!selectedValues || selectedValues.length === 0) {
       continue; // No filter for this group
     }
-    
+
     let matches = false;
-    
+
     switch (groupKey) {
       case 'cuisine':
         matches = selectedValues.includes(normalized.cuisine);
@@ -181,8 +173,8 @@ export function recipeMatchesFilters(recipe: any, filters: Record<string, string
         matches = selectedValues.includes(normalized.dish_type);
         break;
       case 'protein':
-        // Array intersection - recipe.protein[] contains any selected
-        matches = normalized._effectiveProtein.some((p: string) => selectedValues.includes(p));
+        // "主要蛋白" - matches primary_protein only, never protein[].
+        matches = selectedValues.includes(normalized.primary_protein);
         break;
       case 'method':
         matches = selectedValues.includes(normalized.method);

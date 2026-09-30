@@ -1,3 +1,5 @@
+import { useId, useState } from 'react';
+
 interface FilterOption {
   value: string;
   label: string;
@@ -10,47 +12,132 @@ export interface FilterSectionConfig {
   selected: string[];
   onToggle: (value: string) => void;
   variant?: 'default' | 'danger';
+  // Presentation-only grouping hint (never business/domain data): sections
+  // without a tier - or any caller that doesn't supply one at all - are
+  // treated as primary, so existing callers keep their current "everything
+  // visible" behavior unchanged.
+  tier?: 'primary' | 'secondary';
 }
 
 interface FilterGroupListProps {
   sections: FilterSectionConfig[];
 }
 
+// Decorative only - the accessible name of the option button must stay the
+// option label itself ("中式", never "✓ 中式" to assistive tech), so this
+// icon is aria-hidden and carries no text content.
+function CheckIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 16 16"
+      className="h-3 w-3 shrink-0"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3.5 8.5l3 3 6-7" />
+    </svg>
+  );
+}
+
+function FilterSectionBlock({ section }: { section: FilterSectionConfig }) {
+  return (
+    <div className="md:flex md:items-baseline md:gap-2">
+      {/* Below md: label above options (unchanged mobile layout). At md and
+          above: label moves to a fixed-width left column and options fill
+          the remaining row width, instead of a 2-column category grid -
+          every row stays independently sized, so an uneven-length section
+          (e.g. protein's 10 options) never distorts a neighboring row. */}
+      <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2 md:mb-0 md:w-24 md:shrink-0 md:pt-1.5">
+        {section.title}
+      </div>
+      <div className="flex flex-wrap gap-1.5 md:flex-1 md:min-w-0">
+        {section.options.map(option => {
+          const isSelected = section.selected?.includes(option.value);
+          return (
+            <button
+              type="button"
+              key={option.value}
+              aria-pressed={isSelected}
+              onClick={() => section.onToggle(option.value)}
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] ${
+                isSelected
+                  ? 'bg-[#9B6035] text-white border border-[#9B6035]'
+                  : 'bg-white text-[#7A5A38] border border-[#E9DFC9] hover:border-[#9B6035]'
+              }`}
+            >
+              {isSelected && <CheckIcon />}
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Renders filter groups as toggle chips. Shared by FilterShell
  * (/recipes, /favorites, /generate) and the homepage's desktop panel and
  * mobile tray - this is the one place chip markup/behavior is defined.
+ *
+ * Presentation-only primary/secondary disclosure: sections tagged `tier:
+ * 'secondary'` render behind a local "more filters" toggle instead of being
+ * hidden by the caller. This component owns that open/closed UI state
+ * itself - it is not filter selection state, must never be lifted into a
+ * business hook, and never changes `selected`/`onToggle` on its own.
  */
 export default function FilterGroupList({ sections }: FilterGroupListProps) {
+  const [secondaryExpanded, setSecondaryExpanded] = useState(false);
+  const secondaryContentId = `filter-group-list-secondary-${useId()}`;
+
+  const primarySections = sections.filter(section => section.tier !== 'secondary');
+  const secondarySections = sections.filter(section => section.tier === 'secondary');
+
   return (
-    <div className="space-y-4">
-      {sections.map(section => (
-        <div key={section.id}>
-          <div className="text-xs font-bold text-[#7A5A38] tracking-wide uppercase mb-2">
-            {section.title}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {section.options.map(option => {
-              const isSelected = section.selected?.includes(option.value);
-              return (
-                <button
-                  type="button"
-                  key={option.value}
-                  aria-pressed={isSelected}
-                  onClick={() => section.onToggle(option.value)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] ${
-                    isSelected
-                      ? 'bg-[#9B6035] text-white border border-[#9B6035]'
-                      : 'bg-white text-[#7A5A38] border border-[#E9DFC9] hover:border-[#9B6035]'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
+    <div>
+      {/* Desktop density: primary rows sit closer together (md:space-y-3)
+          while staying clearly separable by their own bold labels; mobile
+          keeps its original spacing (space-y-4) unchanged. */}
+      <div className="space-y-4 md:space-y-3">
+        {primarySections.map(section => (
+          <FilterSectionBlock key={section.id} section={section} />
+        ))}
+      </div>
+
+      {secondarySections.length > 0 && (
+        // A subtle top divider + modest top padding, directly following the
+        // primary rows, so this reads as the boundary between primary and
+        // secondary filters rather than a fourth category floating in its
+        // own empty space (the old space-y-4 gap on every side of it).
+        <div className="mt-4 md:mt-3 pt-3 border-t border-[#F5EDE3]">
+          <button
+            type="button"
+            onClick={() => setSecondaryExpanded(v => !v)}
+            aria-expanded={secondaryExpanded}
+            aria-controls={secondaryContentId}
+            className="text-sm text-[#9B6035] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
+          >
+            {secondaryExpanded ? '▲ 收起' : '＋ 更多篩選'}
+          </button>
+
+          {/* Always in the DOM so aria-controls always resolves to a real
+              element; visibility (not mounting) is what secondaryExpanded
+              controls - same pattern FilterShell uses for its own content
+              region. Modest top margin (not another full space-y-4 gap) so
+              secondary groups follow the disclosure naturally once opened. */}
+          <div
+            id={secondaryContentId}
+            aria-hidden={!secondaryExpanded}
+            className={secondaryExpanded ? 'mt-3 space-y-4 md:space-y-3' : 'hidden'}
+          >
+            {secondarySections.map(section => (
+              <FilterSectionBlock key={section.id} section={section} />
+            ))}
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }

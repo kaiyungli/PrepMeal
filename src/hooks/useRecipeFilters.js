@@ -72,29 +72,42 @@ export function useRecipeFilters(options = {}) {
       filtered = filtered.filter(recipe => recipeMatchesFilters(recipe, filters));
     }
     
-    // Apply sorting
-    filtered.sort((a, b) => {
-      if (sortBy === 'newest') {
-        const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
-        const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
-        return dateB - dateA;
-      } else if (sortBy === 'oldest') {
-        const dateA = new Date(a.created_at || a.createdAt || 0).getTime() || 0;
-        const dateB = new Date(b.created_at || b.createdAt || 0).getTime() || 0;
-        return dateA - dateB;
-      } else if (sortBy === 'popular') {
-        return (b.times_shown || b.timesShown || 0) - (a.times_shown || a.timesShown || 0);
-      } else if (sortBy === 'time_short') {
-        return (a.total_time_minutes || a.totalTimeMinutes || 999) - (b.total_time_minutes || b.totalTimeMinutes || 999);
-      } else if (sortBy === 'calories_low') {
-        return (a.calories_per_serving || a.caloriesPerServing || 999) - (b.calories_per_serving || b.caloriesPerServing || 999);
-      } else if (sortBy === 'protein_high') {
-        return (b.protein_g || b.proteinG || 0) - (a.protein_g || a.proteinG || 0);
-      } else if (sortBy === 'name') {
-        return (a.name || '').localeCompare(b.name || '');
-      }
-      return 0;
-    });
+    // Apply sorting. Missing values are unknown, never an extreme - they
+    // always sort last, and ties break on id (oldest: ascending, every
+    // other mode: descending) for deterministic ordering.
+    const createdAtTime = (r) => {
+      const v = r.created_at ?? r.createdAt;
+      if (v == null) return null;
+      const t = new Date(v).getTime();
+      return Number.isNaN(t) ? null : t;
+    };
+    const SORT_FIELDS = {
+      newest: { get: createdAtTime, ascending: false },
+      oldest: { get: createdAtTime, ascending: true },
+      popular: { get: (r) => r.times_shown ?? r.timesShown ?? null, ascending: false },
+      time_short: { get: (r) => r.total_time_minutes ?? r.totalTimeMinutes ?? null, ascending: true },
+      calories_low: { get: (r) => r.calories_per_serving ?? r.caloriesPerServing ?? null, ascending: true },
+      protein_high: { get: (r) => r.protein_g ?? r.proteinG ?? null, ascending: false },
+    };
+
+    const sortConfig = SORT_FIELDS[sortBy];
+    if (sortConfig) {
+      const { get, ascending } = sortConfig;
+      const idDirection = sortBy === 'oldest' ? 1 : -1;
+      const byId = (a, b) => (a.id < b.id ? -idDirection : a.id > b.id ? idDirection : 0);
+      filtered.sort((a, b) => {
+        const av = get(a);
+        const bv = get(b);
+        if (av == null || bv == null) {
+          if (av == null && bv == null) return byId(a, b);
+          return av == null ? 1 : -1;
+        }
+        const comparison = av < bv ? -1 : av > bv ? 1 : 0;
+        return comparison ? (ascending ? comparison : -comparison) : byId(a, b);
+      });
+    } else if (sortBy === 'name') {
+      filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    }
     
     return filtered;
   }, [hasFilters, searchQuery, filters, sortBy]);

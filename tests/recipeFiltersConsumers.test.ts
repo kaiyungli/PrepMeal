@@ -86,7 +86,7 @@ function FavoritesPageFilterHarness() {
 describe('/recipes: chip selection, sort, and clear apply live through the shared filter shell', () => {
   it('toggling a cuisine chip immediately filters the list and updates the active count badge', () => {
     render(createElement(RecipesPageFilterHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     fireEvent.click(screen.getByRole('button', { name: '中式' }));
     expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉');
     expect(within(toggle).getByText('1')).toBeTruthy();
@@ -112,14 +112,14 @@ describe('/recipes: chip selection, sort, and clear apply live through the share
 describe('/favorites: chip selection and clear apply live to the local favorites list', () => {
   it('toggling a cuisine chip immediately filters the in-memory favorites list', () => {
     render(createElement(FavoritesPageFilterHarness));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ })); // panel starts collapsed on /favorites
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ })); // panel starts collapsed on /favorites
     fireEvent.click(screen.getByRole('button', { name: '西式' }));
     expect(screen.getByTestId('filtered-names').textContent).toBe('意粉');
   });
 
   it('clear restores the full favorites list', () => {
     render(createElement(FavoritesPageFilterHarness));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
     fireEvent.click(screen.getByRole('button', { name: '西式' }));
     expect(screen.getByTestId('filtered-names').textContent).toBe('意粉');
 

@@ -99,13 +99,13 @@ describe('FilterShell: sort control is a sibling of the toggle button, not neste
 
   it('the toggle button does not contain the sort <select> as a DOM descendant', () => {
     render(createElement(ShellHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(toggle.querySelector('select')).toBeNull();
   });
 
   it('the sort <select> can be changed independently without toggling expand/collapse', () => {
     render(createElement(ShellHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
     fireEvent.change(screen.getByRole('combobox', { name: '排序方式' }), { target: { value: 'oldest' } });
     expect(toggle.getAttribute('aria-expanded')).toBe('false'); // unaffected by the sort change
@@ -113,7 +113,7 @@ describe('FilterShell: sort control is a sibling of the toggle button, not neste
 
   it('aria-controls references an element that exists in the DOM in both the collapsed and expanded state', () => {
     render(createElement(ShellHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     const id = toggle.getAttribute('aria-controls');
     expect(id).toBeTruthy();
     expect(document.getElementById(id as string)).not.toBeNull();
@@ -138,7 +138,7 @@ describe('FilterShell: sort control is a sibling of the toggle button, not neste
     expect(onSearchChange).toHaveBeenCalledWith('牛肉');
     // The collapsed detail panel must not claim the search input - it lives
     // outside the aria-hidden content region.
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     const contentId = toggle.getAttribute('aria-controls') as string;
     const content = document.getElementById(contentId);
     expect(content?.contains(input)).toBe(false);
@@ -169,7 +169,7 @@ describe('FilterShell: each instance gets its own stable content id', () => {
 
   it('two simultaneously mounted instances get distinct, non-colliding content ids, each valid for its own toggle button', () => {
     render(createElement(TwoShellsHarness));
-    const [toggleA, toggleB] = screen.getAllByRole('button', { name: /篩選/ });
+    const [toggleA, toggleB] = screen.getAllByRole('button', { name: /^篩選/ });
     const idA = toggleA.getAttribute('aria-controls');
     const idB = toggleB.getAttribute('aria-controls');
     expect(idA).toBeTruthy();
@@ -266,7 +266,7 @@ function FavoritesPageFilterHarness({ recipes }: { recipes: { id: string; name: 
 describe('the shared search bar on /recipes: search applies live, no confirm step', () => {
   it('typing updates the search state immediately, with no apply button rendered', () => {
     render(createElement(RecipesPageFilterHarness));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
     const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');
     expect(screen.queryByRole('button', { name: /確認|顯示食譜/ })).toBeNull();
     fireEvent.change(input, { target: { value: '番茄' } });
@@ -275,12 +275,12 @@ describe('the shared search bar on /recipes: search applies live, no confirm ste
 
   it('panel is expanded by default on /recipes (useRecipeFilters with no override)', () => {
     render(createElement(RecipesPageFilterHarness));
-    expect(screen.getByRole('button', { name: /篩選/ }).getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('button', { name: /^篩選/ }).getAttribute('aria-expanded')).toBe('true');
   });
 
   it('search stays visible and live-updating even after the user manually collapses the detail panel', () => {
     render(createElement(RecipesPageFilterHarness));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(toggle.getAttribute('aria-expanded')).toBe('true'); // /recipes defaults expanded
     fireEvent.click(toggle); // user collapses it
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
@@ -300,8 +300,9 @@ describe('the shared search bar on /favorites: search filters an in-memory list 
 
   it('typing immediately filters the local list, with no apply button rendered', () => {
     render(createElement(FavoritesPageFilterHarness, { recipes }));
-    fireEvent.click(screen.getByRole('button', { name: /篩選/ }));
-    expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉,意粉');
+    fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
+    // No created_at on either fixture: default "newest" sorts both-null ties by id DESC.
+    expect(screen.getByTestId('filtered-names').textContent).toBe('意粉,番茄牛肉');
     expect(screen.queryByRole('button', { name: /確認|顯示食譜/ })).toBeNull();
 
     const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');
@@ -311,12 +312,12 @@ describe('the shared search bar on /favorites: search filters an in-memory list 
 
   it('panel is collapsed by default on /favorites (matches its initialShowFilters: false)', () => {
     render(createElement(FavoritesPageFilterHarness, { recipes }));
-    expect(screen.getByRole('button', { name: /篩選/ }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByRole('button', { name: /^篩選/ }).getAttribute('aria-expanded')).toBe('false');
   });
 
   it('the search bar is visible and functional on first render, without opening the panel (the reported bug: /favorites defaults collapsed, search used to be hidden with it)', () => {
     render(createElement(FavoritesPageFilterHarness, { recipes }));
-    const toggle = screen.getByRole('button', { name: /篩選/ });
+    const toggle = screen.getByRole('button', { name: /^篩選/ });
     expect(toggle.getAttribute('aria-expanded')).toBe('false'); // never opened
 
     const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');
