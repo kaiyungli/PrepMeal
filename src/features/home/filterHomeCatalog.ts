@@ -10,9 +10,11 @@ export interface HomeCatalogRecipe {
 }
 
 // Match the homepage's /api/recipes predicates, including its array semantics.
+// Canonical contract: same group = OR, different groups = AND. "主要蛋白"
+// matches primary_protein directly - fish/seafood/shrimp are sibling
+// values with no umbrella expansion between them.
 export function filterHomeCatalog(recipes: HomeCatalogRecipe[], filters: Record<string, string[]>, searchQuery: string, sortBy: string) {
   const needle = searchQuery.trim().toLocaleLowerCase();
-  const selectedProtein = filters.protein?.flatMap(value => value === 'seafood' ? ['seafood', 'shrimp', 'fish'] : [value]);
   const matches = recipes.filter(recipe => {
     if (needle && ![recipe.name, recipe.description].some(value => String(value || '').toLocaleLowerCase().includes(needle))) return false;
     for (const [key, values] of Object.entries(filters)) {
@@ -20,10 +22,10 @@ export function filterHomeCatalog(recipes: HomeCatalogRecipe[], filters: Record<
       if (key === 'diet') {
         if (!values.some(value => recipe.diet?.includes(value))) return false;
       } else if (key === 'flavor') {
-        if (!values.every(value => recipe.flavor?.includes(value))) return false;
+        if (!values.some(value => recipe.flavor?.includes(value))) return false;
       } else {
         const field = key === 'protein' ? 'primary_protein' : key;
-        if (!(key === 'protein' ? selectedProtein : values)?.includes(recipe[field] as string)) return false;
+        if (!values.includes(recipe[field] as string)) return false;
       }
     }
     return true;

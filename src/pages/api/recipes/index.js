@@ -149,13 +149,10 @@ export default async function handler(req, res) {
       }
     }
 
-    // Protein filter
+    // Protein filter - "主要蛋白" matches primary_protein only. fish/seafood/
+    // shrimp are sibling values; no umbrella expansion between them.
     if (protein && protein.trim()) {
-      let proteinList = protein.split(',').map(p => p.trim()).filter(Boolean);
-      // Expand seafood to include shrimp
-      if (proteinList.includes('seafood')) {
-        proteinList = proteinList.filter(p => p !== 'seafood').concat(['seafood', 'shrimp', 'fish']);
-      }
+      const proteinList = protein.split(',').map(p => p.trim()).filter(Boolean);
       if (proteinList.length > 0) {
         query = query.in('primary_protein', proteinList);
       }
@@ -169,11 +166,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Flavor filter
+    // Flavor filter - same-group OR: matches if the recipe contains ANY
+    // selected flavor (overlap), consistent with diet.
     if (flavor && flavor.trim()) {
       const flavorList = flavor.split(',').map(f => f.trim()).filter(Boolean);
       if (flavorList.length > 0) {
-        query = query.contains('flavor', flavorList);
+        query = query.overlaps('flavor', flavorList);
       }
     }
 
