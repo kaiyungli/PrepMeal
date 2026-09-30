@@ -32,8 +32,8 @@ export function filterHomeCatalog(recipes: HomeCatalogRecipe[], filters: Record<
   });
 
   const order: Record<string, [string, boolean, boolean]> = {
-    newest: ['created_at', false, false],
-    oldest: ['created_at', true, false],
+    newest: ['created_at', false, true],
+    oldest: ['created_at', true, true],
     popular: ['times_shown', false, true],
     time_short: ['total_time_minutes', true, true],
     quick: ['total_time_minutes', true, true],
@@ -47,7 +47,9 @@ export function filterHomeCatalog(recipes: HomeCatalogRecipe[], filters: Record<
     const av = a[field] as string | number | null | undefined;
     const bv = b[field] as string | number | null | undefined;
     if (av == null || bv == null) {
-      if (av == null && bv == null) return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
+      if (av == null && bv == null) {
+        return a.id < b.id ? (sortBy === 'oldest' ? -1 : 1) : a.id > b.id ? (sortBy === 'oldest' ? 1 : -1) : 0;
+      }
       return av == null ? (nullsLast ? 1 : -1) : (nullsLast ? -1 : 1);
     }
     const comparison = av < bv ? -1 : av > bv ? 1 : 0;

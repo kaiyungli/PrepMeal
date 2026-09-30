@@ -301,7 +301,8 @@ describe('the shared search bar on /favorites: search filters an in-memory list 
   it('typing immediately filters the local list, with no apply button rendered', () => {
     render(createElement(FavoritesPageFilterHarness, { recipes }));
     fireEvent.click(screen.getByRole('button', { name: /^篩選/ }));
-    expect(screen.getByTestId('filtered-names').textContent).toBe('番茄牛肉,意粉');
+    // No created_at on either fixture: default "newest" sorts both-null ties by id DESC.
+    expect(screen.getByTestId('filtered-names').textContent).toBe('意粉,番茄牛肉');
     expect(screen.queryByRole('button', { name: /確認|顯示食譜/ })).toBeNull();
 
     const input = screen.getByPlaceholderText('搜尋食譜... 例如：番茄、牛肉、咖哩');

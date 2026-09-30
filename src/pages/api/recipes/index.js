@@ -224,7 +224,7 @@ export default async function handler(req, res) {
 
       case 'oldest':
         query = query
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: true, nullsFirst: false })
           .order('id', { ascending: true });
         break;
       case 'popular':
@@ -235,7 +235,7 @@ export default async function handler(req, res) {
       case 'newest':
       default:
         query = query
-          .order('created_at', { ascending: false })
+          .order('created_at', { ascending: false, nullsFirst: false })
           .order('id', { ascending: false });
     }
 
