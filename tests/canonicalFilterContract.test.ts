@@ -13,7 +13,7 @@
 // (recipe, filters) => boolean predicate.
 import { describe, expect, it } from 'vitest';
 import { recipeMatchesFilters } from '@/constants/filters';
-import { filterHomeCatalog } from '@/features/home/filterHomeCatalog';
+import { filterHomeCatalog, type HomeCatalogRecipe } from '@/features/home/filterHomeCatalog';
 
 type Engine = { name: string; matches: (recipe: Record<string, unknown>, filters: Record<string, string[]>) => boolean };
 
@@ -21,7 +21,12 @@ const engines: Engine[] = [
   { name: 'recipeMatchesFilters', matches: (recipe, filters) => recipeMatchesFilters(recipe, filters) },
   {
     name: 'filterHomeCatalog',
-    matches: (recipe, filters) => filterHomeCatalog([recipe], filters, '', 'newest').length === 1,
+    // Fixtures carry no id; supply one so the input is a real HomeCatalogRecipe.
+    // id only affects sort tie-breaks, never matching.
+    matches: (recipe, filters) => {
+      const catalogRecipe: HomeCatalogRecipe = { id: 'fixture', ...recipe };
+      return filterHomeCatalog([catalogRecipe], filters, '', 'newest').length === 1;
+    },
   },
 ];
 
