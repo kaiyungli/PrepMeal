@@ -25,7 +25,7 @@ export function useGenerateData() {
       start
     });
     
-    fetchAvailableRecipes(200)
+    fetchAvailableRecipes()
       .then(recipes => {
         const end = perfNow();
         setAllRecipes(recipes);

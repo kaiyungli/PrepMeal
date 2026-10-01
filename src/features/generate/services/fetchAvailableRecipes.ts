@@ -25,12 +25,51 @@ export interface Recipe {
 }
 
 // v1 cached only the first page even when the caller requested 200 recipes.
-const CACHE_KEY = 'generate_recipes_v2';
+// v2 cached a pool capped at 200 with no completeness proof. v3 caches only a
+// catalogue verified against the complete-catalogue contract.
+const CACHE_KEY = 'generate_recipes_v3';
+const CACHE_CONTRACT = 'generate-complete-catalogue-v1';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface CachePayload {
+  contract: typeof CACHE_CONTRACT;
   ts: number;
+  total: number;
+  complete: true;
   recipes: Recipe[];
+}
+
+function isUsableId(id: unknown): id is string | number {
+  return (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && Number.isFinite(id));
+}
+
+/**
+ * Throws unless `data` proves it is the complete Generate catalogue:
+ * complete === true, a valid total, recipes.length === total, usable unique IDs.
+ */
+function verifyCompleteCatalogue(data: unknown): Recipe[] {
+  const body = data as { complete?: unknown; total?: unknown; recipes?: unknown } | null;
+  if (!body || body.complete !== true) {
+    throw new Error('Generate catalogue is not marked complete');
+  }
+  if (!Number.isInteger(body.total) || (body.total as number) < 0) {
+    throw new Error('Generate catalogue total is invalid');
+  }
+  if (!Array.isArray(body.recipes)) {
+    throw new Error('Generate catalogue recipes are missing');
+  }
+  const recipes = body.recipes as Recipe[];
+  if (recipes.length !== body.total) {
+    throw new Error(`Generate catalogue incomplete: ${recipes.length} of ${body.total}`);
+  }
+  const ids = new Set<string>();
+  for (const recipe of recipes) {
+    if (!isUsableId(recipe?.id)) throw new Error('Generate catalogue contains a recipe without an id');
+    const key = String(recipe.id);
+    if (ids.has(key)) throw new Error(`Generate catalogue contains duplicate id ${key}`);
+    ids.add(key);
+  }
+  return recipes;
 }
 
 function getFromCache(): Recipe[] | null {
@@ -38,10 +77,18 @@ function getFromCache(): Recipe[] | null {
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const cached: CachePayload = JSON.parse(raw);
-    if (!cached.ts || !Array.isArray(cached.recipes)) return null;
-    const age = Date.now() - cached.ts;
-    if (age > CACHE_TTL_MS) {
+    const cached = JSON.parse(raw) as Partial<CachePayload> | null;
+    const age = typeof cached?.ts === 'number' ? Date.now() - cached.ts : NaN;
+    let recipes: Recipe[] | null = null;
+    if (cached?.contract === CACHE_CONTRACT && age >= 0 && age <= CACHE_TTL_MS) {
+      try {
+        recipes = verifyCompleteCatalogue(cached);
+      } catch {
+        recipes = null;
+      }
+    }
+    if (!recipes) {
+      // Expired, corrupt or unverifiable: never trust it.
       sessionStorage.removeItem(CACHE_KEY);
       return null;
     }
@@ -51,10 +98,11 @@ function getFromCache(): Recipe[] | null {
       stage: 'recipes_cache_hit',
       label: 'generate.mount.recipes_cache_hit',
       duration: 0,
-      meta: { recipeCount: cached.recipes.length, cacheAgeMs: age },
+      meta: { recipeCount: recipes.length, cacheAgeMs: age },
     });
-    return cached.recipes;
+    return recipes;
   } catch {
+    try { sessionStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
     return null;
   }
 }
@@ -62,7 +110,13 @@ function getFromCache(): Recipe[] | null {
 function setToCache(recipes: Recipe[]): void {
   if (typeof window === 'undefined') return;
   try {
-    const payload: CachePayload = { ts: Date.now(), recipes };
+    const payload: CachePayload = {
+      contract: CACHE_CONTRACT,
+      ts: Date.now(),
+      total: recipes.length,
+      complete: true,
+      recipes,
+    };
     sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload));
     // Cache write log
     perfLog({
@@ -78,11 +132,13 @@ function setToCache(recipes: Recipe[]): void {
 }
 
 /**
- * Fetch available recipes for generation
- * @param limit - Max recipes to fetch
+ * Fetch the complete Generate candidate catalogue.
+ *
+ * One request; the server owns pagination and completeness. Resolves only
+ * with a verified complete catalogue, otherwise rejects (fail closed).
  * @returns Array of recipes
  */
-export async function fetchAvailableRecipes(limit = 200): Promise<Recipe[]> {
+export async function fetchAvailableRecipes(): Promise<Recipe[]> {
   const t0 = perfNow();
   
   // Check cache first
@@ -99,22 +155,13 @@ export async function fetchAvailableRecipes(limit = 200): Promise<Recipe[]> {
     duration: 0,
   });
   
-  const recipes: Recipe[] = [];
-  // The recipes API caps each response at 100. Fetch every requested page so
-  // budget tiers and slot roles on later pages can participate in selection.
-  while (recipes.length < limit) {
-    const pageSize = Math.min(100, limit - recipes.length);
-    const res = await fetch(`/api/recipes?limit=${pageSize}&offset=${recipes.length}&view=generate`);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch recipes: HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    const page: Recipe[] = Array.isArray(data.recipes) ? data.recipes : [];
-    recipes.push(...page);
-    if (page.length < pageSize || data.hasMore === false || page.length === 0) break;
+  const res = await fetch('/api/recipes?view=generate');
+  if (!res.ok) {
+    throw new Error(`Failed to fetch recipes: HTTP ${res.status}`);
   }
+  const recipes = verifyCompleteCatalogue(await res.json());
   
-  // Write to cache
+  // Write to cache only after full verification
   setToCache(recipes);
   
   perfMeasure('generate.recipesFetch', t0);
