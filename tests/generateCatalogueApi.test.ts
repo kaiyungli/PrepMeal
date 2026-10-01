@@ -20,7 +20,7 @@ vi.mock('@/lib/supabaseServer', async () => {
 import handler from '@/pages/api/recipes/index';
 
 type Row = { id: string; created_at: string };
-type Body = { recipes: Row[]; total?: number; complete?: boolean; hasMore?: boolean; reason?: string };
+type Body = { recipes: Array<Row & Record<string, unknown>>; total?: number; complete?: boolean; hasMore?: boolean; reason?: string };
 
 function response() {
   return {
@@ -45,15 +45,24 @@ function requestUrl(input: string | Request) {
 
 interface Page { rows: unknown[]; total: number | null; from: number }
 type PageHook = (page: Page, call: number) => Page | Response;
+interface ServeOptions {
+  // Simulates a PostgREST project max_rows: never return more rows per request.
+  maxRows?: number;
+  // Per-request delay (ms), to control response arrival order.
+  delayMs?: (from: number) => number;
+}
 
 // Serves `rows` like PostgREST; `hook` may rewrite any page to simulate
-// snapshot changes, row ceilings or errors.
-function serve(rows: Row[], hook?: PageHook) {
+// snapshot changes or errors, `maxRows` simulates a backend row ceiling.
+function serve(rows: object[], hook?: PageHook, options: ServeOptions = {}) {
   let call = 0;
   mocks.fetch.mockImplementation(async (input: string | Request) => {
     const url = requestUrl(input);
     const from = Number(url.searchParams.get('offset') ?? 0);
-    const limit = Number(url.searchParams.get('limit') ?? rows.length);
+    const requested = Number(url.searchParams.get('limit') ?? rows.length);
+    const limit = Math.min(requested, options.maxRows ?? Infinity);
+    const delay = options.delayMs?.(from) ?? 0;
+    if (delay) await new Promise(resolve => setTimeout(resolve, delay));
     let page: Page | Response = { rows: rows.slice(from, from + limit), total: rows.length, from };
     if (hook) page = hook(page, call++);
     if (page instanceof Response) return page;
@@ -115,7 +124,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body.total).toBe(150);
     expect(res.body.recipes).toEqual(rows);
     const urls = requestedUrls();
-    expect(urls.map(u => u.searchParams.get('offset'))).toEqual(['0', '100']);
+    expect(urls.map(u => u.searchParams.get('offset')).sort()).toEqual(['0', '100']);
     for (const url of urls) {
       expect(url.searchParams.get('order')).toBe('created_at.desc.nullslast,id.desc');
     }
@@ -147,7 +156,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.total).toBe(1234);
-    expect(res.body.recipes.map((r: Row) => r.id)).toEqual(rows.map(r => r.id));
+    expect(res.body.recipes.map(r => r.id)).toEqual(rows.map(r => r.id));
     const offsets = requestedUrls().map(u => Number(u.searchParams.get('offset'))).sort((a, b) => a - b);
     expect(offsets).toEqual(Array.from({ length: 13 }, (_, i) => i * 100));
     for (const url of requestedUrls()) {
@@ -203,14 +212,100 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body.complete).toBe(false);
   });
 
-  it('never reports complete when the server caps rows below the page size', async () => {
-    const rows = catalogue(150);
-    // Simulates a PostgREST max_rows of 50.
-    serve(rows, page => ({ ...page, rows: page.rows.slice(0, 50) }));
+  it.each([
+    [150, 50, ['0', '50', '100']],
+    [250, 50, ['0', '50', '100', '150', '200']],
+    [101, 50, ['0', '50', '100']],
+    [100, 50, ['0', '50']],
+    [7, 3, ['0', '3', '6']],
+  ])('adapts to a backend row ceiling: %i recipes with max_rows %i', async (n, maxRows, offsets) => {
+    const rows = catalogue(n);
+    serve(rows, undefined, { maxRows });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ recipes: rows, total: n, complete: true, hasMore: false });
+    expect(new Set(res.body.recipes.map(r => r.id)).size).toBe(n);
+    const urls = requestedUrls();
+    expect(urls.map(u => u.searchParams.get('offset')).sort((a, b) => Number(a) - Number(b))).toEqual(offsets);
+    // The probe asks for the requested page size; every later page asks for the discovered stride.
+    expect(urls[0].searchParams.get('limit')).toBe('100');
+    for (const url of urls.slice(1)) expect(url.searchParams.get('limit')).toBe(String(maxRows));
+  });
+
+  it('uses the full requested page size when the backend is not capped', async () => {
+    const rows = catalogue(250);
+    serve(rows);
+    await get({ view: 'generate' });
+    const requested = requestedUrls()
+      .map(u => [Number(u.searchParams.get('offset')), u.searchParams.get('limit')] as const)
+      .sort((a, b) => a[0] - b[0]);
+    expect(requested).toEqual([[0, '100'], [100, '100'], [200, '100']]);
+  });
+
+  it('assembles pages in offset order even when later pages arrive first', async () => {
+    const rows = catalogue(450);
+    // Higher offsets respond sooner, so batch responses arrive in reverse order.
+    serve(rows, undefined, { delayMs: from => from === 0 ? 0 : Math.max(1, 30 - from / 20) });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipes.map(r => r.id)).toEqual(rows.map(r => r.id));
+  });
+
+  it('never reports complete when a row is missing under a row ceiling', async () => {
+    const rows = catalogue(250);
+    serve(rows, page => page.from === 100 ? { ...page, rows: page.rows.slice(1) } : page, { maxRows: 50 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(503);
-    expect(res.body.complete).toBe(false);
+    expect(res.body).toMatchObject({ complete: false, reason: 'page_size_mismatch' });
+  });
+
+  it('never reports complete when a page boundary duplicates a recipe under a row ceiling', async () => {
+    const rows = catalogue(150);
+    serve(rows, page => page.from === 50 ? { ...page, rows: [rows[49], ...page.rows.slice(0, -1)] } : page, { maxRows: 50 });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toMatchObject({ complete: false, reason: 'duplicate_id' });
+  });
+
+  it('never reports complete when the probe returns more rows than requested', async () => {
+    const rows = catalogue(300);
+    serve(rows, page => page.from === 0 ? { ...page, rows: rows.slice(0, 101) } : page);
+    const res = await get({ view: 'generate' });
+    expect(res.statusCode).toBe(503);
+  });
+
+  it('never loops when the probe returns no rows but the count says rows exist', async () => {
+    serve(catalogue(5), page => ({ ...page, rows: [] }));
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toMatchObject({ reason: 'page_size_mismatch' });
+    expect(mocks.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('fails loudly (no truncation, no retry) when the internal page budget would be exceeded', async () => {
+    // max_rows 1 with 201 recipes would need 201 internal queries (> 200 budget).
+    serve(catalogue(201), undefined, { maxRows: 1 });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toMatchObject({ complete: false, reason: 'page_budget_exceeded' });
+    expect(res.body).not.toHaveProperty('recipes');
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+  });
+
+  it('stays within the page budget at exactly the limit', async () => {
+    const rows = catalogue(200);
+    serve(rows, undefined, { maxRows: 1 });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipes).toEqual(rows);
+    expect(mocks.fetch).toHaveBeenCalledTimes(200);
   });
 
   it('never reports complete when the exact count is missing', async () => {
@@ -221,10 +316,37 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body.complete).toBe(false);
   });
 
-  it('rejects recipes without a usable id', async () => {
-    serve([{ id: '', created_at: '2026-01-01T00:00:00Z' }]);
+  it.each([
+    ['empty string', ''],
+    ['null', null],
+    ['boolean', true],
+    ['object', { value: 1 }],
+  ])('rejects a recipe whose id is not usable (%s)', async (_label, id) => {
+    serve([{ id, created_at: '2026-01-01T00:00:00Z' }]);
     const res = await get({ view: 'generate' });
     expect(res.statusCode).toBe(503);
+    expect(res.body).toMatchObject({ reason: 'missing_id' });
+  });
+
+  it('rejects a recipe with no id field', async () => {
+    serve([{ created_at: '2026-01-01T00:00:00Z' }]);
+    const res = await get({ view: 'generate' });
+    expect(res.body).toMatchObject({ reason: 'missing_id' });
+  });
+
+  it('accepts numeric ids, including 0', async () => {
+    const rows = [{ id: 0 }, { id: 7 }, { id: 'r1' }];
+    serve(rows);
+    const res = await get({ view: 'generate' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipes).toEqual(rows);
+  });
+
+  it('treats the number 1 and the string "1" as the same recipe (duplicate)', async () => {
+    serve([{ id: 1 }, { id: '1' }]);
+    const res = await get({ view: 'generate' });
+    expect(res.statusCode).toBe(503);
+    expect(res.body).toMatchObject({ reason: 'duplicate_id' });
   });
 
   it('retries the whole retrieval once when totals change mid-pagination', async () => {
@@ -237,6 +359,17 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body).toEqual({ recipes: rows, total: 150, complete: true, hasMore: false });
     // 2 pages per attempt, 2 attempts.
     expect(mocks.fetch).toHaveBeenCalledTimes(4);
+  });
+
+  it('retries once under a row ceiling when totals change mid-pagination', async () => {
+    const rows = catalogue(150);
+    // Attempt 1 (calls 0-2): the page at offset 100 reports a changed total.
+    serve(rows, (page, call) => call < 3 && page.from === 100 ? { ...page, total: 151 } : page, { maxRows: 50 });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipes).toEqual(rows);
+    expect(mocks.fetch).toHaveBeenCalledTimes(6);
   });
 
   it('fails the request when the retry still cannot be verified (bounded, no third attempt)', async () => {

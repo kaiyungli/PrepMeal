@@ -1,6 +1,7 @@
 // Recipe search API endpoint with filters
 import { supabaseServer } from '@/lib/supabaseServer';
 import { perfNow, perfMeasure } from '@/utils/perf';
+import { findCatalogueIdProblem } from '@/features/generate/services/catalogueIdentity';
 
 export const config = {
   api: {
@@ -177,11 +178,18 @@ function buildFilteredQuery(supabase, fields, params) {
 
 // Generate catalogue contract: `view=generate` returns the COMPLETE matching
 // public catalogue or fails. The client never controls completeness via
-// limit/page/offset; the server paginates internally in pages small enough to
-// sit under any plausible PostgREST max_rows, and verifies the assembled pool
-// against the exact count before reporting `complete: true`.
-const GENERATE_PAGE_SIZE = 100;
+// limit/page/offset. The server paginates internally and verifies the
+// assembled pool against the exact count before reporting `complete: true`.
+//
+// The requested page size is only an upper bound. PostgREST may enforce a
+// smaller project-level max_rows, so the effective stride is taken from what
+// the first page actually returned; later offsets are derived from it.
+const GENERATE_REQUESTED_PAGE_SIZE = 100;
 const GENERATE_PAGE_CONCURRENCY = 4;
+// Explicit runtime budget for internal queries per attempt (first page
+// included). Exceeding it fails loudly instead of truncating; at a 100-row
+// stride this is 20,000 recipes.
+const GENERATE_MAX_PAGES_PER_ATTEMPT = 200;
 // One retry of the whole retrieval if pages observed different snapshots.
 const GENERATE_MAX_ATTEMPTS = 2;
 
@@ -194,60 +202,87 @@ class GenerateCatalogueQueryError extends Error {
   }
 }
 
-function fetchGenerateCataloguePage(supabase, params, from) {
+class GenerateCataloguePageBudgetError extends Error {
+  constructor(total, stride) {
+    super(`Generate catalogue needs more than ${GENERATE_MAX_PAGES_PER_ATTEMPT} internal pages (total ${total}, stride ${stride})`);
+    this.code = 'page_budget_exceeded';
+  }
+}
+
+function fetchGenerateCataloguePage(supabase, params, from, size) {
   // Canonical Generate order: newest first, id as a stable tiebreak.
   return buildFilteredQuery(supabase, GENERATE_FIELDS, params)
     .order('created_at', { ascending: false, nullsFirst: false })
     .order('id', { ascending: false })
-    .range(from, from + GENERATE_PAGE_SIZE - 1);
+    .range(from, from + size - 1);
 }
 
 function isValidCount(count) {
   return Number.isInteger(count) && count >= 0;
 }
 
+function pageRows(page) {
+  return Array.isArray(page.data) ? page.data : null;
+}
+
 // One full retrieval. Returns { recipes, total } when every invariant holds,
 // or { inconsistency } describing why the observed pages cannot be trusted.
-// Query errors throw GenerateCatalogueQueryError (not retried).
+// Query errors and an exceeded page budget throw (not retried).
+//
+// 1. Probe: request [0, REQUESTED) and read the exact count. The probe's row
+//    count and total come from one statement, so a short probe page with more
+//    rows remaining reveals the effective row ceiling: stride = rows returned.
+// 2. Only then compute offsets stride, 2*stride, ... < total, and fetch them in
+//    bounded concurrent batches, each requesting exactly `stride` rows.
+// 3. Verify: every page has the probe's count and exactly
+//    min(stride, total - offset) rows; IDs are usable and unique; length === total.
 async function attemptGenerateCatalogue(supabase, params) {
-  const first = await fetchGenerateCataloguePage(supabase, params, 0);
+  const first = await fetchGenerateCataloguePage(supabase, params, 0, GENERATE_REQUESTED_PAGE_SIZE);
   if (first.error) throw new GenerateCatalogueQueryError(first.error);
   if (!isValidCount(first.count)) return { inconsistency: 'missing_count' };
 
   const total = first.count;
-  const pages = [first];
-  const offsets = [];
-  for (let from = GENERATE_PAGE_SIZE; from < total; from += GENERATE_PAGE_SIZE) offsets.push(from);
+  const firstRows = pageRows(first);
+  if (!firstRows) return { inconsistency: 'page_size_mismatch' };
+  if (firstRows.length > GENERATE_REQUESTED_PAGE_SIZE || firstRows.length > total) {
+    return { inconsistency: 'page_size_mismatch' };
+  }
+  // An empty probe while rows remain cannot make progress.
+  if (firstRows.length === 0 && total > 0) return { inconsistency: 'page_size_mismatch' };
 
-  for (let i = 0; i < offsets.length; i += GENERATE_PAGE_CONCURRENCY) {
-    const batch = await Promise.all(
-      offsets.slice(i, i + GENERATE_PAGE_CONCURRENCY).map(from => fetchGenerateCataloguePage(supabase, params, from))
-    );
-    for (const page of batch) {
-      if (page.error) throw new GenerateCatalogueQueryError(page.error);
-      pages.push(page);
+  const stride = firstRows.length;
+  const offsets = [];
+  if (firstRows.length < total) {
+    if (Math.ceil(total / stride) > GENERATE_MAX_PAGES_PER_ATTEMPT) {
+      throw new GenerateCataloguePageBudgetError(total, stride);
     }
+    for (let from = stride; from < total; from += stride) offsets.push(from);
   }
 
+  const pages = [{ from: 0, page: first }];
+  for (let i = 0; i < offsets.length; i += GENERATE_PAGE_CONCURRENCY) {
+    const batchOffsets = offsets.slice(i, i + GENERATE_PAGE_CONCURRENCY);
+    const batch = await Promise.all(
+      batchOffsets.map(from => fetchGenerateCataloguePage(supabase, params, from, stride))
+    );
+    batch.forEach((page, j) => {
+      if (page.error) throw new GenerateCatalogueQueryError(page.error);
+      pages.push({ from: batchOffsets[j], page });
+    });
+  }
+
+  // Pages are assembled in offset order, independent of response arrival order.
   const recipes = [];
-  for (let i = 0; i < pages.length; i++) {
-    const page = pages[i];
+  for (const { from, page } of pages) {
     if (page.count !== total) return { inconsistency: 'count_changed' };
-    const rows = Array.isArray(page.data) ? page.data : [];
-    // Every page must be full except the last, which holds the remainder.
-    // A short page means a row ceiling below our page size or a shifted snapshot.
-    const expectedRows = Math.min(GENERATE_PAGE_SIZE, total - i * GENERATE_PAGE_SIZE);
-    if (rows.length !== expectedRows) return { inconsistency: 'page_size_mismatch' };
+    const rows = pageRows(page);
+    const expectedRows = Math.min(stride, total - from);
+    if (!rows || rows.length !== expectedRows) return { inconsistency: 'page_size_mismatch' };
     recipes.push(...rows);
   }
 
-  const ids = new Set();
-  for (const recipe of recipes) {
-    if (recipe?.id === null || recipe?.id === undefined || recipe.id === '') return { inconsistency: 'missing_id' };
-    const key = String(recipe.id);
-    if (ids.has(key)) return { inconsistency: 'duplicate_id' };
-    ids.add(key);
-  }
+  const idProblem = findCatalogueIdProblem(recipes);
+  if (idProblem) return { inconsistency: idProblem };
   if (recipes.length !== total) return { inconsistency: 'length_mismatch' };
 
   return { recipes, total };
@@ -281,6 +316,7 @@ async function handleGenerateCatalogue(req, res) {
     return res.status(500).json({
       error: 'Failed to load recipes',
       complete: false,
+      reason: err instanceof GenerateCataloguePageBudgetError ? err.code : 'query_error',
       detail: process.env.NODE_ENV === 'development' ? err?.message : undefined,
     });
   }

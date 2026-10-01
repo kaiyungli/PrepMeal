@@ -70,6 +70,12 @@ describe('fetchAvailableRecipes - complete catalogue request', () => {
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
+  it('accepts numeric ids including 0 alongside string ids', async () => {
+    const pool = [{ id: 0 }, { id: 7 }, { id: 'r1' }];
+    stubFetch({ recipes: pool, total: 3, complete: true });
+    expect(await fetchAvailableRecipes()).toEqual(pool);
+  });
+
   it('accepts an empty complete catalogue', async () => {
     stubFetch({ recipes: [], total: 0, complete: true });
     expect(await fetchAvailableRecipes()).toEqual([]);
@@ -91,6 +97,11 @@ describe('fetchAvailableRecipes - rejects anything unverifiable', () => {
     ['missing id', { recipes: [recipe(1), { name: 'no id' }], total: 2, complete: true }],
     ['empty id', { recipes: [{ id: '' }], total: 1, complete: true }],
     ['non-finite id', { recipes: [{ id: NaN }], total: 1, complete: true }],
+    ['infinite id', { recipes: [{ id: Infinity }], total: 1, complete: true }],
+    ['boolean id', { recipes: [{ id: true }], total: 1, complete: true }],
+    ['object id', { recipes: [{ id: { v: 1 } }], total: 1, complete: true }],
+    ['null recipe', { recipes: [null], total: 1, complete: true }],
+    ['number and string forms of one id', { recipes: [{ id: 1 }, { id: '1' }], total: 2, complete: true }],
     ['null body', null],
   ])('rejects when %s, and caches nothing', async (_label, body) => {
     stubFetch(body);

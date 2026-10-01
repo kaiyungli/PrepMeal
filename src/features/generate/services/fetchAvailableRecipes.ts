@@ -4,6 +4,7 @@
  * Loads base recipe list from API with client-side cache.
  */
 import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
+import { findCatalogueIdProblem } from './catalogueIdentity';
 
 export interface Recipe {
   id: string | number;
@@ -39,10 +40,6 @@ interface CachePayload {
   recipes: Recipe[];
 }
 
-function isUsableId(id: unknown): id is string | number {
-  return (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && Number.isFinite(id));
-}
-
 /**
  * Throws unless `data` proves it is the complete Generate catalogue:
  * complete === true, a valid total, recipes.length === total, usable unique IDs.
@@ -62,13 +59,9 @@ function verifyCompleteCatalogue(data: unknown): Recipe[] {
   if (recipes.length !== body.total) {
     throw new Error(`Generate catalogue incomplete: ${recipes.length} of ${body.total}`);
   }
-  const ids = new Set<string>();
-  for (const recipe of recipes) {
-    if (!isUsableId(recipe?.id)) throw new Error('Generate catalogue contains a recipe without an id');
-    const key = String(recipe.id);
-    if (ids.has(key)) throw new Error(`Generate catalogue contains duplicate id ${key}`);
-    ids.add(key);
-  }
+  const idProblem = findCatalogueIdProblem(recipes);
+  if (idProblem === 'missing_id') throw new Error('Generate catalogue contains a recipe without a usable id');
+  if (idProblem === 'duplicate_id') throw new Error('Generate catalogue contains a duplicate id');
   return recipes;
 }
 
