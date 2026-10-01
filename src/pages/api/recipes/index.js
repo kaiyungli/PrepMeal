@@ -181,14 +181,17 @@ function buildFilteredQuery(supabase, fields, params) {
 // limit/page/offset. The server paginates internally and verifies the
 // assembled pool against the exact count before reporting `complete: true`.
 //
-// The requested page size is only an upper bound. PostgREST may enforce a
-// smaller project-level max_rows, so the effective stride is taken from what
-// the first page actually returned; later offsets are derived from it.
-const GENERATE_REQUESTED_PAGE_SIZE = 100;
+// The initial probe REQUESTS up to GENERATE_INITIAL_PROBE_SIZE rows so a
+// catalogue that fits the backend's row ceiling arrives in one query. It is
+// not a catalogue limit: PostgREST may enforce a smaller project-level
+// max_rows, so the effective stride is taken from what the probe actually
+// returned, and any remaining rows are fetched at that stride.
+const GENERATE_INITIAL_PROBE_SIZE = 1000;
 const GENERATE_PAGE_CONCURRENCY = 4;
-// Explicit runtime budget for internal queries per attempt (first page
-// included). Exceeding it fails loudly instead of truncating; at a 100-row
-// stride this is 20,000 recipes.
+// Explicit budget on internal backend queries per attempt (probe included).
+// It bounds request fan-out, not catalogue size: the recipes it can cover are
+// budget x effective stride, which depends on the backend's row ceiling.
+// Exceeding it fails loudly instead of truncating.
 const GENERATE_MAX_PAGES_PER_ATTEMPT = 200;
 // One retry of the whole retrieval if pages observed different snapshots.
 const GENERATE_MAX_ATTEMPTS = 2;
@@ -229,22 +232,23 @@ function pageRows(page) {
 // or { inconsistency } describing why the observed pages cannot be trusted.
 // Query errors and an exceeded page budget throw (not retried).
 //
-// 1. Probe: request [0, REQUESTED) and read the exact count. The probe's row
-//    count and total come from one statement, so a short probe page with more
-//    rows remaining reveals the effective row ceiling: stride = rows returned.
+// 1. Probe: request [0, GENERATE_INITIAL_PROBE_SIZE) and read the exact count.
+//    The probe's rows and total come from one statement, so a short probe page
+//    with more rows remaining reveals the effective row ceiling:
+//    stride = rows returned. If the probe holds every row, no more queries run.
 // 2. Only then compute offsets stride, 2*stride, ... < total, and fetch them in
 //    bounded concurrent batches, each requesting exactly `stride` rows.
 // 3. Verify: every page has the probe's count and exactly
 //    min(stride, total - offset) rows; IDs are usable and unique; length === total.
 async function attemptGenerateCatalogue(supabase, params) {
-  const first = await fetchGenerateCataloguePage(supabase, params, 0, GENERATE_REQUESTED_PAGE_SIZE);
+  const first = await fetchGenerateCataloguePage(supabase, params, 0, GENERATE_INITIAL_PROBE_SIZE);
   if (first.error) throw new GenerateCatalogueQueryError(first.error);
   if (!isValidCount(first.count)) return { inconsistency: 'missing_count' };
 
   const total = first.count;
   const firstRows = pageRows(first);
   if (!firstRows) return { inconsistency: 'page_size_mismatch' };
-  if (firstRows.length > GENERATE_REQUESTED_PAGE_SIZE || firstRows.length > total) {
+  if (firstRows.length > GENERATE_INITIAL_PROBE_SIZE || firstRows.length > total) {
     return { inconsistency: 'page_size_mismatch' };
   }
   // An empty probe while rows remain cannot make progress.
