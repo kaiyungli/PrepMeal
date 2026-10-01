@@ -76,42 +76,35 @@ describe('canonical recipe budget preference', () => {
   });
 });
 
-describe('generate catalogue pagination', () => {
-  it('fetches the later page containing a premium protein main', async () => {
-    const firstPage = Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, 'normal'));
-    const laterPage = [recipe('premium-main', 'premium', { meal_role: 'protein_main' })];
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ recipes: firstPage, hasMore: true }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ recipes: laterPage, hasMore: false }) });
+describe('generate complete catalogue', () => {
+  it('receives a premium protein main that sits beyond the first 100 recipes', async () => {
+    const pool = [
+      ...Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, 'normal')),
+      recipe('premium-main', 'premium', { meal_role: 'protein_main' }),
+    ];
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true, json: async () => ({ recipes: pool, total: pool.length, complete: true }),
+    });
     vi.stubGlobal('fetch', fetchMock);
 
-    const recipes = await fetchAvailableRecipes(200);
+    const recipes = await fetchAvailableRecipes();
 
     expect(recipes).toHaveLength(101);
     expect(recipes.at(-1)?.budget_level).toBe('premium');
-    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
-      '/api/recipes?limit=100&offset=0&view=generate',
-      '/api/recipes?limit=100&offset=100&view=generate',
-    ]);
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/api/recipes?view=generate']);
   });
 
-  it('does not fetch past the requested limit', async () => {
+  it('rejects an incomplete pool instead of planning from it', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
-      ok: true, json: async () => ({ recipes: [recipe('one', 'normal')], hasMore: false }),
+      ok: true,
+      json: async () => ({ recipes: Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, null)), total: 101, complete: true }),
     });
     vi.stubGlobal('fetch', fetchMock);
-    expect(await fetchAvailableRecipes(1)).toHaveLength(1);
-    expect(fetchMock).toHaveBeenCalledWith('/api/recipes?limit=1&offset=0&view=generate');
+    await expect(fetchAvailableRecipes()).rejects.toThrow('incomplete');
   });
 
-  it('rejects a failed later page instead of caching an incomplete pool', async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ recipes: Array.from({ length: 100 }, (_, i) => recipe(`r${i}`, null)), hasMore: true }),
-      })
-      .mockResolvedValueOnce({ ok: false, status: 500 });
-    vi.stubGlobal('fetch', fetchMock);
-    await expect(fetchAvailableRecipes(200)).rejects.toThrow('HTTP 500');
+  it('rejects a failed catalogue request', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    await expect(fetchAvailableRecipes()).rejects.toThrow('HTTP 500');
   });
 });
