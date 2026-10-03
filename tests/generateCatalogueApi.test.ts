@@ -104,14 +104,35 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body).toEqual({ recipes: rows, total: 3, complete: true, hasMore: false });
   });
 
-  it.each([100, 200])('handles an exact page boundary of %i recipes without an extra or missing page', async (n) => {
+  // Key performance regression: today's catalogue (188) must arrive in ONE backend query.
+  it.each([188, 250, 1000])('fetches an uncapped %i-recipe catalogue with exactly one backend request', async (n) => {
     const rows = catalogue(n);
     serve(rows);
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ recipes: rows, total: n, complete: true, hasMore: false });
+    expect(res.body.recipes).toHaveLength(n);
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+    const probe = requestedUrls()[0];
+    expect(probe.searchParams.get('offset')).toBe('0');
+    expect(probe.searchParams.get('limit')).toBe('1000');
+  });
+
+  it.each([
+    [100, 100, 1],
+    [200, 100, 2],
+    [1000, undefined, 1],
+    [2000, undefined, 2],
+    [2000, 1000, 2],
+  ])('handles an exact page boundary: %i recipes, max_rows %s -> %i request(s)', async (n, maxRows, calls) => {
+    const rows = catalogue(n);
+    serve(rows, undefined, { maxRows });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
     expect(res.body.recipes).toEqual(rows);
-    expect(mocks.fetch).toHaveBeenCalledTimes(n / 100);
+    expect(mocks.fetch).toHaveBeenCalledTimes(calls);
   });
 
   it('ignores client limit/page/offset/sort as completeness controls', async () => {
@@ -124,10 +145,10 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body.total).toBe(150);
     expect(res.body.recipes).toEqual(rows);
     const urls = requestedUrls();
-    expect(urls.map(u => u.searchParams.get('offset')).sort()).toEqual(['0', '100']);
-    for (const url of urls) {
-      expect(url.searchParams.get('order')).toBe('created_at.desc.nullslast,id.desc');
-    }
+    expect(urls).toHaveLength(1);
+    expect(urls[0].searchParams.get('offset')).toBe('0');
+    expect(urls[0].searchParams.get('limit')).toBe('1000');
+    expect(urls[0].searchParams.get('order')).toBe('created_at.desc.nullslast,id.desc');
   });
 
   it('returns more than 100 recipes completely', async () => {
@@ -149,20 +170,20 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body).toEqual({ recipes: rows, total: 250, complete: true, hasMore: false });
   });
 
-  it('assembles many internal pages in canonical order (no 1000 ceiling)', async () => {
+  it('assembles many internal pages in canonical order under a 100-row ceiling', async () => {
     const rows = catalogue(1234);
-    serve(rows);
+    serve(rows, undefined, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.total).toBe(1234);
     expect(res.body.recipes.map(r => r.id)).toEqual(rows.map(r => r.id));
-    const offsets = requestedUrls().map(u => Number(u.searchParams.get('offset'))).sort((a, b) => a - b);
+    const urls = requestedUrls();
+    const offsets = urls.map(u => Number(u.searchParams.get('offset'))).sort((a, b) => a - b);
     expect(offsets).toEqual(Array.from({ length: 13 }, (_, i) => i * 100));
-    for (const url of requestedUrls()) {
-      expect(url.searchParams.get('limit')).toBe('100');
-      expect(url.searchParams.get('is_public')).toBe('eq.true');
-    }
+    expect(urls[0].searchParams.get('limit')).toBe('1000');
+    for (const url of urls.slice(1)) expect(url.searchParams.get('limit')).toBe('100');
+    for (const url of urls) expect(url.searchParams.get('is_public')).toBe('eq.true');
   });
 
   it('keeps the exact count request and generate field list', async () => {
@@ -195,7 +216,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
   it('never reports complete when a page boundary duplicates a recipe', async () => {
     const rows = catalogue(150);
     // Page 2 repeats the last row of page 1 (a publish shifted offsets) on every attempt.
-    serve(rows, page => page.from === 100 ? { ...page, rows: [rows[99], ...page.rows.slice(0, -1)] } : page);
+    serve(rows, page => page.from === 100 ? { ...page, rows: [rows[99], ...page.rows.slice(0, -1)] } : page, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(503);
@@ -203,9 +224,9 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(res.body).not.toHaveProperty('recipes');
   });
 
-  it('never reports complete when rows are missing (short page / row ceiling)', async () => {
+  it('never reports complete when rows are missing (short later page)', async () => {
     const rows = catalogue(150);
-    serve(rows, page => page.from === 100 ? { ...page, rows: page.rows.slice(1) } : page);
+    serve(rows, page => page.from === 100 ? { ...page, rows: page.rows.slice(1) } : page, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(503);
@@ -213,6 +234,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
   });
 
   it.each([
+    [250, 100, ['0', '100', '200']],
     [150, 50, ['0', '50', '100']],
     [250, 50, ['0', '50', '100', '150', '200']],
     [101, 50, ['0', '50', '100']],
@@ -228,25 +250,28 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(new Set(res.body.recipes.map(r => r.id)).size).toBe(n);
     const urls = requestedUrls();
     expect(urls.map(u => u.searchParams.get('offset')).sort((a, b) => Number(a) - Number(b))).toEqual(offsets);
-    // The probe asks for the requested page size; every later page asks for the discovered stride.
-    expect(urls[0].searchParams.get('limit')).toBe('100');
+    // The probe asks for 1000; every later page asks for the discovered stride.
+    expect(urls[0].searchParams.get('limit')).toBe('1000');
     for (const url of urls.slice(1)) expect(url.searchParams.get('limit')).toBe(String(maxRows));
   });
 
-  it('uses the full requested page size when the backend is not capped', async () => {
-    const rows = catalogue(250);
-    serve(rows);
-    await get({ view: 'generate' });
+  it('continues at the probe stride when the backend caps at 1000 (1234 recipes)', async () => {
+    const rows = catalogue(1234);
+    serve(rows, undefined, { maxRows: 1000 });
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ recipes: rows, total: 1234, complete: true, hasMore: false });
     const requested = requestedUrls()
       .map(u => [Number(u.searchParams.get('offset')), u.searchParams.get('limit')] as const)
       .sort((a, b) => a[0] - b[0]);
-    expect(requested).toEqual([[0, '100'], [100, '100'], [200, '100']]);
+    expect(requested).toEqual([[0, '1000'], [1000, '1000']]);
   });
 
   it('assembles pages in offset order even when later pages arrive first', async () => {
     const rows = catalogue(450);
     // Higher offsets respond sooner, so batch responses arrive in reverse order.
-    serve(rows, undefined, { delayMs: from => from === 0 ? 0 : Math.max(1, 30 - from / 20) });
+    serve(rows, undefined, { maxRows: 50, delayMs: from => from === 0 ? 0 : Math.max(1, 30 - from / 20) });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(200);
@@ -272,8 +297,8 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
   });
 
   it('never reports complete when the probe returns more rows than requested', async () => {
-    const rows = catalogue(300);
-    serve(rows, page => page.from === 0 ? { ...page, rows: rows.slice(0, 101) } : page);
+    const rows = catalogue(1100);
+    serve(rows, page => page.from === 0 ? { ...page, rows: rows.slice(0, 1001) } : page);
     const res = await get({ view: 'generate' });
     expect(res.statusCode).toBe(503);
   });
@@ -352,7 +377,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
   it('retries the whole retrieval once when totals change mid-pagination', async () => {
     const rows = catalogue(150);
     // Attempt 1: page 2 reports a different total (a recipe was unpublished).
-    serve(rows, (page, call) => call === 1 ? { ...page, total: 149, rows: page.rows.slice(1) } : page);
+    serve(rows, (page, call) => call === 1 ? { ...page, total: 149, rows: page.rows.slice(1) } : page, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(200);
@@ -374,7 +399,7 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
 
   it('fails the request when the retry still cannot be verified (bounded, no third attempt)', async () => {
     const rows = catalogue(150);
-    serve(rows, page => page.from === 100 ? { ...page, total: 149 } : page);
+    serve(rows, page => page.from === 100 ? { ...page, total: 149 } : page, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(503);
@@ -382,10 +407,19 @@ describe('GET /api/recipes?view=generate - complete catalogue contract', () => {
     expect(mocks.fetch).toHaveBeenCalledTimes(4);
   });
 
-  it('fails closed with 500 on a query error', async () => {
+  it('fails closed with 500 on a query error in the probe', async () => {
+    serve(catalogue(3), () => new Response(JSON.stringify({ message: 'boom', code: 'XX000' }), { status: 500, headers: { 'content-type': 'application/json' } }));
+    const res = await get({ view: 'generate' });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toMatchObject({ complete: false, reason: 'query_error' });
+    expect(mocks.fetch).toHaveBeenCalledOnce();
+  });
+
+  it('fails closed with 500 on a query error in a later page', async () => {
     serve(catalogue(150), page => page.from === 100
       ? new Response(JSON.stringify({ message: 'boom', code: 'XX000' }), { status: 500, headers: { 'content-type': 'application/json' } })
-      : page);
+      : page, { maxRows: 100 });
     const res = await get({ view: 'generate' });
 
     expect(res.statusCode).toBe(500);
