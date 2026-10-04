@@ -53,9 +53,32 @@ const INGREDIENT_ROWS: IngredientRow[] = [
   row('recipe-b', 'Recipe B', 'tomato', '番茄', 1, 'vegetable'),
 ];
 
+// Recipe C has a real uuid id: 2 eggs + 100 g pork.
+const RECIPE_C = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+const RECIPE_D = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+const RECIPE_C_SPELLINGS = [
+  '3F2504E0-4F89-41D3-9A0C-0305E82C3301',
+  '{3f2504e0-4f89-41d3-9a0c-0305e82c3301}',
+  '3f2504e04f8941d39a0c0305e82c3301',
+  '3f25-04e0-4f89-41d3-9a0c-0305-e82c-3301',
+];
+INGREDIENT_ROWS.push(
+  row(RECIPE_C, 'Recipe C', 'egg', '雞蛋', 2, 'egg'),
+  row(RECIPE_C, 'Recipe C', 'pork', '豬肉', 100, 'meat', unit('g', '克')),
+);
+
+// Postgres uuid comparison: case, braces and hyphen placement do not matter,
+// and the column always returns the lower-case hyphenated form.
+function pgId(id: string): string {
+  const hex = id.replace(/^\{(.*)\}$/, '$1').replace(/-/g, '').toLowerCase();
+  if (!/^[0-9a-f]{32}$/.test(hex)) return id;
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
+}
+
 // Behaves like PostgREST `.in()`: each matching row is returned once, no
-// matter how many times an id appears in the filter list.
-function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b']) {
+// matter how many times an id appears in the filter list. `returnedRows`
+// replaces the ingredient query result outright.
+function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b', RECIPE_C], returnedRows?: IngredientRow[]) {
   const visibilityQueryIds: string[][] = [];
   const ingredientQueryIds: string[][] = [];
 
@@ -70,7 +93,8 @@ function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b']) {
             in: (_column: string, ids: string[]) => ({
               eq: async () => {
                 visibilityQueryIds.push([...ids]);
-                return { data: publicRecipeIds.filter((id) => ids.includes(id)).map((id) => ({ id })), error: null };
+                const requested = ids.map(pgId);
+                return { data: publicRecipeIds.filter((id) => requested.includes(id)).map((id) => ({ id })), error: null };
               },
             }),
           }),
@@ -81,7 +105,8 @@ function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b']) {
           select: () => ({
             in: async (_column: string, ids: string[]) => {
               ingredientQueryIds.push([...ids]);
-              return { data: INGREDIENT_ROWS.filter((r) => ids.includes(r.recipe_id)), error: null };
+              const requested = ids.map(pgId);
+              return { data: returnedRows ?? INGREDIENT_ROWS.filter((r) => requested.includes(r.recipe_id)), error: null };
             },
           }),
         };
@@ -93,8 +118,8 @@ function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b']) {
   return { client, visibilityQueryIds, ingredientQueryIds };
 }
 
-async function request(recipeIds: string[], servings = 1, publicRecipeIds?: string[]) {
-  const database = createDatabase(publicRecipeIds);
+async function request(recipeIds: string[], servings = 1, publicRecipeIds?: string[], returnedRows?: IngredientRow[]) {
+  const database = createDatabase(publicRecipeIds, returnedRows);
   createClientMock.mockReturnValue(database.client);
   const response = {
     statusCode: 200,
@@ -212,6 +237,50 @@ describe('/api/shopping-list recipe occurrences', () => {
     const groupedEggs = body.byRecipe.flatMap((group) => group.toBuy).filter((item) => item.name === '雞蛋')
       .reduce((sum, item) => sum + (item.quantity as number), 0);
     expect(groupedEggs).toBe(toBuyQuantities(body)['雞蛋|pc']);
+  });
+});
+
+describe('/api/shopping-list uuid recipe identity', () => {
+  it('counts every spelling of the same uuid as an occurrence of one recipe', async () => {
+    const { statusCode, body, visibilityQueryIds, ingredientQueryIds } = await request([RECIPE_C, ...RECIPE_C_SPELLINGS]);
+
+    expect(statusCode).toBe(200);
+    // 5 occurrences x (2 eggs + 100 g pork)
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 10, '豬肉|g': 500 });
+    expect(byRecipeQuantities(body)).toEqual({ [RECIPE_C]: { '雞蛋|隻': 10, '豬肉|克': 500 } });
+    expect(visibilityQueryIds).toEqual([[RECIPE_C]]);
+    expect(ingredientQueryIds).toEqual([[RECIPE_C]]);
+  });
+
+  it('keeps multiplicity when only non-canonical spellings are requested', async () => {
+    const { statusCode, body } = await request([RECIPE_C_SPELLINGS[0], RECIPE_C_SPELLINGS[0], RECIPE_C_SPELLINGS[2]], 2);
+
+    expect(statusCode).toBe(200);
+    // 3 occurrences x 2 servings
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 12, '豬肉|g': 600 });
+  });
+
+  it('does not fail visibility for equivalent spellings of one public recipe', async () => {
+    const { statusCode, body } = await request([RECIPE_C, RECIPE_C_SPELLINGS[0]], 1, [RECIPE_C]);
+
+    expect(statusCode).toBe(200);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 4, '豬肉|g': 200 });
+  });
+
+  it('still rejects a distinct private uuid alongside spellings of a public one', async () => {
+    const { statusCode, ingredientQueryIds } = await request([RECIPE_C_SPELLINGS[0], RECIPE_C, RECIPE_D.toUpperCase()], 1, [RECIPE_C]);
+
+    expect(statusCode).toBe(403);
+    expect(ingredientQueryIds).toEqual([]);
+  });
+
+  it('fails instead of undercounting an ingredient row it cannot match to a requested recipe', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const strayRows = [row(RECIPE_D, 'Recipe D', 'egg', '雞蛋', 2, 'egg')];
+
+    const { statusCode } = await request([RECIPE_C, RECIPE_C], 1, [RECIPE_C], strayRows);
+
+    expect(statusCode).toBe(500);
   });
 });
 

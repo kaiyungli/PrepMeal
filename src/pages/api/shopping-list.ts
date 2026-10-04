@@ -72,6 +72,19 @@ function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
   return Array.from(map.values());
 }
 
+// recipes.id and recipe_ingredients.recipe_id are Postgres uuid columns, which
+// accept upper case, surrounding braces and hyphens after any group of four
+// hex digits, but always return the lower-case 8-4-4-4-12 form. Requested ids
+// and returned rows are compared through this form so equivalent spellings are
+// one recipe. Anything else is passed through unchanged.
+function canonicalRecipeId(id: string): string {
+  const braced = id.startsWith('{') && id.endsWith('}');
+  const body = braced ? id.slice(1, -1) : id;
+  if (!/^[0-9a-f]{4}(?:-?[0-9a-f]{4}){7}$/i.test(body)) return id;
+  const hex = body.replace(/-/g, '').toLowerCase();
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ShoppingListResponse | { error: string }>
@@ -87,12 +100,14 @@ export default async function handler(
 
   const body = req.body as Record<string, unknown>;
   // A plan can contain the same recipe more than once. Count occurrences so
-  // each one contributes ingredients, but query the database by unique id.
+  // each one contributes ingredients, but query the database by unique
+  // canonical id.
   const recipeOccurrences = new Map<string, number>();
   if (Array.isArray(body?.recipeIds)) {
     for (const id of body.recipeIds) {
       if (typeof id === 'string' && id.trim() !== '') {
-        recipeOccurrences.set(id, (recipeOccurrences.get(id) ?? 0) + 1);
+        const recipeId = canonicalRecipeId(id);
+        recipeOccurrences.set(recipeId, (recipeOccurrences.get(recipeId) ?? 0) + 1);
       }
     }
   }
@@ -152,8 +167,8 @@ export default async function handler(
 
     if (visibilityError) throw visibilityError;
 
-    const visibleRecipeIds = (visibleRecipes || []).map((recipe) => String(recipe.id));
-    if (visibleRecipeIds.length !== recipeIds.length) {
+    const visibleRecipeIds = new Set((visibleRecipes || []).map((recipe) => canonicalRecipeId(String(recipe.id))));
+    if (!recipeIds.every((id) => visibleRecipeIds.has(id))) {
       return res.status(403).json({ error: 'One or more recipes are unavailable' });
     }
 
@@ -171,7 +186,7 @@ export default async function handler(
         recipes(id, name),
         units(id, code, display_name_en, display_name_zh)
       `)
-      .in('recipe_id', visibleRecipeIds);
+      .in('recipe_id', recipeIds);
 
     if (ingError) {
       console.log('[shopping-list api] fetch error:', ingError);
@@ -209,6 +224,11 @@ export default async function handler(
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
+
+      const occurrences = recipeOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));
+      if (occurrences === undefined) {
+        throw new Error('Ingredient row does not belong to a requested recipe');
+      }
       
       // Choose display name based on user preference with proper fallback
       const unitCode = unitRow?.code ?? '';
@@ -227,9 +247,7 @@ export default async function handler(
         normalizedName: ing.name,
         // Scale by servings (quantities are per base serving; base_servings is
         // 1 across the catalogue) and by how often the recipe is in the plan.
-        // An id that only differs in formatting from the requested one keeps
-        // the previous single-occurrence count.
-        quantity: (ri.quantity ?? 0) * servings * (recipeOccurrences.get(String(ri.recipe_id)) ?? 1),
+        quantity: (ri.quantity ?? 0) * servings * occurrences,
         unit: unitCode,
         unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),
