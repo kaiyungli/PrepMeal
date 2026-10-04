@@ -1,31 +1,29 @@
 // @vitest-environment jsdom
+import fs from 'node:fs';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createElement } from 'react';
-import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { cleanup, renderHook, waitFor } from '@testing-library/react';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import type { ShoppingListResponse } from '@/features/shopping-list/types';
 
 // A saved plan stores one menu_plan_items row per planned meal, so the same
 // recipe can appear on several days or in several meal slots. Every one of
 // those rows must reach /api/shopping-list, which counts occurrences.
 //
-// This drives the real /my-plans/[id] page, usePlanDetailController,
-// getPlanDetail, ShoppingListSection and both real API handlers
-// (/api/user/menus/[id] and /api/shopping-list) against a fake Supabase.
+// The proof is split along the real path:
+//   1. usePlanDetailController loads a plan through the real getPlanDetail and
+//      the real /api/user/menus/[id] handler, and must return every occurrence.
+//   2. Its recipeIds/avgServings, posted exactly as ShoppingListSection posts
+//      them, go through the real /api/shopping-list handler.
+//   3. /my-plans/[id] and ShoppingListSection are .js files with JSX, which
+//      this Vitest setup does not compile, so their pass-through from the
+//      controller to the request body is pinned at source level.
 
-const { requireAuthMock, createClientMock, drawerProps } = vi.hoisted(() => {
+const { requireAuthMock, createClientMock } = vi.hoisted(() => {
   // _auth.js builds its JWKS URL from this at import time.
   process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
-  return {
-  requireAuthMock: vi.fn(),
-  createClientMock: vi.fn(),
-  drawerProps: { current: null as null | { shoppingList: ShoppingList | null; loading: boolean } },
-  };
+  return { requireAuthMock: vi.fn(), createClientMock: vi.fn() };
 });
-
-type ShoppingList = {
-  byCategory: { pantry: unknown[]; toBuy: Record<string, Array<{ name: string; unit: string; quantity: number }>> };
-  byRecipe: Array<{ recipeName: string; toBuy: Array<{ name: string; quantity: number }> }>;
-};
 
 vi.mock('../src/pages/api/user/_auth.js', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -33,31 +31,6 @@ vi.mock('../src/pages/api/user/_auth.js', async (importOriginal) => ({
 }));
 vi.mock('@supabase/supabase-js', () => ({ createClient: createClientMock }));
 
-vi.mock('next/router', () => ({ useRouter: () => ({ query: { id: currentPlanId } }) }));
-vi.mock('next/head', () => ({ default: () => null }));
-vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: unknown; href: string }) => createElement('a', { href }, children as never),
-}));
-vi.mock('@/components/layout/Header', () => ({ default: () => null }));
-vi.mock('@/features/layout/hooks/useHeaderController', () => ({ useHeaderController: () => ({}) }));
-vi.mock('@/hooks/useAuthGuard', () => ({
-  useAuthGuard: () => ({ isAuthenticated: true, loading: false, getAccessToken: async () => 'token', user: { id: 'user-1' } }),
-}));
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ getAccessToken: async () => 'token' }) }));
-vi.mock('@/components/RecipeDetailModal', () => ({ default: () => null }));
-vi.mock('@/features/recipes/hooks/useRecipeDetailModal', () => ({
-  useRecipeDetailModal: () => ({ recipe: null, loading: false, error: null, close: () => {} }),
-}));
-vi.mock('@/features/recipes/services/recipeDetailClientCache', () => ({ prefetchRecipeDetail: () => {} }));
-// The drawer is presentation only; capture what ShoppingListSection gives it.
-vi.mock('@/components/shopping/ShoppingListDrawer', () => ({
-  default: (props: { shoppingList: ShoppingList | null; loading: boolean }) => {
-    drawerProps.current = props;
-    return null;
-  },
-}));
-
-import PlanDetailPage from '../src/pages/my-plans/[id].js';
 import menuDetailHandler from '../src/pages/api/user/menus/[id].js';
 import shoppingListHandler from '../src/pages/api/shopping-list';
 import { usePlanDetailController } from '../src/features/plans';
@@ -85,9 +58,7 @@ const INGREDIENT_ROWS = ([
 
 type PlanRow = { date: string; meal_slot: string; recipe_id: string | null; servings: number; item_order?: number };
 
-let currentPlanId = 'plan-1';
 let plans: Record<string, PlanRow[]> = {};
-let shoppingListBodies: Array<{ recipeIds: string[]; servings: number }> = [];
 
 // menu_plans, menu_plan_items and recipes for the menus API; recipes,
 // recipe_ingredients and user_preferences for the shopping-list API.
@@ -139,38 +110,47 @@ async function callHandler(handler: (req: NextApiRequest, res: NextApiResponse) 
     json(body: unknown) { this.body = body; return this; },
   };
   await handler({ headers: { authorization: 'Bearer token' }, ...req } as NextApiRequest, res as unknown as NextApiResponse);
-  return { ok: res.statusCode < 400, status: res.statusCode, json: async () => res.body };
+  return { ok: res.statusCode < 400, status: res.statusCode, body: res.body };
 }
 
-// Routes the page's fetch calls to the real API handlers.
-async function routeFetch(url: string, init?: RequestInit) {
+// getPlanDetail fetches /api/user/menus/:id; route it to the real handler.
+async function routeFetch(url: string) {
   const menuMatch = url.match(/^\/api\/user\/menus\/([^/?]+)$/);
-  if (menuMatch) {
-    return callHandler(menuDetailHandler as never, { method: 'GET', query: { id: menuMatch[1] } });
-  }
-  if (url === '/api/shopping-list') {
-    const body = JSON.parse(String(init?.body));
-    shoppingListBodies.push(body);
-    return callHandler(shoppingListHandler as never, { method: 'POST', body });
-  }
-  throw new Error(`Unexpected fetch: ${url}`);
+  if (!menuMatch) throw new Error(`Unexpected fetch: ${url}`);
+  const { ok, status, body } = await callHandler(menuDetailHandler as never, { method: 'GET', query: { id: menuMatch[1] } });
+  return { ok, status, json: async () => body };
 }
 
-async function openSavedPlan(planId: string) {
-  currentPlanId = planId;
-  const view = render(createElement(PlanDetailPage));
-  const trigger = await screen.findByText('查看購物清單');
-  await act(async () => { fireEvent.click(trigger); });
-  await waitFor(() => expect(drawerProps.current?.shoppingList).toBeTruthy());
-  return { view, shoppingList: drawerProps.current!.shoppingList!, request: shoppingListBodies.at(-1)! };
+async function loadController(rows: PlanRow[], planId = 'plan-1') {
+  plans[planId] = rows;
+  const { result } = renderHook(() => usePlanDetailController({
+    planId, isAuthenticated: true, userId: 'user-1', getAccessToken: async () => 'token',
+  }));
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(result.current.error).toBeNull();
+  return result.current;
 }
 
-function toBuy(list: ShoppingList): Record<string, number> {
-  return Object.fromEntries(Object.values(list.byCategory.toBuy).flat().map((item) => [item.name, item.quantity]));
+// The body ShoppingListSection posts: { recipeIds, servings } from the
+// controller (see the source-level pass-through test below).
+async function requestShoppingList(controller: { recipeIds: string[]; avgServings: number }) {
+  const { status, body } = await callHandler(shoppingListHandler as never, {
+    method: 'POST',
+    body: { recipeIds: controller.recipeIds, servings: controller.avgServings },
+  });
+  expect(status).toBe(200);
+  return body as ShoppingListResponse;
 }
+
+function toBuy(body: ShoppingListResponse): Record<string, number> {
+  return Object.fromEntries(body.toBuy.flatMap((section) => section.items).map((item) => [item.name, item.quantity as number]));
+}
+
+const meal = (date: string, recipeId: string | null, servings = 1, mealSlot = 'dinner'): PlanRow => ({
+  date, meal_slot: mealSlot, recipe_id: recipeId, servings,
+});
 
 beforeEach(() => {
-  process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon';
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-only-secret';
   requireAuthMock.mockResolvedValue('user-1');
@@ -178,8 +158,6 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(routeFetch));
   vi.spyOn(console, 'log').mockImplementation(() => {});
   plans = {};
-  shoppingListBodies = [];
-  drawerProps.current = null;
 });
 
 afterEach(() => {
@@ -188,137 +166,131 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const dinner = (date: string, recipeId: string | null, servings = 2, mealSlot = 'dinner'): PlanRow => ({
-  date, meal_slot: mealSlot, recipe_id: recipeId, servings,
-});
+describe('usePlanDetailController saved-plan occurrences', () => {
+  it('returns a single saved recipe once', async () => {
+    const controller = await loadController([meal('2026-10-05', RECIPE_A)]);
 
-describe('/my-plans/[id] shopping list occurrences', () => {
-  it('sends a single saved recipe once', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A, 1)];
-
-    const { request, shoppingList } = await openSavedPlan('plan-1');
-
-    expect(request).toEqual({ recipeIds: [RECIPE_A], servings: 1 });
-    expect(toBuy(shoppingList)).toEqual({ 雞蛋: 2, 番茄: 1 });
+    expect(controller.recipeIds).toEqual([RECIPE_A]);
   });
 
-  it('sends a recipe saved on two days twice and doubles its ingredients', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A, 1), dinner('2026-10-06', RECIPE_A, 1)];
+  it('returns a recipe saved on two days twice', async () => {
+    const controller = await loadController([meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_A)]);
 
-    const { request, shoppingList } = await openSavedPlan('plan-1');
-
-    expect(request.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
-    expect(toBuy(shoppingList)).toEqual({ 雞蛋: 4, 番茄: 2 });
+    expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
   });
 
   it('preserves every occurrence of [A, B, A] in plan order', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A, 1), dinner('2026-10-06', RECIPE_B, 1), dinner('2026-10-07', RECIPE_A, 1)];
+    const controller = await loadController([meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_B), meal('2026-10-07', RECIPE_A)]);
 
-    const { request, shoppingList } = await openSavedPlan('plan-1');
-
-    expect(request.recipeIds).toEqual([RECIPE_A, RECIPE_B, RECIPE_A]);
-    // eggs: A 2 x 2 + B 3 x 1
-    expect(toBuy(shoppingList)).toEqual({ 雞蛋: 7, 番茄: 2, 豆腐: 1 });
+    expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_B, RECIPE_A]);
   });
 
   it('counts the same recipe in different meal slots of one day separately', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A, 1, 'lunch'), dinner('2026-10-05', RECIPE_A, 1, 'dinner')];
+    const controller = await loadController([meal('2026-10-05', RECIPE_A, 1, 'lunch'), meal('2026-10-05', RECIPE_A, 1, 'dinner')]);
 
-    const { request, shoppingList } = await openSavedPlan('plan-1');
-
-    expect(request.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
-    expect(toBuy(shoppingList)).toEqual({ 雞蛋: 4, 番茄: 2 });
+    expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
   });
 
   it('counts the same recipe twice in one slot (different item_order) separately', async () => {
-    plans['plan-1'] = [
-      { ...dinner('2026-10-05', RECIPE_A, 1), item_order: 1 },
-      { ...dinner('2026-10-05', RECIPE_A, 1), item_order: 2 },
-    ];
-
-    const { request } = await openSavedPlan('plan-1');
-
-    expect(request.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
-  });
-
-  it('passes the saved servings and composes them with occurrences', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A, 3), dinner('2026-10-06', RECIPE_A, 3), dinner('2026-10-07', RECIPE_B, 3)];
-
-    const { request, shoppingList } = await openSavedPlan('plan-1');
-
-    expect(request).toEqual({ recipeIds: [RECIPE_A, RECIPE_A, RECIPE_B], servings: 3 });
-    // eggs: (2 x 2 + 3 x 1) x 3
-    expect(toBuy(shoppingList)).toEqual({ 雞蛋: 21, 番茄: 6, 豆腐: 3 });
-    // byRecipe keeps one group per recipe with its total across occurrences.
-    expect(shoppingList.byRecipe.map((group) => [group.recipeName, group.toBuy.map((item) => item.quantity)])).toEqual([
-      ['番茄炒蛋', [12, 6]],
-      ['蒸豆腐', [9, 3]],
+    const controller = await loadController([
+      { ...meal('2026-10-05', RECIPE_A), item_order: 1 },
+      { ...meal('2026-10-05', RECIPE_A), item_order: 2 },
     ]);
+
+    expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
   });
-
-  it('does not reuse one saved plan\'s list for another with a different multiplicity', async () => {
-    plans['plan-single'] = [dinner('2026-10-05', RECIPE_A, 1)];
-    plans['plan-double'] = [dinner('2026-10-05', RECIPE_A, 1), dinner('2026-10-06', RECIPE_A, 1)];
-
-    const first = await openSavedPlan('plan-single');
-    first.view.unmount();
-    drawerProps.current = null;
-    const second = await openSavedPlan('plan-double');
-
-    expect(shoppingListBodies.map((body) => body.recipeIds)).toEqual([[RECIPE_A], [RECIPE_A, RECIPE_A]]);
-    expect(toBuy(first.shoppingList)).toEqual({ 雞蛋: 2, 番茄: 1 });
-    expect(toBuy(second.shoppingList)).toEqual({ 雞蛋: 4, 番茄: 2 });
-  });
-
-  it('renders every saved item under its day, repeats included', async () => {
-    plans['plan-1'] = [dinner('2026-10-05', RECIPE_A), dinner('2026-10-06', RECIPE_B), dinner('2026-10-07', RECIPE_A)];
-    currentPlanId = 'plan-1';
-
-    render(createElement(PlanDetailPage));
-
-    await screen.findByText('查看購物清單');
-    expect(screen.getAllByText('番茄炒蛋')).toHaveLength(2);
-    expect(screen.getAllByText('蒸豆腐')).toHaveLength(1);
-    expect(shoppingListBodies).toEqual([]);
-  });
-});
-
-describe('usePlanDetailController', () => {
-  async function loadController(rows: PlanRow[]) {
-    plans['plan-1'] = rows;
-    const { result } = renderHook(() => usePlanDetailController({
-      planId: 'plan-1', isAuthenticated: true, userId: 'user-1', getAccessToken: async () => 'token',
-    }));
-    await waitFor(() => expect(result.current.loading).toBe(false));
-    return result.current;
-  }
 
   it('drops items without a recipe but keeps every other occurrence', async () => {
     const controller = await loadController([
-      dinner('2026-10-05', RECIPE_A),
-      dinner('2026-10-05', null, 2, 'lunch'),
-      dinner('2026-10-06', RECIPE_A),
+      meal('2026-10-05', RECIPE_A),
+      meal('2026-10-05', null, 1, 'lunch'),
+      meal('2026-10-06', RECIPE_A),
     ]);
 
     expect(controller.items).toHaveLength(3);
     expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_A]);
   });
 
-  it('keeps day grouping and plan order unchanged', async () => {
+  it('returns no recipe ids for a plan with no usable items', async () => {
+    const controller = await loadController([meal('2026-10-05', null, 2)]);
+
+    expect(controller.recipeIds).toEqual([]);
+    expect(controller.avgServings).toBe(2);
+  });
+
+  it('keeps day grouping, plan order and saved servings unchanged', async () => {
     const controller = await loadController([
-      dinner('2026-10-05', RECIPE_A), dinner('2026-10-06', RECIPE_B), dinner('2026-10-06', RECIPE_A, 2, 'lunch'),
+      meal('2026-10-05', RECIPE_A, 3), meal('2026-10-06', RECIPE_B, 3), meal('2026-10-06', RECIPE_A, 3, 'lunch'),
     ]);
 
     expect(Object.fromEntries(Object.entries(controller.groupedItems).map(([day, items]) => [day, items.map((i) => i.recipe_id)])))
       .toEqual({ 0: [RECIPE_A], 1: [RECIPE_B, RECIPE_A] });
-    expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_B, RECIPE_A]);
-    expect(controller.avgServings).toBe(2);
+    expect(controller.items.map((i) => i.recipe?.name)).toEqual(['番茄炒蛋', '蒸豆腐', '番茄炒蛋']);
+    expect(controller.avgServings).toBe(3);
+  });
+});
+
+describe('saved plan → /api/shopping-list', () => {
+  it('keeps single-occurrence quantities unchanged', async () => {
+    const body = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A)]));
+
+    expect(toBuy(body)).toEqual({ 雞蛋: 2, 番茄: 1 });
   });
 
-  it('returns no recipe ids for a plan with no usable items', async () => {
-    const controller = await loadController([dinner('2026-10-05', null)]);
+  it('doubles the ingredients of a recipe saved on two days', async () => {
+    const body = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_A)]));
 
-    expect(controller.recipeIds).toEqual([]);
-    expect(controller.avgServings).toBe(2);
+    expect(toBuy(body)).toEqual({ 雞蛋: 4, 番茄: 2 });
+  });
+
+  it('weights each recipe of [A, B, A] by its occurrences', async () => {
+    const body = await requestShoppingList(await loadController([
+      meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_B), meal('2026-10-07', RECIPE_A),
+    ]));
+
+    // eggs: A 2 x 2 + B 3 x 1
+    expect(toBuy(body)).toEqual({ 雞蛋: 7, 番茄: 2, 豆腐: 1 });
+  });
+
+  it('composes the saved servings with occurrences', async () => {
+    const body = await requestShoppingList(await loadController([
+      meal('2026-10-05', RECIPE_A, 3), meal('2026-10-06', RECIPE_A, 3), meal('2026-10-07', RECIPE_B, 3),
+    ]));
+
+    // eggs: (2 x 2 + 3 x 1) x 3
+    expect(toBuy(body)).toEqual({ 雞蛋: 21, 番茄: 6, 豆腐: 3 });
+    expect(body.byRecipe.map((group) => [group.recipeName, group.toBuy.map((item) => item.quantity)])).toEqual([
+      ['番茄炒蛋', [12, 6]],
+      ['蒸豆腐', [9, 3]],
+    ]);
+  });
+
+  it('gives saved plans [A] and [A, A] different lists', async () => {
+    const single = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A)], 'plan-single'));
+    cleanup();
+    const double = await requestShoppingList(await loadController(
+      [meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_A)], 'plan-double',
+    ));
+
+    expect(toBuy(single)).toEqual({ 雞蛋: 2, 番茄: 1 });
+    expect(toBuy(double)).toEqual({ 雞蛋: 4, 番茄: 2 });
+  });
+});
+
+describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
+  const source = (file: string) => fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
+  const page = source('src/pages/my-plans/[id].js');
+  const section = source('src/components/myPlans/ShoppingListSection.js');
+
+  it('passes the controller recipeIds and avgServings straight to ShoppingListSection', () => {
+    expect(page).toMatch(/const \{[^}]*\brecipeIds,[^}]*\bavgServings,[^}]*\} = controller;/);
+    expect(page).toContain('<ShoppingListSection recipeIds={recipeIds} servings={avgServings} />');
+  });
+
+  it('posts those props to /api/shopping-list without transforming them', () => {
+    expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1 })');
+    expect(section).toContain("fetch('/api/shopping-list'");
+    expect(section).toContain('body: JSON.stringify({ recipeIds, servings })');
+    expect(section).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
   });
 });
