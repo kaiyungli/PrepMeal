@@ -86,9 +86,17 @@ export default async function handler(
   if (!userId) return;
 
   const body = req.body as Record<string, unknown>;
-  const recipeIds = Array.isArray(body?.recipeIds)
-    ? [...new Set(body.recipeIds.filter((id): id is string => typeof id === 'string' && id.trim() !== ''))]
-    : [];
+  // A plan can contain the same recipe more than once. Count occurrences so
+  // each one contributes ingredients, but query the database by unique id.
+  const recipeOccurrences = new Map<string, number>();
+  if (Array.isArray(body?.recipeIds)) {
+    for (const id of body.recipeIds) {
+      if (typeof id === 'string' && id.trim() !== '') {
+        recipeOccurrences.set(id, (recipeOccurrences.get(id) ?? 0) + 1);
+      }
+    }
+  }
+  const recipeIds = [...recipeOccurrences.keys()];
   const pantryIngredients = Array.isArray(body?.pantryIngredients)
     ? body.pantryIngredients
         .filter((name): name is string => typeof name === 'string')
@@ -217,7 +225,11 @@ export default async function handler(
         ingredientId: ri.ingredient_id,
         name: ing.name,
         normalizedName: ing.name,
-        quantity: (ri.quantity ?? 0) * servings,
+        // Scale by servings (quantities are per base serving; base_servings is
+        // 1 across the catalogue) and by how often the recipe is in the plan.
+        // An id that only differs in formatting from the requested one keeps
+        // the previous single-occurrence count.
+        quantity: (ri.quantity ?? 0) * servings * (recipeOccurrences.get(String(ri.recipe_id)) ?? 1),
         unit: unitCode,
         unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),
