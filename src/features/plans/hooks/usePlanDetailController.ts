@@ -83,7 +83,9 @@ export function usePlanDetailController({
     setSelectedRecipeId(null);
   };
 
-  const recipeIds = [...new Set(items.map(i => i.recipe_id).filter(Boolean))];
+  // One id per saved meal: a recipe planned on several days or slots is sent
+  // once per occurrence, and /api/shopping-list counts the repeats.
+  const recipeIds = items.map(i => i.recipe_id).filter(Boolean);
 
   const avgServings =
     items.length > 0
