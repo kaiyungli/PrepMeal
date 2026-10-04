@@ -95,14 +95,19 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     return rpcRecipe as RecipeDetailRow;
   }
 
-  // Fallback: RPC failed or returned null, use old multi-query approach
-  if (rpcError) {
-    console.error('[recipe-detail] rpc_failed_fallback', {
-      traceId,
-      id_or_slug: recipeIdOrSlug,
-      error: rpcError.message
-    });
+  // The RPC only returns public recipes, so a null result without an error
+  // means "not found or not public". It must never fall through to the
+  // service-role fallback below, which bypasses RLS.
+  if (!rpcError) {
+    throw new Error('Recipe not found');
   }
+
+  // Fallback: RPC failed, use old multi-query approach
+  console.error('[recipe-detail] rpc_failed_fallback', {
+    traceId,
+    id_or_slug: recipeIdOrSlug,
+    error: rpcError.message
+  });
 
   // Legacy multi-query approach
   // Detect UUID vs slug - UUIDs follow specific pattern
@@ -132,13 +137,16 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       diet,
       is_complete_meal,
       created_at
-    `);
+    `)
+    // supabaseServer is service-role and bypasses RLS, so public visibility
+    // must be enforced here explicitly.
+    .eq('is_public', true);
 
   // Query by id or slug
   const recipeQueryStart = perfNow();
   const recipeResult = isUuid
-    ? await baseQuery.eq('id', recipeIdOrSlug).single()
-    : await baseQuery.eq('slug', recipeIdOrSlug).single();
+    ? await baseQuery.eq('id', recipeIdOrSlug).maybeSingle()
+    : await baseQuery.eq('slug', recipeIdOrSlug).maybeSingle();
   const recipeQueryMs = perfNow() - recipeQueryStart;
 
   const { data: recipe, error: recipeError } = recipeResult;
@@ -149,7 +157,8 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       id_or_slug: recipeIdOrSlug, 
       error: recipeError.message 
     });
-    throw new Error('Recipe fetch failed: ' + recipeError.message);
+    // Keep raw database errors in server logs only.
+    throw new Error('Recipe fetch failed');
   }
 
   if (!recipe) {
