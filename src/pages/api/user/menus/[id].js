@@ -7,6 +7,8 @@ import { createUserSupabaseClient } from '@/lib/supabaseUserClient';
 
 // GET failures are logged server-side; the client only ever gets this.
 const GET_PLAN_ERROR = 'Failed to load plan';
+// Same for DELETE failures.
+const DELETE_PLAN_ERROR = 'Failed to delete plan';
 
 // menu_plans.id is a uuid. Any other id can't name a plan, so it is a 404
 // here rather than a uuid cast error from the database.
@@ -59,6 +61,10 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+      if (typeof planId !== 'string' || !UUID_RE.test(planId)) {
+        return res.status(404).json(ApiResponse.notFound('Plan not found'));
+      }
+
       // The menu_plan_items FK cascades from menu_plans. A single parent DELETE
       // keeps the plan and its items in the same database transaction.
       try {
@@ -70,7 +76,8 @@ export default async function handler(req, res) {
           .select('id');
         
         if (planError) {
-          throw planError;
+          console.error('[menus-api] delete_plan_error', { planId, error: planError });
+          return res.status(500).json(ApiResponse.error(DELETE_PLAN_ERROR));
         }
 
         if (!deletedPlans?.length) {
@@ -79,7 +86,8 @@ export default async function handler(req, res) {
         
         return res.status(200).json(ApiResponse.success({ deleted: true }));
       } catch (err) {
-        return res.status(500).json(ApiResponse.error(err.message));
+        console.error('[menus-api] delete_plan_exception', { planId, error: err });
+        return res.status(500).json(ApiResponse.error(DELETE_PLAN_ERROR));
       }
     }
 
@@ -88,6 +96,10 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       console.error('[menus-api] get_plan_exception', { planId: req.query.id, error: err });
       return res.status(500).json(ApiResponse.error(GET_PLAN_ERROR));
+    }
+    if (req.method === 'DELETE') {
+      console.error('[menus-api] delete_plan_exception', { planId: req.query.id, error: err });
+      return res.status(500).json(ApiResponse.error(DELETE_PLAN_ERROR));
     }
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
   }
