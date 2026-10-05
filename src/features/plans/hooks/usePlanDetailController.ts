@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { getPlanDetail } from '../services/getPlanDetail';
 import { mapPlanItemsByDay } from '../mappers/mapPlanItemsByDay';
+import { mapPlanItemMealSlot, mapPlanDaysByMealSlot } from '../mappers/mapPlanMealSlots';
 
 interface UsePlanDetailControllerOptions {
   planId: string;
@@ -49,10 +50,12 @@ export function usePlanDetailController({
 
         if (cancelled) return;
 
-        setPlan(fetchedPlan);
-        setItems(fetchedItems);
+        const mappedItems = fetchedItems.map(mapPlanItemMealSlot);
 
-        const grouped = mapPlanItemsByDay(fetchedPlan, fetchedItems);
+        setPlan(fetchedPlan);
+        setItems(mappedItems);
+
+        const grouped = mapPlanItemsByDay(fetchedPlan, mappedItems);
         setGroupedItems(grouped);
         fetchedKeyRef.current = fetchKey;
       } catch (err: any) {
@@ -72,6 +75,9 @@ export function usePlanDetailController({
   }, [planId, isAuthenticated, userId]);
 
   
+  // Each day's items bucketed by canonical mealSlot, in display order.
+  const mealSlotGroupsByDay = useMemo(() => mapPlanDaysByMealSlot(groupedItems), [groupedItems]);
+
   const handleRecipeClick = (id: string | number) => {
     const recipeId = String(id);
     if (!recipeId) return;
@@ -96,6 +102,7 @@ export function usePlanDetailController({
     plan,
     items,
     groupedItems,
+    mealSlotGroupsByDay,
 
     recipeIds,
     avgServings,

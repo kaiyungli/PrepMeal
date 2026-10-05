@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { getRecipeUrl } from '@/utils/planUtils';
-
-const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
+import { PLAN_MEAL_SLOT_LABELS } from '@/features/plans/mappers/mapPlanMealSlots';
 
 /**
  * PlanRecipeCard - displays a single meal item in the plan
@@ -13,9 +12,8 @@ const MEAL_TYPES = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐' };
 export default function PlanRecipeCard({ item, onClick, compact = false }) {
   if (!item) return null;
   
-  const { recipe, meal_type, servings } = item;
-  const mealType = item.meal_type || item.meal_slot || 'dinner';
-  const mealLabel = MEAL_TYPES[mealType] || '晚餐';
+  const { recipe, servings } = item;
+  const mealLabel = PLAN_MEAL_SLOT_LABELS[item.mealSlot] || PLAN_MEAL_SLOT_LABELS.other;
   const recipeUrl = getRecipeUrl(recipe);
   const hasValidRecipe = Boolean(recipe && recipeUrl);
   const handlePrefetch = (source) => {

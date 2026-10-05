@@ -30,7 +30,7 @@ export default function PlanDetailPage() {
   const {
     plan,
     items,
-    groupedItems,
+    mealSlotGroupsByDay,
     recipeIds,
     avgServings,
     loading: dataLoading,
@@ -119,7 +119,7 @@ export default function PlanDetailPage() {
                 <PlanDaySection
                   key={dayIndex}
                   dayIndex={dayIndex}
-                  items={groupedItems[dayIndex] || []}
+                  mealSlotGroups={mealSlotGroupsByDay[dayIndex] || []}
                   weekStartDate={plan.week_start_date}
                   onRecipeClick={handleRecipeClick}
                 />
