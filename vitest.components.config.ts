@@ -7,7 +7,8 @@ import baseConfig from './vitest.config';
 // change that globally, this config compiles JSX only for
 // src/components/myPlans/*.js and runs only the tests listed below.
 //
-// Run with: npm run test:components
+// Run alone with `npm run test:components`, or with the default suite via
+// `npm run test:all`.
 
 const MY_PLANS_COMPONENT_JS = /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/;
 
