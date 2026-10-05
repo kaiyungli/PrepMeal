@@ -5,6 +5,9 @@ import { mapPlanResponse, mapItemResponse, mapItemsWithRecipes } from '@/feature
 import { getMenuPlanDetail } from '@/features/plans/server/getMenuPlanDetail';
 import { createUserSupabaseClient } from '@/lib/supabaseUserClient';
 
+// GET failures are logged server-side; the client only ever gets this.
+const GET_PLAN_ERROR = 'Failed to load plan';
+
 export default async function handler(req, res) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -30,7 +33,12 @@ export default async function handler(req, res) {
       // Get plan detail from server
       const { plan, items, recipes, error } = await getMenuPlanDetail(userSupabase, planId, userId);
       
-      if (error || !plan) {
+      if (error) {
+        console.error('[menus-api] get_plan_error', { planId, error });
+        return res.status(500).json(ApiResponse.error(GET_PLAN_ERROR));
+      }
+
+      if (!plan) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));
       }
       
@@ -69,6 +77,10 @@ export default async function handler(req, res) {
 
     return res.status(405).json(ApiResponse.methodNotAllowed());
   } catch (err) {
+    if (req.method === 'GET') {
+      console.error('[menus-api] get_plan_exception', { planId: req.query.id, error: err });
+      return res.status(500).json(ApiResponse.error(GET_PLAN_ERROR));
+    }
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
   }
 }
