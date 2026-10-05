@@ -92,7 +92,7 @@ export default function MyPlansPage() {
       });
       
       if (res.ok) {
-        setPlans(plans.filter(p => p.id !== planId));
+        setPlans(prev => prev.filter(p => p.id !== planId));
         showToast('已刪除', 'success');
       } else {
         showToast('刪除失敗', 'error');
