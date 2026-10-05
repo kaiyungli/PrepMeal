@@ -121,7 +121,7 @@ async function routeFetch(url: string) {
   return { ok, status, json: async () => body };
 }
 
-async function loadController(rows: PlanRow[], planId = 'plan-1') {
+async function loadController(rows: PlanRow[], planId = '5d2f6a0e-8c1b-4e7a-9f3d-2b6c8e1a4f70') {
   plans[planId] = rows;
   const { result } = renderHook(() => usePlanDetailController({
     planId, isAuthenticated: true, userId: 'user-1', getAccessToken: async () => 'token',
@@ -266,10 +266,10 @@ describe('saved plan → /api/shopping-list', () => {
   });
 
   it('gives saved plans [A] and [A, A] different lists', async () => {
-    const single = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A)], 'plan-single'));
+    const single = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A)], '00000000-0000-4000-8000-000000000001'));
     cleanup();
     const double = await requestShoppingList(await loadController(
-      [meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_A)], 'plan-double',
+      [meal('2026-10-05', RECIPE_A), meal('2026-10-06', RECIPE_A)], '00000000-0000-4000-8000-000000000002',
     ));
 
     expect(toBuy(single)).toEqual({ 雞蛋: 2, 番茄: 1 });

@@ -80,7 +80,7 @@ async function routeFetch(url: string) {
 async function loadController(planRows: Row[]) {
   rows = planRows;
   const { result } = renderHook(() => usePlanDetailController({
-    planId: 'plan-1', isAuthenticated: true, userId: 'user-1', getAccessToken: async () => 'token',
+    planId: '5d2f6a0e-8c1b-4e7a-9f3d-2b6c8e1a4f70', isAuthenticated: true, userId: 'user-1', getAccessToken: async () => 'token',
   }));
   await waitFor(() => expect(result.current.loading).toBe(false));
   expect(result.current.error).toBeNull();
