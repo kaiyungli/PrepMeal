@@ -9,8 +9,10 @@ import MyPlansPage from '@/pages/my-plans';
 // Each DELETE handler used to remove its plan from the `plans` array captured
 // by the render it started in. With two deletes in flight, the second to
 // finish wrote back a list that still contained the first, so a plan already
-// deleted on the server reappeared until reload. Only auth, header and
-// next/head are stubbed; fetch is controlled per request.
+// deleted on the server reappeared until reload. In-flight state was also a
+// single id, so starting a second delete re-enabled the first plan's button
+// and either completion cleared the other's loading state. Only auth, header
+// and next/head are stubbed; fetch is controlled per request.
 
 const { authGuard } = vi.hoisted(() => ({
   authGuard: {
@@ -86,6 +88,16 @@ function settle(name: string, outcome: Outcome) {
   return pendingDeletes.get(idOf(name))!.settle(outcome);
 }
 
+// Disabled button showing the loading indicator.
+function isPending(name: string) {
+  const button = deleteButton(name);
+  return button.disabled && button.textContent === '...';
+}
+
+function pendingState() {
+  return Object.fromEntries(visiblePlans().map((name) => [name, isPending(name!)]));
+}
+
 function visiblePlans() {
   return screen.queryAllByRole('heading', { level: 3 }).map((h) => h.textContent);
 }
@@ -132,6 +144,7 @@ describe('My Plans: concurrent successful deletes', () => {
     await settle(order[1], { status: 200 });
     expect(visiblePlans()).toEqual(['Plan C']);
     expect(toastText()).toBe('已刪除');
+    expect(pendingState()).toEqual({ 'Plan C': false });
 
     // Exactly one DELETE per plan; C was never touched.
     expect(deleteCalls).toEqual([idOf('Plan A'), idOf('Plan B')]);
@@ -209,5 +222,105 @@ describe('My Plans: single delete (unchanged behaviour)', () => {
 
     expect(deleteCalls).toEqual([]);
     expect(visiblePlans()).toEqual(['Plan A', 'Plan B', 'Plan C']);
+  });
+});
+
+describe('My Plans: per-plan in-flight delete state', () => {
+  it('A. starting A marks only A pending', async () => {
+    await renderWithPlans();
+
+    await startDelete('Plan A');
+
+    expect(pendingState()).toEqual({ 'Plan A': true, 'Plan B': false, 'Plan C': false });
+  });
+
+  it('B. starting B while A is pending keeps both pending', async () => {
+    await renderWithPlans();
+
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+
+    expect(pendingState()).toEqual({ 'Plan A': true, 'Plan B': true, 'Plan C': false });
+  });
+
+  it('C/G. A succeeding removes A while B stays pending', async () => {
+    await renderWithPlans();
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+
+    await settle('Plan A', { status: 200 });
+
+    expect(pendingState()).toEqual({ 'Plan B': true, 'Plan C': false });
+  });
+
+  it('D. B succeeding while A is pending keeps A pending', async () => {
+    await renderWithPlans();
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+
+    await settle('Plan B', { status: 200 });
+
+    expect(pendingState()).toEqual({ 'Plan A': true, 'Plan C': false });
+  });
+
+  it.each([
+    ['500', { status: 500 }],
+    ['network failure', 'network-error'],
+  ] as const)('F. A failing (%s) makes A retryable while B stays pending', async (_label, outcome) => {
+    await renderWithPlans();
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+
+    await settle('Plan A', outcome);
+
+    expect(pendingState()).toEqual({ 'Plan A': false, 'Plan B': true, 'Plan C': false });
+
+    await startDelete('Plan A');
+    expect(pendingState()).toEqual({ 'Plan A': true, 'Plan B': true, 'Plan C': false });
+  });
+
+  it('E. repeat clicks on A while A is pending send exactly one DELETE', async () => {
+    await renderWithPlans();
+    const confirmSpy = vi.mocked(confirm);
+
+    // Both clicks are handled before React re-renders, so the second one sees
+    // the same render as the first; only the in-flight guard stops it.
+    act(() => {
+      deleteButton('Plan A').click();
+      deleteButton('Plan A').click();
+    });
+    await waitFor(() => expect(deleteCalls.length).toBe(1));
+
+    // Further clicks once A renders as pending, including after B starts.
+    fireEvent.click(deleteButton('Plan A'));
+    await startDelete('Plan B');
+    fireEvent.click(deleteButton('Plan A'));
+    await act(async () => {});
+
+    expect(deleteCalls).toEqual([idOf('Plan A'), idOf('Plan B')]);
+    expect(confirmSpy).toHaveBeenCalledTimes(2);
+
+    await settle('Plan A', { status: 200 });
+    await settle('Plan B', { status: 200 });
+    expect(visiblePlans()).toEqual(['Plan C']);
+  });
+
+  it.each([
+    ['A then B', ['Plan A', 'Plan B']],
+    ['B then A', ['Plan B', 'Plan A']],
+  ] as const)('H. no plan is left pending once both fail (%s)', async (_label, order) => {
+    await renderWithPlans();
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+
+    await settle(order[0], { status: 500 });
+    await settle(order[1], { status: 500 });
+
+    expect(pendingState()).toEqual({ 'Plan A': false, 'Plan B': false, 'Plan C': false });
+
+    // Both can be deleted again, each with a single new request.
+    await startDelete('Plan A');
+    await startDelete('Plan B');
+    expect(deleteCalls).toEqual([idOf('Plan A'), idOf('Plan B'), idOf('Plan A'), idOf('Plan B')]);
   });
 });
