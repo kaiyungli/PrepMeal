@@ -46,7 +46,7 @@ const addDays = (date: string, days: number) => {
 };
 
 function createMenuPlanAtomic(args: { p_week_start_date: string; p_days_count: number; p_items: SaveItem[] }) {
-  const id = `plan-${Object.keys(plans).length + 1}`;
+  const id = `00000000-0000-4000-8000-${String(Object.keys(plans).length + 1).padStart(12, '0')}`;
   const counters: Record<string, number> = {};
   const rows = args.p_items.map((item, index) => {
     const key = `${item.day_index}|${item.meal_type}`;

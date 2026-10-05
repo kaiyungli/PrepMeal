@@ -4,10 +4,9 @@
  */
 
 // `.single()` reports "no row" as an error, PGRST116. Filtered by id and
-// user_id, that means the plan doesn't exist or isn't this user's. 22P02 is a
-// planId that isn't a uuid, which no plan can match either. Every other error
-// is a failed read, not a missing plan.
-const PLAN_NOT_FOUND_CODES = new Set(['PGRST116', '22P02']);
+// user_id, that means the plan doesn't exist or isn't this user's. Every other
+// error is a failed read, not a missing plan.
+const PLAN_NOT_FOUND_CODE = 'PGRST116';
 
 /**
  * Returns one of:
@@ -26,7 +25,7 @@ export async function getMenuPlanDetail(supabase: any, planId: string, userId: s
     .eq('user_id', userId)
     .single();
   
-  if (planError && !PLAN_NOT_FOUND_CODES.has(planError.code)) {
+  if (planError && planError.code !== PLAN_NOT_FOUND_CODE) {
     return { plan: null, items: null, recipes: null, error: planError };
   }
 

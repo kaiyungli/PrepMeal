@@ -6,6 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 // GET /api/user/menus/[id] error contract:
 // - plan missing or not this user's (PGRST116 from .single()) → 404 "Plan not found"
+// - a route id that isn't a uuid → 404 "Plan not found" before any database query
 // - any plan/items/recipes query failure, or a thrown exception → 500 "Failed to load plan",
 //   logged server-side, with nothing from the database error in the response
 // - a recipe query that succeeds but omits rows (RLS) is not an error: 200, and
@@ -30,6 +31,7 @@ import menuDetailHandler from '../src/pages/api/user/menus/[id].js';
 import { getMenuPlanDetail } from '../src/features/plans/server/getMenuPlanDetail';
 import { usePlanDetailController } from '../src/features/plans';
 
+const PLAN_ID = '5d2f6a0e-8c1b-4e7a-9f3d-2b6c8e1a4f70';
 const TOKEN = 'secret-user-token-abc123';
 const ANON_KEY = 'anon-key-secret-xyz789';
 const RECIPE_A = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
@@ -38,12 +40,12 @@ const RECIPES = {
   [RECIPE_A]: { id: RECIPE_A, name: '番茄炒蛋', image_url: null, total_time_minutes: 10, difficulty: 'easy', method: 'stir_fry' },
   [RECIPE_B]: { id: RECIPE_B, name: '蒸豆腐', image_url: null, total_time_minutes: 15, difficulty: 'easy', method: 'steamed' },
 };
-const PLAN = { id: 'plan-1', user_id: 'user-1', title: 'Saved', start_date: '2026-10-05', end_date: '2026-10-11', created_at: '2026-10-01' };
+const PLAN = { id: PLAN_ID, user_id: 'user-1', title: 'Saved', start_date: '2026-10-05', end_date: '2026-10-11', created_at: '2026-10-01' };
 const ROWS = [
   { date: '2026-10-05', meal_slot: 'breakfast', recipe_id: RECIPE_A },
   { date: '2026-10-05', meal_slot: 'dinner', recipe_id: RECIPE_B },
   { date: '2026-10-06', meal_slot: 'snack', recipe_id: RECIPE_A },
-].map((row, index) => ({ id: `item-${index}`, menu_plan_id: 'plan-1', servings: 2, item_order: index, source: 'generated', ...row }));
+].map((row, index) => ({ id: `item-${index}`, menu_plan_id: PLAN_ID, servings: 2, item_order: index, source: 'generated', ...row }));
 
 // Supabase-shaped errors. Every field holds text that must never reach the client.
 const COLUMN_ERROR = { code: '42703', message: 'column recipes.method does not exist', details: 'SELECT id, name, method FROM public.recipes', hint: 'Perhaps you meant to reference the column "recipes.methods".' };
@@ -58,6 +60,7 @@ type Step = () => Promise<Result>;
 let planStep: Step;
 let itemsStep: Step;
 let recipesStep: (ids: string[]) => Promise<Result>;
+let tablesQueried: string[] = [];
 
 const ok = (data: unknown): Step => async () => ({ data, error: null });
 const fail = (error: unknown): Step => async () => ({ data: null, error });
@@ -66,6 +69,7 @@ const visibleRecipes = (ids: string[]) => [...new Set(ids)].map((id) => RECIPES[
 function fakeSupabase() {
   return {
     from: (table: string) => {
+      tablesQueried.push(table);
       if (table === 'menu_plans') return { select: () => ({ eq: () => ({ eq: () => ({ single: () => planStep() }) }) }) };
       if (table === 'menu_plan_items') return { select: () => ({ eq: () => ({ order: () => ({ order: () => itemsStep() }) }) }) };
       if (table === 'recipes') return { select: () => ({ in: (_c: string, ids: string[]) => recipesStep(ids) }) };
@@ -74,7 +78,7 @@ function fakeSupabase() {
   };
 }
 
-async function get(planId = 'plan-1') {
+async function get(planId = PLAN_ID) {
   const res = {
     statusCode: 200,
     body: undefined as unknown,
@@ -98,7 +102,7 @@ async function routeFetch(url: string) {
 
 async function loadController() {
   const { result } = renderHook(() => usePlanDetailController({
-    planId: 'plan-1', isAuthenticated: true, userId: 'user-1', getAccessToken: async () => TOKEN,
+    planId: PLAN_ID, isAuthenticated: true, userId: 'user-1', getAccessToken: async () => TOKEN,
   }));
   await waitFor(() => expect(result.current.loading).toBe(false));
   return result.current;
@@ -125,6 +129,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(routeFetch));
   vi.spyOn(console, 'log').mockImplementation(() => {});
   consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+  tablesQueried = [];
   planStep = ok(PLAN);
   itemsStep = ok(ROWS);
   recipesStep = async (ids) => ({ data: visibleRecipes(ids), error: null });
@@ -139,25 +144,31 @@ afterEach(() => {
 describe('getMenuPlanDetail result', () => {
   it('reports a missing plan with no error, and a failed plan read with its error', async () => {
     planStep = fail(NOT_FOUND_ERROR);
-    expect(await getMenuPlanDetail(fakeSupabase(), 'plan-1', 'user-1')).toEqual({ plan: null, items: null, recipes: null, error: null });
+    expect(await getMenuPlanDetail(fakeSupabase(), PLAN_ID, 'user-1')).toEqual({ plan: null, items: null, recipes: null, error: null });
 
     planStep = fail(TIMEOUT_ERROR);
-    expect(await getMenuPlanDetail(fakeSupabase(), 'plan-1', 'user-1')).toEqual({ plan: null, items: null, recipes: null, error: TIMEOUT_ERROR });
+    expect(await getMenuPlanDetail(fakeSupabase(), PLAN_ID, 'user-1')).toEqual({ plan: null, items: null, recipes: null, error: TIMEOUT_ERROR });
+  });
+
+  it('propagates 22P02 as an error; only PGRST116 means not found', async () => {
+    const castError = { code: '22P02', message: 'invalid input syntax for type uuid: "nope"', details: null, hint: null };
+    planStep = fail(castError);
+    expect(await getMenuPlanDetail(fakeSupabase(), 'nope', 'user-1')).toEqual({ plan: null, items: null, recipes: null, error: castError });
   });
 
   it('propagates a recipe query error instead of returning no recipes', async () => {
     recipesStep = async () => ({ data: null, error: COLUMN_ERROR });
-    const result = await getMenuPlanDetail(fakeSupabase(), 'plan-1', 'user-1');
+    const result = await getMenuPlanDetail(fakeSupabase(), PLAN_ID, 'user-1');
     expect(result.error).toBe(COLUMN_ERROR);
     expect(result.recipes).toBeNull();
   });
 
   it('treats an empty or partial successful recipe lookup as no error', async () => {
     recipesStep = async () => ({ data: [], error: null });
-    expect(await getMenuPlanDetail(fakeSupabase(), 'plan-1', 'user-1')).toMatchObject({ error: null, recipes: [] });
+    expect(await getMenuPlanDetail(fakeSupabase(), PLAN_ID, 'user-1')).toMatchObject({ error: null, recipes: [] });
 
     recipesStep = async () => ({ data: [RECIPES[RECIPE_A]], error: null });
-    expect(await getMenuPlanDetail(fakeSupabase(), 'plan-1', 'user-1')).toMatchObject({ error: null, recipes: [RECIPES[RECIPE_A]] });
+    expect(await getMenuPlanDetail(fakeSupabase(), PLAN_ID, 'user-1')).toMatchObject({ error: null, recipes: [RECIPES[RECIPE_A]] });
   });
 });
 
@@ -223,11 +234,20 @@ describe('GET /api/user/menus/[id] error contract', () => {
     expect(consoleError).not.toHaveBeenCalled();
   });
 
-  it('I. a planId that is not a uuid (22P02) → 404', async () => {
-    planStep = fail({ code: '22P02', message: 'invalid input syntax for type uuid: "nope"', details: null, hint: null });
-    const res = await get('nope');
-    expect(res.statusCode).toBe(404);
-    expect(res.body).toEqual({ success: false, error: 'Plan not found' });
+  it.each(['nope', 'plan-1', '5d2f6a0e8c1b4e7a9f3d2b6c8e1a4f70', `${'5d2f6a0e-8c1b-4e7a-9f3d-2b6c8e1a4f70'}x`])(
+    'I. route id %j is not a uuid → 404 with no database query',
+    async (planId) => {
+      const res = await get(planId);
+      expect(res.statusCode).toBe(404);
+      expect(res.body).toEqual({ success: false, error: 'Plan not found' });
+      expect(tablesQueried).toEqual([]);
+      expect(consoleError).not.toHaveBeenCalled();
+    },
+  );
+
+  it('I. a uuid route id does query the plan', async () => {
+    await get(PLAN_ID.toUpperCase());
+    expect(tablesQueried[0]).toBe('menu_plans');
   });
 
   it('J. a query that throws → 500 generic', async () => {
@@ -275,7 +295,7 @@ describe('server-side logging', () => {
     await get();
     expect(consoleError).toHaveBeenCalledTimes(1);
     const logged = inspect(consoleError.mock.calls[0], { depth: 10 });
-    expect(logged).toContain('plan-1');
+    expect(logged).toContain(PLAN_ID);
     expect(logged).toContain(message);
     expect(logged).not.toContain(TOKEN);
     expect(logged).not.toContain(ANON_KEY);
