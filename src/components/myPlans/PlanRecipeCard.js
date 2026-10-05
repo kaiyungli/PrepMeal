@@ -16,6 +16,35 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
   const mealLabel = PLAN_MEAL_SLOT_LABELS[item.mealSlot] || PLAN_MEAL_SLOT_LABELS.other;
   const recipeUrl = getRecipeUrl(recipe);
   const hasValidRecipe = Boolean(recipe && recipeUrl);
+
+  // Non-clickable fallback. Runs before cardContent is built, because a saved
+  // item's recipe can be missing (e.g. no longer public) and cardContent reads
+  // recipe fields directly. The client can't tell why, so the copy stays neutral.
+  if (!hasValidRecipe) {
+    return (
+      <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] opacity-60">
+        <div className="flex-shrink-0">
+          <div className={(compact ? "w-10 h-10" : "w-14 h-14") + " bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl"}>
+            🍽️
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[15px] font-semibold text-[#9A9A9A] truncate">
+            {recipe?.name || '此食譜暫時無法查看'}
+          </p>
+          <p className="text-xs text-[#B0B0B0] mt-0.5">
+            {mealLabel} · {servings}人份
+          </p>
+          {recipe?.name && (
+            <p className="text-xs text-[#B0B0B0] mt-1">
+              此食譜暫時無法查看
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   const handlePrefetch = (source) => {
     if (!recipe?.id) return;
     console.log('[recipe-card] prefetch_triggered', { recipeId: recipe.id, source, entry: 'my-plans' });
@@ -62,7 +91,7 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
   );
 
   // If onClick provided, use button behavior
-  if (onClick && hasValidRecipe) {
+  if (onClick) {
     return (
       <button 
         onClick={onClick}
@@ -79,33 +108,9 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
   }
   
   // Default: use Link navigation
-  if (hasValidRecipe) {
-    return (
-      <Link href={recipeUrl} className="block group">
-        {cardContent}
-      </Link>
-    );
-  }
-  
-  // Non-clickable fallback
   return (
-    <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] opacity-60">
-      <div className="flex-shrink-0">
-        <div className={(compact ? "w-10 h-10" : "w-14 h-14") + " bg-[#F6F1EB] rounded-lg flex items-center justify-center text-xl"}>
-          🍽️
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-[#9A9A9A] truncate">
-          {recipe?.name || '未知食譜'}
-        </p>
-        <p className="text-xs text-[#B0B0B0] mt-0.5">
-          {mealLabel} · {servings}人份
-        </p>
-        <p className="text-xs text-[#B0B0B0] mt-1">
-          食譜資料不完整
-        </p>
-      </div>
-    </div>
+    <Link href={recipeUrl} className="block group">
+      {cardContent}
+    </Link>
   );
 }
