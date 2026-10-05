@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "smoke": "node scripts/smoke.mjs",
-    "test": "vitest"
+    "test": "vitest",
+    "test:components": "vitest run --config vitest.components.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
