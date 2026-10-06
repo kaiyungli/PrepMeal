@@ -44,7 +44,8 @@ export default function RecipeDetail({ recipe, error }) {
   return (
     <>
       <Head>
-        <title>{safeRecipe.name} - 今晚食乜</title>
+        {/* One string: React renders a <title> with several children as empty. */}
+        <title>{`${safeRecipe.name} - 今晚食乜`}</title>
         <meta name="description" content={safeRecipe.description || safeRecipe.name} />
       </Head>
       <RecipeStructuredData recipe={safeRecipe} />
