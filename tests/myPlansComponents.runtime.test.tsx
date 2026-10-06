@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import PlanRecipeCard from '@/components/myPlans/PlanRecipeCard';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
 import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import { groupPlanItemsByMealSlot, mapPlanItemMealSlot } from '@/features/plans';
+import { SHOPPING_LIST_LOAD_ERROR, useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanShoppingList';
 
 // Runtime render tests for the My Plans .js components (run via
 // vitest.components.config.ts; see `npm run test:components`).
@@ -254,5 +255,224 @@ describe('Saved plan shopping list with unavailable recipes', () => {
 
     expect(screen.getByText('雞蛋')).toBeTruthy();
     expect(screen.queryByText(/已經唔再提供/)).toBeNull();
+  });
+});
+
+describe('Saved plan shopping list request failures', () => {
+  const LOAD_ERROR = '購物清單載入失敗，請重試';
+  const ZERO_USABLE = '呢個餐單嘅食譜已經唔再提供，無法產生購物清單';
+  const RAW_DB_ERROR = 'relation "recipe_ingredients" does not exist';
+  const EGGS = { ingredientId: 'egg', name: '雞蛋', quantity: 4, unit: 'pc', category: 'egg' };
+  const LIST = {
+    pantry: [],
+    toBuy: [{ category: 'egg', items: [EGGS] }],
+    byRecipe: [{ recipeId: 'recipe-a', recipeName: '番茄炒蛋', pantry: [], toBuy: [EGGS] }],
+    summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 },
+    unavailableRecipeCount: 0,
+  };
+  const ok = (body: unknown) => ({ ok: true, status: 200, json: async () => body });
+  const http500 = () => ({ ok: false, status: 500, json: async () => ({ error: RAW_DB_ERROR }) });
+
+  function deferred<T>() {
+    let resolve!: (value: T) => void;
+    const promise = new Promise<T>((r) => { resolve = r; });
+    return { promise, resolve };
+  }
+
+  function drawerContent() {
+    return document.body.querySelector('.overflow-y-auto') as HTMLElement | null;
+  }
+
+  async function open() {
+    render(<ShoppingListSection recipeIds={['recipe-a']} servings={1} />);
+    await act(async () => {
+      fireEvent.click(screen.getByText('查看購物清單'));
+    });
+    await waitFor(() => expect(screen.queryByText('載入中...')).toBeNull());
+  }
+
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('A. a 200 response renders the list with no error', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ok(LIST)));
+    await open();
+
+    expect(screen.getByText('雞蛋')).toBeTruthy();
+    expect(screen.queryByText(LOAD_ERROR)).toBeNull();
+    expect(screen.queryByText('重試')).toBeNull();
+  });
+
+  it('C. zero usable recipes stays the zero-usable message, not a request failure', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ok({ ...LIST, toBuy: [], byRecipe: [], unavailableRecipeCount: 1 })));
+    await open();
+
+    expect(screen.getByText(ZERO_USABLE)).toBeTruthy();
+    expect(screen.queryByText(LOAD_ERROR)).toBeNull();
+    expect(screen.queryByText('重試')).toBeNull();
+  });
+
+  it('D. HTTP 500 shows the safe error with a retry action, never a blank drawer or the backend text', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => http500()));
+    await open();
+
+    expect(drawerContent()?.textContent).toBe(`${LOAD_ERROR}重試`);
+    expect(document.body.textContent).not.toContain(RAW_DB_ERROR);
+    expect(screen.queryByText(ZERO_USABLE)).toBeNull();
+  });
+
+  it('D. an HTTP error with an unreadable body shows the same safe error', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: false, status: 502, json: async () => { throw new SyntaxError('Unexpected token < in JSON'); },
+    })));
+    await open();
+
+    expect(drawerContent()?.textContent).toBe(`${LOAD_ERROR}重試`);
+    expect(document.body.textContent).not.toContain('Unexpected token');
+  });
+
+  it('E. a network failure shows the safe error and does not crash', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+    await open();
+
+    expect(drawerContent()?.textContent).toBe(`${LOAD_ERROR}重試`);
+    expect(document.body.textContent).not.toContain('Failed to fetch');
+  });
+
+  it('G. retry issues a new request and a successful retry replaces the error with the list', async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => http500())
+      .mockImplementationOnce(async () => ok(LIST));
+    vi.stubGlobal('fetch', fetchMock);
+    await open();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('重試'));
+    });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText(LOAD_ERROR)).toBeNull();
+    expect(screen.queryByText('重試')).toBeNull();
+  });
+
+  it('G. closing after a failure closes the drawer, and reopening retries', async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => http500())
+      .mockImplementationOnce(async () => ok(LIST));
+    vi.stubGlobal('fetch', fetchMock);
+    await open();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('✕'));
+    });
+    expect(drawerContent()).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('查看購物清單'));
+    });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('H. while a request is pending, more open/retry attempts send no second request', async () => {
+    const pending = deferred<unknown>();
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => http500())
+      .mockImplementationOnce(() => pending.promise);
+    vi.stubGlobal('fetch', fetchMock);
+    await open();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('重試'));
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(drawerContent()?.textContent).toBe('載入中...');
+    expect(screen.queryByText('重試')).toBeNull();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('✕'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('查看購物清單'));
+      fireEvent.click(screen.getByText('查看購物清單'));
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      pending.resolve(ok(LIST));
+    });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('closing a loaded list closes the drawer without a new request', async () => {
+    const fetchMock = vi.fn(async () => ok(LIST));
+    vi.stubGlobal('fetch', fetchMock);
+    await open();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('✕'));
+    });
+    expect(drawerContent()).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('useSavedPlanShoppingList', () => {
+  const EGGS = { ingredientId: 'egg', name: '雞蛋', quantity: 4, unit: 'pc', category: 'egg' };
+  const LIST = {
+    pantry: [],
+    toBuy: [{ category: 'egg', items: [EGGS] }],
+    byRecipe: [],
+    summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 },
+  };
+
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('F. a failure after a success clears the earlier list instead of presenting it as current', async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(async () => ({ ok: true, status: 200, json: async () => LIST }))
+      .mockImplementationOnce(async () => ({ ok: false, status: 500, json: async () => ({ error: 'boom' }) }));
+    vi.stubGlobal('fetch', fetchMock);
+    const recipeIds = ['recipe-a'];
+    const { result } = renderHook(() => useSavedPlanShoppingList({ recipeIds, servings: 1 }));
+
+    await act(async () => { await result.current.fetchShoppingList(); });
+    expect(result.current.shoppingList?.byCategory.toBuy.egg).toEqual([EGGS]);
+
+    await act(async () => { await result.current.fetchShoppingList(); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.shoppingList).toBeNull();
+    expect(result.current.error).toBe(SHOPPING_LIST_LOAD_ERROR);
+    expect(result.current.loading).toBe(false);
+  });
+
+  it('H. concurrent calls send one request', async () => {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => LIST }));
+    vi.stubGlobal('fetch', fetchMock);
+    const recipeIds = ['recipe-a'];
+    const { result } = renderHook(() => useSavedPlanShoppingList({ recipeIds, servings: 1 }));
+
+    await act(async () => {
+      await Promise.all([result.current.fetchShoppingList(), result.current.fetchShoppingList()]);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => { await result.current.fetchShoppingList(); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

@@ -174,7 +174,19 @@ export default function ShoppingListDrawer({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
           {loading && <p className="text-center py-8 text-[var(--color-text-muted)]">載入中...</p>}
-          {error && <p className="text-center py-8 text-red-600">{error}</p>}
+          {!loading && error && (
+            <div className="text-center py-8">
+              <p className="text-red-600">{error}</p>
+              {onFetch && (
+                <button
+                  onClick={onFetch}
+                  className="mt-4 px-4 py-2 text-sm font-medium rounded-lg border border-[#E5DCC8] hover:bg-[#F4EDDD]"
+                >
+                  重試
+                </button>
+              )}
+            </div>
+          )}
           {!loading && !error && shoppingList?.notice && (
             <p className={shoppingList.noUsableRecipes
               ? 'text-center py-8 text-[var(--color-text-muted)]'

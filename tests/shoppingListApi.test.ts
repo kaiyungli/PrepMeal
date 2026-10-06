@@ -45,7 +45,9 @@ function createRequest(value: Partial<NextApiRequest>): NextApiRequest {
 function createDatabase({
   visibleRecipeIds = ['recipe-1'],
   ingredientRows = [] as unknown[],
-}: { visibleRecipeIds?: string[]; ingredientRows?: unknown[] } = {}) {
+  failingTable = null as string | null,
+  queryError = null as unknown,
+}: { visibleRecipeIds?: string[]; ingredientRows?: unknown[]; failingTable?: string | null; queryError?: unknown } = {}) {
   const preferenceUserIds: string[] = [];
   let ingredientQueryCount = 0;
 
@@ -66,10 +68,9 @@ function createDatabase({
         return {
           select: () => ({
             in: () => ({
-              eq: async () => ({
-                data: visibleRecipeIds.map((id) => ({ id })),
-                error: null,
-              }),
+              eq: async () => (failingTable === 'recipes'
+                ? { data: null, error: queryError }
+                : { data: visibleRecipeIds.map((id) => ({ id })), error: null }),
             }),
           }),
         };
@@ -80,7 +81,9 @@ function createDatabase({
           select: () => ({
             in: async () => {
               ingredientQueryCount += 1;
-              return { data: ingredientRows, error: null };
+              return failingTable === 'recipe_ingredients'
+                ? { data: null, error: queryError }
+                : { data: ingredientRows, error: null };
             },
           }),
         };
@@ -192,6 +195,29 @@ describe('/api/shopping-list security boundary', () => {
 
     expect(response.statusCode).toBe(500);
     expect(createClientMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['the visibility query', 'recipes'],
+    ['the ingredient query', 'recipe_ingredients'],
+  ])('returns a generic 500 without database details when %s fails', async (_label, failingTable) => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const dbError = Object.assign(new Error('relation "recipe_ingredients" does not exist'), { code: '42P01' });
+    const database = createDatabase({ failingTable, queryError: dbError });
+    createClientMock.mockReturnValue(database.client);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ error: 'Internal error' });
+    expect(consoleError).toHaveBeenCalledWith('[shopping-list api] fatal error:', dbError);
+    consoleError.mockRestore();
   });
 
   it('merges the same ingredient across rows whose raw unit codes normalize to the same canonical unit, and applies the servings multiplier', async () => {
