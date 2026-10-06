@@ -78,7 +78,7 @@ export default function PlanDetailPage() {
   return (
     <>
       <Header {...headerCtrl} />
-      <Head><title>{plan?.name || '餐單詳情'} - 今晚食乜</title></Head>
+      <Head><title>{`${plan?.name || '餐單詳情'} - 今晚食乜`}</title></Head>
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[800px] mx-auto px-4">
           <Link href="/my-plans" className={UI.textSubtleAction}>
