@@ -167,6 +167,37 @@ describe('PlanDaySection with a missing recipe', () => {
 // /api/shopping-list skips meals whose recipe is private or missing and only
 // reports how many it skipped. The saved-plan drawer must say so without
 // naming them, and still show the list built from the remaining meals.
+// /api/user/menus/[id] now selects calories_per_serving for each recipe.
+describe('PlanRecipeCard calories', () => {
+  it('A. shows calories_per_serving for a saved recipe', () => {
+    const { container } = render(<PlanRecipeCard item={planItem('a', 'dinner', RECIPE_A)} onClick={vi.fn()} compact />);
+
+    expect(container.textContent).toContain('10分鐘 · 320卡');
+  });
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('B. calories_per_serving %s renders without a made-up value', (_label, calories) => {
+    const recipe = { ...RECIPE_A, calories_per_serving: calories } as unknown as typeof RECIPE_A;
+    let container!: HTMLElement;
+    expect(() => ({ container } = render(<PlanRecipeCard item={planItem('a', 'dinner', recipe)} onClick={vi.fn()} compact />))).not.toThrow();
+
+    expect(container.textContent).toContain('番茄炒蛋');
+    expect(container.textContent).toContain('10分鐘');
+    expect(container.textContent).not.toMatch(/undefined|null|NaN|320/);
+    expect(screen.getByRole('button')).toBeTruthy();
+  });
+
+  it('C. an unavailable recipe keeps the placeholder and shows no calories', () => {
+    const { container } = render(<PlanRecipeCard item={planItem('m', 'dinner', 'null')} onClick={vi.fn()} compact />);
+
+    expect(container.textContent).toBe(`🍽️${UNAVAILABLE}晚餐 · 2人份`);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(container.querySelector('a')).toBeNull();
+  });
+});
+
 describe('Saved plan shopping list with unavailable recipes', () => {
   const PARTIAL_NOTICE = (n: number) => `有 ${n} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
   const ZERO_USABLE = '呢個餐單嘅食譜已經唔再提供，無法產生購物清單';
