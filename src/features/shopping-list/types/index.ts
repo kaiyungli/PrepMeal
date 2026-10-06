@@ -67,6 +67,8 @@ export interface ShoppingListResponse {
   toBuy: ShoppingListSection[];
   byRecipe: ShoppingListRecipeGroup[];
   summary: ShoppingListSummary;
+  // Meals in the request whose recipe is private or missing and was skipped.
+  unavailableRecipeCount?: number;
 }
 
 // ===== UI/View Model =====

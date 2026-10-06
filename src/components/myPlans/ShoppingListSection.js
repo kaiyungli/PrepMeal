@@ -53,12 +53,25 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
           }
         }
         
+        // Meals whose recipe is no longer available were skipped by the API;
+        // only their number is known. If every meal was skipped, nothing can
+        // be listed.
+        const unavailableCount = Number(data.unavailableRecipeCount) || 0;
+        let notice = null;
+        if (unavailableCount > 0) {
+          notice = unavailableCount >= recipeIds.length
+            ? '呢個餐單嘅食譜已經唔再提供，無法產生購物清單'
+            : `有 ${unavailableCount} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
+        }
+
         setShoppingList({
           byCategory: { 
             pantry: Array.isArray(data.pantry) ? data.pantry : [], 
             toBuy: normalizedToBuy 
           },
-          byRecipe: normalizedByRecipe
+          byRecipe: normalizedByRecipe,
+          notice,
+          noUsableRecipes: unavailableCount > 0 && unavailableCount >= recipeIds.length
         });
       }
     } catch (err) {
