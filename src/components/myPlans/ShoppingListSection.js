@@ -1,85 +1,14 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
+import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanShoppingList';
 
 /**
  * ShoppingListSection - triggers drawer with shopping list
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
 export default function ShoppingListSection({ recipeIds, servings = 1 }) {
-  const { getAccessToken } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [shoppingList, setShoppingList] = useState(null);
-  const [error, setError] = useState(null);
-
-  const fetchShoppingList = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const token = await getAccessToken();
-      if (!token) throw new Error('請先登入以查看購物清單');
-      const res = await fetch('/api/shopping-list', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ recipeIds, servings })
-      });
-      const data = await res.json();
-      
-      if (data.error) {
-        setError(data.error);
-      } else {
-        // Normalize API response to drawer shape
-        const normalizedToBuy = {};
-        if (data.toBuy && Array.isArray(data.toBuy)) {
-          for (const group of data.toBuy) {
-            const catKey = group.category || 'other';
-            normalizedToBuy[catKey] = Array.isArray(group.items) ? group.items : [];
-          }
-        }
-        
-        const normalizedByRecipe = [];
-        if (data.byRecipe && Array.isArray(data.byRecipe)) {
-          for (const rb of data.byRecipe) {
-            normalizedByRecipe.push({
-              recipeName: rb.recipeName || rb.name || 'Unknown',
-              pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
-              toBuy: Array.isArray(rb.toBuy) ? rb.toBuy : []
-            });
-          }
-        }
-        
-        // Meals whose recipe is no longer available were skipped by the API;
-        // only their number is known. If every meal was skipped, nothing can
-        // be listed.
-        const unavailableCount = Number(data.unavailableRecipeCount) || 0;
-        let notice = null;
-        if (unavailableCount > 0) {
-          notice = unavailableCount >= recipeIds.length
-            ? '呢個餐單嘅食譜已經唔再提供，無法產生購物清單'
-            : `有 ${unavailableCount} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
-        }
-
-        setShoppingList({
-          byCategory: { 
-            pantry: Array.isArray(data.pantry) ? data.pantry : [], 
-            toBuy: normalizedToBuy 
-          },
-          byRecipe: normalizedByRecipe,
-          notice,
-          noUsableRecipes: unavailableCount > 0 && unavailableCount >= recipeIds.length
-        });
-      }
-    } catch (err) {
-      setError(err.message || '載入失敗');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings });
 
   const handleOpen = () => {
     if (!shoppingList) {
@@ -87,37 +16,39 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
     }
     setIsOpen(true);
   };
-  
+
   const handleClose = () => setIsOpen(false);
 
+  // The drawer is a sibling of the trigger, not a child: React events bubble
+  // through portals, so clicks inside the drawer (close, retry) would
+  // otherwise also run handleOpen.
   return (
-    <div 
-      onClick={handleOpen}
-      onTouchStart={() => {}}
-      className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex active:scale-95 transition-transform duration-100 touch-manipulation"
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">🛒</span>
-        <div className="flex-1">
-          <h3 className="font-bold text-[#3A2010]">查看購物清單</h3>
-          <p className="text-sm text-[#9B6035]">可按種類或菜式查看</p>
+    <>
+      <div
+        onClick={handleOpen}
+        onTouchStart={() => {}}
+        className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex active:scale-95 transition-transform duration-100 touch-manipulation"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🛒</span>
+          <div className="flex-1">
+            <h3 className="font-bold text-[#3A2010]">查看購物清單</h3>
+            <p className="text-sm text-[#9B6035]">可按種類或菜式查看</p>
+          </div>
+          {loading && (
+            <span className="text-xs text-[#AA7A50]">載入中...</span>
+          )}
         </div>
-        {loading && (
-          <span className="text-xs text-[#AA7A50]">載入中...</span>
-        )}
       </div>
-      
-      {error && (
-        <p className="text-red-500 text-sm mt-2">{error}</p>
-      )}
-      
+
       <ShoppingListDrawer
         isOpen={isOpen}
         onClose={handleClose}
         shoppingList={shoppingList}
         loading={loading}
+        error={error}
         onFetch={fetchShoppingList}
       />
-    </div>
+    </>
   );
 }

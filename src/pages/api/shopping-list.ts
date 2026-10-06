@@ -378,9 +378,8 @@ export default async function handler(
 
     res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount });
   } catch (err) {
+    // Database and internal error details stay in the server log.
     console.error('[shopping-list api] fatal error:', err);
-    res.status(500).json({ 
-      error: err instanceof Error ? err.message : 'Internal error' 
-    });
+    res.status(500).json({ error: 'Internal error' });
   }
 }

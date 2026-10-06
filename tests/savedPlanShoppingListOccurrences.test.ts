@@ -281,6 +281,7 @@ describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
   const source = (file: string) => fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
   const page = source('src/pages/my-plans/[id].js');
   const section = source('src/components/myPlans/ShoppingListSection.js');
+  const request = source('src/features/plans/hooks/useSavedPlanShoppingList.ts');
 
   it('passes the controller recipeIds and avgServings straight to ShoppingListSection', () => {
     expect(page).toMatch(/const \{[^}]*\brecipeIds,[^}]*\bavgServings,[^}]*\} = controller;/);
@@ -289,8 +290,11 @@ describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
 
   it('posts those props to /api/shopping-list without transforming them', () => {
     expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1 })');
-    expect(section).toContain("fetch('/api/shopping-list'");
-    expect(section).toContain('body: JSON.stringify({ recipeIds, servings })');
+    expect(section).toContain('useSavedPlanShoppingList({ recipeIds, servings })');
     expect(section).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
+    expect(request).toContain('export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions)');
+    expect(request).toContain("fetch('/api/shopping-list'");
+    expect(request).toContain('body: JSON.stringify({ recipeIds, servings })');
+    expect(request).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
   });
 });
