@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import PlanRecipeCard from '@/components/myPlans/PlanRecipeCard';
 import PlanDaySection from '@/components/myPlans/PlanDaySection';
+import ShoppingListSection from '@/components/myPlans/ShoppingListSection';
 import { groupPlanItemsByMealSlot, mapPlanItemMealSlot } from '@/features/plans';
 
 // Runtime render tests for the My Plans .js components (run via
@@ -15,6 +16,7 @@ import { groupPlanItemsByMealSlot, mapPlanItemMealSlot } from '@/features/plans'
 
 const { prefetchRecipeDetail } = vi.hoisted(() => ({ prefetchRecipeDetail: vi.fn() }));
 vi.mock('@/features/recipes/services/recipeDetailClientCache', () => ({ prefetchRecipeDetail }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ getAccessToken: async () => 'token' }) }));
 
 const UNAVAILABLE = '此食譜暫時無法查看';
 const RECIPE_A = { id: 'recipe-a', name: '番茄炒蛋', image_url: 'https://img.example/a.jpg', total_time_minutes: 10, calories_per_serving: 320, difficulty: 'easy', method: 'stir_fry' };
@@ -159,5 +161,67 @@ describe('PlanDaySection with a missing recipe', () => {
     expect(within(section).getByText(UNAVAILABLE)).toBeTruthy();
     expect(section.textContent).toContain(`${label} · 2人份`);
     expect(within(bucket('午餐')).queryByText(UNAVAILABLE)).toBeNull();
+  });
+});
+
+// /api/shopping-list skips meals whose recipe is private or missing and only
+// reports how many it skipped. The saved-plan drawer must say so without
+// naming them, and still show the list built from the remaining meals.
+describe('Saved plan shopping list with unavailable recipes', () => {
+  const PARTIAL_NOTICE = (n: number) => `有 ${n} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
+  const ZERO_USABLE = '呢個餐單嘅食譜已經唔再提供，無法產生購物清單';
+  const EMPTY = { pantry: [], toBuy: [], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 } };
+  const EGGS = { ingredientId: 'egg', name: '雞蛋', quantity: 4, unit: 'pc', category: 'egg' };
+  const PARTIAL = {
+    pantry: [],
+    toBuy: [{ category: 'egg', items: [EGGS] }],
+    byRecipe: [{ recipeId: 'recipe-a', recipeName: '番茄炒蛋', pantry: [], toBuy: [EGGS] }],
+    summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 },
+  };
+
+  async function openList(recipeIds: string[], body: unknown) {
+    const fetchMock = vi.fn(async () => ({ ok: true, status: 200, json: async () => body }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<ShoppingListSection recipeIds={recipeIds} servings={1} />);
+    await act(async () => {
+      fireEvent.click(screen.getByText('查看購物清單'));
+    });
+    await waitFor(() => expect(screen.queryByText('載入中...')).toBeNull());
+    return fetchMock;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('H. a partial list shows the notice and the remaining ingredients', async () => {
+    const fetchMock = await openList(['recipe-a', 'recipe-a', 'recipe-p', 'recipe-p'], { ...PARTIAL, unavailableRecipeCount: 2 });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(PARTIAL_NOTICE(2))).toBeTruthy();
+    expect(screen.getByText('雞蛋')).toBeTruthy();
+    expect(screen.queryByText(ZERO_USABLE)).toBeNull();
+
+    fireEvent.click(screen.getByText('跟菜式排'));
+    expect(screen.getByText('番茄炒蛋')).toBeTruthy();
+    expect(screen.getByText(PARTIAL_NOTICE(2))).toBeTruthy();
+  });
+
+  it('H. zero usable recipes shows only the zero-usable message', async () => {
+    await openList(['recipe-p', 'recipe-p', 'recipe-x'], { ...EMPTY, unavailableRecipeCount: 3 });
+
+    expect(screen.getByText(ZERO_USABLE)).toBeTruthy();
+    expect(screen.queryByText(/購物清單未包括佢哋/)).toBeNull();
+    expect(screen.queryByText('沒有食材')).toBeNull();
+  });
+
+  it.each([
+    ['unavailableRecipeCount 0', { ...PARTIAL, unavailableRecipeCount: 0 }],
+    ['no unavailableRecipeCount field', PARTIAL],
+  ])('H. a complete list (%s) shows no notice', async (_label, body) => {
+    await openList(['recipe-a'], body);
+
+    expect(screen.getByText('雞蛋')).toBeTruthy();
+    expect(screen.queryByText(/已經唔再提供/)).toBeNull();
   });
 });

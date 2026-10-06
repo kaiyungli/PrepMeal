@@ -138,7 +138,7 @@ describe('/api/shopping-list security boundary', () => {
     );
   });
 
-  it('rejects the whole request if any selected recipe is not public', async () => {
+  it('skips a recipe that is not public instead of rejecting the whole request', async () => {
     requireAuthMock.mockResolvedValue('verified-user');
     const database = createDatabase({ visibleRecipeIds: ['recipe-1'] });
     createClientMock.mockReturnValue(database.client);
@@ -150,8 +150,32 @@ describe('/api/shopping-list security boundary', () => {
       body: { recipeIds: ['recipe-1', 'private-recipe'], servings: 1 },
     }), apiResponse);
 
-    expect(response.statusCode).toBe(403);
-    expect(response.body).toEqual({ error: 'One or more recipes are unavailable' });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toMatchObject({ unavailableRecipeCount: 1 });
+    expect(JSON.stringify(response.body)).not.toContain('private-recipe');
+    expect(database.getIngredientQueryCount()).toBe(1);
+  });
+
+  it('does not query ingredients when no selected recipe is public', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const database = createDatabase({ visibleRecipeIds: [] });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['private-recipe', 'private-recipe'], servings: 1 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({
+      pantry: [],
+      toBuy: [],
+      byRecipe: [],
+      summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
+      unavailableRecipeCount: 2,
+    });
     expect(database.getIngredientQueryCount()).toBe(0);
   });
 

@@ -5,7 +5,8 @@ import baseConfig from './vitest.config';
 // Runtime render tests for the My Plans .js components, which contain JSX.
 // The default vitest.config.ts does not compile JSX in .js files; rather than
 // change that globally, this config compiles JSX only for
-// src/components/myPlans/*.js and the My Plans page with its Toast, and runs
+// src/components/myPlans/*.js, the My Plans page with its Toast and the
+// saved-plan shopping list drawer, and runs
 // only the tests listed below.
 //
 // Run alone with `npm run test:components`, or with the default suite via
@@ -15,6 +16,7 @@ const MY_PLANS_JSX_JS = [
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans\.js$/,
   /[\\/]src[\\/]components[\\/]ui[\\/]Toast\.js$/,
+  /[\\/]src[\\/]components[\\/]shopping[\\/]ShoppingListDrawer\.js$/,
 ];
 
 function myPlansComponentJsx(): Plugin {

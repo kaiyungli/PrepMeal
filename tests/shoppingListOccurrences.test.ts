@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { ShoppingListResponse } from '@/features/shopping-list/types';
 
@@ -215,12 +215,13 @@ describe('/api/shopping-list recipe occurrences', () => {
     expect(statusCode).toBe(200);
   });
 
-  it('still rejects the request when any unique recipe is not public', async () => {
+  it('skips every occurrence of a recipe that is not public and counts them', async () => {
     const { statusCode, body, ingredientQueryIds } = await request(['recipe-a', 'recipe-a', 'private-recipe'], 1, ['recipe-a']);
 
-    expect(statusCode).toBe(403);
-    expect(body).toEqual({ error: 'One or more recipes are unavailable' });
-    expect(ingredientQueryIds).toEqual([]);
+    expect(statusCode).toBe(200);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 4, '豬肉|g': 200 });
+    expect(body.unavailableRecipeCount).toBe(1);
+    expect(ingredientQueryIds).toEqual([['recipe-a']]);
   });
 
   it('keeps one byRecipe group per recipe with its total across occurrences', async () => {
@@ -267,11 +268,13 @@ describe('/api/shopping-list uuid recipe identity', () => {
     expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 4, '豬肉|g': 200 });
   });
 
-  it('still rejects a distinct private uuid alongside spellings of a public one', async () => {
-    const { statusCode, ingredientQueryIds } = await request([RECIPE_C_SPELLINGS[0], RECIPE_C, RECIPE_D.toUpperCase()], 1, [RECIPE_C]);
+  it('skips a distinct private uuid alongside spellings of a public one', async () => {
+    const { statusCode, body, ingredientQueryIds } = await request([RECIPE_C_SPELLINGS[0], RECIPE_C, RECIPE_D.toUpperCase()], 1, [RECIPE_C]);
 
-    expect(statusCode).toBe(403);
-    expect(ingredientQueryIds).toEqual([]);
+    expect(statusCode).toBe(200);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 4, '豬肉|g': 200 });
+    expect(body.unavailableRecipeCount).toBe(1);
+    expect(ingredientQueryIds).toEqual([[RECIPE_C]]);
   });
 
   it('fails instead of undercounting an ingredient row it cannot match to a requested recipe', async () => {
@@ -281,6 +284,104 @@ describe('/api/shopping-list uuid recipe identity', () => {
     const { statusCode } = await request([RECIPE_C, RECIPE_C], 1, [RECIPE_C], strayRows);
 
     expect(statusCode).toBe(500);
+  });
+});
+
+// A saved plan keeps its recipe ids after a recipe is unpublished or removed.
+// Those meals are skipped and only their number is reported; private and
+// missing recipes are indistinguishable and their ingredients are never read.
+describe('/api/shopping-list unavailable recipes', () => {
+  const PRIVATE_ID = 'recipe-p';
+  const MISSING_ID = 'recipe-x';
+  // Rows a database without the visibility filter would hold for P.
+  const PRIVATE_ROWS = [row(PRIVATE_ID, 'Secret Recipe P', 'truffle', '松露', 5, 'other')];
+
+  beforeEach(() => {
+    INGREDIENT_ROWS.push(...PRIVATE_ROWS);
+  });
+
+  afterEach(() => {
+    INGREDIENT_ROWS.splice(INGREDIENT_ROWS.length - PRIVATE_ROWS.length, PRIVATE_ROWS.length);
+  });
+
+  it('A. all public: unchanged list and unavailableRecipeCount 0', async () => {
+    const { statusCode, body, ingredientQueryIds } = await request(['recipe-a', 'recipe-b']);
+
+    expect(statusCode).toBe(200);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 5, '豬肉|g': 100, '番茄|pc': 1 });
+    expect(body.summary).toEqual({ pantryCount: 0, toBuyCount: 3, sectionCount: 3 });
+    expect(body.unavailableRecipeCount).toBe(0);
+    expect(ingredientQueryIds).toEqual([['recipe-a', 'recipe-b']]);
+  });
+
+  it.each([
+    ['B. private', PRIVATE_ID],
+    ['C. missing', MISSING_ID],
+  ])('%s recipe: 200, only A contributes, nothing about it is returned', async (_label, hiddenId) => {
+    const { statusCode, body, ingredientQueryIds } = await request(['recipe-a', hiddenId], 1, ['recipe-a']);
+
+    expect(statusCode).toBe(200);
+    expect(ingredientQueryIds).toEqual([['recipe-a']]);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 2, '豬肉|g': 100 });
+    expect(byRecipeQuantities(body)).toEqual({ 'recipe-a': { '雞蛋|隻': 2, '豬肉|克': 100 } });
+    expect(body.unavailableRecipeCount).toBe(1);
+
+    const serialized = JSON.stringify(body);
+    for (const leak of [PRIVATE_ID, MISSING_ID, 'Secret Recipe P', '松露', 'truffle']) {
+      expect(serialized).not.toContain(leak);
+    }
+  });
+
+  it('B/C. private and missing recipes give identical responses', async () => {
+    const privateResult = await request(['recipe-a', PRIVATE_ID], 1, ['recipe-a']);
+    const missingResult = await request(['recipe-a', MISSING_ID], 1, ['recipe-a']);
+
+    expect(privateResult.statusCode).toBe(missingResult.statusCode);
+    expect(privateResult.body).toEqual(missingResult.body);
+  });
+
+  it('D. [A, A, P, P]: A counts twice and unavailableRecipeCount counts meals, not ids', async () => {
+    const { statusCode, body, ingredientQueryIds } = await request(['recipe-a', 'recipe-a', PRIVATE_ID, PRIVATE_ID], 1, ['recipe-a']);
+
+    expect(statusCode).toBe(200);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 4, '豬肉|g': 200 });
+    expect(body.unavailableRecipeCount).toBe(2);
+    expect(ingredientQueryIds).toEqual([['recipe-a']]);
+  });
+
+  it('D. counts each unavailable meal across distinct hidden recipes and spellings', async () => {
+    const { body } = await request([RECIPE_D, RECIPE_D.toUpperCase(), PRIVATE_ID, MISSING_ID, 'recipe-b'], 1, ['recipe-b']);
+
+    expect(body.unavailableRecipeCount).toBe(4);
+    expect(toBuyQuantities(body)).toEqual({ '雞蛋|pc': 3, '番茄|pc': 1 });
+  });
+
+  it('E. all unavailable: 200, empty list, meal count, no ingredient query', async () => {
+    const { statusCode, body, ingredientQueryIds } = await request([PRIVATE_ID, PRIVATE_ID, MISSING_ID], 1, []);
+
+    expect(statusCode).toBe(200);
+    expect(body).toEqual({
+      pantry: [],
+      toBuy: [],
+      byRecipe: [],
+      summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
+      unavailableRecipeCount: 3,
+    });
+    expect(ingredientQueryIds).toEqual([]);
+  });
+
+  it('F. an ingredient row for a requested but non-visible recipe fails safely', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const leakedRows = [row('recipe-a', 'Recipe A', 'egg', '雞蛋', 2, 'egg'), ...PRIVATE_ROWS];
+
+    const { statusCode, body } = await request(['recipe-a', PRIVATE_ID], 1, ['recipe-a'], leakedRows);
+
+    expect(statusCode).toBe(500);
+    const serialized = JSON.stringify(body);
+    for (const leak of [PRIVATE_ID, 'Secret Recipe P', '松露']) {
+      expect(serialized).not.toContain(leak);
+    }
+    consoleError.mockRestore();
   });
 });
 
