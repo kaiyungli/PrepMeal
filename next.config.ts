@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Retired legacy weekly-menu page; /generate is the current planner.
+      { source: '/menu', destination: '/generate', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -217,7 +217,6 @@ npm run test
 |----------|-------------|
 | GET /api/recipes | List all recipes |
 | GET /api/recipes/[id] | Get single recipe |
-| GET /api/recipes/recommend?ingredients=x,y | Recommend by ingredients |
 | POST /api/admin/import | Bulk import recipes |
 | POST /api/admin/upload | Upload image |
 
