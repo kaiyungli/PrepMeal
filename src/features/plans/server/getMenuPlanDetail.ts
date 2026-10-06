@@ -54,7 +54,7 @@ export async function getMenuPlanDetail(supabase: any, planId: string, userId: s
   if (recipeIds.length > 0) {
     const { data: recipeData, error: recipesError } = await supabase
       .from('recipes')
-      .select('id, name, image_url, total_time_minutes, difficulty, method')
+      .select('id, name, image_url, total_time_minutes, calories_per_serving, difficulty, method')
       .in('id', recipeIds);
 
     // A failed lookup must not look like every recipe being hidden by RLS.

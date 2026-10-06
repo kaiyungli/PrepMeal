@@ -85,6 +85,7 @@ export function mapItemsWithRecipes(
     name: string;
     image_url: string | null;
     total_time_minutes: number | null;
+    calories_per_serving: number | null;
     difficulty: string | null;
     method: string | null;
   }> | null

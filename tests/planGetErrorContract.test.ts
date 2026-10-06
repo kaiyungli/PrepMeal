@@ -37,8 +37,8 @@ const ANON_KEY = 'anon-key-secret-xyz789';
 const RECIPE_A = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
 const RECIPE_B = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
 const RECIPES = {
-  [RECIPE_A]: { id: RECIPE_A, name: '番茄炒蛋', image_url: null, total_time_minutes: 10, difficulty: 'easy', method: 'stir_fry' },
-  [RECIPE_B]: { id: RECIPE_B, name: '蒸豆腐', image_url: null, total_time_minutes: 15, difficulty: 'easy', method: 'steamed' },
+  [RECIPE_A]: { id: RECIPE_A, name: '番茄炒蛋', image_url: null, total_time_minutes: 10, calories_per_serving: 320, difficulty: 'easy', method: 'stir_fry' },
+  [RECIPE_B]: { id: RECIPE_B, name: '蒸豆腐', image_url: null, total_time_minutes: 15, calories_per_serving: null, difficulty: 'easy', method: 'steamed' },
 };
 const PLAN = { id: PLAN_ID, user_id: 'user-1', title: 'Saved', start_date: '2026-10-05', end_date: '2026-10-11', created_at: '2026-10-01' };
 const ROWS = [
@@ -66,13 +66,25 @@ const ok = (data: unknown): Step => async () => ({ data, error: null });
 const fail = (error: unknown): Step => async () => ({ data: null, error });
 const visibleRecipes = (ids: string[]) => [...new Set(ids)].map((id) => RECIPES[id as keyof typeof RECIPES]);
 
+// Like PostgREST, return only the selected columns, so a column missing from
+// the select is missing from every recipe row.
+function selectColumns(result: Result, columns: string): Result {
+  if (!Array.isArray(result.data)) return result;
+  const names = columns.split(',').map((c) => c.trim());
+  const data = result.data.map((row: Record<string, unknown>) =>
+    Object.fromEntries(names.filter((name) => name in row).map((name) => [name, row[name]])));
+  return { ...result, data };
+}
+
 function fakeSupabase() {
   return {
     from: (table: string) => {
       tablesQueried.push(table);
       if (table === 'menu_plans') return { select: () => ({ eq: () => ({ eq: () => ({ single: () => planStep() }) }) }) };
       if (table === 'menu_plan_items') return { select: () => ({ eq: () => ({ order: () => ({ order: () => itemsStep() }) }) }) };
-      if (table === 'recipes') return { select: () => ({ in: (_c: string, ids: string[]) => recipesStep(ids) }) };
+      if (table === 'recipes') {
+        return { select: (columns: string) => ({ in: async (_c: string, ids: string[]) => selectColumns(await recipesStep(ids), columns) }) };
+      }
       throw new Error(`Unexpected table: ${table}`);
     },
   };
@@ -281,6 +293,24 @@ describe('usePlanDetailController', () => {
     expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_B, RECIPE_A]);
     expect(controller.mealSlotGroupsByDay[0].map((g) => g.mealSlot)).toEqual(['breakfast', 'dinner']);
     expect(controller.mealSlotGroupsByDay[1].map((g) => g.mealSlot)).toEqual(['snack']);
+  });
+});
+
+describe('saved plan recipe calories', () => {
+  it('M. calories_per_serving reaches each item\'s recipe; null stays null', async () => {
+    const controller = await loadController();
+    expect(controller.error).toBeNull();
+    expect(controller.items.map((i) => i.recipe?.calories_per_serving)).toEqual([320, null, 320]);
+    expect(controller.mealSlotGroupsByDay[0].map((g) => g.mealSlot)).toEqual(['breakfast', 'dinner']);
+    expect(controller.mealSlotGroupsByDay[1].map((g) => g.mealSlot)).toEqual(['snack']);
+  });
+
+  it('M. an omitted (unavailable) recipe still exposes no calories or other recipe data', async () => {
+    recipesStep = async () => ({ data: [RECIPES[RECIPE_A]], error: null });
+    const res = await get();
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data!.items[1].recipe).toBeUndefined();
+    expect(JSON.stringify(res.body.data!.items[1])).not.toContain('蒸豆腐');
   });
 });
 
