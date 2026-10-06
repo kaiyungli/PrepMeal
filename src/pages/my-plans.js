@@ -14,11 +14,15 @@ export default function MyPlansPage() {
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = useAuthGuard();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(null);
+  const [deletingIds, setDeletingIds] = useState(() => new Set());
   const { toast, showToast } = useToast();
 
   // Track fetched user to prevent refetch on session refresh
   const fetchedUserIdRef = useRef(null);
+
+  // Plan ids with a DELETE in flight, updated synchronously so a repeat
+  // click handled before the next render cannot send a second request
+  const deletingIdsRef = useRef(new Set());
 
   // Load plans when authenticated (useAuthGuard handles redirect)
   useEffect(() => {
@@ -79,11 +83,13 @@ export default function MyPlansPage() {
   }, [isAuthenticated, user?.id]);
 
   const handleDelete = async (planId) => {
+    if (deletingIdsRef.current.has(planId)) return;
     if (!requireAuth()) return;
     
     if (!confirm('確定要刪除呢個餐單？')) return;
     
-    setDeleting(planId);
+    deletingIdsRef.current.add(planId);
+    setDeletingIds(prev => new Set(prev).add(planId));
     try {
       const token = await getAccessToken();
       const res = await fetch(`/api/user/menus/${planId}`, {
@@ -100,7 +106,12 @@ export default function MyPlansPage() {
     } catch (err) {
       showToast('刪除失敗', 'error');
     } finally {
-      setDeleting(null);
+      deletingIdsRef.current.delete(planId);
+      setDeletingIds(prev => {
+        const next = new Set(prev);
+        next.delete(planId);
+        return next;
+      });
     }
   };
 
@@ -158,7 +169,7 @@ export default function MyPlansPage() {
                   key={plan.id} 
                   plan={plan} 
                   onDelete={handleDelete}
-                  isDeleting={deleting === plan.id}
+                  isDeleting={deletingIds.has(plan.id)}
                 />
               ))}
             </div>
