@@ -51,6 +51,14 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
     prefetchRecipeDetail(recipe.id);
   };
   
+  // Only label values that exist, so a missing time or calorie value never
+  // leaves a bare "分鐘"/"卡" or a dangling separator.
+  const hasValue = (value) => value !== null && value !== undefined && value !== '';
+  const recipeMeta = [
+    hasValue(recipe.total_time_minutes) && `${recipe.total_time_minutes}分鐘`,
+    hasValue(recipe.calories_per_serving) && `${recipe.calories_per_serving}卡`,
+  ].filter(Boolean).join(' · ');
+
   const cardContent = (
     <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-[#E5E5E5] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] active:scale-[0.99]">
       {/* Image */}
@@ -76,9 +84,9 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
         <p className="text-xs text-[#9A9A9A] mt-0.5">
           {mealLabel} · {servings}人份
         </p>
-        {recipe && (
+        {recipeMeta && (
           <p className="text-xs text-[#B0B0B0] mt-1">
-            {recipe.total_time_minutes}分鐘 · {recipe.calories_per_serving}卡
+            {recipeMeta}
           </p>
         )}
       </div>
