@@ -170,10 +170,14 @@ describe('PlanDaySection with a missing recipe', () => {
 // naming them, and still show the list built from the remaining meals.
 // /api/user/menus/[id] now selects calories_per_serving for each recipe.
 describe('PlanRecipeCard calories', () => {
+  // The card's time/calories metadata line.
+  const metaLine = (container: HTMLElement) => container.querySelector('p.mt-1')?.textContent ?? null;
+
   it('A. shows calories_per_serving for a saved recipe', () => {
     const { container } = render(<PlanRecipeCard item={planItem('a', 'dinner', RECIPE_A)} onClick={vi.fn()} compact />);
 
     expect(container.textContent).toContain('10分鐘 · 320卡');
+    expect(metaLine(container)).toBe('10分鐘 · 320卡');
   });
 
   it.each([
@@ -187,7 +191,30 @@ describe('PlanRecipeCard calories', () => {
     expect(container.textContent).toContain('番茄炒蛋');
     expect(container.textContent).toContain('10分鐘');
     expect(container.textContent).not.toMatch(/undefined|null|NaN|320/);
+    expect(metaLine(container)).toBe('10分鐘');
+    expect(container.textContent).not.toMatch(/卡|0卡|--/);
+    expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘→');
     expect(screen.getByRole('button')).toBeTruthy();
+  });
+
+  it('B. missing calories in Link mode still links and shows only the time', () => {
+    const recipe = { ...RECIPE_A, calories_per_serving: null } as unknown as typeof RECIPE_A;
+    const { container } = render(<PlanRecipeCard item={planItem('a', 'dinner', recipe)} onClick={undefined} />);
+
+    expect(container.querySelector('a')?.getAttribute('href')).toBe('/recipes/recipe-a');
+    expect(metaLine(container)).toBe('10分鐘');
+  });
+
+  it.each([
+    ['time missing', { total_time_minutes: null }, '320卡'],
+    ['time and calories missing', { total_time_minutes: undefined, calories_per_serving: null }, null],
+  ])('B. %s leaves no dangling label or separator', (_label, overrides, expected) => {
+    const recipe = { ...RECIPE_A, ...overrides } as unknown as typeof RECIPE_A;
+    const { container } = render(<PlanRecipeCard item={planItem('a', 'dinner', recipe)} onClick={vi.fn()} compact />);
+
+    expect(metaLine(container)).toBe(expected);
+    expect(container.textContent).not.toMatch(/分鐘 ·|· 卡|^卡|undefined|null/);
+    expect(container.textContent).toBe(`番茄炒蛋晚餐 · 2人份${expected ?? ''}→`);
   });
 
   it('C. an unavailable recipe keeps the placeholder and shows no calories', () => {
