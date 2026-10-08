@@ -36,7 +36,7 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   
   for (const item of validItems) {
     // Skip invalid items
-    if (item.quantity === null || item.quantity === undefined || item.quantity === '') continue
+    if (item.quantity === null || item.quantity === undefined) continue
     let quantity = Number(item.quantity)
     if (!item.name || !Number.isFinite(quantity) || quantity <= 0) continue
     
