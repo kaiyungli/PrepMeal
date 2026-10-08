@@ -3,6 +3,11 @@ import { getWeekDates } from '@/utils/dateUtils';
 import { generateWeeklyPlan, replaceRecipeInPlan } from '../index';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { perfNow, perfLog } from '@/utils/perf';
+import { getSlotRoleForIndex } from '../utils/slotRoleFilter';
+import { summarizeGeneratedPlan, buildGenerateFeedback, buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
+
+// Shows a user-visible message (the page's toast).
+export type GenerateNotify = (message: string, type?: 'info' | 'success' | 'error', duration?: number) => void;
 
 const DAYS = getWeekDates();
 
@@ -23,6 +28,7 @@ interface UseGeneratePlanOptions {
   allowCompleteMeal?: boolean;
   pantryIngredients: string[];
   traceId?: string;
+  notify?: GenerateNotify;
 }
 
 export function useGeneratePlan(options: UseGeneratePlanOptions) {
@@ -37,7 +43,8 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     budget,
     pantryIngredients,
     allowCompleteMeal,
-    traceId
+    traceId,
+    notify,
   } = options;
 
   // Plan State
@@ -124,7 +131,25 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
 
     setWeeklyPlan(newPlan);
     setReplacementHistory({});
-  }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan, traceId, allowCompleteMeal]);
+
+    // Explain empty slots and dropped locks once per Generate, not per slot.
+    const summary = summarizeGeneratedPlan(newPlan, compositionConfig.slotRoles, lockedSlots, lockedRecipes);
+    // A lock whose recipe was dropped, or whose slot was already empty (recipe
+    // removed while locked), would now pin a recipe the user never chose.
+    const releasedLockKeys = [
+      ...summary.droppedLockKeys,
+      ...Object.keys(lockedSlots).filter(key => lockedSlots[key] && !lockedRecipes[key]),
+    ];
+    if (releasedLockKeys.length > 0) {
+      setLockedSlots(prev => {
+        const next = { ...prev };
+        releasedLockKeys.forEach(key => { next[key] = false; });
+        return next;
+      });
+    }
+    const feedback = buildGenerateFeedback(summary);
+    if (feedback) notify?.(feedback, 'info', FEEDBACK_DURATION_MS);
+  }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan, traceId, allowCompleteMeal, compositionKey, notify]);
 
   // Replace recipe at slot
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
@@ -142,8 +167,10 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
           [slotKey]: [...(prev[slotKey] || []), newRecipe.id].slice(-20),
         }));
       }
+    } else {
+      notify?.(buildNoCandidateFeedback(getSlotRoleForIndex(compositionKey, index)), 'info', FEEDBACK_DURATION_MS);
     }
-  }, [weeklyPlan, filteredRecipes, dailyComposition, budget, replacementHistory]);
+  }, [weeklyPlan, filteredRecipes, dailyComposition, budget, replacementHistory, compositionKey, notify]);
 
   // Lock/unlock slots
   const lockSlot = useCallback((dayKey: string, index: number) => {

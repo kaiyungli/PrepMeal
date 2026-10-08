@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
+import { buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
+import type { GenerateNotify } from './useGeneratePlan';
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -106,6 +108,7 @@ interface UseGenerateHandlersOptions {
   actionsClearAll: () => void;
   handleResetPlan: () => void;
   dailyComposition: string;
+  notify?: GenerateNotify;
 }
 
 export function useGenerateHandlers({
@@ -117,6 +120,7 @@ export function useGenerateHandlers({
   handleResetPlan,
   dailyComposition,
   budget,
+  notify,
 }: UseGenerateHandlersOptions) {
   
 // Apply soft budget preference (filter, not block)
@@ -167,6 +171,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
         filteredCount: filteredRecipes.length,
         dayRecipeCount: (weeklyPlan[dayKey] || []).filter(Boolean).length,
       });
+      notify?.(buildNoCandidateFeedback(nextSlotRole), 'info', FEEDBACK_DURATION_MS);
       return;
     }
     
@@ -193,7 +198,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       dayRecipes[slotIndex] = randomWithReasons;
       return { ...prev, [dayKey]: dayRecipes };
     });
-  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget]);
+  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget, notify]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {
