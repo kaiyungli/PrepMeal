@@ -16,7 +16,7 @@ import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
-import { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit } from './slotRoles';
+import { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting } from './slotRoles';
 
 export { matchesSlotRole };
 
@@ -285,12 +285,10 @@ export function planWeekAdvanced(
 
   // Hard filter: exclude complete_meal in mixed mode when allowCompleteMeal=false.
   // Applied to the pool so every selection path (slot candidates and the
-  // perfect pantry match) respects it.
-  const compositionConfig = COMPOSITION_CONFIG[(config.dailyComposition || 'meat_veg') as keyof typeof COMPOSITION_CONFIG];
-  const isMixedMode = !!compositionConfig && compositionConfig.dishesPerDay > 1;
-  if (isMixedMode && config.allowCompleteMeal === false) {
-    filtered = filtered.filter(r => !(r.is_complete_meal || r.meal_role === 'complete_meal'));
-  }
+  // perfect pantry match) respects it; locks are checked below.
+  const compositionKey = config.dailyComposition || 'meat_veg';
+  const compositionConfig = COMPOSITION_CONFIG[compositionKey as keyof typeof COMPOSITION_CONFIG];
+  filtered = filtered.filter(r => fitsCompleteMealSetting(r, compositionKey, config.allowCompleteMeal));
   const filterEnd = perfNow();
   if (traceId) {
     perfLog({
@@ -309,11 +307,13 @@ export function planWeekAdvanced(
     });
   }
 
-  // A locked recipe is kept only while it still fits its slot's role (for
-  // example after a composition change); otherwise the slot is planned anew.
+  // A locked recipe is kept only while it still fits its slot's role and the
+  // allowCompleteMeal setting (for example after a composition or setting
+  // change); otherwise the slot is planned anew.
   const getValidLockedRecipe = (slotKey: string, slotRole: string | undefined): Recipe | null => {
     const recipe = lockedSlots[slotKey] ? lockedRecipes[slotKey] : null;
-    return recipe?.id && slotRole && matchesSlotRole(recipe, slotRole) ? recipe : null;
+    return recipe?.id && slotRole && matchesSlotRole(recipe, slotRole)
+      && fitsCompleteMealSetting(recipe, compositionKey, config.allowCompleteMeal) ? recipe : null;
   };
 
   // Locks kept for this plan, per slot key. A lock must fit its slot's role
@@ -484,7 +484,7 @@ export function planWeekAdvanced(
         }
         
         // Max 1 complete_meal per day is enforced on the candidate list above
-        const isComplete = r.is_complete_meal || r.meal_role === 'complete_meal';
+        const isComplete = matchesSlotRole(r, 'complete_meal');
         
         // HARD CONSTRAINT: No same protein within same day
         const candidateProtein = r.primary_protein || r.protein?.[0];
@@ -492,12 +492,9 @@ export function planWeekAdvanced(
           score -= 6; // Stronger penalty for same-day protein duplication
         }
         
-        // Complete meal handling in mixed modes
-        // If allowCompleteMeal = false in mixed mode, exclude complete_meal entirely
-        // Treat undefined as true (default behavior)
-        if (isComplete && isMixedMode && config.allowCompleteMeal === false) {
-          score -= 200; // Extra heavy penalty to reliably exclude complete_meal when disabled
-        } else if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
+        // Complete meal handling in mixed modes (allowCompleteMeal=false never
+        // reaches here: such recipes are filtered out of the pool above)
+        if (isComplete && compositionConfig && compositionConfig.completeMealPenalty !== 0) {
           // Apply normal penalty when allowCompleteMeal = true
           score += compositionConfig.completeMealPenalty;
         }

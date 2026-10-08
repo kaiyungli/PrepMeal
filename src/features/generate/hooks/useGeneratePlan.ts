@@ -155,7 +155,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
   const handleReplaceRecipe = useCallback((dayKey: string, index: number) => {
     const slotKey = `${dayKey}-${index}`;
     const historyIds = replacementHistory[slotKey] || [];
-    const options = { dailyComposition, budget, excludeRecipeIds: historyIds };
+    const options = { dailyComposition, budget, excludeRecipeIds: historyIds, allowCompleteMeal };
     const updatedPlan = replaceRecipeInPlan(weeklyPlan, dayKey, index, filteredRecipes, options);
     if (updatedPlan) {
       const newRecipe = updatedPlan[dayKey]?.[index];
@@ -170,7 +170,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     } else {
       notify?.(buildNoCandidateFeedback(getSlotRoleForIndex(compositionKey, index)), 'info', FEEDBACK_DURATION_MS);
     }
-  }, [weeklyPlan, filteredRecipes, dailyComposition, budget, replacementHistory, compositionKey, notify]);
+  }, [weeklyPlan, filteredRecipes, dailyComposition, budget, replacementHistory, compositionKey, allowCompleteMeal, notify]);
 
   // Lock/unlock slots
   const lockSlot = useCallback((dayKey: string, index: number) => {

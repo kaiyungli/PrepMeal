@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, getOtherSlotsInDay } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
 import { buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
 import type { GenerateNotify } from './useGeneratePlan';
@@ -83,16 +83,19 @@ export function getCandidatesForAddRandom(
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
   slotRole: string,
-  // Slot being filled and composition, for the one-complete-meal-per-day limit
-  slot?: { index: number; composition: string }
+  // Slot being filled, composition and allowCompleteMeal, for the complete-meal rules
+  slot?: { index: number; composition: string; allowCompleteMeal?: boolean }
 ): any[] {
   // Get recipes already in this day
   const dayRecipes = (weeklyPlan[dayKey] || []).filter(Boolean);
   const dayRecipeIds = new Set(dayRecipes.map((r: any) => r.id));
 
-  // Filter out already-used recipes, and a second complete meal for the day
+  // Filter out already-used recipes, a second complete meal for the day and
+  // complete meals the allowCompleteMeal setting excludes
   const otherSlotsInDay = slot ? getOtherSlotsInDay(weeklyPlan, dayKey, slot.index, slot.composition) : dayRecipes;
-  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id) && fitsDailyCompleteMealLimit(r, otherSlotsInDay));
+  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id)
+    && fitsDailyCompleteMealLimit(r, otherSlotsInDay)
+    && (!slot || fitsCompleteMealSetting(r, slot.composition, slot.allowCompleteMeal)));
 
   // Exact role match first
   const exact = unused.filter((r: any) => matchesSlotRole(r, slotRole));
@@ -111,6 +114,7 @@ interface UseGenerateHandlersOptions {
   actionsClearAll: () => void;
   handleResetPlan: () => void;
   dailyComposition: string;
+  allowCompleteMeal?: boolean;
   notify?: GenerateNotify;
 }
 
@@ -123,6 +127,7 @@ export function useGenerateHandlers({
   handleResetPlan,
   dailyComposition,
   budget,
+  allowCompleteMeal,
   notify,
 }: UseGenerateHandlersOptions) {
   
@@ -164,7 +169,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       weeklyPlan,
       dayKey,
       nextSlotRole,
-      { index: slotIndex, composition }
+      { index: slotIndex, composition, allowCompleteMeal }
     );
     
     if (candidates.length === 0) {
@@ -202,7 +207,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       dayRecipes[slotIndex] = randomWithReasons;
       return { ...prev, [dayKey]: dayRecipes };
     });
-  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget, notify]);
+  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget, allowCompleteMeal, notify]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {

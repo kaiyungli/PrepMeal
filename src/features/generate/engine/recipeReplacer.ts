@@ -1,5 +1,5 @@
 import { scoreCandidates } from './recipeScorer';
-import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, getOtherSlotsInDay } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from './budgetPreference';
 
 // Shuffle array helper for randomization
@@ -125,14 +125,16 @@ export function replaceRecipeInPlan(
   dayKey: string,
   index: number,
   availableCandidates: any[],
-  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[] }
+  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[]; allowCompleteMeal?: boolean }
 ): Record<string, any[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
   const slotRole = getSlotRoleForIndex(composition, index);
   
-  // Never a second complete meal in the day, in any tier below
+  // Never a second complete meal in the day, nor one the allowCompleteMeal
+  // setting excludes, in any tier below
   const otherSlotsInDay = getOtherSlotsInDay(weeklyPlan, dayKey, index, composition);
-  availableCandidates = availableCandidates.filter(c => fitsDailyCompleteMealLimit(c, otherSlotsInDay));
+  availableCandidates = availableCandidates.filter(c =>
+    fitsDailyCompleteMealLimit(c, otherSlotsInDay) && fitsCompleteMealSetting(c, composition, options?.allowCompleteMeal));
   
   const existing = Object.values(weeklyPlan).flat().filter(Boolean);
   

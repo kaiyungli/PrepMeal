@@ -91,6 +91,7 @@ export function useGeneratePageController({
     handleResetPlan: plan.handleResetPlan,
     dailyComposition,
     budget,
+    allowCompleteMeal,
     notify: showToast,
   });
   

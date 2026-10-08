@@ -69,8 +69,8 @@ export function matchesSlotRole(recipe: SlotRoleRecipe | null | undefined, slotR
 /**
  * A day holds at most one complete meal, in every composition (single-slot
  * complete_meal days meet it trivially). True when `recipe` may join a day
- * whose other slots hold `otherRecipesInDay`. allowCompleteMeal=false is a
- * separate, stricter filter applied by the planner.
+ * whose other slots hold `otherRecipesInDay`. allowCompleteMeal=false is the
+ * separate, stricter fitsCompleteMealSetting.
  */
 export function fitsDailyCompleteMealLimit(
   recipe: SlotRoleRecipe | null | undefined,
@@ -78,6 +78,22 @@ export function fitsDailyCompleteMealLimit(
 ): boolean {
   return !matchesSlotRole(recipe, 'complete_meal')
     || !otherRecipesInDay.some(other => matchesSlotRole(other, 'complete_meal'));
+}
+
+/**
+ * The allowCompleteMeal setting: with it off, a mixed composition (more than
+ * one dish a day) never uses a complete meal, whatever its dish_type. The
+ * complete_meal composition always needs them, so the setting does not apply
+ * there. Unset counts as on.
+ */
+export function fitsCompleteMealSetting(
+  recipe: SlotRoleRecipe | null | undefined,
+  composition: string,
+  allowCompleteMeal: boolean | undefined
+): boolean {
+  if (allowCompleteMeal !== false || !matchesSlotRole(recipe, 'complete_meal')) return true;
+  const config = COMPOSITION_CONFIG[composition as keyof typeof COMPOSITION_CONFIG];
+  return !config || config.dishesPerDay <= 1;
 }
 
 // Every role a composition mode assigns to its slots.

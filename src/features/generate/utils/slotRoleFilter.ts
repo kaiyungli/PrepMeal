@@ -37,4 +37,4 @@ export function getOtherSlotsInDay<T>(
 }
 
 // Role matching lives in one place for the planner and these local actions.
-export { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit } from '@/lib/slotRoles';
+export { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting } from '@/lib/slotRoles';
