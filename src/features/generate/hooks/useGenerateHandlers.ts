@@ -93,8 +93,8 @@ function getCandidatesForAddRandom(
   const exact = unused.filter((r: any) => matchesLocalSlotRole(r, slotRole));
   if (exact.length > 0) return exact;
 
-  // Fallback: allow any unused recipe
-  return unused;
+  // Complete-meal slots must stay empty rather than accepting ordinary mains.
+  return slotRole === 'complete_meal' ? [] : unused;
 }
 
 
