@@ -36,8 +36,9 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   
   for (const item of validItems) {
     // Skip invalid items
+    if (item.quantity === null || item.quantity === undefined || item.quantity === '') continue
     let quantity = Number(item.quantity)
-    if (!item || !item.name || Number.isNaN(quantity)) continue
+    if (!item.name || !Number.isFinite(quantity) || quantity <= 0) continue
     
     // Apply scaling if provided
     if (item.baseServings && item.targetServings) {
@@ -45,18 +46,17 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
     }
     
     // Use ingredient_id as key for aggregation
-    const key = item.ingredient_id || item.name
-    
     // Normalize unit - only use '份' fallback for items without unit
     // DB-backed items should preserve their unit (even if null/empty)
     const rawUnit = item.unit
     const normalizedUnit = normalizeUnit(rawUnit)
     // Only use '份' if unit was explicitly provided but not recognized, OR if it's a fallback item
-    const unit = (rawUnit && !normalizedUnit) || (item.source === 'ingredients_list') ? '份' : (normalizedUnit || '')
+    const unit = normalizedUnit || (item.source === 'ingredients_list' ? '份' : '')
+    const key = `${item.ingredient_id}:${unit}`
     
     // Keep raw quantity for aggregation
     // Display formatter will handle rounding at view layer
-    const qty = quantity || 1
+    const qty = quantity
     
     const existing = map.get(key)
     if (existing) {
@@ -166,7 +166,7 @@ export function buildShoppingList(
       const name = ing.display_name
       if (!name) continue
       
-      const qty = ing.quantity ? Number(ing.quantity) * scale : null
+      const qty = ing.quantity == null ? null : Number(ing.quantity) * scale
       const unitName = ing.unit?.name || null
       
       allIngredients.push({
