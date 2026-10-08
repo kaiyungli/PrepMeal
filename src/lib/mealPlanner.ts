@@ -16,7 +16,7 @@ import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
-import { matchesSlotRole, allowsCrossRoleFallback } from './slotRoles';
+import { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit } from './slotRoles';
 
 export { matchesSlotRole };
 
@@ -316,10 +316,28 @@ export function planWeekAdvanced(
     return recipe?.id && slotRole && matchesSlotRole(recipe, slotRole) ? recipe : null;
   };
 
-  // Pre-populate usedRecipeIds with valid locked recipes to prevent duplication
+  // Locks kept for this plan, per slot key. A lock must fit its slot's role
+  // and the one-complete-meal-per-day limit; the first locked complete meal
+  // of a day wins and any later one is released like an incompatible lock.
+  const keptLocks: Record<string, Recipe> = {};
+  days.forEach(day => {
+    const dayLocks: Recipe[] = [];
+    effectiveSlotRoles.forEach((slotRole, dish) => {
+      const locked = getValidLockedRecipe(`${day}-${dish}`, slotRole);
+      if (locked && fitsDailyCompleteMealLimit(locked, dayLocks)) {
+        keptLocks[`${day}-${dish}`] = locked;
+        dayLocks.push(locked);
+      }
+    });
+  });
+
+  // Pre-populate usedRecipeIds with kept locked recipes to prevent duplication,
+  // including locks on days outside this plan (they are kept for later)
+  Object.values(keptLocks).forEach(locked => usedRecipeIds.add(locked.id));
   Object.keys(lockedRecipes).forEach(slotKey => {
-    const slotIndex = Number(slotKey.slice(slotKey.lastIndexOf('-') + 1));
-    const locked = getValidLockedRecipe(slotKey, effectiveSlotRoles[slotIndex]);
+    const dash = slotKey.lastIndexOf('-');
+    if (days.includes(slotKey.slice(0, dash))) return;
+    const locked = getValidLockedRecipe(slotKey, effectiveSlotRoles[Number(slotKey.slice(dash + 1))]);
     if (locked) usedRecipeIds.add(locked.id);
   });
 
@@ -389,9 +407,14 @@ export function planWeekAdvanced(
     for (let dish = 0; dish < effectiveSlotRoles.length; dish++) {
       const slotRole = effectiveSlotRoles[dish];
       const slotKey = `${day}-${dish}`;
+      // The rest of this day: slots already filled plus locks still to come
+      const otherSlotsInDay: PlanSlot[] = [
+        ...dayRecipes,
+        ...effectiveSlotRoles.slice(dish + 1).map((_, i) => keptLocks[`${day}-${dish + 1 + i}`] ?? null),
+      ];
       
-      // Use locked recipe if it exists and fits this slot's role
-      const lockedRecipe = getValidLockedRecipe(slotKey, slotRole);
+      // Use locked recipe if it was kept for this slot
+      const lockedRecipe = keptLocks[slotKey];
       if (lockedRecipe) {
         dayRecipes.push(lockedRecipe);
         applyRecipeSelection(lockedRecipe, usedRecipeIds, recentProteins, recentMethods);
@@ -400,8 +423,8 @@ export function planWeekAdvanced(
       
       // GUARANTEE: Use perfect match only if it matches current slot role
       if (perfectMatchRecipe && !usedRecipeIds.has(perfectMatchRecipe.id)) {
-        // Only use perfect match if it fits the current slot's role
-        if (matchesSlotRole(perfectMatchRecipe, slotRole)) {
+        // Only use perfect match if it fits the current slot's role and the day
+        if (matchesSlotRole(perfectMatchRecipe, slotRole) && fitsDailyCompleteMealLimit(perfectMatchRecipe, otherSlotsInDay)) {
           dayRecipes.push(perfectMatchRecipe);
           applyRecipeSelection(perfectMatchRecipe, usedRecipeIds, recentProteins, recentMethods);
           perfectMatchRecipe = null; // Only use once
@@ -418,7 +441,8 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds);
+      let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
+        .filter(r => fitsDailyCompleteMealLimit(r, otherSlotsInDay));
       
       // Log slot candidates
       if (traceId) {
@@ -445,7 +469,6 @@ export function planWeekAdvanced(
       
       // Collect current day's proteins for hard constraints
         const dayProteins = dayRecipes.map(d => d?.primary_protein).filter(Boolean);
-        const alreadyHasComplete = dayRecipes.some(d => d?.is_complete_meal || d?.meal_role === 'complete_meal');
         
         for (const r of candidates) {
         let score = 5; // base score
@@ -460,11 +483,8 @@ export function planWeekAdvanced(
           score -= 100; // Heavy penalty to avoid repeats
         }
         
-        // HARD CONSTRAINT: Max 1 complete_meal per day
+        // Max 1 complete_meal per day is enforced on the candidate list above
         const isComplete = r.is_complete_meal || r.meal_role === 'complete_meal';
-        if (isComplete && alreadyHasComplete) {
-          score -= 10; // Extra heavy penalty to prevent second complete_meal
-        }
         
         // HARD CONSTRAINT: No same protein within same day
         const candidateProtein = r.primary_protein || r.protein?.[0];

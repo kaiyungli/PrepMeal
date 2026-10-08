@@ -22,5 +22,19 @@ export function getSlotRoleForIndex(composition: string, index: number): string 
   return roles[index % roles.length] || 'any';
 }
 
+/**
+ * The recipes in a day's other composition slots (excluding `index`), for the
+ * one-complete-meal-per-day check. Slots beyond the composition are ignored.
+ */
+export function getOtherSlotsInDay<T>(
+  weeklyPlan: Record<string, T[]>,
+  dayKey: string,
+  index: number,
+  composition: string
+): T[] {
+  const slotCount = getSlotRolesForComposition(composition).length;
+  return (weeklyPlan[dayKey] || []).slice(0, slotCount).filter((_, i) => i !== index);
+}
+
 // Role matching lives in one place for the planner and these local actions.
-export { matchesSlotRole, allowsCrossRoleFallback } from '@/lib/slotRoles';
+export { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit } from '@/lib/slotRoles';

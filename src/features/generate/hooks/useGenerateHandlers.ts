@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
 import { buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
 import type { GenerateNotify } from './useGeneratePlan';
@@ -82,14 +82,17 @@ export function getCandidatesForAddRandom(
   filteredRecipes: any[],
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
-  slotRole: string
+  slotRole: string,
+  // Slot being filled and composition, for the one-complete-meal-per-day limit
+  slot?: { index: number; composition: string }
 ): any[] {
   // Get recipes already in this day
   const dayRecipes = (weeklyPlan[dayKey] || []).filter(Boolean);
   const dayRecipeIds = new Set(dayRecipes.map((r: any) => r.id));
 
-  // Filter out already-used recipes
-  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id));
+  // Filter out already-used recipes, and a second complete meal for the day
+  const otherSlotsInDay = slot ? getOtherSlotsInDay(weeklyPlan, dayKey, slot.index, slot.composition) : dayRecipes;
+  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id) && fitsDailyCompleteMealLimit(r, otherSlotsInDay));
 
   // Exact role match first
   const exact = unused.filter((r: any) => matchesSlotRole(r, slotRole));
@@ -160,7 +163,8 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       filteredRecipes,
       weeklyPlan,
       dayKey,
-      nextSlotRole
+      nextSlotRole,
+      { index: slotIndex, composition }
     );
     
     if (candidates.length === 0) {

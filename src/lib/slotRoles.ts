@@ -66,6 +66,20 @@ export function matchesSlotRole(recipe: SlotRoleRecipe | null | undefined, slotR
   }
 }
 
+/**
+ * A day holds at most one complete meal, in every composition (single-slot
+ * complete_meal days meet it trivially). True when `recipe` may join a day
+ * whose other slots hold `otherRecipesInDay`. allowCompleteMeal=false is a
+ * separate, stricter filter applied by the planner.
+ */
+export function fitsDailyCompleteMealLimit(
+  recipe: SlotRoleRecipe | null | undefined,
+  otherRecipesInDay: Array<SlotRoleRecipe | null | undefined>
+): boolean {
+  return !matchesSlotRole(recipe, 'complete_meal')
+    || !otherRecipesInDay.some(other => matchesSlotRole(other, 'complete_meal'));
+}
+
 // Every role a composition mode assigns to its slots.
 const COMPOSITION_SLOT_ROLES = new Set<string>(
   Object.values(COMPOSITION_CONFIG).flatMap(config => config.slotRoles)
