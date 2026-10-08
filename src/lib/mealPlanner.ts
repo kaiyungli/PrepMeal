@@ -259,7 +259,7 @@ function getCandidatesWithFallback(
     'protein_main': ['protein_main', 'main', 'any'],
     'veg_side': ['veg_side', 'side'],  // Removed 'any' - no main dishes for veg slot
     'soup': ['soup', 'side', 'any'],
-    'complete_meal': ['complete_meal', 'main', 'any']
+    'complete_meal': ['complete_meal']
   };
   
   const chain = fallbacks[slotRole] || ['any'];
@@ -283,7 +283,9 @@ function getCandidatesWithFallback(
     }
   }
   
-  // Ultimate fallback: any unused recipe
+  // A complete-meal slot must never degrade into an ordinary main or side.
+  if (slotRole === 'complete_meal') return [];
+  // Ultimate fallback for legacy non-complete roles only.
   return recipes.filter(r => !usedRecipeIds.has(r.id));
 }
 
@@ -432,7 +434,7 @@ export function planWeekAdvanced(
       const slotKey = `${day}-${dish}`;
       
       // Use locked recipe if exists
-      if (lockedSlots[slotKey] && lockedRecipes[slotKey]) {
+      if (lockedSlots[slotKey] && lockedRecipes[slotKey] && matchesSlotRole(lockedRecipes[slotKey], slotRole)) {
         dayRecipes.push(lockedRecipes[slotKey]);
         applyRecipeSelection(lockedRecipes[slotKey], usedRecipeIds, recentProteins, recentMethods);
         continue;
@@ -492,8 +494,8 @@ export function planWeekAdvanced(
       let top3: { recipe: Recipe; score: number }[] = [];
       
       // Collect current day's proteins for hard constraints
-        const dayProteins = dayRecipes.map(d => d.primary_protein).filter(Boolean);
-        const alreadyHasComplete = dayRecipes.some(d => d.is_complete_meal || d.meal_role === 'complete_meal');
+        const dayProteins = dayRecipes.map(d => d?.primary_protein).filter(Boolean);
+        const alreadyHasComplete = dayRecipes.some(d => d?.is_complete_meal || d?.meal_role === 'complete_meal');
         
         for (const r of candidates) {
         let score = 5; // base score
@@ -644,12 +646,15 @@ export function planWeekAdvanced(
       if (selected) {
         dayRecipes.push(selected);
         applyRecipeSelection(selected, usedRecipeIds, recentProteins, recentMethods);
+      } else {
+        // Preserve slot indices for the grid, replace action, and save mapper.
+        dayRecipes.push(null as unknown as Recipe);
       }
     }
     
     // Save day's proteins to history for next day penalties
     dayRecipes.forEach(r => {
-      const p = r.primary_protein || r.protein?.[0];
+      const p = r?.primary_protein || r?.protein?.[0];
       if (p) dayProteins.push(p);
     });
     // Log day total
