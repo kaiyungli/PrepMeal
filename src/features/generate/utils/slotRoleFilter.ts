@@ -1,8 +1,8 @@
 /**
  * Shared slot-role filtering for generate feature layer
  * 
- * This is LOCAL logic for replace/add-random - NOT planner core.
- * Uses COMPOSITION_CONFIG for role mapping.
+ * Slot lookup for replace/add-random. Uses COMPOSITION_CONFIG for role
+ * mapping and the shared planner rules for role matching.
  */
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 
@@ -23,25 +23,18 @@ export function getSlotRoleForIndex(composition: string, index: number): string 
 }
 
 /**
- * Check if recipe matches local slot role (safe version)
+ * The recipes in a day's other composition slots (excluding `index`), for the
+ * one-complete-meal-per-day check. Slots beyond the composition are ignored.
  */
-export function matchesLocalSlotRole(recipe: any, slotRole: string): boolean {
-  const mealRole = recipe.meal_role;
-  const dishType = recipe.dish_type;
-  const isCompleteMeal = recipe.is_complete_meal;
-  const primaryProtein = recipe.primary_protein;
-
-  if (slotRole === 'complete_meal') {
-    return mealRole === 'complete_meal' || isCompleteMeal === true;
-  }
-
-  if (slotRole === 'protein_main') {
-    return mealRole === 'protein_main' || dishType === 'main' || !!primaryProtein;
-  }
-
-  if (slotRole === 'veg_side') {
-    return mealRole === 'veg_side' || (dishType === 'side' && !primaryProtein);
-  }
-
-  return true;
+export function getOtherSlotsInDay<T>(
+  weeklyPlan: Record<string, T[]>,
+  dayKey: string,
+  index: number,
+  composition: string
+): T[] {
+  const slotCount = getSlotRolesForComposition(composition).length;
+  return (weeklyPlan[dayKey] || []).slice(0, slotCount).filter((_, i) => i !== index);
 }
+
+// Role matching lives in one place for the planner and these local actions.
+export { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting } from '@/lib/slotRoles';

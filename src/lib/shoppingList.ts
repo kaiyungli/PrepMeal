@@ -22,8 +22,27 @@ export function normalizeIngredientName(name: string): string {
   return normalized[0] || name.trim()
 }
 
+// A usable amount is a finite positive number. Missing (null/undefined) or
+// zero amounts mean "unknown amount": the item stays listed with quantity
+// null rather than being invented as 1. Anything else (non-numeric text,
+// negative, infinite) is a corrupt row and is skipped.
+function parseQuantity(raw: unknown): { valid: boolean; quantity: number | null } {
+  if (raw === null || raw === undefined) return { valid: true, quantity: null }
+  const quantity = Number(raw)
+  if (!Number.isFinite(quantity) || quantity < 0) return { valid: false, quantity: null }
+  return { valid: true, quantity: quantity > 0 ? quantity : null }
+}
+
+// Serving counts must be finite and positive to scale by; otherwise no scaling.
+function servingScale(target: unknown, base: unknown): number {
+  const t = Number(target)
+  const b = Number(base)
+  return Number.isFinite(t) && t > 0 && Number.isFinite(b) && b > 0 ? t / b : 1
+}
+
 /**
- * Merge ingredients with same name and unit
+ * Merge ingredients with same ingredient_id and normalized unit.
+ * Different units of one ingredient stay separate lines; no unit conversion.
  */
 export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   if (!list || !Array.isArray(list)) return []
@@ -36,31 +55,28 @@ export function mergeIngredients(list: Ingredient[]): Ingredient[] {
   
   for (const item of validItems) {
     // Skip invalid items
-    let quantity = Number(item.quantity)
-    if (!item || !item.name || Number.isNaN(quantity)) continue
+    if (!item.name) continue
+    const parsed = parseQuantity(item.quantity)
+    if (!parsed.valid) continue
     
     // Apply scaling if provided
-    if (item.baseServings && item.targetServings) {
-      quantity = quantity * (item.targetServings / item.baseServings)
-    }
+    const qty = parsed.quantity === null
+      ? null
+      : parsed.quantity * servingScale(item.targetServings, item.baseServings)
     
-    // Use ingredient_id as key for aggregation
-    const key = item.ingredient_id || item.name
-    
-    // Normalize unit - only use '份' fallback for items without unit
-    // DB-backed items should preserve their unit (even if null/empty)
-    const rawUnit = item.unit
-    const normalizedUnit = normalizeUnit(rawUnit)
-    // Only use '份' if unit was explicitly provided but not recognized, OR if it's a fallback item
-    const unit = (rawUnit && !normalizedUnit) || (item.source === 'ingredients_list') ? '份' : (normalizedUnit || '')
+    // Aggregate by ingredient_id + normalized unit
+    // DB-backed items keep their (normalized) unit, even if empty; only
+    // fallback ingredients_list items without a unit are counted in '份'
+    const normalizedUnit = normalizeUnit(item.unit)
+    const unit = normalizedUnit || (item.source === 'ingredients_list' ? '份' : '')
+    const key = `${item.ingredient_id}:${unit}`
     
     // Keep raw quantity for aggregation
     // Display formatter will handle rounding at view layer
-    const qty = quantity || 1
-    
     const existing = map.get(key)
     if (existing) {
-      existing.quantity = (existing.quantity || 0) + qty
+      // Unknown amounts add nothing; the sum stays null only if all are unknown
+      if (qty !== null) existing.quantity = (existing.quantity ?? 0) + qty
     } else {
       map.set(key, {
         name: item.display_name || item.name, // Use display_name first
@@ -80,6 +96,7 @@ function normalizeUnit(unit: string | undefined | null): string {
   if (!unit) return ''
   
   const unitLower = unit.toLowerCase().trim()
+  if (!unitLower) return ''
   const unitMap: Record<string, string> = {
     'gram': 'g', 'grams': 'g', 'gramme': 'g', '克': 'g',
     'kilogram': 'kg', 'kilograms': 'kg', '千克': 'kg',
@@ -92,7 +109,8 @@ function normalizeUnit(unit: string | undefined | null): string {
     'clove': '瓣', 'cloves': '瓣'
   }
   
-  return unitMap[unitLower] || unit
+  // Unmapped units compare case-insensitively ('G' and 'g' are one unit)
+  return unitMap[unitLower] || unitLower
 }
 
 /**
@@ -112,10 +130,8 @@ export function groupByCategory(list: Ingredient[]): Record<string, Ingredient[]
   grouped['other'] = []
   
   for (const item of list) {
-    const category = item.category || 'other'
-    if (!grouped[category]) {
-      grouped[category] = []
-    }
+    // Unknown categories go to 'other' rather than being dropped from the result
+    const category = item.category && CATEGORY_ORDER.includes(item.category) ? item.category : 'other'
     grouped[category].push(item)
   }
   
@@ -159,14 +175,15 @@ export function buildShoppingList(
   for (const recipe of recipes) {
     if (!recipe || !recipe.ingredients) continue
     
-    const scale = servings / (recipe.base_servings || 1)
+    const scale = servingScale(servings, recipe.base_servings || 1)
     
     for (const ing of recipe.ingredients) {
       // New format: display_name, shopping_category, unit.name, source
       const name = ing.display_name
       if (!name) continue
       
-      const qty = ing.quantity ? Number(ing.quantity) * scale : null
+      // Scale here; mergeIngredients validates the quantity
+      const qty = ing.quantity == null ? null : Number(ing.quantity) * scale
       const unitName = ing.unit?.name || null
       
       allIngredients.push({
@@ -190,12 +207,18 @@ export function buildShoppingList(
     : new Set()
   
   const pantry: { name: string }[] = []
+  const pantryIds = new Set<string>()
   const toBuy: Ingredient[] = []
   
   for (const item of merged) {
     const normName = normalizeIngredientName(item.name)
     if (pantryNorm.has(normName)) {
-      pantry.push({ name: item.name })
+      // One pantry entry per ingredient, even when it is listed in several units
+      const pantryKey = item.ingredient_id || normName
+      if (!pantryIds.has(pantryKey)) {
+        pantryIds.add(pantryKey)
+        pantry.push({ name: item.name })
+      }
     } else {
       toBuy.push(item)
     }

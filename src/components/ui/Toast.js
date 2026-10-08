@@ -1,13 +1,19 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export function useToast() {
   const [toast, setToast] = useState(null);
+  const timerRef = useRef(null);
 
-  const showToast = (message, type = 'info') => {
+  // Stable across renders so hooks can list it as a dependency. A newer toast
+  // replaces the current one and restarts the timer.
+  const showToast = useCallback((message, type = 'info', duration = 3000) => {
+    clearTimeout(timerRef.current);
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+    timerRef.current = setTimeout(() => setToast(null), duration);
+  }, []);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   return { toast, showToast };
 }
@@ -22,7 +28,7 @@ export default function Toast({ toast }) {
   }[toast.type] || 'bg-[#9B6035]';
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex justify-end" role="status" aria-live="polite">
       <div className={`${bgColor} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium max-w-sm`}>
         {toast.message}
       </div>

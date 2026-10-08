@@ -14,13 +14,18 @@ import { useFilteredRecipes } from './useFilteredRecipes';
 import { useGeneratePlan } from './useGeneratePlan';
 import { useGenerateHandlers } from './useGenerateHandlers';
 import { useGenerateActions } from './useGenerateActions';
+import type { GenerateNotify } from './useGeneratePlan';
+import { getVisiblePlan } from '../utils/visiblePlan';
 
 export function useGeneratePageController({
   preferences,
-  traceId
+  traceId,
+  showToast,
 }: {
   preferences: GeneratePreferences;
   traceId?: string;
+  // Page toast for empty-slot and failed replace/add feedback
+  showToast?: GenerateNotify;
 }) {
   // Auth
   const { isAuthenticated, user, getAccessToken } = useAuth();
@@ -54,12 +59,19 @@ export function useGeneratePageController({
     budget: budget || 'normal',
     allowCompleteMeal: allowCompleteMeal,
     pantryIngredients: data.pantryIngredients,
-    traceId
+    traceId,
+    notify: showToast,
   });
+  
+  // What the grid shows; save, shopping list and counts use only this
+  const visiblePlan = useMemo(
+    () => getVisiblePlan(plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay),
+    [plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay]
+  );
   
   // Actions hook (called once)
   const actions = useGenerateActions({
-    weeklyPlan: plan.weeklyPlan,
+    weeklyPlan: visiblePlan,
     pantryIngredients: data.pantryIngredients,
     servings,
     daysPerWeek,
@@ -79,6 +91,8 @@ export function useGeneratePageController({
     handleResetPlan: plan.handleResetPlan,
     dailyComposition,
     budget,
+    allowCompleteMeal,
+    notify: showToast,
   });
   
   // Filter accordion state
@@ -92,14 +106,14 @@ export function useGeneratePageController({
   
   // Derived state (no setState during render)
   const hasRecipes = useMemo(() => 
-    Object.values(plan.weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0),
-    [plan.weeklyPlan]
+    Object.values(visiblePlan).some(arr => Array.isArray(arr) && arr.some(Boolean)),
+    [visiblePlan]
   );
   
   const hasGenerated = hasRecipes;
   const selectedCount = useMemo(() => 
-    Object.values(plan.weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0),
-    [plan.weeklyPlan]
+    Object.values(visiblePlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0),
+    [visiblePlan]
   );
   
   return {

@@ -12,6 +12,7 @@ import GenerateActions from '@/components/generate/GenerateActions';
 import GenerateResults from '@/components/generate/GenerateResults';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import ShoppingListModal from '@/components/ShoppingListModal';
+import Toast, { useToast } from '@/components/ui/Toast';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
@@ -22,7 +23,8 @@ export default function GeneratePage() {
   const headerCtrl = useHeaderController();
   const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
-  const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current });
+  const { toast, showToast } = useToast();
+  const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current, showToast });
   
   // Log page mount (effect fires, so duration is 0)
   useEffect(() => {
@@ -195,6 +197,8 @@ export default function GeneratePage() {
         />
 
         <Footer />
+        
+        {toast && <Toast toast={toast} />}
         
         {saveNotice && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">

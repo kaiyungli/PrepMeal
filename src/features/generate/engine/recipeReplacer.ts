@@ -1,5 +1,5 @@
 import { scoreCandidates } from './recipeScorer';
-import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from './budgetPreference';
 
 // Shuffle array helper for randomization
@@ -125,10 +125,16 @@ export function replaceRecipeInPlan(
   dayKey: string,
   index: number,
   availableCandidates: any[],
-  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[] }
+  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[]; allowCompleteMeal?: boolean }
 ): Record<string, any[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
   const slotRole = getSlotRoleForIndex(composition, index);
+  
+  // Never a second complete meal in the day, nor one the allowCompleteMeal
+  // setting excludes, in any tier below
+  const otherSlotsInDay = getOtherSlotsInDay(weeklyPlan, dayKey, index, composition);
+  availableCandidates = availableCandidates.filter(c =>
+    fitsDailyCompleteMealLimit(c, otherSlotsInDay) && fitsCompleteMealSetting(c, composition, options?.allowCompleteMeal));
   
   const existing = Object.values(weeklyPlan).flat().filter(Boolean);
   
@@ -156,40 +162,44 @@ export function replaceRecipeInPlan(
   
   // Priority A: exact role + unused + not history
   let candidates = unusedCandidates.filter(
-    (c: any) => matchesLocalSlotRole(c, slotRole) && !historyIds.has(c.id)
+    (c: any) => matchesSlotRole(c, slotRole) && !historyIds.has(c.id)
   );
   
   // Priority B: exact role + not current + not history
   if (!candidates.length) {
     candidates = availableCandidates.filter(
-      (c: any) => c.id !== currentRecipe?.id && matchesLocalSlotRole(c, slotRole) && !historyIds.has(c.id)
+      (c: any) => c.id !== currentRecipe?.id && matchesSlotRole(c, slotRole) && !historyIds.has(c.id)
     );
   }
   
-  // Priority C: unused + not history
-  if (!candidates.length) {
-    candidates = unusedCandidates.filter((c: any) => !historyIds.has(c.id));
-  }
-  
-  // Priority D: any non-current + not history  
-  if (!candidates.length) {
-    candidates = availableCandidates.filter(
-      (c: any) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
-    );
-  }
-  
-  // Priority E: exact role + unused
+  // Priority C: exact role + unused (replacement history no longer excluded)
   if (!candidates.length) {
     candidates = unusedCandidates.filter(
-      (c: any) => matchesLocalSlotRole(c, slotRole)
+      (c: any) => matchesSlotRole(c, slotRole)
     );
   }
   
-  // Priority F: any non-current
-  if (!candidates.length) {
-    candidates = availableCandidates.filter(
-      (c: any) => c.id !== currentRecipe?.id
-    );
+  // Cross-role tiers are legacy fallbacks; composition slots (complete meal,
+  // protein main, veg side) never use them and the replace is declined instead.
+  if (allowsCrossRoleFallback(slotRole)) {
+    // Priority D: unused + not history
+    if (!candidates.length) {
+      candidates = unusedCandidates.filter((c: any) => !historyIds.has(c.id));
+    }
+    
+    // Priority E: any non-current + not history
+    if (!candidates.length) {
+      candidates = availableCandidates.filter(
+        (c: any) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
+      );
+    }
+    
+    // Priority F: any non-current
+    if (!candidates.length) {
+      candidates = availableCandidates.filter(
+        (c: any) => c.id !== currentRecipe?.id
+      );
+    }
   }
   
   if (!candidates.length) {

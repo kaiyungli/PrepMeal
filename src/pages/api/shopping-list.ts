@@ -72,6 +72,14 @@ function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
   return Array.from(map.values());
 }
 
+// recipe_ingredients.quantity has no CHECK constraint. A missing, negative or
+// non-finite amount is an unknown amount and counts as 0 (as NULL always has),
+// so it can never subtract from, or turn into NaN, another recipe's total.
+function rowQuantity(raw: unknown): number {
+  const quantity = raw === null || raw === undefined ? 0 : Number(raw);
+  return Number.isFinite(quantity) && quantity > 0 ? quantity : 0;
+}
+
 // recipes.id and recipe_ingredients.recipe_id are Postgres uuid columns, which
 // accept upper case, surrounding braces and hyphens after any group of four
 // hex digits, but always return the lower-case 8-4-4-4-12 form. Requested ids
@@ -270,7 +278,7 @@ export default async function handler(
         normalizedName: ing.name,
         // Scale by servings (quantities are per base serving; base_servings is
         // 1 across the catalogue) and by how often the recipe is in the plan.
-        quantity: (ri.quantity ?? 0) * servings * occurrences,
+        quantity: rowQuantity(ri.quantity) * servings * occurrences,
         unit: unitCode,
         unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),

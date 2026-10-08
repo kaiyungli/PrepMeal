@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
-import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
+import { buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
+import type { GenerateNotify } from './useGeneratePlan';
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -73,28 +75,33 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
 }
 
 /**
- * Get candidates for add-random: exact role first, fallback to any unused recipe
- * so + 添加 never silently fails
+ * Get candidates for add-random: exact role first, then any unused recipe for
+ * slots that allow a cross-role fallback. A complete-meal slot stays empty.
  */
-function getCandidatesForAddRandom(
+export function getCandidatesForAddRandom(
   filteredRecipes: any[],
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
-  slotRole: string
+  slotRole: string,
+  // Slot being filled, composition and allowCompleteMeal, for the complete-meal rules
+  slot?: { index: number; composition: string; allowCompleteMeal?: boolean }
 ): any[] {
   // Get recipes already in this day
   const dayRecipes = (weeklyPlan[dayKey] || []).filter(Boolean);
   const dayRecipeIds = new Set(dayRecipes.map((r: any) => r.id));
 
-  // Filter out already-used recipes
-  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id));
+  // Filter out already-used recipes, a second complete meal for the day and
+  // complete meals the allowCompleteMeal setting excludes
+  const otherSlotsInDay = slot ? getOtherSlotsInDay(weeklyPlan, dayKey, slot.index, slot.composition) : dayRecipes;
+  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id)
+    && fitsDailyCompleteMealLimit(r, otherSlotsInDay)
+    && (!slot || fitsCompleteMealSetting(r, slot.composition, slot.allowCompleteMeal)));
 
   // Exact role match first
-  const exact = unused.filter((r: any) => matchesLocalSlotRole(r, slotRole));
+  const exact = unused.filter((r: any) => matchesSlotRole(r, slotRole));
   if (exact.length > 0) return exact;
 
-  // Fallback: allow any unused recipe
-  return unused;
+  return allowsCrossRoleFallback(slotRole) ? unused : [];
 }
 
 
@@ -107,6 +114,8 @@ interface UseGenerateHandlersOptions {
   actionsClearAll: () => void;
   handleResetPlan: () => void;
   dailyComposition: string;
+  allowCompleteMeal?: boolean;
+  notify?: GenerateNotify;
 }
 
 export function useGenerateHandlers({
@@ -118,6 +127,8 @@ export function useGenerateHandlers({
   handleResetPlan,
   dailyComposition,
   budget,
+  allowCompleteMeal,
+  notify,
 }: UseGenerateHandlersOptions) {
   
 // Apply soft budget preference (filter, not block)
@@ -157,7 +168,8 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       filteredRecipes,
       weeklyPlan,
       dayKey,
-      nextSlotRole
+      nextSlotRole,
+      { index: slotIndex, composition, allowCompleteMeal }
     );
     
     if (candidates.length === 0) {
@@ -168,6 +180,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
         filteredCount: filteredRecipes.length,
         dayRecipeCount: (weeklyPlan[dayKey] || []).filter(Boolean).length,
       });
+      notify?.(buildNoCandidateFeedback(nextSlotRole), 'info', FEEDBACK_DURATION_MS);
       return;
     }
     
@@ -194,7 +207,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
       dayRecipes[slotIndex] = randomWithReasons;
       return { ...prev, [dayKey]: dayRecipes };
     });
-  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget]);
+  }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget, allowCompleteMeal, notify]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
     setWeeklyPlan((prev: Record<string, any[]>) => {

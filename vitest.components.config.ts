@@ -7,7 +7,8 @@ import baseConfig from './vitest.config';
 // change that globally, this config compiles JSX only for
 // src/components/myPlans/*.js, the My Plans page with its Toast, the
 // saved-plan shopping list drawer, the recipe detail page and the saved
-// plan detail page, and runs only the tests listed below.
+// plan detail page, and runs only the tests listed below (the Toast is also
+// what the generate page uses for its feedback).
 //
 // Run alone with `npm run test:components`, or with the default suite via
 // `npm run test:all`.
@@ -42,6 +43,7 @@ export default defineConfig({
       'tests/myPlansPageDelete.runtime.test.tsx',
       'tests/recipeDetailTitle.runtime.test.tsx',
       'tests/savedPlanDetailTitle.runtime.test.tsx',
+      'tests/generateToast.runtime.test.tsx',
     ],
   },
 });
