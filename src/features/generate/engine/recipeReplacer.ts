@@ -166,13 +166,18 @@ export function replaceRecipeInPlan(
     );
   }
   
+  // Never cross role boundaries for a complete-meal slot.
+  if (slotRole === 'complete_meal' && !candidates.length) {
+    candidates = unusedCandidates.filter((c: any) => matchesLocalSlotRole(c, slotRole));
+  }
+
   // Priority C: unused + not history
-  if (!candidates.length) {
+  if (!candidates.length && slotRole !== 'complete_meal') {
     candidates = unusedCandidates.filter((c: any) => !historyIds.has(c.id));
   }
   
   // Priority D: any non-current + not history  
-  if (!candidates.length) {
+  if (!candidates.length && slotRole !== 'complete_meal') {
     candidates = availableCandidates.filter(
       (c: any) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
     );
@@ -185,8 +190,8 @@ export function replaceRecipeInPlan(
     );
   }
   
-  // Priority F: any non-current
-  if (!candidates.length) {
+  // Priority F: any non-current (legacy non-complete slots only)
+  if (!candidates.length && slotRole !== 'complete_meal') {
     candidates = availableCandidates.filter(
       (c: any) => c.id !== currentRecipe?.id
     );
