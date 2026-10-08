@@ -400,3 +400,34 @@ describe('catalogue compound aliases', () => {
     expect(deriveIngredientDietTags({ ingredients: [{ slug: 'king-oyster-mushroom' }, { name: '蝦仁' }] })).toEqual([]);
   });
 });
+
+
+describe('Chinese ingredient names match complete terms', () => {
+  it.each([
+    { name: '牛油果', slug: 'avocado' },
+    { name: '素雞', slug: 'wheat-gluten' },
+    { name: '豌豆蛋白粉', slug: 'pea-protein-powder' },
+    { name: '魚腥草', slug: 'houttuynia' },
+  ])('keeps plant $name vegetarian without egg/dairy tags, with or without slug', (ingredient) => {
+    for (const input of [ingredient, { name: ingredient.name }]) {
+      expect(deriveIngredientDietTags({ ingredients: [input] })).toEqual(['vegetarian']);
+    }
+  });
+  it.each(['雞髀', '鯛魚柳', '豆豉鯪魚', '蝦仁', '魚露', '雜錦海鮮'])('recognizes explicit animal compound %s without a slug', (name) => {
+    expect(deriveIngredientDietTags({ ingredients: [{ name }] })).toEqual([]);
+  });
+  it.each(['雞蛋', '鹹蛋', '牛奶', '牛油'])('retains genuine egg/dairy signal %s', (name) => {
+    expect(deriveIngredientDietTags({ ingredients: [{ name }] })).toEqual(['vegetarian', 'egg_lacto']);
+  });
+  it.each([
+    { ingredients: [{ name: '素雞', slug: 'pork' }] },
+    { ingredients: [{ name: '豬肉', slug: 'wheat-gluten' }] },
+    { ingredients: [{ name: '素雞' }, { name: '蝦仁' }] },
+  ])('a plant name never overrides animal evidence in another field or ingredient %#', ({ ingredients }) => {
+    expect(deriveIngredientDietTags({ ingredients })).toEqual([]);
+  });
+  it('a plant name never overrides genuine dairy in another field or ingredient', () => {
+    expect(deriveIngredientDietTags({ ingredients: [{ name: '牛油果', slug: 'milk' }] })).toEqual(['vegetarian', 'egg_lacto']);
+    expect(deriveIngredientDietTags({ ingredients: [{ name: '牛油果' }, { name: '牛油' }] })).toEqual(['vegetarian', 'egg_lacto']);
+  });
+});

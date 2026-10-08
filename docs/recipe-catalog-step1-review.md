@@ -79,6 +79,36 @@ Current Supabase changelog and database-functions documentation were checked.
 The recent Postgres minor-upgrade warning concerns ltree/btree_gist/custom
 operators and legacy pgcrypto encryption; this migration does not use them.
 
+
+## Approved review-finding repair
+
+The follow-up review of head `2f3fc46fb82bca0a014897fa2b52e0ad75c750d2`
+found one P2 regression: unrestricted Chinese substring matching confused
+牛油果 with 牛油, 素雞 with 雞, and 豌豆蛋白粉 with 蛋. The user approved
+repairing this finding, adding regression tests and updating the Draft PR.
+
+The matcher now requires complete terms in both languages. Known Chinese animal
+compounds use explicit aliases (including catalogue fish, seafood and poultry
+names); salted/duck eggs have explicit positive aliases. Plant names do not
+exempt conflicting animal or dairy evidence in another field or ingredient.
+Unlisted compounds still depend on recognized names/slugs; this is not an
+exhaustive dietary classification system.
+
+Follow-up self-review checked positive signals, negative signals, name-only
+inputs and contradictory evidence. Eighteen new regressions cover plant names,
+real animal compounds and real egg/dairy terms. All 1,687 default tests, 69
+existing component tests and 4 admin component tests pass (1,760 total).
+Targeted ESLint and diff checks pass. TypeScript retains the same 35 baseline
+diagnostics. Comparing all 162 ingredients in the prior audit snapshot against
+the reviewed head changes only avocado, removing its incorrect egg_lacto tag;
+the existing fish/mushroom corrections remain intact. This comparison used the
+saved audit snapshot and did not access or modify Production.
+
+This repair changes only the diet helper, its tests and this review record.
+It adds no changes to the import/export API, draft SQL migration or PR #58 files.
+The P2 reproduction cases now pass; no further finding was identified in this
+bounded self-review. Independent reviewer approval remains pending.
+
 ## Remaining work
 
 Obtain independent review of this Draft PR and resolve main's build/typecheck

@@ -13,7 +13,7 @@
 /** Egg ingredients (positive indicator for egg_lacto) */
 const EGG_INGREDIENTS = [
   'egg', 'eggs',
-  '蛋', '雞蛋', '鸡蛋', '鵪鶉蛋',
+  '蛋', '雞蛋', '鸡蛋', '鵪鶉蛋', '鹹蛋', '咸蛋', '鴨蛋', '鸭蛋',
 ];
 
 /** Dairy ingredients (positive indicator for egg_lacto) */
@@ -49,6 +49,12 @@ const FORBIDDEN_ANIMAL_PROTEINS = [
   // Seafood (specific terms)
   'shrimp', 'prawn', 'lobster', 'crab', 'oyster', 'clam', 'mussel',
   '蝦', '虾', '龍蝦', '蟹', '青口', '蠔', '蜆',
+  // Explicit catalogue compounds: do not infer animals from single Chinese
+  // characters inside plant names (素雞, 魚腥草) or dairy from 牛油果.
+  '鹽焗雞粉', '雞中翼', '雞胸肉', '雞腿肉', '去骨雞腿肉', '雞髀', '雞扒', '雞湯',
+  '豬肉碎', '豬肉片', '免治豬肉', '免治牛肉', '牛肉片', '煙肉', '午餐肉',
+  '鯛魚', '鯛魚柳', '鲷鱼', '鲷鱼柳', '魚柳', '鹹魚', '三文魚柳', '鱈魚柳',
+  '豆豉鯪魚', '魚露', '蝦仁', '蝦米', '蟹柳', '蠔油', '雜錦海鮮',
   // Mixed / general meat terms (specific contexts only)
   'mixed meat', 'mixed seafood', 'meat', '肉類',
 ];
@@ -78,15 +84,14 @@ function normalizeIngredientValue(value: string | null | undefined): string {
 
 /**
  * Check if an ingredient matches any of the given signals
- * English uses word boundaries; Chinese compounds use character matching.
+ * Matches complete terms in both languages. Chinese compounds must be listed
+ * explicitly; substring matching confuses 牛油果 with 牛油 and 素雞 with 雞.
  */
 function matchesAnySignal(ingredient: IngredientInput, signals: string[]): boolean {
   const values = [ingredient.name, ingredient.slug].map((value) =>
     normalizeIngredientValue(value).replace(/-/g, ' '));
   return values.some((value) => signals.some((signal) => {
     const term = normalizeIngredientValue(signal);
-    // Chinese ingredient compounds have no spaces (e.g. 鯛魚柳, 豆豉鯪魚).
-    if (/[\u3400-\u9fff]/.test(term)) return value.includes(term);
     return (` ${value} `).includes(` ${term} `);
   }));
 }
