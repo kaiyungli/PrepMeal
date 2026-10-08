@@ -169,7 +169,7 @@ describe('buildExportEnvelope', () => {
     const env = buildExportEnvelope(recipes, '2026-09-11T00:00:00.000Z');
     expect(env).toEqual({
       format: 'prepmeal.recipe-export',
-      version: 1,
+      version: 2,
       exported_at: '2026-09-11T00:00:00.000Z',
       recipes,
     });

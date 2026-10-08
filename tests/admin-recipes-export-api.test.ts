@@ -282,7 +282,7 @@ describe('admin recipes export API: happy path', () => {
     expect(res.statusCode).toBe(200);
     const body = res.body as { format: string; version: number; exported_at: string; recipes: Array<Record<string, unknown>> };
     expect(body.format).toBe('prepmeal.recipe-export');
-    expect(body.version).toBe(1);
+    expect(body.version).toBe(2);
     expect(typeof body.exported_at).toBe('string');
     expect(body.recipes).toHaveLength(1);
 

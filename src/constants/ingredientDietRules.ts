@@ -44,7 +44,7 @@ const FORBIDDEN_ANIMAL_PROTEINS = [
   // Pork (specific terms - NOT '肉')
   'pork', '猪肉', '豬肉', '五花肉', '里肌肉', 'bacon', 'ham', '香腸', '臘腸',
   // Fish (specific terms)
-  'fish', 'salmon', 'tuna', 'cod', '鳕鱼', '三文鱼', '吞拿鱼',
+  'fish', 'salmon', 'tuna', 'cod', 'sea bream', 'dace', '鳕鱼', '三文鱼', '吞拿鱼',
   '魚', '鱼', '三文魚', '吞拿魚', '鱈魚',
   // Seafood (specific terms)
   'shrimp', 'prawn', 'lobster', 'crab', 'oyster', 'clam', 'mussel',
@@ -78,27 +78,29 @@ function normalizeIngredientValue(value: string | null | undefined): string {
 
 /**
  * Check if an ingredient matches any of the given signals
- * Uses word-boundary-aware matching for better accuracy
+ * English uses word boundaries; Chinese compounds use character matching.
  */
 function matchesAnySignal(ingredient: IngredientInput, signals: string[]): boolean {
-  const name = normalizeIngredientValue(ingredient.name);
-  const slug = normalizeIngredientValue(ingredient.slug);
-  
-  // Check both name and slug against all signals
-  for (const signal of signals) {
-    const normSignal = normalizeIngredientValue(signal);
-    if (!normSignal) continue;
-    
-    // Match whole word/term, not substring
-    // This prevents '牛' matching '牛奶' or '肉' matching '肉桂'
-    const nameMatch = name === normSignal || name.startsWith(normSignal + ' ') || name.endsWith(' ' + normSignal) || name.includes(' ' + normSignal + ' ');
-    const slugMatch = slug === normSignal || slug.startsWith(normSignal + '-') || slug.endsWith('-' + normSignal) || slug.includes('-' + normSignal + '-');
-    
-    if (nameMatch || slugMatch) {
-      return true;
-    }
-  }
-  return false;
+  const values = [ingredient.name, ingredient.slug].map((value) =>
+    normalizeIngredientValue(value).replace(/-/g, ' '));
+  return values.some((value) => signals.some((signal) => {
+    const term = normalizeIngredientValue(signal);
+    // Chinese ingredient compounds have no spaces (e.g. 鯛魚柳, 豆豉鯪魚).
+    if (/[\u3400-\u9fff]/.test(term)) return value.includes(term);
+    return (` ${value} `).includes(` ${term} `);
+  }));
+}
+
+// Remove only the misleading words in known compounds, independently in each
+// field. A mushroom alias must never hide meat in another field/ingredient.
+function animalSignalInput(ingredient: IngredientInput): IngredientInput {
+  const mask = (value: string | null | undefined) => normalizeIngredientValue(value)
+    .replace(/-/g, ' ')
+    .replace(/\b(?:king )?oyster mushrooms?\b/g, '')
+    .replace(/\b(?:chicken|duck|quail) eggs?\b/g, '')
+    .replace(/(?:雞|鸡|鴨|鸭|鵪鶉|鹌鹑)蛋/g, '')
+    .replace(/(?:蠔|蚝)菇/g, '');
+  return { name: mask(ingredient.name), slug: mask(ingredient.slug) };
 }
 
 /**
@@ -114,7 +116,7 @@ export function containsForbiddenAnimalProtein(input: IngredientDietInput): bool
   }
   
   for (const ingredient of ingredients) {
-    if (matchesAnySignal(ingredient, FORBIDDEN_ANIMAL_PROTEINS)) {
+    if (matchesAnySignal(animalSignalInput(ingredient), FORBIDDEN_ANIMAL_PROTEINS)) {
       return true;
     }
   }

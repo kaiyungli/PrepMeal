@@ -273,7 +273,7 @@ describe('isRecipeEggLactoByIngredients', () => {
     it('slug matching works for egg_lacto', () => {
       expect(isRecipeEggLactoByIngredients({
         ingredients: [{ name: 'breakfast', slug: 'chicken-egg' }, { name: 'tofu' }]
-      })).toBe(false); // chicken in slug = forbidden
+      })).toBe(true); // chicken egg is an egg, not chicken meat
     });
   });
 });
@@ -373,5 +373,30 @@ describe('Chinese ingredient edge cases', () => {
         ingredients: [{ name: '肉桂' }, { name: '糖' }]
       })).toBe(false);
     });
+  });
+});
+
+
+describe('catalogue compound aliases', () => {
+  it.each([
+    { name: '杏鮑菇', slug: 'king-oyster-mushroom' },
+    { name: '蠔菇', slug: 'oyster-mushroom' },
+    { name: '雞蛋', slug: 'chicken-egg' },
+  ])('recognizes vegetarian compound $slug', (ingredient) => {
+    expect(isRecipeVegetarianByIngredients({ ingredients: [ingredient] })).toBe(true);
+  });
+  it.each([
+    { name: '鯛魚', slug: 'sea-bream' },
+    { name: '鯛魚柳', slug: 'sea-bream-fillet' },
+    { name: '豆豉鯪魚', slug: 'dace-with-black-bean' },
+    { name: '雞髀', slug: 'unknown' },
+    { name: 'oyster sauce' },
+    { name: 'chicken meat', slug: 'king-oyster-mushroom' },
+    { name: 'oyster mushroom', slug: 'pork' },
+  ])('rejects animal ingredient $name', (ingredient) => {
+    expect(isRecipeVegetarianByIngredients({ ingredients: [ingredient] })).toBe(false);
+  });
+  it('a mushroom never exempts a separate animal ingredient', () => {
+    expect(deriveIngredientDietTags({ ingredients: [{ slug: 'king-oyster-mushroom' }, { name: '蝦仁' }] })).toEqual([]);
   });
 });

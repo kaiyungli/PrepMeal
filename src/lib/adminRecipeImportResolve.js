@@ -70,7 +70,7 @@ const normOptionalNotesText = (v, field) => {
 // ---------------------------------------------------------------------------
 // parseImportEnvelope
 // ---------------------------------------------------------------------------
-// Accepts only { format: "prepmeal.recipe-export", version: 1, recipes: [...] }
+// Accepts only { format: "prepmeal.recipe-export", version: 1 or 2, recipes: [...] }
 // with 1..MAX_RECIPES entries. A legacy raw-array file (the shape the old
 // import route accepted) is rejected with a specific, actionable message --
 // never guessed at / partially converted. Any other malformed envelope is
@@ -88,8 +88,8 @@ export function parseImportEnvelope(rawBody) {
   if (rawBody.format !== EXPORT_FORMAT) {
     return { error: `Unsupported import format. Expected format "${EXPORT_FORMAT}".` };
   }
-  if (rawBody.version !== EXPORT_VERSION) {
-    return { error: `Unsupported import version. Expected version ${EXPORT_VERSION}.` };
+  if (![1, EXPORT_VERSION].includes(rawBody.version)) {
+    return { error: `Unsupported import version. Expected version 1 or ${EXPORT_VERSION}.` };
   }
   if (!Array.isArray(rawBody.recipes)) {
     return { error: invalidMsg('recipes') };
@@ -100,7 +100,7 @@ export function parseImportEnvelope(rawBody) {
   if (rawBody.recipes.length > MAX_RECIPES) {
     return { error: `Too many recipes: maximum ${MAX_RECIPES} per import` };
   }
-  return { recipes: rawBody.recipes };
+  return { recipes: rawBody.recipes, version: rawBody.version };
 }
 
 // ---------------------------------------------------------------------------
