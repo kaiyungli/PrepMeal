@@ -90,7 +90,7 @@ interface Recipe {
  * WeeklyPlanGrid - displays weekly meal plan as a grid
  * 
  * DATA PROPS:
- *   weeklyPlan: Record<string, Recipe[]>   - current plan state
+ *   weeklyPlan: Record<string, (Recipe | null)[]> - current plan state; null = empty slot
  *   lockedSlots: Record<string, boolean> - which slots are locked
  *   daysPerWeek: number                  - how many days to display
  *   dishesPerDay: number                - how many dishes per day
@@ -104,7 +104,7 @@ interface Recipe {
  *   onAddRandom: (dayKey, index) => void - add random recipe
  */
 interface WeeklyPlanGridProps {
-  weeklyPlan: Record<string, Recipe[]>
+  weeklyPlan: Record<string, (Recipe | null)[]>
   lockedSlots: Record<string, boolean>
   daysPerWeek: number
   dishesPerDay: number

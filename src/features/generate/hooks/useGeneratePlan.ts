@@ -6,6 +6,7 @@ import { perfNow, perfLog } from '@/utils/perf';
 
 const DAYS = getWeekDates();
 
+// Empty slots are null so each recipe keeps its slot index.
 interface WeeklyPlan {
   [dayKey: string]: any[];
 }
@@ -99,8 +100,8 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     });
 
     // Calculate metrics
-    const generatedRecipeCount = Object.values(newPlan).flat().length;
-    const generatedDayCount = Object.values(newPlan).filter((arr: any) => arr?.length).length;
+    const generatedRecipeCount = Object.values(newPlan).flat().filter(Boolean).length;
+    const generatedDayCount = Object.values(newPlan).filter((arr: any) => arr?.some(Boolean)).length;
     const lockedSlotCount = Object.values(lockedSlots).filter(Boolean).length;
     
     const end = perfNow();

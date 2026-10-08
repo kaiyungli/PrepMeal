@@ -92,13 +92,13 @@ export function useGeneratePageController({
   
   // Derived state (no setState during render)
   const hasRecipes = useMemo(() => 
-    Object.values(plan.weeklyPlan).some(arr => Array.isArray(arr) && arr.length > 0),
+    Object.values(plan.weeklyPlan).some(arr => Array.isArray(arr) && arr.some(Boolean)),
     [plan.weeklyPlan]
   );
   
   const hasGenerated = hasRecipes;
   const selectedCount = useMemo(() => 
-    Object.values(plan.weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0),
+    Object.values(plan.weeklyPlan).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0),
     [plan.weeklyPlan]
   );
   

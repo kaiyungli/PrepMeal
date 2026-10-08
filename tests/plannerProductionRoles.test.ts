@@ -56,8 +56,8 @@ describe('production-shaped mixed meal roles', () => {
       expect(plan[day]).toHaveLength(2);
       expect(matchesSlotRole(plan[day][0], 'protein_main'), day).toBe(true);
       expect(matchesSlotRole(plan[day][1], 'veg_side'), day).toBe(true);
-      expect(plan[day][0].meal_role).not.toBe('veg_side');
-      expect(plan[day][0].meal_role).not.toBe('soup');
+      expect(plan[day][0]?.meal_role).not.toBe('veg_side');
+      expect(plan[day][0]?.meal_role).not.toBe('soup');
     }
   });
 
@@ -76,6 +76,6 @@ describe('production-shaped mixed meal roles', () => {
       allowCompleteMeal: false, isWeekend: () => false,
     });
 
-    expect(plan.mon.map(recipe => recipe.meal_role)).toEqual(['protein_main', 'veg_side']);
+    expect(plan.mon.map(recipe => recipe?.meal_role)).toEqual(['protein_main', 'veg_side']);
   });
 });

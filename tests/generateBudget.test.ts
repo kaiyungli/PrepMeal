@@ -40,14 +40,14 @@ describe('canonical recipe budget preference', () => {
       daysPerWeek: 1, dishesPerDay: 1, slotRoles: ['complete_meal'],
       dailyComposition: 'complete_meal', isWeekend: () => false,
     };
-    const select = (budget: string) => planWeekAdvanced([expensive, cheap], { ...config, budget }).mon[0].id;
+    const select = (budget: string) => planWeekAdvanced([expensive, cheap], { ...config, budget }).mon[0]?.id;
     expect(select('budget')).toBe('cheap');
     expect(select('premium')).toBe('expensive');
-    expect(planWeekAdvanced([expensive], { ...config, budget: 'budget' }).mon[0].id).toBe('expensive');
+    expect(planWeekAdvanced([expensive], { ...config, budget: 'budget' }).mon[0]?.id).toBe('expensive');
     expect(planWeekAdvanced([expensive, cheap], {
       ...config, budget: 'budget',
       lockedSlots: { 'mon-0': true }, lockedRecipes: { 'mon-0': expensive },
-    }).mon[0].id).toBe('expensive');
+    }).mon[0]?.id).toBe('expensive');
   });
 
   it('replacement respects the labelled tier and falls back when unavailable', () => {
@@ -55,10 +55,10 @@ describe('canonical recipe budget preference', () => {
     const plan = { mon: [recipe('original', 'normal')] };
     expect(replaceRecipeInPlan(plan, 'mon', 0, [cheap, expensive], {
       dailyComposition: 'complete_meal', budget: 'budget',
-    })?.mon[0].id).toBe('cheap');
+    })?.mon[0]?.id).toBe('cheap');
     expect(replaceRecipeInPlan(plan, 'mon', 0, [expensive], {
       dailyComposition: 'complete_meal', budget: 'budget',
-    })?.mon[0].id).toBe('expensive');
+    })?.mon[0]?.id).toBe('expensive');
   });
 
   it('prefers the requested tier among equally perfect pantry matches', () => {
@@ -72,7 +72,7 @@ describe('canonical recipe budget preference', () => {
       recipe('pantry-budget', 'budget', { ingredients_list: ['雞蛋'] }),
       recipe('pantry-premium', 'premium', { ingredients_list: ['雞蛋'] }),
     ];
-    expect(planWeekAdvanced(recipes, config).mon[0].id).toBe('pantry-premium');
+    expect(planWeekAdvanced(recipes, config).mon[0]?.id).toBe('pantry-premium');
   });
 });
 

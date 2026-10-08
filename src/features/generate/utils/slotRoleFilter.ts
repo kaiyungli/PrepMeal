@@ -1,8 +1,8 @@
 /**
  * Shared slot-role filtering for generate feature layer
  * 
- * This is LOCAL logic for replace/add-random - NOT planner core.
- * Uses COMPOSITION_CONFIG for role mapping.
+ * Slot lookup for replace/add-random. Uses COMPOSITION_CONFIG for role
+ * mapping and the shared planner rules for role matching.
  */
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 
@@ -22,26 +22,5 @@ export function getSlotRoleForIndex(composition: string, index: number): string 
   return roles[index % roles.length] || 'any';
 }
 
-/**
- * Check if recipe matches local slot role (safe version)
- */
-export function matchesLocalSlotRole(recipe: any, slotRole: string): boolean {
-  const mealRole = recipe.meal_role;
-  const dishType = recipe.dish_type;
-  const isCompleteMeal = recipe.is_complete_meal;
-  const primaryProtein = recipe.primary_protein;
-
-  if (slotRole === 'complete_meal') {
-    return mealRole === 'complete_meal' || isCompleteMeal === true;
-  }
-
-  if (slotRole === 'protein_main') {
-    return mealRole === 'protein_main' || dishType === 'main' || !!primaryProtein;
-  }
-
-  if (slotRole === 'veg_side') {
-    return mealRole === 'veg_side' || (dishType === 'side' && !primaryProtein);
-  }
-
-  return true;
-}
+// Role matching lives in one place for the planner and these local actions.
+export { matchesSlotRole, allowsCrossRoleFallback } from '@/lib/slotRoles';

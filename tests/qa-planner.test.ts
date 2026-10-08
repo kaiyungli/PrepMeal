@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { planWeekAdvanced } from '@/lib/mealPlanner';
+import { planWeekAdvanced, matchesSlotRole } from '@/lib/mealPlanner';
 
 const mockRecipes = [
   // Complete meals
@@ -27,6 +27,17 @@ const mockRecipes = [
 
 const config = { isWeekend: () => false, lockedSlots: {}, lockedRecipes: {} };
 
+// Every day keeps one entry per slot; an entry is either null (no eligible
+// recipe left) or a recipe that fits that slot's role.
+function expectSlotsMatchRoles(plan: ReturnType<typeof planWeekAdvanced>, slotRoles: string[]) {
+  Object.values(plan).forEach(dishes => {
+    expect(dishes).toHaveLength(slotRoles.length);
+    dishes.forEach((d, i) => {
+      if (d) expect(matchesSlotRole(d, slotRoles[i])).toBe(true);
+    });
+  });
+}
+
 describe('Planner QA - Real Output Testing', () => {
   it('meat_veg mode - check composition', () => {
     console.log('\n=== MEAT_VEG MODE ===\n');
@@ -37,11 +48,12 @@ describe('Planner QA - Real Output Testing', () => {
         slotRoles: ['protein_main', 'veg_side'], 
         dailyComposition: 'meat_veg' 
       });
+      expectSlotsMatchRoles(plan, ['protein_main', 'veg_side']);
       console.log(`--- Plan ${p+1} ---`);
       Object.entries(plan).slice(0,5).forEach(([day, dishes]) => {
-        const proteins = dishes.map(d => d.primary_protein || 'veg');
-        const isComplete = dishes.some(d => d.is_complete_meal);
-        console.log(`${day}: ${dishes.map(d => d.name).join(' + ')} [${proteins.join(',')}] ${isComplete ? '(complete)' : ''}`);
+        const proteins = dishes.map(d => d?.primary_protein || 'veg');
+        const isComplete = dishes.some(d => d?.is_complete_meal);
+        console.log(`${day}: ${dishes.map(d => d?.name ?? '(empty)').join(' + ')} [${proteins.join(',')}] ${isComplete ? '(complete)' : ''}`);
       });
     }
   });
@@ -55,11 +67,12 @@ describe('Planner QA - Real Output Testing', () => {
         slotRoles: ['protein_main', 'protein_main', 'veg_side'], 
         dailyComposition: 'two_meat_one_veg' 
       });
+      expectSlotsMatchRoles(plan, ['protein_main', 'protein_main', 'veg_side']);
       console.log(`--- Plan ${p+1} ---`);
       Object.entries(plan).slice(0,5).forEach(([day, dishes]) => {
-        const proteins = dishes.map(d => d.primary_protein || 'veg');
-        const isComplete = dishes.some(d => d.is_complete_meal);
-        console.log(`${day}: ${dishes.map(d => d.name).join(' + ')} [${proteins.join(',')}] ${isComplete ? '(complete)' : ''}`);
+        const proteins = dishes.map(d => d?.primary_protein || 'veg');
+        const isComplete = dishes.some(d => d?.is_complete_meal);
+        console.log(`${day}: ${dishes.map(d => d?.name ?? '(empty)').join(' + ')} [${proteins.join(',')}] ${isComplete ? '(complete)' : ''}`);
       });
     }
   });
@@ -73,10 +86,11 @@ describe('Planner QA - Real Output Testing', () => {
         slotRoles: ['complete_meal'], 
         dailyComposition: 'complete_meal' 
       });
+      expectSlotsMatchRoles(plan, ['complete_meal']);
       console.log(`--- Plan ${p+1} ---`);
       Object.entries(plan).slice(0,5).forEach(([day, dishes]) => {
-        const proteins = dishes.map(d => d.primary_protein || 'none');
-        console.log(`${day}: ${dishes.map(d => d.name).join(' + ')} [${proteins.join(',')}]`);
+        const proteins = dishes.map(d => d?.primary_protein || 'none');
+        console.log(`${day}: ${dishes.map(d => d?.name ?? '(empty)').join(' + ')} [${proteins.join(',')}]`);
       });
     }
   });
@@ -98,7 +112,7 @@ describe('allowCompleteMeal checkbox behavior', () => {
         allowCompleteMeal: true
       });
       Object.values(plan).forEach(dishes => {
-        if (dishes.some(d => d.is_complete_meal || d.meal_role === 'complete_meal')) {
+        if (dishes.some(d => d?.is_complete_meal || d?.meal_role === 'complete_meal')) {
           hasCompleteMeal = true;
         }
       });
@@ -119,7 +133,7 @@ describe('allowCompleteMeal checkbox behavior', () => {
       });
       Object.values(plan).forEach(dishes => {
         dishes.forEach(d => {
-          expect(d.is_complete_meal || d.meal_role === 'complete_meal').toBe(false);
+          expect(!!(d?.is_complete_meal || d?.meal_role === 'complete_meal')).toBe(false);
         });
       });
     }
@@ -137,7 +151,7 @@ describe('allowCompleteMeal checkbox behavior', () => {
       });
       Object.values(plan).forEach(dishes => {
         dishes.forEach(d => {
-          expect(d.is_complete_meal || d.meal_role === 'complete_meal').toBe(false);
+          expect(!!(d?.is_complete_meal || d?.meal_role === 'complete_meal')).toBe(false);
         });
       });
     }

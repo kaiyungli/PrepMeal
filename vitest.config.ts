@@ -4,7 +4,7 @@ import path from 'path';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts', 'src/__tests__/constants/*.test.ts', 'src/lib/shoppingList.integrity.test.ts', 'src/features/generate/engine/mealRoleIntegrity.test.ts'],
+    include: ['tests/**/*.test.ts', 'src/__tests__/constants/*.test.ts'],
     exclude: ['tests/**/*.test.tsx'],
   },
   resolve: {

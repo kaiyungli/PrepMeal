@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getSlotRoleForIndex, matchesLocalSlotRole } from '../utils/slotRoleFilter';
+import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -73,10 +73,10 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
 }
 
 /**
- * Get candidates for add-random: exact role first, fallback to any unused recipe
- * so + 添加 never silently fails
+ * Get candidates for add-random: exact role first, then any unused recipe for
+ * slots that allow a cross-role fallback. A complete-meal slot stays empty.
  */
-function getCandidatesForAddRandom(
+export function getCandidatesForAddRandom(
   filteredRecipes: any[],
   weeklyPlan: Record<string, any[]>,
   dayKey: string,
@@ -90,11 +90,10 @@ function getCandidatesForAddRandom(
   const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id));
 
   // Exact role match first
-  const exact = unused.filter((r: any) => matchesLocalSlotRole(r, slotRole));
+  const exact = unused.filter((r: any) => matchesSlotRole(r, slotRole));
   if (exact.length > 0) return exact;
 
-  // Complete-meal slots must stay empty rather than accepting ordinary mains.
-  return slotRole === 'complete_meal' ? [] : unused;
+  return allowsCrossRoleFallback(slotRole) ? unused : [];
 }
 
 

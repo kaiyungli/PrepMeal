@@ -132,7 +132,7 @@ describe('planWeekAdvanced slotRoles', () => {
     expect(dayRecipes).toHaveLength(2);
     
     // Slot 0 should be protein_main-like
-    const slot0 = dayRecipes[0];
+    const slot0 = dayRecipes[0]!;
     const isProteinMain0 = 
       slot0.meal_role === 'protein_main' ||
       slot0.dish_type === 'main' ||
@@ -140,7 +140,7 @@ describe('planWeekAdvanced slotRoles', () => {
     expect(isProteinMain0).toBe(true);
     
     // Slot 1 should be veg_side-like (no protein)
-    const slot1 = dayRecipes[1];
+    const slot1 = dayRecipes[1]!;
     const isVegSide1 = 
       slot1.meal_role === 'veg_side' ||
       (slot1.dish_type === 'side' && !slot1.primary_protein);
@@ -168,7 +168,7 @@ describe('planWeekAdvanced slotRoles', () => {
     const dayRecipes = plan['mon'];
     
     // veg_side slot (slot 1) should NOT have protein
-    const vegSideSlot = dayRecipes[1];
+    const vegSideSlot = dayRecipes[1]!;
     expect(vegSideSlot.primary_protein || '').toBe('');
   });
 
@@ -196,7 +196,7 @@ describe('planWeekAdvanced slotRoles', () => {
     expect(dayRecipes).toHaveLength(3);
     
     // Check soup exists in slot 2
-    const soupSlot = dayRecipes[2];
+    const soupSlot = dayRecipes[2]!;
     const isSoup = 
       soupSlot.meal_role === 'soup' ||
       soupSlot.dish_type === 'soup';
@@ -232,7 +232,7 @@ describe('planWeekAdvanced slotRoles', () => {
     expect(dayRecipes).toHaveLength(2);
     
     // Second slot should still be a side dish
-    const sideSlot = dayRecipes[1];
+    const sideSlot = dayRecipes[1]!;
     expect(sideSlot.dish_type).toBe('side');
   });
 
@@ -257,7 +257,7 @@ describe('planWeekAdvanced slotRoles', () => {
     const plan = planWeekAdvanced(recipes, config);
     const dayRecipes = plan['mon'];
     
-    const ids = dayRecipes.map(r => r.id);
+    const ids = dayRecipes.map(r => r?.id);
     const uniqueIds = new Set(ids);
     
     expect(uniqueIds.size).toBe(ids.length);
@@ -284,7 +284,7 @@ describe('planWeekAdvanced slotRoles', () => {
     
     expect(dayRecipes).toHaveLength(1);
     // Should prefer complete_meal for complete_meal slot
-    expect(dayRecipes[0].meal_role).toBe('complete_meal');
+    expect(dayRecipes[0]?.meal_role).toBe('complete_meal');
   });
 });
 // Test G: Perfect pantry match respects slot role
@@ -329,7 +329,7 @@ describe('planWeekAdvanced pantry match respects slot role', () => {
     
     // Protein main slot (slot 0) should NOT be the soup
     // It should be protein_main recipe
-    const proteinMainSlot = dayRecipes[0];
+    const proteinMainSlot = dayRecipes[0]!;
     expect(proteinMainSlot.dish_type).not.toBe('soup');
     expect(proteinMainSlot.meal_role).not.toBe('soup');
   });
@@ -381,14 +381,14 @@ describe('planWeekAdvanced diversity', () => {
 
   it('never repeats a recipe across the week when the pool is large enough', () => {
     const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
-    const ids = Object.values(plan).flat().map((r) => r.id);
+    const ids = Object.values(plan).flat().map((r) => r?.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('selects at least 3 distinct proteins across the week', () => {
     const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
     const proteins = new Set(
-      Object.values(plan).flat().map((r) => r.primary_protein).filter(Boolean)
+      Object.values(plan).flat().map((r) => r?.primary_protein).filter(Boolean)
     );
     expect(proteins.size).toBeGreaterThanOrEqual(3);
   });
@@ -396,7 +396,7 @@ describe('planWeekAdvanced diversity', () => {
   it('selects at least 2 distinct cooking methods across the week', () => {
     const plan = planWeekAdvanced(diverseRecipes, diverseConfig);
     const methods = new Set(
-      Object.values(plan).flat().map((r) => r.method).filter(Boolean)
+      Object.values(plan).flat().map((r) => r?.method).filter(Boolean)
     );
     expect(methods.size).toBeGreaterThanOrEqual(2);
   });

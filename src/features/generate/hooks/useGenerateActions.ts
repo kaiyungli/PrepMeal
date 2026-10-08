@@ -98,7 +98,7 @@ export function useGenerateActions({
   // Shopping list handlers
   const handleOpenShoppingList = useCallback(async () => {
     // Click log
-    const selectedCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+    const selectedCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0);
     perfLog({
       event: 'shopping_list',
       stage: 'open_click',
@@ -185,7 +185,7 @@ export function useGenerateActions({
     if (shoppingListView) return;
     if (isShoppingListLoading) return;
     
-    const recipeCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+    const recipeCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0);
     if (recipeCount === 0) return;
     
     perfLog({

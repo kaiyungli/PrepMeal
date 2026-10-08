@@ -19,7 +19,7 @@ interface Recipe {
  * GenerateResults - displays weekly meal plan grid
  * 
  * CONTRACT:
- *   weeklyPlan: Record<string, Recipe[]>  - current plan state
+ *   weeklyPlan: Record<string, (Recipe | null)[]> - current plan state; null = empty slot
  *   lockedSlots: Record<string, boolean>  - locked slots
  *   daysPerWeek: number                   - days to show
  *   dishesPerDay: number                  - dishes per day
@@ -30,7 +30,7 @@ interface Recipe {
  */
 interface GenerateResultsProps {
   traceId?: string;
-  weeklyPlan: Record<string, Recipe[]>
+  weeklyPlan: Record<string, (Recipe | null)[]>
   lockedSlots: Record<string, boolean>
   daysPerWeek: number
   dishesPerDay: number
@@ -80,7 +80,7 @@ export default function GenerateResults({
   // Log results render when plan changes
   useEffect(() => {
     if (hasRecipes) {
-      const dayCount = Object.values(weeklyPlan).filter((arr: any) => arr?.length).length;
+      const dayCount = Object.values(weeklyPlan).filter((arr: any) => arr?.some(Boolean)).length;
       perfLog({
         traceId,
         event: 'generate_results',
