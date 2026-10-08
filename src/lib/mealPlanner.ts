@@ -150,7 +150,7 @@ export function calculatePlanScore(
   
   Object.values(plan).forEach(dayRecipes => {
     dayRecipes.forEach(recipe => {
-      totalScore += recipe.score || WEIGHTS.BASE_SCORE
+      if (recipe) totalScore += recipe.score || WEIGHTS.BASE_SCORE
     })
   })
   
@@ -361,8 +361,12 @@ export function planWeekAdvanced(
 
   // Pre-populate usedRecipeIds with locked recipes to prevent duplication
   if (lockedRecipes) {
-    Object.values(lockedRecipes).forEach(r => {
-      if (r && r.id) usedRecipeIds.add(r.id);
+    Object.entries(lockedRecipes).forEach(([key, r]) => {
+      const slotIndex = Number(key.slice(key.lastIndexOf('-') + 1));
+      const expectedRole = effectiveSlotRoles[slotIndex];
+      if (lockedSlots[key] && r?.id && expectedRole && matchesSlotRole(r, expectedRole)) {
+        usedRecipeIds.add(r.id);
+      }
     });
   }
 
