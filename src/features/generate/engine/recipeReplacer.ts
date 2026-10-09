@@ -136,11 +136,20 @@ export function replaceRecipeInPlan(
   availableCandidates = availableCandidates.filter(c =>
     fitsDailyCompleteMealLimit(c, otherSlotsInDay) && fitsCompleteMealSetting(c, composition, options?.allowCompleteMeal));
   
-  const existing = Object.values(weeklyPlan).flat().filter(Boolean);
-  
   // Get current recipe
   const currentRecipe = weeklyPlan[dayKey]?.[index];
   
+  // Every fallback tier must exclude recipes already occupying another slot
+  // on this day. Reuse on a different day is still allowed.
+  const sameDayRecipeIds = new Set(
+    (weeklyPlan[dayKey] || [])
+      .filter((r: any, slotIndex: number) => slotIndex !== index && r?.id)
+      .map((r: any) => r.id)
+  );
+  availableCandidates = availableCandidates.filter(
+    (c: any) => c?.id && c.id !== currentRecipe?.id && !sameDayRecipeIds.has(c.id)
+  );
+
   // Get all used recipe IDs from entire weekly plan
   const usedRecipeIds = new Set(
     Object.values(weeklyPlan)
@@ -148,9 +157,6 @@ export function replaceRecipeInPlan(
       .filter(Boolean)
       .map((r: any) => r.id)
   );
-  
-  // Keep current in used set to exclude it from self-replacement
-  // (only if we want to prevent same recipe immediately)
   
   // Filter out candidates already used in weekly plan (but allow current)
   const unusedCandidates = availableCandidates.filter(
