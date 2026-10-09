@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 // Pure shape builders for the admin recipe import/export envelope:
 //
-//   { format: "prepmeal.recipe-export", version: 1, exported_at, recipes: [...] }
+//   { format: "prepmeal.recipe-export", version: 2, exported_at, recipes: [...] }
 //
 // PURE JAVASCRIPT. No Supabase / client / server / env / Next imports, so this
 // module is safe to import from both export.js (building the payload from DB
@@ -14,11 +14,11 @@
 // (src/lib/adminRecipeAtomicParams.js) EXPECTS -- prep_time not
 // prep_time_minutes, servings not base_servings -- so the round trip is
 // export -> resolve references (ingredient_slug/unit_code -> id) ->
-// buildRecipeAtomicParams() with zero remapping of metadata fields.
+// buildRecipeAtomicParams() plus buildImportMetadata() for the v2 fields.
 // ===========================================================================
 
 export const EXPORT_FORMAT = 'prepmeal.recipe-export';
-export const EXPORT_VERSION = 1;
+export const EXPORT_VERSION = 2;
 
 // Shared bound for both directions of the contract: an import over this many
 // recipes is rejected before any lookup/RPC work; an export whose exportable
@@ -108,6 +108,13 @@ export function buildRecipeExport(recipe, ingredientRows, stepRows) {
     primary_protein: recipe.primary_protein ?? null,
     budget_level: recipe.budget_level ?? null,
     reuse_group: recipe.reuse_group ?? null,
+    protein: recipe.protein ?? [],
+    diet: recipe.diet ?? [],
+    flavor: recipe.flavor ?? [],
+    protein_g: recipe.protein_g ?? null,
+    carbs_g: recipe.carbs_g ?? null,
+    fat_g: recipe.fat_g ?? null,
+    total_time_minutes: recipe.total_time_minutes ?? null,
     ingredients,
     steps,
   };

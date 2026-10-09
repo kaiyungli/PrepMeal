@@ -618,3 +618,31 @@ describe('admin recipes import API: deterministic duplicate slugs within one bat
     expect(body.results[2].error).toMatch(/Duplicate slug/);
   });
 });
+
+describe('admin import v2 metadata RPC', () => {
+  const metadata = { protein: ['fish'], diet: [], flavor: ['savory'], protein_g: 21.5, carbs_g: null, fat_g: 0, total_time_minutes: 40 };
+  it('dispatches exactly one atomic v2 RPC with all metadata and canonical child params', async () => {
+    const mock = mockSupabase({ ingredients: [{ id: 'i1', slug: 'broccoli' }], units: [{ id: 'u1', code: 'piece' }] });
+    const handler = await loadHandler(); const res = makeRes();
+    await handler(makeReq({ headers: { cookie: validAdminCookie() }, body: envelope([validRecipe('v2', metadata)], { version: 2 }) }), res);
+    expect(mock.rpc).toHaveBeenCalledTimes(1);
+    expect(mock.rpc).toHaveBeenCalledWith('admin_import_recipe_atomic_v2', {
+      p_recipe: expect.objectContaining({ p_slug: 'v2', p_ingredients: [expect.objectContaining({ quantity: 1 })] }),
+      p_metadata: metadata,
+    });
+    expect(res.body).toMatchObject({ success: 1, failed: 0 });
+  });
+  it('rejects incomplete v2 before RPC', async () => {
+    const mock = mockSupabase({ ingredients: [{ id: 'i1', slug: 'broccoli' }], units: [{ id: 'u1', code: 'piece' }] }); const handler = await loadHandler(); const res = makeRes();
+    await handler(makeReq({ headers: { cookie: validAdminCookie() }, body: envelope([validRecipe('v2')], { version: 2 }) }), res);
+    expect(mock.rpc).not.toHaveBeenCalled();
+    expect(res.body).toMatchObject({ success: 0, failed: 1 });
+  });
+  it('does not fall back to the lossy v1 RPC if the migration is unavailable', async () => {
+    const mock = mockSupabase({ ingredients: [{ id: 'i1', slug: 'broccoli' }], units: [{ id: 'u1', code: 'piece' }], rpc: () => ({ data: null, error: { code: 'PGRST202', message: 'Function unavailable' } }) });
+    const handler = await loadHandler(); const res = makeRes();
+    await handler(makeReq({ headers: { cookie: validAdminCookie() }, body: envelope([validRecipe('v2', metadata)], { version: 2 }) }), res);
+    expect(mock.rpc).toHaveBeenCalledTimes(1);
+    expect(res.body).toMatchObject({ success: 0, failed: 1 });
+  });
+});

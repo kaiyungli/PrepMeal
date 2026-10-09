@@ -56,7 +56,7 @@ describe('parseImportEnvelope', () => {
   });
 
   it('rejects an unknown version', () => {
-    const result = parseImportEnvelope(envelope([VALID_RECIPE], { version: 2 }));
+    const result = parseImportEnvelope(envelope([VALID_RECIPE], { version: 99 }));
     expect(result.error).toMatch(/Unsupported import version/);
   });
 

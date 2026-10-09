@@ -1,5 +1,6 @@
 import { supabaseServer } from '@/lib/supabaseServer'
 import { requireAdmin } from '@/lib/adminAuth'
+import { buildImportMetadata } from '@/lib/adminRecipeImportMetadata'
 import { buildRecipeAtomicParams } from '@/lib/adminRecipeAtomicParams'
 import {
   parseImportEnvelope,
@@ -100,7 +101,9 @@ export default async function handler(req, res) {
     if (resolved.error) return { error: resolved.error }
     const built = buildRecipeAtomicParams(resolved.params)
     if (built.error) return { error: built.error }
-    return { params: built.params }
+    const metadata = buildImportMetadata(recipe, parsed.version)
+    if (metadata.error) return { error: metadata.error }
+    return { params: built.params, metadata: metadata.value }
   })
 
   // Deterministic duplicate-slug detection WITHIN this batch, in input
@@ -137,7 +140,10 @@ export default async function handler(req, res) {
       }
 
       try {
-        const { data, error } = await supabaseServer.rpc('admin_create_recipe_atomic', resolved.params)
+        const { data, error } = await supabaseServer.rpc(
+          parsed.version === 2 ? 'admin_import_recipe_atomic_v2' : 'admin_create_recipe_atomic',
+          parsed.version === 2 ? { p_recipe: resolved.params, p_metadata: resolved.metadata } : resolved.params,
+        )
 
         if (error) {
           // Prefer the structured Postgres error code (23505 =
