@@ -143,11 +143,11 @@ export function replaceRecipeInPlan(
   // on this day. Reuse on a different day is still allowed.
   const sameDayRecipeIds = new Set(
     (weeklyPlan[dayKey] || [])
-      .filter((r: any, slotIndex: number) => slotIndex !== index && r?.id)
-      .map((r: any) => r.id)
+      .filter((r: { id?: string } | null, slotIndex: number) => slotIndex !== index && r?.id)
+      .map((r: { id?: string } | null) => r?.id)
   );
   availableCandidates = availableCandidates.filter(
-    (c: any) => c?.id && c.id !== currentRecipe?.id && !sameDayRecipeIds.has(c.id)
+    (c: { id?: string } | null) => c?.id && c.id !== currentRecipe?.id && !sameDayRecipeIds.has(c.id)
   );
 
   // Get all used recipe IDs from entire weekly plan
