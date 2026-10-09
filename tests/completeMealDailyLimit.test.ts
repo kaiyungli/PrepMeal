@@ -153,6 +153,47 @@ describe('perfect pantry match and the daily limit', () => {
   });
 });
 
+describe('replace: never duplicate another slot on the same day', () => {
+  it('rejects Priority B candidates already in another same-day slot', () => {
+    const plan = { mon: [main(1), main(2), veg(1)] };
+    expect(replaceRecipeInPlan(plan, 'mon', 0, [main(1), main(2)], {
+      dailyComposition: 'two_meat_one_veg',
+    })).toBeNull();
+    expect(plan.mon.map(r => r.id)).toEqual(['main-1', 'main-2', 'veg-1']);
+  });
+
+  it('may reuse a recipe from a different day when no globally unused candidate exists', () => {
+    const plan = { mon: [main(1), main(2), veg(1)], tue: [main(3), main(4), veg(2)] };
+    const result = replaceRecipeInPlan(plan, 'mon', 0, [main(2), main(3)], {
+      dailyComposition: 'two_meat_one_veg',
+    });
+    expect(result?.mon.map(r => r.id)).toEqual(['main-3', 'main-2', 'veg-1']);
+  });
+
+  it('rejects a same-day duplicate even after replacement history is exhausted', () => {
+    const plan = { mon: [main(1), main(2), veg(1)] };
+    expect(replaceRecipeInPlan(plan, 'mon', 0, [main(2)], {
+      dailyComposition: 'two_meat_one_veg',
+      excludeRecipeIds: ['main-2'],
+    })).toBeNull();
+  });
+
+  it('does not duplicate across legacy cross-role fallback tiers', () => {
+    const plan = { mon: [main(1), veg(1)] };
+    expect(replaceRecipeInPlan(plan, 'mon', 0, [main(1), veg(1)], {
+      dailyComposition: 'meat_veg',
+    })).toBeNull();
+  });
+
+  it('does not consider null slots as occupied and keeps them intact', () => {
+    const plan = { mon: [main(1), null, veg(1)] };
+    const result = replaceRecipeInPlan(plan, 'mon', 0, [main(3)], {
+      dailyComposition: 'two_meat_one_veg',
+    });
+    expect(result?.mon.map(r => r?.id ?? null)).toEqual(['main-3', null, 'veg-1']);
+  });
+});
+
 describe('replace and add-random respect the daily limit', () => {
   it('replace never adds a second complete meal to the day', () => {
     for (let i = 0; i < 20; i++) {
