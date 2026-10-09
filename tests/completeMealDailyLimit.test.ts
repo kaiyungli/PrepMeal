@@ -164,7 +164,10 @@ describe('replace: never duplicate another slot on the same day', () => {
 
   it('may reuse a recipe from a different day when no globally unused candidate exists', () => {
     const plan = { mon: [main(1), main(2), veg(1)], tue: [main(3), main(4), veg(2)] };
-    const result = replaceRecipeInPlan(plan, 'mon', 0, [main(2), main(3)], {
+    // Fixed shuffle/selection: on main, Priority B picks main-2 (duplicate).
+    // The fix excludes main-2 before fallback, leaving main-3.
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    const result = replaceRecipeInPlan(plan, 'mon', 0, [main(3), main(2)], {
       dailyComposition: 'two_meat_one_veg',
     });
     expect(result?.mon.map(r => r.id)).toEqual(['main-3', 'main-2', 'veg-1']);
@@ -181,7 +184,7 @@ describe('replace: never duplicate another slot on the same day', () => {
   it('does not duplicate across legacy cross-role fallback tiers', () => {
     const plan = { mon: [main(1), veg(1)] };
     expect(replaceRecipeInPlan(plan, 'mon', 0, [main(1), veg(1)], {
-      dailyComposition: 'meat_veg',
+      dailyComposition: 'legacy_unknown',
     })).toBeNull();
   });
 
