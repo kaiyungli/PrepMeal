@@ -46,7 +46,7 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
   }, [isAuthenticated, toggleFavorite, showToast]);
 
   // Shopping list preview - disabled on homepage (fetch lazily on user interaction)
-  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false });
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, isInitialized: shoppingListInitialized, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false });
 
   return {
     weeklyPlan,
@@ -56,6 +56,7 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
     shoppingList,
     shoppingLoading,
     shoppingError,
+    shoppingListInitialized,
     isAuthRequired,
     refreshShoppingList
   };

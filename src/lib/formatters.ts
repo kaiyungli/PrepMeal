@@ -18,6 +18,7 @@ const UNIT_NORMALIZATION_MAP: Record<string, string> = {
   'cup': 'cup', 'cups': 'cup',
   // Count
   'pc': 'pc', 'piece': 'pc', 'pieces': 'pc', '個': 'pc',
+  'egg': 'egg', 'eggs': 'egg', '隻': 'egg',
   'clove': 'clove', 'cloves': 'clove', '瓣': 'clove',
   'slice': 'slice', 'slices': 'slice', '片': 'slice',
   'pack': 'pack', 'packs': 'pack', '包': 'pack',
@@ -43,6 +44,7 @@ const UNIT_DISPLAY: Record<string, string> = {
   'cup': '杯',
   // Count
   'pc': '個',
+  'egg': '隻',
   'clove': '瓣',
   'slice': '片',
   'pack': '包',

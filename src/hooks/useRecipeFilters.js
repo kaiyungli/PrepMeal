@@ -42,6 +42,7 @@ export function useRecipeFilters(options = {}) {
   );
 
   const clearFilters = () => {
+    setSearchQuery('');
     setFilters(prev => ({
       cuisine: [],
       dish_type: [],

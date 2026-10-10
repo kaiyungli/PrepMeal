@@ -62,16 +62,21 @@ function applyRecipeSelection(
 interface Recipe {
   id: string
   name: string
+  description?: string | null
+  protein?: string[] | null
+  meal_role?: string | null
+  is_complete_meal?: boolean | null
   method?: string
   difficulty?: string
   speed?: string
-  primary_protein?: string
+  primary_protein?: string | null
   dish_type?: string
   ingredients_list?: string[]
+  canonical_ingredients?: string[] | null
   budget_level?: string | null
   cuisine?: string
   score?: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 // A planned slot holds a recipe, or null when no eligible recipe exists.
@@ -86,7 +91,7 @@ const WEIGHTS = PLANNER_WEIGHTS;
  * Calculate protein diversity score
  */
 function scoreProteinDiversity(
-  protein: string | undefined,
+  protein: string | null | undefined,
   recentProteins: string[]
 ): { score: number; reason: string } {
   if (!protein) return { score: 0, reason: '' }
@@ -235,7 +240,7 @@ export function planWeekAdvanced(
   recipes: Recipe[],
   config: PlanConfig & { traceId?: string }
 ): WeeklyPlanResult {
-  const traceId = (config as any).traceId;
+  const traceId = config.traceId;
   const fnStart = perfNow();
   const {
     daysPerWeek,
@@ -272,7 +277,7 @@ export function planWeekAdvanced(
     if (cuisines.length > 0 && r.cuisine && !cuisines.includes(r.cuisine)) return false;
     if (normExclusions.length > 0) {
       // Check both primary_protein and protein array
-      const proteinValues = [r.primary_protein, ...(r.protein || [])].filter(Boolean);
+      const proteinValues = [r.primary_protein, ...(r.protein || [])].filter((protein): protein is string => Boolean(protein));
       const normProtein = normalizeIngredients(proteinValues);
       
       // If any exclusion matches normalized protein, filter out
@@ -441,7 +446,7 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      let candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
+      const candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
         .filter(r => fitsDailyCompleteMealLimit(r, otherSlotsInDay));
       
       // Log slot candidates
@@ -465,7 +470,7 @@ export function planWeekAdvanced(
       
       // Score candidates and maintain top 3 only (optimization: avoid full array sort)
       // Use simple insertion to keep only top 3 instead of sorting entire array
-      let top3: { recipe: Recipe; score: number }[] = [];
+      const top3: { recipe: Recipe; score: number }[] = [];
       
       // Collect current day's proteins for hard constraints
         const dayProteins = dayRecipes.map(d => d?.primary_protein).filter(Boolean);

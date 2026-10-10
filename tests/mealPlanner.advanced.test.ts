@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { planWeekAdvanced } from '../src/lib/mealPlanner';
-import { Recipe } from '../src/lib/types';
+type Recipe = Parameters<typeof planWeekAdvanced>[0][number];
 
 // Minimal mock recipes for testing
 const createMockRecipe = (overrides: Partial<Recipe> = {}): Recipe => ({

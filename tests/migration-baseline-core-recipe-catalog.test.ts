@@ -849,7 +849,7 @@ describe('migration: baseline_core_recipe_catalog_schema', () => {
       const narrowIdx = mustFind(creation, 'DO $narrow_acl$', 'ACL-narrowing DO block');
       const narrowEnd = mustFind(creation.slice(narrowIdx), '$narrow_acl$;', 'ACL-narrowing DO block end') + narrowIdx;
       const block = creation.slice(narrowIdx, narrowEnd);
-      const executeCalls = [...block.matchAll(/EXECUTE\s+([^;]*?);/gs)];
+      const executeCalls = [...block.matchAll(/EXECUTE\s+([^;]*?);/g)];
       expect(executeCalls.length).toBe(8);
       for (const call of executeCalls) {
         expect(call[1]).toMatch(/^\$sql\$/);
@@ -1062,7 +1062,7 @@ describe('migration: baseline_core_recipe_catalog_schema', () => {
   describe('no interpolated dynamic SQL', () => {
     it('every EXECUTE body is a $sql$ ... $sql$ static literal, never format()/concatenation of a catalog or variable value', () => {
       const creation = creationBlockOf(executable);
-      const executeCalls = [...creation.matchAll(/EXECUTE\s+([^;]*?);/gs)];
+      const executeCalls = [...creation.matchAll(/EXECUTE\s+([^;]*?);/g)];
       expect(executeCalls.length).toBeGreaterThan(0);
       for (const call of executeCalls) {
         expect(call[1]).toMatch(/^\$sql\$/);

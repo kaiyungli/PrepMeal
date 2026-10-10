@@ -14,7 +14,7 @@ describe('fetchGeneratedPlanShoppingList auth boundary', () => {
   });
 
   it('sends only the bearer token to the API and partitions cache by user', async () => {
-    const fetchMock = vi.fn(async () => ({
+    const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Pick<Response, 'ok' | 'json'>>>().mockResolvedValue({
       ok: true,
       json: async () => ({
         pantry: [],
@@ -22,7 +22,7 @@ describe('fetchGeneratedPlanShoppingList auth boundary', () => {
         byRecipe: [],
         summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
       }),
-    }));
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const plan = { mon: [{ id: 'recipe-1' }] };

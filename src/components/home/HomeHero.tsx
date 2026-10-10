@@ -68,24 +68,21 @@ function HomeHero({
 
   const groupedDays = groupPlanByDay(weeklyPlan);
   
-  // Determine shopping list display state
-  const showShoppingFallback = shoppingLoading || shoppingError || isAuthRequired || (!shoppingListInitialized && shoppingList.length === 0);
-  
   const handleShoppingSectionClick = useCallback(() => {
     // Fetch shopping list when user clicks the section
-    if (!shoppingListInitialized && onRefreshShoppingList) {
+    if (!shoppingListInitialized && !shoppingLoading && onRefreshShoppingList) {
       onRefreshShoppingList();
     }
-  }, [shoppingListInitialized, onRefreshShoppingList]);
+  }, [shoppingListInitialized, shoppingLoading, onRefreshShoppingList]);
   
   const handleShoppingSectionKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (!shoppingListInitialized && onRefreshShoppingList) {
+      if (!shoppingListInitialized && !shoppingLoading && onRefreshShoppingList) {
         onRefreshShoppingList();
       }
     }
-  }, [shoppingListInitialized, onRefreshShoppingList]);
+  }, [shoppingListInitialized, shoppingLoading, onRefreshShoppingList]);
   
   return (
     <section className="bg-[#F8F3E8] relative overflow-hidden py-12 md:py-16">
@@ -179,6 +176,8 @@ function HomeHero({
                   className={!shoppingListInitialized ? 'cursor-pointer select-none' : ''}
                   role={!shoppingListInitialized ? 'button' : undefined}
                   tabIndex={!shoppingListInitialized ? 0 : undefined}
+                  aria-busy={shoppingLoading}
+                  aria-disabled={!shoppingListInitialized && shoppingLoading ? true : undefined}
                 >
                   <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
                   <div className="space-y-1">

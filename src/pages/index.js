@@ -54,7 +54,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     catalog,
   });
 
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, refreshShoppingList } = useHomePageController({
+  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, shoppingListInitialized, isAuthRequired, refreshShoppingList } = useHomePageController({
     planRecipes: initialRecipes,
     showToast,
   });
@@ -92,6 +92,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
           shoppingList={shoppingList}
           shoppingLoading={shoppingLoading}
           shoppingError={shoppingError}
+          shoppingListInitialized={shoppingListInitialized}
+          isAuthRequired={isAuthRequired}
           onRefreshPlan={handleRefreshPlan}
           onRefreshShoppingList={refreshShoppingList}
         />
