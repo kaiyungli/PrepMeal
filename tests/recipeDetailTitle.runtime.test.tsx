@@ -12,13 +12,15 @@ import type { ReactNode } from 'react';
 // what renders here; the recipe content, structured data and data loading are
 // stubbed because only the page shell's title is under test.
 
-const { loadRecipeDetail } = vi.hoisted(() => ({ loadRecipeDetail: vi.fn() }));
+const { loadRecipeDetail, measurePageLoadMetrics, stopMetrics } = vi.hoisted(() => ({
+  loadRecipeDetail: vi.fn(), measurePageLoadMetrics: vi.fn(), stopMetrics: vi.fn(),
+}));
 vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> }));
 vi.mock('next/link', () => ({ default: ({ children, href }: { children: ReactNode; href: string }) => <a href={href}>{children}</a> }));
 vi.mock('@/components/RecipeDetailContent', () => ({ default: ({ recipe }: { recipe: { name: string } }) => <h1>{recipe.name}</h1> }));
 vi.mock('@/lib/recipeStructuredData.tsx', () => ({ RecipeStructuredData: () => null }));
 vi.mock('@/components/seo/SEO', () => ({ default: () => null }));
-vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics: () => undefined }));
+vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics }));
 vi.mock('@/features/recipes', () => ({ loadRecipeDetail }));
 
 import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
@@ -32,6 +34,8 @@ function titleText() {
 }
 
 beforeEach(() => {
+  measurePageLoadMetrics.mockReset().mockReturnValue(stopMetrics);
+  stopMetrics.mockReset();
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
@@ -43,6 +47,34 @@ afterEach(() => {
 });
 
 describe('Recipe detail page title', () => {
+  it('loading → loaded → error → recovered maintains hook order and metric cleanup', () => {
+    const view = render(<RecipeDetail recipe={null} error={null} />);
+    expect(measurePageLoadMetrics).not.toHaveBeenCalled();
+    view.rerender(<RecipeDetail recipe={RECIPE} error={null} />);
+    expect(titleText()).toBe('番茄炒蛋 - 今晚食乜');
+    expect(measurePageLoadMetrics).toHaveBeenCalledTimes(1);
+    view.rerender(<RecipeDetail recipe={null} error="Recipe not found" />);
+    expect(screen.getByText('找不到食譜')).toBeTruthy();
+    expect(stopMetrics).toHaveBeenCalledTimes(1);
+    view.rerender(<RecipeDetail recipe={RECIPE} error={null} />);
+    expect(measurePageLoadMetrics).toHaveBeenCalledTimes(2);
+    expect(titleText()).toBe('番茄炒蛋 - 今晚食乜');
+    view.unmount();
+    expect(stopMetrics).toHaveBeenCalledTimes(2);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it('loaded → loading → loaded clears and restarts metrics without hook-order errors', () => {
+    const view = render(<RecipeDetail recipe={RECIPE} error={null} />);
+    view.rerender(<RecipeDetail recipe={null} error={null} />);
+    expect(screen.getByText('載入中...')).toBeTruthy();
+    expect(stopMetrics).toHaveBeenCalledTimes(1);
+    view.rerender(<RecipeDetail recipe={RECIPE} error={null} />);
+    expect(screen.getByRole('heading', { name: '番茄炒蛋' })).toBeTruthy();
+    expect(measurePageLoadMetrics).toHaveBeenCalledTimes(2);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
   it('A/B. a loaded recipe renders a non-empty title with its name and the site name', () => {
     render(<RecipeDetail recipe={RECIPE} error={null} />);
 

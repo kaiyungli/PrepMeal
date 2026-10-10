@@ -43,6 +43,7 @@ export default defineConfig({
       'tests/myPlansComponents.runtime.test.tsx',
       'tests/myPlansPageDelete.runtime.test.tsx',
       'tests/recipeDetailTitle.runtime.test.tsx',
+      'tests/recipeDetailHookOrder.runtime.test.tsx',
       'tests/savedPlanDetailTitle.runtime.test.tsx',
       'tests/generateToast.runtime.test.tsx',
       'tests/homeShoppingPreview.runtime.test.tsx',

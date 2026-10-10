@@ -29,7 +29,7 @@ interface RecipeDetailContentProps {
       source?: string
     }>
     steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
-  }
+  } | null
   isLoading?: boolean
   isFavorite?: boolean
   favoriteLoading?: boolean
@@ -52,19 +52,31 @@ const getUnitLabel = (unit?: { code?: string; name?: string; display_name_zh?: s
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
-  if (!recipe) return null
-
   // Defer heavy sections to reduce initial paint cost on iPad
-  const [showHeavySections, setShowHeavySections] = useState(false);
+  const recipeId = recipe?.id;
+  const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
+  // Reset readiness when the input changes, before committing stale sections.
+  // The guarded render adjustment avoids a synchronous setState in the effect.
+  if (deferredSections.recipeId !== recipeId) {
+    setDeferredSections({ recipeId, ready: false });
+  }
+  const showHeavySections = deferredSections.recipeId === recipeId && deferredSections.ready;
   
   // Reset and defer heavy sections when recipe changes
   useEffect(() => {
-    setShowHeavySections(false);
+    if (!recipeId) return;
+    let active = true;
     const id = requestAnimationFrame(() => {
-      setShowHeavySections(true);
+      if (active) setDeferredSections({ recipeId, ready: true });
     });
-    return () => cancelAnimationFrame(id);
-  }, [recipe?.id]);
+    return () => {
+      active = false;
+      cancelAnimationFrame(id);
+    };
+  }, [recipeId]);
+
+  // Hooks must run even when the recipe is temporarily absent.
+  if (!recipe) return null
 
   // Defensive guards for arrays
   const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : []
