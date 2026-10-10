@@ -42,7 +42,7 @@ describe('Recipe search empty state and recovery', () => {
   it('clears the search from the empty-state action and restores results', () => {
     render(<RecipesPage initialRecipes={[]} initialTotalCount={0} />);
     search();
-    fireEvent.click(screen.getByRole('button', { name: '清除篩選', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: '清除篩選' }));
     expect((screen.getByRole('textbox', { name: '搜尋食譜' }) as HTMLInputElement).value).toBe('');
     expect(screen.getByText('測試食譜列表')).toBeTruthy();
     expect(screen.queryByRole('heading', { name: emptyTitle })).toBeNull();
@@ -73,7 +73,13 @@ describe('Recipe search empty state and recovery', () => {
 
   it('clears search and selected filters together while preserving sorting', () => {
     const { result } = renderHook(() => useRecipeFilters());
-    act(() => { result.current.setSearchQuery('QA_NO_RECIPE'); result.current.setFilters({ cuisine: ['chinese'] }); result.current.setSortBy('oldest'); });
+    act(() => {
+      result.current.setSearchQuery('QA_NO_RECIPE');
+      const section = result.current.recipeFilterSections[0];
+      section.onToggle(section.options[0].value);
+      result.current.setSortBy('oldest');
+    });
+    expect(result.current.hasFilters).toBe(true);
     act(() => result.current.clearFilters());
     expect(result.current.searchQuery).toBe('');
     expect(result.current.hasFilters).toBe(false);
