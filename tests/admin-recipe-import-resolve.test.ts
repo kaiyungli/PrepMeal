@@ -259,7 +259,7 @@ describe('resolveRecipeParams', () => {
 describe('runBoundedConcurrent', () => {
   it('preserves input order in the result array regardless of completion order', async () => {
     const items = [30, 10, 20, 5];
-    const results = await runBoundedConcurrent(items, async (ms) => {
+    const results = await runBoundedConcurrent(items, async (ms: number) => {
       await new Promise((resolve) => setTimeout(resolve, ms));
       return ms;
     }, 4);
@@ -270,7 +270,7 @@ describe('runBoundedConcurrent', () => {
     let active = 0;
     let maxActive = 0;
     const items = Array.from({ length: 20 }, (_, i) => i);
-    await runBoundedConcurrent(items, async (i) => {
+    await runBoundedConcurrent(items, async (i: number) => {
       active += 1;
       maxActive = Math.max(maxActive, active);
       await new Promise((resolve) => setTimeout(resolve, 5));
@@ -285,7 +285,7 @@ describe('runBoundedConcurrent', () => {
     let active = 0;
     let maxActive = 0;
     const items = Array.from({ length: IMPORT_RPC_CONCURRENCY + 10 }, (_, i) => i);
-    await runBoundedConcurrent(items, async (i) => {
+    await runBoundedConcurrent(items, async (i: number) => {
       active += 1;
       maxActive = Math.max(maxActive, active);
       await new Promise((resolve) => setTimeout(resolve, 1));
@@ -351,7 +351,8 @@ describe('round trip: export -> resolve -> buildRecipeAtomicParams', () => {
     expect(resolved.error).toBeUndefined();
 
     const built = buildRecipeAtomicParams(resolved.params);
-    expect(built.error).toBeUndefined();
+    expect('error' in built).toBe(false);
+    if ('error' in built) throw new Error(built.error);
     const keys = Object.keys(built.params).sort();
     expect(keys).toHaveLength(22);
     expect(Object.values(built.params).some((v) => v === undefined)).toBe(false);

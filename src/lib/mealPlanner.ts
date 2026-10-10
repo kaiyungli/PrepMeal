@@ -65,7 +65,7 @@ interface Recipe {
   method?: string
   difficulty?: string
   speed?: string
-  primary_protein?: string
+  primary_protein?: string | null
   dish_type?: string
   ingredients_list?: string[]
   budget_level?: string | null
@@ -86,7 +86,7 @@ const WEIGHTS = PLANNER_WEIGHTS;
  * Calculate protein diversity score
  */
 function scoreProteinDiversity(
-  protein: string | undefined,
+  protein: string | null | undefined,
   recentProteins: string[]
 ): { score: number; reason: string } {
   if (!protein) return { score: 0, reason: '' }

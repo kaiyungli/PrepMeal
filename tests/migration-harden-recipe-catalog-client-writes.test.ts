@@ -1103,7 +1103,7 @@ describe('migration: harden_recipe_catalog_client_write_boundary', () => {
     });
 
     it('every DROP POLICY EXECUTE body is a static $sql$ literal with no format()/concatenation', () => {
-      const executeCalls = [...mutation.matchAll(/EXECUTE\s+([^;]*?);/gs)];
+      const executeCalls = [...mutation.matchAll(/EXECUTE\s+([^;]*?);/g)];
       expect(executeCalls.length).toBe(7);
       for (const call of executeCalls) {
         expect(call[1]).toMatch(/^\$sql\$/);
@@ -1198,7 +1198,7 @@ describe('migration: harden_recipe_catalog_client_write_boundary', () => {
 
   describe('no interpolated dynamic SQL anywhere in the file', () => {
     it('every EXECUTE body is a $sql$ ... $sql$ static literal, never format()/concatenation of a catalog or variable value', () => {
-      const executeCalls = [...executable.matchAll(/EXECUTE\s+([^;]*?);/gs)];
+      const executeCalls = [...executable.matchAll(/EXECUTE\s+([^;]*?);/g)];
       expect(executeCalls.length).toBeGreaterThan(0);
       for (const call of executeCalls) {
         expect(call[1]).toMatch(/^\$sql\$/);

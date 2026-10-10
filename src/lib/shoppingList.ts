@@ -13,6 +13,11 @@ interface Ingredient {
   source?: string  // 'recipe_ingredients' or 'ingredients_list'
 }
 
+// Raw rows are validated by parseQuantity before becoming merged ingredients.
+type IngredientInput = Omit<Ingredient, 'quantity'> & {
+  quantity?: number | string | null
+}
+
 /**
  * Normalize ingredient name using the normalizer
  */
@@ -44,12 +49,12 @@ function servingScale(target: unknown, base: unknown): number {
  * Merge ingredients with same ingredient_id and normalized unit.
  * Different units of one ingredient stay separate lines; no unit conversion.
  */
-export function mergeIngredients(list: Ingredient[]): Ingredient[] {
+export function mergeIngredients(list: (IngredientInput | null | undefined)[]): Ingredient[] {
   if (!list || !Array.isArray(list)) return []
   
   // Filter to only include items with ingredient_id (from DB source)
   // Skip fallback items (they don't have proper ingredient_id)
-  const validItems = list.filter(item => item && item.ingredient_id)
+  const validItems = list.filter((item): item is IngredientInput => Boolean(item?.ingredient_id))
   
   const map = new Map<string, Ingredient>()
   
@@ -116,10 +121,10 @@ function normalizeUnit(unit: string | undefined | null): string {
 /**
  * Group ingredients by category
  */
-export function groupByCategory(list: Ingredient[]): Record<string, Ingredient[]> {
+export function groupByCategory<T extends { category?: string }>(list: T[]): Record<string, T[]> {
   if (!list || !Array.isArray(list)) return {}
   
-  const grouped: Record<string, Ingredient[]> = {}
+  const grouped: Record<string, T[]> = {}
   
   // Initialize with category order
   CATEGORY_ORDER.forEach(cat => {
@@ -136,7 +141,7 @@ export function groupByCategory(list: Ingredient[]): Record<string, Ingredient[]
   }
   
   // Remove empty categories and sort
-  const result: Record<string, Ingredient[]> = {}
+  const result: Record<string, T[]> = {}
   CATEGORY_ORDER.forEach(cat => {
     if (grouped[cat]?.length > 0) {
       result[cat] = grouped[cat]

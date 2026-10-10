@@ -98,8 +98,8 @@ describe('buildRecipeExport', () => {
     const rowB = { id: 'b', quantity: 2, is_optional: false, prep_note: null, group_key: null, ingredients: { slug: 'b-slug' }, units: { code: 'g' } };
     const forward = buildRecipeExport(FULL_RECIPE_ROW, [rowA, rowB], []);
     const reversed = buildRecipeExport(FULL_RECIPE_ROW, [rowB, rowA], []);
-    expect(forward.ingredients.map((i) => i.ingredient_slug)).toEqual(['a-slug', 'b-slug']);
-    expect(reversed.ingredients.map((i) => i.ingredient_slug)).toEqual(['a-slug', 'b-slug']);
+    expect(forward.ingredients.map((i: { ingredient_slug: string }) => i.ingredient_slug)).toEqual(['a-slug', 'b-slug']);
+    expect(reversed.ingredients.map((i: { ingredient_slug: string }) => i.ingredient_slug)).toEqual(['a-slug', 'b-slug']);
   });
 
   it('exports steps in deterministic step_no order regardless of input row order', () => {
