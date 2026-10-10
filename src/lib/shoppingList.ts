@@ -161,6 +161,20 @@ export interface ShoppingListResult {
   toBuy: Ingredient[]
 }
 
+interface ShoppingRecipeIngredient {
+  ingredient_id?: string | null
+  display_name?: string | null
+  quantity?: unknown
+  unit?: { name?: string | null } | null
+  shopping_category?: string | null
+  source?: string | null
+}
+
+interface ShoppingRecipe {
+  base_servings?: number | null
+  ingredients?: ShoppingRecipeIngredient[] | null
+}
+
 /**
  * Build shopping list from recipes and pantry
  * 1. Aggregate recipe ingredients
@@ -169,7 +183,7 @@ export interface ShoppingListResult {
  * 4. Return structured result
  */
 export function buildShoppingList(
-  recipes: any[],
+  recipes: (ShoppingRecipe | null | undefined)[],
   pantryIngredients: string[] = [],
   servings: number = 1
 ): ShoppingListResult {
