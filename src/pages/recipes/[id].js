@@ -11,6 +11,14 @@ import { measurePageLoadMetrics } from '@/utils/perf';
  * Recipe Detail Page - dumb shell only
  */
 export default function RecipeDetail({ recipe, error }) {
+  // Keep hook order stable across loading, error and successful renders.
+  // Metrics still start only when there is a recipe to display.
+  const hasRecipe = Boolean(recipe && !error);
+  useEffect(() => {
+    if (!hasRecipe) return;
+    return measurePageLoadMetrics();
+  }, [hasRecipe]);
+
   // Guard: loading
   if (!recipe && !error) {
     return (
@@ -35,11 +43,6 @@ export default function RecipeDetail({ recipe, error }) {
     ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
     steps: Array.isArray(recipe.steps) ? recipe.steps : []
   };
-
-  // Measure page load metrics
-  useEffect(() => {
-    return measurePageLoadMetrics();
-  }, []);
 
   return (
     <>
