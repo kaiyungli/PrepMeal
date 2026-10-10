@@ -30,6 +30,12 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('homepage shopping preview', () => {
+  it('renders eight eggs as 8隻 instead of leaking the API unit code', () => {
+    render(<HomeHero shoppingListInitialized shoppingList={[{ name: '雞蛋', qty: '8', unit: 'egg' }]} />);
+    expect(screen.getByText('8隻')).toBeTruthy();
+    expect(screen.queryByText('8egg')).toBeNull();
+  });
+
   it('is lazy, then marks a populated result initialized', async () => {
     const { result } = renderHook(() => useShoppingListPreview(plan, { enabled: false }));
     expect(fetchMock).not.toHaveBeenCalled();

@@ -66,6 +66,11 @@ describe('normalizeUnitCode', () => {
 })
 
 describe('formatUnit', () => {
+  it.each(['egg', 'eggs', ' EGG ', '隻', { code: 'egg' }, { name: 'eggs' }])('displays egg count in Chinese: %j', (unit) => {
+    expect(normalizeUnitCode(unit)).toBe('egg')
+    expect(formatUnit(unit)).toBe('隻')
+  })
+
   it('displays weight in Chinese', () => {
     expect(formatUnit('g')).toBe('克')
     expect(formatUnit('kg')).toBe('公斤')
