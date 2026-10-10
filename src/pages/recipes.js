@@ -186,7 +186,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   }, [hasMore, loadingMore, loading, loadMore, recipes.length, totalCount]);
   
   const showErrorState = !loading && fetchError;
-  const showEmptyState = hasFilters && !loading && !fetchError && recipes.length === 0;
+  const showEmptyState = !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
   const resultCountText = hasFilters && totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
 
@@ -230,7 +230,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
             <div className="text-center py-16">
               <div className="text-6xl mb-2">😕</div>
               <h3 className="text-xl font-bold text-[#3A2010] mb-2">暫時冇符合條件嘅食譜</h3>
-              <p className="text-sm text-[#C0A080] mb-6">試下調整篩選條件</p>
+              <p className="text-sm text-[#C0A080] mb-6">試下修改搜尋字詞或調整篩選條件</p>
               <button onClick={clearFilters} className="px-6 py-3 rounded-full bg-[#9B6035] text-white font-medium hover:opacity-95">清除篩選</button>
             </div>
           )}

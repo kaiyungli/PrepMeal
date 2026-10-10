@@ -19,6 +19,7 @@ const MY_PLANS_JSX_JS = [
   /[\\/]src[\\/]components[\\/]ui[\\/]Toast\.js$/,
   /[\\/]src[\\/]components[\\/]shopping[\\/]ShoppingListDrawer\.js$/,
   /[\\/]src[\\/]pages[\\/]recipes[\\/]\[id\]\.js$/,
+  /[\\/]src[\\/]pages[\\/]recipes\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans[\\/]\[id\]\.js$/,
 ];
 
@@ -45,6 +46,7 @@ export default defineConfig({
       'tests/savedPlanDetailTitle.runtime.test.tsx',
       'tests/generateToast.runtime.test.tsx',
       'tests/homeShoppingPreview.runtime.test.tsx',
+      'tests/recipesEmptyState.runtime.test.tsx',
     ],
   },
 });
