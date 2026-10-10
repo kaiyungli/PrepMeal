@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
 import { perfLog } from '@/utils/perf';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
@@ -31,6 +31,14 @@ export function useGenerateActions({
   const [modalLoading, setModalLoading] = useState(false);
   const recipeCache = useRef(new Map());
   const clickStartRef = useRef<number>(0);
+  const recipeRequestRef = useRef<AbortController | null>(null);
+  const recipeRequestVersion = useRef(0);
+  const cancelRecipeRequest = useCallback(() => {
+    recipeRequestVersion.current += 1;
+    recipeRequestRef.current?.abort();
+    recipeRequestRef.current = null;
+  }, []);
+  useEffect(() => cancelRecipeRequest, [cancelRecipeRequest]);
 
   // Shopping List State - Use new ViewModel
   const [shoppingListView, setShoppingListView] = useState<ShoppingListViewModel | null>(null);
@@ -62,38 +70,53 @@ export function useGenerateActions({
 
   // Recipe click handler
   const handleRecipeClick = useCallback(async (recipe: any) => {
+    cancelRecipeRequest();
+    const version = recipeRequestVersion.current;
     clickStartRef.current = performance.now();
     
     if (recipeCache.current.has(recipe.id)) {
       const cached = recipeCache.current.get(recipe.id);
       setSelectedRecipe(cached);
+      setModalLoading(false);
       return;
     }
     
+    const controller = new AbortController();
+    recipeRequestRef.current = controller;
+    const isCurrent = () => recipeRequestVersion.current === version && !controller.signal.aborted;
     setModalLoading(true);
     
     try {
       const res = await fetch('/api/recipes/' + recipe.id, {
+        signal: controller.signal,
         headers: traceId ? { 'x-perf-trace-id': traceId } : undefined
       });
+      if (!isCurrent()) return;
+      if (!res.ok) throw new Error('Recipe detail request failed: ' + res.status);
       const data = await res.json();
+      if (!isCurrent()) return;
       
       const recipeDetail = data?.recipe ?? null;
-      if (!recipeDetail) throw new Error('Invalid recipe detail payload');
+      if (!recipeDetail || recipeDetail.id !== recipe.id) throw new Error('Invalid recipe detail payload');
       
       recipeCache.current.set(recipe.id, recipeDetail);
       setSelectedRecipe(recipeDetail);
       
     } catch (error) {
-      console.error('Recipe fetch error:', error);
+      if (isCurrent()) console.error('Recipe fetch error:', error);
     } finally {
-      setModalLoading(false);
+      if (isCurrent()) {
+        recipeRequestRef.current = null;
+        setModalLoading(false);
+      }
     }
-  }, [traceId]);
+  }, [traceId, cancelRecipeRequest]);
 
   const handleCloseRecipe = useCallback(() => {
+    cancelRecipeRequest();
     setSelectedRecipe(null);
-  }, []);
+    setModalLoading(false);
+  }, [cancelRecipeRequest]);
 
   // Shopping list handlers
   const handleOpenShoppingList = useCallback(async () => {
@@ -282,12 +305,13 @@ export function useGenerateActions({
   }, [isSaving, isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek]);
 
   const handleClearAll = useCallback(() => {
+    handleCloseRecipe();
     setShoppingListView(null);
     setIsShoppingListLoading(false);
     setShoppingListError(null);
     setShowShoppingList(false);
     setSaveNotice('');
-  }, []);
+  }, [handleCloseRecipe]);
 
   return {
     selectedRecipe,
