@@ -41,7 +41,7 @@ export function useRecipeDetailModal(
   const [fullRecipe, setFullRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const cancelRequestRef = useRef<(() => void) | null>(null);
 
   const { onClose } = options;
 
@@ -53,7 +53,26 @@ export function useRecipeDetailModal(
 
   // Fetch full detail when needed
   useEffect(() => {
-    if (!selectedRecipe) return;
+    // A shared prefetch cannot be aborted by this modal. Invalidate its
+    // callbacks locally, and use the same guard for queued direct-fetch work.
+    let active = true;
+    const controller = new AbortController();
+    const cancel = () => {
+      active = false;
+      controller.abort();
+    };
+    const cleanup = () => {
+      cancel();
+      if (cancelRequestRef.current === cancel) cancelRequestRef.current = null;
+    };
+    const isCurrent = () => active && !controller.signal.aborted;
+    cancelRequestRef.current = cancel;
+
+    // Clear state on every selection change, including cache/full-detail hits.
+    setFullRecipe(null);
+    setLoading(false);
+    setError(null);
+    if (!selectedRecipe) return cleanup;
 
     // Check in-memory cache first
     const cachedDetail = getCachedRecipeDetail(selectedRecipe.id);
@@ -66,7 +85,7 @@ export function useRecipeDetailModal(
       });
 
       setFullRecipe({ ...selectedRecipe, ...cachedDetail });
-      return;
+      return cleanup;
     }
     // Cache miss - need to fetch
     console.log('[recipe-modal] detail_cache_miss', {
@@ -90,6 +109,7 @@ export function useRecipeDetailModal(
 
       inflightDetail
         .then(recipe => {
+          if (!isCurrent()) return;
           console.log('[recipe-modal] inflight_reuse_done', {
             traceId,
             recipeId: selectedRecipe.id,
@@ -104,6 +124,7 @@ export function useRecipeDetailModal(
           }
         })
         .catch(err => {
+          if (!isCurrent()) return;
           const errorMsg = err?.message || 'Failed to load recipe detail';
           console.error('[recipe-modal] inflight_reuse_failed', {
             traceId,
@@ -113,10 +134,10 @@ export function useRecipeDetailModal(
           setError(errorMsg);
         })
         .finally(() => {
-          setLoading(false);
+          if (isCurrent()) setLoading(false);
         });
 
-      return;
+      return cleanup;
     }
 
     // Already have full detail - use directly
@@ -127,7 +148,7 @@ export function useRecipeDetailModal(
         stepCount: selectedRecipe.steps?.length || 0
       });
       setFullRecipe(selectedRecipe);
-      return;
+      return cleanup;
     }
 
     // Need to fetch full detail
@@ -140,26 +161,17 @@ export function useRecipeDetailModal(
       hasFullDetail
     });
 
-    // Clear stale first
-    setFullRecipe(null);
-    setError(null);
-
-    if (abortRef.current) {
-      abortRef.current.abort();
-    }
-
-    abortRef.current = new AbortController();
-
     setLoading(true);
 
     // Fetch via API endpoint (client-safe)
     fetch(`/api/recipes/${selectedRecipe.id}`, { 
-      signal: abortRef.current.signal,
+      signal: controller.signal,
       headers: {
         'x-perf-trace-id': traceId
       }
     })
       .then(res => {
+        if (!isCurrent()) return;
         console.log('[recipe-modal] response_received', {
           traceId,
           recipeId: selectedRecipe.id,
@@ -173,6 +185,7 @@ export function useRecipeDetailModal(
         return res.json();
       })
       .then(data => {
+        if (!isCurrent()) return;
         console.log('[recipe-modal] json_parsed', {
           traceId,
           recipeId: selectedRecipe.id,
@@ -199,6 +212,7 @@ export function useRecipeDetailModal(
         }
       })
       .catch(err => {
+        if (!isCurrent()) return;
         if (err?.name === 'AbortError') {
           console.log('[recipe-modal] fetch_aborted', {
             traceId,
@@ -216,25 +230,27 @@ export function useRecipeDetailModal(
         setError(errorMsg);
       })
       .finally(() => {
-        if (!abortRef.current?.signal.aborted) {
+        if (isCurrent()) {
           setLoading(false);
         }
       });
-  }, [selectedRecipe?.id, hasFullDetail]);
+    return cleanup;
+  }, [selectedRecipe, hasFullDetail]);
 
   // Close handler - aborts fetch and cleans up
   const close = useCallback(() => {
-    if (abortRef.current) {
-      abortRef.current.abort();
-    }
+    cancelRequestRef.current?.();
+    cancelRequestRef.current = null;
     setLoading(false);
     setFullRecipe(null);
     setError(null);
     onClose();
   }, [onClose]);
 
-  // Merge: use fullRecipe if fetched, otherwise use selectedRecipe
-  const recipe = fullRecipe || selectedRecipe;
+  // Do not render the previous selection while the next effect is pending.
+  const recipe = selectedRecipe && fullRecipe?.id === selectedRecipe.id
+    ? fullRecipe
+    : selectedRecipe;
 
   return {
     recipe,
