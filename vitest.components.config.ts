@@ -44,6 +44,7 @@ export default defineConfig({
       'tests/recipeDetailTitle.runtime.test.tsx',
       'tests/savedPlanDetailTitle.runtime.test.tsx',
       'tests/generateToast.runtime.test.tsx',
+      'tests/homeShoppingPreview.runtime.test.tsx',
     ],
   },
 });

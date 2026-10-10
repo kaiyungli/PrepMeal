@@ -10,19 +10,27 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
+interface PreviewPlanDay {
+  items?: Array<{ recipeId?: string | number | null }>;
+}
+interface ShoppingPreviewResponse {
+  toBuy?: Array<{ items?: Array<{ name: string; quantity?: string | number | null; unit?: string | null }> }>;
+}
+const EMPTY_PLAN: PreviewPlanDay[] = [];
+
 /**
  * Transform API response to flat preview list (first 5 items)
  * This is PRESENTATION ONLY - no aggregation logic
  */
-function transformToPreview(apiResponse: any): Array<{name: string, qty: string, unit: string}> {
+function transformToPreview(apiResponse: ShoppingPreviewResponse | null): Array<{name: string, qty: string, unit: string}> {
   if (!apiResponse) return [];
   
   // Handle new API format: { toBuy: [{ category, items }] }
   const sections = Array.isArray(apiResponse?.toBuy) ? apiResponse.toBuy : [];
-  const flatList = sections.flatMap((section: any) => section.items || []);
+  const flatList = sections.flatMap(section => section.items || []);
   
   // Return only first 5 items for preview
-  return flatList.slice(0, 5).map((item: any) => ({
+  return flatList.slice(0, 5).map(item => ({
     name: item.name,
     qty: item.quantity != null ? String(item.quantity) : '',
     unit: item.unit || ''
@@ -35,15 +43,16 @@ function transformToPreview(apiResponse: any): Array<{name: string, qty: string,
  * @param {any[]} weeklyPlan - Array of { items: [{ recipeId }] }
  * @param {Object} options - { enabled?: boolean }
  *   - enabled: if false, only stores plan but does NOT auto-fetch (lazy mode)
- * @returns {Object} - { previewList, isLoading, error, isAuthRequired, refresh }
+ * @returns {Object} - { previewList, isLoading, error, isAuthRequired, isInitialized, refresh }
  */
-export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enabled?: boolean } = {}) {
+export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN, options: { enabled?: boolean } = {}) {
   const { user, getAccessToken } = useAuth();
   const { enabled = true } = options;
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthRequired, setIsAuthRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Store latest weeklyPlan for manual refresh
   const weeklyPlanRef = useRef(weeklyPlan);
@@ -51,9 +60,27 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
   
   // Request safety: track current request ID
   const requestIdRef = useRef(0);
+  const inFlightRef = useRef(false);
+
+  // A preview belongs to one plan and account, including in lazy mode.
+  useEffect(() => {
+    requestIdRef.current += 1;
+    inFlightRef.current = false;
+    setPreviewList([]);
+    setIsInitialized(false);
+    setIsLoading(false);
+    setError(null);
+    setIsAuthRequired(false);
+    return () => {
+      requestIdRef.current += 1;
+      inFlightRef.current = false;
+    };
+  }, [weeklyPlan, user?.id]);
   
   // DoFetch - shared between auto-trigger and manual refresh
   const doFetch = useCallback(async () => {
+    if (inFlightRef.current) return;
+    const currentRequestId = ++requestIdRef.current;
     const plan = weeklyPlanRef.current;
     const recipeIds: string[] = [];
     for (const day of plan) {
@@ -70,24 +97,29 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
       setPreviewList([]);
       setError(null);
       setIsLoading(false);
+      setIsInitialized(true);
+      setIsAuthRequired(false);
       return;
     }
     
-    // @ts-ignore
     if (!user?.id) {
       setPreviewList([]);
       setError(null);
       setIsLoading(false);
+      setIsInitialized(false);
+      setIsAuthRequired(true);
       return;
     }
     
-    const currentRequestId = ++requestIdRef.current;
+    inFlightRef.current = true;
+    setIsInitialized(false);
     setIsLoading(true);
     setError(null);
     setIsAuthRequired(false);
     
     try {
       const token = await getAccessToken();
+      if (currentRequestId !== requestIdRef.current) return;
       if (!token) {
         setIsAuthRequired(true);
         throw new Error('Authentication required');
@@ -113,6 +145,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
       
       const preview = transformToPreview(data);
       setPreviewList(preview);
+      setIsInitialized(true);
     } catch (err) {
       if (currentRequestId !== requestIdRef.current) return;
       console.error('[shopping-list-preview] fetch error:', err);
@@ -120,6 +153,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
       setPreviewList([]);
     } finally {
       if (currentRequestId === requestIdRef.current) {
+        inFlightRef.current = false;
         setIsLoading(false);
       }
     }
@@ -128,7 +162,7 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
   // Manual refresh function (call when user opens shopping list)
   const refresh = useCallback(() => {
     if (enabled) return; // Auto mode handles itself
-    doFetch();
+    return doFetch();
   }, [enabled, doFetch]);
   
   // Auto-fetch when enabled and weeklyPlan changes
@@ -142,5 +176,5 @@ export function useShoppingListPreview(weeklyPlan: any[] = [], options: { enable
     return () => clearTimeout(timeoutId);
   }, [enabled, weeklyPlan, doFetch]);
   
-  return { previewList, isLoading, error, isAuthRequired, refresh };
+  return { previewList, isLoading, error, isAuthRequired, isInitialized, refresh };
 }
