@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MyPlansPage from '@/pages/my-plans';
+import { StrictMode } from 'react';
 
 // Runtime render tests for concurrent deletes on the real My Plans page
 // (src/pages/my-plans.js + PlanCard + Toast), run via
@@ -18,7 +19,7 @@ const { authGuard } = vi.hoisted(() => ({
   authGuard: {
     isAuthenticated: true,
     loading: false,
-    user: { id: 'user-1' },
+    user: { id: 'user-1' } as { id: string } | null,
     getAccessToken: async (): Promise<string | null> => 'token-1',
     requireAuth: () => true,
   },
@@ -113,10 +114,183 @@ async function renderWithPlans() {
 }
 
 beforeEach(() => {
+  authGuard.user = { id: 'user-1' };
+  authGuard.isAuthenticated = true;
+  authGuard.loading = false;
   authGuard.getAccessToken = async () => 'token-1';
   vi.spyOn(console, 'log').mockImplementation(() => {});
   vi.stubGlobal('confirm', vi.fn(() => true));
   installFetch();
+});
+
+describe('My Plans: account scope isolation', () => {
+  it('StrictMode replay still loads once and permits a normal delete', async () => {
+    render(<StrictMode><MyPlansPage /></StrictMode>);
+    await screen.findByText('Plan C');
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
+    await startDelete('Plan A'); await settle('Plan A', { status: 200 });
+    expect(visiblePlans()).toEqual(['Plan B', 'Plan C']);
+    expect(toastText()).toBe('已刪除');
+  });
+
+  it.each(['logout', 'unmount'] as const)('a delayed DELETE token after %s never sends a request', async change => {
+    const { rerender, unmount } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    let resolve!: (token: string) => void;
+    authGuard.getAccessToken = () => new Promise<string>(yes => { resolve = yes; });
+    rerender(<MyPlansPage />); fireEvent.click(deleteButton('Plan A'));
+    if (change === 'unmount') unmount();
+    else { authGuard.isAuthenticated = false; authGuard.user = null; rerender(<MyPlansPage />); }
+    await act(async () => { resolve('obsolete-token'); });
+    expect(deleteCalls).toEqual([]); expect(toastText()).toBeNull();
+  });
+
+  it('switching accounts immediately clears old cards and waits for the new list', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    let resolve!: (r: Response) => void;
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(yes => { resolve = yes; })));
+    authGuard.user = { id: 'user-2' };
+    rerender(<MyPlansPage />);
+    expect(visiblePlans()).toEqual([]);
+    expect(screen.getByText('正在載入餐單...')).toBeTruthy();
+    await act(async () => {});
+    await act(async () => { resolve(new Response('{"success":true,"data":{"plans":[]}}', { status: 200 })); });
+    await screen.findByText('你仲未生成任何餐單');
+  });
+
+  it.each(['success', 'failure', 'json'] as const)('ignores an old list %s after the next account has loaded', async outcome => {
+    let resolve!: (r: Response) => void; let reject!: (e: Error) => void;
+    let jsonResolve!: (v: unknown) => void;
+    const oldResponse = new Promise<Response>((yes, no) => { resolve = yes; reject = no; });
+    const json = new Promise(yes => { jsonResolve = yes; });
+    const fetcher = vi.fn().mockReturnValueOnce(outcome === 'json'
+      ? Promise.resolve({ ok: true, status: 200, json: () => json }) : oldResponse)
+      .mockResolvedValueOnce(new Response('{"success":true,"data":{"plans":[]}}', { status: 200 }));
+    vi.stubGlobal('fetch', fetcher);
+    const { rerender } = render(<MyPlansPage />);
+    await act(async () => {});
+    authGuard.user = { id: 'user-2' }; rerender(<MyPlansPage />);
+    await screen.findByText('你仲未生成任何餐單');
+    await act(async () => {
+      if (outcome === 'failure') reject(new Error('obsolete failure'));
+      else if (outcome === 'json') jsonResolve({ success: true, data: { plans: PLANS } });
+      else resolve(new Response(JSON.stringify({ success: true, data: { plans: PLANS } }), { status: 200 }));
+    });
+    expect(visiblePlans()).toEqual([]);
+    expect(screen.queryByText('餐單載入失敗，請重試')).toBeNull();
+    expect(screen.getByText('你仲未生成任何餐單')).toBeTruthy();
+  });
+
+  it('a same-account token callback refresh preserves the list without another fetch', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    const fetcher = vi.mocked(fetch);
+    authGuard.getAccessToken = async () => 'refreshed-token';
+    rerender(<MyPlansPage />);
+    await act(async () => {});
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(visiblePlans()).toEqual(['Plan A', 'Plan B', 'Plan C']);
+    await startDelete('Plan A');
+    expect(fetcher.mock.calls[1][1]?.headers).toEqual({ Authorization: 'Bearer refreshed-token' });
+  });
+
+  it('switching accounts clears an already-visible deletion toast', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await startDelete('Plan A'); await settle('Plan A', { status: 500 });
+    expect(toastText()).toBe('刪除失敗');
+    authGuard.user = { id: 'user-2' }; rerender(<MyPlansPage />);
+    expect(toastText()).toBeNull();
+    await screen.findByText('Plan C');
+    expect(pendingState()).toEqual({ 'Plan A': false, 'Plan B': false, 'Plan C': false });
+  });
+
+  it('an obsolete delete cannot unlock a new request for the same plan id', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await startDelete('Plan A'); const old = pendingDeletes.get(idOf('Plan A'))!;
+    authGuard.user = { id: 'user-2' }; rerender(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await startDelete('Plan A');
+    await old.settle({ status: 200 });
+    expect(isPending('Plan A')).toBe(true);
+    expect(toastText()).toBeNull();
+    await settle('Plan A', { status: 200 });
+    expect(visiblePlans()).toEqual(['Plan B', 'Plan C']);
+    expect(toastText()).toBe('已刪除');
+  });
+
+  it.each(['missing', 'rejected'] as const)('a current DELETE %s token fails without a request and allows retry', async failure => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    authGuard.getAccessToken = async () => { if (failure === 'rejected') throw new Error('token'); return null; };
+    rerender(<MyPlansPage />);
+    fireEvent.click(deleteButton('Plan A'));
+    await waitFor(() => expect(toastText()).toBe('刪除失敗'));
+    expect(deleteCalls).toEqual([]);
+    expect(isPending('Plan A')).toBe(false);
+    authGuard.getAccessToken = async () => 'token-1'; rerender(<MyPlansPage />);
+    await startDelete('Plan A'); await settle('Plan A', { status: 200 });
+    expect(visiblePlans()).toEqual(['Plan B', 'Plan C']);
+  });
+
+  it('unmount aborts an already-started DELETE and ignores its late failure', async () => {
+    const { unmount } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await startDelete('Plan A');
+    const fetcher = vi.mocked(fetch);
+    const signal = fetcher.mock.calls[1][1]?.signal;
+    expect(signal?.aborted).toBe(false);
+    unmount(); expect(signal?.aborted).toBe(true);
+    await settle('Plan A', 'network-error');
+    expect(toastText()).toBeNull();
+  });
+
+  it('logout and login to the same account reloads instead of resurrecting cached plans', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    authGuard.user = null; authGuard.isAuthenticated = false;
+    rerender(<MyPlansPage />);
+    expect(screen.queryByText('Plan A')).toBeNull();
+    let resolve!: (r: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>(yes => { resolve = yes; }));
+    vi.stubGlobal('fetch', fetcher);
+    authGuard.user = { id: 'user-1' }; authGuard.isAuthenticated = true;
+    rerender(<MyPlansPage />);
+    expect(screen.queryByText('Plan A')).toBeNull();
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+    await act(async () => { resolve(new Response('{"success":true,"data":{"plans":[]}}', { status: 200 })); });
+    await screen.findByText('你仲未生成任何餐單');
+  });
+
+  it.each([200, 500] as const)('an old DELETE %s cannot mutate the new account or show a toast', async status => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await startDelete('Plan A');
+    authGuard.user = { id: 'user-2' };
+    rerender(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await settle('Plan A', { status });
+    expect(visiblePlans()).toEqual(['Plan A', 'Plan B', 'Plan C']);
+    expect(toastText()).toBeNull();
+  });
+
+  it('a delayed DELETE token after an account change never sends the obsolete request', async () => {
+    const { rerender } = render(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    let resolve!: (token: string) => void;
+    authGuard.getAccessToken = () => new Promise<string>(yes => { resolve = yes; });
+    rerender(<MyPlansPage />);
+    fireEvent.click(deleteButton('Plan A'));
+    authGuard.user = { id: 'user-2' };
+    authGuard.getAccessToken = async () => 'token-2';
+    rerender(<MyPlansPage />);
+    await screen.findByText('Plan C');
+    await act(async () => { resolve('obsolete-token'); });
+    expect(deleteCalls).toEqual([]);
+    expect(toastText()).toBeNull();
+  });
 });
 
 afterEach(() => {
