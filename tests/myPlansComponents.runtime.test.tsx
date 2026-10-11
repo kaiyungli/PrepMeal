@@ -17,7 +17,7 @@ import { SHOPPING_LIST_LOAD_ERROR, useSavedPlanShoppingList } from '@/features/p
 
 const { prefetchRecipeDetail } = vi.hoisted(() => ({ prefetchRecipeDetail: vi.fn() }));
 vi.mock('@/features/recipes/services/recipeDetailClientCache', () => ({ prefetchRecipeDetail }));
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ getAccessToken: async () => 'token' }) }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: { id: 'qa-user' }, isAuthenticated: true, getAccessToken: async () => 'token' }) }));
 
 const UNAVAILABLE = '此食譜暫時無法查看';
 const RECIPE_A = { id: 'recipe-a', name: '番茄炒蛋', image_url: 'https://img.example/a.jpg', total_time_minutes: 10, calories_per_serving: 320, difficulty: 'easy', method: 'stir_fry' };
@@ -324,6 +324,49 @@ describe('Saved plan shopping list request failures', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it('open drawer loads B automatically and ignores A resolving last', async () => {
+    const a = deferred<ReturnType<typeof ok>>();
+    const listB = { ...LIST, toBuy: [{ category: 'egg', items: [{ ...EGGS, name: 'B-only ingredient' }] }] };
+    const fetchMock = vi.fn().mockReturnValueOnce(a.promise).mockResolvedValueOnce(ok(listB));
+    vi.stubGlobal('fetch', fetchMock);
+    const { rerender } = render(<ShoppingListSection recipeIds={['recipe-a']} servings={1} />);
+    await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });
+    rerender(<ShoppingListSection recipeIds={['recipe-b']} servings={1} />);
+    await waitFor(() => expect(screen.getByText('B-only ingredient')).toBeTruthy());
+    await act(async () => { a.resolve(ok(LIST)); });
+    expect(screen.queryByText('雞蛋')).toBeNull();
+    expect(screen.getByText('B-only ingredient')).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('open drawer replaces completed content when servings change without a refetch loop', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(ok(LIST)).mockResolvedValueOnce(ok({ ...LIST,
+      toBuy: [{ category: 'egg', items: [{ ...EGGS, name: 'four-serving ingredient' }] }] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const { rerender } = render(<ShoppingListSection recipeIds={['recipe-a']} servings={1} />);
+    await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+    rerender(<ShoppingListSection recipeIds={['recipe-a']} servings={4} />);
+    await waitFor(() => expect(screen.getByText('four-serving ingredient')).toBeTruthy());
+    rerender(<ShoppingListSection recipeIds={['recipe-a']} servings={4} />);
+    expect(screen.queryByText('雞蛋')).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).servings).toBe(4);
+  });
+
+  it('closed drawer does not automatically load a changed scope', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(ok(LIST)); vi.stubGlobal('fetch', fetchMock);
+    const { rerender } = render(<ShoppingListSection recipeIds={['recipe-a']} servings={1} />);
+    await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: '✕' }));
+    rerender(<ShoppingListSection recipeIds={['recipe-b']} servings={1} />);
+    expect(drawerContent()).toBeNull(); expect(fetchMock).toHaveBeenCalledTimes(1);
+    await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });
+    await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('A. a 200 response renders the list with no error', async () => {
