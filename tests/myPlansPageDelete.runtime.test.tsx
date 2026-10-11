@@ -19,7 +19,7 @@ const { authGuard } = vi.hoisted(() => ({
     isAuthenticated: true,
     loading: false,
     user: { id: 'user-1' },
-    getAccessToken: async () => 'token-1',
+    getAccessToken: async (): Promise<string | null> => 'token-1',
     requireAuth: () => true,
   },
 }));
@@ -113,6 +113,7 @@ async function renderWithPlans() {
 }
 
 beforeEach(() => {
+  authGuard.getAccessToken = async () => 'token-1';
   vi.spyOn(console, 'log').mockImplementation(() => {});
   vi.stubGlobal('confirm', vi.fn(() => true));
   installFetch();
@@ -122,6 +123,62 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+});
+
+describe('My Plans: load failures are not empty plans', () => {
+  it.each(['missing', 'rejected'] as const)('%s token shows an error without an anonymous request', async failure => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    authGuard.getAccessToken = async () => {
+      if (failure === 'rejected') throw new Error('private token details');
+      return null;
+    };
+    const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher);
+    render(<MyPlansPage />);
+    await screen.findByText('餐單載入失敗，請重試');
+    expect(fetcher).not.toHaveBeenCalled();
+    authGuard.getAccessToken = async () => 'token-1';
+    fetcher.mockResolvedValue(new Response('{"success":true,"data":{"plans":[]}}', { status: 200 }));
+    fireEvent.click(screen.getByRole('button', { name: '重試' }));
+    await screen.findByText('你仲未生成任何餐單');
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('unmount while waiting for a token never starts a request', async () => {
+    let resolve!: (value: string) => void;
+    authGuard.getAccessToken = () => new Promise<string>(yes => { resolve = yes; });
+    const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher);
+    const { unmount } = render(<MyPlansPage />);
+    unmount();
+    await act(async () => { resolve('token-1'); });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it.each(['http', 'api', 'json', 'network', 'shape'] as const)('%s failure shows retry, then recovers', async failure => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: { plans: PLANS } }), { status: 200 }));
+    if (failure === 'http') fetcher.mockReset().mockResolvedValueOnce(new Response('{"success":true,"data":{"plans":[]}}', { status: 500 }));
+    if (failure === 'api') fetcher.mockReset().mockResolvedValueOnce(new Response('{"success":false,"error":"private backend details"}', { status: 200 }));
+    if (failure === 'json') fetcher.mockReset().mockResolvedValueOnce(new Response('not json', { status: 200 }));
+    if (failure === 'network') fetcher.mockReset().mockRejectedValueOnce(new Error('network'));
+    if (failure === 'shape') fetcher.mockReset().mockResolvedValueOnce(new Response('{"success":true,"data":{"plans":{}}}', { status: 200 }));
+    fetcher.mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: { plans: PLANS } }), { status: 200 }));
+    vi.stubGlobal('fetch', fetcher);
+    render(<MyPlansPage />);
+    await screen.findByText('餐單載入失敗，請重試');
+    expect(screen.queryByText('你仲未生成任何餐單')).toBeNull();
+    expect(screen.queryByText('private backend details')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '重試' }));
+    await screen.findByText('Plan C');
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText('餐單載入失敗，請重試')).toBeNull();
+  });
+
+  it('a successful empty result keeps the normal empty state', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{"success":true,"data":{"plans":[]}}', { status: 200 })));
+    render(<MyPlansPage />);
+    await screen.findByText('你仲未生成任何餐單');
+    expect(screen.queryByRole('button', { name: '重試' })).toBeNull();
+  });
 });
 
 describe('My Plans: concurrent successful deletes', () => {

@@ -14,6 +14,8 @@ export default function MyPlansPage() {
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = useAuthGuard();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [deletingIds, setDeletingIds] = useState(() => new Set());
   const { toast, showToast } = useToast();
 
@@ -36,16 +38,20 @@ export default function MyPlansPage() {
     let cancelled = false;
 
     const fetchPlans = async () => {
-      if (plans.length === 0) setLoading(true);
+      setLoading(true);
+      setLoadError(null);
       try {
         const token = await getAccessToken();
+        if (cancelled) return;
+        if (!token) throw new Error('Missing access token');
 
         const fetchStart = Date.now();
         console.log('[my-plans-page] plans_fetch_start');
 
         const res = await fetch('/api/user/menus', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          headers: { Authorization: `Bearer ${token}` }
         });
+        if (cancelled) return;
 
         console.log('[my-plans-page] plans_response_received', {
           duration_ms: Date.now() - fetchStart,
@@ -53,7 +59,11 @@ export default function MyPlansPage() {
         });
 
         const data = await res.json();
-        const plansData = data?.data?.plans || [];
+        if (cancelled) return;
+        if (!res.ok || !data?.success || !Array.isArray(data?.data?.plans)) {
+          throw new Error('Invalid menus response');
+        }
+        const plansData = data.data.plans;
 
         console.log('[my-plans-page] plans_json_parsed', {
           duration_ms: Date.now() - fetchStart,
@@ -69,6 +79,7 @@ export default function MyPlansPage() {
       } catch (err) {
         if (!cancelled) {
           console.error('Failed to load plans:', err);
+          setLoadError('餐單載入失敗，請重試');
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -80,7 +91,7 @@ export default function MyPlansPage() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, loadAttempt]);
 
   const handleDelete = async (planId) => {
     if (deletingIdsRef.current.has(planId)) return;
@@ -154,6 +165,13 @@ export default function MyPlansPage() {
           {loading ? (
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">正在載入餐單...</p>
+            </div>
+          ) : loadError ? (
+            <div className="text-center py-20" role="alert">
+              <p className="text-red-600 mb-4">{loadError}</p>
+              <button className={UI.textLink} onClick={() => setLoadAttempt(attempt => attempt + 1)}>
+                重試
+              </button>
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center py-20">
