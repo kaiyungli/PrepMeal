@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 export const SHOPPING_LIST_LOAD_ERROR = '購物清單載入失敗，請重試';
@@ -17,33 +17,59 @@ interface UseSavedPlanShoppingListOptions {
   servings: number;
 }
 
+interface ListState {
+  key: string;
+  loading: boolean;
+  shoppingList: SavedPlanShoppingList | null;
+  error: string | null;
+}
+
 /**
  * Loads a saved plan's shopping list from /api/shopping-list and maps it to
  * the ShoppingListDrawer shape.
  *
  * A failed request (HTTP error, unreadable body, network failure) ends in
  * `error` with a fixed message and no list, so the drawer never shows a blank
- * panel, an earlier result, or backend error text. Only one request runs at a
- * time; calling fetchShoppingList while one is pending does nothing.
+ * panel, an earlier result, or backend error text. Requests and results belong
+ * to an account/recipe-occurrences/servings scope. Concurrent calls for that
+ * scope are deduplicated; switching scope cancels obsolete work.
  */
 export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions) {
-  const { getAccessToken } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [shoppingList, setShoppingList] = useState<SavedPlanShoppingList | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const inFlightRef = useRef(false);
+  const { getAccessToken, user, isAuthenticated } = useAuth();
+  // Keep every occurrence: repeated meals contribute repeated ingredients.
+  const key = JSON.stringify([user?.id, isAuthenticated, recipeIds, servings]);
+  const [state, setState] = useState<ListState | null>(null);
+  const requestRef = useRef<{ key: string; active: boolean; controller: AbortController } | null>(null);
+  const invalidate = useCallback(() => {
+    if (requestRef.current) {
+      requestRef.current.active = false;
+      requestRef.current.controller.abort();
+      requestRef.current = null;
+    }
+  }, []);
+  useEffect(() => invalidate, [key, invalidate]);
+  // Hide an old result during render, before the scope cleanup effect runs.
+  const current = state?.key === key ? state : null;
+  const shoppingList = current?.shoppingList ?? null;
+  const loading = current?.loading ?? false;
+  const error = current?.error ?? null;
 
   const fetchShoppingList = useCallback(async () => {
-    if (inFlightRef.current) return;
-    inFlightRef.current = true;
-    setLoading(true);
-    setError(null);
+    if (requestRef.current?.key === key && requestRef.current.active) return;
+    invalidate();
+    const request = { key, active: true, controller: new AbortController() };
+    requestRef.current = request;
+    setState({ key, shoppingList: null, error: null, loading: true });
 
     try {
+      if (!isAuthenticated || !user?.id) {
+        setState({ key, shoppingList: null, error: SIGN_IN_REQUIRED, loading: false });
+        return;
+      }
       const token = await getAccessToken();
+      if (!request.active) return;
       if (!token) {
-        setShoppingList(null);
-        setError(SIGN_IN_REQUIRED);
+        setState({ key, shoppingList: null, error: SIGN_IN_REQUIRED, loading: false });
         return;
       }
       const res = await fetch('/api/shopping-list', {
@@ -52,14 +78,16 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ recipeIds, servings })
+        body: JSON.stringify({ recipeIds, servings }),
+        signal: request.controller.signal
       });
+      if (!request.active) return;
       const data = await res.json().catch(() => null);
+      if (!request.active) return;
 
       if (!res.ok || !data || data.error) {
         console.error('[saved-plan-shopping-list] request failed:', res.status, data?.error);
-        setShoppingList(null);
-        setError(SHOPPING_LIST_LOAD_ERROR);
+        setState({ key, shoppingList: null, error: SHOPPING_LIST_LOAD_ERROR, loading: false });
         return;
       }
 
@@ -94,7 +122,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
           : `有 ${unavailableCount} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
       }
 
-      setShoppingList({
+      setState({ key, loading: false, error: null, shoppingList: {
         byCategory: {
           pantry: Array.isArray(data.pantry) ? data.pantry : [],
           toBuy: normalizedToBuy
@@ -102,16 +130,15 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
         byRecipe: normalizedByRecipe,
         notice,
         noUsableRecipes: unavailableCount > 0 && unavailableCount >= recipeIds.length
-      });
+      } });
     } catch (err) {
+      if (!request.active) return;
       console.error('[saved-plan-shopping-list] request failed:', err);
-      setShoppingList(null);
-      setError(SHOPPING_LIST_LOAD_ERROR);
+      setState({ key, shoppingList: null, error: SHOPPING_LIST_LOAD_ERROR, loading: false });
     } finally {
-      inFlightRef.current = false;
-      setLoading(false);
+      if (requestRef.current === request) requestRef.current = null;
     }
-  }, [getAccessToken, recipeIds, servings]);
+  }, [getAccessToken, recipeIds, servings, key, invalidate, isAuthenticated, user?.id]);
 
   return { shoppingList, loading, error, fetchShoppingList };
 }

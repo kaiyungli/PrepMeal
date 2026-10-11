@@ -30,7 +30,7 @@ export default function ShoppingListDrawer({
     if (isOpen && !shoppingList && !loading && !error && onFetch) {
       onFetch();
     }
-  }, [isOpen]);
+  }, [isOpen, shoppingList, loading, error, onFetch]);
 
   useEffect(() => {
     const handleEscape = (e) => {
