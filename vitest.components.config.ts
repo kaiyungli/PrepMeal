@@ -16,6 +16,7 @@ import baseConfig from './vitest.config';
 const MY_PLANS_JSX_JS = [
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans\.js$/,
+  /[\\/]src[\\/]pages[\\/]favorites\.js$/,
   /[\\/]src[\\/]components[\\/]ui[\\/]Toast\.js$/,
   /[\\/]src[\\/]components[\\/]shopping[\\/]ShoppingListDrawer\.js$/,
   /[\\/]src[\\/]pages[\\/]recipes[\\/]\[id\]\.js$/,
@@ -41,6 +42,7 @@ export default defineConfig({
     environment: 'jsdom',
     include: [
       'tests/myPlansComponents.runtime.test.tsx',
+      'tests/favoritesConsistency.runtime.test.tsx',
       'tests/myPlansPageDelete.runtime.test.tsx',
       'tests/recipeDetailTitle.runtime.test.tsx',
       'tests/recipeDetailHookOrder.runtime.test.tsx',

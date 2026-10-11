@@ -33,7 +33,11 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
   }, [planRecipes]);
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
-  const { isAuthenticated, isFavorite, toggleFavorite } = useUserState({ skipFavorites: false });
+  const { isAuthenticated, isFavorite, toggleFavorite, favoritesLoading, favoritesMutationError } = useUserState({ skipFavorites: false });
+
+  useEffect(() => {
+    if (favoritesMutationError && showToast) showToast(favoritesMutationError, 'error');
+  }, [favoritesMutationError, showToast]);
 
   // Favorite toggle handler with auth check
   const handleFavoriteToggle = useCallback((recipeId: string) => {
@@ -42,8 +46,12 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
       if (showToast) showToast('請先登入以收藏食譜', 'info');
       return;
     }
+    if (favoritesLoading) {
+      if (showToast) showToast('收藏仍在載入，請稍後再試', 'info');
+      return;
+    }
     toggleFavorite(recipeId);
-  }, [isAuthenticated, toggleFavorite, showToast]);
+  }, [isAuthenticated, favoritesLoading, toggleFavorite, showToast]);
 
   // Shopping list preview - disabled on homepage (fetch lazily on user interaction)
   const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, isInitialized: shoppingListInitialized, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false });
