@@ -45,6 +45,7 @@ export function useGenerateActions({
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const saveInFlightRef = useRef(false);
 
   // Recipe click handler
   const handleRecipeClick = useCallback(async (recipe: any) => {
@@ -114,7 +115,9 @@ export function useGenerateActions({
 
   // Save handler
   const handleSave = useCallback(async () => {
-    if (isSaving) return;
+    // State updates are asynchronous; the ref also blocks same-tick clicks
+    // and retained callbacks while token retrieval is still pending.
+    if (saveInFlightRef.current) return;
     if (!isAuthenticated) {
       window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
       return;
@@ -126,15 +129,15 @@ export function useGenerateActions({
       return;
     }
 
-    const token = await getAccessToken();
-    if (!token) {
-      alert('登入狀態已失效，請重新登入');
-      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-      return;
-    }
-
+    saveInFlightRef.current = true;
+    setIsSaving(true);
     try {
-      setIsSaving(true);
+      const token = await getAccessToken();
+      if (!token) {
+        alert('登入狀態已失效，請重新登入');
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
       const result = await saveGeneratedPlan(payload, token);
       if (!result.success) throw new Error(result.error);
       setSaveNotice(`✅ 已保存餐單：${payload.name}`);
@@ -142,9 +145,10 @@ export function useGenerateActions({
     } catch (e) {
       alert('保存失敗: ' + (e as Error).message);
     } finally {
+      saveInFlightRef.current = false;
       setIsSaving(false);
     }
-  }, [isSaving, isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek]);
+  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek]);
 
   const handleClearAll = useCallback(() => {
     handleCloseRecipe();
