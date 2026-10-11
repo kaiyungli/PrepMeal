@@ -1,9 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
-import { perfLog } from '@/utils/perf';
+import { useGeneratedShoppingList } from './useGeneratedShoppingList';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
-import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 
 interface UseGenerateActionsOptions {
   weeklyPlan: any;
@@ -40,29 +38,9 @@ export function useGenerateActions({
   }, []);
   useEffect(() => cancelRecipeRequest, [cancelRecipeRequest]);
 
-  // Shopping List State - Use new ViewModel
-  const [shoppingListView, setShoppingListView] = useState<ShoppingListViewModel | null>(null);
-  const [showShoppingList, setShowShoppingList] = useState(false);
-  const [isShoppingListLoading, setIsShoppingListLoading] = useState(false);
-  const [shoppingListError, setShoppingListError] = useState<string | null>(null);
-  const [shoppingListPlanSignature, setShoppingListPlanSignature] = useState<string | null>(null);
-
-  // Build plan signature helper
-  const buildPlanSignature = useCallback(() => {
-    const recipeIds = Object.values(weeklyPlan || {})
-      .flat()
-      .filter(Boolean)
-      .map((r: any) => r.id)
-      .sort()
-      .join(',');
-
-    const pantrySignature = (pantryIngredients || [])
-      .slice()
-      .sort()
-      .join(',');
-
-    return `${recipeIds}|${servings}|${pantrySignature}`;
-  }, [weeklyPlan, servings, pantryIngredients]);
+  const { shoppingListView, showShoppingList, isShoppingListLoading, shoppingListError,
+    preloadShoppingList, handleOpenShoppingList, handleCloseShoppingList, clearShoppingList,
+  } = useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings, isAuthenticated, userId, getAccessToken, traceId });
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
@@ -118,142 +96,6 @@ export function useGenerateActions({
     setModalLoading(false);
   }, [cancelRecipeRequest]);
 
-  // Shopping list handlers
-  const handleOpenShoppingList = useCallback(async () => {
-    // Click log
-    const selectedCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0);
-    perfLog({
-      event: 'shopping_list',
-      stage: 'open_click',
-      label: 'shopping_list.open_click',
-      duration: 0,
-      meta: { selectedRecipeCount: selectedCount },
-    });
-    
-    // Build signature to detect plan changes
-    const currentSignature = buildPlanSignature();
-    
-    // If plan changed, clear stale cache
-    if (currentSignature !== shoppingListPlanSignature && shoppingListView) {
-      setShoppingListView(null);
-      setShoppingListError(null);
-    }
-    
-    // Reuse only if signature matches
-    if ((shoppingListView || shoppingListError) && currentSignature === shoppingListPlanSignature) {
-      perfLog({
-        event: 'shopping_list',
-        stage: 'memory_hit',
-        label: 'shopping_list.memory_hit',
-        duration: 0,
-        meta: {
-          hasView: !!shoppingListView,
-          hasError: !!shoppingListError,
-        },
-      });
-      setShowShoppingList(true);
-      return;
-    }
-    
-    setShowShoppingList(true);
-    setIsShoppingListLoading(true);
-    
-    try {
-      const token = await getAccessToken();
-      if (!token || !userId) throw new Error('請先登入以查看購物清單');
-      const t0 = Date.now();
-      const viewModel = await fetchGeneratedPlanShoppingList(
-        weeklyPlan,
-        pantryIngredients,
-        servings,
-        { traceId, token, cacheScope: userId }
-      );
-      const currentSignature = buildPlanSignature();
-      setShoppingListView(viewModel);
-      setShoppingListPlanSignature(currentSignature);
-      
-      // Ready log
-      perfLog({
-        event: 'shopping_list',
-        stage: 'ready',
-        label: 'shopping_list.ready',
-        duration: Date.now() - t0,
-        meta: {
-          pantryCount: viewModel.summary?.pantryCount || 0,
-          toBuyCount: viewModel.summary?.toBuyCount || 0,
-          sectionCount: viewModel.summary?.sectionCount || 0,
-        },
-      });
-    } catch (err) {
-      // Error log
-      perfLog({
-        event: 'shopping_list',
-        stage: 'error',
-        label: 'shopping_list.error',
-        duration: 0,
-        meta: { message: (err as Error).message },
-      });
-      setShoppingListError((err as Error).message);
-    } finally {
-      setIsShoppingListLoading(false);
-    }
-  }, [weeklyPlan, pantryIngredients, servings, userId, getAccessToken, traceId, shoppingListView, shoppingListError, shoppingListPlanSignature, buildPlanSignature]);
-
-  const handleCloseShoppingList = useCallback(() => {
-    setShowShoppingList(false);
-  }, []);
-
-  // Preload shopping list in background
-  const preloadShoppingList = useCallback(async () => {
-    if (shoppingListView) return;
-    if (isShoppingListLoading) return;
-    
-    const recipeCount = Object.values(weeklyPlan).reduce((sum: number, arr) => sum + (Array.isArray(arr) ? arr.filter(Boolean).length : 0), 0);
-    if (recipeCount === 0) return;
-    
-    perfLog({
-      event: 'shopping_list',
-      stage: 'preload_start',
-      label: 'shopping_list.preload_start',
-      duration: 0,
-    });
-    
-    try {
-      const token = await getAccessToken();
-      if (!token || !userId) return;
-      const t0 = Date.now();
-      const viewModel = await fetchGeneratedPlanShoppingList(
-        weeklyPlan,
-        pantryIngredients,
-        servings,
-        { traceId, token, cacheScope: userId }
-      );
-      const currentSignature = buildPlanSignature();
-      setShoppingListView(viewModel);
-      setShoppingListPlanSignature(currentSignature);
-      
-      perfLog({
-        event: 'shopping_list',
-        stage: 'preload_ready',
-        label: 'shopping_list.preload_ready',
-        duration: Date.now() - t0,
-        meta: {
-          pantryCount: viewModel.summary?.pantryCount || 0,
-          toBuyCount: viewModel.summary?.toBuyCount || 0,
-          sectionCount: viewModel.summary?.sectionCount || 0,
-        },
-      });
-    } catch (err) {
-      perfLog({
-        event: 'shopping_list',
-        stage: 'preload_error',
-        label: 'shopping_list.preload_error',
-        duration: 0,
-        meta: { message: (err as Error).message },
-      });
-    }
-  }, [weeklyPlan, pantryIngredients, servings, userId, getAccessToken, traceId, shoppingListView, isShoppingListLoading, buildPlanSignature]);
-
   // Copy shopping list
   const handleCopyShoppingList = useCallback(async () => {
     if (!shoppingListView) return '';
@@ -306,12 +148,9 @@ export function useGenerateActions({
 
   const handleClearAll = useCallback(() => {
     handleCloseRecipe();
-    setShoppingListView(null);
-    setIsShoppingListLoading(false);
-    setShoppingListError(null);
-    setShowShoppingList(false);
+    clearShoppingList();
     setSaveNotice('');
-  }, [handleCloseRecipe]);
+  }, [handleCloseRecipe, clearShoppingList]);
 
   return {
     selectedRecipe,
