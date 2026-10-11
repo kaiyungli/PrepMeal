@@ -1,8 +1,10 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useMemo } from 'react';
+import { useAccountFavorites } from '@/hooks/useFavorites';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import Head from 'next/head';
+import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
@@ -10,19 +12,15 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function FavoritesPage() {
   const headerCtrl = useHeaderController();
-  // Only need auth guard for authentication check
-  const {
-    loading: authLoading,
-    isAuthenticated,
-    user,
-    getAccessToken,
-  } = useAuthGuard();
+  const auth = useAuthGuard();
+  const { loading: authLoading, isAuthenticated } = auth;
+  return <AccountFavoritesPage key={JSON.stringify([isAuthenticated, auth.user?.id])} auth={auth} headerCtrl={headerCtrl} authLoading={authLoading} />;
+}
 
-  // Local state for favorites page
-  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
-  const [favoriteIds, setFavoriteIds] = useState([]);
-  const [pendingIds, setPendingIds] = useState(new Set());
-  const [loading, setLoading] = useState(true);
+function AccountFavoritesPage({ auth, headerCtrl, authLoading }) {
+  const { isAuthenticated } = auth;
+  const { recipes: favoriteRecipes, loading, error, mutationError, isFavorite, isPending, setFavorite, retry } = useAccountFavorites(auth, { includeRecipes: true });
+  const handleFavoriteClick = (id) => setFavorite(id, false);
 
   // Recipe filtering - only filters locally, no refetch
   const {
@@ -38,130 +36,6 @@ export default function FavoritesPage() {
     clearFilters,
     filterRecipes,
   } = useRecipeFilters({ initialShowFilters: false });
-
-  // Track fetched user to prevent refetch on session refresh
-  const fetchedUserIdRef = useRef(null);
-
-  // Fetch favorite recipes on mount (only once per user)
-  useEffect(() => {
-    if (!isAuthenticated || !user?.id) return;
-
-    // Prevent refetch for same user after tab focus/session refresh
-    if (fetchedUserIdRef.current === user.id && favoriteRecipes.length > 0) {
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchFavoriteRecipes = async () => {
-      // Only show full loading if this is first load
-      if (favoriteRecipes.length === 0) {
-        setLoading(true);
-      }
-
-      try {
-        const token = await getAccessToken();
-        if (!token || cancelled) {
-          if (!cancelled) setLoading(false);
-          return;
-        }
-
-        const res = await fetch('/api/user/favorites?include=recipes', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to load favorite recipes: ${res.status}`);
-        }
-
-        const data = await res.json();
-        if (cancelled) return;
-
-        const ids = data?.data?.favorites || [];
-        const recipes = data?.data?.recipes || [];
-
-        setFavoriteIds(ids.map(String));
-        setFavoriteRecipes(recipes);
-        fetchedUserIdRef.current = user.id;
-      } catch (err) {
-        if (!cancelled) {
-          console.error('Failed to load favorite recipes:', err);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchFavoriteRecipes();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated, user?.id]);
-
-  // Local helpers
-  const favoriteIdSet = useMemo(
-    () => new Set((favoriteIds || []).map(String)),
-    [favoriteIds]
-  );
-
-  const isFavorite = useCallback((recipeId) => {
-    return favoriteIdSet.has(String(recipeId));
-  }, [favoriteIdSet]);
-
-  const isPending = useCallback((recipeId) => {
-    return pendingIds.has(String(recipeId));
-  }, [pendingIds]);
-
-  // Local unfavorite handler - removes card immediately
-  const handleFavoriteClick = useCallback(async (recipeId) => {
-    const id = String(recipeId);
-    if (pendingIds.has(id)) return false;
-    if (!favoriteIdSet.has(id)) return false;
-
-    setPendingIds(prev => new Set(prev).add(id));
-
-    const previousIds = [...favoriteIds];
-    const previousRecipes = [...favoriteRecipes];
-
-    // Optimistic remove
-    setFavoriteIds(prev => prev.filter(x => String(x) !== id));
-    setFavoriteRecipes(prev => prev.filter(r => String(r.id) !== id));
-
-    try {
-      const token = await getAccessToken();
-      const res = await fetch(`/api/user/favorites?recipe_id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      // A stale favorite removed in another tab is already absent on the server.
-      if (res.status === 404) return true;
-
-      if (!res.ok) {
-        setFavoriteIds(previousIds);
-        setFavoriteRecipes(previousRecipes);
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      setFavoriteIds(previousIds);
-      setFavoriteRecipes(previousRecipes);
-      return false;
-    } finally {
-      setPendingIds(prev => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
-  }, [favoriteIds, favoriteRecipes, favoriteIdSet, pendingIds, getAccessToken]);
 
   // Local filtered favorites - only recomputes when favorites or filters change
   const filteredFavoriteRecipes = useMemo(
@@ -215,16 +89,22 @@ export default function FavoritesPage() {
             />
           )}
 
-          {loading ? (
+          {mutationError && <p role="alert" className="text-red-700 mb-4">{mutationError}</p>}
+          {error ? (
+            <div className="text-center py-20" role="alert">
+              <p className="text-red-700 mb-4">{error}</p>
+              <button onClick={retry} className="text-[#9B6035] font-medium hover:underline">重試</button>
+            </div>
+          ) : loading ? (
             <div className="text-center py-20">
               <p className="text-[#AA7A50]">正在載入收藏...</p>
             </div>
           ) : favoriteRecipes.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未收藏任何食譜</p>
-              <a href="/recipes" className="text-[#9B6035] font-medium hover:underline">
+              <Link href="/recipes" className="text-[#9B6035] font-medium hover:underline">
                 去搵啱你嘅食譜 →
-              </a>
+              </Link>
             </div>
           ) : filteredFavoriteRecipes.length === 0 ? (
             <div className="text-center py-20">

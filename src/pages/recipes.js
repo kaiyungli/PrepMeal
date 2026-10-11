@@ -21,18 +21,26 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     isFavorite,
     toggleFavorite,
     favoritesLoading,
+    favoritesMutationError,
     isPending,
   } = useUserState();
   
   const { toast, showToast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  useEffect(() => {
+    if (favoritesMutationError) showToast(favoritesMutationError, 'error');
+  }, [favoritesMutationError, showToast]);
   const handleFavoriteToggle = useCallback((recipeId) => {
     if (!isAuthenticated) {
       showToast('請先登入以收藏食譜', 'info');
       return Promise.resolve(false);
     }
+    if (favoritesLoading) {
+      showToast('收藏仍在載入，請稍後再試', 'info');
+      return Promise.resolve(false);
+    }
     return toggleFavorite(recipeId);
-  }, [isAuthenticated, toggleFavorite, showToast]);
+  }, [isAuthenticated, favoritesLoading, toggleFavorite, showToast]);
   
   const handleRecipeClick = useCallback((recipe) => {
     const start = perfNow();
@@ -60,10 +68,14 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
       showToast('請先登入以收藏食譜', 'info');
       return;
     }
+    if (favoritesLoading) {
+      showToast('收藏仍在載入，請稍後再試', 'info');
+      return;
+    }
     if (selectedRecipe?.id) {
       toggleFavorite(selectedRecipe.id);
     }
-  }, [isAuthenticated, selectedRecipe, toggleFavorite, showToast]);
+  }, [isAuthenticated, favoritesLoading, selectedRecipe, toggleFavorite, showToast]);
 
   const {
     searchQuery,

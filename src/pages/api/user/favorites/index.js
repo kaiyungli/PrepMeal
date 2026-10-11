@@ -68,7 +68,11 @@ export default async function handler(req, res) {
               budget_level,
               is_complete_meal,
               speed,
-              created_at
+              created_at,
+              description,
+              diet,
+              flavor,
+              times_shown
             )
           `)
           .eq('user_id', userId);

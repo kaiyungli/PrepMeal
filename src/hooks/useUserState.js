@@ -1,9 +1,8 @@
 // Central user state hook - combines auth + favorites
 // This is an orchestration layer, no logic changes
 
-import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useFavorites } from '@/hooks/useFavorites';
+import { useAccountFavorites } from '@/hooks/useFavorites';
 
 /**
  * Derive favorite recipes from a list
@@ -28,29 +27,7 @@ export function useUserState(options = {}) {
   // Auth state
   const auth = useAuth();
 
-  // Token for favorites - only resolve when authenticated
-  const [token, setToken] = useState(null);
-
-  useEffect(() => {
-    // Skip token resolution when favorites are disabled
-    if (skipFavorites) {
-      setToken(null);
-      return;
-    }
-
-    if (!auth.loading) {
-      if (auth.isAuthenticated) {
-        auth.getAccessToken().then(t => setToken(t));
-      } else {
-        setToken(null);
-      }
-    }
-  }, [skipFavorites, auth.loading, auth.isAuthenticated, auth.getAccessToken]);
-
-  // Always call useFavorites - pass null when token not ready (SWR won't fetch with null key)
-  // This respects Hooks rules while preventing duplicate fetches
-  const effectiveToken = skipFavorites ? null : token;
-  const fav = useFavorites(effectiveToken, auth.user?.id);
+  const fav = useAccountFavorites(auth, { skipFavorites });
   
   return {
     // Auth
@@ -70,5 +47,6 @@ export function useUserState(options = {}) {
     favoritesLoading: skipFavorites ? undefined : fav.loading,
     favoritesError: skipFavorites ? undefined : fav.error,
     isPending: skipFavorites ? undefined : fav.isPending,
+    favoritesMutationError: skipFavorites ? undefined : fav.mutationError,
   };
 }
