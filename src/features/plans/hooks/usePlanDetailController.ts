@@ -10,60 +10,68 @@ interface UsePlanDetailControllerOptions {
   getAccessToken: () => Promise<string | null>;
 }
 
+interface DetailState {
+  key: string;
+  plan: any;
+  items: any[];
+  groupedItems: Record<number, any[]>;
+  loading: boolean;
+  error: string | null;
+  selectedRecipeId: string | null;
+}
+const EMPTY_ITEMS: DetailState['items'] = [];
+const EMPTY_GROUPS: DetailState['groupedItems'] = {};
+
 export function usePlanDetailController({
   planId,
   isAuthenticated,
   userId,
   getAccessToken
 }: UsePlanDetailControllerOptions) {
-  const [plan, setPlan] = useState<any>(null);
-  const [items, setItems] = useState<any[]>([]);
-  const [groupedItems, setGroupedItems] = useState<Record<number, any[]>>({});
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
-
-  // Track fetched key to prevent refetch on session refresh
-  const fetchedKeyRef = useRef<string | null>(null);
+  const key = JSON.stringify([isAuthenticated, userId, planId]);
+  const [state, setState] = useState<DetailState | null>(null);
+  // Discard obsolete state as well as hiding it. Otherwise logout→login on
+  // the same account/plan could briefly resurrect the pre-logout state.
+  if (state && state.key !== key) setState(null);
+  // A refreshed token callback must not restart the same account/plan load.
+  const tokenGetterRef = useRef(getAccessToken);
+  useEffect(() => { tokenGetterRef.current = getAccessToken; }, [getAccessToken]);
+  // Scope filtering happens during render, before effects can hide old data.
+  const current = state?.key === key ? state : null;
+  const plan = current?.plan ?? null;
+  const items = current?.items ?? EMPTY_ITEMS;
+  const groupedItems = current?.groupedItems ?? EMPTY_GROUPS;
+  const loading = current?.loading ?? true;
+  const error = current?.error ?? null;
+  const selectedRecipeId = current?.selectedRecipeId ?? null;
 
   useEffect(() => {
-    if (!isAuthenticated || !planId) return;
-
-    const fetchKey = `${userId || 'unknown'}:${planId}`;
-
-    // Prevent refetch for same user+plan after tab focus/session refresh
-    if (fetchedKeyRef.current === fetchKey && plan) {
-      return;
-    }
+    if (!isAuthenticated || !userId || !planId) return;
 
     let cancelled = false;
 
     async function load() {
-      if (!plan) setLoading(true);
-      setError(null);
+      const empty: DetailState = { key, plan: null, items: [], groupedItems: {},
+        loading: true, error: null, selectedRecipeId: null };
+      setState(empty);
 
       try {
-        const token = await getAccessToken();
-        const { plan: fetchedPlan, items: fetchedItems } = await getPlanDetail(planId, token || undefined);
+        const token = await tokenGetterRef.current();
+        if (cancelled) return;
+        if (!token) throw new Error('請先登入以查看餐單');
+        const { plan: fetchedPlan, items: fetchedItems } = await getPlanDetail(planId, token);
 
         if (cancelled) return;
 
         const mappedItems = fetchedItems.map(mapPlanItemMealSlot);
 
-        setPlan(fetchedPlan);
-        setItems(mappedItems);
-
         const grouped = mapPlanItemsByDay(fetchedPlan, mappedItems);
-        setGroupedItems(grouped);
-        fetchedKeyRef.current = fetchKey;
-      } catch (err: any) {
+        setState({ ...empty, plan: fetchedPlan ?? null, items: mappedItems,
+          groupedItems: grouped, loading: false });
+      } catch (err) {
         if (!cancelled) {
-          setError(err.message || '載入失敗');
+          setState({ ...empty, loading: false, error: err instanceof Error ? err.message || '載入失敗' : '載入失敗' });
         }
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     }
 
@@ -72,7 +80,7 @@ export function usePlanDetailController({
     return () => {
       cancelled = true;
     };
-  }, [planId, isAuthenticated, userId]);
+  }, [key, planId, isAuthenticated, userId]);
 
   
   // Each day's items bucketed by canonical mealSlot, in display order.
@@ -82,11 +90,13 @@ export function usePlanDetailController({
     const recipeId = String(id);
     if (!recipeId) return;
     
-    setSelectedRecipeId(recipeId);
+    setState(previous => previous?.key === key && previous.plan
+      ? { ...previous, selectedRecipeId: recipeId } : previous);
   };
 
   const handleCloseModal = () => {
-    setSelectedRecipeId(null);
+    setState(previous => previous?.key === key
+      ? { ...previous, selectedRecipeId: null } : previous);
   };
 
   // One id per saved meal: a recipe planned on several days or slots is sent

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import type { ReactNode } from 'react';
 
@@ -15,7 +15,8 @@ import type { ReactNode } from 'react';
 
 const PLAN_ID = '00000000-0000-4000-8000-000000000001';
 
-const { authGuard } = vi.hoisted(() => ({
+const { authGuard, route } = vi.hoisted(() => ({
+  route: { id: '00000000-0000-4000-8000-000000000001' },
   authGuard: {
     isAuthenticated: true,
     loading: false,
@@ -24,14 +25,14 @@ const { authGuard } = vi.hoisted(() => ({
   },
 }));
 vi.mock('@/hooks/useAuthGuard', () => ({ useAuthGuard: () => authGuard }));
-vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ getAccessToken: async () => 'token-1' }) }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => authGuard }));
 vi.mock('@/features/recipes/services/recipeDetailClientCache', () => ({
   prefetchRecipeDetail: () => undefined,
   getCachedRecipeDetail: () => null,
   setCachedRecipeDetail: () => undefined,
   getInflightRecipeDetail: () => null,
 }));
-vi.mock('next/router', () => ({ useRouter: () => ({ query: { id: '00000000-0000-4000-8000-000000000001' } }) }));
+vi.mock('next/router', () => ({ useRouter: () => ({ query: route }) }));
 vi.mock('@/features/layout/hooks/useHeaderController', () => ({ useHeaderController: () => ({}) }));
 vi.mock('@/components/layout/Header', () => ({ default: () => null }));
 vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> }));
@@ -70,6 +71,8 @@ function titleText() {
 }
 
 beforeEach(() => {
+  route.id = PLAN_ID;
+  authGuard.user = { id: 'user-1' };
   authGuard.isAuthenticated = true;
   authGuard.loading = false;
   vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -83,6 +86,51 @@ afterEach(() => {
 });
 
 describe('Saved plan detail page title', () => {
+  it.each(['plan', 'account'] as const)('hides old title, cards, shopping drawer and recipe modal while new %s loads', async change => {
+    const nextId = '00000000-0000-4000-8000-000000000002';
+    let resolveNext!: (value: Response) => void;
+    const pending = new Promise<Response>(resolve => { resolveNext = resolve; });
+    let menuReads = 0;
+    const fetchMock = vi.fn((url: string) => {
+      if (!url.startsWith('/api/user/menus/')) return new Promise<Response>(() => {});
+      menuReads += 1;
+      return menuReads === 1 ? Promise.resolve(new Response(JSON.stringify({ success: true,
+        data: { plan: PLAN, items: ITEMS } }))) : pending;
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const { rerender } = render(<PlanDetailPage />);
+    await screen.findByText('番茄炒蛋');
+    fireEvent.click(screen.getByText('番茄炒蛋'));
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeTruthy());
+    if (change === 'plan') route.id = nextId; else authGuard.user = { id: 'qa-user-b' };
+    rerender(<PlanDetailPage />);
+    expect(screen.getByText('載入中...')).toBeTruthy();
+    expect(titleText()).toBe('餐單詳情 - 今晚食乜');
+    expect(screen.queryByText('番茄炒蛋')).toBeNull();
+    expect(screen.queryByText('查看購物清單')).toBeNull(); expect(screen.queryByRole('dialog')).toBeNull();
+    await act(async () => { resolveNext(new Response(JSON.stringify({ success: true,
+      data: { plan: { ...PLAN, id: change === 'plan' ? nextId : PLAN_ID, name: 'Synthetic B' },
+        items: [{ ...ITEMS[0], recipe_id: 'qa-b', recipe: { id: 'qa-b', name: 'Synthetic B recipe' } }] } }))); });
+    expect(await screen.findByText('Synthetic B recipe')).toBeTruthy();
+    expect(titleText()).toBe('Synthetic B - 今晚食乜');
+    expect(screen.queryByText('番茄炒蛋')).toBeNull(); expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('closes an open shopping drawer during a route transition instead of posting the old recipe ids', async () => {
+    const nextId = '00000000-0000-4000-8000-000000000002';
+    const menu = new Response(JSON.stringify({ success: true, data: { plan: PLAN, items: ITEMS } }));
+    const fetchMock = vi.fn((url: string) => url === `/api/user/menus/${PLAN_ID}` ? Promise.resolve(menu)
+      : new Promise<Response>(() => {}));
+    vi.stubGlobal('fetch', fetchMock);
+    const { rerender } = render(<PlanDetailPage />);
+    await screen.findByText('番茄炒蛋'); fireEvent.click(screen.getByText('查看購物清單'));
+    await screen.findByRole('heading', { name: '購物清單' });
+    route.id = nextId; rerender(<PlanDetailPage />);
+    expect(screen.queryByRole('heading', { name: '購物清單' })).toBeNull();
+    expect(screen.queryByText('查看購物清單')).toBeNull(); expect(screen.getByText('載入中...')).toBeTruthy();
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/shopping-list')).toHaveLength(1);
+  });
+
   it('A/B/C. a loaded plan renders a non-empty title with its name and the site suffix', async () => {
     stubPlanFetch({ status: 200, body: { success: true, data: { plan: PLAN, items: ITEMS } } });
     render(<PlanDetailPage />);
