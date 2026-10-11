@@ -10,8 +10,16 @@ import { UI } from '@/styles/ui';
 import PlanCard from '@/components/myPlans/PlanCard';
 
 export default function MyPlansPage() {
+  const auth = useAuthGuard();
+  // Remount account-owned state before rendering a different auth scope.
+  // Logout -> login must also discard the earlier list, delete locks and toast.
+  const accountKey = JSON.stringify([auth.isAuthenticated, auth.user?.id]);
+  return <AccountPlansPage key={accountKey} auth={auth} />;
+}
+
+function AccountPlansPage({ auth }) {
   const headerCtrl = useHeaderController();
-  const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = useAuthGuard();
+  const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = auth;
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -19,21 +27,29 @@ export default function MyPlansPage() {
   const [deletingIds, setDeletingIds] = useState(() => new Set());
   const { toast, showToast } = useToast();
 
-  // Track fetched user to prevent refetch on session refresh
-  const fetchedUserIdRef = useRef(null);
+  const tokenGetterRef = useRef(getAccessToken);
+  useEffect(() => { tokenGetterRef.current = getAccessToken; }, [getAccessToken]);
 
   // Plan ids with a DELETE in flight, updated synchronously so a repeat
   // click handled before the next render cannot send a second request
-  const deletingIdsRef = useRef(new Set());
+  const deleteRequestsRef = useRef(new Map());
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    const requests = deleteRequestsRef.current;
+    return () => {
+      mountedRef.current = false;
+      for (const request of requests.values()) {
+        request.active = false;
+        request.controller.abort();
+      }
+      requests.clear();
+    };
+  }, []);
 
   // Load plans when authenticated (useAuthGuard handles redirect)
   useEffect(() => {
     if (!isAuthenticated || !user?.id) return;
-
-    // Prevent refetch for same user after tab focus/session refresh
-    if (fetchedUserIdRef.current === user.id && plans.length > 0) {
-      return;
-    }
 
     let cancelled = false;
 
@@ -41,7 +57,7 @@ export default function MyPlansPage() {
       setLoading(true);
       setLoadError(null);
       try {
-        const token = await getAccessToken();
+        const token = await tokenGetterRef.current();
         if (cancelled) return;
         if (!token) throw new Error('Missing access token');
 
@@ -74,7 +90,6 @@ export default function MyPlansPage() {
 
         if (data?.success) {
           setPlans(plansData);
-          fetchedUserIdRef.current = user.id;
         }
       } catch (err) {
         if (!cancelled) {
@@ -94,19 +109,24 @@ export default function MyPlansPage() {
   }, [isAuthenticated, user?.id, loadAttempt]);
 
   const handleDelete = async (planId) => {
-    if (deletingIdsRef.current.has(planId)) return;
+    if (!mountedRef.current || deleteRequestsRef.current.has(planId)) return;
     if (!requireAuth()) return;
     
     if (!confirm('確定要刪除呢個餐單？')) return;
     
-    deletingIdsRef.current.add(planId);
+    const request = { active: true, controller: new AbortController() };
+    deleteRequestsRef.current.set(planId, request);
     setDeletingIds(prev => new Set(prev).add(planId));
     try {
-      const token = await getAccessToken();
+      const token = await tokenGetterRef.current();
+      if (!request.active) return;
+      if (!token) throw new Error('Missing access token');
       const res = await fetch(`/api/user/menus/${planId}`, {
         method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: { Authorization: `Bearer ${token}` },
+        signal: request.controller.signal
       });
+      if (!request.active) return;
       
       if (res.ok) {
         setPlans(prev => prev.filter(p => p.id !== planId));
@@ -114,15 +134,18 @@ export default function MyPlansPage() {
       } else {
         showToast('刪除失敗', 'error');
       }
-    } catch (err) {
-      showToast('刪除失敗', 'error');
+    } catch {
+      if (request.active) showToast('刪除失敗', 'error');
     } finally {
-      deletingIdsRef.current.delete(planId);
-      setDeletingIds(prev => {
-        const next = new Set(prev);
-        next.delete(planId);
-        return next;
-      });
+      if (request.active) {
+        deleteRequestsRef.current.delete(planId);
+        request.active = false;
+        setDeletingIds(prev => {
+          const next = new Set(prev);
+          next.delete(planId);
+          return next;
+        });
+      }
     }
   };
 
