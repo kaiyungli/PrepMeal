@@ -1,5 +1,6 @@
 // Account-scoped, shared favorites state. Writes are serialized per recipe.
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { timedFavoritesFetch } from '@/utils/favoritesTiming';
 
 const EMPTY = Object.freeze({ favorites: [], recipes: [], loaded: false, loading: false, error: null, mutationError: null, pending: [] });
 const entries = new Map();
@@ -55,7 +56,7 @@ async function load(entry, includeRecipes = false) {
   publish(entry, { loading: true, error: null });
   request.promise = (async () => {
     try {
-      const res = await fetch(`/api/user/favorites${includeRecipes ? '?include=recipes' : ''}`, {
+      const res = await timedFavoritesFetch(`/api/user/favorites${includeRecipes ? '?include=recipes' : ''}`, {
         headers: { Authorization: `Bearer ${entry.token}` }, signal: request.controller.signal,
       });
       if (!active()) return false;
@@ -106,7 +107,7 @@ function setFavorite(entry, recipeId, desired) {
         write.controller = new AbortController();
         let success = false;
         try {
-          const res = await fetch(target ? '/api/user/favorites' : `/api/user/favorites?recipe_id=${encodeURIComponent(id)}`, {
+          const res = await timedFavoritesFetch(target ? '/api/user/favorites' : `/api/user/favorites?recipe_id=${encodeURIComponent(id)}`, {
             method: target ? 'POST' : 'DELETE',
             headers: { Authorization: `Bearer ${entry.token}`, 'Content-Type': 'application/json' },
             ...(target ? { body: JSON.stringify({ recipe_id: id }) } : {}), signal: write.controller.signal,
