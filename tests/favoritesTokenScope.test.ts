@@ -4,6 +4,7 @@ import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 import { SWRConfig } from 'swr';
 import { useUserState } from '@/hooks/useUserState';
+import { invalidateFavoritesCache } from '@/hooks/useFavorites';
 
 const { auth } = vi.hoisted(() => ({ auth: {
   loading: false, isAuthenticated: true, user: { id: 'synthetic-A' } as {id:string}|null,
@@ -23,6 +24,7 @@ function setup() {
   });
 }
 beforeEach(() => {
+  invalidateFavoritesCache();
   calls.length = 0; sessionStorage.clear();
   auth.loading = false; auth.isAuthenticated = true; auth.user = {id:'synthetic-A'};
   auth.getAccessToken = () => Promise.resolve('synthetic-token-A');
@@ -32,7 +34,7 @@ beforeEach(() => {
     return {ok:true,json:async()=>({success:true,data:{favorites:[bearer === 'Bearer synthetic-token-A' ? 'A-only-recipe' : 'B-only-recipe']}})};
   }));
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); invalidateFavoritesCache(); vi.unstubAllGlobals(); });
 
 it('control: normal login loads the current account favorites', async () => {
   const {result} = setup();

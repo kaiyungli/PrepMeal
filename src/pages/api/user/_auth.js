@@ -25,7 +25,7 @@ const sharedAuthClient = createClient(
  * Extract user ID from Authorization Bearer token
  * Returns null if no valid token
  */
-export async function getUserIdFromRequest(req) {
+export async function getUserIdFromRequest(req, timing) {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -40,12 +40,14 @@ export async function getUserIdFromRequest(req) {
   
   try {
     // Primary: verify with JWKS (Supabase Auth access tokens)
-    const { payload } = await jwtVerify(token, JWKS);
+    const verify = () => jwtVerify(token, JWKS);
+    const { payload } = timing ? await timing.measure('auth_jwks', verify) : await verify();
     return payload.sub || null;
   } catch (jwksErr) {
     // Fallback: use Supabase getUser (for legacy tokens)
     try {
-      const { data: { user }, error } = await sharedAuthClient.auth.getUser(token);
+      const getUser = () => sharedAuthClient.auth.getUser(token);
+      const { data: { user }, error } = timing ? await timing.measure('auth_get_user', getUser) : await getUser();
       if (error || !user) return null;
       return user.id;
     } catch (fallbackErr) {
@@ -90,8 +92,8 @@ export const ApiResponse = {
 /**
  * Require authentication - returns userId or sends 401 response
  */
-export async function requireAuth(req, res) {
-  const userId = await getUserIdFromRequest(req);
+export async function requireAuth(req, res, timing) {
+  const userId = await getUserIdFromRequest(req, timing);
   
   if (!userId) {
     res.status(401).json(ApiResponse.unauthorized());

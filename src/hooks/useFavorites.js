@@ -1,16 +1,25 @@
 // Account-scoped, shared favorites state. Writes are serialized per recipe.
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { timedFavoritesFetch } from '@/utils/favoritesTiming';
 
 const EMPTY = Object.freeze({ favorites: [], recipes: [], loaded: false, loading: false, error: null, mutationError: null, pending: [] });
 const entries = new Map();
-function entryFor(userId) {
-  if (!entries.has(userId)) entries.set(userId, {
+const FRESH_MS = 30_000;
+const IDLE_MS = 300_000;
+function entryFor(key) {
+  if (!entries.has(key)) entries.set(key, {
+    key, loadedAt: 0, idleTimer: null,
     snapshot: EMPTY, confirmed: [], recipes: [], recipesLoaded: false,
     listeners: new Set(), consumers: 0, generation: 0, revision: 0,
     writes: new Map(), load: null, token: null,
   });
-  return entries.get(userId);
+  return entries.get(key);
+}
+export function invalidateFavoritesCache(userId) {
+  for (const [key, entry] of entries) {
+    if (userId && JSON.parse(key)[0] !== String(userId)) continue;
+    reset(entry); entries.delete(key);
+  }
 }
 function publish(entry, patch = {}) {
   const favorites = new Set(entry.confirmed);
@@ -27,15 +36,34 @@ function publish(entry, patch = {}) {
   for (const listener of entry.listeners) listener();
 }
 function retain(entry, lease) {
+  clearTimeout(entry.idleTimer); entry.idleTimer = null;
   lease.active = true;
   entry.consumers++;
-  return () => { lease.active = false; if (--entry.consumers === 0) reset(entry); };
+  return () => {
+    lease.active = false;
+    if (--entry.consumers !== 0) return;
+    // Uncertain writes must be reconciled by a fresh GET, never cached optimistically.
+    if (entry.writes.size || !entry.snapshot.loaded || entry.snapshot.error || entry.snapshot.mutationError) reset(entry);
+    else {
+      entry.generation++;
+      if (entry.load) { entry.load.active = false; entry.load.controller.abort(); }
+      entry.load = null; entry.token = null;
+      publish(entry, { loading: false });
+    }
+    entry.idleTimer = setTimeout(() => {
+      if (entry.consumers === 0) {
+        reset(entry);
+        if (entries.get(entry.key) === entry) entries.delete(entry.key);
+      }
+    }, IDLE_MS);
+  };
 }
 function configure(entry, token, includeRecipes) {
   entry.token = token;
-  if (!entry.snapshot.loaded || (includeRecipes && !entry.recipesLoaded)) void load(entry, includeRecipes);
+  if (!entry.snapshot.loaded || Date.now() - entry.loadedAt >= FRESH_MS || (includeRecipes && !entry.recipesLoaded)) void load(entry, includeRecipes);
 }
 function reset(entry) {
+  clearTimeout(entry.idleTimer); entry.idleTimer = null; entry.loadedAt = 0;
   entry.generation++;
   if (entry.load) { entry.load.active = false; entry.load.controller.abort(); }
   for (const write of entry.writes.values()) { write.active = false; write.controller?.abort(); }
@@ -70,6 +98,11 @@ async function load(entry, includeRecipes = false) {
       if (entry.revision !== request.revision) { request.retry = true; return false; }
       entry.confirmed = data.data.favorites.map(String);
       if (includeRecipes) { entry.recipes = data.data.recipes; entry.recipesLoaded = true; }
+      else {
+        const knownRecipes = new Set(entry.recipes.map(recipe => String(recipe.id)));
+        if (entry.confirmed.some(id => !knownRecipes.has(id))) entry.recipesLoaded = false;
+      }
+      entry.loadedAt = Date.now();
       publish(entry, { loaded: true });
       return true;
     } catch {
@@ -122,7 +155,10 @@ function setFavorite(entry, recipeId, desired) {
         } catch { if (!active()) return false; }
         if (success) {
           entry.confirmed = entry.confirmed.filter(value => value !== id);
-          if (target) entry.confirmed.push(id);
+          if (target) {
+            entry.confirmed.push(id);
+            if (!entry.recipes.some(recipe => String(recipe.id) === id)) entry.recipesLoaded = false;
+          }
         }
         if (write.desired !== target) { publish(entry); continue; }
         if (!success) publish(entry, { mutationError: '收藏更新失敗，請重試' });
@@ -139,8 +175,8 @@ function setFavorite(entry, recipeId, desired) {
   return write.promise;
 }
 
-export function useFavorites(token, userId, { includeRecipes = false } = {}) {
-  const entry = useMemo(() => userId ? entryFor(String(userId)) : null, [userId]);
+export function useFavorites(token, userId, { includeRecipes = false, sessionKey = 0 } = {}) {
+  const entry = useMemo(() => userId ? entryFor(JSON.stringify([String(userId), sessionKey])) : null, [userId, sessionKey]);
   const enabled = Boolean(token && userId);
   const lease = useMemo(() => ({ entry, enabled, active: false }), [entry, enabled]);
   const subscribe = useCallback(listener => {
@@ -149,6 +185,7 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
     return () => entry.listeners.delete(listener);
   }, [entry]);
   const snapshot = useSyncExternalStore(subscribe, () => entry?.snapshot || EMPTY, () => EMPTY);
+  const recipesReady = Boolean(entry?.recipesLoaded);
   useEffect(() => {
     if (!entry || !enabled) return;
     return retain(entry, lease);
@@ -156,7 +193,7 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
   useEffect(() => {
     if (!entry || !enabled) return;
     configure(entry, token, includeRecipes);
-  }, [entry, enabled, token, includeRecipes]);
+  }, [entry, enabled, token, includeRecipes, recipesReady]);
   const view = enabled ? snapshot : EMPTY;
   const favoriteSet = useMemo(() => new Set(view.favorites), [view.favorites]);
   const pendingSet = useMemo(() => new Set(view.pending), [view.pending]);
@@ -170,8 +207,9 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
     return setFavorite(entry, id, desired);
   }, [entry, enabled, lease]);
   const retry = useCallback(() => enabled && lease.active ? load(entry, includeRecipes) : Promise.resolve(false), [entry, enabled, includeRecipes, lease]);
+  const hasLoaded = view.loaded && (!includeRecipes || Boolean(entry?.recipesLoaded));
   return { favorites: view.favorites, recipes,
-    loading: enabled && (!view.loaded && !view.error || view.loading), error: view.error,
+    loading: enabled && !hasLoaded && !view.error, hasLoaded, refreshing: enabled && hasLoaded && view.loading, error: view.error,
     mutationError: view.mutationError, isFavorite, isPending, toggleFavorite, setFavorite: updateFavorite, retry };
 }
 
@@ -179,7 +217,14 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
 export function useAccountFavorites(auth, { skipFavorites = false, includeRecipes = false } = {}) {
   const { getAccessToken } = auth;
   const enabled = !skipFavorites && !auth.loading && auth.isAuthenticated && Boolean(auth.user?.id);
-  const scope = JSON.stringify([enabled, auth.user?.id]);
+  const scope = JSON.stringify([enabled, auth.user?.id, auth.favoritesEpoch || 0]);
+  const previousAccount = useRef(auth.user?.id);
+  useEffect(() => {
+    if (auth.loading) return;
+    if (!auth.isAuthenticated) invalidateFavoritesCache();
+    else if (previousAccount.current && previousAccount.current !== auth.user?.id) invalidateFavoritesCache(previousAccount.current);
+    previousAccount.current = auth.user?.id;
+  }, [auth.loading, auth.isAuthenticated, auth.user?.id]);
   const [tokenAttempt, setTokenAttempt] = useState(0);
   const [resolved, setResolved] = useState({ scope: null, token: null, error: null });
   useEffect(() => {
@@ -191,7 +236,7 @@ export function useAccountFavorites(auth, { skipFavorites = false, includeRecipe
     return () => { active = false; };
   }, [enabled, scope, getAccessToken, tokenAttempt]);
   const current = enabled && resolved.scope === scope;
-  const favorites = useFavorites(current ? resolved.token : null, auth.user?.id, { includeRecipes });
+  const favorites = useFavorites(current ? resolved.token : null, auth.user?.id, { includeRecipes, sessionKey: auth.favoritesEpoch || 0 });
   const { retry: retryFavorites } = favorites;
   const retry = useCallback(() => {
     if (!enabled) return Promise.resolve(false);

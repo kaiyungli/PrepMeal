@@ -19,8 +19,25 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
   const start = startFavoritesTiming();
   let status = 0;
   try {
-    const response = await fetch(input, init);
+    let options = init;
+    if (start !== null) {
+      const headers = new Headers(init.headers);
+      headers.set('X-PrepMeal-Favorites-Perf', '1');
+      options = { ...init, headers };
+    }
+    const response = await fetch(input, options);
     status = response.status;
+    if (start !== null) {
+      try {
+        const stages: Record<string, number> = {};
+        const header = response.headers?.get('Server-Timing') || '';
+        for (const stage of ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler']) {
+          const value = header.split(',').map(part => part.trim()).find(part => part.startsWith(stage + ';dur='));
+          if (value) { const duration = Number(value.slice(stage.length + 5)); if (Number.isFinite(duration) && duration >= 0) stages[stage] = duration; }
+        }
+        if (Object.keys(stages).length) console.info('[favorites-perf] ' + JSON.stringify({ event: 'server_stages', method: init.method || 'GET', status, stages }));
+      } catch { /* Diagnostics must not affect fetch results. */ }
+    }
     return response;
   } finally {
     finishFavoritesTiming(start, 'request_headers', init.method || 'GET', status);

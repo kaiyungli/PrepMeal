@@ -5,7 +5,7 @@ type Recipe = {id:string;name:string};
 type Reply = {ok:boolean;status:number;json:()=>Promise<unknown>};
 import {SWRConfig} from 'swr';
 import FavoritesPage from '@/pages/favorites';
-import {useFavorites} from '@/hooks/useFavorites';
+import {useFavorites,invalidateFavoritesCache} from '@/hooks/useFavorites';
 
 const {auth} = vi.hoisted(()=>({auth:{loading:false,isAuthenticated:true,user:{id:'synthetic-A'} as {id:string}|null,getAccessToken:async():Promise<string|null>=>'synthetic-token-A'}}));
 vi.mock('@/hooks/useAuthGuard',()=>({useAuthGuard:()=>auth}));
@@ -27,6 +27,7 @@ async function open(){const view=render(createElement(FavoritesPage));await wait
 async function remove(id:string){fireEvent.click(screen.getByRole('button',{name:`Recipe ${id}`}));await waitFor(()=>expect(deletes).toContain(id));}
 async function settle(id:string,status:number){await act(async()=>pending.get(id)!(reply(status)));}
 beforeEach(()=>{
+  invalidateFavoritesCache();
   pending.clear();deletes=[];listResult=reply(200,list());tokenB=false;sessionStorage.clear();
   auth.loading=false;auth.isAuthenticated=true;auth.user={id:'synthetic-A'};auth.getAccessToken=async()=>tokenB?'synthetic-token-B':'synthetic-token-A';
   vi.spyOn(console,'error').mockImplementation(()=>{});
@@ -35,7 +36,7 @@ beforeEach(()=>{
     return listResult;
   }));
 });
-afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
+afterEach(()=>{cleanup();invalidateFavoritesCache();vi.restoreAllMocks();vi.unstubAllGlobals();});
 
 it('control: normal list loads and a successful removal keeps the other cards',async()=>{
   await open();await remove('A');await settle('A',200);expect(cards()).toEqual(['Recipe B','Recipe C']);
@@ -203,4 +204,17 @@ it('token refresh keeps the current list and uses the new token for subsequent w
   const init=vi.mocked(fetch).mock.calls.at(-1)![1];
   expect((init?.headers as Record<string,string>).Authorization).toBe('Bearer synthetic-token-B');
   await settle('A',200);await operation!;
+});
+it('expired favorites remain visible during background refresh and after its failure',async()=>{
+  const now=vi.spyOn(Date,'now').mockReturnValue(1000);
+  const view=await open();view.unmount();now.mockReturnValue(31_000);
+  let complete!:(r:Reply)=>void;
+  vi.mocked(fetch).mockImplementationOnce(()=>new Promise(resolve=>{complete=resolve;}) as never);
+  render(createElement(FavoritesPage));await screen.findByRole('button',{name:'Recipe A'});
+  await screen.findByText('正在更新收藏...');
+  await act(async()=>{complete(reply(500));});
+  await screen.findByText('收藏載入失敗，請重試');
+  expect(screen.getByRole('button',{name:'Recipe A'})).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'重試'}));
+  await waitFor(()=>expect(screen.queryByText('收藏載入失敗，請重試')).toBeNull());
 });

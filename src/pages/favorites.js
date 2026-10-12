@@ -20,7 +20,7 @@ export default function FavoritesPage() {
 
 function AccountFavoritesPage({ auth, headerCtrl, authLoading }) {
   const { isAuthenticated } = auth;
-  const { recipes: favoriteRecipes, loading, error, mutationError, isFavorite, isPending, setFavorite, retry } = useAccountFavorites(auth, { includeRecipes: true });
+  const { recipes: favoriteRecipes, loading, hasLoaded, refreshing, error, mutationError, isFavorite, isPending, setFavorite, retry } = useAccountFavorites(auth, { includeRecipes: true });
   const handleFavoriteClick = (id) => setFavorite(id, false);
   const timing = useRef(null);
   useEffect(() => { timing.current = startFavoritesTiming(); }, []);
@@ -99,7 +99,9 @@ function AccountFavoritesPage({ auth, headerCtrl, authLoading }) {
           )}
 
           {mutationError && <p role="alert" className="text-red-700 mb-4">{mutationError}</p>}
-          {error ? (
+          {refreshing && <p role="status" className="text-[#7A746B] mb-4">正在更新收藏...</p>}
+          {error && hasLoaded && <div role="alert" className="text-red-700 mb-4">{error} <button onClick={retry} className="underline">重試</button></div>}
+          {error && !hasLoaded ? (
             <div className="text-center py-20" role="alert">
               <p className="text-red-700 mb-4">{error}</p>
               <button onClick={retry} className="text-[#9B6035] font-medium hover:underline">重試</button>

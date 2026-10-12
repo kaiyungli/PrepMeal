@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
  * Returns both auth state and getAccessToken for convenience
  */
 export function useAuthGuard() {
-  const { isAuthenticated, loading, user, getAccessToken } = useAuth();
+  const { isAuthenticated, loading, user, getAccessToken, favoritesEpoch } = useAuth();
   const router = useRouter();
 
   // Standard redirect - use this in pages that need protection
@@ -40,6 +40,7 @@ export function useAuthGuard() {
     loading,
     user,
     getAccessToken,
+    favoritesEpoch,
     requireAuth,
   };
 }
