@@ -55,6 +55,7 @@ export default function Header({
         aria-current={isActive ? 'page' : undefined}
         onClick={() => isMobile && setMenuOpen(false)}
         onPointerEnter={link.path === '/favorites' ? onFavoritesIntent : undefined}
+        onTouchStart={link.path === '/favorites' ? onFavoritesIntent : undefined}
         onFocus={link.path === '/favorites' ? onFavoritesIntent : undefined}
       >
         {link.label}
