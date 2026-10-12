@@ -3,6 +3,7 @@ export type BenchmarkSample = {
   phase: BenchmarkPhase; status: number; headers_ms: number; complete_ms: number;
   idle_ms?: number; stages: Record<string, number>;
   runtime?: { region: string; module_age_ms: number; module_request: number };
+  rest?: { version: 1; fetch_count: number; native_request_count: number; sent_count: number; body_read_count: number; previously_seen_socket_count: number };
 };
 export const IDLE_MS = 300_000;
 export function benchmarkSummary(samples: BenchmarkSample[]) {
@@ -13,13 +14,18 @@ export function benchmarkSummary(samples: BenchmarkSample[]) {
   };
   return (['first', 'consecutive', 'after_idle', 'after_idle_consecutive'] as BenchmarkPhase[]).map(phase => {
     const group = samples.filter(sample => sample.phase === phase);
-    return { phase, count: group.length, headers_ms: median(group.map(sample => sample.headers_ms)),
+    const restParts = Object.fromEntries(['rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_body_read', 'rest_sdk_gap'].flatMap(stage => {
+      const value = median(group.flatMap(sample => typeof sample.stages[stage] === 'number' ? [sample.stages[stage]] : []));
+      return value === null ? [] : [[stage, value]];
+    }));
+    return { phase, count: group.length, ...(Object.keys(restParts).length ? { rest_parts: restParts } : {}), headers_ms: median(group.map(sample => sample.headers_ms)),
       auth_ms: median(group.flatMap(sample => typeof sample.stages.auth === 'number' ? [sample.stages.auth] : [])),
       db_ms: median(group.flatMap(sample => typeof sample.stages.db_request === 'number' ? [sample.stages.db_request] : [])) };
   });
 }
-const STAGES = ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler'];
-export function readBenchmarkHeaders(headers: Headers): Pick<BenchmarkSample, 'stages' | 'runtime'> {
+const STAGES = ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler',
+  'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap'];
+export function readBenchmarkHeaders(headers: Headers): Pick<BenchmarkSample, 'stages' | 'runtime' | 'rest'> {
   const stages: Record<string, number> = {};
   for (const part of (headers.get('Server-Timing') || '').split(',')) {
     const match = part.trim().match(/^([a-z_]+);dur=([\d.]+)$/);
@@ -27,15 +33,24 @@ export function readBenchmarkHeaders(headers: Headers): Pick<BenchmarkSample, 's
       const value = Number(match[2]); if (Number.isFinite(value) && value >= 0) stages[match[1]] = value;
     }
   }
+  let rest: BenchmarkSample['rest'];
+  try {
+    const raw = JSON.parse(headers.get('X-PrepMeal-Favorites-Rest') || 'null');
+    const keys = ['fetch_count', 'native_request_count', 'sent_count', 'body_read_count', 'previously_seen_socket_count'] as const;
+    if (raw?.version === 1 && keys.every(key => Number.isSafeInteger(raw[key]) && raw[key] >= 0 && raw[key] <= 1000)) {
+      rest = { version: 1, fetch_count: raw.fetch_count, native_request_count: raw.native_request_count,
+        sent_count: raw.sent_count, body_read_count: raw.body_read_count, previously_seen_socket_count: raw.previously_seen_socket_count };
+    }
+  } catch { /* Invalid coverage is unknown, never invented. */ }
   try {
     const raw = JSON.parse(headers.get('X-PrepMeal-Favorites-Runtime') || 'null');
     if ((raw?.region === 'unknown' || /^[a-z]{3}\d{1,2}$/.test(raw?.region)) &&
         typeof raw.module_age_ms === 'number' && Number.isFinite(raw.module_age_ms) && raw.module_age_ms >= 0 &&
         Number.isSafeInteger(raw.module_request) && raw.module_request > 0) {
-      return { stages, runtime: { region: raw.region, module_age_ms: raw.module_age_ms, module_request: raw.module_request } };
+      return { stages, ...(rest ? { rest } : {}), runtime: { region: raw.region, module_age_ms: raw.module_age_ms, module_request: raw.module_request } };
     }
   } catch { /* Ignore invalid diagnostic metadata. */ }
-  return { stages };
+  return { stages, ...(rest ? { rest } : {}) };
 }
 const stopped = () => new Error('量度已停止');
 function waitIdle(signal: AbortSignal) {

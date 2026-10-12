@@ -40,7 +40,7 @@ export function BenchmarkPanel({ auth }) {
   };
   const stop = () => { active.current?.abort(); setLabel('已停止；仍可匯出已完成嘅樣本。'); };
   const exportResults = () => {
-    const payload = { schema: 'prepmeal-favorites-benchmark-v1', complete: samples.length === 22,
+    const payload = { schema: 'prepmeal-favorites-benchmark-v2', complete: samples.length === 22,
       note: 'Direct GET tests; first is first test request, not proof of a cold start. No credentials or recipe data.', samples };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const file = new File([blob], 'PrepMeal_Favorites_Measurement.json', { type: blob.type });
@@ -66,8 +66,12 @@ export function BenchmarkPanel({ auth }) {
         <p className="font-medium">{{ first: '第一個測試請求', consecutive: '連續請求', after_idle: '閒置後第一個請求', after_idle_consecutive: '閒置後連續請求' }[group.phase]}（{group.count} 次）</p>
         <p>GET 等待中位數：{group.headers_ms}ms</p>
         <p className="text-sm text-[#7A746B]">認證：{group.auth_ms ?? '未量度'}{group.auth_ms === null ? '' : 'ms'} · 資料 REST：{group.db_ms ?? '未量度'}{group.db_ms === null ? '' : 'ms'}</p>
+        {group.rest_parts && <dl className="text-sm mt-2">{Object.entries(group.rest_parts).map(([stage, value]) => <div key={stage}>
+          <dt className="inline">{{ rest_fetch_headers: 'REST fetch 至 headers', rest_dispatch: '送出前等待', rest_wait_headers: '送出至回應 headers', rest_body_read: '讀取 body', rest_sdk_gap: 'SDK 餘下處理（含解析）' }[stage]}：</dt><dd className="inline">{value}ms</dd>
+        </div>)}</dl>}
+        {group.rest_parts && <p className="text-sm">底層送出事件：{samples.filter(sample => sample.phase === group.phase && sample.rest?.sent_count > 0).length}/{group.count} 次觀察到</p>}
       </div>)}
-      <p className="text-sm">匯出唔方便，可以截圖呢個摘要傳返嚟。REST 時間包含資料服務往返，唔係純 SQL 時間。</p>
+      <p className="text-sm">匯出唔方便，可以截圖呢個摘要傳返嚟。REST 時間包含資料服務往返，唔係純 SQL 時間。分段有重疊，唔可以全部相加；未支援嘅量度會省略。</p>
     </div>}
     <p className="text-sm">結果只含耗時、HTTP 狀態、伺服器區域同請求次序；唔含密碼、登入 token、帳戶或收藏內容。匯出後可以將檔案傳返呢個對話。</p>
   </section>;
