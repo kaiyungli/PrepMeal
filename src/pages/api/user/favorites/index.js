@@ -39,13 +39,23 @@ export default async function handler(req, res) {
     
     // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
+      const readPath = req.query.read_path ?? 'rest';
+      if (req.query.read_path !== undefined &&
+          (!timing.enabled || req.query.include !== 'recipes' || !['rest', 'rpc'].includes(readPath))) {
+        return res.status(400).json(ApiResponse.badRequest('Invalid diagnostic read path'));
+      }
+      if (readPath === 'rpc' && process.env.FAVORITES_RPC_COMPARISON_ENABLED !== '1') {
+        return res.status(503).json(ApiResponse.error('RPC comparison is not enabled'));
+      }
       if (!serverSupabase) {
         return res.status(500).json(ApiResponse.error('Service role client not configured'));
       }
       
       // Branch BEFORE querying - single query only
       if (req.query.include === 'recipes') {
-        const { data: joinData, error: joinError } = await timing.measure('db_request', () => measureFavoritesRest(timing, () => serverSupabase
+        const { data: joinData, error: joinError } = await timing.measure('db_request', () => measureFavoritesRest(timing, () => readPath === 'rpc'
+          ? serverSupabase.rpc('get_favorites_recipes_comparison', { p_user_id: userId }, { get: true })
+          : serverSupabase
           .from('user_favorites')
           .select(`
             recipe_id,
@@ -79,11 +89,19 @@ export default async function handler(req, res) {
           .eq('user_id', userId)));
         
         if (joinError) {
+          if (readPath === 'rpc') {
+            // No silent REST fallback: a failed experiment is not a valid RPC sample.
+            return res.status(500).json(ApiResponse.error('RPC comparison read failed'));
+          }
           console.error('[favorites-api] join_error', {
             message: joinError.message,
             details: joinError
           });
           return res.status(500).json(ApiResponse.error(joinError.message));
+        }
+        if (timing.enabled) {
+          res.setHeader?.('X-PrepMeal-Favorites-Read-Path', readPath);
+          res.setHeader?.('Cache-Control', 'private, no-store');
         }
         
         const result = timing.prepare(() => {
@@ -168,6 +186,9 @@ export default async function handler(req, res) {
     return res.status(405).json(ApiResponse.methodNotAllowed());
     
   } catch (err) {
+    if (req.method === 'GET' && req.query.read_path === 'rpc') {
+      return res.status(500).json(ApiResponse.error('RPC comparison read failed'));
+    }
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
   }
 }
