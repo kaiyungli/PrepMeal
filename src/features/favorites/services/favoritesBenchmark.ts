@@ -1,7 +1,9 @@
+import { observeClientTiming, type ClientTiming } from './favoritesClientTiming';
 export type BenchmarkPhase = 'first' | 'consecutive' | 'after_idle' | 'after_idle_consecutive';
 export type BenchmarkSample = {
   phase: BenchmarkPhase; status: number; headers_ms: number; complete_ms: number;
   idle_ms?: number; stages: Record<string, number>;
+  client?: ClientTiming;
   runtime?: { region: string; module_age_ms: number; module_request: number };
   rest?: { version: 1; fetch_count: number; native_request_count: number; sent_count: number; body_read_count: number; previously_seen_socket_count: number };
 };
@@ -72,6 +74,7 @@ export async function runFavoritesBenchmark(options: {
     const controller = new AbortController();
     const stop = () => controller.abort(); signal.addEventListener('abort', stop, { once: true });
     const timer = setTimeout(stop, 15_000);
+    let observation: ReturnType<typeof observeClientTiming> | undefined;
     let rejectAbort!: () => void;
     const aborted = new Promise<never>((_resolve, reject) => {
       rejectAbort = () => reject(new Error(signal.aborted ? '量度已停止' : '請求逾時，請重試'));
@@ -85,21 +88,25 @@ export async function runFavoritesBenchmark(options: {
         if (controller.signal.aborted) throw stopped();
         if (!token) throw new Error('登入已失效，請重新登入');
         const start = performance.now();
+        observation = observeClientTiming('/api/user/favorites?include=recipes', start);
         const response = await fetch('/api/user/favorites?include=recipes', {
           method: 'GET', cache: 'no-store', signal: controller.signal,
           headers: { Authorization: `Bearer ${token}`, 'X-PrepMeal-Favorites-Perf': '1' },
         });
-        const headersMs = performance.now() - start;
+        const headersAt = performance.now(); const headersMs = headersAt - start;
         if (!response.ok) throw new Error(response.status === 401 ? '登入已失效，請重新登入' : '收藏讀取失敗，請重試');
         const body = await response.json();
         if (!body?.success || !Array.isArray(body?.data?.favorites) || !Array.isArray(body?.data?.recipes)) throw new Error('收藏回應不完整，請重試');
+        const bodyAt = performance.now();
         return { phase, status: response.status, headers_ms: Math.round(headersMs * 100) / 100,
-          complete_ms: Math.round((performance.now() - start) * 100) / 100,
+          complete_ms: Math.round((bodyAt - start) * 100) / 100,
+          client: observation.read(headersAt, bodyAt, response.headers),
           ...(idleStart === undefined ? {} : { idle_ms: Math.round((start - idleStart) * 100) / 100 }),
           ...readBenchmarkHeaders(response.headers) };
       })()]);
       check(); options.onSample(sample);
     } finally {
+      observation?.stop();
       clearTimeout(timer); signal.removeEventListener('abort', stop);
       controller.signal.removeEventListener('abort', rejectAbort);
     }

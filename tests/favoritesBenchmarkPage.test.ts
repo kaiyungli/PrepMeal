@@ -33,7 +33,7 @@ it('exports the completed phone run without credentials, account IDs or favorite
   expect(screen.getByRole('status').textContent).toContain('22/22');
   fireEvent.click(screen.getByRole('button', { name: '匯出結果' }));
   const exported = JSON.parse(await (makeUrl.mock.calls as unknown as [NodeBlob][])[0][0].text());
-  expect(exported.schema).toBe('prepmeal-favorites-benchmark-v2');
+  expect(exported.schema).toBe('prepmeal-favorites-benchmark-v3');
   expect(exported.complete).toBe(true); expect(exported.samples).toHaveLength(22);
   expect(JSON.stringify(exported)).not.toMatch(/synthetic-token|synthetic-owner|private-id|Authorization/);
   expect(click).toHaveBeenCalledTimes(1);
@@ -66,7 +66,7 @@ it('phone comparison exports 24 balanced safe samples after explicit start', asy
   expect(screen.getByLabelText('REST／RPC 對照摘要').textContent).toContain('RPC（12 次）');
   fireEvent.click(screen.getByRole('button', { name: '匯出結果' }));
   const exported = JSON.parse(await (makeUrl.mock.calls as unknown as [NodeBlob][])[0][0].text());
-  expect(exported.schema).toBe('prepmeal-favorites-comparison-v1'); expect(exported.complete).toBe(true);
+  expect(exported.schema).toBe('prepmeal-favorites-comparison-v2'); expect(exported.complete).toBe(true);
   expect(JSON.stringify(exported)).not.toMatch(/private-id|synthetic-token|synthetic-owner|Authorization/);
 });
 it('switching accounts cancels a stalled comparison and resets its samples', async () => {

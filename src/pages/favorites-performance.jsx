@@ -42,7 +42,7 @@ export function BenchmarkPanel({ auth }) {
   };
   const stop = () => { active.current?.abort(); setLabel('已停止；仍可匯出已完成嘅樣本。'); };
   const exportResults = () => {
-    const payload = { schema: comparison ? 'prepmeal-favorites-comparison-v1' : 'prepmeal-favorites-benchmark-v2',
+    const payload = { schema: comparison ? 'prepmeal-favorites-comparison-v2' : 'prepmeal-favorites-benchmark-v3',
       complete: samples.length === (comparison ? COMPARISON_SAMPLES : 22),
       note: comparison ? 'Six alternating ABBA/BAAB blocks. Matching payloads checked in memory. Consecutive comparison, not an idle/cold-start test. No credentials or recipe data.' :
         'Direct GET tests; first is first test request, not proof of a cold start. No credentials or recipe data.', samples };
@@ -73,6 +73,9 @@ export function BenchmarkPanel({ auth }) {
           <p>GET 等待中位數：{group.headers_ms}ms · 資料 REST：{group.db_ms ?? '未量度'}{group.db_ms === null ? '' : 'ms'}</p></div>;
       })}
       <p className="text-sm">已完成組別嘅返回內容一致；如果中途停止，只會匯出完整組別。先後次序已交錯，仍需多輪結果先判斷改善。</p>
+      <p className="text-sm">手機網路分段：{samples.filter(sample => sample.client?.coverage === 'matched').length}/{samples.length} 次可用。
+        路由區域：{[...new Set(samples.flatMap(sample => sample.client?.routing_regions || []))].join('、') || '未有標記'}。
+        詳細數字會匯出；未支援或未能確認嘅分段會省略。</p>
     </div>}
     {!comparison && samples.length > 0 && <div className="space-y-3" aria-label="量度摘要">
       <p>伺服器區域：{[...new Set(samples.map(sample => sample.runtime?.region).filter(Boolean))].join('、') || '未有區域標記'}</p>
@@ -87,6 +90,6 @@ export function BenchmarkPanel({ auth }) {
       </div>)}
       <p className="text-sm">匯出唔方便，可以截圖呢個摘要傳返嚟。REST 時間包含資料服務往返，唔係純 SQL 時間。分段有重疊，唔可以全部相加；未支援嘅量度會省略。</p>
     </div>}
-    <p className="text-sm">結果只含耗時、HTTP 狀態、伺服器區域同請求次序；唔含密碼、登入 token、帳戶或收藏內容。匯出後可以將檔案傳返呢個對話。</p>
+    <p className="text-sm">結果只含耗時、HTTP 狀態、網路分段、區域同請求次序；唔含網址、密碼、登入 token、帳戶或收藏內容。匯出後可以將檔案傳返呢個對話。</p>
   </section>;
 }
