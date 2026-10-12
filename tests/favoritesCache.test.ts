@@ -24,6 +24,19 @@ it('expired cache stays visible while one background GET updates it', async () =
   expect(fetch).toHaveBeenCalledTimes(2);
   await act(async () => { complete(response(['C'])); }); expect(next.result.current.recipes.map((r: { id: string }) => r.id)).toEqual(['C']);
 });
+it('an ID-only refresh cannot renew the lifetime of old complete recipe metadata', async () => {
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+  const first = mount(); await waitFor(() => expect(first.result.current.hasLoaded).toBe(true)); first.unmount();
+  now.mockReturnValue(31_000); const ids = mount(1, false);
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2)); await act(async () => {}); ids.unmount();
+  let complete!: (v: unknown) => void;
+  vi.mocked(fetch).mockImplementationOnce(() => new Promise(resolve => { complete = resolve; }) as never);
+  now.mockReturnValue(32_000); const next = mount();
+  expect(next.result.current.recipes).toHaveLength(2); expect(next.result.current.loading).toBe(false);
+  expect(next.result.current.refreshing).toBe(true); expect(fetch).toHaveBeenCalledTimes(3);
+  expect(vi.mocked(fetch).mock.calls.at(-1)?.[0]).toBe('/api/user/favorites?include=recipes');
+  await act(async () => { complete(response(['C'])); }); expect(next.result.current.favorites).toEqual(['C']);
+});
 it('background failure retains confirmed data and retry repairs the error', async () => {
   const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
   const first = mount(); await waitFor(() => expect(first.result.current.hasLoaded).toBe(true)); first.unmount();
