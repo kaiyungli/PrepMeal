@@ -46,3 +46,21 @@ it('opt-in sends the timing header and parses only fixed numeric server stages',
   expect(headers.get('X-PrepMeal-Favorites-Perf')).toBe('1'); expect(headers.get('Authorization')).toBe('synthetic-token');
   expect(log.mock.calls[0][0]).toBe('[favorites-perf] {"event":"server_stages","method":"GET","status":200,"stages":{"auth":4,"auth_jwks":2,"db_request":40,"handler":45}}');
 });
+it('runtime diagnostics log only validated fields, omitting arbitrary header data', async () => {
+  browser('?perf=favorites'); const log = vi.spyOn(console, 'info').mockImplementation(() => {});
+  const response = new Response('{}', { headers: { 'X-PrepMeal-Favorites-Runtime': JSON.stringify({
+    region: 'syd1', module_age_ms: 12.3, module_request: 2, token: 'synthetic-secret', user_id: 'private-id',
+  }) } });
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+  expect(await timedFavoritesFetch('/api/user/favorites', {})).toBe(response);
+  expect(log.mock.calls[0][0]).toBe('[favorites-perf] {"event":"runtime","method":"GET","status":200,"region":"syd1","module_age_ms":12.3,"module_request":2}');
+  expect(JSON.stringify(log.mock.calls)).not.toMatch(/secret|private-id/);
+});
+it.each(['not-json', '{"region":"private-id","module_age_ms":1,"module_request":1}',
+  '{"region":"syd1","module_age_ms":-1,"module_request":1}', '{"region":"syd1","module_age_ms":1,"module_request":0}'])('invalid runtime header is silent and preserves responses (%s)', async header => {
+  browser('?perf=favorites'); const log = vi.spyOn(console, 'info').mockImplementation(() => {});
+  const response = new Response('{}', { headers: { 'X-PrepMeal-Favorites-Runtime': header } });
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+  expect(await timedFavoritesFetch('/api/user/favorites', {})).toBe(response);
+  expect(log).toHaveBeenCalledExactlyOnceWith('[favorites-perf] {"event":"request_headers","method":"GET","status":200,"duration_ms":25}');
+});

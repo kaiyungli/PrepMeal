@@ -41,6 +41,16 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
           if (value) { const duration = Number(value.slice(stage.length + 5)); if (Number.isFinite(duration) && duration >= 0) stages[stage] = duration; }
         }
         if (Object.keys(stages).length) console.info('[favorites-perf] ' + JSON.stringify({ event: 'server_stages', method: init.method || 'GET', status, stages }));
+        const rawRuntime = response.headers?.get('X-PrepMeal-Favorites-Runtime');
+        if (rawRuntime) {
+          const runtime = JSON.parse(rawRuntime);
+          if ((runtime?.region === 'unknown' || /^[a-z]{3}\d{1,2}$/.test(runtime?.region)) &&
+              typeof runtime.module_age_ms === 'number' && Number.isFinite(runtime.module_age_ms) && runtime.module_age_ms >= 0 &&
+              Number.isSafeInteger(runtime.module_request) && runtime.module_request >= 1) {
+            console.info('[favorites-perf] ' + JSON.stringify({ event: 'runtime', method: init.method || 'GET', status,
+              region: runtime.region, module_age_ms: runtime.module_age_ms, module_request: runtime.module_request }));
+          }
+        }
       } catch { /* Diagnostics must not affect fetch results. */ }
     }
     return response;
