@@ -1,8 +1,13 @@
 // Opt-in, browser-local timings. Never log URLs, tokens, IDs or response data.
+let enabledForDocument = false;
 export function startFavoritesTiming(): number | null {
   try {
-    if (typeof window === 'undefined' || new URLSearchParams(window.location.search).get('perf') !== 'favorites') return null;
-    return window.performance.now();
+    if (typeof window === 'undefined') return null;
+    const mode = new URLSearchParams(window.location.search).get('perf');
+    if (mode === 'favorites') enabledForDocument = true;
+    if (mode === 'off') enabledForDocument = false;
+    // Keep explicit opt-in during SPA navigation; reload closes this diagnostic session.
+    return enabledForDocument ? window.performance.now() : null;
   } catch { return null; }
 }
 
