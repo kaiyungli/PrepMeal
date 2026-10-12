@@ -53,6 +53,18 @@ it('a fresh ID-only cache still fetches full recipes rather than falsely showing
   await act(async () => { complete(response(['A'])); }); expect(next.result.current.recipes).toHaveLength(1);
   expect(vi.mocked(fetch).mock.calls.at(-1)?.[0]).toBe('/api/user/favorites?include=recipes');
 });
+it('a verified empty ID-only list is a full empty cache and avoids a second recipe GET', async () => {
+  vi.mocked(fetch).mockResolvedValueOnce(response([]) as never);
+  const ids = mount(1, false); await waitFor(() => expect(ids.result.current.hasLoaded).toBe(true)); ids.unmount();
+  const full = mount(); expect(full.result.current.hasLoaded).toBe(true); expect(full.result.current.loading).toBe(false);
+  expect(full.result.current.recipes).toEqual([]); await act(async () => {}); expect(fetch).toHaveBeenCalledTimes(1);
+});
+it('an empty shortcut still expires after 30 seconds and rechecks newly added remote favorites', async () => {
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000); vi.mocked(fetch).mockResolvedValueOnce(response([]) as never);
+  const ids = mount(1, false); await waitFor(() => expect(ids.result.current.hasLoaded).toBe(true)); ids.unmount();
+  now.mockReturnValue(31_001); const full = mount();
+  await waitFor(() => expect(full.result.current.recipes).toHaveLength(2)); expect(fetch).toHaveBeenCalledTimes(2);
+});
 it('a successful write updates the confirmed cache for the next page', async () => {
   const first = mount(); await waitFor(() => expect(first.result.current.hasLoaded).toBe(true));
   vi.mocked(fetch).mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ success: true }) } as never);

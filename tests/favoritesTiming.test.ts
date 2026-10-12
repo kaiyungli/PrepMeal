@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { timedFavoritesFetch } from '@/utils/favoritesTiming';
-afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+import { startFavoritesTiming, timedFavoritesFetch } from '@/utils/favoritesTiming';
+afterEach(() => { browser('?perf=off'); startFavoritesTiming(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 function browser(search: string) {
   let tick = 10;
   vi.stubGlobal('window', { location: { search }, performance: { now: () => (tick += 25) } });
@@ -13,6 +13,12 @@ it('is silent by default and preserves response, credentials and abort signal', 
   expect(await timedFavoritesFetch('/api/user/favorites?recipe_id=private-id', options)).toBe(response);
   expect(fetcher).toHaveBeenCalledWith('/api/user/favorites?recipe_id=private-id', options);
   expect(log).not.toHaveBeenCalled();
+});
+it('explicit timing opt-in survives SPA navigation and can be turned off without persisted storage', () => {
+  browser('?perf=favorites'); expect(startFavoritesTiming()).not.toBeNull();
+  browser(''); expect(startFavoritesTiming()).not.toBeNull();
+  browser('?perf=off'); expect(startFavoritesTiming()).toBeNull();
+  browser(''); expect(startFavoritesTiming()).toBeNull();
 });
 it('opt-in timings contain only fixed metric labels, method, status and duration', async () => {
   browser('?perf=favorites'); const log = vi.spyOn(console, 'info').mockImplementation(() => {});

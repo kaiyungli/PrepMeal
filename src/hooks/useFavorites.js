@@ -58,10 +58,13 @@ function retain(entry, lease) {
     }, IDLE_MS);
   };
 }
+function needsLoad(entry, includeRecipes) {
+  return !entry.snapshot.loaded || Date.now() - entry.loadedAt >= FRESH_MS ||
+    (includeRecipes && (!entry.recipesLoaded || Date.now() - entry.recipesLoadedAt >= FRESH_MS));
+}
 function configure(entry, token, includeRecipes) {
   entry.token = token;
-  if (!entry.snapshot.loaded || Date.now() - entry.loadedAt >= FRESH_MS ||
-      (includeRecipes && (!entry.recipesLoaded || Date.now() - entry.recipesLoadedAt >= FRESH_MS))) void load(entry, includeRecipes);
+  if (needsLoad(entry, includeRecipes)) void load(entry, includeRecipes);
 }
 function reset(entry) {
   clearTimeout(entry.idleTimer); entry.idleTimer = null; entry.loadedAt = 0; entry.recipesLoadedAt = 0;
@@ -102,6 +105,10 @@ async function load(entry, includeRecipes = false) {
       else {
         const knownRecipes = new Set(entry.recipes.map(recipe => String(recipe.id)));
         if (entry.confirmed.some(id => !knownRecipes.has(id))) entry.recipesLoaded = false;
+        // A verified empty ID list is already a complete empty recipe list.
+        if (entry.confirmed.length === 0) {
+          entry.recipes = []; entry.recipesLoaded = true; entry.recipesLoadedAt = Date.now();
+        }
       }
       entry.loadedAt = Date.now();
       publish(entry, { loaded: true });
@@ -117,6 +124,46 @@ async function load(entry, includeRecipes = false) {
     }
   })();
   return request.promise;
+}
+
+// Intent-only prefetch shares the normal account/epoch store and in-flight GET.
+export async function prefetchFavorites(token, userId, sessionKey = 0) {
+  if (!token || !userId) return false;
+  const entry = entryFor(JSON.stringify([String(userId), sessionKey]));
+  const release = retain(entry, { active: false });
+  entry.token = token;
+  let timeout;
+  try {
+    if (!needsLoad(entry, true)) return true;
+    // Retire speculative ownership after five seconds. A mounted page keeps
+    // its own lease, so a slow genuine navigation request is not cancelled.
+    return await Promise.race([load(entry, true), new Promise(resolve => {
+      timeout = setTimeout(() => resolve(false), 5000);
+    })]);
+  } finally { clearTimeout(timeout); release(); }
+}
+
+function activatePrefetchLease(lease) {
+  lease.active = true;
+  return () => { lease.active = false; };
+}
+
+export function useFavoritesPrefetch(auth) {
+  const enabled = !auth.loading && auth.isAuthenticated && Boolean(auth.user?.id);
+  const scope = JSON.stringify([enabled, auth.user?.id, auth.favoritesEpoch || 0]);
+  const lease = useMemo(() => ({ active: false, scope }), [scope]);
+  useEffect(() => activatePrefetchLease(lease), [lease]);
+  const { getAccessToken } = auth;
+  const userId = auth.user?.id;
+  const epoch = auth.favoritesEpoch || 0;
+  return useCallback(async () => {
+    if (!enabled || !lease.active) return false;
+    try {
+      const token = await getAccessToken();
+      if (!token || !lease.active) return false;
+      return await prefetchFavorites(token, userId, epoch);
+    } catch { return false; }
+  }, [enabled, lease, getAccessToken, userId, epoch]);
 }
 function setFavorite(entry, recipeId, desired) {
   const id = recipeId == null ? '' : String(recipeId);
