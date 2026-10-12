@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
-import { createElement, type ComponentProps } from 'react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
+import { createElement, type ComponentProps, type ComponentType, type ReactNode } from 'react';
 import Header from '@/components/layout/Header';
+import Layout from '@/components/layout/Layout';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { invalidateFavoritesCache, prefetchFavorites, useFavorites } from '@/hooks/useFavorites';
 const { auth } = vi.hoisted(() => ({ auth: {
@@ -29,6 +30,15 @@ it('only the Favorites link pointer/focus triggers intent, without changing norm
   fireEvent.pointerEnter(screen.getByRole('link', { name: '食譜' })); expect(intent).not.toHaveBeenCalled();
   const favorite = screen.getByRole('link', { name: '收藏' }); fireEvent.pointerEnter(favorite); fireEvent.focus(favorite);
   expect(intent).toHaveBeenCalledTimes(2); expect(favorite.getAttribute('href')).toBe('/favorites');
+});
+it('the real Layout forwards authenticated intent through controller and Header to the shared fetch', async () => {
+  const PageLayout = Layout as ComponentType<{ children?: ReactNode }>;
+  render(createElement(PageLayout, null, createElement('div', {}, 'Recipe page content')));
+  await act(async () => {}); expect(fetch).not.toHaveBeenCalled();
+  const link = within(screen.getByRole('navigation')).getByRole('link', { name: '收藏' });
+  fireEvent.focus(link); await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  expect(vi.mocked(fetch).mock.calls[0][0]).toBe('/api/user/favorites?include=recipes');
+  expect(vi.mocked(fetch).mock.calls[0][1]?.headers).toEqual({ Authorization: 'Bearer synthetic-token-A' });
 });
 it('prefetch completes before navigation; mounting Favorites reuses it with no second GET', async () => {
   const header = renderHook(() => useHeaderController());

@@ -8,7 +8,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children, showNav = true }: LayoutProps) {
-  const { isAuthenticated, loading, loggingOut, navLinks, trustLinks, isActiveRoute, handleLogout } = useHeaderController();
+  const { isAuthenticated, loading, loggingOut, navLinks, trustLinks, isActiveRoute, handleLogout, onFavoritesIntent } = useHeaderController();
 
   return (
     <div className="min-h-screen bg-bg font-sans">
@@ -21,6 +21,7 @@ export default function Layout({ children, showNav = true }: LayoutProps) {
         loggingOut={loggingOut}
         isActiveRoute={isActiveRoute}
         handleLogout={handleLogout}
+        onFavoritesIntent={onFavoritesIntent}
       />
       {children}
       <Footer />
