@@ -472,18 +472,17 @@ describe('migration: harden_recipe_catalog_client_write_boundary', () => {
       expect(file).toMatch(/^\d{14}_harden_recipe_catalog_client_write_boundary\.sql$/);
     });
 
-    it('sorts strictly after every other currently active migration', () => {
+    it('sorts after the schema and privilege migrations it depends on', () => {
       const all = activeMigrationFiles();
-      const others = all.filter((f) => f !== file);
-      expect(others.length).toBeGreaterThan(0);
-      for (const other of others) {
+      const dependencies = [
+        '20260904060000_baseline_core_recipe_catalog_schema.sql',
+        '20260910060642_reconcile_admin_recipe_rpc_contract.sql',
+        '20260921054256_revoke_profiles_unneeded_privileges.sql',
+      ];
+      for (const other of dependencies) {
+        expect(all).toContain(other);
         expect(file > other, `expected ${file} to sort after ${other}`).toBe(true);
       }
-    });
-
-    it('is the last (most recent) file in the active migrations directory', () => {
-      const all = activeMigrationFiles();
-      expect(all[all.length - 1]).toBe(file);
     });
 
     it('version is unique among all active migration files', () => {

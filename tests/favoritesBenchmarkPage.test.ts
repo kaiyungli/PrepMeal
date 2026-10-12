@@ -53,3 +53,30 @@ it('account retirement resets the panel and aborts the old run', async () => {
     expect(fetch).toHaveBeenCalledTimes(11); expect(screen.getByRole('status').textContent).toContain('0/22');
   } finally { auth.user = old; }
 });
+it('phone comparison exports 24 balanced safe samples after explicit start', async () => {
+  setup(); vi.stubGlobal('Blob', NodeBlob); vi.stubGlobal('File', NodeFile);
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(JSON.stringify({ success: true, data: { favorites: ['private-id'], recipes: [{ id: 'private-id' }] } }), {
+    headers: { 'X-PrepMeal-Favorites-Read-Path': url.endsWith('rpc') ? 'rpc' : 'rest' },
+  })));
+  const makeUrl = vi.fn(() => 'blob:synthetic'); vi.stubGlobal('URL', { createObjectURL: makeUrl, revokeObjectURL: vi.fn() });
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  expect(fetch).not.toHaveBeenCalled(); fireEvent.click(screen.getByRole('button', { name: '比較 REST／RPC' }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  expect(fetch).toHaveBeenCalledTimes(24); expect(screen.getByRole('status').textContent).toContain('24/24');
+  expect(screen.getByLabelText('REST／RPC 對照摘要').textContent).toContain('RPC（12 次）');
+  fireEvent.click(screen.getByRole('button', { name: '匯出結果' }));
+  const exported = JSON.parse(await (makeUrl.mock.calls as unknown as [NodeBlob][])[0][0].text());
+  expect(exported.schema).toBe('prepmeal-favorites-comparison-v1'); expect(exported.complete).toBe(true);
+  expect(JSON.stringify(exported)).not.toMatch(/private-id|synthetic-token|synthetic-owner|Authorization/);
+});
+it('switching accounts cancels a stalled comparison and resets its samples', async () => {
+  const page = setup(); vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
+  fireEvent.click(screen.getByRole('button', { name: '比較 REST／RPC' }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  const old = auth.user; auth.user = { id: 'new-synthetic-owner' };
+  try {
+    page.rerender(createElement(FavoritesPerformancePage));
+    await act(async () => { await vi.advanceTimersByTimeAsync(15_000); });
+    expect(fetch).toHaveBeenCalledTimes(1); expect(screen.getByRole('status').textContent).toContain('0/22');
+  } finally { auth.user = old; }
+});
