@@ -20,6 +20,7 @@ interface HeaderProps {
   isActiveRoute?: (path: string) => boolean;
   // Actions
   handleLogout?: () => void;
+  onFavoritesIntent?: () => void;
 }
 
 export default function Header({ 
@@ -31,6 +32,7 @@ export default function Header({
   loggingOut = false,
   isActiveRoute = () => false,
   handleLogout = () => {},
+  onFavoritesIntent,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -52,6 +54,8 @@ export default function Header({
         className={getNavLinkClass(isActive)}
         aria-current={isActive ? 'page' : undefined}
         onClick={() => isMobile && setMenuOpen(false)}
+        onPointerEnter={link.path === '/favorites' ? onFavoritesIntent : undefined}
+        onFocus={link.path === '/favorites' ? onFavoritesIntent : undefined}
       >
         {link.label}
       </Link>

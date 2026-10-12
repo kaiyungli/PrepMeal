@@ -4,10 +4,13 @@
 import { useState, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useFavoritesPrefetch } from '@/hooks/useFavorites';
 
 export function useHeaderController() {
   const pathname = usePathname();
-  const { user, signOut, isAuthenticated, loading } = useAuth();
+  const auth = useAuth();
+  const { user, signOut, isAuthenticated, loading } = auth;
+  const onFavoritesIntent = useFavoritesPrefetch(auth);
   const [loggingOut, setLoggingOut] = useState(false);
 
   // Nav links - can be customized if needed
@@ -63,5 +66,6 @@ export function useHeaderController() {
 
     // Actions
     handleLogout,
+    onFavoritesIntent,
   };
 }
