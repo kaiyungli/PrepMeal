@@ -1,7 +1,7 @@
 // Isolated PostgreSQL (PGlite) validation; never connects to a hosted project.
 // Install PGlite in a scratch directory, then set PGLITE_MODULE to its index.js.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 const { PGlite } = await import(process.env.PGLITE_MODULE || '');
 const db = new PGlite();
 const root = new URL('../', import.meta.url);
@@ -23,7 +23,10 @@ GRANT SELECT ON public.user_favorites, public.recipes TO service_role;
 INSERT INTO public.recipes(id, name, diet, flavor, times_shown, protein_g, is_complete_meal)
 VALUES ('${R}','fixture-A',ARRAY['vegan'],ARRAY['spicy'],7,12.34,true),('${S}','fixture-B',NULL,NULL,0,NULL,false);
 INSERT INTO public.user_favorites VALUES ('${A}','${R}'), ('${A}','00000000-0000-4000-8000-000000000099'), ('${B}','${S}');`);
-await db.exec(readFileSync(new URL('supabase/migrations/20261012092432_favorites_rpc_comparison.sql', root),'utf8'));
+const migrations = new URL('supabase/migrations/', root);
+const matches = readdirSync(migrations).filter(name => /^\d{14}_favorites_rpc_comparison\.sql$/.test(name));
+assert.equal(matches.length, 1, 'exactly one comparison migration');
+await db.exec(readFileSync(new URL(matches[0], migrations),'utf8'));
 const meta = (await db.query(`SELECT prosecdef, provolatile, proconfig,
 has_function_privilege('anon',oid,'EXECUTE') AS anon_exec,
 has_function_privilege('authenticated',oid,'EXECUTE') AS auth_exec,
