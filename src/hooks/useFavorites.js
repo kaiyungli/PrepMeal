@@ -16,7 +16,12 @@ function publish(entry, patch = {}) {
   for (const [id, write] of entry.writes) {
     if (write.desired) favorites.add(id); else favorites.delete(id);
   }
-  entry.snapshot = { ...entry.snapshot, ...patch, favorites: [...favorites],
+  const nextFavorites = [...favorites];
+  const previousFavorites = entry.snapshot.favorites;
+  // Pending/error changes do not invalidate unchanged recipe/filter results.
+  const ids = nextFavorites.length === previousFavorites.length &&
+    nextFavorites.every((id, index) => id === previousFavorites[index]) ? previousFavorites : nextFavorites;
+  entry.snapshot = { ...entry.snapshot, ...patch, favorites: ids,
     recipes: entry.recipes, pending: [...entry.writes.keys()] };
   for (const listener of entry.listeners) listener();
 }
@@ -154,6 +159,7 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
   const view = enabled ? snapshot : EMPTY;
   const favoriteSet = useMemo(() => new Set(view.favorites), [view.favorites]);
   const pendingSet = useMemo(() => new Set(view.pending), [view.pending]);
+  const recipes = useMemo(() => view.recipes.filter(recipe => favoriteSet.has(String(recipe.id))), [view.recipes, favoriteSet]);
   const isFavorite = useCallback(id => favoriteSet.has(String(id)), [favoriteSet]);
   const isPending = useCallback(id => pendingSet.has(String(id)), [pendingSet]);
   const updateFavorite = useCallback((id, desired) => enabled && lease.active ? setFavorite(entry, id, desired) : Promise.resolve(false), [entry, enabled, lease]);
@@ -163,7 +169,7 @@ export function useFavorites(token, userId, { includeRecipes = false } = {}) {
     return setFavorite(entry, id, desired);
   }, [entry, enabled, lease]);
   const retry = useCallback(() => enabled && lease.active ? load(entry, includeRecipes) : Promise.resolve(false), [entry, enabled, includeRecipes, lease]);
-  return { favorites: view.favorites, recipes: view.recipes.filter(recipe => favoriteSet.has(String(recipe.id))),
+  return { favorites: view.favorites, recipes,
     loading: enabled && (!view.loaded && !view.error || view.loading), error: view.error,
     mutationError: view.mutationError, isFavorite, isPending, toggleFavorite, setFavorite: updateFavorite, retry };
 }
