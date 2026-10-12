@@ -2,12 +2,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
 import { createFavoritesServerTiming } from '@/lib/favoritesServerTiming';
+import { favoritesRestFetch, measureFavoritesRest } from '@/lib/favoritesRestTiming';
 
 // Service role client for server-side DB access (bypasses RLS)
 const serverSupabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
   {
+    global: { fetch: favoritesRestFetch },
     auth: {
       persistSession: false,
       autoRefreshToken: false,
@@ -43,7 +45,7 @@ export default async function handler(req, res) {
       
       // Branch BEFORE querying - single query only
       if (req.query.include === 'recipes') {
-        const { data: joinData, error: joinError } = await timing.measure('db_request', () => serverSupabase
+        const { data: joinData, error: joinError } = await timing.measure('db_request', () => measureFavoritesRest(timing, () => serverSupabase
           .from('user_favorites')
           .select(`
             recipe_id,
@@ -74,7 +76,7 @@ export default async function handler(req, res) {
               times_shown
             )
           `)
-          .eq('user_id', userId));
+          .eq('user_id', userId)));
         
         if (joinError) {
           console.error('[favorites-api] join_error', {
@@ -96,10 +98,10 @@ export default async function handler(req, res) {
       }
       
       // Default ID-only behavior
-      const { data: favData, error: favError } = await timing.measure('db_request', () => serverSupabase
+      const { data: favData, error: favError } = await timing.measure('db_request', () => measureFavoritesRest(timing, () => serverSupabase
         .from('user_favorites')
         .select('recipe_id')
-        .eq('user_id', userId));
+        .eq('user_id', userId)));
       
       if (favError) {
         return res.status(500).json(ApiResponse.error(favError.message));

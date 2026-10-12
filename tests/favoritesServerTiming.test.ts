@@ -51,3 +51,11 @@ it('a rejected stage preserves the original error; header failures preserve resp
   const error = new Error('synthetic'); await expect(timing.measure('db_request', () => Promise.reject(error))).rejects.toBe(error);
   expect(() => res.json({ success: false })).not.toThrow(); expect(json).toHaveBeenCalledWith({ success: false });
 });
+it('REST sink adds only fixed finite stages and emits sanitized fixed coverage fields', () => {
+  const res = { json: vi.fn(), setHeader: vi.fn() }; const timing = createFavoritesServerTiming({ headers: { 'x-prepmeal-favorites-perf': '1' } }, res);
+  timing.add('rest_dispatch', 10); timing.add('rest_wait_headers', 20); timing.add('private-secret', 30); timing.add('rest_body_read', NaN);
+  timing.restDetails({ version: 1, fetch_count: 1, native_request_count: 1, sent_count: 1, body_read_count: 1, previously_seen_socket_count: 0 }); res.json({ success: true });
+  expect(res.setHeader.mock.calls[0][1]).toMatch(/^rest_dispatch;dur=10.00, rest_wait_headers;dur=20.00, handler;/);
+  const value = res.setHeader.mock.calls.find(([name]) => name === 'X-PrepMeal-Favorites-Rest')![1];
+  expect(JSON.parse(value).fetch_count).toBe(1); expect(JSON.stringify(res.setHeader.mock.calls)).not.toContain('private-secret');
+});

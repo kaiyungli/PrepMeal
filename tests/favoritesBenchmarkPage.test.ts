@@ -33,6 +33,7 @@ it('exports the completed phone run without credentials, account IDs or favorite
   expect(screen.getByRole('status').textContent).toContain('22/22');
   fireEvent.click(screen.getByRole('button', { name: '匯出結果' }));
   const exported = JSON.parse(await (makeUrl.mock.calls as unknown as [NodeBlob][])[0][0].text());
+  expect(exported.schema).toBe('prepmeal-favorites-benchmark-v2');
   expect(exported.complete).toBe(true); expect(exported.samples).toHaveLength(22);
   expect(JSON.stringify(exported)).not.toMatch(/synthetic-token|synthetic-owner|private-id|Authorization/);
   expect(click).toHaveBeenCalledTimes(1);
