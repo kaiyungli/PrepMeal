@@ -17,6 +17,7 @@ const serverSupabase = createClient(
 
 function createUserClient(supabaseUrl, anonKey, token) {
   return createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     global: { headers: { Authorization: `Bearer ${token}` } }
   });
 }
@@ -34,10 +35,6 @@ export default async function handler(req, res) {
     const userId = await timing.measure('auth', () => requireAuth(req, res, timing));
     if (!userId) return;
     
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.substring(7);
-    const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, token);
-
     // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
       if (!serverSupabase) {
@@ -119,6 +116,10 @@ export default async function handler(req, res) {
       if (!recipe_id) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
+
+      // GET needs only the shared reader. Create a token-scoped writer only
+      // after a valid mutation; never share its Authorization across requests.
+      const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, req.headers.authorization?.substring(7));
       
       const { error } = await timing.measure('db_request', () => userSupabase
         .from('user_favorites')
@@ -141,6 +142,8 @@ export default async function handler(req, res) {
       if (!recipe_id) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
+
+      const userSupabase = createUserClient(supabaseUrl, supabaseAnonKey, req.headers.authorization?.substring(7));
       
       const { data: deletedFavorites, error } = await timing.measure('db_request', () => userSupabase
         .from('user_favorites')
