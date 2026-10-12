@@ -1,6 +1,7 @@
 // Favorites API - GET, POST, DELETE
 import { createClient } from '@supabase/supabase-js';
 import { requireAuth, ApiResponse } from '../_auth';
+import { createFavoritesServerTiming } from '@/lib/favoritesServerTiming';
 
 // Service role client for server-side DB access (bypasses RLS)
 const serverSupabase = createClient(
@@ -21,6 +22,7 @@ function createUserClient(supabaseUrl, anonKey, token) {
 }
 
 export default async function handler(req, res) {
+  const timing = createFavoritesServerTiming(req, res);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
@@ -29,7 +31,7 @@ export default async function handler(req, res) {
   }
   
   try {
-    const userId = await requireAuth(req, res);
+    const userId = await timing.measure('auth', () => requireAuth(req, res, timing));
     if (!userId) return;
     
     const authHeader = req.headers.authorization;
@@ -44,7 +46,7 @@ export default async function handler(req, res) {
       
       // Branch BEFORE querying - single query only
       if (req.query.include === 'recipes') {
-        const { data: joinData, error: joinError } = await serverSupabase
+        const { data: joinData, error: joinError } = await timing.measure('db_request', () => serverSupabase
           .from('user_favorites')
           .select(`
             recipe_id,
@@ -75,7 +77,7 @@ export default async function handler(req, res) {
               times_shown
             )
           `)
-          .eq('user_id', userId);
+          .eq('user_id', userId));
         
         if (joinError) {
           console.error('[favorites-api] join_error', {
@@ -85,29 +87,29 @@ export default async function handler(req, res) {
           return res.status(500).json(ApiResponse.error(joinError.message));
         }
         
-        const favorites = (joinData || []).map(row => String(row.recipe_id));
-        const recipes = (joinData || [])
-          .map(row => row.recipes)
-          .filter(Boolean);
+        const result = timing.prepare(() => {
+          const favorites = (joinData || []).map(row => String(row.recipe_id));
+          const recipes = (joinData || [])
+            .map(row => row.recipes)
+            .filter(Boolean);
+          return ApiResponse.success({ favorites, recipes });
+        });
         
-        return res.status(200).json(ApiResponse.success({
-          favorites,
-          recipes
-        }));
+        return res.status(200).json(result);
       }
       
       // Default ID-only behavior
-      const { data: favData, error: favError } = await serverSupabase
+      const { data: favData, error: favError } = await timing.measure('db_request', () => serverSupabase
         .from('user_favorites')
         .select('recipe_id')
-        .eq('user_id', userId);
+        .eq('user_id', userId));
       
       if (favError) {
         return res.status(500).json(ApiResponse.error(favError.message));
       }
       
-      const favorites = (favData || []).map(f => String(f.recipe_id));
-      return res.status(200).json(ApiResponse.success({ favorites }));
+      const result = timing.prepare(() => ApiResponse.success({ favorites: (favData || []).map(f => String(f.recipe_id)) }));
+      return res.status(200).json(result);
     }
 
     // POST: Use user client (needs user token for RLS)
@@ -118,9 +120,9 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
-      const { error } = await userSupabase
+      const { error } = await timing.measure('db_request', () => userSupabase
         .from('user_favorites')
-        .insert({ user_id: userId, recipe_id });
+        .insert({ user_id: userId, recipe_id }));
       
       if (error) {
         if (error.code === '23505') {
@@ -140,12 +142,12 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('recipe_id required'));
       }
       
-      const { data: deletedFavorites, error } = await userSupabase
+      const { data: deletedFavorites, error } = await timing.measure('db_request', () => userSupabase
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
         .eq('recipe_id', recipe_id)
-        .select('recipe_id');
+        .select('recipe_id'));
       
       if (error) {
         return res.status(500).json(ApiResponse.error(error.message));

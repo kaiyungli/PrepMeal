@@ -31,3 +31,12 @@ it('a broken diagnostic sink cannot turn a successful request into a failure', a
   const response = new Response('{}'); vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
   expect(await timedFavoritesFetch('/api/user/favorites', {})).toBe(response);
 });
+it('opt-in sends the timing header and parses only fixed numeric server stages', async () => {
+  browser('?perf=favorites'); const log = vi.spyOn(console, 'info').mockImplementation(() => {});
+  const response = new Response('{}', { headers: { 'Server-Timing': 'auth;dur=4, auth_jwks;dur=2, db_request;dur=40, handler;dur=45, private-id;dur=999' } });
+  const fetcher = vi.fn().mockResolvedValue(response); vi.stubGlobal('fetch', fetcher);
+  expect(await timedFavoritesFetch('/api/user/favorites', { headers: { Authorization: 'synthetic-token' } })).toBe(response);
+  const headers = fetcher.mock.calls[0][1].headers as Headers;
+  expect(headers.get('X-PrepMeal-Favorites-Perf')).toBe('1'); expect(headers.get('Authorization')).toBe('synthetic-token');
+  expect(log.mock.calls[0][0]).toBe('[favorites-perf] {"event":"server_stages","method":"GET","status":200,"stages":{"auth":4,"auth_jwks":2,"db_request":40,"handler":45}}');
+});

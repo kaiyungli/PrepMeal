@@ -4,6 +4,8 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef, Re
 import { perfNow, perfMeasure } from '@/utils/perf';
 import supabase from '@/lib/supabase';
 import { buildOAuthRedirectUrl } from '@/lib/authRedirect';
+import { invalidateFavoritesCache } from '@/hooks/useFavorites';
+import { favoritesSessionIdentity } from '@/utils/favoritesSession';
 
 interface AuthContextValue {
   user: any | null;
@@ -11,6 +13,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   loading: boolean;
   hydrated: boolean;
+  favoritesEpoch: number;
   signInWithGoogle: () => Promise<any>;
   signInWithApple: () => Promise<any>;
   signInWithFacebook: () => Promise<any>;
@@ -26,18 +29,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const initialLoadDone = useRef(false);
+  const [favoritesEpoch, setFavoritesEpoch] = useState(0);
+  const favoriteIdentity = useRef<string | null>(null);
+  const syncFavoriteIdentity = useCallback((s: Parameters<typeof favoritesSessionIdentity>[0]) => {
+    const next = favoritesSessionIdentity(s);
+    if (favoriteIdentity.current !== next) {
+      invalidateFavoritesCache();
+      favoriteIdentity.current = next;
+      setFavoritesEpoch(epoch => epoch + 1);
+    }
+  }, []);
 
   useEffect(() => {
     const loadSession = async () => {
       const sessionStart = perfNow();
       try {
         const { data: { session: s } } = await supabase?.auth.getSession();
+        syncFavoriteIdentity(s);
         setSession(s);
         setUser(s?.user || null);
         initialLoadDone.current = true;
       } catch (err) {
         console.error('Session check error:', err);
         setUser(null);
+        syncFavoriteIdentity(null);
         setSession(null);
         initialLoadDone.current = true;
       } finally {
@@ -56,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       setSession(s);
+      syncFavoriteIdentity(s);
       setUser(s?.user || null);
       setLoading(false);
     });
@@ -64,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(timerId);
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [syncFavoriteIdentity]);
 
   const getAccessToken = useCallback(async () => {
     // Use cached session directly — no extra getSession() call needed
@@ -107,7 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     const { error } = await supabase?.auth.signOut();
     if (error) throw error;
-  }, []);
+    syncFavoriteIdentity(null);
+  }, [syncFavoriteIdentity]);
 
   const value: AuthContextValue = {
     user,
@@ -115,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     loading,
     hydrated,
+    favoritesEpoch,
     signInWithGoogle,
     signInWithApple,
     signInWithFacebook,

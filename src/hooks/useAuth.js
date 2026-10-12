@@ -9,6 +9,7 @@ export function useAuth() {
     user: ctx.user,
     loading: ctx.loading,
     authHydrated: ctx.hydrated,
+    favoritesEpoch: ctx.favoritesEpoch,
     signInWithGoogle: ctx.signInWithGoogle,
     signInWithApple: ctx.signInWithApple,
     signInWithFacebook: ctx.signInWithFacebook,
