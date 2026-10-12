@@ -10,6 +10,7 @@
     "smoke": "node scripts/smoke.mjs",
     "test": "vitest",
     "test:components": "vitest run --config vitest.components.config.ts",
+    "measure:favorites": "vitest run --config vitest.favorites.measure.config.ts",
     "test:all": "vitest run && npm run test:components"
   },
   "dependencies": {

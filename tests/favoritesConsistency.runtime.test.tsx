@@ -44,6 +44,28 @@ it('control: a genuine empty account shows the empty state',async()=>{
   listResult=reply(200,list([]));render(createElement(FavoritesPage));
   await screen.findByText('你仲未收藏任何食譜');expect(cards()).toEqual([]);
 });
+it('unchanged renders retain recipe results while an actual favorite change invalidates them',async()=>{
+  const hook=renderHook(()=>useFavorites('synthetic-token-A','synthetic-A',{includeRecipes:true}));
+  await waitFor(()=>expect(hook.result.current.recipes).toHaveLength(3));
+  const initial=hook.result.current.recipes;
+  hook.rerender();expect(hook.result.current.recipes).toBe(initial);
+  act(()=>{void hook.result.current.setFavorite('A',false);});
+  const optimistic=hook.result.current.recipes;
+  expect(optimistic).not.toBe(initial);expect(optimistic.map((r:Recipe)=>r.id)).toEqual(['B','C']);
+  await settle('A',200);
+  expect(hook.result.current.recipes).toBe(optimistic);
+  expect(hook.result.current.isPending('A')).toBe(false);
+});
+it('failure rollback invalidates the memoized recipe list and restores the failed recipe',async()=>{
+  const hook=renderHook(()=>useFavorites('synthetic-token-A','synthetic-A',{includeRecipes:true}));
+  await waitFor(()=>expect(hook.result.current.recipes).toHaveLength(3));
+  act(()=>{void hook.result.current.setFavorite('A',false);});
+  const optimistic=hook.result.current.recipes;
+  await settle('A',500);
+  expect(hook.result.current.recipes).not.toBe(optimistic);
+  expect(hook.result.current.recipes.map((r:Recipe)=>r.id)).toEqual(['A','B','C']);
+  expect(hook.result.current.mutationError).toBe('收藏更新失敗，請重試');
+});
 it('control: a 404 removal is treated as already absent',async()=>{
   await open();await remove('A');await settle('A',404);expect(cards()).toEqual(['Recipe B','Recipe C']);
 });
