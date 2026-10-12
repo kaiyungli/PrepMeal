@@ -1,5 +1,6 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { startFavoritesTiming, finishFavoritesTiming } from '@/utils/favoritesTiming';
 import { useAccountFavorites } from '@/hooks/useFavorites';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
@@ -21,6 +22,14 @@ function AccountFavoritesPage({ auth, headerCtrl, authLoading }) {
   const { isAuthenticated } = auth;
   const { recipes: favoriteRecipes, loading, error, mutationError, isFavorite, isPending, setFavorite, retry } = useAccountFavorites(auth, { includeRecipes: true });
   const handleFavoriteClick = (id) => setFavorite(id, false);
+  const timing = useRef(null);
+  useEffect(() => { timing.current = startFavoritesTiming(); }, []);
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && !loading && !error && timing.current !== null) {
+      finishFavoritesTiming(timing.current, 'page_ready');
+      timing.current = null;
+    }
+  }, [authLoading, isAuthenticated, loading, error]);
 
   // Recipe filtering - only filters locally, no refetch
   const {
