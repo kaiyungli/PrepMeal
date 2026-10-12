@@ -8,7 +8,7 @@ const FRESH_MS = 30_000;
 const IDLE_MS = 300_000;
 function entryFor(key) {
   if (!entries.has(key)) entries.set(key, {
-    key, loadedAt: 0, idleTimer: null,
+    key, loadedAt: 0, recipesLoadedAt: 0, idleTimer: null,
     snapshot: EMPTY, confirmed: [], recipes: [], recipesLoaded: false,
     listeners: new Set(), consumers: 0, generation: 0, revision: 0,
     writes: new Map(), load: null, token: null,
@@ -60,10 +60,11 @@ function retain(entry, lease) {
 }
 function configure(entry, token, includeRecipes) {
   entry.token = token;
-  if (!entry.snapshot.loaded || Date.now() - entry.loadedAt >= FRESH_MS || (includeRecipes && !entry.recipesLoaded)) void load(entry, includeRecipes);
+  if (!entry.snapshot.loaded || Date.now() - entry.loadedAt >= FRESH_MS ||
+      (includeRecipes && (!entry.recipesLoaded || Date.now() - entry.recipesLoadedAt >= FRESH_MS))) void load(entry, includeRecipes);
 }
 function reset(entry) {
-  clearTimeout(entry.idleTimer); entry.idleTimer = null; entry.loadedAt = 0;
+  clearTimeout(entry.idleTimer); entry.idleTimer = null; entry.loadedAt = 0; entry.recipesLoadedAt = 0;
   entry.generation++;
   if (entry.load) { entry.load.active = false; entry.load.controller.abort(); }
   for (const write of entry.writes.values()) { write.active = false; write.controller?.abort(); }
@@ -97,7 +98,7 @@ async function load(entry, includeRecipes = false) {
       // A list begun before a write cannot overwrite the resulting state.
       if (entry.revision !== request.revision) { request.retry = true; return false; }
       entry.confirmed = data.data.favorites.map(String);
-      if (includeRecipes) { entry.recipes = data.data.recipes; entry.recipesLoaded = true; }
+      if (includeRecipes) { entry.recipes = data.data.recipes; entry.recipesLoaded = true; entry.recipesLoadedAt = Date.now(); }
       else {
         const knownRecipes = new Set(entry.recipes.map(recipe => String(recipe.id)));
         if (entry.confirmed.some(id => !knownRecipes.has(id))) entry.recipesLoaded = false;
