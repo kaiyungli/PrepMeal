@@ -11,6 +11,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
+import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
 export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   const firstLoadStartRef = useRef(perfNow());
@@ -21,6 +22,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     isFavorite,
     toggleFavorite,
     favoritesLoading,
+    favoritesError,
     favoritesMutationError,
     isPending,
   } = useUserState();
@@ -91,10 +93,11 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     filters,
   } = useRecipeFilters();
 
-  const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
+  const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore, isListSettled } = useFilteredRecipes(
     initialRecipes || [],
     { filters, searchQuery, sortBy, limit: 100, initialTotalCount }
   );
+  useNavigationDataReady('recipes', () => !loading && !favoritesLoading && isListSettled(), Boolean(fetchError || favoritesError));
   
   // Log page ready
   useEffect(() => {

@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { benchmarkSummary, runFavoritesBenchmark } from '@/features/favorites/services/favoritesBenchmark';
 import { COMPARISON_SAMPLES, runFavoritesComparison } from '@/features/favorites/services/favoritesComparison';
+import { NavigationMeasurementLauncher } from '@/features/performance/NavigationMeasurement';
+import { getNavigationMeasurement, getServerNavigationMeasurement, subscribeNavigationMeasurement } from '@/features/performance/navigationMeasurement';
 
 export default function FavoritesPerformancePage() {
   const auth = useAuthGuard(); const header = useHeaderController();
@@ -18,6 +20,7 @@ export default function FavoritesPerformancePage() {
     </main></>;
 }
 export function BenchmarkPanel({ auth }) {
+  const navigation = useSyncExternalStore(subscribeNavigationMeasurement, getNavigationMeasurement, getServerNavigationMeasurement);
   const [samples, setSamples] = useState([]); const [running, setRunning] = useState(false);
   const [label, setLabel] = useState('準備好後，撳開始量度。');
   const [comparison, setComparison] = useState(false);
@@ -56,11 +59,12 @@ export function BenchmarkPanel({ auth }) {
     link.href = url; link.download = file.name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
   return <section className="rounded-xl border border-[#DDD0B0] bg-[#FFFDF8] p-4 space-y-4">
+    <NavigationMeasurementLauncher userId={auth.user?.id} epoch={auth.favoritesEpoch} disabled={running} />
     <p>量度首次測試、連續請求同閒置 5 分鐘後嘅等待。只讀取收藏，唔會新增或取消收藏。</p>
     <p className="text-sm text-[#7A746B]">全程約 5–6 分鐘。請留喺呢頁並保持螢幕開啟；切換 App 可能令手機暫停計時。首次測試唔等同冷啟動。</p>
     <div className="flex flex-wrap gap-3">
-      <button type="button" onClick={() => start()} disabled={running} className="min-h-12 rounded-lg bg-[#9B6035] text-white px-4 disabled:opacity-50">開始量度</button>
-      <button type="button" onClick={() => start(true)} disabled={running} className="min-h-12 rounded-lg border px-4 disabled:opacity-50">比較 REST／RPC</button>
+      <button type="button" onClick={() => start()} disabled={running || navigation.enabled} className="min-h-12 rounded-lg bg-[#9B6035] text-white px-4 disabled:opacity-50">開始量度</button>
+      <button type="button" onClick={() => start(true)} disabled={running || navigation.enabled} className="min-h-12 rounded-lg border px-4 disabled:opacity-50">比較 REST／RPC</button>
       <button type="button" onClick={stop} disabled={!running} className="min-h-12 rounded-lg border px-4 disabled:opacity-50">停止</button>
       <button type="button" onClick={exportResults} disabled={running || samples.length === 0} className="min-h-12 rounded-lg border px-4 disabled:opacity-50">匯出結果</button>
     </div>

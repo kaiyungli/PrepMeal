@@ -15,6 +15,7 @@ import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
 import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
+import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
 export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
   const { toast, showToast } = useToast();
@@ -48,6 +49,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     loadMore,
     hasMore,
     loadingMore,
+    isListSettled,
   } = useHomeRecipeFilters({
     initialRecipes: initialRecipes || [],
     initialTotalCount,
@@ -58,6 +60,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     planRecipes: initialRecipes,
     showToast,
   });
+  useNavigationDataReady('home', () => !loading && isListSettled(), Boolean(fetchError));
 
   useEffect(() => {
     if (!recipesList || recipesList.length === 0) return;
