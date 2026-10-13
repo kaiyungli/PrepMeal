@@ -24,6 +24,7 @@ export default function NavigationMeasurementOverlay() {
   const onFavoritesIntent = useFavoritesPrefetch(auth);
   const state = useSyncExternalStore(subscribeNavigationMeasurement, getNavigationMeasurement, getServerNavigationMeasurement);
   const [message, setMessage] = useState('');
+  const [exported, setExported] = useState<{ text: string; viewport: typeof state.viewport } | null>(null);
   const accountScope = auth.isAuthenticated && auth.user?.id ? measurementScope(auth.user.id, auth.favoritesEpoch || 0) : null;
   useEffect(() => { validateNavigationScope(auth.loading ? null : accountScope); }, [auth.loading, accountScope]);
   useEffect(() => {
@@ -49,15 +50,30 @@ export default function NavigationMeasurementOverlay() {
     try { if (!await router.push(page === 'home' ? '/' : `/${page}`)) cancelNavigationStep(); }
     catch { cancelNavigationStep(); }
   };
+  const downloadResults = (text: string) => {
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `PrepMeal_Navigation_${state.mode}.json`;
+    document.body.appendChild(a);
+    try { a.click(); }
+    finally { a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30_000); }
+  };
   const exportFile = async () => {
+    const text = JSON.stringify(exportNavigationMeasurement(), null, 2);
+    // Always expose a text fallback before invoking browser download/share APIs.
+    setExported({ text, viewport: state.viewport });
     try {
-      const file = new File([JSON.stringify(exportNavigationMeasurement(), null, 2)], `PrepMeal_Navigation_${state.mode}.json`, { type: 'application/json' });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file] });
-      else {
-        const url = URL.createObjectURL(file); const a = document.createElement('a'); a.href = url; a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      if (state.mode === 'phone' && typeof File !== 'undefined' && navigator.share) {
+        const file = new File([text], `PrepMeal_Navigation_${state.mode}.json`, { type: 'application/json' });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file] });
+          setMessage('分享完成；下方亦保留 JSON。'); return;
+        }
       }
-      setMessage('已匯出。');
-    } catch { setMessage('匯出未完成，可以再試。'); }
+      downloadResults(text);
+      setMessage('已提出下載；如果未見檔案，可以用下方 JSON。');
+    } catch { setMessage('分享／下載未完成，結果仍保留喺下方；可另按下載或複製 JSON。'); }
   };
   return <aside className="fixed bottom-0 inset-x-0 z-50 border-t bg-white p-3 shadow-lg max-h-[45vh] overflow-auto" aria-label="導航量度控制">
     <p role="status">{state.mode === 'phone' ? '手機' : '桌面'} · {state.samples.length}/4 · {state.running ? '等待資料就緒…' : next ? '準備下一步' : '本輪完成'}</p>
@@ -71,5 +87,14 @@ export default function NavigationMeasurementOverlay() {
       <button type="button" disabled={state.running || !state.samples.length} onClick={exportFile} className="min-h-12 border rounded px-3 disabled:opacity-50">匯出導航結果</button>
       <button type="button" onClick={clearNavigationMeasurement} className="min-h-12 border rounded px-3">結束量度</button>
     </div><p className="text-sm">{message} 首頁只量食譜列表；結果唔含帳戶、網址或食譜內容。重新整理會清除本輪記錄。</p>
+    {exported && exported.viewport === state.viewport && <section aria-label="導航 JSON 備用匯出" className="mt-2 space-y-2">
+      <button type="button" className="min-h-12 border rounded px-3" onClick={() => {
+        try { downloadResults(exported.text); setMessage('已再次提出下載。'); }
+        catch { setMessage('下載被阻擋；請選取下方 JSON，複製傳返對話。'); }
+      }}>直接下載 JSON</button>
+      <label className="block">備用 JSON（點一下全選，可複製傳返對話）
+        <textarea aria-label="導航結果 JSON" readOnly value={exported.text} onFocus={event => event.currentTarget.select()} className="block w-full h-28 border rounded p-2 text-xs" />
+      </label>
+    </section>}
   </aside>;
 }

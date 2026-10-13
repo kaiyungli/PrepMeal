@@ -7,7 +7,7 @@ This opt-in, document-local diagnostic supplements the direct API benchmark. It 
 1. Open `/favorites-performance` on the deployment containing this feature and log in normally. Stay on the same host and browser tab throughout. If the Vercel preview requires access, complete that sign-in first. A production-host redirect or reload clears the diagnostic session.
 2. Select Desktop or Phone according to the device actually used; viewport dimensions are recorded separately. Press **開始導航量度**. Do not run the API benchmark simultaneously.
 3. Use the bottom panel for **首次測試收藏 → 切換食譜 → 返回收藏 → 切換首頁**. Wait for each step to settle before continuing. Keep the tab visible and the phone screen awake; avoid other interactions during the round.
-4. Press **匯出導航結果**. Desktop downloads JSON; a phone may offer native file sharing. Repeat five rounds on each device and send the files for analysis. Record connection changes separately rather than comparing Wi-Fi and mobile data as though they were the same condition.
+4. Press **匯出導航結果**. Desktop explicitly downloads JSON instead of opening native sharing; a phone may offer native file sharing. The panel also exposes a read-only JSON text fallback and a separate **直接下載 JSON** button, including after a failed/cancelled share or blocked download. Repeat five rounds on each device and send the files for analysis. Record connection changes separately rather than comparing Wi-Fi and mobile data as though they were the same condition.
 5. Use **結束量度** to discard this document's state. Nothing is stored in session/local storage or sent to an analytics server.
 
 The first sample means the first measured entry, not a cold cache. Normal account/epoch caches, foreground requests, automatic page preloads and Next Link behavior remain active. The diagnostic does not clear caches, alter fetch options or start writes. Opening the homepage preserves its usual local hero-plan behavior.
@@ -30,7 +30,7 @@ The panel, diagnostic effects and normal browser variability can affect the meas
 
 ## Verification
 
-- 2,000 unit tests and 163 component tests pass, including data-before-route/route-before-data, privacy, native sharing, interrupted steps, empty-list debounce, initial-data reuse and idle behavior.
+- 2,003 unit tests and 163 component tests pass, including data-before-route/route-before-data, privacy, native sharing, desktop download without File support, blocked download fallback, rejected sharing with a separate explicit download, interrupted steps, empty-list debounce, initial-data reuse and idle behavior.
 - TypeScript and ESLint for the new diagnostic modules/tests pass.
 - The touched existing page/home/list files retain the baseline's 9 lint errors and 6 warnings, with no added diagnostic categories.
 - Synthetic-environment production build and diff check pass.

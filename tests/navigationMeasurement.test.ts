@@ -119,3 +119,38 @@ it('native phone sharing exports the safe file and marks successful four-step co
   const data = JSON.parse(await file.text()); expect(data.complete).toBe(true);
   expect(JSON.stringify(data)).not.toMatch(/private-owner|private-recipe|token|Authorization/);
 });
+it('desktop export downloads an attached anchor instead of invoking native share, without File support', async () => {
+  const share = vi.fn(); vi.stubGlobal('navigator', { share, canShare: () => true }); vi.stubGlobal('File', undefined);
+  const revoke = vi.fn(); vi.stubGlobal('URL', { createObjectURL: () => 'blob:desktop', revokeObjectURL: revoke });
+  const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    expect(document.body.contains(this)).toBe(true); expect(this.download).toBe('PrepMeal_Navigation_desktop.json');
+  });
+  startNavigationMeasurement('desktop', scope()); beginNavigationStep(); navigationRouteCompleted('/favorites'); navigationDataReady('favorites');
+  render(createElement(Overlay));
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: '匯出導航結果' })); });
+  expect(click).toHaveBeenCalledTimes(1); expect(share).not.toHaveBeenCalled();
+  expect(JSON.parse((screen.getByLabelText('導航結果 JSON') as HTMLTextAreaElement).value).samples).toHaveLength(1);
+  expect(document.querySelector('a[download]')).toBeNull(); expect(revoke).not.toHaveBeenCalled();
+  await act(async () => { await vi.advanceTimersByTimeAsync(30_000); }); expect(revoke).toHaveBeenCalledExactlyOnceWith('blob:desktop');
+});
+it('rejected phone sharing retains results and offers a separate explicit download', async () => {
+  vi.stubGlobal('File', NodeFile); vi.stubGlobal('navigator', { share: vi.fn().mockRejectedValue(new Error('cancelled')), canShare: () => true });
+  vi.stubGlobal('URL', { createObjectURL: () => 'blob:phone', revokeObjectURL: vi.fn() });
+  const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  startNavigationMeasurement('phone', scope()); beginNavigationStep(); navigationRouteCompleted('/favorites'); navigationDataReady('favorites');
+  render(createElement(Overlay));
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: '匯出導航結果' })); });
+  expect(click).not.toHaveBeenCalled(); expect(getNavigationMeasurement().samples).toHaveLength(1);
+  expect(screen.getByLabelText('導航結果 JSON')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: '直接下載 JSON' })); expect(click).toHaveBeenCalledTimes(1);
+  act(() => { clearNavigationMeasurement(); startNavigationMeasurement('phone', scope()); });
+  expect(screen.queryByLabelText('導航結果 JSON')).toBeNull();
+});
+it('a blocked desktop download still exposes copyable JSON and does not discard completed samples', async () => {
+  vi.stubGlobal('URL', { createObjectURL: () => { throw new Error('blocked'); }, revokeObjectURL: vi.fn() });
+  startNavigationMeasurement('desktop', scope()); beginNavigationStep(); navigationRouteCompleted('/favorites'); navigationDataReady('favorites');
+  render(createElement(Overlay));
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: '匯出導航結果' })); });
+  const text = screen.getByLabelText('導航結果 JSON') as HTMLTextAreaElement;
+  expect(JSON.parse(text.value).samples).toHaveLength(1); expect(getNavigationMeasurement().samples).toHaveLength(1);
+});
