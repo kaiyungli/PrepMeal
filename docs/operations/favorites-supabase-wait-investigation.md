@@ -202,3 +202,23 @@ Fresh function metadata still shows SECURITY INVOKER/STABLE/empty search_path, s
 The existing browser comparison uses the same verified-caller API, shared reader, selected recipe fields and in-memory response-equivalence checks. It records six balanced alternating blocks and already exports optional pgrst timings. A short coordinated run with upstream timing temporarily enabled can now compare the parse/plan/transaction stages directly, separately from total latency and authentication. No five-minute idle protocol or new recorder is required.
 
 An authenticated HTTP comparison cannot be replaced by the SQL check or an anonymous empty probe. This runtime has neither an authenticated browser session nor a service-role HTTP credential; do not request credentials from the user, bypass the verified-caller endpoint, grant client access to the RPC, or manufacture a token. Use the user's existing signed-in browser when they are ready. Until such a run arrives, a reduction of the measured 293.1 ms parse span remains an unverified hypothesis; default reads remain REST and the upstream timing override remains absent.
+
+## Instrumented REST/RPC comparison received
+
+`PrepMeal_Favorites_Comparison(3).json` is complete comparison-v2: six alternating balanced blocks, REST/RPC twelve observations each, all HTTP 200, matched client resource coverage and upstream timing count 1 on every read. Browser runner completion indicates its in-memory payload parity checks passed. This export has no build commit; do not independently certify its exact application build from the file alone. The coordinated timing override was restored immediately after receipt, both catalog scopes were verified absent and its one-time backup automation was disabled.
+
+| Median, excluding first block (ten observations each) | REST | RPC |
+| --- | ---: | ---: |
+| Total request | 384.0 ms | 350.5 ms |
+| App DB request | 24.34 ms | 18.20 ms |
+| PostgREST parse | 5.90 ms | 0.10 ms |
+| PostgREST plan | 0.10 ms | 0.10 ms |
+| PostgREST transaction | 4.00 ms | 2.75 ms |
+
+The 33.5 ms total median difference is approximately 8.7% of REST's median. All six blocks favor RPC on mean total; excluding the first block, mean differences range 6.5–282 ms. This is within-run evidence, not a statistically established benefit or a claim that all total difference is caused by parsing. All-sample total medians are REST 393 ms, RPC 367 ms; the exclusion is an explicit sensitivity check, not replacement of the raw data.
+
+REST parse observations include 230.3/171.8 ms in block 1, 200.8/93.2 ms in block 2 and 90.8 ms in block 3. RPC parse ranges 0.1–7.0 ms overall and 0.1–1.9 ms after block 1. This supports RPC as a way to reduce the observed URL-parse work/spikes. It does not prove the same reduction on an independently cold RPC-first entry; parser/runtime warming, scheduler/load and request order remain possible contributors.
+
+The first REST request took 2,448 ms: app auth 490.62 ms (JWKS 490.50), DB request 957.32 ms, PostgREST parse 230.3 ms and transaction 558.8 ms. The handler took 1,448.54 ms, while client wait-to-response was 2,443 ms, leaving a 994.46 ms unclassified outside-handler residual. Subsequent RPC runs do not recreate the first request's authentication/transport/admission state. RPC must not be presented as removing those first-use costs or turning the actual first Favorites entry into 350.5 ms.
+
+The next implementation candidate is an independently reviewable preview experiment for full-recipe Favorites reads using the already verified RPC, preserving the verified caller, full projection, cache behavior and mutation endpoints. Keep a REST control and a rollback switch. Do not switch production or infer an index/pool change from these data. A real page-navigation comparison is still required to establish first-entry benefit. No further measurement is needed merely to confirm that this particular run recorded lower RPC parse durations.
