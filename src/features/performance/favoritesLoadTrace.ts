@@ -27,13 +27,21 @@ export function markFavoritesTrace(handle: FavoritesTraceHandle, phase: 'headers
       const server: Record<string, number> = {};
       const header = response.headers?.get('Server-Timing') || '';
       for (const key of ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler',
-        'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap']) {
+        'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap',
+        'pgrst_jwt', 'pgrst_parse', 'pgrst_plan', 'pgrst_transaction', 'pgrst_response']) {
         const match = header.split(',').map(s => s.trim()).find(s => s.startsWith(`${key};dur=`));
         if (match) {
           const n = Number(match.slice(key.length + 5));
           if (Number.isFinite(n) && n >= 0 && n <= 15000) server[`${key}_ms`] = n;
         }
       }
+      try {
+        const raw = JSON.parse(response.headers?.get('X-PrepMeal-Favorites-Rest') || 'null');
+        if (raw?.version === 1 && Number.isSafeInteger(raw.fetch_count) && raw.fetch_count >= 0 && raw.fetch_count <= 1000 &&
+            Number.isSafeInteger(raw.postgrest_timing_count) && raw.postgrest_timing_count >= 0 && raw.postgrest_timing_count <= raw.fetch_count) {
+          server.postgrest_timing_count = raw.postgrest_timing_count;
+        }
+      } catch { /* Old responses leave upstream coverage unknown. */ }
       handle.trace.server = server;
     } catch { /* Diagnostics never copy raw headers or change the response. */ }
   }

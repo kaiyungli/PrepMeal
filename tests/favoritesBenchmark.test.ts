@@ -57,6 +57,11 @@ it('summary uses per-phase medians and leaves unmeasured server stages unknown',
   expect(summary[1]).toEqual({ phase: 'consecutive', count: 4, headers_ms: 25, auth_ms: null, db_ms: null });
   expect(summary[0].headers_ms).toBeNull();
 });
+it.each([-1, 2, '1', null])('rejects invalid upstream coverage while retaining valid legacy coverage (%s)', count => {
+  const raw = { version: 1, fetch_count: 1, native_request_count: 1, sent_count: 1, body_read_count: 1, previously_seen_socket_count: 0, postgrest_timing_count: count };
+  const result = readBenchmarkHeaders(new Headers({ 'X-PrepMeal-Favorites-Rest': JSON.stringify(raw) }));
+  expect(result.rest?.fetch_count).toBe(1); expect(result.rest).not.toHaveProperty('postgrest_timing_count');
+});
 it('new REST metrics and coverage are whitelisted without arbitrary response metadata', () => {
   const parsed = readBenchmarkHeaders(new Headers({
     'Server-Timing': 'rest_dispatch;dur=10, rest_wait_headers;dur=20, rest_body_read;dur=2, rest_sdk_gap;dur=1, secret;dur=999',

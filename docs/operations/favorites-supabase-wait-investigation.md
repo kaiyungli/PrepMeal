@@ -60,3 +60,25 @@ PostgREST/Postgres log-source discovery found two events each in the 12:19–12:
 3. If evaluating RPC as a mitigation, compare independent first/idle runs with REST-first and RPC-first order, preserving authentication, projection, payload equivalence and failure behavior. Current consecutive data alone cannot establish a first-entry fix; do not silently switch default reads.
 
 PostgreSQL statistic semantics: https://www.postgresql.org/docs/17/pgstatstatements.html
+
+## Follow-up: log classification and passive upstream capture
+
+The earlier classification query used the wrong message column. A follow-up using `event_message` succeeded for the same 12:19–12:22 UTC window: 55 PgBouncer events, two PostgreSQL events and two PostgREST events. No matching PGRST003/acquisition, statement-timeout or too-many-connections text was found in that limited window. This is a text check on available logs, not proof that connection acquisition was instantaneous or that logging covers every timeout.
+
+The two PostgREST messages at 12:20:22.751 and 12:21:54.156 UTC are both `Warp server error: Thread killed by timeout manager`. They lack a request ID and do not establish that the successful first REST request timed out. PostgREST's own issue #4799 documents this message occurring under normal operation; it must not be presented as proof of pool saturation or as harmless in every situation.
+
+Read-only configuration observations: pg_stat_statements.track_planning OFF; log_min_duration_statement and log_min_duration_sample both -1; track_io_timing OFF; current diagnostic session statement_timeout 120,000 ms; max_connections 60. The authenticator role has an 8-second statement timeout. These session/role values are different scopes and do not establish the effective timeout of a specific historical request. No role-level PostgREST pool/plan configuration was found in the allowlisted settings inspected; environment/pre-config values remain unknown. No configuration was changed or reloaded.
+
+The draft implementation now passively reads the existing upstream `Server-Timing` response header inside diagnostic Favorites reads. It forwards only finite durations for `jwt`, `parse`, `plan`, `transaction` and `response`, prefixed `pgrst_` to distinguish them from the app's own stages. No new request, Accept/Prefer header, plan endpoint, pool, auth or SQL change is introduced. The original Response, credentials, signal and body-read behavior are preserved.
+
+- `rest.postgrest_timing_count` counts responses with at least one valid upstream timing field. Zero means no valid field was observed; it cannot distinguish disabled timing, a gateway stripping it or malformed/missing headers. Legacy exports without this field have unknown coverage.
+- Each `pgrst_*` duration remains optional. Partial upstream headers provide partial coverage, not zero-duration missing stages. Raw headers/descriptions and arbitrary names are never exported.
+- PostgREST `plan` is its use of the schema cache to generate the main SQL query; it is not PostgreSQL planner time. `transaction` is the database transaction span, not a separately proven SQL execution or queueing duration. The spans are nested inside REST wait and must not be added to it.
+- Upstream Server-Timing must already be supplied by the hosted service. This patch does not enable it. Hosted header availability has not been verified; if absent, further progress requires provider-side metrics or a separately reviewed temporary configuration experiment. A collector alone does not establish the root cause or improve latency.
+
+Validation includes a real local HTTP GET through the installed Supabase SDK, API header forwarding and benchmark/navigation parsing, plus absent/invalid headers, coverage sanitization, concurrent request ownership and unchanged ordinary request behavior. No hosted latency improvement is claimed.
+
+Primary references:
+
+- https://github.com/PostgREST/postgrest/issues/4799
+- https://docs.postgrest.org/en/v12/references/observability.html

@@ -1,6 +1,7 @@
 import type { RestDetails } from './favoritesRestTiming';
 const STAGES = new Set(['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare',
-  'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap']);
+  'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap',
+  'pgrst_jwt', 'pgrst_parse', 'pgrst_plan', 'pgrst_transaction', 'pgrst_response']);
 const moduleStarted = performance.now();
 let moduleRequests = 0;
 export function createFavoritesServerTiming(req: { headers?: Record<string, unknown> }, res: { json: (body: unknown) => unknown; setHeader?: (name: string, value: string) => unknown }) {
@@ -38,6 +39,9 @@ export function createFavoritesServerTiming(req: { headers?: Record<string, unkn
     restDetails(details: RestDetails) {
       if (enabled) rest = { version: 1, fetch_count: details.fetch_count, native_request_count: details.native_request_count,
         sent_count: details.sent_count, body_read_count: details.body_read_count, previously_seen_socket_count: details.previously_seen_socket_count };
+      if (rest && Number.isSafeInteger(details.postgrest_timing_count) && details.postgrest_timing_count! >= 0 && details.postgrest_timing_count! <= details.fetch_count) {
+        rest.postgrest_timing_count = details.postgrest_timing_count;
+      }
     },
     async measure<T>(stage: string, work: () => PromiseLike<T> | T): Promise<T> {
       const start = enabled ? performance.now() : 0;
