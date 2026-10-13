@@ -5,7 +5,7 @@ export type BenchmarkSample = {
   idle_ms?: number; stages: Record<string, number>;
   client?: ClientTiming;
   runtime?: { region: string; module_age_ms: number; module_request: number };
-  rest?: { version: 1; fetch_count: number; native_request_count: number; sent_count: number; body_read_count: number; previously_seen_socket_count: number };
+  rest?: { version: 1; fetch_count: number; native_request_count: number; sent_count: number; body_read_count: number; previously_seen_socket_count: number; postgrest_timing_count?: number };
 };
 export const IDLE_MS = 300_000;
 export function benchmarkSummary(samples: BenchmarkSample[]) {
@@ -26,7 +26,8 @@ export function benchmarkSummary(samples: BenchmarkSample[]) {
   });
 }
 const STAGES = ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler',
-  'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap'];
+  'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap',
+  'pgrst_jwt', 'pgrst_parse', 'pgrst_plan', 'pgrst_transaction', 'pgrst_response'];
 export function readBenchmarkHeaders(headers: Headers): Pick<BenchmarkSample, 'stages' | 'runtime' | 'rest'> {
   const stages: Record<string, number> = {};
   for (const part of (headers.get('Server-Timing') || '').split(',')) {
@@ -42,6 +43,7 @@ export function readBenchmarkHeaders(headers: Headers): Pick<BenchmarkSample, 's
     if (raw?.version === 1 && keys.every(key => Number.isSafeInteger(raw[key]) && raw[key] >= 0 && raw[key] <= 1000)) {
       rest = { version: 1, fetch_count: raw.fetch_count, native_request_count: raw.native_request_count,
         sent_count: raw.sent_count, body_read_count: raw.body_read_count, previously_seen_socket_count: raw.previously_seen_socket_count };
+      if (Number.isSafeInteger(raw.postgrest_timing_count) && raw.postgrest_timing_count >= 0 && raw.postgrest_timing_count <= raw.fetch_count) rest.postgrest_timing_count = raw.postgrest_timing_count;
     }
   } catch { /* Invalid coverage is unknown, never invented. */ }
   try {

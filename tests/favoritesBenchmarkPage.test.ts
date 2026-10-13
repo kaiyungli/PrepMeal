@@ -6,6 +6,7 @@ import { Blob as NodeBlob, File as NodeFile } from 'node:buffer';
 import FavoritesPerformancePage from '@/pages/favorites-performance';
 const { auth } = vi.hoisted(() => ({ auth: { loading: false, isAuthenticated: true, user: { id: 'synthetic-owner' }, favoritesEpoch: 1, getAccessToken: vi.fn(async () => 'synthetic-token') } }));
 vi.mock('@/hooks/useAuthGuard', () => ({ useAuthGuard: () => auth }));
+vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }));
 vi.mock('@/features/layout/hooks/useHeaderController', () => ({ useHeaderController: () => ({}) }));
 vi.mock('@/components/layout/Header', () => ({ default: () => null }));
 vi.mock('next/head', () => ({ default: () => null }));

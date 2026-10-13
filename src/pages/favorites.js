@@ -10,6 +10,7 @@ import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import RecipeList from '@/components/RecipeList';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
 export default function FavoritesPage() {
   const headerCtrl = useHeaderController();
@@ -22,6 +23,7 @@ function AccountFavoritesPage({ auth, headerCtrl, authLoading }) {
   const { isAuthenticated } = auth;
   const { recipes: favoriteRecipes, loading, hasLoaded, refreshing, error, mutationError, isFavorite, isPending, setFavorite, retry } = useAccountFavorites(auth, { includeRecipes: true });
   const handleFavoriteClick = (id) => setFavorite(id, false);
+  useNavigationDataReady('favorites', !authLoading && isAuthenticated && !loading && !refreshing, Boolean(error));
   const timing = useRef(null);
   useEffect(() => { timing.current = startFavoritesTiming(); }, []);
   useEffect(() => {

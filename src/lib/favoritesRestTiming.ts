@@ -5,6 +5,7 @@ import { channel } from 'node:diagnostics_channel';
 export type RestDetails = {
   version: 1; fetch_count: number; native_request_count: number;
   sent_count: number; body_read_count: number; previously_seen_socket_count: number;
+  postgrest_timing_count?: number;
 };
 type Sink = { enabled: boolean; add: (stage: string, ms: number) => void; restDetails: (details: RestDetails) => void };
 type Trace = { active: boolean; sink: Sink; details: RestDetails; fetchMs: number; bodyMs: number };
@@ -69,6 +70,21 @@ export async function favoritesRestFetch(input: RequestInfo | URL, init?: Reques
   finally {
     const ms = performance.now() - started; trace.fetchMs += ms; add(trace, 'rest_fetch_headers', ms);
   }
+  // Observe only already-present upstream timings; never request plans or change
+  // PostgREST configuration. Its "plan" is API query generation, not PG planning.
+  try {
+    const parts = (response.headers.get('Server-Timing') || '').split(',');
+    let observed = false;
+    for (const key of ['jwt', 'parse', 'plan', 'transaction', 'response']) {
+      const part = parts.find(p => p.split(';')[0].trim() === key);
+      const match = part?.match(/;\s*dur\s*=\s*(\d+(?:\.\d+)?)\s*(?:;|$)/);
+      if (!match) continue;
+      const ms = Number(match[1]);
+      if (!Number.isFinite(ms) || ms > 60_000) continue;
+      add(trace, `pgrst_${key}`, ms); observed = true;
+    }
+    if (observed) trace.details.postgrest_timing_count = (trace.details.postgrest_timing_count || 0) + 1;
+  } catch { /* Missing/broken upstream headers never change a query. */ }
   try {
     const original = response.text.bind(response);
     Object.defineProperty(response, 'text', { configurable: true, writable: true, value: async () => {
@@ -85,7 +101,7 @@ export async function favoritesRestFetch(input: RequestInfo | URL, init?: Reques
 export async function measureFavoritesRest<T>(sink: Sink, work: () => PromiseLike<T> | T): Promise<T> {
   if (!sink.enabled) return await work();
   const trace: Trace = { active: true, sink, fetchMs: 0, bodyMs: 0,
-    details: { version: 1, fetch_count: 0, native_request_count: 0, sent_count: 0, body_read_count: 0, previously_seen_socket_count: 0 } };
+    details: { version: 1, fetch_count: 0, native_request_count: 0, sent_count: 0, body_read_count: 0, previously_seen_socket_count: 0, postgrest_timing_count: 0 } };
   const started = performance.now();
   try { return await queries.run(trace, async () => await work()); }
   finally {

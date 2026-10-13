@@ -1,4 +1,5 @@
 // Opt-in, browser-local timings. Never log URLs, tokens, IDs or response data.
+import { favoritesTraceEnabled } from '@/features/performance/favoritesLoadTrace';
 let enabledForDocument = false;
 export function startFavoritesTiming(): number | null {
   try {
@@ -30,6 +31,11 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
       headers.set('X-PrepMeal-Favorites-Perf', '1');
       options = { ...init, headers };
     }
+    if (favoritesTraceEnabled() && (init.method || 'GET') === 'GET') {
+      const headers = new Headers(options.headers);
+      headers.set('X-PrepMeal-Favorites-Perf', '1');
+      options = { ...options, headers };
+    }
     const response = await fetch(input, options);
     status = response.status;
     if (start !== null) {
@@ -37,7 +43,8 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
         const stages: Record<string, number> = {};
         const header = response.headers?.get('Server-Timing') || '';
         for (const stage of ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler',
-          'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap']) {
+          'rest_fetch_headers', 'rest_dispatch', 'rest_wait_headers', 'rest_wire_body', 'rest_body_read', 'rest_sdk_gap',
+          'pgrst_jwt', 'pgrst_parse', 'pgrst_plan', 'pgrst_transaction', 'pgrst_response']) {
           const value = header.split(',').map(part => part.trim()).find(part => part.startsWith(stage + ';dur='));
           if (value) { const duration = Number(value.slice(stage.length + 5)); if (Number.isFinite(duration) && duration >= 0) stages[stage] = duration; }
         }
