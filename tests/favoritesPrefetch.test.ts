@@ -81,15 +81,47 @@ it('repeated intent and navigation during pending prefetch share one in-flight f
   await act(async () => { complete(response()); await Promise.all([first, second]); });
   expect(page.result.current.recipes).toHaveLength(1); expect(fetch).toHaveBeenCalledTimes(1);
 });
-it('prefetch upgrades a pending ID-only read and ignores its late response', async () => {
-  let finishIds!: (v: unknown) => void; let finishFull!: (v: unknown) => void;
-  vi.mocked(fetch).mockImplementationOnce(() => new Promise(resolve => { finishIds = resolve; }) as never)
-    .mockImplementationOnce(() => new Promise(resolve => { finishFull = resolve; }) as never);
+it('speculative prefetch leaves a pending foreground ID-only read untouched', async () => {
+  let finishIds!: (v: unknown) => void;
+  vi.mocked(fetch).mockImplementationOnce(() => new Promise(resolve => { finishIds = resolve; }) as never);
   const ids = renderHook(() => useFavorites('synthetic-token-A', 'intent-A', { sessionKey: 1 }));
   const signal = vi.mocked(fetch).mock.calls[0][1]?.signal;
-  const pending = prefetchFavorites('synthetic-token-A', 'intent-A', 1); expect(signal?.aborted).toBe(true);
-  await act(async () => { finishIds(response(['stale'])); finishFull(response(['A'])); expect(await pending).toBe(true); });
-  expect(ids.result.current.favorites).toEqual(['A']); expect(ids.result.current.error).toBeNull(); expect(fetch).toHaveBeenCalledTimes(2);
+  expect(await prefetchFavorites('synthetic-token-A', 'intent-A', 1)).toBe(false);
+  expect(signal?.aborted).toBe(false); expect(fetch).toHaveBeenCalledTimes(1);
+  await act(async () => { finishIds(response(['A'])); });
+  expect(ids.result.current.favorites).toEqual(['A']); expect(ids.result.current.error).toBeNull();
+  const full = renderHook(() => useFavorites('synthetic-token-A', 'intent-A', { includeRecipes: true, sessionKey: 1 }));
+  await waitFor(() => expect(full.result.current.recipes).toHaveLength(1));
+  expect(fetch).toHaveBeenCalledTimes(2);
+});
+it.each([
+  { onLine: false },
+  { onLine: true, connection: { saveData: true } },
+  { onLine: true, connection: { effectiveType: '2g' } },
+  { onLine: true, connection: { effectiveType: 'slow-2g' } },
+])('restricted network skips speculative token retrieval and GET but permits real navigation: %j', async hints => {
+  vi.stubGlobal('navigator', hints);
+  const token = vi.fn().mockResolvedValue('synthetic-token-A'); auth.getAccessToken = token;
+  const header = renderHook(() => useHeaderController());
+  expect(await header.result.current.onFavoritesIntent()).toBe(false);
+  expect(await prefetchFavorites('synthetic-token-A', 'intent-A', 1)).toBe(false);
+  expect(token).not.toHaveBeenCalled(); expect(fetch).not.toHaveBeenCalled();
+  const full = renderHook(() => useFavorites('synthetic-token-A', 'intent-A', { includeRecipes: true, sessionKey: 1 }));
+  await waitFor(() => expect(full.result.current.recipes).toHaveLength(1));
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+it('a hidden page does not start speculative work', async () => {
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+  expect(await prefetchFavorites('synthetic-token-A', 'intent-A', 1)).toBe(false);
+  expect(fetch).not.toHaveBeenCalled();
+});
+it('returning to fresh confirmed favorites on save-data needs no network request', async () => {
+  const first = renderHook(() => useFavorites('synthetic-token-A', 'intent-A', { includeRecipes: true, sessionKey: 1 }));
+  await waitFor(() => expect(first.result.current.hasLoaded).toBe(true)); first.unmount();
+  vi.stubGlobal('navigator', { onLine: true, connection: { saveData: true } });
+  const next = renderHook(() => useFavorites('synthetic-token-A', 'intent-A', { includeRecipes: true, sessionKey: 1 }));
+  expect(next.result.current.loading).toBe(false); expect(next.result.current.recipes).toHaveLength(1);
+  await act(async () => {}); expect(fetch).toHaveBeenCalledTimes(1);
 });
 it.each([{ loading: true, isAuthenticated: true }, { loading: false, isAuthenticated: false }])('no prefetch for disabled auth: %j', async state => {
   Object.assign(auth, state); const header = renderHook(() => useHeaderController());

@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
 import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
+import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 // Cache configuration
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -71,6 +72,7 @@ export function useFilteredRecipes(
   // Prefetch a page
   const prefetchPage = useCallback((page: number) => {
     if (!enabled) return;
+    if (!canStartSpeculativeFetch()) return;
     if (!hasMore) return;
     if (pageCacheRef.current.has(page)) return;
     if (prefetchingPagesRef.current.has(page)) return;

@@ -1,6 +1,7 @@
 // Account-scoped, shared favorites state. Writes are serialized per recipe.
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { timedFavoritesFetch } from '@/utils/favoritesTiming';
+import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 const EMPTY = Object.freeze({ favorites: [], recipes: [], loaded: false, loading: false, error: null, mutationError: null, pending: [] });
 const entries = new Map();
@@ -129,7 +130,14 @@ async function load(entry, includeRecipes = false) {
 // Intent-only prefetch shares the normal account/epoch store and in-flight GET.
 export async function prefetchFavorites(token, userId, sessionKey = 0) {
   if (!token || !userId) return false;
-  const entry = entryFor(JSON.stringify([String(userId), sessionKey]));
+  const key = JSON.stringify([String(userId), sessionKey]);
+  const cachedEntry = entries.get(key);
+  if (cachedEntry && !needsLoad(cachedEntry, true)) return true;
+  // Speculation must not abort a foreground ID-only read to upgrade its payload.
+  // Genuine navigation can still request the full payload through configure().
+  if (cachedEntry?.load && !cachedEntry.load.includeRecipes) return false;
+  if (!canStartSpeculativeFetch()) return false;
+  const entry = entryFor(key);
   const release = retain(entry, { active: false });
   entry.token = token;
   let timeout;
@@ -157,7 +165,7 @@ export function useFavoritesPrefetch(auth) {
   const userId = auth.user?.id;
   const epoch = auth.favoritesEpoch || 0;
   return useCallback(async () => {
-    if (!enabled || !lease.active) return false;
+    if (!enabled || !lease.active || !canStartSpeculativeFetch()) return false;
     try {
       const token = await getAccessToken();
       if (!token || !lease.active) return false;
