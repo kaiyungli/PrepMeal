@@ -157,3 +157,38 @@ COMMIT;
 The enable/probe/reset sequence was executed and verified against the hosted project. This is a temporary runtime diagnostic, not a schema migration to reapply on deployment. Keep keys out of scripts, repository content, command output and exports. Do not reset pg_stat_statements or change its tracking as part of this protocol.
 
 Configuration reference: https://docs.postgrest.org/en/v13/references/configuration.html#server-timing-enabled
+
+## Actual navigation-v2 capture: first Favorites wait located
+
+`PrepMeal_Navigation_phone(1).json` is complete, four ready steps, schema navigation-v2, selected mode phone, viewport 605×671 and build 1c59235d9614c637e92a625a9a4a9c23db625c70. Mode is user-selected; viewport does not certify hardware. This build has the same application code as tested ee59bce; its later commit changed only this report. The coordinated hosted timing flag was restored immediately after receipt, both override scopes were verified absent, and its one-time backup restoration automation was disabled after successful manual restoration.
+
+| Step | Route complete | Data ready |
+| --- | ---: | ---: |
+| First Favorites | 1,052 ms | 2,004 ms |
+| Recipes | 553 ms | 584 ms |
+| Return Favorites | 3 ms | 5 ms |
+| Home recipe list | 17 ms | 37 ms |
+
+The first Favorites full-recipe read began 77 ms before the click. It took 2,078 ms to fetch response headers, arriving 2,001 ms after the click. Body download/parsing took 1 ms; loaded-store publication was at 2,002 ms; the readiness marker followed 2 ms later. Intent token callbacks took 1/0 ms; the page token callback at 1,055 ms took 0 ms. Page configuration at 1,058 ms reused the existing pending read; only one actual read operation was recorded. Route completion overlaps this request: the 952 ms from route completion to data readiness is not an additional request or an exclusive independent work span.
+
+The same response supplies:
+
+| Nested measurement | Duration |
+| --- | ---: |
+| App handler | 1,128.96 ms |
+| App auth (JWKS subspan 386.40 ms) | 386.53 ms |
+| App DB request | 741.93 ms |
+| Native REST sent-to-headers | 726.58 ms |
+| PostgREST JWT | 15.4 ms |
+| PostgREST URL grammar parse | 293.1 ms |
+| PostgREST SQL generation (plan) | 19.4 ms |
+| PostgREST transaction | 285.9 ms |
+| PostgREST response construction | 0 ms |
+
+Upstream timing coverage count is 1. These parent/child spans overlap and must not be summed across layers. The browser load-to-headers minus handler residual is 949.04 ms, containing transport, edge/function admission/framework and scheduling contributions; this trace does not isolate pure network latency. PostgREST parse and transaction are both material, while its plan stage is relatively small in this sample. Transaction is not a separately measured SQL execution/connection-acquisition duration.
+
+Return Favorites uses a fresh cache and no new read operation after its click is recorded. Its trace includes the earlier first-entry GET in the five-second contextual lookback: all that read's offsets are negative. The reported 2,005 ms publication-to-return-readiness interval is elapsed context between pages, not evidence of a two-second React render on return. Return data readiness itself is 5 ms.
+
+This locates the critical first-entry data wait at the pending API response, with negligible token/body/publication-to-readiness delay in this run. Route startup still took 1,052 ms and can be investigated separately, but it is not necessary to add that route duration to the overlapping GET. This is one run, not proof of a speed regression/improvement relative to the earlier different-build 1,451 ms result.
+
+The next focused experiment is a short instrumented REST/RPC comparison to test whether RPC reduces the measured URL-parse span, while retaining verified-caller filtering and identical projection/payload checks. The existing comparison collector already retains these pgrst fields; no additional recorder is needed. Authentication/JWKS first-use and the outside-handler residual remain separate costs that switching query format cannot be assumed to fix. Do not change default reads or add indexes based solely on this single capture.
