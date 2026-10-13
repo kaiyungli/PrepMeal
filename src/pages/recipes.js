@@ -9,8 +9,9 @@ import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
 import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes';
-import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
+import { useRecipeDetailPrefetch } from '@/features/recipes/hooks/useRecipeDetailPrefetch';
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
+import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
 export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   const firstLoadStartRef = useRef(perfNow());
@@ -21,6 +22,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     isFavorite,
     toggleFavorite,
     favoritesLoading,
+    favoritesError,
     favoritesMutationError,
     isPending,
   } = useUserState();
@@ -91,10 +93,11 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     filters,
   } = useRecipeFilters();
 
-  const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore } = useFilteredRecipes(
+  const { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore, isListSettled } = useFilteredRecipes(
     initialRecipes || [],
     { filters, searchQuery, sortBy, limit: 100, initialTotalCount }
   );
+  useNavigationDataReady('recipes', () => !loading && !favoritesLoading && isListSettled(), Boolean(fetchError || favoritesError));
   
   // Log page ready
   useEffect(() => {
@@ -107,43 +110,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     });
     return measurePageLoadMetrics();
   }, []);
-  // Prefetch dependency key
-  const recipesPrefetchKey = Array.isArray(recipes)
-    ? recipes.slice(0, 8).map(r => r.id).filter(Boolean).join(",")
-    : "";
-
-  // Prefetch first 8 recipes in background
-  useEffect(() => {
-    if (!recipes || recipes.length === 0) return;
-
-    // Only prefetch first 8 recipes to avoid overwhelming
-    const firstBatch = recipes.slice(0, 8);
-
-    console.log('[recipe-prefetch] schedule_batch', {
-      count: firstBatch.length,
-      recipeIds: firstBatch.map(r => r.id)
-    });
-
-    const runPrefetch = () => {
-      firstBatch.forEach((recipe, index) => {
-        if (recipe?.id) {
-          // Stagger prefetches by 250ms to spread network load
-          setTimeout(() => {
-            prefetchRecipeDetail(recipe.id);
-          }, index * 250);
-        }
-      });
-    };
-
-    // Use requestIdleCallback if available, otherwise timeout
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(runPrefetch, { timeout: 2000 });
-      return () => window.cancelIdleCallback?.(idleId);
-    }
-
-    const timer = setTimeout(runPrefetch, 1000);
-    return () => clearTimeout(timer);
-  }, [recipesPrefetchKey]);
+  useRecipeDetailPrefetch(recipes);
   
   // Log data ready
   useEffect(() => {

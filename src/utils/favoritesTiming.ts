@@ -1,4 +1,5 @@
 // Opt-in, browser-local timings. Never log URLs, tokens, IDs or response data.
+import { favoritesTraceEnabled } from '@/features/performance/favoritesLoadTrace';
 let enabledForDocument = false;
 export function startFavoritesTiming(): number | null {
   try {
@@ -29,6 +30,11 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
       const headers = new Headers(init.headers);
       headers.set('X-PrepMeal-Favorites-Perf', '1');
       options = { ...init, headers };
+    }
+    if (favoritesTraceEnabled() && (init.method || 'GET') === 'GET') {
+      const headers = new Headers(options.headers);
+      headers.set('X-PrepMeal-Favorites-Perf', '1');
+      options = { ...options, headers };
     }
     const response = await fetch(input, options);
     status = response.status;

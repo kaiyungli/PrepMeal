@@ -1,6 +1,8 @@
 // Account-scoped, shared favorites state. Writes are serialized per recipe.
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { timedFavoritesFetch } from '@/utils/favoritesTiming';
+import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
+import { beginFavoritesTrace, markFavoritesCache, markFavoritesTrace } from '@/features/performance/favoritesLoadTrace';
 
 const EMPTY = Object.freeze({ favorites: [], recipes: [], loaded: false, loading: false, error: null, mutationError: null, pending: [] });
 const entries = new Map();
@@ -64,7 +66,9 @@ function needsLoad(entry, includeRecipes) {
 }
 function configure(entry, token, includeRecipes) {
   entry.token = token;
-  if (needsLoad(entry, includeRecipes)) void load(entry, includeRecipes);
+  const stale = needsLoad(entry, includeRecipes);
+  markFavoritesCache(!stale, includeRecipes);
+  if (stale) void load(entry, includeRecipes);
 }
 function reset(entry) {
   clearTimeout(entry.idleTimer); entry.idleTimer = null; entry.loadedAt = 0; entry.recipesLoadedAt = 0;
@@ -85,15 +89,18 @@ async function load(entry, includeRecipes = false) {
     revision: entry.revision, generation: entry.generation, promise: null };
   entry.load = request;
   const active = () => request.active && entry.generation === request.generation && entry.consumers > 0;
+  const trace = beginFavoritesTrace('read', includeRecipes);
   publish(entry, { loading: true, error: null });
   request.promise = (async () => {
     try {
       const res = await timedFavoritesFetch(`/api/user/favorites${includeRecipes ? '?include=recipes' : ''}`, {
         headers: { Authorization: `Bearer ${entry.token}` }, signal: request.controller.signal,
       });
+      markFavoritesTrace(trace, 'headers', res);
       if (!active()) return false;
       if (!res.ok) throw new Error('收藏載入失敗，請重試');
       const data = await res.json();
+      markFavoritesTrace(trace, 'body');
       if (!active()) return false;
       if (!data?.success || !Array.isArray(data?.data?.favorites) ||
           (includeRecipes && (!Array.isArray(data?.data?.recipes) ||
@@ -112,11 +119,13 @@ async function load(entry, includeRecipes = false) {
       }
       entry.loadedAt = Date.now();
       publish(entry, { loaded: true });
+      markFavoritesTrace(trace, 'published');
       return true;
     } catch {
       if (active()) publish(entry, { error: '收藏載入失敗，請重試' });
       return false;
     } finally {
+      markFavoritesTrace(trace, 'end');
       if (active()) {
         entry.load = null; publish(entry, { loading: false });
         if (request.retry) void load(entry, includeRecipes);
@@ -129,7 +138,16 @@ async function load(entry, includeRecipes = false) {
 // Intent-only prefetch shares the normal account/epoch store and in-flight GET.
 export async function prefetchFavorites(token, userId, sessionKey = 0) {
   if (!token || !userId) return false;
-  const entry = entryFor(JSON.stringify([String(userId), sessionKey]));
+  const key = JSON.stringify([String(userId), sessionKey]);
+  const cachedEntry = entries.get(key);
+  const fresh = Boolean(cachedEntry && !needsLoad(cachedEntry, true));
+  markFavoritesCache(fresh, true);
+  if (fresh) return true;
+  // Speculation must not abort a foreground ID-only read to upgrade its payload.
+  // Genuine navigation can still request the full payload through configure().
+  if (cachedEntry?.load && !cachedEntry.load.includeRecipes) return false;
+  if (!canStartSpeculativeFetch()) return false;
+  const entry = entryFor(key);
   const release = retain(entry, { active: false });
   entry.token = token;
   let timeout;
@@ -157,12 +175,14 @@ export function useFavoritesPrefetch(auth) {
   const userId = auth.user?.id;
   const epoch = auth.favoritesEpoch || 0;
   return useCallback(async () => {
-    if (!enabled || !lease.active) return false;
+    if (!enabled || !lease.active || !canStartSpeculativeFetch()) return false;
+    const trace = beginFavoritesTrace('intent_token');
     try {
       const token = await getAccessToken();
+      markFavoritesTrace(trace, 'end');
       if (!token || !lease.active) return false;
       return await prefetchFavorites(token, userId, epoch);
-    } catch { return false; }
+    } catch { markFavoritesTrace(trace, 'end'); return false; }
   }, [enabled, lease, getAccessToken, userId, epoch]);
 }
 function setFavorite(entry, recipeId, desired) {
@@ -278,9 +298,11 @@ export function useAccountFavorites(auth, { skipFavorites = false, includeRecipe
   useEffect(() => {
     if (!enabled) return;
     let active = true;
+    const trace = beginFavoritesTrace('page_token');
     Promise.resolve().then(() => getAccessToken()).then(token => {
+      markFavoritesTrace(trace, 'end');
       if (active) setResolved({ scope, token, error: token ? null : '無法取得登入資料，請重新登入' });
-    }, () => { if (active) setResolved({ scope, token: null, error: '無法取得登入資料，請重新登入' }); });
+    }, () => { markFavoritesTrace(trace, 'end'); if (active) setResolved({ scope, token: null, error: '無法取得登入資料，請重新登入' }); });
     return () => { active = false; };
   }, [enabled, scope, getAccessToken, tokenAttempt]);
   const current = enabled && resolved.scope === scope;
