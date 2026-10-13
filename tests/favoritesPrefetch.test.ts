@@ -179,3 +179,25 @@ it('a speculative timeout does not cancel the GET once a real page has joined it
   await act(async () => { vi.advanceTimersByTime(5000); expect(await pending).toBe(false); }); expect(signal?.aborted).toBe(false);
   await act(async () => { complete(response()); }); expect(page.result.current.recipes).toHaveLength(1); expect(fetch).toHaveBeenCalledTimes(1);
 });
+it('concurrent intent events share token resolution and a fresh result skips token retrieval', async () => {
+  let resolveToken!: (token: string) => void;
+  const token = vi.fn(() => new Promise<string>(resolve => { resolveToken = resolve; }));
+  auth.getAccessToken = token;
+  const header = renderHook(() => useHeaderController());
+  let first!: Promise<boolean>; let second!: Promise<boolean>;
+  act(() => { first = header.result.current.onFavoritesIntent(); second = header.result.current.onFavoritesIntent(); });
+  await waitFor(() => expect(token).toHaveBeenCalledTimes(1));
+  expect(fetch).not.toHaveBeenCalled();
+  await act(async () => { resolveToken('synthetic-token-A'); await Promise.all([first, second]); });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  await act(async () => { expect(await header.result.current.onFavoritesIntent()).toBe(true); });
+  expect(token).toHaveBeenCalledTimes(1); expect(fetch).toHaveBeenCalledTimes(1);
+});
+it('a failed intent token can be retried without retaining a failed pending promise', async () => {
+  const token = vi.fn().mockRejectedValueOnce(new Error('token unavailable')).mockResolvedValue('synthetic-token-A');
+  auth.getAccessToken = token;
+  const header = renderHook(() => useHeaderController());
+  await act(async () => { expect(await header.result.current.onFavoritesIntent()).toBe(false); });
+  await act(async () => { expect(await header.result.current.onFavoritesIntent()).toBe(true); });
+  expect(token).toHaveBeenCalledTimes(2); expect(fetch).toHaveBeenCalledTimes(1);
+});

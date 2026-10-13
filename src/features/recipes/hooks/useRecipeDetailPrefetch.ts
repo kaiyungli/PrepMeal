@@ -7,13 +7,23 @@ export function useRecipeDetailPrefetch(recipes: Array<{ id?: string | number }>
     const ids = JSON.parse(key) as Array<string | number | null>;
     if (!ids.some(id => id != null && id !== '')) return;
     let active = true;
+    let running = 0;
+    const queued: string[] = [];
     const timers: ReturnType<typeof setTimeout>[] = [];
+    const drain = () => {
+      while (active && running < 2 && queued.length) {
+        const id = queued.shift()!;
+        running++;
+        void Promise.resolve().then(() => active ? prefetchRecipeDetail(id) : null)
+          .catch(() => null).finally(() => { running--; drain(); });
+      }
+    };
     const run = () => {
       if (!active) return;
       ids.forEach((id, index) => {
         if (id == null || id === '') return;
         timers.push(setTimeout(() => {
-          if (active) void prefetchRecipeDetail(String(id));
+          if (active) { queued.push(String(id)); drain(); }
         }, index * 250));
       });
     };
@@ -25,6 +35,7 @@ export function useRecipeDetailPrefetch(recipes: Array<{ id?: string | number }>
       // the browser does not provide cancelIdleCallback. Keep issued shared
       // detail reads alive: a foreground modal may already be using them.
       active = false;
+      queued.length = 0;
       if (idleId !== null) window.cancelIdleCallback?.(idleId);
       if (initialTimer !== null) clearTimeout(initialTimer);
       timers.forEach(clearTimeout);
