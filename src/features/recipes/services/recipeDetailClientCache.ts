@@ -5,6 +5,8 @@
  * Uses fetch directly (not the API route) for single-call fetch.
  */
 
+import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
+
 type CachedRecipeDetail = {
   recipe: any;
   cachedAt: number;
@@ -84,6 +86,7 @@ export function prefetchRecipeDetail(recipeId: string): Promise<any | null> {
   }
 
   // Start new fetch
+  if (!canStartSpeculativeFetch()) return Promise.resolve(null);
   const traceId = `${key}-prefetch-${Date.now()}`;
   const start = Date.now();
 

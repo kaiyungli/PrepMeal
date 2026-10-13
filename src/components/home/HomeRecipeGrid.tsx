@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import RecipeCard from '@/components/RecipeCard';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
+import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 interface HomeRecipeGridProps {
   recipes: any[];
@@ -95,10 +96,11 @@ function HomeRecipeGrid({
     
     for (const recipe of prefetchRecipes) {
       if (prefetchedRef.current.has(recipe.id)) continue;
-      prefetchedRef.current.add(recipe.id);
       const path = `/recipes/${recipe.slug || recipe.id}`;
       
       const timer = setTimeout(() => {
+        if (!canStartSpeculativeFetch()) return;
+        prefetchedRef.current.add(recipe.id);
         router.prefetch(path);
       }, delay);
       timers.push(timer);
