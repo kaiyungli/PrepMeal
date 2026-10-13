@@ -56,7 +56,22 @@ export function useFilteredRecipes(
   
   // Page cache for prefetching
   const pageCacheRef = useRef(new Map<number, { recipes: any[]; total: number }>());
-  const prefetchingPagesRef = useRef(new Set<number>());
+  const prefetchingPagesRef = useRef(new Map<number, Promise<Awaited<ReturnType<typeof fetchRecipesFromAPI>>>>());
+  const generationRef = useRef(0);
+  const activeRef = useRef(false);
+  const scopeRef = useRef('');
+  const loadMoreLockRef = useRef<object | null>(null);
+  const listSettledRef = useRef(false);
+  const queryKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, 0);
+  const retireSession = useCallback(() => { activeRef.current = false; generationRef.current++; }, []);
+  const retireInitialFetch = useCallback(() => { fetchIdRef.current++; }, []);
+
+  useEffect(() => {
+    activeRef.current = enabled; scopeRef.current = queryKey; generationRef.current++;
+    listSettledRef.current = false; loadMoreLockRef.current = null;
+    pageCacheRef.current.clear(); prefetchingPagesRef.current.clear();
+    return retireSession;
+  }, [queryKey, enabled, retireSession]);
   
   // Check if we should skip initial fetch (homepage case)
   const hasNoFilters = !filters || Object.keys(filters).every(k => !filters[k] || filters[k].length === 0);
@@ -71,13 +86,14 @@ export function useFilteredRecipes(
   
   // Prefetch a page
   const prefetchPage = useCallback((page: number) => {
-    if (!enabled) return;
+    if (!enabled || !activeRef.current || scopeRef.current !== queryKey || !listSettledRef.current || loadMoreLockRef.current) return;
     if (!canStartSpeculativeFetch()) return;
     if (!hasMore) return;
     if (pageCacheRef.current.has(page)) return;
     if (prefetchingPagesRef.current.has(page)) return;
     
-    prefetchingPagesRef.current.add(page);
+    const generation = generationRef.current;
+    const current = () => activeRef.current && generationRef.current === generation && scopeRef.current === queryKey;
     
     const start = Date.now();
     console.log('[recipes-client] prefetch_page_start', {
@@ -86,12 +102,13 @@ export function useFilteredRecipes(
       totalCount
     });
     
-    fetchRecipesFromAPI({
+    const pending = fetchRecipesFromAPI({
       ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }),
       limit: PAGE_SIZE,
       page,
     })
       .then(({ recipes: prefetchedRecipes, total }) => {
+        if (!current()) return { recipes: prefetchedRecipes, total };
         pageCacheRef.current.set(page, { recipes: prefetchedRecipes, total });
         
         console.log('[recipes-client] prefetch_page_done', {
@@ -100,140 +117,66 @@ export function useFilteredRecipes(
           count: prefetchedRecipes.length,
           total
         });
-      })
-      .catch((err) => {
-        console.error('[recipes-client] prefetch_page_failed', {
-          page,
-          error: String(err)
-        });
+        return { recipes: prefetchedRecipes, total };
       })
       .finally(() => {
-        prefetchingPagesRef.current.delete(page);
+        if (prefetchingPagesRef.current.get(page) === pending) prefetchingPagesRef.current.delete(page);
       });
-  }, [enabled, hasMore, filters, searchQuery, sortBy, recipes.length, totalCount]);
-  
-  // Prefetch page 2 after initial data is ready
+    prefetchingPagesRef.current.set(page, pending);
+    void pending.catch(err => {
+      if (current()) console.error('[recipes-client] prefetch_page_failed', { page, error: String(err) });
+    });
+  }, [enabled, hasMore, filters, searchQuery, sortBy, recipes.length, totalCount, queryKey]);
+
+  // One owned timer preloads the next page after the current list settles.
   useEffect(() => {
     if (!enabled) return;
-    if (!hasMore) return;
+    if (!hasMore || loading || loadingMore) return;
     if (recipes.length === 0) return;
-    if (currentPage !== 1) return;
     
     const timer = setTimeout(() => {
       prefetchPage(currentPage + 1);
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [enabled, recipes.length, currentPage, hasMore, prefetchPage]);
+  }, [enabled, recipes.length, currentPage, hasMore, loading, loadingMore, prefetchPage]);
   
-  // Clear cache when filters change
-  useEffect(() => {
-    pageCacheRef.current.clear();
-    prefetchingPagesRef.current.clear();
-  }, [filters, searchQuery, sortBy]);
-  
-  // Load more function for infinite scroll
+  // Foreground pagination joins a pending preload rather than issuing another GET.
   const loadMore = useCallback(() => {
-    if (loadingMore || !hasMore || loading) return;
-    
+    if (!enabled || !activeRef.current || scopeRef.current !== queryKey || !listSettledRef.current ||
+        loadMoreLockRef.current || loadingMore || !hasMore || loading) return;
+    const generation = generationRef.current;
+    const current = () => activeRef.current && generationRef.current === generation && scopeRef.current === queryKey;
+    const lock = {}; loadMoreLockRef.current = lock;
     const nextPage = currentPage + 1;
-    
-    // Check cache first
-    const cachedPage = pageCacheRef.current.get(nextPage);
-    if (cachedPage) {
-      console.log('[recipes-client] load_more_cache_hit', {
-        nextPage,
-        cachedCount: cachedPage.recipes.length,
-        total: cachedPage.total
-      });
-      
-      setLoadingMore(true);
-      setRecipes(prev => {
-        const existingIds = new Set(prev.map((r: any) => r.id));
-        const uniqueNew = cachedPage.recipes.filter((r: any) => !existingIds.has(r.id));
-        const merged = [...prev, ...uniqueNew];
-        setHasMore(merged.length < cachedPage.total);
-        
-        console.log('[recipes-client] load_more_cache_merge_done', {
-          nextPage,
-          uniqueNewCount: uniqueNew.length,
-          mergedCount: merged.length,
-          total: cachedPage.total,
-          hasMore: merged.length < cachedPage.total
-        });
-        
-        return merged;
-      });
-      setTotalCount(cachedPage.total);
-      setCurrentPage(nextPage);
-      pageCacheRef.current.delete(nextPage);
-      
-      setTimeout(() => prefetchPage(nextPage + 1), 0);
-      
-      setTimeout(() => setLoadingMore(false), 50);
-      return;
-    }
-    
-    // No cache, fetch from API
-    const loadMoreStart = Date.now();
-    
-    console.log('[recipes-client] load_more_start', {
-      nextPage,
-      currentPage,
-      currentCount: recipes.length,
-      totalCount,
-      hasMore
-    });
-    
+    const cached = pageCacheRef.current.get(nextPage);
     setLoadingMore(true);
-    
-    fetchRecipesFromAPI({
-      ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }),
-      limit: PAGE_SIZE,
-      page: nextPage,
-    }).then(({ recipes: newRecipes, total }) => {
-      const fetchDuration = Date.now() - loadMoreStart;
-      
-      console.log('[recipes-client] load_more_response', {
-        duration_ms: fetchDuration,
-        nextPage,
-        newCount: newRecipes.length,
-        total
-      });
-      
-      const mergeStart = Date.now();
+    const pending = cached ? Promise.resolve(cached) : prefetchingPagesRef.current.get(nextPage) || fetchRecipesFromAPI({
+      ...buildRecipeApiParams({ filters, searchQuery, sortBy, limit: PAGE_SIZE }), limit: PAGE_SIZE, page: nextPage,
+    });
+    void pending.then(({ recipes: newRecipes, total }) => {
+      if (!current()) return;
       setRecipes(prev => {
-        const existingIds = new Set(prev.map((r: any) => r.id));
-        const uniqueNew = newRecipes.filter((r: any) => !existingIds.has(r.id));
-        const merged = [...prev, ...uniqueNew];
+        if (!current()) return prev;
+        const ids = new Set(prev.map((r: any) => r.id));
+        const merged = [...prev, ...newRecipes.filter((r: any) => !ids.has(r.id))];
         setHasMore(merged.length < total);
-        
-        console.log('[recipes-client] load_more_merge_done', {
-          duration_ms: Date.now() - mergeStart,
-          nextPage,
-          uniqueNewCount: uniqueNew.length,
-          mergedCount: merged.length,
-          total,
-          hasMore: merged.length < total
-        });
-        
         return merged;
       });
-      setTotalCount(total);
-      setCurrentPage(nextPage);
-      
-      // Prefetch next page after successful load
-      setTimeout(() => prefetchPage(nextPage + 1), 0);
+      setTotalCount(total); setCurrentPage(nextPage); pageCacheRef.current.delete(nextPage);
     }).catch(err => {
-      console.error('[useFilteredRecipes] loadMore error:', err);
+      if (current()) console.error('[useFilteredRecipes] loadMore error:', err);
     }).finally(() => {
-      setLoadingMore(false);
+      if (current() && loadMoreLockRef.current === lock) {
+        loadMoreLockRef.current = null; setLoadingMore(false);
+      }
     });
-  }, [currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy, recipes.length, totalCount, prefetchPage]);
-  
+  }, [enabled, queryKey, currentPage, hasMore, loadingMore, loading, filters, searchQuery, sortBy]);
+
   // Initial fetch effect with cache
   useEffect(() => {
     if (!enabled) return;
+    setLoadingMore(false);
     if (shouldSkipInitialFetch) {
       console.log('[recipes-client] initial_fetch_skipped', {
         initial_count: initialRecipes?.length || 0,
@@ -242,7 +185,7 @@ export function useFilteredRecipes(
         hasNoSearch,
         isDefaultSort
       });
-      hasSkippedInitialFetchRef.current = true;
+      hasSkippedInitialFetchRef.current = true; listSettledRef.current = true;
       return;
     }
     
@@ -253,12 +196,13 @@ export function useFilteredRecipes(
     // Check cache first
     const cached = recipeCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
-      if (currentId !== fetchIdRef.current) return;
+      if (!activeRef.current || scopeRef.current !== queryKey || currentId !== fetchIdRef.current) return;
       console.log('[recipes-client] cache_hit', {
         page: 1,
         count: cached.data.length,
         total: cached.total
       });
+      listSettledRef.current = true;
       setRecipes(cached.data);
       setTotalCount(cached.total);
       setHasMore(cached.data.length < cached.total);
@@ -268,7 +212,7 @@ export function useFilteredRecipes(
     }
     
     const timer = setTimeout(async () => {
-      if (currentId !== fetchIdRef.current) return;
+      if (!activeRef.current || scopeRef.current !== queryKey || currentId !== fetchIdRef.current) return;
       
       setLoading(true);
       setFetchError('');
@@ -296,8 +240,9 @@ export function useFilteredRecipes(
           total
         });
         
-        if (currentId !== fetchIdRef.current) return;
+        if (!activeRef.current || scopeRef.current !== queryKey || currentId !== fetchIdRef.current) return;
         
+        listSettledRef.current = true;
         setRecipes(fetched);
         setTotalCount(total);
         setHasMore(fetched.length < total);
@@ -305,31 +250,27 @@ export function useFilteredRecipes(
         setFetchError('');
         recipeCache.set(cacheKey, { data: fetched, timestamp: Date.now(), total });
         
-        // Prefetch page 2 after initial fetch
-        if (fetched.length > 0 && total > fetched.length) {
-          setTimeout(() => prefetchPage(2), 500);
-        }
       } catch (err) {
         console.error('[useFilteredRecipes] API error:', err);
-        if (currentId !== fetchIdRef.current) return;
+        if (!activeRef.current || scopeRef.current !== queryKey || currentId !== fetchIdRef.current) return;
         setFetchError('暫時無法載入食譜，請稍後再試');
         setRecipes([]);
       } finally {
-        if (currentId === fetchIdRef.current) {
+        if (activeRef.current && scopeRef.current === queryKey && currentId === fetchIdRef.current) {
           setLoading(false);
         }
       }
     }, 300);
     
-    return () => clearTimeout(timer);
-  }, [enabled, searchQuery, sortBy, JSON.stringify(filters)]);
+    return () => { clearTimeout(timer); retireInitialFetch(); };
+  }, [enabled, searchQuery, sortBy, JSON.stringify(filters), queryKey, retireInitialFetch]);
   
   // Reset on filter change
   useEffect(() => {
     if (!enabled) return;
     setCurrentPage(1);
-    setHasMore(true);
-  }, [enabled, filters, searchQuery, sortBy]);
+    if (!listSettledRef.current) setHasMore(false);
+  }, [enabled, queryKey]);
   
   return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore };
 }
