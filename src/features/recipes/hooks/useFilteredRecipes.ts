@@ -35,6 +35,7 @@ export interface UseFilteredRecipesResult {
   loadMore: () => void;
   hasMore: boolean;
   loadingMore: boolean;
+  isListSettled: () => boolean;
 }
 
 export function useFilteredRecipes(
@@ -53,6 +54,8 @@ export function useFilteredRecipes(
   
   const fetchIdRef = useRef(0);
   const hasSkippedInitialFetchRef = useRef(false);
+  const listSettledRef = useRef(false);
+  const isListSettled = useCallback(() => listSettledRef.current, []);
   
   // Page cache for prefetching
   const pageCacheRef = useRef(new Map<number, { recipes: any[]; total: number }>());
@@ -235,6 +238,7 @@ export function useFilteredRecipes(
   useEffect(() => {
     if (!enabled) return;
     if (shouldSkipInitialFetch) {
+      listSettledRef.current = true;
       console.log('[recipes-client] initial_fetch_skipped', {
         initial_count: initialRecipes?.length || 0,
         initialTotalCount: options.initialTotalCount,
@@ -247,6 +251,7 @@ export function useFilteredRecipes(
     }
     
     const currentId = ++fetchIdRef.current;
+    listSettledRef.current = false;
     const cacheKey = getCacheKey(filters, searchQuery, sortBy, PAGE_SIZE, 1);
     const now = Date.now();
     
@@ -254,6 +259,7 @@ export function useFilteredRecipes(
     const cached = recipeCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < CACHE_TTL_MS) {
       if (currentId !== fetchIdRef.current) return;
+      listSettledRef.current = true;
       console.log('[recipes-client] cache_hit', {
         page: 1,
         count: cached.data.length,
@@ -297,6 +303,7 @@ export function useFilteredRecipes(
         });
         
         if (currentId !== fetchIdRef.current) return;
+        listSettledRef.current = true;
         
         setRecipes(fetched);
         setTotalCount(total);
@@ -312,6 +319,7 @@ export function useFilteredRecipes(
       } catch (err) {
         console.error('[useFilteredRecipes] API error:', err);
         if (currentId !== fetchIdRef.current) return;
+        listSettledRef.current = true;
         setFetchError('暫時無法載入食譜，請稍後再試');
         setRecipes([]);
       } finally {
@@ -331,5 +339,5 @@ export function useFilteredRecipes(
     setHasMore(true);
   }, [enabled, filters, searchQuery, sortBy]);
   
-  return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore };
+  return { recipes, totalCount, loading, fetchError, loadMore, hasMore, loadingMore, isListSettled };
 }

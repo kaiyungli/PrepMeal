@@ -110,6 +110,7 @@ export function useHomeRecipeFilters({
     loadMore: apiLoadMore,
     hasMore: apiHasMore,
     loadingMore: apiLoadingMore,
+    isListSettled: isApiListSettled,
   } = useFilteredRecipes(initialRecipes, {
     filters: applied.filters,
     searchQuery: applied.searchQuery,
@@ -163,6 +164,7 @@ export function useHomeRecipeFilters({
     loadMore,
     hasMore,
     loadingMore,
+    isListSettled: () => catalog !== null || isApiListSettled(),
   };
 }
 
