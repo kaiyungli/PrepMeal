@@ -27,23 +27,25 @@ it('exports safe numeric stages, pre-click work and non-additive body/publicatio
   markFavoritesTrace(read, 'headers', new Response('{}', { headers: {
     'Server-Timing': 'auth;dur=4, db_request;dur=40, handler;dur=45, pgrst_plan;dur=3, pgrst_transaction;dur=5, private-owner;dur=999',
     'X-PrepMeal-Favorites-Rest': '{"version":1,"fetch_count":1,"postgrest_timing_count":1,"token":"private-secret"}',
+    'X-PrepMeal-Favorites-Read-Path': 'rpc',
     Authorization: 'private-secret', 'X-PrepMeal-Favorites-Runtime': 'private-runtime',
   } }));
   clock = 150; markFavoritesTrace(read, 'body'); clock = 160; markFavoritesTrace(read, 'published');
   clock = 170; markFavoritesTrace(read, 'end'); clock = 180; markFavoritesTrace(token, 'end');
   const trace = readFavoritesTrace(20, 200)!;
   expect(trace.operations[0]).toMatchObject({ duration_ms: 10, start_offset_ms: -20, started_before_click: true });
-  expect(trace.operations[1]).toMatchObject({ include: 'recipes', load_to_headers_ms: 100, body_download_parse_ms: 40,
+  expect(trace.operations[1]).toMatchObject({ include: 'recipes', read_path: 'rpc', load_to_headers_ms: 100, body_download_parse_ms: 40,
     publish_to_data_ready_ms: 40, auth_ms: 4, db_request_ms: 40, handler_ms: 45, pgrst_plan_ms: 3, pgrst_transaction_ms: 5, postgrest_timing_count: 1, status: 200 });
   expect(JSON.stringify(trace)).not.toMatch(/private-|Authorization|https?:/);
 });
 it('distinguishes pending reads and failed responses without claiming data publication', () => {
   startFavoritesTraceRun(); const read = beginFavoritesTrace('read'); clock = 20;
-  markFavoritesTrace(read, 'headers', new Response('{}', { status: 503, headers: { 'Server-Timing': 'auth;dur=NaN, db_request;dur=-1, handler;dur=999999' } }));
+  markFavoritesTrace(read, 'headers', new Response('{}', { status: 503, headers: { 'X-PrepMeal-Favorites-Read-Path': 'private-path', 'Server-Timing': 'auth;dur=NaN, db_request;dur=-1, handler;dur=999999' } }));
   expect(readFavoritesTrace(0, 30)?.operations[0]).toMatchObject({ pending_at_data_ready: true, status: 503 });
   clock = 40; markFavoritesTrace(read, 'end');
   const item = readFavoritesTrace(0, 50)!.operations[0];
   expect(item).not.toHaveProperty('published_offset_ms'); expect(item).not.toHaveProperty('handler_ms');
+  expect(item).not.toHaveProperty('read_path');
 });
 it('bounds the run and filters completed operations older than the lookback', () => {
   startFavoritesTraceRun(); const first = beginFavoritesTrace('read'); clock = 1; markFavoritesTrace(first, 'end');

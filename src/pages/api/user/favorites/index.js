@@ -32,6 +32,7 @@ export default async function handler(req, res) {
   if (!supabaseUrl || !supabaseAnonKey) {
     return res.status(500).json(ApiResponse.error('Missing Supabase config'));
   }
+  let readPath = 'rest';
   
   try {
     const userId = await timing.measure('auth', () => requireAuth(req, res, timing));
@@ -39,7 +40,12 @@ export default async function handler(req, res) {
     
     // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
-      const readPath = req.query.read_path ?? 'rest';
+      // Full recipe reads opt into RPC only in this explicitly enabled preview.
+      // An absent/unknown environment and every production deployment use REST.
+      const previewRpc = process.env.VERCEL_ENV === 'preview' &&
+        process.env.FAVORITES_PREVIEW_RPC_ENABLED === '1' &&
+        process.env.FAVORITES_RPC_COMPARISON_ENABLED === '1' && req.query.include === 'recipes';
+      readPath = req.query.read_path ?? (previewRpc ? 'rpc' : 'rest');
       if (req.query.read_path !== undefined &&
           (!timing.enabled || req.query.include !== 'recipes' || !['rest', 'rpc'].includes(readPath))) {
         return res.status(400).json(ApiResponse.badRequest('Invalid diagnostic read path'));
@@ -99,7 +105,7 @@ export default async function handler(req, res) {
           });
           return res.status(500).json(ApiResponse.error(joinError.message));
         }
-        if (timing.enabled) {
+        if (timing.enabled || previewRpc) {
           res.setHeader?.('X-PrepMeal-Favorites-Read-Path', readPath);
           res.setHeader?.('Cache-Control', 'private, no-store');
         }
@@ -186,7 +192,7 @@ export default async function handler(req, res) {
     return res.status(405).json(ApiResponse.methodNotAllowed());
     
   } catch (err) {
-    if (req.method === 'GET' && req.query.read_path === 'rpc') {
+    if (req.method === 'GET' && readPath === 'rpc') {
       return res.status(500).json(ApiResponse.error('RPC comparison read failed'));
     }
     return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
