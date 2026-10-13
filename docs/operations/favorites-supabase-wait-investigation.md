@@ -4,7 +4,7 @@
 
 The latest phone exports show a multi-second wait after the server sends its Supabase REST request. A matching-order gateway sequence places a similar duration inside Supabase's gateway/upstream boundary. Existing indexes and PostgreSQL execution statistics do not support adding indexes or treating the entire REST wait as SQL execution time. Exact separation of PostgREST connection acquisition, request planning, schema metadata, PostgreSQL execution and upstream transport remains unavailable.
 
-No application behavior, database data, schema, RLS, connection configuration, statistics setting or production deployment was changed during this investigation. All database statements were SELECT/catalog reads or a SELECT-only EXPLAIN in a READ ONLY transaction rolled back afterward. The report contains no account IDs, request URLs, credentials, recipe data or raw SQL/log messages from users.
+The initial investigation was read-only: database statements were SELECT/catalog reads or a SELECT-only EXPLAIN in a READ ONLY transaction rolled back afterward. A subsequent bounded timing-header experiment, documented below, temporarily changed only the PostgREST timing flag and restored its absent baseline. Application behavior, data, schema, RLS, pool/statistics settings and production deployment were unchanged. The report contains no account IDs, request URLs, credentials, recipe data or raw SQL/log messages from users.
 
 ## Export evidence
 
@@ -82,3 +82,78 @@ Primary references:
 
 - https://github.com/PostgREST/postgrest/issues/4799
 - https://docs.postgrest.org/en/v12/references/observability.html
+
+## Hosted timing availability confirmed; temporary override restored
+
+A direct anonymous, publishable-key REST probe selected IDs with limit=0. It returned HTTP 200 and an empty array, but no Server-Timing header. No personal Favorites, credentials, IDs or response payloads were exported. This probe establishes missing timing on that path, not every authenticated path.
+
+After checking current PostgREST configuration documentation and confirming neither role-wide nor database-specific authenticator timing overrides existed, a short diagnostic enabled only `pgrst.server_timing_enabled=true` on authenticator and notified PostgREST to reload configuration. No SQL plan endpoint, query logging, pool setting, authentication setting, schema or data change was introduced.
+
+Two empty-result GET probes were attempted:
+
+| Probe | Result | Upstream timing |
+| --- | --- | --- |
+| ID-only, limit=0 | Client transport URLError after approximately 8 seconds; no HTTP response observed | Unknown; this is not evidence of SQL/pool timeout |
+| Nested recipe projection, synthetic empty owner, limit=0 | HTTP 200, empty array | jwt 1.2 ms; parse 35.6 ms; plan 10.1 ms; transaction 115.0 ms; response 1.4 ms |
+
+The successful join probe proves that this hosted deployment can emit the supported header and that the existing passive collector can consume its documented numeric format. It does not reproduce the earlier caller's full Favorites read or prove the earlier four-second wait was planning/transaction time. Its approximately 2,584 ms client total includes an independently established HTTP connection and must not be compared as a navigation improvement or decomposed by simply subtracting upstream stage totals.
+
+Immediately after these probes, the temporary role override was RESET, PostgREST was notified again, and catalog checks confirmed both role-wide and database-specific overrides absent, matching preflight. The existing published navigation build still works, but upstream fields may be missing again now that the override has been removed. No configuration change was left enabled.
+
+### Ready protocol for the next actual Favorites trace
+
+Use one short, coordinated capture window rather than another uninstrumented five-minute run:
+
+1. Confirm the intended preview is PR #88's current tested code and the diagnostic is enabled there. Recheck only the timing override's exact role/database scopes; stop if they differ from the recorded absent baseline.
+2. Temporarily enable the documented timing flag with the same guarded change below. This affects timing headers on project REST responses during the window; it does not change query plans or data. Do not leave it enabled unattended.
+3. Capture the actual four-step navigation-v2 trace or the existing explicit comparison read while the window is open. Require `postgrest_timing_count` greater than zero and preserve the individual optional pgrst fields. The actual owner/full recipe payload matters; a limit=0 probe cannot stand in for it.
+4. Restore the prior setting immediately, even on timeout, cancellation, hidden page or failed export. Recheck the role and database scopes and report the restoration. Do not re-enable indefinitely to wait for a user who is unavailable.
+5. Interpret PostgREST plan as SQL generation from schema metadata, transaction as a broader DB transaction span, and absent stages as unknown. Pool queuing is still not separately proven by the five timing stages; consult provider pool metrics if the long residual persists.
+
+Guarded temporary enable (only valid for the currently verified absent baseline):
+
+```sql
+BEGIN;
+DO $diagnostic$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_roles r
+    CROSS JOIN LATERAL unnest(r.rolconfig) AS c(setting)
+    WHERE r.rolname = 'authenticator'
+      AND split_part(c.setting, '=', 1) = 'pgrst.server_timing_enabled'
+  ) OR EXISTS (
+    SELECT 1 FROM pg_db_role_setting s JOIN pg_roles r ON r.oid = s.setrole
+    CROSS JOIN LATERAL unnest(s.setconfig) AS c(setting)
+    WHERE r.rolname = 'authenticator'
+      AND split_part(c.setting, '=', 1) = 'pgrst.server_timing_enabled'
+  ) THEN
+    RAISE EXCEPTION 'Timing setting differs from absent baseline; stop';
+  END IF;
+  EXECUTE 'ALTER ROLE authenticator SET pgrst.server_timing_enabled = ''true''';
+END $diagnostic$;
+NOTIFY pgrst, 'reload config';
+COMMIT;
+```
+
+Restore only this task's unchanged temporary value; an externally changed value needs inspection rather than being overwritten:
+
+```sql
+BEGIN;
+DO $diagnostic$
+BEGIN
+  IF (SELECT c.setting FROM pg_roles r
+      CROSS JOIN LATERAL unnest(r.rolconfig) AS c(setting)
+      WHERE r.rolname = 'authenticator'
+        AND split_part(c.setting, '=', 1) = 'pgrst.server_timing_enabled')
+      IS DISTINCT FROM 'pgrst.server_timing_enabled=true' THEN
+    RAISE EXCEPTION 'Timing setting changed externally; stop automatic reset';
+  END IF;
+  EXECUTE 'ALTER ROLE authenticator RESET pgrst.server_timing_enabled';
+END $diagnostic$;
+NOTIFY pgrst, 'reload config';
+COMMIT;
+```
+
+The enable/probe/reset sequence was executed and verified against the hosted project. This is a temporary runtime diagnostic, not a schema migration to reapply on deployment. Keep keys out of scripts, repository content, command output and exports. Do not reset pg_stat_statements or change its tracking as part of this protocol.
+
+Configuration reference: https://docs.postgrest.org/en/v13/references/configuration.html#server-timing-enabled
