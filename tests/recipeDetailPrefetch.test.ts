@@ -54,3 +54,21 @@ it('StrictMode effect replay dispatches each preload only once', async () => {
   renderHook(() => useRecipeDetailPrefetch(recipes), { wrapper });
   await advance(4000); expect(prefetch).toHaveBeenCalledTimes(8);
 });
+it('slow detail reads keep at most two active and release queued work on completion', async () => {
+  const resolve: Array<() => void> = [];
+  prefetch.mockImplementation(() => new Promise<void>(done => { resolve.push(done); }));
+  renderHook(() => useRecipeDetailPrefetch(recipes));
+  await advance(4000); expect(prefetch.mock.calls).toEqual([['recipe-0'], ['recipe-1']]);
+  await act(async () => { resolve[0](); });
+  expect(prefetch.mock.calls).toEqual([['recipe-0'], ['recipe-1'], ['recipe-2']]);
+  await act(async () => { resolve[1](); });
+  expect(prefetch).toHaveBeenCalledTimes(4);
+});
+it('unmount retires queued work even when already issued detail reads finish later', async () => {
+  const resolve: Array<() => void> = [];
+  prefetch.mockImplementation(() => new Promise<void>(done => { resolve.push(done); }));
+  const page = renderHook(() => useRecipeDetailPrefetch(recipes));
+  await advance(4000); expect(prefetch).toHaveBeenCalledTimes(2); page.unmount();
+  await act(async () => { resolve.forEach(done => done()); });
+  await advance(4000); expect(prefetch).toHaveBeenCalledTimes(2);
+});

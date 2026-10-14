@@ -170,19 +170,29 @@ export function useFavoritesPrefetch(auth) {
   const enabled = !auth.loading && auth.isAuthenticated && Boolean(auth.user?.id);
   const scope = JSON.stringify([enabled, auth.user?.id, auth.favoritesEpoch || 0]);
   const lease = useMemo(() => ({ active: false, scope }), [scope]);
+  const intentRef = useRef(null);
   useEffect(() => activatePrefetchLease(lease), [lease]);
   const { getAccessToken } = auth;
   const userId = auth.user?.id;
   const epoch = auth.favoritesEpoch || 0;
-  return useCallback(async () => {
-    if (!enabled || !lease.active || !canStartSpeculativeFetch()) return false;
+  return useCallback(() => {
+    if (!enabled || !lease.active || !canStartSpeculativeFetch()) return Promise.resolve(false);
+    if (intentRef.current?.lease === lease) return intentRef.current.pending;
+    const cached = entries.get(JSON.stringify([String(userId), epoch]));
+    if (cached && !needsLoad(cached, true)) return Promise.resolve(true);
+    if (cached?.load && !cached.load.includeRecipes) return Promise.resolve(false);
     const trace = beginFavoritesTrace('intent_token');
-    try {
-      const token = await getAccessToken();
-      markFavoritesTrace(trace, 'end');
-      if (!token || !lease.active) return false;
-      return await prefetchFavorites(token, userId, epoch);
-    } catch { markFavoritesTrace(trace, 'end'); return false; }
+    const pending = (async () => {
+      try {
+        const token = await getAccessToken();
+        markFavoritesTrace(trace, 'end');
+        if (!token || !lease.active) return false;
+        return await prefetchFavorites(token, userId, epoch);
+      } catch { markFavoritesTrace(trace, 'end'); return false; }
+    })()
+      .finally(() => { if (intentRef.current?.pending === pending) intentRef.current = null; });
+    intentRef.current = { lease, pending };
+    return pending;
   }, [enabled, lease, getAccessToken, userId, epoch]);
 }
 function setFavorite(entry, recipeId, desired) {
