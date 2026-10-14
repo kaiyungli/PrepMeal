@@ -1,5 +1,5 @@
 // Opt-in, browser-local timings. Never log URLs, tokens, IDs or response data.
-import { favoritesTraceEnabled } from '@/features/performance/favoritesLoadTrace';
+import { favoritesTraceEnabled, getFavoritesTraceReader } from '@/features/performance/favoritesLoadTrace';
 let enabledForDocument = false;
 export function startFavoritesTiming(): number | null {
   try {
@@ -26,6 +26,7 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
   let status = 0;
   try {
     let options = init;
+    let requestInput = input;
     if (start !== null) {
       const headers = new Headers(init.headers);
       headers.set('X-PrepMeal-Favorites-Perf', '1');
@@ -35,8 +36,12 @@ export async function timedFavoritesFetch(input: string, init: RequestInit): Pro
       const headers = new Headers(options.headers);
       headers.set('X-PrepMeal-Favorites-Perf', '1');
       options = { ...options, headers };
+      const reader = getFavoritesTraceReader();
+      if (input === '/api/user/favorites?include=recipes' && (reader === 'rest' || reader === 'rpc')) {
+        requestInput = `${input}&read_path=${reader}`;
+      }
     }
-    const response = await fetch(input, options);
+    const response = await fetch(requestInput, options);
     status = response.status;
     if (start !== null) {
       try {

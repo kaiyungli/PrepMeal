@@ -100,13 +100,41 @@ it('joins a pre-click intent read when the page mounts, instead of issuing a sec
   let headersDone!: (r: Response) => void;
   const fetcher = vi.fn(() => new Promise<Response>(resolve => { headersDone = resolve; })); vi.stubGlobal('fetch', fetcher);
   const auth = { loading: false, isAuthenticated: true, user: { id: 'private-prefetch-owner' }, favoritesEpoch: 4, getAccessToken: vi.fn(async () => 'private-secret') };
-  startNavigationMeasurement('desktop', 'scope');
+  startNavigationMeasurement('desktop', 'scope', 'rpc');
   const intent = renderHook(() => useFavoritesPrefetch(auth));
   let pending!: Promise<boolean>; await act(async () => { pending = intent.result.current(); });
   clock = 100; beginNavigationStep();
   renderHook(() => useAccountFavorites(auth, { includeRecipes: true })); await act(async () => {});
   expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(fetcher.mock.calls[0][0]).toBe('/api/user/favorites?include=recipes&read_path=rpc');
   clock = 200; await act(async () => { headersDone(new Response(JSON.stringify({ success: true, data: { favorites: [], recipes: [] } }))); await pending; });
   clock = 210; navigationRouteCompleted('/favorites'); navigationDataReady('favorites');
   expect(exportNavigationMeasurement().samples[0].favorites_trace?.operations.filter(t => t.kind === 'read')).toMatchObject([{ start_offset_ms: -100, started_before_click: true }]);
+});
+it.each(['rest', 'rpc'] as const)('routes only new full GETs through an explicit %s measurement', async reader => {
+  startNavigationMeasurement('phone', 'scope', reader);
+  const response = new Response('{}'); const fetcher = vi.fn().mockResolvedValue(response); vi.stubGlobal('fetch', fetcher);
+  const options = { headers: { Authorization: 'synthetic-secret' }, signal: new AbortController().signal };
+  expect(await timedFavoritesFetch('/api/user/favorites?include=recipes', options)).toBe(response);
+  expect(fetcher.mock.calls[0][0]).toBe(`/api/user/favorites?include=recipes&read_path=${reader}`);
+  expect(fetcher.mock.calls[0][1].signal).toBe(options.signal);
+  expect(fetcher.mock.calls[0][1].headers.get('X-PrepMeal-Favorites-Perf')).toBe('1');
+  expect(exportNavigationMeasurement().requested_favorites_reader).toBe(reader);
+  for (const [input, init] of [
+    ['/api/user/favorites', options],
+    ['/api/user/favorites?include=recipes&read_path=rest', options],
+    ['/api/user/favorites?include=recipes', { ...options, method: 'POST' }],
+    ['/api/user/favorites?include=recipes', { ...options, method: 'DELETE' }],
+  ] as const) {
+    await timedFavoritesFetch(input, init); expect(fetcher.mock.calls.at(-1)![0]).toBe(input);
+  }
+  clearNavigationMeasurement(); await timedFavoritesFetch('/api/user/favorites?include=recipes', options);
+  expect(fetcher.mock.calls.at(-1)).toEqual(['/api/user/favorites?include=recipes', options]);
+});
+it('invalid reader input is normalized without exporting arbitrary strings or changing normal reads', async () => {
+  startNavigationMeasurement('phone', 'scope', 'private-value' as never);
+  expect(exportNavigationMeasurement().requested_favorites_reader).toBe('default');
+  const fetcher = vi.fn().mockResolvedValue(new Response('{}')); vi.stubGlobal('fetch', fetcher);
+  await timedFavoritesFetch('/api/user/favorites?include=recipes', {});
+  expect(fetcher.mock.calls[0][0]).toBe('/api/user/favorites?include=recipes');
 });

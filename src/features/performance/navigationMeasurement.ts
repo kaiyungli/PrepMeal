@@ -1,4 +1,4 @@
-import { clearFavoritesTraceRun, readFavoritesTrace, startFavoritesTraceRun } from './favoritesLoadTrace';
+import { clearFavoritesTraceRun, getFavoritesTraceReader, readFavoritesTrace, startFavoritesTraceRun, type FavoritesReader } from './favoritesLoadTrace';
 export type Page = 'favorites' | 'recipes' | 'home';
 export const STEPS = [
   { page: 'favorites', label: '首次測試收藏' },
@@ -22,11 +22,11 @@ export const subscribeNavigationMeasurement = (fn: () => void) => { listeners.ad
 export const getNavigationMeasurement = () => snapshot;
 export const getServerNavigationMeasurement = () => IDLE;
 export const measurementScope = (userId: string, epoch = 0) => JSON.stringify([userId, epoch]);
-export function startNavigationMeasurement(mode: 'desktop' | 'phone', accountScope: string) {
+export function startNavigationMeasurement(mode: 'desktop' | 'phone', accountScope: string, reader: FavoritesReader = 'default') {
   clearNavigationMeasurement();
   if (typeof window === 'undefined') return;
   scope = accountScope;
-  startFavoritesTraceRun();
+  startFavoritesTraceRun(reader);
   publish({ enabled: true, mode, viewport: { width: window.innerWidth, height: window.innerHeight }, samples: [] });
 }
 export function clearNavigationMeasurement() {
@@ -90,7 +90,7 @@ export function cancelNavigationStep(outcome: 'cancelled' | 'hidden' = 'cancelle
 export function exportNavigationMeasurement() {
   const sha = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
   return { schema: 'prepmeal-navigation-measurement-v2', complete: snapshot.samples.length === STEPS.length && snapshot.samples.every(s => s.outcome === 'ready'),
-    mode: snapshot.mode, viewport: { ...snapshot.viewport },
+    mode: snapshot.mode, viewport: { ...snapshot.viewport }, requested_favorites_reader: getFavoritesTraceReader(),
     ...(sha && /^[a-f0-9]{40}$/.test(sha) ? { build_commit: sha } : {}),
     note: 'Explicit SPA steps. First means first measured entry, not a cold cache. Data-ready marks settled list state, not paint or full-page readiness. Favorites traces cover operations started after measurement was enabled, including operations completed up to 5s before the click and earlier operations still pending. Negative offsets indicate work before the click. Spans may overlap; server durations are contained within the read, not additive. Body duration includes download and parsing; publication-to-ready includes React scheduling, not paint. Missing reads do not prove no request. Resource counts are completed same-origin API entries in the browser buffer during each step; may include prior requests and omit in-flight or evicted entries. No credentials, account IDs, URLs or recipe data.',
     samples: snapshot.samples.map(s => ({ ...s })) };
