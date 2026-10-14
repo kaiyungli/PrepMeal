@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from '../engine/budgetPreference';
 import { buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
@@ -98,7 +99,9 @@ export function getCandidatesForAddRandom(
     && (!slot || fitsCompleteMealSetting(r, slot.composition, slot.allowCompleteMeal)));
 
   // Exact role match first
-  const exact = unused.filter((r: any) => matchesSlotRole(r, slotRole));
+  const exact = unused.filter((r: any) => slot
+    ? matchesConfiguredSlotRole(r, slotRole, slot.composition, slot.allowCompleteMeal)
+    : matchesSlotRole(r, slotRole));
   if (exact.length > 0) return exact;
 
   return allowsCrossRoleFallback(slotRole) ? unused : [];
