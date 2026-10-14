@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   requireAuth: vi.fn(),
   rpc: vi.fn(),
+  listQuery: vi.fn(),
+  listOwner: vi.fn(),
 }));
 
 vi.mock('@/pages/api/user/_auth', () => ({
@@ -18,7 +20,7 @@ vi.mock('@/pages/api/user/_auth', () => ({
 }));
 
 vi.mock('@supabase/supabase-js', () => ({
-  createClient: vi.fn(() => ({ rpc: mocks.rpc })),
+  createClient: vi.fn(() => ({ rpc: mocks.rpc, from: () => ({ select: () => ({ eq: (...args: unknown[]) => { mocks.listOwner(...args); return { order: mocks.listQuery }; } }) }) })),
 }));
 
 import handler from '@/pages/api/user/menus/index';
@@ -157,5 +159,24 @@ describe('POST /api/user/menus', () => {
     );
 
     expect(response.statusCode).toBe(500);
+  });
+});
+
+describe('GET /api/user/menus', () => {
+  it('scopes the list by authenticated owner and does not leak database errors', async () => {
+    const rawMessage = 'private db host and SQL details';
+    mocks.listQuery.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: rawMessage } });
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const response = createResponse();
+      await handler({ method: 'GET', headers: { authorization: 'Bearer token' } } as never, response as never);
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toEqual({ success: false, error: 'Failed to load plans' });
+      expect(JSON.stringify(response.body)).not.toContain(rawMessage);
+      expect(mocks.listOwner).toHaveBeenCalledWith('user_id', 'user-1');
+      expect(mocks.listQuery).toHaveBeenCalledOnce();
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 });

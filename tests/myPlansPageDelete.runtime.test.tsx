@@ -38,7 +38,7 @@ const PLANS = ['A', 'B', 'C'].map((k) => ({
 }));
 const idOf = (name: string) => PLANS.find((p) => p.name === name)!.id;
 
-type Outcome = { status: number } | 'network-error';
+type Outcome = { status: number; success?: boolean; deleted?: boolean } | 'network-error';
 type Pending = { settle: (outcome: Outcome) => Promise<void> };
 
 let pendingDeletes: Map<string, Pending>;
@@ -60,7 +60,7 @@ function installFetch() {
           settle: async (outcome) => {
             await act(async () => {
               if (outcome === 'network-error') reject(new TypeError('Failed to fetch'));
-              else resolve(new Response(outcome.status === 200 ? '{"success":true}' : '{"success":false}', { status: outcome.status }));
+              else resolve(new Response(JSON.stringify({ success: outcome.success ?? outcome.status === 200, data: { deleted: outcome.deleted ?? true } }), { status: outcome.status }));
             });
           },
         });
@@ -408,6 +408,20 @@ describe('My Plans: concurrent deletes with mixed outcomes', () => {
     await settle('Plan B', { status: 200 });
     expect(visiblePlans()).toEqual(['Plan C']);
     expect(toastText()).toBe('已刪除');
+  });
+});
+
+describe('My Plans: API semantic delete failures', () => {
+  it.each([
+    ['success false', { status: 200, success: false }],
+    ['deleted false', { status: 200, deleted: false }],
+  ] as const)('200 with %s must not remove a plan or show success', async (_label, outcome) => {
+    await renderWithPlans();
+    await startDelete('Plan A');
+    await settle('Plan A', outcome);
+    expect(visiblePlans()).toEqual(['Plan A', 'Plan B', 'Plan C']);
+    expect(toastText()).toBe('刪除失敗');
+    expect(deleteButton('Plan A').disabled).toBe(false);
   });
 });
 
