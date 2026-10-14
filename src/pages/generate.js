@@ -117,7 +117,6 @@ export default function GeneratePage() {
     handleOpenShoppingList,
     handleReplaceRecipe,
     handleClearAll,
-    handleSave,
     handleRecipeClick,
     handleCloseRecipe,
     handleCloseShoppingList,
