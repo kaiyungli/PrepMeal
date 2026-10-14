@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { saveGeneratedPlan, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
+import { getDefaultPlanName, normalizePlanForSave } from '@/features/generate/mappers/normalizePlanForSave';
 
 const payload: SavePlanPayload = {
   name: '測試餐單',
@@ -52,5 +53,29 @@ describe('saveGeneratedPlan', () => {
       success: false,
       error: 'Invalid save response',
     });
+  });
+});
+
+
+describe('generated plan naming', () => {
+  it('preserves the existing default name when the user does not edit it', () => {
+    const name = getDefaultPlanName(2, 5);
+    const generated = normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 2, 5);
+    expect(generated.name).toBe(name);
+    expect(generated.name).toContain('2人 5日餐單');
+    expect(generated.items).toHaveLength(1);
+  });
+
+  it('sends a custom plan name in the existing save API payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, data: { plan_id: 'plan-custom' } }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const edited = { ...normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 2, 5), name: '週末家庭餐單' };
+    expect(await saveGeneratedPlan(edited, 'token')).toEqual({ success: true });
+    const request = fetchMock.mock.calls[0][1];
+    expect(JSON.parse(request.body).name).toBe('週末家庭餐單');
+    expect(JSON.parse(request.body).items).toEqual(edited.items);
   });
 });
