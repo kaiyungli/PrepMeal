@@ -126,11 +126,11 @@ export function useGenerateActions({
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
     if (customName !== undefined) {
       const name = customName.trim();
-      if (!name || name.length > 100) {
-        alert('餐單名稱須為 1 至 100 個字元');
+      if (name.length > 100) {
+        alert('餐單名稱不可超過 100 個字元');
         return;
       }
-      payload.name = name;
+      if (name) payload.name = name;
     }
     if (payload.items.length === 0) {
       alert('No meal plan to save');
