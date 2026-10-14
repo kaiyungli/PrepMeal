@@ -58,6 +58,24 @@ export function matchesSlotRole(recipe: SlotRoleRecipe | null | undefined, slotR
 }
 
 /**
+ * Option 1: an explicitly enabled complete meal may replace a protein-main
+ * slot in a mixed composition, while the veg-side slot stays mandatory.
+ * Never promote protein_side, soup, or veg_side by their protein tag.
+ */
+export function matchesConfiguredSlotRole(
+  recipe: SlotRoleRecipe | null | undefined,
+  slotRole: string,
+  composition: string,
+  allowCompleteMeal?: boolean
+): boolean {
+  if (matchesSlotRole(recipe, slotRole)) return true;
+  return slotRole === 'protein_main'
+    && composition !== 'complete_meal'
+    && allowCompleteMeal === true
+    && matchesSlotRole(recipe, 'complete_meal');
+}
+
+/**
  * A day holds at most one complete meal, in every composition (single-slot
  * complete_meal days meet it trivially). True when `recipe` may join a day
  * whose other slots hold `otherRecipesInDay`. allowCompleteMeal=false is the
