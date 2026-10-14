@@ -141,6 +141,49 @@ describe('locked recipes', () => {
   });
 });
 
+describe('locked recipes under updated filters', () => {
+  it('drops a locked recipe removed from the currently eligible pool', () => {
+    const plan = planWeekAdvanced([ordinaryMain2], {
+      ...meatVegConfig, daysPerWeek: 1, slotRoles: ['protein_main'], dishesPerDay: 1,
+      lockedSlots: { 'mon-0': true }, lockedRecipes: { 'mon-0': ordinaryMain },
+    });
+    expect(plan.mon[0]?.id).toBe('main-pork');
+  });
+
+  it('drops a lock when the selected cuisine changes', () => {
+    const japanese = recipe('main-japanese', 'protein_main', 'main', 'fish', { cuisine: 'japanese' });
+    const plan = planWeekAdvanced([ordinaryMain, japanese], {
+      ...meatVegConfig, slotRoles: ['protein_main'], dishesPerDay: 1, cuisines: ['japanese'],
+      lockedSlots: { 'mon-0': true }, lockedRecipes: { 'mon-0': ordinaryMain },
+    });
+    expect(plan.mon[0]?.id).toBe('main-japanese');
+  });
+
+  it('drops a lock when its protein becomes excluded', () => {
+    const plan = planWeekAdvanced([ordinaryMain, ordinaryMain2], {
+      ...meatVegConfig, slotRoles: ['protein_main'], dishesPerDay: 1, exclusions: ['fish'],
+      lockedSlots: { 'mon-0': true }, lockedRecipes: { 'mon-0': ordinaryMain },
+    });
+    expect(plan.mon[0]?.id).toBe('main-pork');
+  });
+
+  it('retains eligible locks rather than replacing them', () => {
+    const plan = planWeekAdvanced([ordinaryMain, ordinaryMain2], {
+      ...meatVegConfig, slotRoles: ['protein_main'], dishesPerDay: 1,
+      lockedSlots: { 'mon-0': true }, lockedRecipes: { 'mon-0': ordinaryMain },
+    });
+    expect(plan.mon[0]?.id).toBe('main-fish');
+  });
+
+  it('does not reserve an ineligible lock on a day outside the generated range', () => {
+    const plan = planWeekAdvanced([ordinaryMain2], {
+      ...meatVegConfig, slotRoles: ['protein_main'], dishesPerDay: 1,
+      lockedSlots: { 'sun-0': true }, lockedRecipes: { 'sun-0': ordinaryMain },
+    });
+    expect(plan.mon[0]?.id).toBe('main-pork');
+  });
+});
+
 describe('perfect pantry match', () => {
   const pantryOnly = (r: ReturnType<typeof recipe>, tag: string) => ({ ...r, canonical_ingredients: [tag] });
 
