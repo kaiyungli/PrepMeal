@@ -1,0 +1,11 @@
+# Same-build Favorites navigation reader comparison
+
+The navigation launcher offers Normal / REST / RPC. The default remains Normal. An explicit REST/RPC run appends the validated selector only to the existing full Favorites GET while its in-memory trace is enabled. It uses the already gated diagnostic API and the caller's usual authenticated request; no new endpoint, token, request, database configuration, or permission is added. ID-only requests, writes, explicit existing selectors and reads outside the run retain their original input. Ending the run, logout or a changed auth scope clears selection with the trace.
+
+Navigation-v2 exports add requested_favorites_reader (default/rest/rpc); actual read_path remains the validated response label on each observed read. A request already started before the run or a fresh cache may bypass the selected reader: such samples are not evidence for that reader. The feature does not clear an account store or abort shared reads.
+
+Open /favorites-performance on the same device/network. Export the current result, reload this page before each run to reset document memory, select REST/RPC, and use the normal four-step navigation. Start with REST, RPC, RPC, REST; repeat balanced blocks if practical. Reload does not reset server/module/JWKS/CDN caches or make a run independently cold. Check each first-Favorites sample has an actual full GET, matching read_path and success, and the same build_commit. Keep warm returns as a separate observation. No whole-site automatic production RPC rollout.
+
+Hosted read-only preflight: 3 owners / 12 Favorites, full 24-field RPC/baseline parity with zero mismatches and zero rows for null owner. RPC is STABLE SECURITY INVOKER; anon/authenticated EXECUTE denied, service_role permitted. No schema, data, RLS, timing flags, pool or authentication changes.
+
+Validation: 2,056 unit + 163 component tests; TypeScript, changed-file lint, diff check and synthetic build. Coverage includes reader UI/export/clear, safe normalization, exact full-GET routing and header/signal/response preservation, ID-only/writes/explicit-selector exclusions, and the actual intent-plus-navigation shared request. This is measurement infrastructure, not evidence of a latency improvement.

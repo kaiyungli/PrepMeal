@@ -62,7 +62,7 @@ it('logout or a changed login epoch discards the run and retires late callbacks'
 });
 it('explicit launcher starts a panel; navigation only starts on the step button', async () => {
   render(createElement('div', {}, createElement(NavigationMeasurementLauncher, { userId: auth.user.id, epoch: 1 }), createElement(Overlay)));
-  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'phone' } });
+  fireEvent.change(screen.getByRole('combobox', { name: '今次裝置' }), { target: { value: 'phone' } });
   fireEvent.click(screen.getByRole('button', { name: '開始導航量度' }));
   expect(router.push).not.toHaveBeenCalled(); expect(events.on).toHaveBeenCalledTimes(3);
   await act(async () => { fireEvent.click(screen.getByRole('button', { name: '首次測試收藏' })); });
@@ -167,4 +167,11 @@ it('combined query retirement and readiness report an initial API failure as err
   await act(async () => { await vi.advanceTimersByTimeAsync(300); });
   expect(getNavigationMeasurement().samples[1].outcome).toBe('error');
   expect(exportNavigationMeasurement().complete).toBe(false);
+});
+it('launcher selects an explicit reader and clears it when the measurement ends', () => {
+  render(createElement(NavigationMeasurementLauncher, { userId: auth.user.id, epoch: 1 }));
+  fireEvent.change(screen.getByRole('combobox', { name: '收藏對照' }), { target: { value: 'rpc' } });
+  fireEvent.click(screen.getByRole('button', { name: '開始導航量度' }));
+  expect(exportNavigationMeasurement().requested_favorites_reader).toBe('rpc');
+  clearNavigationMeasurement(); expect(exportNavigationMeasurement().requested_favorites_reader).toBe('default');
 });

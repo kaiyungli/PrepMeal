@@ -2,12 +2,14 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavoritesPrefetch } from '@/hooks/useFavorites';
+import type { FavoritesReader } from './favoritesLoadTrace';
 import { beginNavigationStep, cancelNavigationStep, clearNavigationMeasurement, exportNavigationMeasurement,
   getNavigationMeasurement, getServerNavigationMeasurement, measurementScope, navigationRouteCompleted,
   navigationRouteStarted, startNavigationMeasurement, STEPS, subscribeNavigationMeasurement, validateNavigationScope } from './navigationMeasurement';
 
 export function NavigationMeasurementLauncher({ userId, epoch = 0, disabled = false }: { userId: string; epoch?: number; disabled?: boolean }) {
   const [mode, setMode] = useState<'desktop' | 'phone'>('desktop');
+  const [reader, setReader] = useState<FavoritesReader>('default');
   return <section className="rounded-xl border p-4 space-y-3" aria-label="頁面導航量度">
     <h2 className="font-semibold">桌面／手機導航量度</h2>
     <p>開始後，跟底部面板依次進入收藏、食譜、返回收藏、首頁。每一步請等資料就緒。只讀取資料，唔會改收藏或餐單。</p>
@@ -15,7 +17,11 @@ export function NavigationMeasurementLauncher({ userId, epoch = 0, disabled = fa
     <label>今次裝置 <select value={mode} onChange={e => setMode(e.target.value as 'desktop' | 'phone')} className="border rounded ml-2 p-2">
       <option value="desktop">桌面</option><option value="phone">手機</option>
     </select></label>
-    <button type="button" disabled={disabled} onClick={() => startNavigationMeasurement(mode, measurementScope(userId, epoch))} className="block min-h-12 rounded border px-4 disabled:opacity-50">開始導航量度</button>
+    <label className="block">收藏對照 <select value={reader} onChange={e => setReader(e.target.value as FavoritesReader)} className="border rounded ml-2 p-2">
+      <option value="default">正常讀取</option><option value="rest">REST 對照</option><option value="rpc">RPC 對照</option>
+    </select></label>
+    <p className="text-sm">對照前請先匯出，再重新整理呢頁，清除上一輪記憶體快取。交替做 REST、RPC、RPC、REST；保持同一裝置及網絡。重新整理唔代表伺服器冷啟動。選擇只影響本輪新收藏讀取；冇新請求嘅快取結果唔可用作讀取方式比較。</p>
+    <button type="button" disabled={disabled} onClick={() => startNavigationMeasurement(mode, measurementScope(userId, epoch), reader)} className="block min-h-12 rounded border px-4 disabled:opacity-50">開始導航量度</button>
   </section>;
 }
 

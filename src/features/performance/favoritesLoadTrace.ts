@@ -1,11 +1,15 @@
 type Kind = 'page_token' | 'intent_token' | 'read';
 type Trace = { kind: Kind; start: number; end?: number; headers?: number; body?: number; published?: number; status?: number; include?: 'ids' | 'recipes'; read_path?: 'rest' | 'rpc'; server?: Record<string, number> };
-type Run = { traces: Trace[]; cache: { at: number; state: 'fresh' | 'stale_or_missing'; include: 'ids' | 'recipes' }[] };
+export type FavoritesReader = 'default' | 'rest' | 'rpc';
+type Run = { reader: FavoritesReader; traces: Trace[]; cache: { at: number; state: 'fresh' | 'stale_or_missing'; include: 'ids' | 'recipes' }[] };
 let run: Run | null = null;
 export type FavoritesTraceHandle = { run: Run; trace: Trace } | null;
 const tick = () => { try { return performance.now(); } catch { return 0; } };
 const round = (n: number) => Math.round(n * 100) / 100;
-export function startFavoritesTraceRun() { run = { traces: [], cache: [] }; }
+export function startFavoritesTraceRun(reader: FavoritesReader = 'default') {
+  run = { reader: reader === 'rest' || reader === 'rpc' ? reader : 'default', traces: [], cache: [] };
+}
+export function getFavoritesTraceReader(): FavoritesReader { return run?.reader ?? 'default'; }
 export function clearFavoritesTraceRun() { run = null; }
 export function favoritesTraceEnabled() { return run !== null; }
 export function beginFavoritesTrace(kind: Kind, includeRecipes = false): FavoritesTraceHandle {
