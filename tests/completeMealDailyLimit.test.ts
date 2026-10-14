@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { planWeekAdvanced, matchesSlotRole } from '@/lib/mealPlanner';
-import { fitsDailyCompleteMealLimit } from '@/lib/slotRoles';
+import { fitsDailyCompleteMealLimit, matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { replaceRecipeInPlan } from '@/features/generate/engine/recipeReplacer';
 import { getCandidatesForAddRandom } from '@/features/generate/hooks/useGenerateHandlers';
@@ -89,7 +89,7 @@ describe('generate: at most one complete meal per day', () => {
         const plan = planWeekAdvanced(pool, configFor(mode, 7, { allowCompleteMeal: true }));
         expect(Math.max(...completeCountPerDay(plan)), `${mode} run ${run}`).toBeLessThanOrEqual(1);
         for (const day of Object.values(plan)) {
-          day.forEach((r, i) => { if (r) expect(matchesSlotRole(r, COMPOSITION_CONFIG[mode].slotRoles[i])).toBe(true); });
+          day.forEach((r, i) => { if (r) expect(matchesConfiguredSlotRole(r, COMPOSITION_CONFIG[mode].slotRoles[i], mode, true)).toBe(true); });
         }
       }
     }
