@@ -58,6 +58,10 @@ describe('saveGeneratedPlan', () => {
 
 
 describe('generated plan naming', () => {
+  it('uses generated fallback name for a blank name', () => {
+    const generated = normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 2, 5);
+    expect(generated.name).toBe(getDefaultPlanName(2, 5));
+  });
   it('preserves the existing default name when the user does not edit it', () => {
     const name = getDefaultPlanName(2, 5);
     const generated = normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 2, 5);
