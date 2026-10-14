@@ -159,6 +159,7 @@ describe('POST /api/user/menus', () => {
     );
 
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ success: false, error: 'Failed to save plan' });
   });
 });
 
