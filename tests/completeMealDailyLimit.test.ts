@@ -212,7 +212,7 @@ describe('replace and add-random respect the daily limit', () => {
 
   it('replace may swap the day\'s only complete meal for another', () => {
     const result = replaceRecipeInPlan({ mon: [complete(1), main(1), veg(1)] }, 'mon', 0, [complete(1), complete(2)], {
-      dailyComposition: 'two_meat_one_veg',
+      dailyComposition: 'two_meat_one_veg', allowCompleteMeal: true,
     });
     expect(result?.mon[0]?.id).toBe('complete-2');
   });
@@ -235,7 +235,7 @@ describe('replace and add-random respect the daily limit', () => {
   it('add-random ignores recipes hidden beyond the current composition', () => {
     // generated as two_meat_one_veg, now meat_veg: slot 2 is hidden
     const plan = { mon: [null, veg(1), complete(1)] };
-    expect(getCandidatesForAddRandom([complete(2)], plan, 'mon', 'protein_main', { index: 0, composition: 'meat_veg' }))
+    expect(getCandidatesForAddRandom([complete(2)], plan, 'mon', 'protein_main', { index: 0, composition: 'meat_veg', allowCompleteMeal: true }))
       .toEqual([complete(2)]);
   });
 });
