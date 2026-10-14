@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { saveGeneratedPlan, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
-import { getDefaultPlanName, normalizePlanForSave } from '@/features/generate/mappers/normalizePlanForSave';
+import { getDefaultPlanName, normalizePlanForSave, resolvePlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
 const payload: SavePlanPayload = {
   name: '測試餐單',
@@ -60,7 +60,9 @@ describe('saveGeneratedPlan', () => {
 describe('generated plan naming', () => {
   it('uses generated fallback name for a blank name', () => {
     const generated = normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 2, 5);
-    expect(generated.name).toBe(getDefaultPlanName(2, 5));
+    expect(resolvePlanName(generated.name, '')).toBe(generated.name);
+    expect(resolvePlanName(generated.name, '   ')).toBe(generated.name);
+    expect(resolvePlanName(generated.name, '  週末家庭餐單  ')).toBe('週末家庭餐單');
   });
   it('preserves the existing default name when the user does not edit it', () => {
     const name = getDefaultPlanName(2, 5);
