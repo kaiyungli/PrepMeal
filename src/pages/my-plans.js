@@ -128,7 +128,11 @@ function AccountPlansPage({ auth }) {
       });
       if (!request.active) return;
       
-      if (res.ok) {
+      // A 2xx transport response is not sufficient: require the API success
+      // contract before hiding a plan or showing a success toast.
+      const payload = res.ok ? await res.json() : null;
+      if (!request.active) return;
+      if (res.ok && payload?.success === true && payload?.data?.deleted === true) {
         setPlans(prev => prev.filter(p => p.id !== planId));
         showToast('已刪除', 'success');
       } else {
