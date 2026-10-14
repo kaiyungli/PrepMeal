@@ -72,7 +72,7 @@ export function summarizeGeneratedPlan(
 export function buildGenerateFeedback(summary: GeneratedPlanSummary): string | null {
   const parts: string[] = [];
   if (summary.droppedLockKeys.length > 0) {
-    parts.push(`${summary.droppedLockKeys.length} 道已鎖定的菜式不符合目前餐式，已解除鎖定並重新安排。`);
+    parts.push(`${summary.droppedLockKeys.length} 道已鎖定的菜式不符合目前設定，已解除鎖定並重新安排。`);
   }
   if (summary.emptySlotCount > 0) {
     const roles = summary.emptySlotRoles.map(getSlotRoleLabel).join('、');
