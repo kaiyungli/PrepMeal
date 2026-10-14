@@ -29,27 +29,18 @@ export function matchesSlotRole(recipe: SlotRoleRecipe | null | undefined, slotR
       return mealRole === 'complete_meal' || isCompleteMeal === true;
 
     case 'protein_main':
-      // Explicit sides and soups cannot fill a protein-main slot, even when
-      // their primary_protein field is populated.
-      if (mealRole === 'veg_side' || mealRole === 'soup' || dishType === 'soup') return false;
-      // Priority 1: explicit meal_role
-      if (mealRole === 'protein_main') return true;
-      // Priority 2: dish_type === 'main' (main course)
+      // An explicit catalogue role is authoritative. In particular,
+      // protein_side and complete_meal are not interchangeable with main.
+      if (mealRole) return mealRole === 'protein_main';
+      // Legacy records with no meal_role retain limited inferred matching.
+      if (dishType === 'soup' || dishType === 'side') return false;
       if (dishType === 'main') return true;
-      // A vegetarian tag alone is not evidence of a protein main; explicit
-      // vegetarian mains above remain eligible.
-      if (primaryProtein === 'vegetarian') return false;
-      // Priority 3: primary protein exists (protein-tagged recipe)
-      if (primaryProtein) return true;
-      return false;
+      return !!primaryProtein && primaryProtein !== 'vegetarian';
 
     case 'veg_side':
-      // Priority 1: explicit meal_role
-      if (mealRole === 'veg_side') return true;
-      // Priority 2: dish_type === 'side' AND NO primary protein
-      // Avoid protein-heavy "sides" being treated as veg sides
-      if (dishType === 'side' && !primaryProtein) return true;
-      return false;
+      if (mealRole) return mealRole === 'veg_side';
+      // Only infer a role for legacy unclassified recipes.
+      return dishType === 'side' && !primaryProtein;
 
     case 'soup':
       return mealRole === 'soup' || dishType === 'soup';
