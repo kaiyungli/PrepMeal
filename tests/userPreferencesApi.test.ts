@@ -148,6 +148,16 @@ describe('GET /api/user/preferences', () => {
     );
 
     expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ success: false, error: 'Failed to load preferences' });
+  });
+
+  it('masks database failures when lazy creation fails', async () => {
+    mocks.single.mockResolvedValueOnce({ data: null, error: { code: 'PGRST116' } })
+      .mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'private sql details' } });
+    const response = createResponse();
+    await handler({ method: 'GET', headers: { authorization: 'Bearer token' } } as never, response as never);
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ success: false, error: 'Failed to save preferences' });
   });
 });
 
@@ -168,6 +178,14 @@ describe('PUT/POST /api/user/preferences', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({ success: true, data: { preferences: updated } });
+  });
+
+  it('masks unexpected database failures while upserting preferences', async () => {
+    mocks.single.mockResolvedValueOnce({ data: null, error: { code: 'XX000', message: 'private sql details' } });
+    const response = createResponse();
+    await handler({ method: 'PUT', headers: { authorization: 'Bearer token' }, body: { default_servings: 2 } } as never, response as never);
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ success: false, error: 'Failed to save preferences' });
   });
 
   it('accepts POST as an alias for PUT', async () => {
