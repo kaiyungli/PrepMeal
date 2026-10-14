@@ -50,6 +50,31 @@ describe('canonical recipe budget preference', () => {
     }).mon[0]?.id).toBe('expensive');
   });
 
+  it('prefers the selected tier even when an alternative scores better on diversity', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const config = {
+      daysPerWeek: 1, dishesPerDay: 1, slotRoles: ['complete_meal'],
+      dailyComposition: 'complete_meal', isWeekend: () => false,
+      budget: 'budget',
+    };
+    // A premium recipe has better weekday speed and difficulty scores;
+    // when the chosen tier is available, those bonuses must not override it.
+    const preferred = recipe('slow-budget', 'budget', { speed: 'slow', difficulty: 'hard' });
+    const alternative = recipe('fast-premium', 'premium', { speed: 'quick', difficulty: 'easy' });
+    expect(planWeekAdvanced([alternative, preferred], config).mon[0]?.id).toBe('slow-budget');
+  });
+
+  it('falls back on a later slot after all preferred recipes are used', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const config = {
+      daysPerWeek: 2, dishesPerDay: 1, slotRoles: ['complete_meal'],
+      dailyComposition: 'complete_meal', isWeekend: () => false, budget: 'budget',
+    };
+    const plan = planWeekAdvanced([cheap, expensive], config);
+    expect(plan.mon[0]?.id).toBe('cheap');
+    expect(plan.tue[0]?.id).toBe('expensive');
+  });
+
   it('replacement respects the labelled tier and falls back when unavailable', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     const plan = { mon: [recipe('original', 'normal')] };

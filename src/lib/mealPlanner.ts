@@ -448,8 +448,12 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      const candidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
+      const eligibleCandidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
         .filter(r => fitsDailyCompleteMealLimit(r, otherSlotsInDay));
+      // Prefer matching editorial budget tiers within the current slot only.
+      // If this slot has no tier match, retain all eligible candidates so
+      // generation still fills it where possible.
+      const candidates = preferBudgetRecipes(eligibleCandidates, budget);
       
       // Log slot candidates
       if (traceId) {
