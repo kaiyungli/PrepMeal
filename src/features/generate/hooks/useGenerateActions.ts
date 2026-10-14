@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useGeneratedShoppingList } from './useGeneratedShoppingList';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
+import { resolvePlanName } from '../mappers/normalizePlanForSave';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 
 interface UseGenerateActionsOptions {
@@ -126,11 +127,11 @@ export function useGenerateActions({
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
     if (customName !== undefined) {
       const name = customName.trim();
-      if (!name || name.length > 100) {
-        alert('餐單名稱須為 1 至 100 個字元');
+      if (name.length > 100) {
+        alert('餐單名稱不可超過 100 個字元');
         return;
       }
-      payload.name = name;
+      payload.name = resolvePlanName(payload.name, name);
     }
     if (payload.items.length === 0) {
       alert('No meal plan to save');
