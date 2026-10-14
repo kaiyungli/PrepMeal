@@ -67,7 +67,7 @@ export default async function handler(req, res) {
           details: plansError.details,
           hint: plansError.hint
         });
-        return res.status(500).json(ApiResponse.error(plansError.message));
+        return res.status(500).json(ApiResponse.error('Failed to load plans'));
       }
       
       const plans = (plansData || []).map(plan => ({
