@@ -14,6 +14,10 @@ const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 }
  * @param daysPerWeek - Number of days
  * @returns SavePlanPayload
  */
+export function getDefaultPlanName(servings: number, daysPerWeek: number): string {
+  return `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
+}
+
 export function normalizePlanForSave(
   weeklyPlan: Record<string, Array<{ id?: string | number } | null | undefined>>,
   servings: number,
@@ -44,7 +48,7 @@ export function normalizePlanForSave(
     }
   }
 
-  const name = `${servings}人 ${daysPerWeek}日餐單 ${new Date().toLocaleDateString('zh-HK')}`;
+  const name = getDefaultPlanName(servings, daysPerWeek);
 
   return {
     name,
