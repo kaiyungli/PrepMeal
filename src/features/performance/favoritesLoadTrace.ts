@@ -1,5 +1,5 @@
 type Kind = 'page_token' | 'intent_token' | 'read';
-type Trace = { kind: Kind; start: number; end?: number; headers?: number; body?: number; published?: number; status?: number; include?: 'ids' | 'recipes'; server?: Record<string, number> };
+type Trace = { kind: Kind; start: number; end?: number; headers?: number; body?: number; published?: number; status?: number; include?: 'ids' | 'recipes'; read_path?: 'rest' | 'rpc'; server?: Record<string, number> };
 type Run = { traces: Trace[]; cache: { at: number; state: 'fresh' | 'stale_or_missing'; include: 'ids' | 'recipes' }[] };
 let run: Run | null = null;
 export type FavoritesTraceHandle = { run: Run; trace: Trace } | null;
@@ -24,6 +24,8 @@ export function markFavoritesTrace(handle: FavoritesTraceHandle, phase: 'headers
   if (phase === 'headers' && response) {
     if (Number.isInteger(response.status) && response.status >= 0 && response.status <= 599) handle.trace.status = response.status;
     try {
+      const path = response.headers?.get('X-PrepMeal-Favorites-Read-Path');
+      if (path === 'rest' || path === 'rpc') handle.trace.read_path = path;
       const server: Record<string, number> = {};
       const header = response.headers?.get('Server-Timing') || '';
       for (const key of ['auth', 'auth_jwks', 'auth_get_user', 'db_request', 'response_prepare', 'handler',
@@ -53,6 +55,7 @@ export function readFavoritesTrace(start: number, end: number) {
     cache: run.cache.filter(c => c.at >= start - 5000 && c.at <= end).map(c => ({ offset_ms: round(c.at - start), state: c.state, include: c.include })),
     operations: traces.map(t => ({ kind: t.kind, start_offset_ms: round(t.start - start), started_before_click: t.start < start,
       ...(t.include ? { include: t.include } : {}),
+      ...(t.read_path ? { read_path: t.read_path } : {}),
       ...(t.end !== undefined && t.end <= end ? { duration_ms: round(t.end - t.start) } : { pending_at_data_ready: true }),
       ...(t.headers !== undefined && t.headers <= end ? { headers_offset_ms: round(t.headers - start), load_to_headers_ms: round(t.headers - t.start) } : {}),
       ...(t.body !== undefined && t.body <= end && t.headers !== undefined ? { body_offset_ms: round(t.body - start), body_download_parse_ms: round(t.body - t.headers) } : {}),

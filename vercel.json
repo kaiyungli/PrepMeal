@@ -1,6 +1,7 @@
 {
   "regions": ["syd1"],
   "env": {
-    "FAVORITES_RPC_COMPARISON_ENABLED": "1"
+    "FAVORITES_RPC_COMPARISON_ENABLED": "1",
+    "FAVORITES_PREVIEW_RPC_ENABLED": "1"
   }
 }
