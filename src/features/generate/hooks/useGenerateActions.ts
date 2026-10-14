@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useGeneratedShoppingList } from './useGeneratedShoppingList';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
+import { resolvePlanName } from '../mappers/normalizePlanForSave';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 
 interface UseGenerateActionsOptions {
@@ -130,7 +131,7 @@ export function useGenerateActions({
         alert('餐單名稱不可超過 100 個字元');
         return;
       }
-      if (name) payload.name = name;
+      payload.name = resolvePlanName(payload.name, name);
     }
     if (payload.items.length === 0) {
       alert('No meal plan to save');
