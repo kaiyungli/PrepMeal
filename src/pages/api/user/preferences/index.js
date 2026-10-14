@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     
     if (getError && getError.code !== 'PGRST116') {
       console.error('[Preferences] GET error:', getError);
-      return res.status(500).json(ApiResponse.error(getError.message));
+      return res.status(500).json(ApiResponse.error('Failed to load preferences'));
     }
     
     // If no row exists, lazy create with defaults
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       
       if (createError) {
         console.error('[Preferences] Lazy create error:', createError);
-        return res.status(500).json(ApiResponse.error(createError.message));
+        return res.status(500).json(ApiResponse.error('Failed to save preferences'));
       }
       
       console.log('[Preferences] Lazy created preferences');
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
     
     if (error) {
       console.error('[Preferences] PUT error:', error);
-      return res.status(500).json(ApiResponse.error(error.message));
+      return res.status(500).json(ApiResponse.error('Failed to save preferences'));
     }
     
     console.log('[Preferences] PUT success');
