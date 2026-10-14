@@ -312,12 +312,14 @@ export function planWeekAdvanced(
     });
   }
 
-  // A locked recipe is kept only while it still fits its slot's role and the
-  // allowCompleteMeal setting (for example after a composition or setting
-  // change); otherwise the slot is planned anew.
+  const eligibleRecipeIds = new Set(filtered.map(recipe => recipe.id));
+
+  // Locks must remain in the currently eligible candidate pool. This also
+  // enforces updated cuisine, exclusions and UI filters after a previous plan
+  // was generated. A removed/ineligible recipe must not bypass hard filters.
   const getValidLockedRecipe = (slotKey: string, slotRole: string | undefined): Recipe | null => {
     const recipe = lockedSlots[slotKey] ? lockedRecipes[slotKey] : null;
-    return recipe?.id && slotRole && matchesSlotRole(recipe, slotRole)
+    return recipe?.id && eligibleRecipeIds.has(recipe.id) && slotRole && matchesSlotRole(recipe, slotRole)
       && fitsCompleteMealSetting(recipe, compositionKey, config.allowCompleteMeal) ? recipe : null;
   };
 
