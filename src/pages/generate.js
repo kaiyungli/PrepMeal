@@ -1,6 +1,7 @@
 'use client';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGeneratePageController } from '@/features/generate';
+import { getDefaultPlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
@@ -16,7 +17,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function GeneratePage() {
@@ -25,6 +26,18 @@ export default function GeneratePage() {
   const preferences = useGeneratePreferences();
   const { toast, showToast } = useToast();
   const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current, showToast });
+  const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [planName, setPlanName] = useState('');
+  const openSaveDialog = () => {
+    setPlanName(getDefaultPlanName(preferences.servings, preferences.daysPerWeek));
+    setSaveDialogOpen(true);
+  };
+  const submitSave = async (event) => {
+    event.preventDefault();
+    if (!planName.trim() || planName.trim().length > 100 || ctrl.isSaving) return;
+    setSaveDialogOpen(false);
+    await ctrl.handleSave(planName);
+  };
   
   // Log page mount (effect fires, so duration is 0)
   useEffect(() => {
@@ -104,7 +117,6 @@ export default function GeneratePage() {
     handleOpenShoppingList,
     handleReplaceRecipe,
     handleClearAll,
-    handleSave,
     handleRecipeClick,
     handleCloseRecipe,
     handleCloseShoppingList,
@@ -160,7 +172,7 @@ export default function GeneratePage() {
             onClear={handleClearAll}
             onShoppingList={handleOpenShoppingList}
             onGenerate={handleGenerate}
-            onSave={handleSave}
+            onSave={openSaveDialog}
           />
 
           <GenerateResults
@@ -179,6 +191,21 @@ export default function GeneratePage() {
           />
         
         </div>
+
+        {isSaveDialogOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSaveDialogOpen(false); }}>
+            <form role="dialog" aria-modal="true" aria-labelledby="save-plan-title" onSubmit={submitSave} onKeyDown={(event) => { if (event.key === 'Escape') setSaveDialogOpen(false); }} className="w-full max-w-md rounded-xl border border-[#DDD0B0] bg-white p-6 shadow-xl">
+              <h2 id="save-plan-title" className="mb-4 text-lg font-bold text-[#3A2010]">保存餐單</h2>
+              <label htmlFor="save-plan-name" className="mb-2 block text-sm font-semibold text-[#3A2010]">餐單名稱</label>
+              <input id="save-plan-name" autoFocus required maxLength={100} value={planName} onChange={(event) => setPlanName(event.target.value)} className="w-full rounded-lg border border-[#DDD0B0] p-3 text-[#3A2010]" />
+              <p className="mt-2 text-xs text-[#66594B]">可以修改名稱，或直接使用預設名稱。</p>
+              <div className="mt-6 flex justify-end gap-3">
+                <button type="button" className={UI.buttonGhost} onClick={() => setSaveDialogOpen(false)}>取消</button>
+                <button type="submit" className={UI.buttonPrimary} disabled={!planName.trim() || isSaving}>保存餐單</button>
+              </div>
+            </form>
+          </div>
+        )}
 
         <ShoppingListModal 
           isOpen={showShoppingList} 

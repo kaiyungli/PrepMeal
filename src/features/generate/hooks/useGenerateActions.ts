@@ -114,7 +114,7 @@ export function useGenerateActions({
   }, [shoppingListView]);
 
   // Save handler
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (customName?: string) => {
     // State updates are asynchronous; the ref also blocks same-tick clicks
     // and retained callbacks while token retrieval is still pending.
     if (saveInFlightRef.current) return;
@@ -124,6 +124,14 @@ export function useGenerateActions({
     }
 
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
+    if (customName !== undefined) {
+      const name = customName.trim();
+      if (!name || name.length > 100) {
+        alert('餐單名稱須為 1 至 100 個字元');
+        return;
+      }
+      payload.name = name;
+    }
     if (payload.items.length === 0) {
       alert('No meal plan to save');
       return;
