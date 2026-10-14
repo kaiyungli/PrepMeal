@@ -119,12 +119,14 @@ export default async function handler(req, res) {
         if (['22023', '22P02', '23503', '23514'].includes(err?.code)) {
           return res.status(400).json(ApiResponse.badRequest(err.message));
         }
-        return res.status(500).json(ApiResponse.error(err.message));
+        console.error('[menus-api] save_plan_error', { code: err?.code, message: err?.message });
+        return res.status(500).json(ApiResponse.error('Failed to save plan'));
       }
     }
 
     return res.status(405).json(ApiResponse.methodNotAllowed());
   } catch (err) {
-    return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
+    console.error('[menus-api] request_exception', { method: req.method, code: err?.code, message: err?.message });
+    return res.status(500).json(ApiResponse.error('Internal server error'));
   }
 }
