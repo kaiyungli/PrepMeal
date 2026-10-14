@@ -99,7 +99,7 @@ describe('Planner QA - Real Output Testing', () => {
 describe('allowCompleteMeal checkbox behavior', () => {
   const testConfig = { isWeekend: () => false, lockedSlots: {}, lockedRecipes: {} };
   
-  it('meat_veg + allowCompleteMeal=true still respects explicit slot roles', () => {
+  it('meat_veg + allowCompleteMeal=true allows complete meals in the main slot only', () => {
     for (let i = 0; i < 10; i++) {
       const plan = planWeekAdvanced(mockRecipes, {
         ...testConfig,
@@ -110,12 +110,12 @@ describe('allowCompleteMeal checkbox behavior', () => {
         allowCompleteMeal: true,
       });
       Object.values(plan).forEach(dishes => {
-        dishes.forEach((recipe, index) => {
-          if (recipe) {
-            expect(matchesSlotRole(recipe, index === 0 ? 'protein_main' : 'veg_side')).toBe(true);
-            expect(recipe.meal_role).not.toBe('complete_meal');
-          }
-        });
+        if (dishes[0]) {
+          expect(['protein_main', 'complete_meal']).toContain(dishes[0].meal_role);
+        }
+        if (dishes[1]) {
+          expect(dishes[1].meal_role).toBe('veg_side');
+        }
       });
     }
   });
