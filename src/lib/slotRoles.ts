@@ -72,7 +72,7 @@ export function matchesConfiguredSlotRole(
   return slotRole === 'protein_main'
     && composition !== 'complete_meal'
     && allowCompleteMeal === true
-    && matchesSlotRole(recipe, 'complete_meal');
+    && recipe?.meal_role === 'complete_meal';
 }
 
 /**
