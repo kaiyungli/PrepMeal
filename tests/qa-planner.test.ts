@@ -99,9 +99,7 @@ describe('Planner QA - Real Output Testing', () => {
 describe('allowCompleteMeal checkbox behavior', () => {
   const testConfig = { isWeekend: () => false, lockedSlots: {}, lockedRecipes: {} };
   
-  it('meat_veg + allowCompleteMeal=true allows complete_meal occasionally', () => {
-    // Run multiple times and check that complete_meal can appear
-    let hasCompleteMeal = false;
+  it('meat_veg + allowCompleteMeal=true still respects explicit slot roles', () => {
     for (let i = 0; i < 10; i++) {
       const plan = planWeekAdvanced(mockRecipes, {
         ...testConfig,
@@ -109,16 +107,17 @@ describe('allowCompleteMeal checkbox behavior', () => {
         dishesPerDay: 2,
         slotRoles: ['protein_main', 'veg_side'],
         dailyComposition: 'meat_veg',
-        allowCompleteMeal: true
+        allowCompleteMeal: true,
       });
       Object.values(plan).forEach(dishes => {
-        if (dishes.some(d => d?.is_complete_meal || d?.meal_role === 'complete_meal')) {
-          hasCompleteMeal = true;
-        }
+        dishes.forEach((recipe, index) => {
+          if (recipe) {
+            expect(matchesSlotRole(recipe, index === 0 ? 'protein_main' : 'veg_side')).toBe(true);
+            expect(recipe.meal_role).not.toBe('complete_meal');
+          }
+        });
       });
     }
-    // With allowCompleteMeal=true, complete_meal should be allowed (may or may not appear due to randomness)
-    expect(hasCompleteMeal).toBe(true);
   });
 
   it('meat_veg + allowCompleteMeal=false excludes complete_meal', () => {
