@@ -12,6 +12,7 @@ const request = (path: unknown = 'rpc', perf = '1', include: unknown = 'recipes'
   headers: { 'x-prepmeal-favorites-perf': perf }, query: { include, read_path: path, user_id: 'attacker-supplied' } });
 beforeEach(() => { vi.clearAllMocks(); vi.stubEnv('FAVORITES_RPC_COMPARISON_ENABLED', '1');
   vi.stubEnv('VERCEL_ENV', ''); vi.stubEnv('FAVORITES_PREVIEW_RPC_ENABLED', '');
+  vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', '');
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co'); vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'synthetic');
   mocks.requireAuth.mockResolvedValue('verified-owner'); });
 afterEach(() => vi.unstubAllEnvs());
@@ -93,4 +94,42 @@ it('preview RPC failure is fixed, does not silently add a REST read, and auth fa
   expect(res.statusCode).toBe(500); expect(JSON.stringify(res.body)).not.toContain('private'); expect(mocks.server.from).not.toHaveBeenCalled();
   mocks.server.rpc.mockClear(); mocks.requireAuth.mockResolvedValueOnce(null);
   await handler(ordinaryRequest() as never, response() as never); expect(mocks.server.rpc).not.toHaveBeenCalled();
+});
+it('ordinary production full read uses exactly one RPC for the verified owner and disables response caching', async () => {
+  vi.stubEnv('VERCEL_ENV', 'production'); vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', '1');
+  mocks.server.rpc.mockResolvedValue({ data: [{ recipe_id: 'A', recipes: { id: 'A' } }], error: null });
+  const res = response(); await handler(ordinaryRequest() as never, res as never);
+  expect(mocks.server.rpc).toHaveBeenCalledExactlyOnceWith('get_favorites_recipes_comparison', { p_user_id: 'verified-owner' }, { get: true });
+  expect(mocks.server.from).not.toHaveBeenCalled();
+  expect(res.body).toEqual({ success: true, data: { favorites: ['A'], recipes: [{ id: 'A' }] } });
+  expect(res.setHeader).toHaveBeenCalledWith('X-PrepMeal-Favorites-Read-Path', 'rpc');
+  expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'private, no-store');
+});
+it.each(['production_flag', 'comparison_flag', 'ids_only', 'rest_control'])('production rollback/control retains REST (%s)', async mode => {
+  vi.stubEnv('VERCEL_ENV', 'production'); vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', mode === 'production_flag' ? '0' : '1');
+  if (mode === 'comparison_flag') vi.stubEnv('FAVORITES_RPC_COMPARISON_ENABLED', '0');
+  const rest = mockRest(); const req = ordinaryRequest('1');
+  if (mode === 'ids_only') req.query.include = undefined;
+  if (mode === 'rest_control') req.query.read_path = 'rest';
+  const res = response(); await handler(req as never, res as never);
+  expect(mocks.server.rpc).not.toHaveBeenCalled(); expect(rest.eq).toHaveBeenCalledWith('user_id', 'verified-owner'); expect(res.statusCode).toBe(200);
+});
+it.each(['preview', 'development', '', 'staging'])('production flag alone does not enable RPC in %s', async environment => {
+  vi.stubEnv('VERCEL_ENV', environment); vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', '1');
+  const rest = mockRest(); const res = response(); await handler(ordinaryRequest() as never, res as never);
+  expect(mocks.server.rpc).not.toHaveBeenCalled(); expect(rest.eq).toHaveBeenCalledWith('user_id', 'verified-owner'); expect(res.statusCode).toBe(200);
+});
+it.each(['returned', 'thrown'])('production RPC %s failure stays fixed without a second REST request', async mode => {
+  vi.stubEnv('VERCEL_ENV', 'production'); vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', '1');
+  if (mode === 'returned') mocks.server.rpc.mockResolvedValueOnce({ data: null, error: { message: 'private-error' } });
+  else mocks.server.rpc.mockRejectedValueOnce(new Error('private-error'));
+  const res = response(); await handler(ordinaryRequest() as never, res as never);
+  expect(res.statusCode).toBe(500); expect(res.body).toEqual({ success: false, error: 'RPC comparison read failed' });
+  expect(mocks.server.rpc).toHaveBeenCalledTimes(1); expect(mocks.server.from).not.toHaveBeenCalled();
+});
+it('production RPC gate cannot bypass authentication', async () => {
+  vi.stubEnv('VERCEL_ENV', 'production'); vi.stubEnv('FAVORITES_PRODUCTION_RPC_ENABLED', '1');
+  mocks.requireAuth.mockImplementationOnce(async (_req, res) => { res.status(401).json({ success: false }); return null; });
+  const res = response(); await handler(ordinaryRequest() as never, res as never);
+  expect(res.statusCode).toBe(401); expect(mocks.server.rpc).not.toHaveBeenCalled(); expect(mocks.server.from).not.toHaveBeenCalled();
 });

@@ -73,7 +73,7 @@ it('traces the actual token, headers, body and publication without adding a read
   const getAccessToken = vi.fn(() => new Promise<string>(resolve => { tokenDone = resolve; }));
   const response = new Response('{}', { headers: { 'Server-Timing': 'handler;dur=30, auth;dur=2, db_request;dur=20' } });
   vi.spyOn(response, 'json').mockImplementation(() => new Promise(resolve => { bodyDone = resolve; }));
-  const fetcher = vi.fn(() => new Promise<Response>(resolve => { headersDone = resolve; })); vi.stubGlobal('fetch', fetcher);
+  const fetcher = vi.fn<typeof fetch>(() => new Promise<Response>(resolve => { headersDone = resolve; })); vi.stubGlobal('fetch', fetcher);
   const auth = { loading: false, isAuthenticated: true, user: { id: 'private-owner' }, favoritesEpoch: 3, getAccessToken };
   startNavigationMeasurement('phone', 'scope'); beginNavigationStep();
   const view = renderHook(() => useAccountFavorites(auth, { includeRecipes: true }));
@@ -98,7 +98,7 @@ it('traces the actual token, headers, body and publication without adding a read
 });
 it('joins a pre-click intent read when the page mounts, instead of issuing a second GET', async () => {
   let headersDone!: (r: Response) => void;
-  const fetcher = vi.fn(() => new Promise<Response>(resolve => { headersDone = resolve; })); vi.stubGlobal('fetch', fetcher);
+  const fetcher = vi.fn<typeof fetch>(() => new Promise<Response>(resolve => { headersDone = resolve; })); vi.stubGlobal('fetch', fetcher);
   const auth = { loading: false, isAuthenticated: true, user: { id: 'private-prefetch-owner' }, favoritesEpoch: 4, getAccessToken: vi.fn(async () => 'private-secret') };
   startNavigationMeasurement('desktop', 'scope', 'rpc');
   const intent = renderHook(() => useFavoritesPrefetch(auth));

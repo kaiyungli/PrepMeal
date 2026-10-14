@@ -40,12 +40,15 @@ export default async function handler(req, res) {
     
     // GET: Use service role client (faster, bypasses RLS)
     if (req.method === 'GET') {
-      // Full recipe reads opt into RPC only in this explicitly enabled preview.
-      // An absent/unknown environment and every production deployment use REST.
+      // Full recipe reads use independently reversible deployment gates.
+      // Absent/unknown environments stay on REST.
       const previewRpc = process.env.VERCEL_ENV === 'preview' &&
         process.env.FAVORITES_PREVIEW_RPC_ENABLED === '1' &&
         process.env.FAVORITES_RPC_COMPARISON_ENABLED === '1' && req.query.include === 'recipes';
-      readPath = req.query.read_path ?? (previewRpc ? 'rpc' : 'rest');
+      const productionRpc = process.env.VERCEL_ENV === 'production' &&
+        process.env.FAVORITES_PRODUCTION_RPC_ENABLED === '1' &&
+        process.env.FAVORITES_RPC_COMPARISON_ENABLED === '1' && req.query.include === 'recipes';
+      readPath = req.query.read_path ?? (previewRpc || productionRpc ? 'rpc' : 'rest');
       if (req.query.read_path !== undefined &&
           (!timing.enabled || req.query.include !== 'recipes' || !['rest', 'rpc'].includes(readPath))) {
         return res.status(400).json(ApiResponse.badRequest('Invalid diagnostic read path'));
@@ -105,7 +108,7 @@ export default async function handler(req, res) {
           });
           return res.status(500).json(ApiResponse.error(joinError.message));
         }
-        if (timing.enabled || previewRpc) {
+        if (timing.enabled || previewRpc || productionRpc) {
           res.setHeader?.('X-PrepMeal-Favorites-Read-Path', readPath);
           res.setHeader?.('Cache-Control', 'private, no-store');
         }
