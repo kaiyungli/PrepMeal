@@ -94,12 +94,12 @@ function err(body: unknown): string {
   return r.error as string;
 }
 
-describe('adminRecipeAtomicParams: enum sets match the live CHECK constraints', () => {
-  it('are the exact production allow-lists (order-independent)', () => {
+describe('adminRecipeAtomicParams: enum sets match the post-migration CHECK contract', () => {
+  it('are the exact intended allow-lists after no_cook migration (order-independent)', () => {
     expect([...CUISINES].sort()).toEqual(['chinese', 'fusion', 'japanese', 'korean', 'thai', 'western']);
     expect([...DISH_TYPES].sort()).toEqual(['main', 'side', 'snack', 'soup', 'staple']);
     expect([...DIFFICULTIES].sort()).toEqual(['easy', 'hard', 'medium']);
-    expect([...METHODS].sort()).toEqual(['baked', 'boiled', 'braised', 'fried', 'steamed', 'stir_fry']);
+    expect([...METHODS].sort()).toEqual(['baked', 'boiled', 'braised', 'fried', 'no_cook', 'steamed', 'stir_fry']);
     expect([...SPEEDS].sort()).toEqual(['normal', 'quick', 'slow']);
     expect([...MEAL_ROLES].sort()).toEqual(['complete_meal', 'protein_main', 'protein_side', 'soup', 'veg_side']);
     expect([...PRIMARY_PROTEINS].sort()).toEqual(
