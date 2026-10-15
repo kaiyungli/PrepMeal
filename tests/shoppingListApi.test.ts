@@ -261,7 +261,7 @@ describe('/api/shopping-list security boundary', () => {
     ]);
   });
 
-  it('keeps the same ingredient in incompatible mass units (g vs kg) as two separate, un-summed items', async () => {
+  it('converts g and kg to a single correct mass total', async () => {
     requireAuthMock.mockResolvedValue('verified-user');
     const database = createDatabase({
       ingredientRows: [
@@ -294,14 +294,13 @@ describe('/api/shopping-list security boundary', () => {
 
     expect(response.statusCode).toBe(200);
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
-    // Must NOT raw-sum to 200.2 under one unit -- each normalized unit is its own line.
+    // 200 g + 0.2 kg = 400 g, never 200.2 g.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'beef-1', quantity: 200, unit: 'g' }),
-      expect.objectContaining({ ingredientId: 'beef-1', quantity: 0.2, unit: 'kg' }),
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 400, unit: 'g', unitDisplay: 'g' }),
     ]);
   });
 
-  it('keeps the same ingredient in incompatible volume-ish units (tsp vs tbsp) as two separate, un-summed items', async () => {
+  it('converts tsp and tbsp to a single correct spoon total', async () => {
     requireAuthMock.mockResolvedValue('verified-user');
     const database = createDatabase({
       ingredientRows: [
@@ -334,10 +333,34 @@ describe('/api/shopping-list security boundary', () => {
 
     expect(response.statusCode).toBe(200);
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
-    // Must NOT raw-sum to 5 tsp -- no conversion factor between tsp and tbsp is applied.
+    // 2 tsp + 3 tbsp = 11 tsp.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 2, unit: 'tsp' }),
-      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 3, unit: 'tbsp' }),
+      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: 'tsp' }),
+    ]);
+  });
+
+  it('converts ml and l, but never combines mass and volume for one ingredient', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const units = (code: string) => ({ id: code, code, display_name_en: code, display_name_zh: code });
+    const makeRow = (quantity: number, code: string) => ({
+      quantity, recipe_id: 'recipe-1', ingredient_id: 'stock-1',
+      ingredients: { id: 'stock-1', name: '高湯', shopping_category: 'other' },
+      recipes: { id: 'recipe-1', name: 'Recipe One' }, units: units(code),
+    });
+    const database = createDatabase({ ingredientRows: [
+      makeRow(250, 'ml'), makeRow(0.5, 'l'), makeRow(10, 'g'),
+    ] });
+    createClientMock.mockReturnValue(database.client);
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST', headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+    expect(response.statusCode).toBe(200);
+    const items = (response.body as ShoppingListResponse).toBuy.flatMap(section => section.items);
+    expect(items).toEqual([
+      expect.objectContaining({ ingredientId: 'stock-1', quantity: 750, unit: 'ml' }),
+      expect.objectContaining({ ingredientId: 'stock-1', quantity: 10, unit: 'g' }),
     ]);
   });
 

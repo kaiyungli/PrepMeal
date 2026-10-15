@@ -100,11 +100,11 @@ describe('/api/shopping-list aggregation', () => {
     expect(items.map(line)).toEqual(['beef:150:g']);
   });
 
-  it('keeps different units of one ingredient as separate lines', async () => {
+  it('converts fixed-ratio mass units but keeps count-based units separate', async () => {
     const { items } = await post({ recipeIds: [R1, R2], servings: 1 }, [
       row(R1, 'beef', '牛肉', 100, 'g'), row(R2, 'beef', '牛肉', 1, 'kg'), row(R2, 'beef', '牛肉', 2, 'piece'),
     ]);
-    expect(items.map(line)).toEqual(['beef:100:g', 'beef:1:kg', 'beef:2:件']);
+    expect(items.map(line)).toEqual(['beef:1100:g', 'beef:2:件']);
   });
 
   it('scales by servings and by how often a recipe is planned', async () => {

@@ -46,16 +46,56 @@ function pantryNameKey(name: string): string {
     : normalized;
 }
 
-// Merge rows only when both their identity AND normalized unit match, so an
-// ingredient recorded under incompatible units (e.g. 2 tsp + 3 tbsp) is never
-// raw-summed into one mathematically-invalid line. Aliases of the same unit
-// (e.g. "gram" and "g") still merge, since both normalize to "g" first.
-// Explicit `id:`/`name:` prefixes keep the two key spaces from ever colliding
-// (an ingredientId could otherwise coincide with a `name` string).
+// Convert only fixed-ratio units when the same ingredient occurs with multiple
+// units in one measurement family. Do not infer ingredient-dependent density,
+// grams per clove, or amounts for count-based units.
+const CONVERSION: Record<string, { family: string; multiplier: number; target: string }> = {
+  g: { family: 'mass', multiplier: 1, target: 'g' },
+  kg: { family: 'mass', multiplier: 1000, target: 'g' },
+  ml: { family: 'volume', multiplier: 1, target: 'ml' },
+  l: { family: 'volume', multiplier: 1000, target: 'ml' },
+  tsp: { family: 'spoons', multiplier: 1, target: 'tsp' },
+  tbsp: { family: 'spoons', multiplier: 3, target: 'tsp' },
+};
+
+// An explicit identifier has priority over a display name; keep namespaces
+// disjoint even when a name happens to match another ingredient's UUID.
+function itemIdentity(item: ShoppingListBuyItem): string {
+  return item.ingredientId ? `id:${item.ingredientId}` : `name:${item.name}`;
+}
+
+function convertMixedUnits(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+  const unitsByGroup = new Map<string, Set<string>>();
+  for (const item of items) {
+    const unit = normalizeUnit(item.unit);
+    const spec = CONVERSION[unit];
+    if (!spec) continue;
+    const key = `${itemIdentity(item)}__${spec.family}`;
+    if (!unitsByGroup.has(key)) unitsByGroup.set(key, new Set());
+    unitsByGroup.get(key)!.add(unit);
+  }
+
+  return items.map(item => {
+    const unit = normalizeUnit(item.unit);
+    const spec = CONVERSION[unit];
+    if (!spec || (unitsByGroup.get(`${itemIdentity(item)}__${spec.family}`)?.size ?? 0) < 2) return item;
+    return {
+      ...item,
+      quantity: item.quantity === null ? null : item.quantity * spec.multiplier,
+      unit: spec.target,
+      // Mixed source displays may be "湯匙" or "千克", neither of which
+      // describes the converted target. Use the canonical target code.
+      unitDisplay: spec.target,
+    };
+  });
+}
+
+// Merge by ingredient identity plus normalized (and, when safe, converted)
+// unit. Non-convertible units always remain separate.
 function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
   const map = new Map<string, ShoppingListBuyItem>();
 
-  for (const item of items) {
+  for (const item of convertMixedUnits(items)) {
     const normalizedUnit = normalizeUnit(item.unit);
     const key = item.ingredientId
       ? `id:${item.ingredientId}__${normalizedUnit}`
