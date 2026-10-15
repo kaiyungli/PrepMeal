@@ -98,7 +98,8 @@ export function buildGenerateFeedback(summary: GeneratedPlanSummary, context?: E
     }
   }
   if (parts.length === 0) return null;
-  return summary.emptySlotCount > 0 ? `${parts.join('')}${ADJUST_HINT}` : parts.join('');
+  const hasSpecificHint = parts.some(part => part.includes('目前篩選後的'));
+  return summary.emptySlotCount > 0 && !hasSpecificHint ? `${parts.join('')}${ADJUST_HINT}` : parts.join('');
 }
 
 /** Message when Replace or Add finds no eligible recipe for the slot. */
