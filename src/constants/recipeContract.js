@@ -18,7 +18,7 @@
 export const CUISINES = Object.freeze(['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion']);
 export const DISH_TYPES = Object.freeze(['main', 'side', 'soup', 'staple', 'snack']);
 export const DIFFICULTIES = Object.freeze(['easy', 'medium', 'hard']);
-export const METHODS = Object.freeze(['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked']);
+export const METHODS = Object.freeze(['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook']);
 export const SPEEDS = Object.freeze(['quick', 'normal', 'slow']);
 export const MEAL_ROLES = Object.freeze(['complete_meal', 'protein_main', 'veg_side', 'protein_side', 'soup']);
 export const PRIMARY_PROTEINS = Object.freeze([
