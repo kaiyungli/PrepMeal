@@ -96,7 +96,7 @@ describe('useGeneratePlan feedback', () => {
     expect(result.current.weeklyPlan).toEqual({ mon: [null], tue: [null] });
     expect(notify).toHaveBeenCalledTimes(1);
     expect(notify).toHaveBeenCalledWith(
-      '有 2 個餐位找不到符合條件的完整餐，已留空。目前篩選後的完整餐食譜數量不足；可考慮放寬菜系等篩選設定。可放寬篩選條件或改選其他餐式。', 'info', FEEDBACK_DURATION_MS,
+      '有 2 個餐位找不到符合條件的完整餐，已留空。目前篩選後的完整餐食譜數量不足；請檢查篩選條件或改選其他餐式。可放寬篩選條件或改選其他餐式。', 'info', FEEDBACK_DURATION_MS,
     );
   });
 
