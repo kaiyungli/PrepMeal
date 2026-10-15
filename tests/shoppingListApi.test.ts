@@ -339,6 +339,31 @@ describe('/api/shopping-list security boundary', () => {
     ]);
   });
 
+  it('converts ml and l, but never combines mass and volume for one ingredient', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const units = (code: string) => ({ id: code, code, display_name_en: code, display_name_zh: code });
+    const makeRow = (quantity: number, code: string) => ({
+      quantity, recipe_id: 'recipe-1', ingredient_id: 'stock-1',
+      ingredients: { id: 'stock-1', name: '高湯', shopping_category: 'other' },
+      recipes: { id: 'recipe-1', name: 'Recipe One' }, units: units(code),
+    });
+    const database = createDatabase({ ingredientRows: [
+      makeRow(250, 'ml'), makeRow(0.5, 'l'), makeRow(10, 'g'),
+    ] });
+    createClientMock.mockReturnValue(database.client);
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST', headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+    expect(response.statusCode).toBe(200);
+    const items = (response.body as ShoppingListResponse).toBuy.flatMap(section => section.items);
+    expect(items).toEqual([
+      expect.objectContaining({ ingredientId: 'stock-1', quantity: 750, unit: 'ml' }),
+      expect.objectContaining({ ingredientId: 'stock-1', quantity: 10, unit: 'g' }),
+    ]);
+  });
+
   it('removes pantry ingredients from both buy views without matching a different oil', async () => {
     requireAuthMock.mockResolvedValue('verified-user');
     const row = (recipeId: string, id: string, name: string, quantity: number, unit = 'g') => ({
