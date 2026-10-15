@@ -69,7 +69,15 @@ export function summarizeGeneratedPlan(
 }
 
 /** One combined message for a Generate run, or null when nothing needs explaining. */
-export function buildGenerateFeedback(summary: GeneratedPlanSummary): string | null {
+export interface EmptySlotContext {
+  // Candidate counts after the current filters. Never bypass cuisine or diet
+  // preferences to fill a role whose eligible supply is exhausted.
+  eligibleByRole: Record<string, number>;
+  neededByRole: Record<string, number>;
+  selectedCuisines?: string[];
+}
+
+export function buildGenerateFeedback(summary: GeneratedPlanSummary, context?: EmptySlotContext): string | null {
   const parts: string[] = [];
   if (summary.droppedLockKeys.length > 0) {
     parts.push(`${summary.droppedLockKeys.length} 道已鎖定的菜式不符合目前餐式，已解除鎖定並重新安排。`);
@@ -77,6 +85,14 @@ export function buildGenerateFeedback(summary: GeneratedPlanSummary): string | n
   if (summary.emptySlotCount > 0) {
     const roles = summary.emptySlotRoles.map(getSlotRoleLabel).join('、');
     parts.push(`有 ${summary.emptySlotCount} 個餐位找不到符合條件的${roles}，已留空。`);
+    if (context) {
+      const scarce = summary.emptySlotRoles.filter(role =>
+        (context.eligibleByRole[role] ?? 0) < (context.neededByRole[role] ?? 0));
+      if (scarce.length > 0) {
+        const labels = scarce.map(getSlotRoleLabel).join('、');
+        parts.push(`目前篩選後的${labels}食譜數量不足；可考慮放寬菜系等篩選設定。`);
+      }
+    }
   }
   if (parts.length === 0) return null;
   return summary.emptySlotCount > 0 ? `${parts.join('')}${ADJUST_HINT}` : parts.join('');
