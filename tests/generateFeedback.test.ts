@@ -45,6 +45,17 @@ describe('planFeedback messages', () => {
     );
   });
 
+  it('explains a shortage after filtering without suggesting that the role was changed', () => {
+    const summary = summarizeGeneratedPlan({ mon: [MAIN, null], tue: [MAIN_2, null] },
+      ['protein_main', 'veg_side'], {}, {});
+    expect(buildGenerateFeedback(summary, {
+      eligibleByRole: { protein_main: 2, veg_side: 0 },
+      neededByRole: { protein_main: 2, veg_side: 2 },
+      selectedCuisines: ['western'],
+    })).toContain('目前篩選後的配菜食譜數量不足');
+    expect(summary.emptySlotCount).toBe(2);
+  });
+
   it('counts a lock beyond the new composition\'s slots as dropped', () => {
     const summary = summarizeGeneratedPlan({ mon: [COMPLETE] }, ['complete_meal'], { 'mon-1': true }, { 'mon-1': VEG });
     expect(summary.droppedLockKeys).toEqual(['mon-1']);
@@ -85,7 +96,7 @@ describe('useGeneratePlan feedback', () => {
     expect(result.current.weeklyPlan).toEqual({ mon: [null], tue: [null] });
     expect(notify).toHaveBeenCalledTimes(1);
     expect(notify).toHaveBeenCalledWith(
-      '有 2 個餐位找不到符合條件的完整餐，已留空。可放寬篩選條件或改選其他餐式。', 'info', FEEDBACK_DURATION_MS,
+      '有 2 個餐位找不到符合條件的完整餐，已留空。目前篩選後的完整餐食譜數量不足；請檢查篩選條件或改選其他餐式。', 'info', FEEDBACK_DURATION_MS,
     );
   });
 

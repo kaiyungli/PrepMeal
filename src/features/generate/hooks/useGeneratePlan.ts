@@ -4,6 +4,7 @@ import { generateWeeklyPlan, replaceRecipeInPlan } from '../index';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { perfNow, perfLog } from '@/utils/perf';
 import { getSlotRoleForIndex } from '../utils/slotRoleFilter';
+import { matchesConfiguredSlotRole, fitsCompleteMealSetting } from '@/lib/slotRoles';
 import { summarizeGeneratedPlan, buildGenerateFeedback, buildNoCandidateFeedback, FEEDBACK_DURATION_MS } from '../utils/planFeedback';
 
 // Shows a user-visible message (the page's toast).
@@ -147,7 +148,18 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
         return next;
       });
     }
-    const feedback = buildGenerateFeedback(summary);
+    const eligibleByRole: Record<string, number> = {};
+    const neededByRole: Record<string, number> = {};
+    for (const role of compositionConfig.slotRoles) {
+      neededByRole[role] = (neededByRole[role] ?? 0) + daysPerWeek;
+      if (eligibleByRole[role] !== undefined) continue;
+      eligibleByRole[role] = filteredRecipes.filter(recipe =>
+        (!cuisines.length || !recipe.cuisine || cuisines.includes(recipe.cuisine)) &&
+        fitsCompleteMealSetting(recipe, compositionKey, allowCompleteMeal) &&
+        matchesConfiguredSlotRole(recipe, role, compositionKey, allowCompleteMeal)
+      ).length;
+    }
+    const feedback = buildGenerateFeedback(summary, { eligibleByRole, neededByRole, selectedCuisines: cuisines });
     if (feedback) notify?.(feedback, 'info', FEEDBACK_DURATION_MS);
   }, [filteredRecipes, daysPerWeek, effectiveDishesPerDay, compositionConfig, dailyComposition, cuisines, exclusions, cookingConstraints, budget, pantryIngredients, lockedSlots, weeklyPlan, traceId, allowCompleteMeal, compositionKey, notify]);
 
