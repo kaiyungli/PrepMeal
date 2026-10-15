@@ -90,7 +90,10 @@ export function buildGenerateFeedback(summary: GeneratedPlanSummary, context?: E
         (context.eligibleByRole[role] ?? 0) < (context.neededByRole[role] ?? 0));
       if (scarce.length > 0) {
         const labels = scarce.map(getSlotRoleLabel).join('、');
-        parts.push(`目前篩選後的${labels}食譜數量不足；可考慮放寬菜系等篩選設定。`);
+        const hint = context.selectedCuisines?.length
+          ? '可考慮放寬菜系等篩選設定。'
+          : '請檢查篩選條件或改選其他餐式。';
+        parts.push(`目前篩選後的${labels}食譜數量不足；${hint}`);
       }
     }
   }
