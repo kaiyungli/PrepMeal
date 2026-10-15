@@ -1,11 +1,11 @@
--- Add an accurate cooking method for cold-prepared recipes (e.g. Thai tam taeng).
--- Scope: only the public.recipes method CHECK constraint. No recipe data inserted.
--- Reviewed against live constraint name / allowed values on 2026-10-15.
--- Deploy through controlled Supabase migration workflow only after PR approval.
-
+-- Add no_cook while guarding against replacement of an unexpected CHECK.
+-- Do not apply until independent schema review and controlled migration approval.
+-- The expected expression was captured read-only from the live schema.
 DO $$
 DECLARE
   actual_def text;
+  expected_def constant text :=
+    'CHECK ((method = ANY (ARRAY[''stir_fry''::text, ''steamed''::text, ''fried''::text, ''braised''::text, ''boiled''::text, ''baked''::text])))';
 BEGIN
   SELECT pg_get_constraintdef(c.oid)
     INTO actual_def
@@ -14,23 +14,14 @@ BEGIN
      AND c.conname = 'recipes_method_check'
      AND c.contype = 'c';
 
-  IF actual_def IS NULL THEN
-    RAISE EXCEPTION 'Expected recipes_method_check missing: aborting no_cook migration';
-  END IF;
-
-  -- Refuse to replace an unrelated / unexpected constraint.
-  IF actual_def NOT LIKE '%stir_fry%'
-     OR actual_def NOT LIKE '%steamed%'
-     OR actual_def NOT LIKE '%fried%'
-     OR actual_def NOT LIKE '%braised%'
-     OR actual_def NOT LIKE '%boiled%'
-     OR actual_def NOT LIKE '%baked%' THEN
-    RAISE EXCEPTION 'Unexpected recipes_method_check definition: aborting no_cook migration';
+  -- Fail closed for missing, changed, or already-migrated constraints.
+  -- Ignore formatting whitespace only; never ignore expressions or operands.
+  IF actual_def IS DISTINCT FROM expected_def THEN
+    RAISE EXCEPTION 'recipes_method_check has unexpected definition; aborting migration';
   END IF;
 END
 $$;
 
 ALTER TABLE public.recipes DROP CONSTRAINT recipes_method_check;
-ALTER TABLE public.recipes ADD CONSTRAINT recipes_method_check CHECK (
-  method IN ('stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook')
-);
+ALTER TABLE public.recipes ADD CONSTRAINT recipes_method_check
+  CHECK (method IN ('stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook'));
