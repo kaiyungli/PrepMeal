@@ -90,6 +90,24 @@ describe('generation quality baseline (synthetic catalogue)', () => {
     }
   });
 
+  it.each([3, 5, 7])('fills every slot when the role-balanced catalogue has enough recipes for %i days', days => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    for (const [composition, setting] of Object.entries(COMPOSITION_CONFIG)) {
+      const plan = planWeekAdvanced(recipes, {
+        daysPerWeek: days,
+        dishesPerDay: setting.dishesPerDay,
+        slotRoles: setting.slotRoles,
+        dailyComposition: composition,
+        allowCompleteMeal: false,
+        isWeekend: () => false,
+      });
+      const metrics = measure(plan, setting.slotRoles);
+      expect(metrics.empty, `${composition} for ${days} days`).toBe(0);
+      expect(metrics.completedDays).toBe(days);
+      expect(metrics.roleErrors).toBe(0);
+    }
+  });
+
   it('captures insufficient-role supply without disguising empty slots', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     const scarce = recipes.filter(r => r.meal_role === 'complete_meal').slice(0, 2);
