@@ -10,7 +10,7 @@ vi.hoisted(() => {
 });
 
 import { planWeekAdvanced, matchesSlotRole } from '@/lib/mealPlanner';
-import { fitsCompleteMealSetting } from '@/lib/slotRoles';
+import { fitsCompleteMealSetting, matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { replaceRecipeInPlan } from '@/features/generate/engine/recipeReplacer';
 import { getCandidatesForAddRandom, useGenerateHandlers } from '@/features/generate/hooks/useGenerateHandlers';
@@ -75,7 +75,7 @@ describe('generate', () => {
       const plan = planWeekAdvanced([COMPLETE_A, COMPLETE_B, FLAGGED, MAIN, VEG, VEG_2], configFor(mode, true, { daysPerWeek: 2 }));
       for (const day of Object.values(plan)) {
         expect(day.filter(isComplete).length).toBeLessThanOrEqual(1);
-        day.forEach((r, i) => { if (r) expect(matchesSlotRole(r, COMPOSITION_CONFIG[mode].slotRoles[i])).toBe(true); });
+        day.forEach((r, i) => { if (r) expect(matchesConfiguredSlotRole(r, COMPOSITION_CONFIG[mode].slotRoles[i], mode, true)).toBe(true); });
         if (day.some(isComplete)) sawComplete = true;
       }
     }

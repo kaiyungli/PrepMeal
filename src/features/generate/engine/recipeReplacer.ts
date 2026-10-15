@@ -1,5 +1,6 @@
 import { scoreCandidates } from './recipeScorer';
-import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
+import { matchesConfiguredSlotRole } from '@/lib/slotRoles';
+import { getSlotRoleForIndex, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from './budgetPreference';
 
 // Shuffle array helper for randomization
@@ -168,20 +169,20 @@ export function replaceRecipeInPlan(
   
   // Priority A: exact role + unused + not history
   let candidates = unusedCandidates.filter(
-    (c: any) => matchesSlotRole(c, slotRole) && !historyIds.has(c.id)
+    (c: any) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
   );
   
   // Priority B: exact role + not current + not history
   if (!candidates.length) {
     candidates = availableCandidates.filter(
-      (c: any) => c.id !== currentRecipe?.id && matchesSlotRole(c, slotRole) && !historyIds.has(c.id)
+      (c: any) => c.id !== currentRecipe?.id && matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
     );
   }
   
   // Priority C: exact role + unused (replacement history no longer excluded)
   if (!candidates.length) {
     candidates = unusedCandidates.filter(
-      (c: any) => matchesSlotRole(c, slotRole)
+      (c: any) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal)
     );
   }
   

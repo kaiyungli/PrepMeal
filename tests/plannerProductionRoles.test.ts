@@ -19,7 +19,7 @@ describe('production-shaped mixed meal roles', () => {
     expect(matchesSlotRole(soup, 'protein_main')).toBe(false);
     expect(matchesSlotRole(makeRecipe('無角色蔬菜', '', 'side', 'vegetarian'), 'protein_main')).toBe(false);
     expect(matchesSlotRole(makeRecipe('無角色雞湯', '', 'soup', 'chicken'), 'protein_main')).toBe(false);
-    expect(matchesSlotRole(proteinSide, 'protein_main')).toBe(true);
+    expect(matchesSlotRole(proteinSide, 'protein_main')).toBe(false);
   });
 
   it('keeps explicitly classified vegetarian mains eligible without admitting sides or soups', () => {
@@ -36,6 +36,7 @@ describe('production-shaped mixed meal roles', () => {
       makeRecipe('豬肉主菜', 'protein_main', 'main', 'pork'),
       makeRecipe('牛肉主菜', 'protein_main', 'main', 'beef'),
       makeRecipe('魚主菜', 'protein_main', 'main', 'fish'),
+      makeRecipe('雞肉主菜', 'protein_main', 'main', 'chicken'),
       proteinSide,
       veg,
       makeRecipe('蒜蓉油麥菜', 'veg_side', 'side', 'vegetarian'),

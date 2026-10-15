@@ -16,7 +16,7 @@ import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
-import { matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting } from './slotRoles';
+import { matchesSlotRole, matchesConfiguredSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting } from './slotRoles';
 
 export { matchesSlotRole };
 
@@ -211,10 +211,12 @@ export interface PlanConfig {
 function getCandidatesWithFallback(
   recipes: Recipe[], 
   slotRole: string,
-  usedRecipeIds: Set<string>
+  usedRecipeIds: Set<string>,
+  composition: string,
+  allowCompleteMeal?: boolean
 ): Recipe[] {
   const exactMatch = recipes.filter(r => 
-    !usedRecipeIds.has(r.id) && matchesSlotRole(r, slotRole)
+    !usedRecipeIds.has(r.id) && matchesConfiguredSlotRole(r, slotRole, composition, allowCompleteMeal)
   );
   if (exactMatch.length > 0 || !allowsCrossRoleFallback(slotRole)) return exactMatch;
   
@@ -319,7 +321,7 @@ export function planWeekAdvanced(
   // was generated. A removed/ineligible recipe must not bypass hard filters.
   const getValidLockedRecipe = (slotKey: string, slotRole: string | undefined): Recipe | null => {
     const recipe = lockedSlots[slotKey] ? lockedRecipes[slotKey] : null;
-    return recipe?.id && eligibleRecipeIds.has(recipe.id) && slotRole && matchesSlotRole(recipe, slotRole)
+    return recipe?.id && eligibleRecipeIds.has(recipe.id) && slotRole && matchesConfiguredSlotRole(recipe, slotRole, compositionKey, config.allowCompleteMeal)
       && fitsCompleteMealSetting(recipe, compositionKey, config.allowCompleteMeal) ? recipe : null;
   };
 
@@ -431,7 +433,7 @@ export function planWeekAdvanced(
       // GUARANTEE: Use perfect match only if it matches current slot role
       if (perfectMatchRecipe && !usedRecipeIds.has(perfectMatchRecipe.id)) {
         // Only use perfect match if it fits the current slot's role and the day
-        if (matchesSlotRole(perfectMatchRecipe, slotRole) && fitsDailyCompleteMealLimit(perfectMatchRecipe, otherSlotsInDay)) {
+        if (matchesConfiguredSlotRole(perfectMatchRecipe, slotRole, compositionKey, config.allowCompleteMeal) && fitsDailyCompleteMealLimit(perfectMatchRecipe, otherSlotsInDay)) {
           dayRecipes.push(perfectMatchRecipe);
           applyRecipeSelection(perfectMatchRecipe, usedRecipeIds, recentProteins, recentMethods);
           perfectMatchRecipe = null; // Only use once
@@ -448,7 +450,7 @@ export function planWeekAdvanced(
       const scoringNormPantry = normPantry;
       
       // Get candidates matching this slot role (with fallback chain)
-      const eligibleCandidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds)
+      const eligibleCandidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds, compositionKey, config.allowCompleteMeal)
         .filter(r => fitsDailyCompleteMealLimit(r, otherSlotsInDay));
       // Prefer matching editorial budget tiers within the current slot only.
       // If this slot has no tier match, retain all eligible candidates so
