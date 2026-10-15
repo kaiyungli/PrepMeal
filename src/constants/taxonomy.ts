@@ -67,6 +67,7 @@ export const METHOD_MAP: Record<string, string> = {
   boiled: '煮',
   braised: '燜',
   baked: '焗',
+  no_cook: '冷拌',
   // Aliases
   stir: '炒',
   steam: '蒸',
@@ -92,6 +93,7 @@ export const METHOD_OPTIONS = [
   { value: 'boiled', label: '煮' },
   { value: 'braised', label: '燜' },
   { value: 'baked', label: '焗' },
+  { value: 'no_cook', label: '冷拌' },
 ];
 
 // ============================================
