@@ -58,7 +58,7 @@ describe('shoppingList existing contracts (v25)', () => {
   })
 })
 
-describe('documented gaps (expected to fail until fixed)', () => {
+describe('regressions and documented gaps', () => {
   it.fails('excludes unselected optional recipe ingredients', () => {
     const result = buildShoppingList([recipe([
       { ingredient_id: eggId, display_name: '雞蛋', quantity: 1, unit: { name: 'pc' }, is_optional: true },
@@ -66,7 +66,7 @@ describe('documented gaps (expected to fail until fixed)', () => {
     expect(result.toBuy).toHaveLength(0)
   })
 
-  it.fails('merges 1 kg and 100 g into 1100 g for a single ingredient', () => {
+  it('merges 1 kg and 100 g into 1100 g for a single ingredient', () => {
     const result = mergeIngredients([
       { ingredient_id: sugarId, name: '糖', quantity: 1, unit: 'kg' },
       { ingredient_id: sugarId, name: '糖', quantity: 100, unit: 'g' },
