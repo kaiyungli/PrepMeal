@@ -167,6 +167,22 @@ export default async function handler(
         .filter(Boolean)
     : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
+  // Optional selection is recipe-scoped: the same ingredient can be optional in
+  // one recipe and required in another. An omitted field preserves legacy plans.
+  const rawOptionalSelection = body?.selectedOptionalIngredientIdsByRecipe;
+  if (rawOptionalSelection !== undefined && (
+    !rawOptionalSelection || typeof rawOptionalSelection !== 'object' ||
+    Array.isArray(rawOptionalSelection) ||
+    Object.entries(rawOptionalSelection).some(([key, values]) =>
+      !key || !Array.isArray(values) || values.some(value => typeof value !== 'string')
+    )
+  )) {
+    return res.status(400).json({ error: 'Invalid optional ingredient selection' });
+  }
+  const optionalSelection = rawOptionalSelection === undefined
+    ? null
+    : new Map(Object.entries(rawOptionalSelection as Record<string, string[]>)
+        .map(([key, ids]) => [canonicalRecipeId(key), new Set(ids)]));
   
   if (recipeIds.length === 0) {
     return res.status(400).json({ error: 'Missing recipeIds' });
@@ -252,6 +268,7 @@ export default async function handler(
         quantity,
         recipe_id,
         ingredient_id,
+        is_optional,
         ingredients(id, name, shopping_category),
         recipes(id, name),
         units(id, code, display_name_en, display_name_zh)
@@ -290,6 +307,10 @@ export default async function handler(
     
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
+      if (optionalSelection && ri.is_optional &&
+          !optionalSelection.get(canonicalRecipeId(String(ri.recipe_id)))?.has(ri.ingredient_id)) {
+        continue;
+      }
       
       const ing = Array.isArray(ri.ingredients) ? ri.ingredients[0] : (ri.ingredients || null);
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
