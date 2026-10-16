@@ -192,6 +192,7 @@ interface ShoppingRecipeIngredient {
   unit?: { name?: string | null } | null
   shopping_category?: string | null
   source?: string | null
+  is_optional?: boolean
 }
 
 interface ShoppingRecipe {
@@ -209,9 +210,16 @@ interface ShoppingRecipe {
 export function buildShoppingList(
   recipes: (ShoppingRecipe | null | undefined)[],
   pantryIngredients: string[] = [],
-  servings: number = 1
+  servings: number = 1,
+  selectedOptionalIngredientIds?: string[]
 ): ShoppingListResult {
   
+  // Omitted selection preserves existing behavior for callers not yet migrated.
+  // When explicitly provided, an empty selection means no optional ingredients.
+  const selectedOptionals = selectedOptionalIngredientIds === undefined
+    ? null
+    : new Set(selectedOptionalIngredientIds)
+
   // 1. Collect all ingredients from recipes
   const allIngredients: Ingredient[] = []
   
@@ -221,6 +229,7 @@ export function buildShoppingList(
     const scale = servingScale(servings, recipe.base_servings || 1)
     
     for (const ing of recipe.ingredients) {
+      if (selectedOptionals && ing.is_optional && !selectedOptionals.has(ing.ingredient_id || '')) continue
       // New format: display_name, shopping_category, unit.name, source
       const name = ing.display_name
       if (!name) continue
