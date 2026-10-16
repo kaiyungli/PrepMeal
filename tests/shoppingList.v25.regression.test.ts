@@ -59,11 +59,26 @@ describe('shoppingList existing contracts (v25)', () => {
 })
 
 describe('regressions and documented gaps', () => {
-  it.fails('excludes unselected optional recipe ingredients', () => {
+  it('excludes unselected optional recipe ingredients with explicit empty selection', () => {
+    const result = buildShoppingList([recipe([
+      { ingredient_id: eggId, display_name: '雞蛋', quantity: 1, unit: { name: 'pc' }, is_optional: true },
+    ])], [], 1, [])
+    expect(result.toBuy).toHaveLength(0)
+  })
+
+  it('includes selected optional ingredient when explicitly chosen', () => {
+    const result = buildShoppingList([recipe([
+      { ingredient_id: eggId, display_name: '雞蛋', quantity: 1, unit: { name: 'pc' }, is_optional: true },
+    ])], [], 1, [eggId])
+    expect(result.toBuy).toHaveLength(1)
+    expect(result.toBuy[0].quantity).toBe(1)
+  })
+
+  it('preserves legacy optional inclusion when selection is omitted', () => {
     const result = buildShoppingList([recipe([
       { ingredient_id: eggId, display_name: '雞蛋', quantity: 1, unit: { name: 'pc' }, is_optional: true },
     ])], [], 1)
-    expect(result.toBuy).toHaveLength(0)
+    expect(result.toBuy).toHaveLength(1)
   })
 
   it('merges 1 kg and 100 g into 1100 g for a single ingredient', () => {
