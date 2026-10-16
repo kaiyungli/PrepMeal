@@ -15,7 +15,8 @@ import * as adminRecipeAtomicParams from '@/lib/adminRecipeAtomicParams';
 import { CUISINE_MAP, DISH_TYPE_MAP, PROTEIN_MAP, CUISINE_OPTIONS, DISH_TYPE_OPTIONS, PROTEIN_OPTIONS } from '@/constants/taxonomy';
 
 // Contract tests for src/constants/recipeContract.js -- the single canonical,
-// dependency-free copy of the eight admin-recipe metadata enums (verbatim
+// dependency-free copy of the eight admin-recipe metadata enums (targeting the post-migration schema
+// (must deploy migration before enabling no_cook writes); the other arrays remain derived
 // from the live production CHECK constraints; see
 // src/lib/adminRecipeAtomicParams.js for full provenance), now shared by
 // backend validation, the Admin UI, and display taxonomy so all three layers
@@ -31,14 +32,14 @@ const CANONICAL_CONTRACT = {
   CUISINES: ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'],
   DISH_TYPES: ['main', 'side', 'soup', 'staple', 'snack'],
   DIFFICULTIES: ['easy', 'medium', 'hard'],
-  METHODS: ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked'],
+  METHODS: ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook'],
   SPEEDS: ['quick', 'normal', 'slow'],
   MEAL_ROLES: ['complete_meal', 'protein_main', 'veg_side', 'protein_side', 'soup'],
   PRIMARY_PROTEINS: ['chicken', 'beef', 'pork', 'fish', 'seafood', 'shrimp', 'tofu', 'egg', 'vegetarian', 'mixed'],
   BUDGET_LEVELS: ['budget', 'normal', 'premium'],
 };
 
-describe('recipeContract: the eight canonical arrays exactly match the production contract', () => {
+describe('recipeContract: the eight canonical arrays exactly match the intended post-migration contract', () => {
   it('CUISINES', () => expect(CUISINES).toEqual(CANONICAL_CONTRACT.CUISINES));
   it('DISH_TYPES', () => expect(DISH_TYPES).toEqual(CANONICAL_CONTRACT.DISH_TYPES));
   it('DIFFICULTIES', () => expect(DIFFICULTIES).toEqual(CANONICAL_CONTRACT.DIFFICULTIES));
