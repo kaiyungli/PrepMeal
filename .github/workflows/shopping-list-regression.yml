@@ -6,6 +6,9 @@ on:
       - 'src/lib/shoppingList.ts'
       - 'src/pages/api/shopping-list.ts'
       - 'src/features/generate/services/fetchGeneratedPlanShoppingList.ts'
+      - 'src/features/generate/hooks/useGeneratedShoppingList.ts'
+      - 'src/features/generate/hooks/useGenerateActions.ts'
+      - 'src/features/generate/hooks/useGeneratePageController.ts'
       - 'src/lib/ingredientNormalizer.ts'
       - '.github/workflows/shopping-list-regression.yml'
   workflow_dispatch:
