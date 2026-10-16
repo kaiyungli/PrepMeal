@@ -11,6 +11,7 @@ export interface FetchShoppingListOptions {
   traceId?: string;
   token: string;
   cacheScope: string;
+  selectedOptionalIngredientIdsByRecipe?: Record<string, string[]>;
 }
 
 const CACHE_KEY = 'shopping_list_v1';
@@ -22,10 +23,13 @@ interface CachePayload {
   data: ShoppingListViewModel;
 }
 
-function getCacheKey(cacheScope: string, recipeIds: string[], pantryIngredients: string[], servings: number): string {
+function getCacheKey(cacheScope: string, recipeIds: string[], pantryIngredients: string[], servings: number, selectedOptionals?: Record<string, string[]>): string {
   const recipeHash = recipeIds.slice().sort().join(',');
   const pantryHash = pantryIngredients.slice().sort().join(',');
-  return `${cacheScope}|${recipeHash}|${pantryHash}|${servings}`;
+  const optionsHash = selectedOptionals === undefined ? 'legacy' : JSON.stringify(
+    Object.entries(selectedOptionals).sort(([a], [b]) => a.localeCompare(b)).map(([id, values]) => [id, [...values].sort()])
+  );
+  return `${cacheScope}|${recipeHash}|${pantryHash}|${servings}|${optionsHash}`;
 }
 
 function getFromCache(key: string): ShoppingListViewModel | null {
@@ -99,7 +103,7 @@ export async function fetchGeneratedPlanShoppingList(
   });
 
   // Build cache key
-  const cacheKey = getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings);
+  const cacheKey = getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings, options.selectedOptionalIngredientIdsByRecipe);
   
   // Check cache first
   const cachedData = getFromCache(cacheKey);
@@ -152,6 +156,9 @@ export async function fetchGeneratedPlanShoppingList(
         recipeIds,
         pantryIngredients,
         servings,
+        ...(options.selectedOptionalIngredientIdsByRecipe === undefined ? {} : {
+          selectedOptionalIngredientIdsByRecipe: options.selectedOptionalIngredientIdsByRecipe,
+        }),
       }),
     });
 

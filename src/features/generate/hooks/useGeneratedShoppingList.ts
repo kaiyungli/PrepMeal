@@ -11,6 +11,7 @@ interface Options {
   userId: string | null;
   getAccessToken: () => Promise<string | null>;
   traceId?: string;
+  selectedOptionalIngredientIdsByRecipe?: Record<string, string[]>;
 }
 interface ListState {
   key: string;
@@ -20,10 +21,13 @@ interface ListState {
 }
 
 export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings,
-  isAuthenticated, userId, getAccessToken, traceId }: Options) {
+  isAuthenticated, userId, getAccessToken, traceId, selectedOptionalIngredientIdsByRecipe }: Options) {
   // Preserve repeated recipes: each occurrence contributes to shopping quantities.
   const recipeIds = Object.values(weeklyPlan || {}).flat().flatMap(recipe => recipe?.id ? [String(recipe.id)] : []).sort();
-  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, pantryIngredients.slice().sort()]);
+  const optionalKey = selectedOptionalIngredientIdsByRecipe === undefined ? 'legacy' : Object.entries(selectedOptionalIngredientIdsByRecipe)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([id, values]) => [id, [...values].sort()]);
+  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, pantryIngredients.slice().sort(), optionalKey]);
   const [state, setState] = useState<ListState | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const requestRef = useRef<{ active: boolean } | null>(null);
@@ -60,7 +64,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (!token) throw new Error('請先登入以查看購物清單');
       const started = Date.now();
       const view = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings,
-        { traceId, token, cacheScope: userId });
+        { traceId, token, cacheScope: userId, selectedOptionalIngredientIdsByRecipe });
       if (!request.active) return;
       setState({ key, view, error: null, loading: false });
       log(preload ? 'preload_ready' : 'ready', Date.now() - started, view.summary);
@@ -72,7 +76,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (requestRef.current === request) requestRef.current = null;
     }
   }, [key, shoppingListView, isShoppingListLoading, recipeIds.length, isAuthenticated, userId,
-    getAccessToken, weeklyPlan, pantryIngredients, servings, traceId, invalidate]);
+    getAccessToken, weeklyPlan, pantryIngredients, servings, traceId, invalidate, selectedOptionalIngredientIdsByRecipe]);
 
   const handleOpenShoppingList = useCallback(() => load(false), [load]);
   const preloadShoppingList = useCallback(() => load(true), [load]);

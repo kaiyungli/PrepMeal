@@ -57,7 +57,27 @@ export function mergeIngredients(list: (IngredientInput | null | undefined)[]): 
   const validItems = list.filter((item): item is IngredientInput => Boolean(item?.ingredient_id))
   
   const map = new Map<string, Ingredient>()
-  
+
+  // Convert within the same fixed-ratio measurement family only when mixed
+  // units are present. Never infer ingredient-specific mass/volume density.
+  const unitsByFamily = new Map<string, Set<string>>()
+  const conversions: Record<string, { family: string; factor: number; target: string }> = {
+    g: { family: 'mass', factor: 1, target: 'g' },
+    kg: { family: 'mass', factor: 1000, target: 'g' },
+    ml: { family: 'volume', factor: 1, target: 'ml' },
+    l: { family: 'volume', factor: 1000, target: 'ml' },
+    tsp: { family: 'spoons', factor: 1, target: 'tsp' },
+    tbsp: { family: 'spoons', factor: 3, target: 'tsp' }
+  }
+  for (const item of validItems) {
+    const unit = normalizeUnit(item.unit)
+    const spec = conversions[unit]
+    if (!spec) continue
+    const familyKey = `${item.ingredient_id}:${spec.family}`
+    if (!unitsByFamily.has(familyKey)) unitsByFamily.set(familyKey, new Set())
+    unitsByFamily.get(familyKey)!.add(unit)
+  }
+
   for (const item of validItems) {
     // Skip invalid items
     if (!item.name) continue
@@ -65,14 +85,18 @@ export function mergeIngredients(list: (IngredientInput | null | undefined)[]): 
     if (!parsed.valid) continue
     
     // Apply scaling if provided
-    const qty = parsed.quantity === null
+    let qty = parsed.quantity === null
       ? null
       : parsed.quantity * servingScale(item.targetServings, item.baseServings)
-    
-    // Aggregate by ingredient_id + normalized unit
-    // DB-backed items keep their (normalized) unit, even if empty; only
-    // fallback ingredients_list items without a unit are counted in '份'
-    const normalizedUnit = normalizeUnit(item.unit)
+
+    // Aggregate by ingredient_id + normalized unit.
+    // Convert only safe, fixed-ratio families, and only when mixed.
+    let normalizedUnit = normalizeUnit(item.unit)
+    const conversion = conversions[normalizedUnit]
+    if (conversion && (unitsByFamily.get(`${item.ingredient_id}:${conversion.family}`)?.size ?? 0) > 1) {
+      if (qty !== null) qty *= conversion.factor
+      normalizedUnit = conversion.target
+    }
     const unit = normalizedUnit || (item.source === 'ingredients_list' ? '份' : '')
     const key = `${item.ingredient_id}:${unit}`
     
@@ -168,6 +192,7 @@ interface ShoppingRecipeIngredient {
   unit?: { name?: string | null } | null
   shopping_category?: string | null
   source?: string | null
+  is_optional?: boolean
 }
 
 interface ShoppingRecipe {
@@ -185,9 +210,16 @@ interface ShoppingRecipe {
 export function buildShoppingList(
   recipes: (ShoppingRecipe | null | undefined)[],
   pantryIngredients: string[] = [],
-  servings: number = 1
+  servings: number = 1,
+  selectedOptionalIngredientIds?: string[]
 ): ShoppingListResult {
   
+  // Omitted selection preserves existing behavior for callers not yet migrated.
+  // When explicitly provided, an empty selection means no optional ingredients.
+  const selectedOptionals = selectedOptionalIngredientIds === undefined
+    ? null
+    : new Set(selectedOptionalIngredientIds)
+
   // 1. Collect all ingredients from recipes
   const allIngredients: Ingredient[] = []
   
@@ -197,6 +229,7 @@ export function buildShoppingList(
     const scale = servingScale(servings, recipe.base_servings || 1)
     
     for (const ing of recipe.ingredients) {
+      if (selectedOptionals && ing.is_optional && !selectedOptionals.has(ing.ingredient_id || '')) continue
       // New format: display_name, shopping_category, unit.name, source
       const name = ing.display_name
       if (!name) continue

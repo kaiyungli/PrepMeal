@@ -13,6 +13,7 @@ interface UseGenerateActionsOptions {
   userId: string | null;
   getAccessToken: () => Promise<string | null>;
   traceId?: string;
+  selectedOptionalIngredientIdsByRecipe?: Record<string, string[]>;
 }
 
 export function useGenerateActions({
@@ -24,6 +25,7 @@ export function useGenerateActions({
   userId,
   getAccessToken,
   traceId,
+  selectedOptionalIngredientIdsByRecipe,
 }: UseGenerateActionsOptions) {
   // Modal State
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
@@ -41,7 +43,7 @@ export function useGenerateActions({
 
   const { shoppingListView, showShoppingList, isShoppingListLoading, shoppingListError,
     preloadShoppingList, handleOpenShoppingList, handleCloseShoppingList, clearShoppingList,
-  } = useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings, isAuthenticated, userId, getAccessToken, traceId });
+  } = useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings, isAuthenticated, userId, getAccessToken, traceId, selectedOptionalIngredientIdsByRecipe });
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
