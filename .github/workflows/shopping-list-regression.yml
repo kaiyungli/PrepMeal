@@ -4,6 +4,8 @@ on:
     paths:
       - 'tests/shoppingList.v25.regression.test.ts'
       - 'src/lib/shoppingList.ts'
+      - 'src/pages/api/shopping-list.ts'
+      - 'src/features/generate/services/fetchGeneratedPlanShoppingList.ts'
       - 'src/lib/ingredientNormalizer.ts'
       - '.github/workflows/shopping-list-regression.yml'
   workflow_dispatch:
