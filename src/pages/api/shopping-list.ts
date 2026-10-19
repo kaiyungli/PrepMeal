@@ -11,6 +11,7 @@ import { requireAuth } from './user/_auth';
 import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey, ShoppingListRecipeGroup } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
+import { recipeServingScale } from '@/lib/recipeServings';
 
 // Unit normalization
 function normalizeUnit(unit: string | null | undefined): string {
@@ -209,11 +210,14 @@ export default async function handler(
     // enforced explicitly before related ingredient rows are queried.
     const { data: visibleRecipes, error: visibilityError } = await supabase
       .from('recipes')
-      .select('id')
+      .select('id, base_servings')
       .in('id', recipeIds)
       .eq('is_public', true);
 
     if (visibilityError) throw visibilityError;
+    const servingScales = new Map((visibleRecipes || []).map(recipe => [
+      canonicalRecipeId(String(recipe.id)), recipeServingScale(servings, recipe.base_servings),
+    ]));
 
     // A saved plan keeps its recipe ids after a recipe is unpublished or
     // removed. Those meals are skipped, private and missing alike, and only
@@ -316,9 +320,7 @@ export default async function handler(
         ingredientId: ri.ingredient_id,
         name: ing.name,
         normalizedName: ing.name,
-        // Scale by servings (quantities are per base serving; base_servings is
-        // 1 across the catalogue) and by how often the recipe is in the plan.
-        quantity: rowQuantity(ri.quantity) * servings * occurrences,
+        quantity: rowQuantity(ri.quantity) * servingScales.get(canonicalRecipeId(String(ri.recipe_id)))! * occurrences,
         unit: unitCode,
         unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),

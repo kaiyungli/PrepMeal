@@ -5,8 +5,11 @@
  * Transforms raw DB response to API response shape.
  */
 import type { RecipeDetailRow, RecipeIngredient } from '../services/getRecipeDetail';
+import { recipeProvenance, type RecipeProvenance } from './recipeProvenance';
 
-export interface NormalizedRecipe {
+export interface NormalizedRecipe extends RecipeProvenance {
+  base_servings: number | null;
+  description: string | null;
   id: string | number;
   name: string;
   image_url: string | null;
@@ -58,6 +61,9 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
   ).filter(Boolean);
 
   return {
+    ...recipeProvenance(recipe.source_data),
+    base_servings: Number.isFinite(Number(recipe.base_servings)) && Number(recipe.base_servings) > 0 ? Number(recipe.base_servings) : null,
+    description: recipe.description || null,
     id: recipe.id,
     name: recipe.name || '未知食譜',
     image_url: recipe.image_url || null,

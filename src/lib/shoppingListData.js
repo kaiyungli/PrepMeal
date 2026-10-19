@@ -7,6 +7,7 @@
 
 import { supabase } from '@/lib/supabaseClient';
 import { perfLog } from '@/utils/perf';
+import { recipeServingScale } from '@/lib/recipeServings';
 
 /**
  * Fetch and build ingredient items from recipe IDs
@@ -30,7 +31,7 @@ export async function fetchRecipeIngredients(recipeIds, servings = 1) {
       unit_id,
       recipe_id,
       ingredients(id, name, slug, shopping_category),
-      recipes(id, name),
+      recipes(id, name, base_servings),
       units(id, code, name)
     `)
     .in('recipe_id', recipeIds);
@@ -41,7 +42,7 @@ export async function fetchRecipeIngredients(recipeIds, servings = 1) {
   const items = [];
   for (const ri of (recipeIngredients || [])) {
     const ing = ri.ingredients;
-    const recipe = ri.recipes;
+    const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : ri.recipes;
     const unitRow = ri.units; // Embedded from first query
     if (!ing) continue;
 
@@ -49,7 +50,7 @@ export async function fetchRecipeIngredients(recipeIds, servings = 1) {
       ingredient_id: ing.id,
       name: ing.name,
       slug: ing.slug,
-      quantity: ri.quantity ? Number(ri.quantity) * servings : null,
+      quantity: ri.quantity == null ? null : Number(ri.quantity) * recipeServingScale(servings, recipe?.base_servings),
       unit: unitRow ? { code: unitRow.code, name: unitRow.name } : null,
       category: ing.shopping_category || null,
       recipe_id: recipe?.id || null,

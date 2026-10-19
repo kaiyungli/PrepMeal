@@ -4,9 +4,12 @@ import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect, useCallback } from 'react'
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
 import FavoriteButton from './FavoriteButton'
+import RecipeProvenance from './RecipeProvenance';
+import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 
 interface RecipeDetailContentProps {
-  recipe: {
+  recipe: Partial<Provenance> & {
+    base_servings?: number | null
     id: string
     name: string
     image_url?: string
@@ -154,7 +157,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                   </span>
                 </div>
               )}
-              {/* Removed servings display - showing calories only */}
+              {recipe.base_servings != null && <span className="text-white text-sm">原方 {recipe.base_servings} 人份</span>}
             </div>
           </div>
         </div>
@@ -174,7 +177,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         {/* Ingredients Card - Deferred */}
         {showHeavySections ? (
           <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
-            <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材</h3>
+            <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材{recipe.base_servings != null ? `（${recipe.base_servings} 人份總量）` : ''}</h3>
             {isLoading ? (
             <div className="space-y-3">
               <SectionSkeleton height="h-6" />
@@ -255,7 +258,9 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
 
         {/* Nutrition Card - Keep immediate for now (lightweight) */}
         <div className="rounded-2xl p-6 border-2" style={{ backgroundColor: '#FFF9E6', borderColor: '#F0A060' }}>
-          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>📊 營養資料</h3>
+          <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>📊 營養資料（每人份）</h3>
+          {recipe.nutrition_is_estimate && <p className="text-sm mb-3" style={{ color: '#5A4030' }}>營養數值為食材投入量推算，並非化驗結果；實際數值會因品牌、份量及烹調而異。</p>}
+          {!!recipe.nutrition_notes?.length && <ul className="text-sm mb-3 list-disc pl-5" style={{ color: '#5A4030' }}>{recipe.nutrition_notes.map((note, i) => <li key={i}>{note}</li>)}</ul>}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
               <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.calories_per_serving || '-'}</div>
@@ -301,6 +306,8 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             ))}
           </ul>
         </div>
+
+        <div className="mt-8"><RecipeProvenance recipe={recipe} /></div>
 
         {/* SEO Section: 保存方法 */}
         <div className="mt-8">
