@@ -26,6 +26,21 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('recipe detail content hook order and deferred rendering', () => {
+  it('shows servings, estimate, sources and allergens in the shared detail content', () => {
+    render(<RecipeDetailContent recipe={{ ...a, base_servings: 2, nutrition_is_estimate: true,
+      nutrition_notes: ['品牌有所不同'], allergens: ['crustaceans', 'soy'], allergen_note: '請核對包裝',
+      source_attribution: { website: 'Just One Cookbook', author: '作者', url: 'https://www.justonecookbook.com/', note: '家常改編' },
+    }} />);
+    flushFrame();
+    expect(screen.getByText('原方 2 人份')).toBeTruthy();
+    expect(screen.getByText('🥬 食材（2 人份總量）')).toBeTruthy();
+    expect(screen.getByText('📊 營養資料（每人份）')).toBeTruthy();
+    expect(screen.getByText(/營養數值為食材投入量推算/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Just One Cookbook' }).getAttribute('href')).toBe('https://www.justonecookbook.com/');
+    expect(screen.getByText('材料涉及：甲殼類、黃豆')).toBeTruthy();
+    expect(screen.getByText('家常改編')).toBeTruthy();
+  });
+
   it('empty → recipe renders without React hook-order errors', () => {
     const view = render(<RecipeDetailContent recipe={null} />);
     expect(view.container.textContent).toBe('');

@@ -21,7 +21,7 @@ const PRIVATE = '33333333-3333-4333-8333-333333333333';
 type Row = {
   quantity: unknown; recipe_id: string; ingredient_id: string | null;
   ingredients: { id: string; name: string; shopping_category: string | null };
-  recipes: { id: string; name: string };
+  recipes: { id: string; name: string; base_servings?: number };
   units: { id: string; code: string; display_name_en: string; display_name_zh: string } | null;
 };
 
@@ -40,7 +40,7 @@ const row = (recipeId: string, ingredientId: string, name: string, quantity: unk
   units: unit ? UNITS[unit] : null,
 });
 
-function fakeDatabase(rows: Row[], publicIds = [R1, R2]) {
+function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, number> = {}) {
   const calls = { recipeIdsQueried: [] as string[][], ingredientIdsQueried: [] as string[][], preferenceUserIds: [] as string[] };
   return {
     calls,
@@ -55,7 +55,7 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2]) {
         if (table === 'recipes') {
           return { select: () => ({ in: (_c: string, ids: string[]) => ({ eq: async () => {
             calls.recipeIdsQueried.push(ids);
-            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id })), error: null };
+            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id, base_servings: bases[id] })), error: null };
           } }) }) };
         }
         if (table === 'recipe_ingredients') {
@@ -217,4 +217,19 @@ describe('/api/shopping-list authentication and isolation', () => {
     expect(response.unavailableRecipeCount).toBe(2);
     expect(JSON.stringify(response)).not.toContain('秘密');
   });
+});
+
+
+describe('recipe base servings regression', () => {
+  it.each([[1, 1, 180], [2, 1, 360], [4, 1, 720], [1, 2, 360], [2, 2, 720]])(
+    '%i people with %i occurrences uses %ig noodles', async (servings, occurrences, expected) => {
+      requireAuthMock.mockResolvedValue('user-a');
+      const db = fakeDatabase([row(R1, 'noodles', '麵', 360, 'g')], [R1], { [R1]: 2 });
+      createClientMock.mockReturnValue(db.client);
+      const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
+      await handler({ method: 'POST', headers: {}, body: { recipeIds: Array(occurrences).fill(R1), servings } } as never, res as never);
+      expect(res.status).toHaveBeenCalledWith(200);
+      const body = res.json.mock.calls[0][0] as ShoppingListResponse;
+      expect(body.toBuy.flatMap(section => section.items)).toEqual([expect.objectContaining({ quantity: expected })]);
+    });
 });

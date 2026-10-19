@@ -26,6 +26,9 @@ export interface RecipeStep {
 }
 
 export interface RecipeDetailRow {
+  base_servings?: number | null;
+  source_data?: unknown;
+  description?: string | null;
   id: string;
   name: string;
   image_url: string | null;
@@ -79,7 +82,19 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
 
   // If RPC succeeds, return directly
   if (!rpcError && rpcRecipe) {
-    const resolvedId = rpcRecipe.id;
+    let detail = rpcRecipe;
+    // Older RPC versions omit these columns. Re-check public visibility when
+    // hydrating with the server client, which bypasses RLS.
+    if (rpcRecipe.base_servings === undefined || rpcRecipe.source_data === undefined) {
+      const { data, error } = await supabase.from('recipes')
+        .select('base_servings, source_data, description')
+        .eq('id', rpcRecipe.id).eq('is_public', true).maybeSingle();
+      if (error) throw new Error('Recipe fetch failed');
+      if (!data) throw new Error('Recipe not found');
+      detail = { ...rpcRecipe, base_servings: data.base_servings ?? null,
+        source_data: data.source_data ?? null, description: data.description ?? null };
+    }
+    const resolvedId = detail.id;
     const ingredientCount = Array.isArray(rpcRecipe.ingredients) ? rpcRecipe.ingredients.length : 0;
     const stepCount = Array.isArray(rpcRecipe.steps) ? rpcRecipe.steps.length : 0;
 
@@ -92,7 +107,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       source: 'rpc'
     });
 
-    return rpcRecipe as RecipeDetailRow;
+    return detail as RecipeDetailRow;
   }
 
   // The RPC only returns public recipes, so a null result without an error
@@ -121,6 +136,8 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       name,
       image_url,
       description,
+      base_servings,
+      source_data,
       difficulty,
       method,
       speed,

@@ -117,7 +117,7 @@ beforeEach(() => {
 
 describe('getRecipeDetail public visibility', () => {
   it('returns a recipe from the RPC without running the fallback', async () => {
-    const rpcRecipe = { id: PUBLIC_ID, name: 'Public recipe', ingredients: [], steps: [] };
+    const rpcRecipe = { id: PUBLIC_ID, name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null };
     db.rpcResult = { data: rpcRecipe, error: null };
 
     await expect(getRecipeDetail(PUBLIC_ID)).resolves.toEqual(rpcRecipe);
@@ -217,5 +217,22 @@ describe('/api/recipes/[id] public visibility', () => {
 
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ error: 'Recipe not found' });
+  });
+});
+
+
+describe('legacy RPC provenance hydration', () => {
+  it('hydrates missing metadata only from the public parent', async () => {
+    recipes[0].base_servings = 2;
+    recipes[0].source_data = { source_url: 'https://example.com/recipe' };
+    db.rpcResult = { data: { id: PUBLIC_ID, ingredients: [], steps: [] }, error: null };
+    const detail = await getRecipeDetail(PUBLIC_ID);
+    expect(detail.base_servings).toBe(2);
+    expect(detail.source_data).toEqual(recipes[0].source_data);
+    expect(recipeQueries()[0].filters).toContainEqual(['is_public', true]);
+  });
+  it('does not hydrate a private parent returned by a stale RPC', async () => {
+    db.rpcResult = { data: { id: PRIVATE_ID, ingredients: [], steps: [] }, error: null };
+    await expect(getRecipeDetail(PRIVATE_ID)).rejects.toThrow('Recipe not found');
   });
 });

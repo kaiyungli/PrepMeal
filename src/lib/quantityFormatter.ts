@@ -58,15 +58,16 @@ function findFraction(q: number): string | null {
   return null;
 }
 
-export function formatQuantityForDisplay(quantity: number, unit: string | null | undefined): string {
-  if (!quantity || !unit) return '';
+export function formatQuantityForDisplay(quantity: number | null | undefined, unit: string | { code?: string; name?: string; display_name_zh?: string } | null | undefined): string {
+  if (quantity == null || !Number.isFinite(quantity)) return '';
+  if (quantity === 0) return '0';
   
   const qty = quantity;
-  const normUnit = normalizeUnit(unit);
+  const normUnit = normalizeUnit(typeof unit === 'object' && unit ? unit.code || unit.display_name_zh || unit.name : unit);
   
-  // g/ml/kg/l - round up to integer
+  // Measurement units retain small quantities (e.g. 0.15g of seasoning).
   if (MASS_UNITS.includes(normUnit) || VOLUME_UNITS.includes(normUnit)) {
-    return Math.ceil(qty).toString();
+    return Number(qty.toPrecision(12)).toString();
   }
   
   // tbsp/tsp - try fraction first, else round up to nearest 0.5
