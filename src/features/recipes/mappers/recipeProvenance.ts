@@ -27,11 +27,14 @@ export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   const website = text(attribution.website) || text(source.publisher);
   const author = text(attribution.author) || text(source.source_author);
   const note = text(attribution.adaptation_note);
+  // Import notes can describe alternative products across an entire batch.
+  // Do not present that free-text ledger as ingredients in this recipe.
+  const hasAllergenNote = Boolean(text(source.allergen_note) || text(source.allergen_notes));
   return {
     source_attribution: url || website || author || note ? { website, author, url, note } : null,
     nutrition_is_estimate: /estimate/i.test(text(nutrition.status)),
     nutrition_notes: strings(nutrition.limitations),
     allergens: [...new Set([...strings(source.base_allergens), ...strings(source.allergens)])],
-    allergen_note: text(source.allergen_note) || text(source.allergen_notes) || null,
+    allergen_note: hasAllergenNote ? '材料及包裝可能有其他致敏原；請核對實購包裝，選配材料另計。' : null,
   };
 }

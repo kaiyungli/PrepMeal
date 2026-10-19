@@ -8,17 +8,19 @@ describe('public recipe evidence', () => {
   it('preserves both generations of allergen metadata and source attribution', () => {
     const provenance = recipeProvenance({
       base_allergens: ['fish', 'soy'], allergens: ['soy', 'wheat'],
-      allergen_notes: '請核對實購包裝',
+      allergen_notes: '全批產品備註：魚滑含花生油；魚片頭含雞味粉',
       source_attribution: { website: 'Just One Cookbook', original_recipe_url: 'https://www.justonecookbook.com/shrimp-yakisoba/', adaptation_note: '家常版改編' },
       nutrition: { status: 'REFERENCE_ESTIMATE_NOT_LAB_MEASURED', limitations: ['品牌有所不同'] },
       internal_ledger: 'must not be published',
     });
     expect(provenance).toMatchObject({
-      allergens: ['fish', 'soy', 'wheat'], allergen_note: '請核對實購包裝',
+      allergens: ['fish', 'soy', 'wheat'], allergen_note: '材料及包裝可能有其他致敏原；請核對實購包裝，選配材料另計。',
       source_attribution: { website: 'Just One Cookbook', note: '家常版改編', url: 'https://www.justonecookbook.com/shrimp-yakisoba/' },
       nutrition_is_estimate: true, nutrition_notes: ['品牌有所不同'],
     });
     expect(JSON.stringify(provenance)).not.toContain('internal_ledger');
+    expect(JSON.stringify(provenance)).not.toContain('魚滑');
+    expect(JSON.stringify(provenance)).not.toContain('魚片頭');
   });
   it('rejects executable source URLs and handles missing or malformed metadata', () => {
     expect(recipeProvenance({ source_url: 'javascript:alert(1)' }).source_attribution).toBeNull();

@@ -34,4 +34,6 @@ Suggested PR description:
 >
 > Validation: 2,125 unit tests and 166 component tests pass; TypeScript passes. Production compilation succeeds, but full build completion requires Supabase environment configuration. Existing lint findings are unchanged. No DB migration or image work.
 
-Push was blocked by automatic approval review pending explicit authorization to publish code and workflow changes to `kaiyungli/PrepMeal`; no PR has been created.
+Published as PR #106 after explicit owner approval. GitHub regression CI and the Vercel preview deployment passed on `73bd185`.
+
+Preview acceptance confirmed the two-person ingredient heading, per-person nutrition estimate, source attribution, and 0.3g salt display. It also exposed a batch-wide free-text allergen ledger mentioning unrelated fish-paste products on the pumpkin-and-shrimp recipe. The public mapper now retains the recipe-specific structured allergen list and uses a packaging/optional-ingredient note instead of publishing that cross-recipe ledger. The underlying source evidence remains stored unchanged.
