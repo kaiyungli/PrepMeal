@@ -1,0 +1,59 @@
+{
+  "id": "a3571df6-9864-4d74-b140-70f0c52bcd6a",
+  "values": {
+    "calories_per_serving": 217,
+    "protein_g": 16,
+    "fat_g": 16.2,
+    "carbs_g": 0.6
+  },
+  "source_data": {
+    "nutrition": {
+      "status": "REFERENCE_ESTIMATE_ASSUMED_EDIBLE_WEIGHT_NOT_LAB_MEASURED",
+      "basis": "原方1人份：3件雞中翼、雞粉2g、食油1茶匙",
+      "limitations": [
+        "3件雞中翼假設合計90g可食生重（帶皮、不含骨），未實際稱重；雞翼大小及骨肉比例會令數值改變。",
+        "雞中翼以USDA帶皮生雞翼資料作代理；雞粉採家樂牌香港餐飲裝標示作估算代理，未確認273g零售裝是否完全相同。",
+        "1茶匙油按5mL、密度0.9g/mL估算為4.5g；油脂以9kcal/g計，食油及醃料全量計入，未扣焗後滴失及殘留。",
+        "此為配方投入量估算，並非成品化驗結果；如需更準確數值，請稱實際可食重量並核對實購包裝。"
+      ],
+      "inputs": [
+        {
+          "ingredient": "雞中翼",
+          "edible_g": 90,
+          "per100g": {
+            "kcal": 191,
+            "protein_g": 17.52,
+            "fat_g": 12.85,
+            "carbs_g": 0
+          },
+          "source": "https://www.ars.usda.gov/ARSUserFiles/80400535/Data/SR/SR28/reports/sr28fg05.pdf",
+          "source_record": "USDA SR28 NDB 05100; PDF page 397 (1-based)"
+        },
+        {
+          "ingredient": "雞粉",
+          "g": 2,
+          "per100g": {
+            "kcal": 240,
+            "protein_g": 10,
+            "fat_g": 8,
+            "carbs_g": 32
+          },
+          "source": "https://www.unileverfoodsolutions.hk/product/%E5%AE%B6%E6%A8%82%E7%89%8C%E9%9B%9E%E7%B2%89-5-ZH-1120842.html",
+          "source_pack": "香港餐飲裝1kg/1.8kg，作273g零售裝代理估算"
+        },
+        {
+          "ingredient": "食油",
+          "g": 4.5,
+          "kcal_per_g": 9,
+          "assumption": "5mL/tsp × 0.9g/mL; pure oil"
+        }
+      ],
+      "checked_date": "2026-10-20"
+    },
+    "source_attribution": {
+      "website": "PrepMeal 編輯配方",
+      "adaptation_note": "沿用已批准的3件雞中翼、2g家樂牌普通雞粉、1茶匙食油配方；並非品牌官方食譜。"
+    },
+    "allergen_note": "雞粉配方與致敏原請以實購包裝為準。"
+  }
+}
