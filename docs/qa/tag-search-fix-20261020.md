@@ -21,6 +21,8 @@ Additional regressions found during follow-up review:
 
 Five regression tests reproduced these four defects before the fixes. Targeted checks also cover account transitions, stale shopping responses, repeated recipe quantities and weekly-plan stability.
 
+Further measurement regressions: quarter cups no longer round up to full cups; small spoon measures retain their actual value instead of rounding to the next half spoon. Familiar fractions are shown only within floating-point tolerance. Detail unit labels now support string codes and code-only objects, using the shared Chinese unit formatter while retaining explicit localized labels. Regression coverage exercises both detail rendering and shopping-list presentation.
+
 ## Data repair
 
 `scripts/repair-catalog-tags-20261020.sql` proposes 24 nutrition-tag corrections using the existing nutritionRules.ts thresholds, plus two cold-dish method corrections. It preserves nutritional values, sources, amounts and instructions. It checks the previous tags, methods, nutrition and public visibility before updating. The final ROLLBACK makes execution a dry run; applying requires changing it to COMMIT. No production data changes have been made.

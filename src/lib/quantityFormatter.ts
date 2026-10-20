@@ -12,7 +12,9 @@ const UNIT_ALIASES: Record<string, string> = {
   '片': 'slice', 'slice': 'slice',
   '條': 'stick', 'stick': 'stick',
   '隻': 'egg', 'egg': 'egg',
-  '杯': 'cup', 'cup': 'cup',
+  '杯': 'cup', 'cup': 'cup', 'cups': 'cup',
+  'tablespoon': 'tbsp', 'tablespoons': 'tbsp', '湯匙': 'tbsp',
+  'teaspoon': 'tsp', 'teaspoons': 'tsp', '茶匙': 'tsp',
   '包': 'pack', 'pack': 'pack',
   '瓶': 'bottle', 'bottle': 'bottle',
   '罐': 'can', 'can': 'can',
@@ -20,10 +22,10 @@ const UNIT_ALIASES: Record<string, string> = {
   '盒': 'box', 'box': 'box',
 };
 
-const COUNT_UNITS = ['pc', 'piece', 'clove', 'slice', 'stick', 'egg', 'cup', 'pack', 'bottle', 'can', 'bag', 'box'];
+const COUNT_UNITS = ['pc', 'piece', 'clove', 'slice', 'stick', 'egg', 'pack', 'bottle', 'can', 'bag', 'box'];
 const VOLUME_UNITS = ['ml', 'l', 'cc'];
 const MASS_UNITS = ['g', 'kg', 'gram'];
-const FRACTION_UNITS = ['tbsp', 'tsp', '湯匙', '茶匙', 'tbsppoon', 'tsppoon'];
+const FRACTION_UNITS = ['tbsp', 'tsp', 'cup', 'tbsppoon', 'tsppoon'];
 
 function normalizeUnit(unit: string | null | undefined): string {
   if (!unit) return '';
@@ -45,7 +47,7 @@ const FRACTIONS: Record<number, string> = {
 };
 
 function findFraction(q: number): string | null {
-  const tolerance = 0.02;
+  const tolerance = 1e-9;
   // Check for whole number + fraction
   const whole = Math.floor(q);
   const frac = q - whole;
@@ -70,11 +72,12 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
     return Number(qty.toPrecision(12)).toString();
   }
   
-  // tbsp/tsp - try fraction first, else round up to nearest 0.5
+  // Cooking measures may use familiar exact fractions. Other amounts must
+  // retain their value rather than rounding up to a larger spoon/cup.
   if (FRACTION_UNITS.includes(normUnit)) {
     const frac = findFraction(qty);
     if (frac) return frac;
-    return (Math.ceil(qty * 2) / 2).toFixed(1).replace(/\.0$/, '');
+    return Number(qty.toPrecision(12)).toString();
   }
   
   // count units - round up to integer

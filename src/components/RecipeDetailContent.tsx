@@ -3,6 +3,7 @@ import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect, useCallback } from 'react'
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
@@ -27,7 +28,7 @@ interface RecipeDetailContentProps {
       name?: string
       slug?: string
       quantity?: number | null
-      unit?: { name?: string } | string | null
+      unit?: { code?: string; name?: string; display_name_zh?: string } | string | null
       shopping_category?: string
       source?: string
     }>
@@ -49,9 +50,9 @@ function SectionSkeleton({ height = 'h-4' }: { height?: string }) {
 const getDifficultyLabel = (v?: string | null) => v ? (DIFFICULTY_MAP[v] || '其他') : '';
 const getSpeedLabel = (v?: string | null) => v ? (SPEED_MAP[v] || '其他') : '';
 const getMethodLabel = (v?: string | null) => v ? (METHOD_MAP[v] || '其他') : '';
-const getUnitLabel = (unit?: { code?: string; name?: string; display_name_zh?: string } | null) => {
+const getUnitLabel = (unit?: string | { code?: string; name?: string; display_name_zh?: string } | null) => {
   if (!unit) return '';
-  return unit.display_name_zh || unit.name || '其他';
+  return typeof unit === 'object' ? unit.display_name_zh || formatUnit(unit) : formatUnit(unit);
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
