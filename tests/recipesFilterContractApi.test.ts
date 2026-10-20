@@ -93,3 +93,17 @@ describe('GET /api/recipes flavor filtering - same-group OR (overlap), not conta
     expect(requestedUrl().searchParams.has('flavor')).toBe(false);
   });
 });
+
+describe('literal search syntax', () => {
+  it.each(['%', '_', ')', ',', '雞,魚', '.', '"', '\\', '*', '[', '番茄', 'a+b'])('quotes and escapes %j without changing its literal meaning', async search => {
+    const res = response();
+    await handler({ method: 'GET', query: { search } } as never, res as never);
+    const raw = requestedUrl().searchParams.get('or')!;
+    const quoted = raw.slice('(name.imatch.'.length, raw.indexOf(',description.imatch.'));
+    const pattern = JSON.parse(quoted);
+    const regex = new RegExp(pattern, 'i');
+    expect(regex.test(`before${search}after`)).toBe(true);
+    expect(regex.test('unrelated')).toBe(false);
+    expect(res.statusCode).toBe(200);
+  });
+});

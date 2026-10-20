@@ -12,6 +12,7 @@ import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey, ShoppingListRecipeGroup } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
 import { recipeServingScale } from '@/lib/recipeServings';
+import { containsForbiddenAnimalProtein } from '@/constants/ingredientDietRules';
 
 // Unit normalization
 function normalizeUnit(unit: string | null | undefined): string {
@@ -210,7 +211,7 @@ export default async function handler(
     // enforced explicitly before related ingredient rows are queried.
     const { data: visibleRecipes, error: visibilityError } = await supabase
       .from('recipes')
-      .select('id, base_servings')
+      .select('id, base_servings, diet')
       .in('id', recipeIds)
       .eq('is_public', true);
 
@@ -218,6 +219,9 @@ export default async function handler(
     const servingScales = new Map((visibleRecipes || []).map(recipe => [
       canonicalRecipeId(String(recipe.id)), recipeServingScale(servings, recipe.base_servings),
     ]));
+    const vegetarianRecipeIds = new Set((visibleRecipes || [])
+      .filter(recipe => Array.isArray(recipe.diet) && recipe.diet.some((tag: string) => tag === 'vegetarian' || tag === 'egg_lacto'))
+      .map(recipe => canonicalRecipeId(String(recipe.id))));
 
     // A saved plan keeps its recipe ids after a recipe is unpublished or
     // removed. Those meals are skipped, private and missing alike, and only
@@ -254,9 +258,10 @@ export default async function handler(
       .from('recipe_ingredients')
       .select(`
         quantity,
+        optional,
         recipe_id,
         ingredient_id,
-        ingredients(id, name, shopping_category),
+        ingredients(id, name, slug, shopping_category),
         recipes(id, name),
         units(id, code, display_name_en, display_name_zh)
       `)
@@ -299,6 +304,10 @@ export default async function handler(
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
+      // Vegetarian tags describe the base recipe. Animal add-ons are not
+      // selected by recipeIds alone; keep all required ingredients unchanged.
+      if (ri.optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
+        && containsForbiddenAnimalProtein({ ingredients: [ing] })) continue;
 
       const occurrences = visibleOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));
       if (occurrences === undefined) {

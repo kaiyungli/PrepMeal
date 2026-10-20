@@ -15,7 +15,7 @@
 // layers cannot drift out of sync with the production contract again.
 // ===========================================================================
 
-export const CUISINES = Object.freeze(['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion']);
+export const CUISINES = Object.freeze(['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion', 'vietnamese', 'filipino', 'mexican', 'spanish']);
 export const DISH_TYPES = Object.freeze(['main', 'side', 'soup', 'staple', 'snack']);
 export const DIFFICULTIES = Object.freeze(['easy', 'medium', 'hard']);
 export const METHODS = Object.freeze(['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook']);

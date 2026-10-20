@@ -17,6 +17,10 @@ export const CUISINE_MAP: Record<string, string> = {
   korean: '韓式',
   thai: '泰式',
   fusion: 'Fusion',
+  vietnamese: '越式',
+  filipino: '菲律賓式',
+  mexican: '墨西哥式',
+  spanish: '西班牙式',
 };
 
 // Canonical order + labels, derived from the shared production contract.
@@ -50,7 +54,7 @@ export const PROTEIN_MAP: Record<string, string> = {
   shrimp: '蝦',
   seafood: '海鮮',
   fish: '魚',
-  vegetarian: '素食',
+  vegetarian: '植物類',
   mixed: '混合蛋白',
 };
 
@@ -207,7 +211,7 @@ export const FLAVOR_OPTIONS = [
  */
 export function mapToOptions(map: Record<string, string>): Array<{ value: string; label: string }> {
   return Object.entries(map)
-    .filter(([_, label]) => label) // Filter out empty labels
+    .filter(([, label]) => label) // Filter out empty labels
     .map(([value, label]) => ({ value, label }));
 }
 

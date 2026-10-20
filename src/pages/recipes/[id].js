@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import SEO from '@/components/seo/SEO';
 import { RecipeStructuredData } from '@/lib/recipeStructuredData.tsx';
 import Link from 'next/link';
 import { useEffect } from 'react';
@@ -50,6 +49,7 @@ export default function RecipeDetail({ recipe, error }) {
         {/* One string: React renders a <title> with several children as empty. */}
         <title>{`${safeRecipe.name} - 今晚食乜`}</title>
         <meta name="description" content={safeRecipe.description || safeRecipe.name} />
+        <link rel="canonical" href={`https://eatwhathk.com/recipes/${encodeURIComponent(safeRecipe.slug || safeRecipe.id)}`} />
       </Head>
       <RecipeStructuredData recipe={safeRecipe} />
       

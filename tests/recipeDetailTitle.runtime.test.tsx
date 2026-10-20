@@ -88,6 +88,11 @@ describe('Recipe detail page title', () => {
     expect(html).toContain('<title>番茄炒蛋 - 今晚食乜</title>');
   });
 
+  it('uses the same slug canonical for UUID-loaded and slug-loaded detail', () => {
+    const html = renderToString(<RecipeDetail recipe={{ ...RECIPE, slug: 'tomato-egg' }} error={null} />);
+    expect(html).toContain('rel="canonical" href="https://eatwhathk.com/recipes/tomato-egg"');
+  });
+
   it('C. the loading state renders without a title and without crashing', () => {
     render(<RecipeDetail recipe={null} error={null} />);
 

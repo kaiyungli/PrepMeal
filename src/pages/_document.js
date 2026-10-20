@@ -7,9 +7,6 @@ export default function Document() {
   return (
     <Html lang="zh-HK">
       <Head>
-        {/* SEO Base */}
-        <meta name="description" content="快速生成一週餐單、搜尋家常食譜、整理購物清單。" />
-        
         {/* OpenGraph */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="今晚食乜" />

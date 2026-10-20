@@ -19,8 +19,9 @@ const R2 = '22222222-2222-4222-8222-222222222222';
 const PRIVATE = '33333333-3333-4333-8333-333333333333';
 
 type Row = {
+  optional?: boolean;
   quantity: unknown; recipe_id: string; ingredient_id: string | null;
-  ingredients: { id: string; name: string; shopping_category: string | null };
+  ingredients: { id: string; name: string; slug?: string; shopping_category: string | null };
   recipes: { id: string; name: string; base_servings?: number };
   units: { id: string; code: string; display_name_en: string; display_name_zh: string } | null;
 };
@@ -40,7 +41,7 @@ const row = (recipeId: string, ingredientId: string, name: string, quantity: unk
   units: unit ? UNITS[unit] : null,
 });
 
-function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, number> = {}) {
+function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, number> = {}, diets: Record<string, string[]> = {}) {
   const calls = { recipeIdsQueried: [] as string[][], ingredientIdsQueried: [] as string[][], preferenceUserIds: [] as string[] };
   return {
     calls,
@@ -55,7 +56,7 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, n
         if (table === 'recipes') {
           return { select: () => ({ in: (_c: string, ids: string[]) => ({ eq: async () => {
             calls.recipeIdsQueried.push(ids);
-            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id, base_servings: bases[id] })), error: null };
+            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id, base_servings: bases[id], diet: diets[id] })), error: null };
           } }) }) };
         }
         if (table === 'recipe_ingredients') {
@@ -70,8 +71,8 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, n
   };
 }
 
-async function post(body: Record<string, unknown>, rows: Row[], publicIds?: string[]) {
-  const db = fakeDatabase(rows, publicIds);
+async function post(body: Record<string, unknown>, rows: Row[], publicIds?: string[], diets?: Record<string, string[]>) {
+  const db = fakeDatabase(rows, publicIds, {}, diets);
   createClientMock.mockReturnValue(db.client);
   const res = { statusCode: 200, body: undefined as unknown,
     status(code: number) { this.statusCode = code; return this; },
@@ -93,6 +94,21 @@ beforeEach(() => {
 });
 
 describe('/api/shopping-list aggregation', () => {
+  it('uses the vegetarian base without animal add-ons, preserving dairy, plant add-ons and required rows', async () => {
+    const chicken = row(R1, 'chicken', '熟去皮雞肉', 80, 'g');
+    chicken.optional = true; chicken.ingredients.slug = 'cooked-skinless-chicken';
+    const shrimp = { ...row(R1, 'shrimp', '蝦', 100, 'g'), optional: true };
+    const butter = { ...row(R1, 'butter', '牛油', 10, 'g'), optional: true };
+    const tofu = { ...row(R1, 'tofu', '豆腐', 50, 'g'), optional: true };
+    const required = row(R2, 'shrimp', '蝦', 30, 'g');
+    const { items, response } = await post({ recipeIds: [R1, R2], servings: 1 },
+      [chicken, shrimp, butter, tofu, required], undefined, { [R1]: ['vegetarian', 'egg_lacto'] });
+    expect(items.map(line).sort()).toEqual(['butter:10:g', 'shrimp:30:g', 'tofu:50:g']);
+    expect(JSON.stringify(response.byRecipe)).not.toContain('熟去皮雞肉');
+    expect(response.byRecipe.find(group => group.recipeId === R1)?.toBuy.map(item => item.name)).not.toContain('蝦');
+    const ordinary = await post({ recipeIds: [R1], servings: 1 }, [chicken, shrimp]);
+    expect(ordinary.items).toHaveLength(2);
+  });
   it('sums the same ingredient in the same (normalized) unit across recipes', async () => {
     const { items } = await post({ recipeIds: [R1, R2], servings: 1 }, [
       row(R1, 'beef', '牛肉', 100, 'g'), row(R2, 'beef', '牛肉', 50, 'gram'),

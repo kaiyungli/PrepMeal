@@ -117,11 +117,17 @@ beforeEach(() => {
 
 describe('getRecipeDetail public visibility', () => {
   it('returns a recipe from the RPC without running the fallback', async () => {
-    const rpcRecipe = { id: PUBLIC_ID, name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null };
+    const rpcRecipe = { id: PUBLIC_ID, slug: 'public-recipe', name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null };
     db.rpcResult = { data: rpcRecipe, error: null };
 
     await expect(getRecipeDetail(PUBLIC_ID)).resolves.toEqual(rpcRecipe);
     expect(db.queries).toHaveLength(0);
+  });
+
+  it('hydrates the canonical slug from a public parent when an older RPC omits it', async () => {
+    db.rpcResult = { data: { id: PUBLIC_ID, name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null }, error: null };
+    await expect(getRecipeDetail(PUBLIC_ID)).resolves.toMatchObject({ id: PUBLIC_ID, slug: 'public-recipe' });
+    expect(db.queries).toHaveLength(1);
   });
 
   it.each([

@@ -8,6 +8,7 @@ import type { RecipeDetailRow, RecipeIngredient } from '../services/getRecipeDet
 import { recipeProvenance, type RecipeProvenance } from './recipeProvenance';
 
 export interface NormalizedRecipe extends RecipeProvenance {
+  slug: string | null;
   base_servings: number | null;
   description: string | null;
   id: string | number;
@@ -61,6 +62,7 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
   ).filter(Boolean);
 
   return {
+    slug: recipe.slug || null,
     ...recipeProvenance(recipe.source_data),
     base_servings: Number.isFinite(Number(recipe.base_servings)) && Number(recipe.base_servings) > 0 ? Number(recipe.base_servings) : null,
     description: recipe.description || null,

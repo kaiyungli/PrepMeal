@@ -13,7 +13,7 @@ export interface FetchShoppingListOptions {
   cacheScope: string;
 }
 
-const CACHE_KEY = 'shopping_list_v1';
+const CACHE_KEY = 'shopping_list_v2';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface CachePayload {
@@ -81,7 +81,7 @@ function setToCache(key: string, data: ShoppingListViewModel): void {
  * @returns ShoppingListViewModel ready for UI
  */
 export async function fetchGeneratedPlanShoppingList(
-  weeklyPlan: Record<string, any[]>,
+  weeklyPlan: Record<string, Array<{ id?: string | number | null } | null>>,
   pantryIngredients: string[],
   servings: number,
   options: FetchShoppingListOptions
