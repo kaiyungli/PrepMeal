@@ -116,6 +116,17 @@ beforeEach(() => {
 });
 
 describe('getRecipeDetail public visibility', () => {
+  it('preserves an explicit zero ingredient amount through the fallback loader', async () => {
+    const ingredient = tables.recipe_ingredients[0];
+    const original = ingredient.quantity;
+    ingredient.quantity = 0;
+    db.rpcResult = RPC_ERROR;
+    try {
+      expect((await getRecipeDetail(PUBLIC_ID)).ingredients[0].quantity).toBe(0);
+    } finally {
+      ingredient.quantity = original;
+    }
+  });
   it('returns a recipe from the RPC without running the fallback', async () => {
     const rpcRecipe = { id: PUBLIC_ID, slug: 'public-recipe', name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null };
     db.rpcResult = { data: rpcRecipe, error: null };

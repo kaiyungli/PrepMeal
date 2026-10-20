@@ -50,7 +50,7 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
     (ing: RecipeIngredient) => ({
       id: ing.id || '',
       name: ing.name || '',
-      quantity: ing.quantity || 1,
+      quantity: ing.quantity ?? 1,
       unit: ing.unit || '',
       category: ing.shopping_category || 'other'
     })

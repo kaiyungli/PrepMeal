@@ -265,7 +265,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       name: ingredient?.name || '',
       slug: ingredient?.slug || '',
       shopping_category: ingredient?.shopping_category || null,
-      quantity: ri.quantity || 1,
+      quantity: ri.quantity ?? 1,
       unit: unit ? { code: unit.code, name: unit.name } : null
     };
   });

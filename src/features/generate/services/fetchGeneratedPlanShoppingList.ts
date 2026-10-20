@@ -23,9 +23,7 @@ interface CachePayload {
 }
 
 function getCacheKey(cacheScope: string, recipeIds: string[], pantryIngredients: string[], servings: number): string {
-  const recipeHash = recipeIds.slice().sort().join(',');
-  const pantryHash = pantryIngredients.slice().sort().join(',');
-  return `${cacheScope}|${recipeHash}|${pantryHash}|${servings}`;
+  return JSON.stringify([cacheScope, recipeIds.slice().sort(), pantryIngredients.slice().sort(), servings]);
 }
 
 function getFromCache(key: string): ShoppingListViewModel | null {

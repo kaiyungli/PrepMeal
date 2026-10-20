@@ -10,6 +10,17 @@ Base production commit: `df47fb63ca3548edd2b25717282c316eaf9de753`.
 - Unclassified staples/snacks cannot fall into a protein-main slot through legacy protein inference.
 - Recipe JSON-LD supports normalized string steps and unit objects, publishes base servings, and escapes HTML delimiters. Detail pages use their public slug canonical. The duplicate document-wide description is removed.
 
+## Follow-up regressions
+
+Additional regressions found during follow-up review:
+
+- Explicit zero ingredient amounts are preserved through both fallback loading and detail normalization instead of becoming one.
+- Shopping service cache keys use structured arrays; pantry names containing commas cannot collide with separate pantry entries.
+- An equivalent plan array recreated by a parent render retains the homepage shopping preview. Explicit plan refresh still resets it, including when the generated recipe IDs happen to remain identical.
+- Homepage previews use the API's localized unitDisplay, falling back to the unit code only when needed.
+
+Five regression tests reproduced these four defects before the fixes. Targeted checks also cover account transitions, stale shopping responses, repeated recipe quantities and weekly-plan stability.
+
 ## Data repair
 
 `scripts/repair-catalog-tags-20261020.sql` proposes 24 nutrition-tag corrections using the existing nutritionRules.ts thresholds, plus two cold-dish method corrections. It preserves nutritional values, sources, amounts and instructions. It checks the previous tags, methods, nutrition and public visibility before updating. The final ROLLBACK makes execution a dry run; applying requires changing it to COMMIT. No production data changes have been made.

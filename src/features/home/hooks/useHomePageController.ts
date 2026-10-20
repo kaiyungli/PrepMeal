@@ -12,6 +12,7 @@ interface UseHomePageControllerOptions {
 export function useHomePageController({ planRecipes = [], showToast }: UseHomePageControllerOptions) {
   // Weekly plan state
   const [weeklyPlan, setWeeklyPlan] = useState<PlanDay[]>([]);
+  const [shoppingResetKey, setShoppingResetKey] = useState(0);
 
   // The hero plan is independent of the filtered/paginated recipe results.
   // Generate it after mount so server and client render the same initial
@@ -30,6 +31,7 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
   // Refresh plan handler - always bypasses the cache and generates a new plan.
   const handleRefreshPlan = useCallback(() => {
     setWeeklyPlan(refreshWeeklyPlan(planRecipes));
+    setShoppingResetKey(key => key + 1);
   }, [planRecipes]);
 
   // User state for favorites - load immediately (AuthContext is now shared singleton)
@@ -54,7 +56,7 @@ export function useHomePageController({ planRecipes = [], showToast }: UseHomePa
   }, [isAuthenticated, favoritesLoading, toggleFavorite, showToast]);
 
   // Shopping list preview - disabled on homepage (fetch lazily on user interaction)
-  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, isInitialized: shoppingListInitialized, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false });
+  const { previewList: shoppingList, isLoading: shoppingLoading, error: shoppingError, isAuthRequired, isInitialized: shoppingListInitialized, refresh: refreshShoppingList } = useShoppingListPreview(weeklyPlan, { enabled: false, resetKey: shoppingResetKey });
 
   return {
     weeklyPlan,
