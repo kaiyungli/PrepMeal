@@ -12,7 +12,7 @@ const auth = vi.hoisted(() => ({ user: { id: 'choice-A' } as { id: string } | nu
 vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }));
 const groups = [{ recipeId: 'r1', recipeName: '測試薄餅', ingredients: [{ ingredientId: 'beef', name: '牛肉' }, { ingredientId: 'shrimp', name: '蝦' }] }];
 beforeEach(() => { localStorage.clear(); auth.user = { id: 'choice-A' }; });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 it('shares explicit choices across mounted consumers, reloads from storage, and isolates accounts', () => {
   const a = renderHook(() => useOptionalSelections('choice-A'));
@@ -27,6 +27,27 @@ it('shares explicit choices across mounted consumers, reloads from storage, and 
   const switching = renderHook(({ user }) => useOptionalSelections(user), { initialProps: { user: 'choice-A' as string | null } });
   switching.rerender({ user: null }); expect(switching.result.current.selections).toEqual({});
   switching.rerender({ user: 'choice-B' }); expect(switching.result.current.selections).toEqual({});
+});
+
+it('merges consecutive updates from retained callbacks instead of losing another recipe choice', () => {
+  const a = renderHook(() => useOptionalSelections('choice-A'));
+  const b = renderHook(() => useOptionalSelections('choice-A'));
+  const selectA = a.result.current.select;
+  const selectB = b.result.current.select;
+  act(() => { selectA('r1', []); selectB('r2', ['shrimp']); });
+  expect(a.result.current.selections).toEqual({ r1: [], r2: ['shrimp'] });
+  expect(JSON.parse(localStorage.getItem('optional-shopping-v1:choice-A')!)).toEqual({ r1: [], r2: ['shrimp'] });
+});
+
+it('merges updates when storage is unavailable without crossing account boundaries', () => {
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('unavailable'); });
+  const { result } = renderHook(() => useOptionalSelections('choice-private'));
+  const select = result.current.select;
+  act(() => { select('r1', []); select('r2', ['shrimp']); });
+  expect(result.current.selections).toEqual({ r1: [], r2: ['shrimp'] });
+  const other = renderHook(() => useOptionalSelections('choice-other'));
+  expect(other.result.current.selections).toEqual({});
+  vi.restoreAllMocks();
 });
 
 it('requires an explicit UI action before excluding optional ingredients', () => {

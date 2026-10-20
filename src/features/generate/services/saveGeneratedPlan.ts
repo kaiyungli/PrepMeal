@@ -4,6 +4,7 @@
  * Saves the generated weekly plan to the user's account.
  */
 import { perfNow, perfMeasure } from '@/utils/perf';
+import { localCalendarDate } from '@/lib/localCalendarDate';
 
 export interface PlanItem {
   day_index: number;
@@ -103,7 +104,7 @@ export function buildSavePayload(
   
   return {
     name,
-    week_start_date: new Date().toISOString().split('T')[0],
+    week_start_date: localCalendarDate(now),
     days_count: daysPerWeek,
     items,
   };
