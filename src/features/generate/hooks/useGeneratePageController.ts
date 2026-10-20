@@ -69,6 +69,10 @@ export function useGeneratePageController({
     [plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay]
   );
   
+  // No optional selection is inferred. Undefined preserves legacy shopping lists
+  // until a user-facing selector supplies an explicit per-recipe choice.
+  const [selectedOptionalIngredientIdsByRecipe, setSelectedOptionalIngredientIdsByRecipe] = useState<Record<string, string[]> | undefined>(undefined);
+
   // Actions hook (called once)
   const actions = useGenerateActions({
     weeklyPlan: visiblePlan,
@@ -78,7 +82,8 @@ export function useGeneratePageController({
     isAuthenticated,
     userId: user?.id ?? null,
     getAccessToken,
-    traceId
+    traceId,
+    selectedOptionalIngredientIdsByRecipe,
   });
   
   // Handlers hook (reuses actions)
@@ -142,6 +147,8 @@ export function useGeneratePageController({
     // Actions
     selectedRecipe: actions.selectedRecipe,
     modalLoading: actions.modalLoading,
+    selectedOptionalIngredientIdsByRecipe,
+    setSelectedOptionalIngredientIdsByRecipe,
     shoppingListView: actions.shoppingListView,
     shoppingListError: actions.shoppingListError,
     showShoppingList: actions.showShoppingList,
