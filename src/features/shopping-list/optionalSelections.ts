@@ -26,23 +26,27 @@ function read(userId: string | null | undefined) {
   catch { return memory.get(key) || '{}'; }
 }
 
+function parseSelections(raw: string): OptionalSelections {
+  try {
+    const value = JSON.parse(raw);
+    if (!value || Array.isArray(value) || typeof value !== 'object') return {};
+    const valid: OptionalSelections = {};
+    for (const [id, ids] of Object.entries(value)) {
+      if (Array.isArray(ids) && ids.every(item => typeof item === 'string')) valid[id] = ids;
+    }
+    return valid;
+  } catch { return {}; }
+}
+
 export function useOptionalSelections(userId: string | null | undefined) {
   const raw = useSyncExternalStore(subscribe, () => read(userId), () => '{}');
-  const selections = useMemo<OptionalSelections>(() => {
-    try {
-      const value = JSON.parse(raw);
-      if (!value || Array.isArray(value) || typeof value !== 'object') return {};
-      const valid: OptionalSelections = {};
-      for (const [id, ids] of Object.entries(value)) {
-        if (Array.isArray(ids) && ids.every(item => typeof item === 'string')) valid[id] = ids;
-      }
-      return valid;
-    } catch { return {}; }
-  }, [raw]);
+  const selections = useMemo(() => parseSelections(raw), [raw]);
 
   const select = (recipeId: string, ingredientIds: string[]) => {
     if (!userId) return;
-    const next = JSON.stringify({ ...selections, [recipeId]: [...new Set(ingredientIds)].sort() });
+    // A retained callback may predate another consumer's write. Merge with
+    // the latest account snapshot, including the storage-failure fallback.
+    const next = JSON.stringify({ ...parseSelections(read(userId)), [recipeId]: [...new Set(ingredientIds)].sort() });
     const key = storageKey(userId);
     try { window.localStorage.setItem(key, next); memory.delete(key); }
     catch { memory.set(key, next); }

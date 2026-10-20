@@ -4,6 +4,7 @@
  * Transforms weekly plan into API payload for saving.
  */
 import { SavePlanPayload } from '../services/saveGeneratedPlan';
+import { localCalendarDate } from '@/lib/localCalendarDate';
 
 const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
 
@@ -57,7 +58,7 @@ export function normalizePlanForSave(
 
   return {
     name,
-    week_start_date: new Date().toISOString().split('T')[0],
+    week_start_date: localCalendarDate(),
     days_count: daysPerWeek,
     items,
   };
