@@ -26,6 +26,19 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('recipe detail content hook order and deferred rendering', () => {
+  it('shows exact cooking fractions, optional markers and preparation notes', () => {
+    render(<RecipeDetailContent recipe={{ ...a, ingredients: [
+      { name: '洋蔥', quantity: 0.125, unit: 'pc', prep_note: '切幼絲' },
+      { name: '雞蛋', quantity: 0.5, unit: 'egg', is_optional: true, prep_note: '03-01：打勻備用' },
+    ] }} />);
+    flushFrame();
+    expect(screen.getByText(/^1\/8 /)).toBeTruthy();
+    expect(screen.getByText(/^1\/2 /)).toBeTruthy();
+    expect(screen.getAllByText('選配')).toHaveLength(1);
+    expect(screen.getByText('切幼絲')).toBeTruthy();
+    expect(screen.getByText('打勻備用')).toBeTruthy();
+    expect(screen.queryByText(/03-01/)).toBeNull();
+  });
   it.each(['g', { code: 'g' }, { code: 'g', name: 'gram' }])('renders a meaningful localized unit for %j', unit => {
     render(<RecipeDetailContent recipe={{ ...a, ingredients: [{ name: '食材', quantity: 0.15, unit }] }} />);
     flushFrame();

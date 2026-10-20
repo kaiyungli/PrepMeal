@@ -16,6 +16,8 @@ export interface RecipeIngredient {
   slug: string;
   shopping_category: string | null;
   quantity: number;
+  is_optional?: boolean;
+  prep_note?: string | null;
   unit: { code: string; name: string } | null;
 }
 
@@ -23,6 +25,25 @@ export interface RecipeStep {
   step_no: number;
   text: string;
   time_seconds: number | null;
+}
+
+type JoinedIngredientRow = {
+  quantity: number | null;
+  is_optional?: boolean | null;
+  prep_note?: string | null;
+  unit: { code: string; name: string } | { code: string; name: string }[] | null;
+  ingredients: { id: string; name: string; slug: string; shopping_category: string | null } | { id: string; name: string; slug: string; shopping_category: string | null }[] | null;
+};
+
+function mapIngredientRow(row: JoinedIngredientRow): RecipeIngredient {
+  const unit = Array.isArray(row.unit) ? row.unit[0] : row.unit;
+  const ingredient = Array.isArray(row.ingredients) ? row.ingredients[0] : row.ingredients;
+  return {
+    id: ingredient?.id || '', name: ingredient?.name || '', slug: ingredient?.slug || '',
+    shopping_category: ingredient?.shopping_category || null, quantity: row.quantity ?? 1,
+    is_optional: row.is_optional === true, prep_note: row.prep_note ?? null,
+    unit: unit ? { code: unit.code, name: unit.name } : null,
+  };
 }
 
 export interface RecipeDetailRow {
@@ -84,9 +105,12 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
   // If RPC succeeds, return directly
   if (!rpcError && rpcRecipe) {
     let detail = rpcRecipe;
+    const needsIngredientMetadata = Array.isArray(rpcRecipe.ingredients) && rpcRecipe.ingredients.some(
+      (ingredient: RecipeIngredient) => ingredient.is_optional === undefined || ingredient.prep_note === undefined
+    );
     // Older RPC versions omit these columns. Re-check public visibility when
     // hydrating with the server client, which bypasses RLS.
-    if (rpcRecipe.base_servings === undefined || rpcRecipe.source_data === undefined || rpcRecipe.slug === undefined) {
+    if (rpcRecipe.base_servings === undefined || rpcRecipe.source_data === undefined || rpcRecipe.slug === undefined || needsIngredientMetadata) {
       const { data, error } = await supabase.from('recipes')
         .select('base_servings, source_data, description, slug')
         .eq('id', rpcRecipe.id).eq('is_public', true).maybeSingle();
@@ -94,6 +118,13 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       if (!data) throw new Error('Recipe not found');
       detail = { ...rpcRecipe, base_servings: data.base_servings ?? null,
         source_data: data.source_data ?? null, description: data.description ?? null, slug: data.slug ?? null };
+    }
+    if (needsIngredientMetadata) {
+      const { data, error } = await supabase.from('recipe_ingredients')
+        .select('quantity, is_optional, prep_note, unit:units(id, code, name, display_name_zh), ingredients(id, name, slug, shopping_category)')
+        .eq('recipe_id', detail.id);
+      if (error) throw new Error('Recipe fetch failed');
+      detail = { ...detail, ingredients: (data || []).map(mapIngredientRow) };
     }
     const resolvedId = detail.id;
     const ingredientCount = Array.isArray(rpcRecipe.ingredients) ? rpcRecipe.ingredients.length : 0;
@@ -201,6 +232,8 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     .from('recipe_ingredients')
     .select(`
       quantity,
+      is_optional,
+      prep_note,
       unit:units(id, code, name, display_name_zh),
       ingredients(id, name, slug, shopping_category)
     `)
@@ -257,18 +290,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
   });
   
   // Transform ingredients with joined unit (no separate query needed)
-  const ingredients = (ingredientsResult?.data || []).map((ri) => {
-    const unit = Array.isArray(ri.unit) ? ri.unit[0] : ri.unit;
-    const ingredient = Array.isArray(ri.ingredients) ? ri.ingredients[0] : ri.ingredients;
-    return {
-      id: ingredient?.id || '',
-      name: ingredient?.name || '',
-      slug: ingredient?.slug || '',
-      shopping_category: ingredient?.shopping_category || null,
-      quantity: ri.quantity ?? 1,
-      unit: unit ? { code: unit.code, name: unit.name } : null
-    };
-  });
+  const ingredients = (ingredientsResult?.data || []).map(mapIngredientRow);
 
   const steps = (stepsResult?.data || []).map((s) => ({
     step_no: s.step_no,

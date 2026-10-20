@@ -34,6 +34,8 @@ export interface NormalizedRecipe extends RecipeProvenance {
     id: string;
     name: string;
     quantity: number;
+    is_optional: boolean;
+    prep_note: string | null;
     unit: string | { code: string; name: string } | null;
     category: string;
   }>;
@@ -53,6 +55,8 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
       id: ing.id || '',
       name: ing.name || '',
       quantity: ing.quantity ?? 1,
+      is_optional: ing.is_optional === true,
+      prep_note: ing.prep_note ?? null,
       unit: ing.unit || '',
       category: ing.shopping_category || 'other'
     })

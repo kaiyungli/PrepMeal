@@ -60,7 +60,7 @@ function findFraction(q: number): string | null {
   return null;
 }
 
-export function formatQuantityForDisplay(quantity: number | null | undefined, unit: string | { code?: string; name?: string; display_name_zh?: string } | null | undefined): string {
+export function formatQuantityForDisplay(quantity: number | null | undefined, unit: string | { code?: string; name?: string; display_name_zh?: string } | null | undefined, options: { roundCount?: boolean } = {}): string {
   if (quantity == null || !Number.isFinite(quantity)) return '';
   if (quantity === 0) return '0';
   
@@ -82,6 +82,7 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
   
   // count units - round up to integer
   if (COUNT_UNITS.includes(normUnit)) {
+    if (options.roundCount === false) return findFraction(qty) || Number(qty.toPrecision(12)).toString();
     return Math.ceil(qty).toString();
   }
   

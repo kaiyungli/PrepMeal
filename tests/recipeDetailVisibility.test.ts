@@ -116,6 +116,25 @@ beforeEach(() => {
 });
 
 describe('getRecipeDetail public visibility', () => {
+  it.each(['rpc', 'fallback'])('preserves optional and preparation metadata through %s and normalization', async source => {
+    const row = tables.recipe_ingredients[0];
+    row.is_optional = true; row.prep_note = '瀝乾後稱重';
+    db.rpcResult = source === 'rpc' ? { data: { id: PUBLIC_ID, slug: 'public-recipe', base_servings: 1, source_data: null,
+      ingredients: [{ id: 'i1', name: 'stale RPC name', quantity: 2 }], steps: [] }, error: null } : RPC_ERROR;
+    try {
+      const { recipe, error } = await loadRecipeDetail(PUBLIC_ID);
+      expect(error).toBeNull();
+      expect(recipe?.ingredients[0]).toMatchObject({ name: '雞蛋', quantity: 2, is_optional: true, prep_note: '瀝乾後稱重' });
+      expect(recipeQueries()[0].filters).toContainEqual(['is_public', true]);
+    } finally { delete row.is_optional; delete row.prep_note; }
+  });
+
+  it('does not hydrate ingredient metadata for a non-public RPC parent', async () => {
+    db.rpcResult = { data: { id: PRIVATE_ID, slug: 'private-recipe', base_servings: 1, source_data: null,
+      ingredients: [{ id: 'i2' }], steps: [] }, error: null };
+    await expect(getRecipeDetail(PRIVATE_ID)).rejects.toThrow('Recipe not found');
+    expect(db.queries.some(query => query.table === 'recipe_ingredients')).toBe(false);
+  });
   it('preserves an explicit zero ingredient amount through the fallback loader', async () => {
     const ingredient = tables.recipe_ingredients[0];
     const original = ingredient.quantity;
