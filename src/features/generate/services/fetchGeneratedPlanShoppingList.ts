@@ -6,14 +6,16 @@
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
 import { perfNow, perfLog } from '@/utils/perf';
+import { selectionKey, scopeSelections, type OptionalSelections } from '@/features/shopping-list/optionalSelections';
 
 export interface FetchShoppingListOptions {
+  optionalSelections?: OptionalSelections;
   traceId?: string;
   token: string;
   cacheScope: string;
 }
 
-const CACHE_KEY = 'shopping_list_v2';
+const CACHE_KEY = 'shopping_list_v3';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface CachePayload {
@@ -97,7 +99,8 @@ export async function fetchGeneratedPlanShoppingList(
   });
 
   // Build cache key
-  const cacheKey = getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings);
+  const optionalSelections = scopeSelections(options.optionalSelections || {}, recipeIds);
+  const cacheKey = JSON.stringify([getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings), selectionKey(optionalSelections)]);
   
   // Check cache first
   const cachedData = getFromCache(cacheKey);
@@ -150,6 +153,7 @@ export async function fetchGeneratedPlanShoppingList(
         recipeIds,
         pantryIngredients,
         servings,
+        ...(Object.keys(optionalSelections).length ? { optionalSelections } : {}),
       }),
     });
 

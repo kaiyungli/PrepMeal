@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
+import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
 
 interface Options {
   weeklyPlan: Record<string, Array<{ id?: string | null } | null>>;
@@ -22,8 +23,12 @@ interface ListState {
 export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings,
   isAuthenticated, userId, getAccessToken, traceId }: Options) {
   // Preserve repeated recipes: each occurrence contributes to shopping quantities.
+  const { selections: allSelections } = useOptionalSelections(userId);
   const recipeIds = Object.values(weeklyPlan || {}).flat().flatMap(recipe => recipe?.id ? [String(recipe.id)] : []).sort();
-  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, pantryIngredients.slice().sort()]);
+  const selections = scopeSelections(allSelections, recipeIds);
+  const optionalKey = selectionKey(selections);
+  const previousSelection = useRef({ userId, optionalKey });
+  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, pantryIngredients.slice().sort(), optionalKey]);
   const [state, setState] = useState<ListState | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const requestRef = useRef<{ active: boolean } | null>(null);
@@ -60,7 +65,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (!token) throw new Error('請先登入以查看購物清單');
       const started = Date.now();
       const view = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings,
-        { traceId, token, cacheScope: userId });
+        { traceId, token, cacheScope: userId, optionalSelections: selections });
       if (!request.active) return;
       setState({ key, view, error: null, loading: false });
       log(preload ? 'preload_ready' : 'ready', Date.now() - started, view.summary);
@@ -72,7 +77,13 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (requestRef.current === request) requestRef.current = null;
     }
   }, [key, shoppingListView, isShoppingListLoading, recipeIds.length, isAuthenticated, userId,
-    getAccessToken, weeklyPlan, pantryIngredients, servings, traceId, invalidate]);
+    getAccessToken, weeklyPlan, pantryIngredients, servings, traceId, invalidate, selections]);
+
+  useEffect(() => {
+    const previous = previousSelection.current;
+    previousSelection.current = { userId, optionalKey };
+    if (previous.userId === userId && previous.optionalKey !== optionalKey && showShoppingList && isAuthenticated) void load(false);
+  }, [optionalKey, userId, isAuthenticated, showShoppingList, load]);
 
   const handleOpenShoppingList = useCallback(() => load(false), [load]);
   const preloadShoppingList = useCallback(() => load(true), [load]);

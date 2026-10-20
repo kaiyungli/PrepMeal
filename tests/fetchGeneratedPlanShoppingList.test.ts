@@ -27,6 +27,18 @@ describe('fetchGeneratedPlanShoppingList auth boundary', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
+  it('partitions persistent cache by explicit optional choices, including base-only, and ignores unrelated recipe choices', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ pantry: [], toBuy: [], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 } }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const plan = { mon: [{ id: 'r1' }] }; const options = { token: 'test', cacheScope: 'alice' };
+    await fetchGeneratedPlanShoppingList(plan, [], 2, options);
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: ['shrimp'] } });
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: [], r2: ['beef'] } });
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: [] } });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(JSON.parse(fetchMock.mock.calls[2][1].body).optionalSelections).toEqual({ r1: [] });
+  });
+
   it('sends only the bearer token to the API and partitions cache by user', async () => {
     const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Pick<Response, 'ok' | 'json'>>>().mockResolvedValue({
       ok: true,

@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
 
 interface PreviewPlanDay {
   items?: Array<{ recipeId?: string | number | null }>;
@@ -48,9 +49,10 @@ function transformToPreview(apiResponse: ShoppingPreviewResponse | null): Array<
 export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN, options: { enabled?: boolean; resetKey?: number } = {}) {
   const { user, getAccessToken } = useAuth();
   const userId = user?.id;
+  const { selections } = useOptionalSelections(userId);
   // Parent renders may rebuild the plan array without changing its meals.
   // Only actual ingredient-request inputs should invalidate loaded results.
-  const planKey = JSON.stringify([options.resetKey, weeklyPlan.flatMap(day => (day.items || [])
+  const planKey = JSON.stringify([selectionKey(selections), options.resetKey, weeklyPlan.flatMap(day => (day.items || [])
     .flatMap(item => item.recipeId ? [String(item.recipeId)] : []))]);
   const { enabled = true } = options;
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
@@ -138,7 +140,8 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
         body: JSON.stringify({ 
           recipeIds,
           pantryIngredients: [],
-          servings: 1
+          servings: 1,
+          ...(Object.keys(scopeSelections(selections, recipeIds)).length ? { optionalSelections: scopeSelections(selections, recipeIds) } : {})
         })
       });
       
@@ -162,7 +165,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
         setIsLoading(false);
       }
     }
-  }, [userId, getAccessToken]);
+  }, [userId, getAccessToken, selections]);
   
   // Manual refresh function (call when user opens shopping list)
   const refresh = useCallback(() => {

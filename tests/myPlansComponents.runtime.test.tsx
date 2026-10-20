@@ -522,7 +522,7 @@ describe('useSavedPlanShoppingList', () => {
     const { result } = renderHook(() => useSavedPlanShoppingList({ recipeIds, servings: 1 }));
 
     await act(async () => { await result.current.fetchShoppingList(); });
-    expect(result.current.shoppingList?.byCategory.toBuy.egg).toEqual([EGGS]);
+    expect(result.current.shoppingList?.byCategory.toBuy.tofu_egg).toEqual([EGGS]);
 
     await act(async () => { await result.current.fetchShoppingList(); });
     expect(fetchMock).toHaveBeenCalledTimes(2);

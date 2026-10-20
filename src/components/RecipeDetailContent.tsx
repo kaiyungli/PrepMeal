@@ -11,6 +11,7 @@ import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/
 interface RecipeDetailContentProps {
   recipe: Partial<Provenance> & {
     base_servings?: number | null
+    dietary_notes?: string[]
     id: string
     name: string
     image_url?: string
@@ -179,6 +180,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         {showHeavySections ? (
           <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材{recipe.base_servings != null ? `（${recipe.base_servings} 人份總量）` : ''}</h3>
+            {recipe.dietary_notes?.map(note => <p key={note} className="mb-3 text-sm" style={{ color: '#5A4030' }}>{note}</p>)}
             {isLoading ? (
             <div className="space-y-3">
               <SectionSkeleton height="h-6" />

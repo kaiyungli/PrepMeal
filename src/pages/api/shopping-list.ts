@@ -13,6 +13,8 @@ import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, Sh
 import { perfLog } from '@/utils/perf';
 import { recipeServingScale } from '@/lib/recipeServings';
 import { containsForbiddenAnimalProtein } from '@/constants/ingredientDietRules';
+import { vegetarianProductNote } from '@/constants/vegetarianProductNotes';
+import type { OptionalIngredientGroup } from '@/features/shopping-list/types';
 
 // Unit normalization
 function normalizeUnit(unit: string | null | undefined): string {
@@ -169,6 +171,19 @@ export default async function handler(
         .filter(Boolean)
     : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
+  const optionalSelections = new Map<string, Set<string>>();
+  if (body?.optionalSelections !== undefined) {
+    const selections = body.optionalSelections;
+    if (!selections || typeof selections !== 'object' || Array.isArray(selections) || Object.keys(selections).length > 200) {
+      return res.status(400).json({ error: 'Invalid optionalSelections' });
+    }
+    for (const [id, selected] of Object.entries(selections)) {
+      if (!Array.isArray(selected) || selected.length > 500 || selected.some(value => typeof value !== 'string')) {
+        return res.status(400).json({ error: 'Invalid optionalSelections' });
+      }
+      optionalSelections.set(canonicalRecipeId(id), new Set(selected.map(canonicalRecipeId)));
+    }
+  }
   
   if (recipeIds.length === 0) {
     return res.status(400).json({ error: 'Missing recipeIds' });
@@ -296,6 +311,8 @@ export default async function handler(
 
     console.log('[shopping-list api] building items');
     const allItems: ShoppingListBuyItem[] = [];
+    const optionalGroups = new Map<string, OptionalIngredientGroup>();
+    const dietaryNotes = new Set<string>();
     
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
@@ -308,6 +325,22 @@ export default async function handler(
       // selected by recipeIds alone; keep all required ingredients unchanged.
       if (ri.is_optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
         && containsForbiddenAnimalProtein({ ingredients: [ing] })) continue;
+
+      const recipeId = canonicalRecipeId(String(ri.recipe_id));
+      if (vegetarianRecipeIds.has(recipeId)) {
+        const note = vegetarianProductNote(['vegetarian'], [ing]);
+        if (note) dietaryNotes.add(`${recipe?.name || ''}：${note}`);
+      }
+      if (ri.is_optional === true) {
+        if (!optionalGroups.has(recipeId)) optionalGroups.set(recipeId, {
+          recipeId, recipeName: recipe?.name || '食譜', ingredients: [],
+        });
+        const choices = optionalGroups.get(recipeId)!.ingredients;
+        if (!choices.some(item => item.ingredientId === ri.ingredient_id)) choices.push({ ingredientId: ri.ingredient_id, name: ing.name });
+        // An absent key preserves legacy behavior. [] is an explicit base-only choice.
+        // Required ingredients can never be removed through this input.
+        if (optionalSelections.has(recipeId) && !optionalSelections.get(recipeId)!.has(canonicalRecipeId(ri.ingredient_id))) continue;
+      }
 
       const occurrences = visibleOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));
       if (occurrences === undefined) {
@@ -435,7 +468,8 @@ export default async function handler(
     console.log('[shopping-list api] byRecipe count:', byRecipe.length);
     console.log('[shopping-list api] returning response');
 
-    res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount });
+    res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount,
+      optionalIngredients: [...optionalGroups.values()], dietaryNotes: [...dietaryNotes] });
   } catch (err) {
     // Database and internal error details stay in the server log.
     console.error('[shopping-list api] fatal error:', err);

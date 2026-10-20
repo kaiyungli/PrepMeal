@@ -98,6 +98,33 @@ beforeEach(() => {
 });
 
 describe('/api/shopping-list aggregation', () => {
+  it('applies explicit optional choices without removing required ingredients and retains choices after deselection', async () => {
+    const required = row(R1, 'chicken', '雞肉', 250, 'g');
+    const beef = { ...row(R1, 'beef', '牛肉', 250, 'g'), is_optional: true };
+    const shrimp = { ...row(R1, 'shrimp', '蝦', 250, 'g'), is_optional: true };
+    const selected = await post({ recipeIds: [R1, R1], servings: 2, optionalSelections: { [R1]: ['beef'] } }, [required, beef, shrimp]);
+    expect(selected.items.map(line).sort()).toEqual(['beef:1000:g', 'chicken:1000:g']);
+    expect(selected.response.optionalIngredients?.[0].ingredients.map(item => item.name)).toEqual(['牛肉', '蝦']);
+    const base = await post({ recipeIds: [R1], servings: 1, optionalSelections: { [R1]: [] } }, [required, beef, shrimp]);
+    expect(base.items.map(line)).toEqual(['chicken:250:g']);
+    expect(base.response.optionalIngredients?.[0].ingredients).toHaveLength(2);
+    const other = await post({ recipeIds: [R1], optionalSelections: { [R2]: [] } }, [required, beef, shrimp]);
+    expect(other.items).toHaveLength(3);
+  });
+
+  it.each([null, [], { x: 'beef' }, { x: [1] }])('rejects malformed optional selections: %j', async optionalSelections => {
+    expect((await post({ recipeIds: [R1], optionalSelections }, [])).status).toBe(400);
+  });
+
+  it('requires a vegetarian-labelled composite product and does not expose animal add-ons as choices', async () => {
+    const kimchi = row(R1, 'kimchi', '泡菜', 80, 'g'); kimchi.ingredients.slug = 'kimchi';
+    const chicken = { ...row(R1, 'chicken', '雞肉', 80, 'g'), is_optional: true };
+    chicken.ingredients.slug = 'chicken';
+    const result = await post({ recipeIds: [R1] }, [kimchi, chicken], undefined, { [R1]: ['vegetarian'] });
+    expect(result.response.dietaryNotes?.join('')).toContain('泡菜須選包裝標明適合素食');
+    expect(result.response.optionalIngredients).toEqual([]);
+  });
+
   it('uses the vegetarian base without animal add-ons, preserving dairy, plant add-ons and required rows', async () => {
     const chicken = row(R1, 'chicken', '熟去皮雞肉', 80, 'g');
     chicken.is_optional = true; chicken.ingredients.slug = 'cooked-skinless-chicken';
