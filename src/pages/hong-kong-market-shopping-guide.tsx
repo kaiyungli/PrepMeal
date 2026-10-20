@@ -1,3 +1,4 @@
+import EditorialRecipeLink from '@/components/recipes/EditorialRecipeLink';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -10,7 +11,7 @@ const recipeLinks = [
   { name: '鹽焗雞翼', slug: 'salt-baked-chicken-wings' },
   { name: '咖哩牛腩', slug: 'curry-beef-rice' },
   { name: '乾炒牛河', slug: 'dry-fried-beef-hor-fun' },
-  { name: '楊州炒飯', slug: 'yangzhou-fried-rice' },
+  { name: '揚州炒飯', slug: 'yangzhou-fried-rice' },
   { name: '番茄炒蛋', slug: 'tomato-scrambled-egg' },
   { name: '蒸滑雞', slug: 'steamed-chicken' },
   { name: '豆角炒蛋', slug: 'long-bean-scrambled-egg' },
@@ -30,7 +31,7 @@ const weeklyShoppingList = [
   { day: '星期二', breakfast: '多士', lunch: '外賣', dinner: '咖哩牛腩飯', cost: 45 },
   { day: '星期三', breakfast: '粥', lunch: '外賣', dinner: '蒸滑雞 + 炒菜', cost: 40 },
   { day: '星期四', breakfast: '麥片', lunch: '外賣', dinner: '清蒸石斑 + 青菜', cost: 50 },
-  { day: '星期五', breakfast: '多士', lunch: '外賣', dinner: '楊州炒飯', cost: 35 },
+  { day: '星期五', breakfast: '多士', lunch: '外賣', dinner: '揚州炒飯', cost: 35 },
   { day: '星期六', breakfast: '出街食', lunch: '出街食', dinner: '乾炒牛河', cost: 40 },
   { day: '星期日', breakfast: '出街食', lunch: '出街食', dinner: '鹽焗雞翼', cost: 35 },
 ];
@@ -56,6 +57,7 @@ export default function HKMarketShoppingGuide() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main className="max-w-4xl mx-auto px-4 py-12">
+        <p className="mb-4 text-sm text-[#5A4030]">可點擊菜式名稱查看已上線食譜；標示「食譜暫未提供」的菜式目前只作餐單靈感。</p>
         <h1 className="text-3xl font-bold text-[#3A2010] mb-6 text-center">
           香港街市買餸攻略｜新手必學買菜技巧與一週採購清單
         </h1>
@@ -354,15 +356,14 @@ export default function HKMarketShoppingGuide() {
           <h2 className="text-2xl font-semibold text-[#3A2010] mb-4">相關食譜推薦</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {recipeLinks.map((recipe, index) => (
-              <a
-                key={recipe.slug}
-                href={`/recipes/${recipe.slug}`}
+              <EditorialRecipeLink key={recipe.slug}
+                slug={recipe.slug}
                 className="block bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <span className="text-[#9B6035] font-medium">
                   {index + 1}. {recipe.name}
                 </span>
-              </a>
+              </EditorialRecipeLink>
             ))}
           </div>
         </section>

@@ -1,3 +1,4 @@
+import EditorialRecipeLink from '@/components/recipes/EditorialRecipeLink';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -14,7 +15,7 @@ const quickRecipes = [
   { name: '蒸滑雞', slug: 'steamed-chicken', time: 15 },
   { name: '咖哩牛腩', slug: 'curry-beef-rice', time: 30 },
   { name: '乾炒牛河', slug: 'dry-fried-beef-hor-fun', time: 20 },
-  { name: '楊州炒飯', slug: 'yangzhou-fried-rice', time: 20 },
+  { name: '揚州炒飯', slug: 'yangzhou-fried-rice', time: 20 },
   { name: '薑蔥炒蟹', slug: 'ginger-scallion-crab', time: 20 },
   { name: '蒜蓉炒菜心', slug: 'garlic-choi-sum', time: 10 },
   { name: '蠔油西蘭花', slug: 'oyster-sauce-broccoli', time: 12 },
@@ -30,7 +31,7 @@ const weeklyPlan = [
   { day: '星期二', recipe: '咖哩牛腩', time: 30 },
   { day: '星期三', recipe: '蒸滑雞', time: 15 },
   { day: '星期四', recipe: '清蒸石斑', time: 12 },
-  { day: '星期五', recipe: '楊州炒飯', time: 20 },
+  { day: '星期五', recipe: '揚州炒飯', time: 20 },
   { day: '星期六', recipe: '乾炒牛河', time: 20 },
   { day: '星期日', recipe: '鹽焗雞翼', time: 25 },
 ];
@@ -56,6 +57,7 @@ export default function QuickDinnerRecipes() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main className="max-w-4xl mx-auto px-4 py-12">
+        <p className="mb-4 text-sm text-[#5A4030]">可點擊菜式名稱查看已上線食譜；標示「食譜暫未提供」的菜式目前只作餐單靈感。</p>
         <h1 className="text-3xl font-bold text-[#3A2010] mb-6 text-center">
           30分鐘快手家常菜｜20款香港打工仔晚餐推薦
         </h1>
@@ -108,7 +110,7 @@ export default function QuickDinnerRecipes() {
           <h3 className="text-lg font-medium text-[#9B6035] mb-2 mt-4">25-30分鐘系列（進階版）</h3>
           <ul className="list-disc pl-5 space-y-2 text-[#5A4030]">
             <li>咖哩牛腩 - 切定材料就可以整</li>
-            <li>楊州炒飯 - 炒飯需要啲時間整靚佢</li>
+            <li>揚州炒飯 - 炒飯需要啲時間整靚佢</li>
             <li>乾炒牛河 - 河粉要啲時間整</li>
             <li>薑蔥炒蟹 - 蟹要洗乾淨</li>
             <li>麻婆豆腐 - 切豆腐都要啲時間</li>
@@ -177,16 +179,15 @@ export default function QuickDinnerRecipes() {
           </p>
           <div className="grid md:grid-cols-2 gap-4">
             {quickRecipes.map((recipe, index) => (
-              <a
-                key={recipe.slug}
-                href={`/recipes/${recipe.slug}`}
+              <EditorialRecipeLink key={recipe.slug}
+                slug={recipe.slug}
                 className="block bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <span className="text-[#9B6035] font-medium">
                   {index + 1}. {recipe.name}
                 </span>
                 <span className="text-sm text-[#5A4030] ml-2">({recipe.time}分鐘)</span>
-              </a>
+              </EditorialRecipeLink>
             ))}
           </div>
         </section>

@@ -1,3 +1,4 @@
+import EditorialRecipeLink from '@/components/recipes/EditorialRecipeLink';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -46,7 +47,7 @@ const recipes = [
   { name: '楊枝甘露', slug: 'mango-pomelo-soup', category: '甜品' },
   { name: '芝士蛋糕', slug: 'cheesecake', category: '甜品' },
   { name: '紅豆沙', slug: 'red-bean-soup', category: '甜品' },
-  { name: '楊州炒飯', slug: 'yangzhou-fried-rice', category: '炒飯' },
+  { name: '揚州炒飯', slug: 'yangzhou-fried-rice', category: '炒飯' },
   { name: '蛋炒飯', slug: 'egg-fried-rice', category: '炒飯' },
   { name: '海鮮炒飯', slug: 'seafood-fried-rice', category: '炒飯' },
   { name: '乾炒牛河', slug: 'dry-fried-beef-hor-fun', category: '粉麵' },
@@ -92,6 +93,7 @@ export default function FiftyClassicHKRecipes() {
       />
 
       <main className="max-w-4xl mx-auto px-4 py-12">
+        <p className="mb-4 text-sm text-[#5A4030]">可點擊菜式名稱查看已上線食譜；標示「食譜暫未提供」的菜式目前只作餐單靈感。</p>
         <h1 className="text-3xl font-bold text-[#3A2010] mb-6 text-center">
           今晚食咩？2026香港人必備50款家常食譜
         </h1>
@@ -266,7 +268,7 @@ export default function FiftyClassicHKRecipes() {
           
           <h3 className="text-lg font-medium text-[#3A2010] mb-2 mt-4">炒飯 (3款)</h3>
           <p className="text-[#5A4030] mb-2">
-            楊州炒飯、蛋炒飯、海鮮炒飯，係茶餐廳必叫既項目。
+            揚州炒飯、蛋炒飯、海鮮炒飯，係茶餐廳必叫既項目。
             但係自己屋企整既時候，要注意火候同埋鑊氣。
           </p>
           
@@ -318,7 +320,7 @@ export default function FiftyClassicHKRecipes() {
             <li><strong>星期三</strong> - 雞類：鹽焗雞翼（屋企人都鍾意）</li>
             <li><strong>星期四</strong> - 海鮮：清蒸石斑（健康）</li>
             <li><strong>星期五</strong> - 蔬菜：蒜蓉炒菜心（均衡）</li>
-            <li><strong>星期六</strong> - 炒飯：楊州炒飯（一家人開心食）</li>
+            <li><strong>星期六</strong> - 炒飯：揚州炒飯（一家人開心食）</li>
             <li><strong>星期日</strong> - 粉麵：乾炒牛河（轉下口味）</li>
           </ul>
           
@@ -385,13 +387,12 @@ export default function FiftyClassicHKRecipes() {
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               {categoryRecipes.map((r: any) => (
-                <a
-                  key={r.slug}
-                  href={`/recipes/${r.slug}`}
+                <EditorialRecipeLink key={r.slug}
+                  slug={r.slug}
                   className="block bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <span className="text-[#9B6035] font-medium">{r.name}</span>
-                </a>
+                </EditorialRecipeLink>
               ))}
             </div>
           </section>
@@ -458,7 +459,7 @@ export default function FiftyClassicHKRecipes() {
             </div>
             
             <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-medium text-[#9B6035]">星期五 - 楊州炒飯</h3>
+              <h3 className="font-medium text-[#9B6035]">星期五 - 揚州炒飯</h3>
               <p className="text-sm text-[#5A4030]">星期五放工心情好，整多啲配料既炒飯一家人食。記住要落幾多蛋先好味。</p>
             </div>
             
