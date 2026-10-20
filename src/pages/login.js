@@ -105,7 +105,7 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        setMessage('✅ 註冊成功！請查收email確認連結');
+        setMessage('註冊申請已提交。如需驗證，請查看 Email（包括垃圾郵件）。如果你曾用 Google、Apple 或 Facebook 建立帳戶，請使用原本方式登入。');
       } else {
         const { error } = await supabase?.auth.signInWithPassword({
           email,
