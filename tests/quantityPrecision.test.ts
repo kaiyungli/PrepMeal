@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+
+it.each([[0.125, 'pc', '1/8'], [0.25, 'pc', '1/4'], [0.5, 'egg', '1/2'], [1.5, 'clove', '1 1/2'], [0.13, 'stick', '0.13']])('retains recipe count %s %s', (quantity, unit, expected) => {
+  expect(formatQuantityForDisplay(quantity as number, unit as string, { roundCount: false })).toBe(expected);
+  expect(formatQuantityForDisplay(quantity as number, unit as string)).toBe(String(Math.ceil(quantity as number)));
+});
 import { formatQuantityDisplay } from '@/features/shopping-list/types';
 
 describe('measured ingredient amounts retain their actual quantity', () => {

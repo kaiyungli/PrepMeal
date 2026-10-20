@@ -6,6 +6,7 @@ import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
 import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
+import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 
 interface RecipeDetailContentProps {
@@ -29,6 +30,8 @@ interface RecipeDetailContentProps {
       name?: string
       slug?: string
       quantity?: number | null
+      is_optional?: boolean
+      prep_note?: string | null
       unit?: { code?: string; name?: string; display_name_zh?: string } | string | null
       shopping_category?: string
       source?: string
@@ -191,8 +194,12 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             <ul className="space-y-3">
               {ingredients.map((ing: any, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
-                  <span style={{ color: '#3A2010' }}>{ing.display_name || ing.name || ing.slug}</span>
-                  <span style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit)} {getUnitLabel(ing.unit)}</span>
+                  <div style={{ color: '#3A2010' }}>
+                    <span>{ing.display_name || ing.name || ing.slug}</span>
+                    {ing.is_optional && <span className="ml-2 text-xs" style={{ color: '#AA7A50' }}>選配</span>}
+                    {ingredientPrepNote(ing.prep_note) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note)}</p>}
+                  </div>
+                  <span className="shrink-0 ml-3" style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit, { roundCount: false })} {getUnitLabel(ing.unit)}</span>
                 </li>
               ))}
             </ul>
