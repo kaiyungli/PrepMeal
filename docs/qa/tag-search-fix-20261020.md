@@ -27,7 +27,9 @@ Further measurement regressions: quarter cups no longer round up to full cups; s
 
 `scripts/repair-catalog-tags-20261020.sql` proposes 24 nutrition-tag corrections using the existing nutritionRules.ts thresholds, plus two cold-dish method corrections. It preserves nutritional values, sources, amounts and instructions. It checks the previous tags, methods, nutrition and public visibility before updating. The final ROLLBACK makes execution a dry run; applying requires changing it to COMMIT. No production data changes have been made.
 
-Read-only production preflight: all 26 records still match the audited values. Snapshot validation covered 288 recipes and identified 12 animal add-on rows across the vegetarian recipes.
+Production update on 2026-10-20: all 26 guarded tag/method corrections were applied and independently read back; the public recipe count remains 288. Nutrition values, ingredients and steps were unchanged. The checked-in SQL remains dry-run-by-default for review/recovery.
+
+Live schema validation also caught an incorrect optional-ingredient column in the draft API query. It now reads the real `is_optional` column; regression mocks reject the nonexistent `optional` column and require `is_optional` in the selection.
 
 ## Verification and limits
 

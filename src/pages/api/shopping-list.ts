@@ -258,7 +258,7 @@ export default async function handler(
       .from('recipe_ingredients')
       .select(`
         quantity,
-        optional,
+        is_optional,
         recipe_id,
         ingredient_id,
         ingredients(id, name, slug, shopping_category),
@@ -306,7 +306,7 @@ export default async function handler(
       if (!ing || !ing.name) continue;
       // Vegetarian tags describe the base recipe. Animal add-ons are not
       // selected by recipeIds alone; keep all required ingredients unchanged.
-      if (ri.optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
+      if (ri.is_optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
         && containsForbiddenAnimalProtein({ ingredients: [ing] })) continue;
 
       const occurrences = visibleOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));

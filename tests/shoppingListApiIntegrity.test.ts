@@ -19,7 +19,7 @@ const R2 = '22222222-2222-4222-8222-222222222222';
 const PRIVATE = '33333333-3333-4333-8333-333333333333';
 
 type Row = {
-  optional?: boolean;
+  is_optional?: boolean;
   quantity: unknown; recipe_id: string; ingredient_id: string | null;
   ingredients: { id: string; name: string; slug?: string; shopping_category: string | null };
   recipes: { id: string; name: string; base_servings?: number };
@@ -60,10 +60,14 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, n
           } }) }) };
         }
         if (table === 'recipe_ingredients') {
-          return { select: () => ({ in: async (_c: string, ids: string[]) => {
+          return { select: (columns: string) => {
+            // Enforce the real schema rather than silently accepting any query.
+            if (/(^|,)\s*optional\s*(,|$)/.test(columns)) throw new Error('column optional does not exist');
+            if (!/\bis_optional\b/.test(columns)) throw new Error('required is_optional column missing');
+            return { in: async (_c: string, ids: string[]) => {
             calls.ingredientIdsQueried.push(ids);
             return { data: rows.filter((r) => ids.includes(r.recipe_id)), error: null };
-          } }) };
+          } }; } };
         }
         throw new Error(`Unexpected table: ${table}`);
       },
@@ -96,10 +100,10 @@ beforeEach(() => {
 describe('/api/shopping-list aggregation', () => {
   it('uses the vegetarian base without animal add-ons, preserving dairy, plant add-ons and required rows', async () => {
     const chicken = row(R1, 'chicken', '熟去皮雞肉', 80, 'g');
-    chicken.optional = true; chicken.ingredients.slug = 'cooked-skinless-chicken';
-    const shrimp = { ...row(R1, 'shrimp', '蝦', 100, 'g'), optional: true };
-    const butter = { ...row(R1, 'butter', '牛油', 10, 'g'), optional: true };
-    const tofu = { ...row(R1, 'tofu', '豆腐', 50, 'g'), optional: true };
+    chicken.is_optional = true; chicken.ingredients.slug = 'cooked-skinless-chicken';
+    const shrimp = { ...row(R1, 'shrimp', '蝦', 100, 'g'), is_optional: true };
+    const butter = { ...row(R1, 'butter', '牛油', 10, 'g'), is_optional: true };
+    const tofu = { ...row(R1, 'tofu', '豆腐', 50, 'g'), is_optional: true };
     const required = row(R2, 'shrimp', '蝦', 30, 'g');
     const { items, response } = await post({ recipeIds: [R1, R2], servings: 1 },
       [chicken, shrimp, butter, tofu, required], undefined, { [R1]: ['vegetarian', 'egg_lacto'] });
