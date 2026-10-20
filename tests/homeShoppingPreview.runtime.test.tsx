@@ -30,6 +30,23 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('homepage shopping preview', () => {
+  it('keeps loaded results when a parent recreates an equivalent plan array', async () => {
+    const { result, rerender } = renderHook(({ currentPlan }) => useShoppingListPreview(currentPlan, { enabled: false }), { initialProps: { currentPlan: plan } });
+    await act(async () => { await result.current.refresh(); });
+    rerender({ currentPlan: [{ items: [{ recipeId: 'recipe-a' }] }] });
+    expect(result.current.isInitialized).toBe(true);
+    expect(result.current.previewList[0]?.name).toBe('測試洋蔥');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the API display unit selected for the user', async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({ toBuy: [{ items: [
+      { name: '牛肉', quantity: 200, unit: 'g', unitDisplay: '克' },
+    ] }] }) });
+    const { result } = renderHook(() => useShoppingListPreview(plan, { enabled: false }));
+    await act(async () => { await result.current.refresh(); });
+    expect(result.current.previewList).toEqual([{ name: '牛肉', qty: '200', unit: '克' }]);
+  });
   it('renders eight eggs as 8隻 instead of leaking the API unit code', () => {
     render(<HomeHero shoppingListInitialized shoppingList={[{ name: '雞蛋', qty: '8', unit: 'egg' }]} />);
     expect(screen.getByText('8隻')).toBeTruthy();

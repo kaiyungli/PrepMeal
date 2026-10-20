@@ -5,6 +5,16 @@ import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetai
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
 
 describe('public recipe evidence', () => {
+  it('does not silently turn an explicit zero ingredient amount into one', () => {
+    const raw: RecipeDetailRow = { id: 'zero', name: '無鹽版本', image_url: null, cuisine: null,
+      difficulty: null, method: null, total_time_minutes: null, cook_time_minutes: null,
+      prep_time_minutes: null, calories_per_serving: null, protein_g: null, carbs_g: null,
+      fat_g: null, primary_protein: null, dish_type: null, diet: null, is_complete_meal: false,
+      created_at: '', steps: [], ingredients: [
+      { id: 'salt', name: '鹽', slug: 'salt', shopping_category: null, quantity: 0, unit: { code: 'g', name: '克' } },
+    ] };
+    expect(normalizeRecipeDetail(raw).ingredients[0].quantity).toBe(0);
+  });
   it('preserves both generations of allergen metadata and source attribution', () => {
     const provenance = recipeProvenance({
       base_allergens: ['fish', 'soy'], allergens: ['soy', 'wheat'],

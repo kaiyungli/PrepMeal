@@ -3,6 +3,7 @@ import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect, useCallback } from 'react'
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
@@ -10,6 +11,7 @@ import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/
 interface RecipeDetailContentProps {
   recipe: Partial<Provenance> & {
     base_servings?: number | null
+    dietary_notes?: string[]
     id: string
     name: string
     image_url?: string
@@ -27,7 +29,7 @@ interface RecipeDetailContentProps {
       name?: string
       slug?: string
       quantity?: number | null
-      unit?: { name?: string } | string | null
+      unit?: { code?: string; name?: string; display_name_zh?: string } | string | null
       shopping_category?: string
       source?: string
     }>
@@ -49,9 +51,9 @@ function SectionSkeleton({ height = 'h-4' }: { height?: string }) {
 const getDifficultyLabel = (v?: string | null) => v ? (DIFFICULTY_MAP[v] || '其他') : '';
 const getSpeedLabel = (v?: string | null) => v ? (SPEED_MAP[v] || '其他') : '';
 const getMethodLabel = (v?: string | null) => v ? (METHOD_MAP[v] || '其他') : '';
-const getUnitLabel = (unit?: { code?: string; name?: string; display_name_zh?: string } | null) => {
+const getUnitLabel = (unit?: string | { code?: string; name?: string; display_name_zh?: string } | null) => {
   if (!unit) return '';
-  return unit.display_name_zh || unit.name || '其他';
+  return typeof unit === 'object' ? unit.display_name_zh || formatUnit(unit) : formatUnit(unit);
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
@@ -178,6 +180,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         {showHeavySections ? (
           <div className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0' }}>
             <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>🥬 食材{recipe.base_servings != null ? `（${recipe.base_servings} 人份總量）` : ''}</h3>
+            {recipe.dietary_notes?.map(note => <p key={note} className="mb-3 text-sm" style={{ color: '#5A4030' }}>{note}</p>)}
             {isLoading ? (
             <div className="space-y-3">
               <SectionSkeleton height="h-6" />

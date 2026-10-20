@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
+import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
+import type { OptionalIngredientGroup } from '@/features/shopping-list/types';
 
 export const SHOPPING_LIST_LOAD_ERROR = '購物清單載入失敗，請重試';
 const SIGN_IN_REQUIRED = '請先登入以查看購物清單';
 
 // The shape ShoppingListDrawer renders.
 export interface SavedPlanShoppingList {
+  optionalIngredients?: OptionalIngredientGroup[];
+  dietaryNotes?: string[];
   byCategory: { pantry: unknown[]; toBuy: Record<string, unknown[]> };
   byRecipe: Array<{ recipeName: string; pantry: unknown[]; toBuy: unknown[] }>;
   notice: string | null;
@@ -36,8 +41,11 @@ interface ListState {
  */
 export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions) {
   const { getAccessToken, user, isAuthenticated } = useAuth();
+  const { selections: allSelections } = useOptionalSelections(user?.id);
+  const selections = scopeSelections(allSelections, recipeIds);
+  const optionalKey = selectionKey(selections);
   // Keep every occurrence: repeated meals contribute repeated ingredients.
-  const key = JSON.stringify([user?.id, isAuthenticated, recipeIds, servings]);
+  const key = JSON.stringify([user?.id, isAuthenticated, recipeIds, servings, optionalKey]);
   const [state, setState] = useState<ListState | null>(null);
   const requestRef = useRef<{ key: string; active: boolean; controller: AbortController } | null>(null);
   const invalidate = useCallback(() => {
@@ -78,7 +86,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ recipeIds, servings }),
+        body: JSON.stringify({ recipeIds, servings, ...(Object.keys(selections).length ? { optionalSelections: selections } : {}) }),
         signal: request.controller.signal
       });
       if (!request.active) return;
@@ -95,8 +103,8 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
       const normalizedToBuy: SavedPlanShoppingList['byCategory']['toBuy'] = {};
       if (data.toBuy && Array.isArray(data.toBuy)) {
         for (const group of data.toBuy) {
-          const catKey = group.category || 'other';
-          normalizedToBuy[catKey] = Array.isArray(group.items) ? group.items : [];
+          const catKey = mapRawCategoryToKey(group.category);
+          normalizedToBuy[catKey] = [...(normalizedToBuy[catKey] || []), ...(Array.isArray(group.items) ? group.items : [])];
         }
       }
 
@@ -123,6 +131,8 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
       }
 
       setState({ key, loading: false, error: null, shoppingList: {
+        optionalIngredients: Array.isArray(data.optionalIngredients) ? data.optionalIngredients : [],
+        dietaryNotes: Array.isArray(data.dietaryNotes) ? data.dietaryNotes : [],
         byCategory: {
           pantry: Array.isArray(data.pantry) ? data.pantry : [],
           toBuy: normalizedToBuy
@@ -138,7 +148,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
     } finally {
       if (requestRef.current === request) requestRef.current = null;
     }
-  }, [getAccessToken, recipeIds, servings, key, invalidate, isAuthenticated, user?.id]);
+  }, [getAccessToken, recipeIds, servings, key, invalidate, isAuthenticated, user?.id, selections]);
 
   return { shoppingList, loading, error, fetchShoppingList };
 }

@@ -33,7 +33,7 @@ export function matchesSlotRole(recipe: SlotRoleRecipe | null | undefined, slotR
       // protein_side and complete_meal are not interchangeable with main.
       if (mealRole) return mealRole === 'protein_main';
       // Legacy records with no meal_role retain limited inferred matching.
-      if (dishType === 'soup' || dishType === 'side') return false;
+      if (dishType === 'soup' || dishType === 'side' || dishType === 'staple' || dishType === 'snack') return false;
       if (dishType === 'main') return true;
       return !!primaryProtein && primaryProtein !== 'vegetarian';
 

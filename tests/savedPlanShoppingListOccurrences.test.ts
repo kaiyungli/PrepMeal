@@ -294,7 +294,7 @@ describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
     expect(section).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
     expect(request).toContain('export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions)');
     expect(request).toContain("fetch('/api/shopping-list'");
-    expect(request).toContain('body: JSON.stringify({ recipeIds, servings })');
+    expect(request).toContain('body: JSON.stringify({ recipeIds, servings,');
     expect(request).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
   });
 });

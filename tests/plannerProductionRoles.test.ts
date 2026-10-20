@@ -10,6 +10,10 @@ const veg = makeRecipe('涼拌青瓜', 'veg_side', 'side', 'vegetarian');
 const soup = makeRecipe('紫菜蛋花湯', 'soup', 'soup', 'egg');
 const proteinSide = makeRecipe('照燒雞粒', 'protein_side', 'side', 'chicken');
 
+it.each(['staple', 'snack'])('does not infer an unclassified %s as a protein main', dish_type => {
+  expect(matchesSlotRole({ meal_role: null, dish_type, primary_protein: 'mixed' }, 'protein_main')).toBe(false);
+});
+
 afterEach(() => vi.restoreAllMocks());
 
 describe('production-shaped mixed meal roles', () => {

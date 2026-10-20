@@ -12,6 +12,9 @@ import { mapRawCategoryToKey } from '@/features/shopping-list/mappers';
 import type { ShoppingListResponse, ShoppingListSection, ShoppingListBuyItem, ShoppingCategoryKey, ShoppingListRecipeGroup } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
 import { recipeServingScale } from '@/lib/recipeServings';
+import { containsForbiddenAnimalProtein } from '@/constants/ingredientDietRules';
+import { vegetarianProductNote } from '@/constants/vegetarianProductNotes';
+import type { OptionalIngredientGroup } from '@/features/shopping-list/types';
 
 // Unit normalization
 function normalizeUnit(unit: string | null | undefined): string {
@@ -168,6 +171,19 @@ export default async function handler(
         .filter(Boolean)
     : [];
   const servings = typeof body?.servings === 'number' ? body.servings : 1;
+  const optionalSelections = new Map<string, Set<string>>();
+  if (body?.optionalSelections !== undefined) {
+    const selections = body.optionalSelections;
+    if (!selections || typeof selections !== 'object' || Array.isArray(selections) || Object.keys(selections).length > 200) {
+      return res.status(400).json({ error: 'Invalid optionalSelections' });
+    }
+    for (const [id, selected] of Object.entries(selections)) {
+      if (!Array.isArray(selected) || selected.length > 500 || selected.some(value => typeof value !== 'string')) {
+        return res.status(400).json({ error: 'Invalid optionalSelections' });
+      }
+      optionalSelections.set(canonicalRecipeId(id), new Set(selected.map(canonicalRecipeId)));
+    }
+  }
   
   if (recipeIds.length === 0) {
     return res.status(400).json({ error: 'Missing recipeIds' });
@@ -210,7 +226,7 @@ export default async function handler(
     // enforced explicitly before related ingredient rows are queried.
     const { data: visibleRecipes, error: visibilityError } = await supabase
       .from('recipes')
-      .select('id, base_servings')
+      .select('id, base_servings, diet')
       .in('id', recipeIds)
       .eq('is_public', true);
 
@@ -218,6 +234,9 @@ export default async function handler(
     const servingScales = new Map((visibleRecipes || []).map(recipe => [
       canonicalRecipeId(String(recipe.id)), recipeServingScale(servings, recipe.base_servings),
     ]));
+    const vegetarianRecipeIds = new Set((visibleRecipes || [])
+      .filter(recipe => Array.isArray(recipe.diet) && recipe.diet.some((tag: string) => tag === 'vegetarian' || tag === 'egg_lacto'))
+      .map(recipe => canonicalRecipeId(String(recipe.id))));
 
     // A saved plan keeps its recipe ids after a recipe is unpublished or
     // removed. Those meals are skipped, private and missing alike, and only
@@ -254,9 +273,10 @@ export default async function handler(
       .from('recipe_ingredients')
       .select(`
         quantity,
+        is_optional,
         recipe_id,
         ingredient_id,
-        ingredients(id, name, shopping_category),
+        ingredients(id, name, slug, shopping_category),
         recipes(id, name),
         units(id, code, display_name_en, display_name_zh)
       `)
@@ -291,6 +311,8 @@ export default async function handler(
 
     console.log('[shopping-list api] building items');
     const allItems: ShoppingListBuyItem[] = [];
+    const optionalGroups = new Map<string, OptionalIngredientGroup>();
+    const dietaryNotes = new Set<string>();
     
     for (const ri of recipeIngredients) {
       if (!ri || !ri.ingredient_id) continue;
@@ -299,6 +321,26 @@ export default async function handler(
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
+      // Vegetarian tags describe the base recipe. Animal add-ons are not
+      // selected by recipeIds alone; keep all required ingredients unchanged.
+      if (ri.is_optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
+        && containsForbiddenAnimalProtein({ ingredients: [ing] })) continue;
+
+      const recipeId = canonicalRecipeId(String(ri.recipe_id));
+      if (vegetarianRecipeIds.has(recipeId)) {
+        const note = vegetarianProductNote(['vegetarian'], [ing]);
+        if (note) dietaryNotes.add(`${recipe?.name || ''}：${note}`);
+      }
+      if (ri.is_optional === true) {
+        if (!optionalGroups.has(recipeId)) optionalGroups.set(recipeId, {
+          recipeId, recipeName: recipe?.name || '食譜', ingredients: [],
+        });
+        const choices = optionalGroups.get(recipeId)!.ingredients;
+        if (!choices.some(item => item.ingredientId === ri.ingredient_id)) choices.push({ ingredientId: ri.ingredient_id, name: ing.name });
+        // An absent key preserves legacy behavior. [] is an explicit base-only choice.
+        // Required ingredients can never be removed through this input.
+        if (optionalSelections.has(recipeId) && !optionalSelections.get(recipeId)!.has(canonicalRecipeId(ri.ingredient_id))) continue;
+      }
 
       const occurrences = visibleOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));
       if (occurrences === undefined) {
@@ -426,7 +468,8 @@ export default async function handler(
     console.log('[shopping-list api] byRecipe count:', byRecipe.length);
     console.log('[shopping-list api] returning response');
 
-    res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount });
+    res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount,
+      optionalIngredients: [...optionalGroups.values()], dietaryNotes: [...dietaryNotes] });
   } catch (err) {
     // Database and internal error details stay in the server log.
     console.error('[shopping-list api] fatal error:', err);

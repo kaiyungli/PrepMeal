@@ -29,7 +29,7 @@ const recipeFormSource = fs.readFileSync(RECIPE_FORM_PATH, 'utf8');
 const adminListSource = fs.readFileSync(ADMIN_LIST_PATH, 'utf8');
 
 const CANONICAL_CONTRACT = {
-  CUISINES: ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion'],
+  CUISINES: ['chinese', 'western', 'japanese', 'korean', 'thai', 'fusion', 'vietnamese', 'filipino', 'mexican', 'spanish'],
   DISH_TYPES: ['main', 'side', 'soup', 'staple', 'snack'],
   DIFFICULTIES: ['easy', 'medium', 'hard'],
   METHODS: ['stir_fry', 'steamed', 'fried', 'braised', 'boiled', 'baked', 'no_cook'],
@@ -106,7 +106,7 @@ describe('display taxonomy: canonical order + non-empty labels', () => {
       expect(typeof PROTEIN_MAP[value]).toBe('string');
       expect(PROTEIN_MAP[value].trim()).not.toBe('');
     }
-    expect(PROTEIN_MAP.vegetarian).toBe('素食');
+    expect(PROTEIN_MAP.vegetarian).toBe('植物類');
   });
 
   it('no CUISINE_OPTIONS/DISH_TYPE_OPTIONS/PROTEIN_OPTIONS entry has an empty label', () => {

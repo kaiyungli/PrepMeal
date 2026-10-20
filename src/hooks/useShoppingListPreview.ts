@@ -9,12 +9,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
 
 interface PreviewPlanDay {
   items?: Array<{ recipeId?: string | number | null }>;
 }
 interface ShoppingPreviewResponse {
-  toBuy?: Array<{ items?: Array<{ name: string; quantity?: string | number | null; unit?: string | null }> }>;
+  toBuy?: Array<{ items?: Array<{ name: string; quantity?: string | number | null; unit?: string | null; unitDisplay?: string | null }> }>;
 }
 const EMPTY_PLAN: PreviewPlanDay[] = [];
 
@@ -33,7 +34,7 @@ function transformToPreview(apiResponse: ShoppingPreviewResponse | null): Array<
   return flatList.slice(0, 5).map(item => ({
     name: item.name,
     qty: item.quantity != null ? String(item.quantity) : '',
-    unit: item.unit || ''
+    unit: item.unitDisplay || item.unit || ''
   }));
 }
 
@@ -45,8 +46,14 @@ function transformToPreview(apiResponse: ShoppingPreviewResponse | null): Array<
  *   - enabled: if false, only stores plan but does NOT auto-fetch (lazy mode)
  * @returns {Object} - { previewList, isLoading, error, isAuthRequired, isInitialized, refresh }
  */
-export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN, options: { enabled?: boolean } = {}) {
+export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN, options: { enabled?: boolean; resetKey?: number } = {}) {
   const { user, getAccessToken } = useAuth();
+  const userId = user?.id;
+  const { selections } = useOptionalSelections(userId);
+  // Parent renders may rebuild the plan array without changing its meals.
+  // Only actual ingredient-request inputs should invalidate loaded results.
+  const planKey = JSON.stringify([selectionKey(selections), options.resetKey, weeklyPlan.flatMap(day => (day.items || [])
+    .flatMap(item => item.recipeId ? [String(item.recipeId)] : []))]);
   const { enabled = true } = options;
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +82,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
       requestIdRef.current += 1;
       inFlightRef.current = false;
     };
-  }, [weeklyPlan, user?.id]);
+  }, [planKey, userId]);
   
   // DoFetch - shared between auto-trigger and manual refresh
   const doFetch = useCallback(async () => {
@@ -102,7 +109,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
       return;
     }
     
-    if (!user?.id) {
+    if (!userId) {
       setPreviewList([]);
       setError(null);
       setIsLoading(false);
@@ -133,7 +140,8 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
         body: JSON.stringify({ 
           recipeIds,
           pantryIngredients: [],
-          servings: 1
+          servings: 1,
+          ...(Object.keys(scopeSelections(selections, recipeIds)).length ? { optionalSelections: scopeSelections(selections, recipeIds) } : {})
         })
       });
       
@@ -157,7 +165,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
         setIsLoading(false);
       }
     }
-  }, [user, getAccessToken]);
+  }, [userId, getAccessToken, selections]);
   
   // Manual refresh function (call when user opens shopping list)
   const refresh = useCallback(() => {
@@ -174,7 +182,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
     }, 400);
     
     return () => clearTimeout(timeoutId);
-  }, [enabled, weeklyPlan, doFetch]);
+  }, [enabled, planKey, doFetch]);
   
   return { previewList, isLoading, error, isAuthRequired, isInitialized, refresh };
 }

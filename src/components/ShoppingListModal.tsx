@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Modal from '@/components/ui/Modal';
+import OptionalIngredientChoices from '@/components/shopping/OptionalIngredientChoices';
 import type { ShoppingListViewModel, ShoppingListItemViewModel } from '@/features/shopping-list/types';
 import { CATEGORY_ICONS, CATEGORY_LABELS, SHOPPING_CATEGORY_ORDER } from '@/features/shopping-list/constants';
 
@@ -92,6 +93,8 @@ export default function ShoppingListModal({
         </button>
       </div>
 
+      <OptionalIngredientChoices groups={viewModel.optionalIngredients} />
+      {viewModel.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="text-[#AA7A50]">正在整理購物清單...</div>

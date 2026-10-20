@@ -7,7 +7,7 @@ interface Ingredient {
   name?: string;
   display_name?: string;
   quantity?: number;
-  unit?: string;
+  unit?: string | { code?: string; name?: string } | null;
 }
 
 interface Step {
@@ -25,8 +25,9 @@ interface RecipeData {
   cook_time_minutes?: number;
   total_time_minutes?: number;
   servings?: number;
+  base_servings?: number;
   ingredients?: Ingredient[];
-  steps?: Step[];
+  steps?: Array<string | Step>;
   calories_per_serving?: number;
   protein_g?: number;
   created_at?: string;
@@ -80,15 +81,16 @@ export function getRecipeStructuredData(recipe?: RecipeData) {
   }
 
   // Yield
-  if (recipe.servings) {
-    schema.recipeYield = recipe.servings.toString();
+  const servings = recipe.base_servings || recipe.servings;
+  if (servings) {
+    schema.recipeYield = servings.toString();
   }
 
   // Ingredients
   if (recipe.ingredients && recipe.ingredients.length > 0) {
     schema.recipeIngredient = recipe.ingredients.map((ing) => {
-      const qty = ing.quantity ? `${ing.quantity} ` : '';
-      const unit = ing.unit || '';
+      const qty = ing.quantity != null ? `${ing.quantity} ` : '';
+      const unit = typeof ing.unit === 'string' ? ing.unit : ing.unit?.name || ing.unit?.code || '';
       const name = ing.display_name || ing.name || '';
       return `${qty}${unit} ${name}`.trim();
     });
@@ -96,11 +98,11 @@ export function getRecipeStructuredData(recipe?: RecipeData) {
 
   // Instructions
   if (recipe.steps && recipe.steps.length > 0) {
-    schema.recipeInstructions = recipe.steps.map((step) => ({
+    schema.recipeInstructions = recipe.steps.map((step, index) => ({
       '@type': 'HowToStep',
-      text: step.text || '',
-      position: step.step_no?.toString() || '',
-    }));
+      text: typeof step === 'string' ? step : step.text || '',
+      position: typeof step === 'string' ? index + 1 : step.step_no || index + 1,
+    })).filter(step => step.text.trim());
   }
 
   // Nutrition
@@ -126,7 +128,7 @@ export function RecipeStructuredData({ recipe }: { recipe?: RecipeData }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, '\\u003c') }}
     />
   );
 }

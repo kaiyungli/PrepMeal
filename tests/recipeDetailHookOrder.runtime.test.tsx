@@ -26,6 +26,11 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('recipe detail content hook order and deferred rendering', () => {
+  it.each(['g', { code: 'g' }, { code: 'g', name: 'gram' }])('renders a meaningful localized unit for %j', unit => {
+    render(<RecipeDetailContent recipe={{ ...a, ingredients: [{ name: '食材', quantity: 0.15, unit }] }} />);
+    flushFrame();
+    expect(screen.getByText('0.15 克')).toBeTruthy();
+  });
   it('shows servings, estimate, sources and allergens in the shared detail content', () => {
     render(<RecipeDetailContent recipe={{ ...a, base_servings: 2, nutrition_is_estimate: true,
       nutrition_notes: ['品牌有所不同'], allergens: ['crustaceans', 'soy'], allergen_note: '請核對包裝',

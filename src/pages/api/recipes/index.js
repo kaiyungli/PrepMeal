@@ -82,8 +82,11 @@ function buildFilteredQuery(supabase, fields, params) {
 
   // Search - match name or description
   if (search && search.trim()) {
-    const searchTerm = `%${search.trim()}%`;
-    query = query.or(`name.ilike.${searchTerm},description.ilike.${searchTerm}`);
+    // Literal substring search: escape regex syntax, then quote the raw
+    // PostgREST value so commas/parentheses cannot become filter operators.
+    const literal = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const searchTerm = `"${literal.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    query = query.or(`name.imatch.${searchTerm},description.imatch.${searchTerm}`);
   }
 
   // Cuisine filter

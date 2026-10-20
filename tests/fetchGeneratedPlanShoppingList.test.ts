@@ -13,6 +13,32 @@ describe('fetchGeneratedPlanShoppingList auth boundary', () => {
     });
   });
 
+  it('does not reuse a cache entry for a different pantry whose joined text is identical', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({
+      pantry: [], toBuy: [], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 },
+    }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const options = { token: 'token', cacheScope: 'alice' };
+    const plan = { mon: [{ id: 'recipe-1' }] };
+    await fetchGeneratedPlanShoppingList(plan, ['pepper,salt'], 1, options);
+    await fetchGeneratedPlanShoppingList(plan, ['salt', 'pepper'], 1, options);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await fetchGeneratedPlanShoppingList(plan, ['pepper', 'salt'], 1, options);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('partitions persistent cache by explicit optional choices, including base-only, and ignores unrelated recipe choices', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ pantry: [], toBuy: [], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 0, sectionCount: 0 } }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const plan = { mon: [{ id: 'r1' }] }; const options = { token: 'test', cacheScope: 'alice' };
+    await fetchGeneratedPlanShoppingList(plan, [], 2, options);
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: ['shrimp'] } });
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: [], r2: ['beef'] } });
+    await fetchGeneratedPlanShoppingList(plan, [], 2, { ...options, optionalSelections: { r1: [] } });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(JSON.parse(fetchMock.mock.calls[2][1].body).optionalSelections).toEqual({ r1: [] });
+  });
+
   it('sends only the bearer token to the API and partitions cache by user', async () => {
     const fetchMock = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Pick<Response, 'ok' | 'json'>>>().mockResolvedValue({
       ok: true,

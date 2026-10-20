@@ -19,8 +19,9 @@ const R2 = '22222222-2222-4222-8222-222222222222';
 const PRIVATE = '33333333-3333-4333-8333-333333333333';
 
 type Row = {
+  is_optional?: boolean;
   quantity: unknown; recipe_id: string; ingredient_id: string | null;
-  ingredients: { id: string; name: string; shopping_category: string | null };
+  ingredients: { id: string; name: string; slug?: string; shopping_category: string | null };
   recipes: { id: string; name: string; base_servings?: number };
   units: { id: string; code: string; display_name_en: string; display_name_zh: string } | null;
 };
@@ -40,7 +41,7 @@ const row = (recipeId: string, ingredientId: string, name: string, quantity: unk
   units: unit ? UNITS[unit] : null,
 });
 
-function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, number> = {}) {
+function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, number> = {}, diets: Record<string, string[]> = {}) {
   const calls = { recipeIdsQueried: [] as string[][], ingredientIdsQueried: [] as string[][], preferenceUserIds: [] as string[] };
   return {
     calls,
@@ -55,14 +56,18 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, n
         if (table === 'recipes') {
           return { select: () => ({ in: (_c: string, ids: string[]) => ({ eq: async () => {
             calls.recipeIdsQueried.push(ids);
-            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id, base_servings: bases[id] })), error: null };
+            return { data: ids.filter((id) => publicIds.includes(id)).map((id) => ({ id, base_servings: bases[id], diet: diets[id] })), error: null };
           } }) }) };
         }
         if (table === 'recipe_ingredients') {
-          return { select: () => ({ in: async (_c: string, ids: string[]) => {
+          return { select: (columns: string) => {
+            // Enforce the real schema rather than silently accepting any query.
+            if (/(^|,)\s*optional\s*(,|$)/.test(columns)) throw new Error('column optional does not exist');
+            if (!/\bis_optional\b/.test(columns)) throw new Error('required is_optional column missing');
+            return { in: async (_c: string, ids: string[]) => {
             calls.ingredientIdsQueried.push(ids);
             return { data: rows.filter((r) => ids.includes(r.recipe_id)), error: null };
-          } }) };
+          } }; } };
         }
         throw new Error(`Unexpected table: ${table}`);
       },
@@ -70,8 +75,8 @@ function fakeDatabase(rows: Row[], publicIds = [R1, R2], bases: Record<string, n
   };
 }
 
-async function post(body: Record<string, unknown>, rows: Row[], publicIds?: string[]) {
-  const db = fakeDatabase(rows, publicIds);
+async function post(body: Record<string, unknown>, rows: Row[], publicIds?: string[], diets?: Record<string, string[]>) {
+  const db = fakeDatabase(rows, publicIds, {}, diets);
   createClientMock.mockReturnValue(db.client);
   const res = { statusCode: 200, body: undefined as unknown,
     status(code: number) { this.statusCode = code; return this; },
@@ -93,6 +98,48 @@ beforeEach(() => {
 });
 
 describe('/api/shopping-list aggregation', () => {
+  it('applies explicit optional choices without removing required ingredients and retains choices after deselection', async () => {
+    const required = row(R1, 'chicken', '雞肉', 250, 'g');
+    const beef = { ...row(R1, 'beef', '牛肉', 250, 'g'), is_optional: true };
+    const shrimp = { ...row(R1, 'shrimp', '蝦', 250, 'g'), is_optional: true };
+    const selected = await post({ recipeIds: [R1, R1], servings: 2, optionalSelections: { [R1]: ['beef'] } }, [required, beef, shrimp]);
+    expect(selected.items.map(line).sort()).toEqual(['beef:1000:g', 'chicken:1000:g']);
+    expect(selected.response.optionalIngredients?.[0].ingredients.map(item => item.name)).toEqual(['牛肉', '蝦']);
+    const base = await post({ recipeIds: [R1], servings: 1, optionalSelections: { [R1]: [] } }, [required, beef, shrimp]);
+    expect(base.items.map(line)).toEqual(['chicken:250:g']);
+    expect(base.response.optionalIngredients?.[0].ingredients).toHaveLength(2);
+    const other = await post({ recipeIds: [R1], optionalSelections: { [R2]: [] } }, [required, beef, shrimp]);
+    expect(other.items).toHaveLength(3);
+  });
+
+  it.each([null, [], { x: 'beef' }, { x: [1] }])('rejects malformed optional selections: %j', async optionalSelections => {
+    expect((await post({ recipeIds: [R1], optionalSelections }, [])).status).toBe(400);
+  });
+
+  it('requires a vegetarian-labelled composite product and does not expose animal add-ons as choices', async () => {
+    const kimchi = row(R1, 'kimchi', '泡菜', 80, 'g'); kimchi.ingredients.slug = 'kimchi';
+    const chicken = { ...row(R1, 'chicken', '雞肉', 80, 'g'), is_optional: true };
+    chicken.ingredients.slug = 'chicken';
+    const result = await post({ recipeIds: [R1] }, [kimchi, chicken], undefined, { [R1]: ['vegetarian'] });
+    expect(result.response.dietaryNotes?.join('')).toContain('泡菜須選包裝標明適合素食');
+    expect(result.response.optionalIngredients).toEqual([]);
+  });
+
+  it('uses the vegetarian base without animal add-ons, preserving dairy, plant add-ons and required rows', async () => {
+    const chicken = row(R1, 'chicken', '熟去皮雞肉', 80, 'g');
+    chicken.is_optional = true; chicken.ingredients.slug = 'cooked-skinless-chicken';
+    const shrimp = { ...row(R1, 'shrimp', '蝦', 100, 'g'), is_optional: true };
+    const butter = { ...row(R1, 'butter', '牛油', 10, 'g'), is_optional: true };
+    const tofu = { ...row(R1, 'tofu', '豆腐', 50, 'g'), is_optional: true };
+    const required = row(R2, 'shrimp', '蝦', 30, 'g');
+    const { items, response } = await post({ recipeIds: [R1, R2], servings: 1 },
+      [chicken, shrimp, butter, tofu, required], undefined, { [R1]: ['vegetarian', 'egg_lacto'] });
+    expect(items.map(line).sort()).toEqual(['butter:10:g', 'shrimp:30:g', 'tofu:50:g']);
+    expect(JSON.stringify(response.byRecipe)).not.toContain('熟去皮雞肉');
+    expect(response.byRecipe.find(group => group.recipeId === R1)?.toBuy.map(item => item.name)).not.toContain('蝦');
+    const ordinary = await post({ recipeIds: [R1], servings: 1 }, [chicken, shrimp]);
+    expect(ordinary.items).toHaveLength(2);
+  });
   it('sums the same ingredient in the same (normalized) unit across recipes', async () => {
     const { items } = await post({ recipeIds: [R1, R2], servings: 1 }, [
       row(R1, 'beef', '牛肉', 100, 'g'), row(R2, 'beef', '牛肉', 50, 'gram'),

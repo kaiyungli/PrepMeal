@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import { formatUnit, formatQuantity } from '@/lib/formatters';
-import { CATEGORY_ORDER, CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/constants/shoppingCategories';
+import { CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/features/shopping-list/constants';
+import OptionalIngredientChoices from './OptionalIngredientChoices';
 
 /**
  * ShoppingListDrawer - Reusable drawer/modal for shopping list
@@ -173,6 +174,8 @@ export default function ShoppingListDrawer({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
+          <OptionalIngredientChoices groups={shoppingList?.optionalIngredients} />
+          {shoppingList?.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
           {loading && <p className="text-center py-8 text-[var(--color-text-muted)]">載入中...</p>}
           {!loading && error && (
             <div className="text-center py-8">

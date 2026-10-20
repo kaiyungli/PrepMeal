@@ -96,7 +96,7 @@ function err(body: unknown): string {
 
 describe('adminRecipeAtomicParams: enum sets match the post-migration CHECK contract', () => {
   it('are the exact intended allow-lists after no_cook migration (order-independent)', () => {
-    expect([...CUISINES].sort()).toEqual(['chinese', 'fusion', 'japanese', 'korean', 'thai', 'western']);
+    expect([...CUISINES].sort()).toEqual(['chinese', 'filipino', 'fusion', 'japanese', 'korean', 'mexican', 'spanish', 'thai', 'vietnamese', 'western']);
     expect([...DISH_TYPES].sort()).toEqual(['main', 'side', 'snack', 'soup', 'staple']);
     expect([...DIFFICULTIES].sort()).toEqual(['easy', 'hard', 'medium']);
     expect([...METHODS].sort()).toEqual(['baked', 'boiled', 'braised', 'fried', 'no_cook', 'steamed', 'stir_fry']);

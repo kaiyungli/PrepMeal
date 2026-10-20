@@ -62,7 +62,15 @@ export interface ShoppingListRecipeGroup {
   }[];
 }
 
+export interface OptionalIngredientGroup {
+  recipeId: string;
+  recipeName: string;
+  ingredients: Array<{ ingredientId: string; name: string }>;
+}
+
 export interface ShoppingListResponse {
+  optionalIngredients?: OptionalIngredientGroup[];
+  dietaryNotes?: string[];
   pantry: ShoppingListPantryItem[];
   toBuy: ShoppingListSection[];
   byRecipe: ShoppingListRecipeGroup[];
@@ -95,6 +103,8 @@ export interface ShoppingListRecipeGroupViewModel {
 }
 
 export interface ShoppingListViewModel {
+  optionalIngredients?: OptionalIngredientGroup[];
+  dietaryNotes?: string[];
   pantry: ShoppingListPantryItem[];
   sections: ShoppingListSectionViewModel[];
   byRecipe: ShoppingListRecipeGroupViewModel[];

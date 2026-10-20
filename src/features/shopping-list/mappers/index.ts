@@ -118,6 +118,8 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
     : [];
 
   return {
+    optionalIngredients: Array.isArray(response?.optionalIngredients) ? response.optionalIngredients : [],
+    dietaryNotes: Array.isArray(response?.dietaryNotes) ? response.dietaryNotes : [],
     pantry,
     sections,
     byRecipe,
