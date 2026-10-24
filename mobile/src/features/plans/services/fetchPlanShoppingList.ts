@@ -1,48 +1,12 @@
 /**
- * Plan shopping-list read service (mobile, Slice 4C). Read-only.
+ * Owned-plan shopping-list reader. The RPC scales every meal occurrence by
+ * its own servings / recipe base servings, and includes public recipes and
+ * required ingredients only. Mobile has no optional-ingredient selector.
  *
- * Single authoritative source: the `public.get_menu_plan_shopping_list_json(
- * p_plan_id uuid)` RPC. The earliest definition retained in this repository
- * is `docs/database/legacy-migrations-untracked/012_get_menu_plan_shopping_list_json.sql`
- * -- that file was never recorded in the linked project's migration
- * history. The current live body is defined by the active,
- * already-applied
- * `supabase/migrations/20260915053240_unit_safe_shopping_list_aggregation.sql`.
- * One authenticated round trip returns the aggregated "to buy" lines for a
- * saved plan the caller owns.
- *
- * ACCESS MODEL: the shared authenticated Supabase singleton -- NO service-role
- * key. The RPC is `SECURITY DEFINER` and enforces ownership itself
- * (`menu_plans.id = p_plan_id AND menu_plans.user_id = auth.uid()`), so:
- *
- *   - a plan owned by another user, AND a plan id that does not exist, BOTH
- *     resolve to SQL NULL -- indistinguishable. Both surface here as
- *     `PlanShoppingListNotFoundError`, and the screen renders ONE neutral
- *     "not found" state for either, exactly as `fetchPlanDetail` /
- *     `usePlanDetail` already do. The client never learns whether an id
- *     belongs to someone else.
- *   - a plan the caller DOES own always returns `{ "items": [...] }`, possibly
- *     with an empty array (no items, or items whose recipes carry no
- *     ingredient rows) -> `{ categories: [], itemCount: 0 }` -> the screen's
- *     "nothing to buy" empty state, which is distinct from "not found".
- *
- * WHY THIS RPC AND NOT `get_recipe_list_with_detail_json`: that function ships
- * all ~200 public recipes with full detail (description / method / every
- * step's text) and is capped at 200 rows / `is_public = true`, so a saved
- * plan referencing an older or since-unpublished recipe would silently lose
- * items. This plan-scoped RPC returns only the six shopping-list fields per
- * ingredient line, for exactly the recipes this owned plan references, with
- * no cap. See the migration header for the full rationale.
- *
- * AGGREGATION (sum by ingredient, servings scaling, distinct-recipe handling)
- * happens in SQL and mirrors `src/pages/api/shopping-list.ts`. Category and
- * unit/quantity NORMALISATION is pure and lives in
- * `../lib/shoppingListModel.ts`, ported verbatim from the web -- this file is
- * the thin real-network wiring around it and, like `fetchPlanDetail.ts`, has
- * a real `@/lib/supabase` import so it is never loaded by `node --test`.
- *
- * Presentation components must not import the Supabase client -- they go
- * through `usePlanShoppingList`.
+ * Database contract: supabase/migrations/20261024210700_correct_plan_shopping_quantities.sql.
+ * The shared authenticated client calls the ownership-gated RPC without a
+ * service-role key. NULL means unknown or unowned; {items: []} means an empty
+ * owned plan. Category and display formatting live in shoppingListModel.ts.
  */
 import { getSupabaseClient } from '@/lib/supabase';
 
