@@ -337,9 +337,9 @@ export default async function handler(
         });
         const choices = optionalGroups.get(recipeId)!.ingredients;
         if (!choices.some(item => item.ingredientId === ri.ingredient_id)) choices.push({ ingredientId: ri.ingredient_id, name: ing.name });
-        // An absent key preserves legacy behavior. [] is an explicit base-only choice.
+        // Optional ingredients require an explicit selection, including on first load.
         // Required ingredients can never be removed through this input.
-        if (optionalSelections.has(recipeId) && !optionalSelections.get(recipeId)!.has(canonicalRecipeId(ri.ingredient_id))) continue;
+        if (!optionalSelections.get(recipeId)?.has(canonicalRecipeId(ri.ingredient_id))) continue;
       }
 
       const occurrences = visibleOccurrences.get(canonicalRecipeId(String(ri.recipe_id)));

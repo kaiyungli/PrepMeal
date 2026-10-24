@@ -29,12 +29,12 @@ it('shares explicit choices across mounted consumers, reloads from storage, and 
   switching.rerender({ user: 'choice-B' }); expect(switching.result.current.selections).toEqual({});
 });
 
-it('requires an explicit UI action before excluding optional ingredients', () => {
+it('starts with base ingredients and requires an explicit choice to add an optional ingredient', () => {
   render(createElement(OptionalIngredientChoices, { groups }));
   const shrimp = screen.getByRole('checkbox', { name: '蝦' }) as HTMLInputElement;
-  expect(shrimp.checked).toBe(true);
+  expect(shrimp.checked).toBe(false);
   fireEvent.click(shrimp);
-  expect(JSON.parse(localStorage.getItem('optional-shopping-v1:choice-A')!).r1).toEqual(['beef']);
+  expect(JSON.parse(localStorage.getItem('optional-shopping-v1:choice-A')!).r1).toEqual(['shrimp']);
   fireEvent.click(screen.getByRole('button', { name: '只用基本材料' }));
   expect(JSON.parse(localStorage.getItem('optional-shopping-v1:choice-A')!).r1).toEqual([]);
   expect((screen.getByRole('checkbox', { name: '牛肉' }) as HTMLInputElement).checked).toBe(false);

@@ -109,7 +109,10 @@ describe('/api/shopping-list aggregation', () => {
     expect(base.items.map(line)).toEqual(['chicken:250:g']);
     expect(base.response.optionalIngredients?.[0].ingredients).toHaveLength(2);
     const other = await post({ recipeIds: [R1], optionalSelections: { [R2]: [] } }, [required, beef, shrimp]);
-    expect(other.items).toHaveLength(3);
+    expect(other.items.map(line)).toEqual(['chicken:250:g']);
+    const unset = await post({ recipeIds: [R1] }, [required, beef, shrimp]);
+    expect(unset.items.map(line)).toEqual(['chicken:250:g']);
+    expect(unset.response.optionalIngredients?.[0].ingredients).toHaveLength(2);
   });
 
   it.each([null, [], { x: 'beef' }, { x: [1] }])('rejects malformed optional selections: %j', async optionalSelections => {
@@ -134,11 +137,14 @@ describe('/api/shopping-list aggregation', () => {
     const required = row(R2, 'shrimp', '蝦', 30, 'g');
     const { items, response } = await post({ recipeIds: [R1, R2], servings: 1 },
       [chicken, shrimp, butter, tofu, required], undefined, { [R1]: ['vegetarian', 'egg_lacto'] });
-    expect(items.map(line).sort()).toEqual(['butter:10:g', 'shrimp:30:g', 'tofu:50:g']);
+    expect(items.map(line).sort()).toEqual(['shrimp:30:g']);
     expect(JSON.stringify(response.byRecipe)).not.toContain('熟去皮雞肉');
-    expect(response.byRecipe.find(group => group.recipeId === R1)?.toBuy.map(item => item.name)).not.toContain('蝦');
+    expect(response.byRecipe.find(group => group.recipeId === R1)?.toBuy.map(item => item.name) ?? []).not.toContain('蝦');
+    const chosen = await post({ recipeIds: [R1], optionalSelections: { [R1]: ['butter', 'tofu', 'chicken'] } },
+      [chicken, shrimp, butter, tofu], undefined, { [R1]: ['vegetarian', 'egg_lacto'] });
+    expect(chosen.items.map(line).sort()).toEqual(['butter:10:g', 'tofu:50:g']);
     const ordinary = await post({ recipeIds: [R1], servings: 1 }, [chicken, shrimp]);
-    expect(ordinary.items).toHaveLength(2);
+    expect(ordinary.items).toHaveLength(0);
   });
   it('sums the same ingredient in the same (normalized) unit across recipes', async () => {
     const { items } = await post({ recipeIds: [R1, R2], servings: 1 }, [
