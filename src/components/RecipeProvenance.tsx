@@ -9,8 +9,13 @@ const ALLERGEN_LABELS: Record<string, string> = {
 export default function RecipeProvenance({ recipe }: { recipe: Partial<Provenance> }) {
   const source = recipe.source_attribution;
   const allergens = [...new Set((recipe.allergens || []).map(value => ALLERGEN_LABELS[value] || value))];
-  if (!source && !allergens.length && !recipe.allergen_note) return null;
+  const qualityNotes = recipe.data_quality_notes || [];
+  if (!source && !allergens.length && !recipe.allergen_note && !qualityNotes.length) return null;
   return <section className="rounded-2xl p-6 border-2 mb-6" style={{ backgroundColor: '#FEFCF8', borderColor: '#DDD0B0', color: '#5A4030' }}>
+    {qualityNotes.length > 0 && <div className="mb-4">
+      <h3 className="text-lg font-bold mb-3">資料核對</h3>
+      <ul className="space-y-2 text-sm">{qualityNotes.map((note, index) => <li key={index}>{note}</li>)}</ul>
+    </div>}
     {source && <div>
       <h3 className="text-lg font-bold mb-3">食譜來源</h3>
       <p>{source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">{source.website || '原食譜'}</a> : source.website}</p>

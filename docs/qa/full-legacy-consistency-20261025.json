@@ -1,0 +1,3533 @@
+[
+  {
+    "slug": "garlic-butter-shrimp-pasta",
+    "name": "蒜香牛油蝦意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-butter-shrimp-pasta",
+        "step": 2,
+        "old": "蒜頭切蓉，車厘茄切半。",
+        "text": "蒜頭切蓉；如選用車厘茄，洗淨切半。"
+      },
+      {
+        "slug": "garlic-butter-shrimp-pasta",
+        "step": 4,
+        "old": "原鍋加入蒜蓉炒香，再加入車厘茄略炒 1 分鐘。",
+        "text": "原鍋加入蒜蓉炒香；如選用車厘茄，加入略炒1分鐘。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cucumber-vermicelli-salad",
+    "name": "涼拌青瓜粉絲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cucumber-vermicelli-salad",
+        "step": 3,
+        "old": "碗中加入生抽約 8 克、醋或檸檬汁 1 茶匙、糖半茶匙和麻油少許。",
+        "text": "碗中加入生抽1湯匙、醋1茶匙、糖半茶匙和麻油半茶匙，拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "baked-pork-chop-rice",
+    "name": "焗豬扒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cream-chicken-pasta",
+    "name": "白汁雞肉意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cream-chicken-pasta",
+        "step": 3,
+        "old": "平底鑊加少量油，中火將雞肉煎至八成熟，先盛起。",
+        "text": "平底鑊加入一半牛油，中火將雞肉煎至八成熟，先盛起。"
+      },
+      {
+        "slug": "cream-chicken-pasta",
+        "step": 4,
+        "old": "同一個鑊加入牛油，炒香蒜蓉和蘑菇 2 至 3 分鐘。",
+        "text": "同一個鑊加入餘下牛油，炒香蒜蓉和蘑菇2至3分鐘。"
+      },
+      {
+        "slug": "cream-chicken-pasta",
+        "step": 5,
+        "old": "加入忌廉或牛奶，小火煮滾後放回雞肉。",
+        "text": "加入忌廉80毫升，小火煮至微滾，再放回雞肉。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "minced-pork-with-green-beans",
+    "name": "豆角炒肉碎",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "材料表缺免治豬肉用量；做法另用料酒、白胡椒、生抽及食油，未列份量。主材料未齊，暫勿依本表採購或計算營養。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "butter-mushroom-pasta",
+    "name": "牛油蘑菇意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-beef-bolognese-pasta",
+    "name": "番茄肉醬意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-beef-bolognese-pasta",
+        "step": 4,
+        "old": "加入少許鹽、黑胡椒和糖，中小火煮 8 至 10 分鐘，令肉醬稍微收濃。",
+        "text": "加入材料表所列的鹽和黑胡椒；糖為選配，按需要加入。中小火煮8至10分鐘，令肉醬稍微收濃。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "enoki-tofu-pot",
+    "name": "金針菇豆腐煲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法仍提及材料表未列的食油；用量及營養待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-green-curry-chicken",
+    "name": "青咖哩雞",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-green-curry-chicken",
+        "step": 5,
+        "old": "加入魚露約 1 湯匙和糖半至 1 茶匙調味。",
+        "text": "加入魚露1湯匙和糖1茶匙，拌勻調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "poached-baby-napa",
+    "name": "上湯娃娃菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "poached-baby-napa",
+        "step": 2,
+        "old": "鍋中加入高湯或雞湯約 100 至 150 毫升，煮滾。",
+        "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "poached-spinach-broth",
+    "name": "上湯浸菠菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "poached-spinach-broth",
+        "step": 1,
+        "old": "菠菜洗淨，切去較硬根部，瀝乾備用。",
+        "text": "菠菜洗淨，切去較硬根部，瀝乾；蒜頭切碎。"
+      },
+      {
+        "slug": "poached-spinach-broth",
+        "step": 2,
+        "old": "鍋中加入高湯或雞湯約 100 至 150 毫升，煮滾。",
+        "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "dry-fried-green-beans",
+    "name": "乾煸四季豆",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "dry-fried-green-beans",
+        "step": 2,
+        "old": "鑊中加入 1 湯匙食油，中火加熱。",
+        "text": "鑊中加入半湯匙食油，中火加熱。"
+      },
+      {
+        "slug": "dry-fried-green-beans",
+        "step": 5,
+        "old": "加入鹽少許和生抽約 1 茶匙調味。",
+        "text": "加入鹽1/8茶匙調味；如選用生抽，加入半茶匙拌勻。"
+      }
+    ],
+    "pending": [
+      "蒜頭記錄為6瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "sweet-and-sour-pork",
+    "name": "咕嚕肉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "kung-pao-chicken",
+    "name": "宮保雞丁",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法仍提及材料表未列的生粉、食油、清水及乾辣椒；醬料總量及菜式版本待核。",
+      "蒜頭記錄為5瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "egg-fried-rice",
+    "name": "蛋炒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "egg-fried-rice",
+        "step": 1,
+        "old": "雞蛋打散，蔥切粒，白飯預先撥鬆。",
+        "text": "雞蛋打散，白飯預先撥鬆；如選用蔥，切粒備用。"
+      },
+      {
+        "slug": "egg-fried-rice",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火倒入蛋液炒至半熟。",
+        "text": "鑊中加入半湯匙食油，中火倒入蛋液炒至半熟。"
+      },
+      {
+        "slug": "egg-fried-rice",
+        "step": 4,
+        "old": "加入鹽少許，如喜歡可加生抽約 1 茶匙。",
+        "text": "加入鹽1/8茶匙；如選用生抽，加入半茶匙調味。"
+      },
+      {
+        "slug": "egg-fried-rice",
+        "step": 5,
+        "old": "加入蔥粒炒勻。",
+        "text": "如選用蔥粒，加入炒勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shanghai-stir-fried-rice-cakes",
+    "name": "上海炒年糕",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "shanghai-stir-fried-rice-cakes",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火炒香豬肉碎。",
+        "text": "鑊中加入半湯匙食油，中火炒香豬肉碎。"
+      },
+      {
+        "slug": "shanghai-stir-fried-rice-cakes",
+        "step": 4,
+        "old": "加入年糕、生抽約 1 茶匙、老抽少許和 2 湯匙水。",
+        "text": "加入年糕和生抽1茶匙；老抽為選配，按需要加入。若選用清水，可按需要分次加入，最多40毫升。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "vegetable-udon",
+    "name": "雜菜炒烏冬",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "vegetable-udon",
+        "step": 2,
+        "old": "碗中先拌好生抽 1 湯匙、老抽半茶匙和 2 湯匙水。",
+        "text": "碗中拌勻生抽1湯匙、老抽1茶匙和水30毫升。"
+      },
+      {
+        "slug": "vegetable-udon",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火炒香洋蔥和甘筍。",
+        "text": "鑊中加入2茶匙食油，中火炒香洋蔥和甘筍。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pesto-vegetable-pasta",
+    "name": "青醬雜菜意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pesto-vegetable-pasta",
+        "step": 5,
+        "old": "加入意粉、青醬約 1 湯匙和少量煮麵水拌勻。",
+        "text": "加入意粉、青醬2湯匙和少量煮麵水拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-tomato-xhs",
+    "name": "涼拌番茄",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cold-tomato-xhs",
+        "step": 2,
+        "old": "將番茄放入碗中，加入糖約 5 克和鹽約 1 克。",
+        "text": "將番茄放入碗中，加入糖1茶匙和鹽1克。"
+      },
+      {
+        "slug": "cold-tomato-xhs",
+        "step": 6,
+        "old": "上碟前試味，如番茄較酸可再加少量糖；如味道太淡可加極少量鹽。",
+        "text": "上碟前試味；如選用檸檬汁或麻油，可按材料表所列份量加入拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "crab-stick-egg-tofu",
+    "name": "蟹柳滑蛋豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "crab-stick-egg-tofu",
+        "step": 6,
+        "old": "灑上蔥花，蛋剛熟仍滑嫩時即可。",
+        "text": "輕輕推至蛋液凝固熟透，即可上碟。"
+      }
+    ],
+    "pending": [
+      "做法以少量清水煮豆腐，材料表未列處理用水量；鹽及生抽的使用方式待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "teriyaki-salmon",
+    "name": "照燒三文魚",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "teriyaki-salmon",
+        "step": 1,
+        "old": "三文魚用廚紙抹乾，兩面灑少量鹽和黑椒，靜置 5 分鐘。",
+        "text": "三文魚用廚紙抹乾，兩面灑上材料表所列的黑胡椒，靜置5分鐘。"
+      },
+      {
+        "slug": "teriyaki-salmon",
+        "step": 4,
+        "old": "加入照燒汁約 1 湯匙和 1 湯匙水，轉中小火。",
+        "text": "加入照燒汁2湯匙和水1湯匙，轉中小火。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "butter-shrimp",
+    "name": "牛油煎蝦",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "stir-fried-zucchini",
+    "name": "清炒節瓜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "stir-fried-zucchini",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油6克，中火爆香蒜蓉。"
+      },
+      {
+        "slug": "stir-fried-zucchini",
+        "step": 4,
+        "old": "加入 1 至 2 湯匙水，加蓋煮 2 分鐘幫助節瓜變軟。",
+        "text": "加入水1湯匙，加蓋煮2分鐘，幫助節瓜變軟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-egg-soup-xhs",
+    "name": "番茄蛋花湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "black-bean-steamed-fish-fillet",
+    "name": "豉汁蒸魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "black-bean-steamed-fish-fillet",
+        "step": 6,
+        "old": "如喜歡香口，可另燒少量熱油淋面即可。",
+        "text": "灑上材料表所列的蔥花，即可上碟。"
+      },
+      {
+        "slug": "black-bean-steamed-fish-fillet",
+        "step": 2,
+        "old": "將魚柳放上碟，加入蒜蓉、薑片、豆豉、生抽約 1 茶匙和糖少許。",
+        "text": "將魚柳放上碟，加入蒜蓉、薑片及豆豉，輕輕鋪勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "white-sauce-seafood-rice",
+    "name": "白汁海鮮飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tuna-corn-baked-potato",
+    "name": "吞拿魚粟米焗薯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "chicken-salad",
+    "name": "雞胸沙律",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pork-cabbage-stir-fry",
+    "name": "豬肉炒椰菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "korean-spicy-chicken",
+    "name": "韓式辣炒雞",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "korean-spicy-chicken",
+        "step": 1,
+        "old": "雞件用廚紙抹乾，加入韓式辣醬、生抽 1 茶匙、糖半茶匙和蒜蓉拌勻。",
+        "text": "雞件用廚紙抹乾，加入韓式辣醬、生抽1茶匙、糖1茶匙和蒜蓉拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-pork-cubes",
+    "name": "蒜香豬扒粒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-tofu",
+    "name": "番茄豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-tofu",
+        "step": 4,
+        "old": "加入豆腐、生抽約 1 茶匙、糖半茶匙和少量水。",
+        "text": "加入豆腐、生抽1茶匙及糖1茶匙，輕手推勻；如太乾，可逐少加入清水。"
+      },
+      {
+        "slug": "tomato-tofu",
+        "step": 6,
+        "old": "試味後按需要加少量鹽，汁微稠即可上碟。",
+        "text": "試味，煮至汁微稠、豆腐熟透即可上碟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cream-of-mushroom-soup",
+    "name": "忌廉蘑菇湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "teriyaki-chicken-thigh",
+    "name": "照燒雞扒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "teriyaki-chicken-thigh",
+        "step": 4,
+        "old": "加入照燒汁約 1 至 1.5 湯匙和 1 湯匙水，轉中小火。",
+        "text": "加入照燒汁2湯匙和水1湯匙，轉中小火。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-tofu-rice",
+    "name": "番茄豆腐燴飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-tofu-rice",
+        "step": 4,
+        "old": "加入嫩豆腐、生抽約 1 茶匙和 2 湯匙清水，輕手推勻。",
+        "text": "加入嫩豆腐、生抽1湯匙和清水80毫升，輕手推勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "poached-shrimp",
+    "name": "白灼蝦",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "beef-onion-stir-fry",
+    "name": "牛肉炒洋蔥",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "dried-vegetable-pork-bone-soup",
+    "name": "菜乾豬骨湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "dried-vegetable-pork-bone-soup",
+        "step": 3,
+        "old": "湯鍋加入菜乾、豬骨和清水約 600 至 700 毫升。",
+        "text": "湯鍋加入菜乾、豬骨、薑片和清水1000毫升。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "watercress-preserved-duck-gizzard-soup",
+    "name": "西洋菜陳腎湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "watercress-preserved-duck-gizzard-soup",
+        "step": 3,
+        "old": "湯鍋加入豬骨、陳腎、薑片和清水約 700 毫升。",
+        "text": "湯鍋加入豬骨、陳腎、薑片和清水1000毫升。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "curry-chicken",
+    "name": "咖哩雞",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "curry-chicken",
+        "step": 6,
+        "old": "最後按口味加鹽調整即可。",
+        "text": "試味後如選用鹽，可按需要加入最多1/8茶匙調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "winter-melon-dried-shrimp-soup-xhs",
+    "name": "冬瓜蝦米湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pumpkin-soup",
+    "name": "南瓜濃湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "oyster-lettuce-xhs",
+    "name": "蠔油生菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "oyster-lettuce-xhs",
+        "step": 2,
+        "old": "蒜頭切碎，準備蠔油約 1 湯匙。",
+        "text": "蒜頭切碎，準備蠔油10克。"
+      },
+      {
+        "slug": "oyster-lettuce-xhs",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油8克，中火爆香蒜蓉。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "celery-lily-stir-fry",
+    "name": "清炒西芹百合",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "celery-lily-stir-fry",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火加熱。",
+        "text": "鑊中加入食油1茶匙及切碎的蒜頭，中火炒香。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "oyakodon",
+    "name": "日式親子丼",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "oyster-broccoli",
+    "name": "蠔油西蘭花",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "creamy-mushroom-chicken-pasta",
+    "name": "白汁蘑菇雞扒意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "creamy-mushroom-chicken-pasta",
+        "step": 6,
+        "old": "最後拌入或灑上巴馬臣芝士即可。",
+        "text": "如選用巴馬臣芝士，可按材料表所列份量拌入或灑在表面。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "honey-chicken-wings",
+    "name": "蜜糖雞翼",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "white-radish-beef-soup-xhs",
+    "name": "白蘿蔔牛肉湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "seaweed-egg-drop-soup-xhs",
+    "name": "紫菜蛋花湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "corn-egg-drop-soup-xhs",
+    "name": "粟米蛋花湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-red-curry-chicken",
+    "name": "紅咖哩雞",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-red-curry-chicken",
+        "step": 5,
+        "old": "加入魚露約 1 湯匙和糖半至 1 茶匙調味。",
+        "text": "加入魚露1湯匙和糖1茶匙，拌勻調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-pad-see-ew-chicken",
+    "name": "泰式炒河粉（雞肉）",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-pad-see-ew-chicken",
+        "step": 2,
+        "old": "雞肉可用生抽 1 茶匙略醃 5 分鐘。",
+        "text": "雞肉可用材料表生抽的1/3份量略醃5分鐘，餘下留作炒河粉。"
+      },
+      {
+        "slug": "thai-pad-see-ew-chicken",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火炒雞肉至八成熟，先盛起。",
+        "text": "鑊中加入一半食油，先把打散的雞蛋炒至凝固後盛起；再加入雞肉炒至接近熟透，先盛起。"
+      },
+      {
+        "slug": "thai-pad-see-ew-chicken",
+        "step": 4,
+        "old": "同鑊加入洋蔥炒 1 分鐘，再加入河粉。",
+        "text": "同鑊加入餘下食油及洋蔥，炒1分鐘後加入河粉。"
+      },
+      {
+        "slug": "thai-pad-see-ew-chicken",
+        "step": 5,
+        "old": "加入生抽 1 湯匙和老抽 1 茶匙，快速炒勻上色。",
+        "text": "加入餘下生抽和老抽1茶匙，快速炒勻上色。"
+      },
+      {
+        "slug": "thai-pad-see-ew-chicken",
+        "step": 6,
+        "old": "放回雞肉，炒至雞肉熟透、河粉乾身即可。",
+        "text": "放回雞肉及炒蛋，炒至雞肉全熟、河粉熱透即可。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-pineapple-fried-rice",
+    "name": "泰式菠蘿炒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-pineapple-fried-rice",
+        "step": 1,
+        "old": "雞肉切粒，菠蘿切件，白飯預先撥鬆。",
+        "text": "雞肉切粒，菠蘿切件，雞蛋打散，白飯預先撥鬆。"
+      },
+      {
+        "slug": "thai-pineapple-fried-rice",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火炒雞肉至轉色。",
+        "text": "鑊中加入食油1茶匙，先炒蛋至凝固後盛起，再加入雞肉炒至熟透。"
+      },
+      {
+        "slug": "thai-pineapple-fried-rice",
+        "step": 6,
+        "old": "炒至香氣出來、飯粒均勻上味即可。",
+        "text": "放回炒蛋，炒至飯粒均勻上味，確認雞肉熟透即可。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "fuzzy-melon-salted-egg-soup-xhs",
+    "name": "節瓜鹹蛋湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "borscht-style-beef-vegetable-soup",
+    "name": "羅宋湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "borscht-style-beef-vegetable-soup",
+        "step": 4,
+        "old": "加入椰菜、薯仔、甘筍、西芹、月桂葉和清水約 500 毫升。",
+        "text": "加入椰菜、薯仔、甘筍、西芹、月桂葉和清水900毫升。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-steamed-shrimp",
+    "name": "蒜蓉蒸蝦",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-steamed-shrimp",
+        "step": 2,
+        "old": "蒜頭切碎，加入生抽約 1 茶匙和少量食油拌勻。",
+        "text": "蒜頭切碎，加入生抽1茶匙；如選用食油，可取部分拌勻，餘下留作淋面。"
+      },
+      {
+        "slug": "garlic-steamed-shrimp",
+        "step": 6,
+        "old": "可淋少許熱油並灑上蔥花，即可食用。",
+        "text": "如選用食油，可將留起的部分加熱後淋面；如選用蔥花，灑上即可。"
+      }
+    ],
+    "pending": [
+      "蒜頭記錄為10瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-cucumber-salad",
+    "name": "涼拌青瓜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "author": "Judy",
+        "status": "comparison_reference_only_original_unverified",
+        "findings": [
+          "材料檸檬汁15毫升與步驟1茶匙不一致；步驟改按15毫升，不再列未入材料表的醋。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "拍瓜拌蒜及豉油麻油的技法相近；參考用米醋及另有配料，本版用檸檬汁，比例不同。",
+        "reference_url": "https://thewoksoflife.com/smashed-asian-cucumber-salad/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "steamed-egg",
+    "name": "蒸水蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "水量已按材料表對齊120毫升，但一隻蛋的實際蛋液體積、蛋水比例及蒸製時間仍需試煮確認。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "author": "Judy",
+        "status": "comparison_reference_only_original_unverified",
+        "findings": [
+          "水120毫升與步驟蛋液1.5倍不一致；步驟改按材料表120毫升。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "過篩及蒸製技法相近；參考使用清水加高湯，蒸焗時間亦不同，不能作本版用量或營養依據。",
+        "reference_url": "https://thewoksoflife.com/steamed-egg/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "tomato-scrambled-egg",
+    "name": "蕃茄炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "author": "Sarah",
+        "status": "comparison_reference_only_original_unverified",
+        "findings": [
+          "糖為選配，原步驟卻直接要求加入；改為按需要加入選配糖，移除重複加鹽。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "先炒蛋盛起，再煮番茄後回鑊拌勻相近；參考用量、油量及調味較多，不能沿用其營養值。",
+        "reference_url": "https://thewoksoflife.com/stir-fried-tomato-and-egg/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "garlic-spinach",
+    "name": "蒜蓉菠菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "author": "Judy",
+        "status": "comparison_reference_only_original_unverified",
+        "findings": [
+          "選配水20毫升與步驟15毫升、鹽1/8茶匙與步驟約1克不一致；按材料表統一步驟。",
+          "蒜頭180克菠菜配8瓣，可能是舊單位問題，未能確認原意，保留待核。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "蒜香快炒菠菜技法相近；參考另外用白胡椒及麻油，蒜油比例不同，不是本版原始來源。",
+        "reference_url": "https://thewoksoflife.com/stir-fry-spinach/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "steamed-pork-patty",
+    "name": "蒸肉餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "steamed-pork-patty",
+        "step": 1,
+        "old": "豬肉碎加入生抽 1 茶匙、生粉少許、鹽少許、清水 1 湯匙和麻油少許。",
+        "text": "豬肉碎加入生抽1茶匙、生粉半茶匙、鹽1/8茶匙及清水15毫升；如選用麻油，加入1/4茶匙拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "steamed-pork-patty-with-preserved-mustard",
+    "name": "梅菜蒸肉餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "steamed-pork-patty-with-preserved-mustard",
+        "step": 3,
+        "old": "加入生抽 1 湯匙，如肉碎較乾可加 1 湯匙水，順同一方向攪拌至有黏性。",
+        "text": "加入生抽1湯匙、生粉1茶匙、麻油半茶匙、糖半茶匙及水1湯匙，順同一方向攪拌至有黏性。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pan-fried-sea-bream-fillet",
+    "name": "香煎鯛魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-fried-sea-bream-fillet",
+        "step": 3,
+        "old": "平底鑊加入牛油或食油，中火加熱。",
+        "text": "平底鑊加入食油1茶匙，中火加熱。"
+      },
+      {
+        "slug": "pan-fried-sea-bream-fillet",
+        "step": 6,
+        "old": "盛起後靜置 1 分鐘再上碟。",
+        "text": "盛起後靜置1分鐘；如選用檸檬汁，可淋上1茶匙再上碟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-broccoli",
+    "name": "蒜蓉西蘭花",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "author": "Sarah",
+        "status": "comparison_reference_only_original_unverified",
+        "findings": [
+          "水30毫升選配與步驟必加15毫升、鹽1/8茶匙與步驟約1克不一致；按材料表統一步驟。",
+          "蒜頭180克西蘭花配8瓣，可能是舊單位問題，未能確認原意，保留待核。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "同樣先汆水再炒蒜；參考另有雞湯、酒及芡，本版為清炒，不能直接套用比例。",
+        "reference_url": "https://thewoksoflife.com/garlicky-broccoli/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "garlic-lettuce",
+    "name": "蒜蓉生菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "author": "Bill",
+        "status": "comparison_reference_only_original_unverified",
+        "pending": [
+          "蒜頭為8瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "同樣炒生菜；參考另有薑及多款醬料，本版為蒜鹽清炒，不能沿用其用量或營養。",
+        "reference_url": "https://thewoksoflife.com/stir-fried-lettuce/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "green-pepper-beef",
+    "name": "青椒牛肉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為5瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "stir-fried-cabbage",
+    "name": "清炒椰菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為5瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "author": "Judy",
+        "status": "comparison_reference_only_original_unverified",
+        "pending": [
+          "蒜頭為5瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "只作炒椰菜技法比對；參考含肉及辣椒、多款調味，本版是素菜，不能照搬配方或營養。",
+        "reference_url": "https://thewoksoflife.com/chinese-cabbage-stir-fry/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "pan-fried-salmon",
+    "name": "煎三文魚",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-fried-salmon",
+        "step": 6,
+        "old": "上碟後可靜置 1 分鐘再食用。",
+        "text": "上碟後靜置1分鐘；如選用檸檬汁，可淋上1茶匙。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-pan-fried-fish",
+    "name": "泰式香煎魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-pan-fried-fish",
+        "step": 1,
+        "old": "魚柳用廚紙抹乾，兩面灑少量鹽。",
+        "text": "魚柳用廚紙抹乾，備用；魚露留作稍後煮醬。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-basil-minced-pork-rice",
+    "name": "打拋豬飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-braised-fish-fillet",
+    "name": "茄汁煮魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "teriyaki-chicken-cubes-xhs",
+    "name": "照燒雞粒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "teriyaki-chicken-cubes-xhs",
+        "step": 2,
+        "old": "加入少量黑椒和 1 茶匙生抽拌勻，醃 5 至 10 分鐘。",
+        "text": "加入黑胡椒和生抽5克拌勻，醃5至10分鐘。"
+      },
+      {
+        "slug": "teriyaki-chicken-cubes-xhs",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中火加熱。",
+        "text": "平底鑊加入食油8克，中火加熱。"
+      },
+      {
+        "slug": "teriyaki-chicken-cubes-xhs",
+        "step": 5,
+        "old": "加入照燒汁約 1 湯匙和 1 湯匙水，轉中小火。",
+        "text": "加入照燒汁15克和水1湯匙，轉中小火。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-romaine-lettuce",
+    "name": "蒜蓉油麥菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "author": "Bill",
+        "status": "comparison_reference_only_original_unverified",
+        "pending": [
+          "蒜頭為8瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "參考可用羅馬生菜，但油麥菜不可直接當作完全相同品種；只比對蒜香快炒及避免過熟的技法，參考有額外醬料。",
+        "reference_url": "https://thewoksoflife.com/stir-fried-lettuce/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "stir-fried-bok-choy",
+    "name": "清炒小白菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [
+      "蒜頭記錄為5瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "author": "Kaitlin",
+        "status": "comparison_reference_only_original_unverified",
+        "pending": [
+          "蒜頭為5瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "publisher": "The Woks of Life",
+        "comparison": "梗葉及蒜香翻炒技法可作比對；參考有薑、麻油等額外調味，比例不可直接沿用。",
+        "reference_url": "https://thewoksoflife.com/stir-fried-bok-choy-recipe/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "chicken-tofu-egg-pancake",
+    "name": "雞胸豆腐蛋餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "chicken-tofu-egg-pancake",
+        "step": 2,
+        "old": "加入雞蛋、生粉約 1 茶匙和鹽少許，拌成濕潤餅糊。",
+        "text": "加入雞蛋、生粉6克和鹽1克，拌成濕潤餅糊。"
+      }
+    ],
+    "pending": [
+      "做法用食油煎餅，材料表未列油量；營養及採購清單待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-egg-tofu-pot",
+    "name": "番茄滑蛋豆腐煲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-egg-tofu-pot",
+        "step": 4,
+        "old": "加入鹽少許，如想微甜可加糖少許。",
+        "text": "加入鹽1克調味，輕輕拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "kimchi-fried-rice",
+    "name": "韓式泡菜炒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "kimchi-fried-rice",
+        "step": 5,
+        "old": "將蛋和飯炒勻，如味道不足可加少量生抽或泡菜汁。",
+        "text": "將蛋和飯炒勻，加入生抽1茶匙調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "carbonara-pasta",
+    "name": "卡邦尼意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "蛋醬以離火餘溫拌成，未列巴士德消毒蛋或蛋醬熟度驗證；高風險人士及非全熟蛋的適用性待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tuna-tofu-egg-pancake",
+    "name": "吞拿魚豆腐蛋餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tuna-tofu-egg-pancake",
+        "step": 3,
+        "old": "加入生粉約 1 茶匙和鹽少許，拌成可成形的濕潤餅糊。",
+        "text": "加入生粉1茶匙、鹽1克和白胡椒1/4茶匙，拌成可成形的濕潤餅糊。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-lime-steamed-fish",
+    "name": "泰式檸檬蒸魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-lime-steamed-fish",
+        "step": 2,
+        "old": "蒜頭切蓉，鋪在魚柳表面。",
+        "text": "蒜頭切蓉，辣椒切碎，拌勻後鋪在魚柳表面。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "soybean-sprout-stir-fry",
+    "name": "豉油皇炒芽菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "vegetable-egg-fried-rice",
+    "name": "雜菜蛋炒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "vegetable-egg-fried-rice",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火炒香洋蔥和甘筍。",
+        "text": "鑊中加入食油2茶匙，中火炒香洋蔥和甘筍。"
+      },
+      {
+        "slug": "vegetable-egg-fried-rice",
+        "step": 5,
+        "old": "加入生抽約 1 茶匙和鹽少許調味。",
+        "text": "加入生抽1湯匙和材料表所列的鹽，拌勻調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "french-toast-scrambled-egg",
+    "name": "西多士配炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pan-fried-scallops",
+    "name": "香煎帶子",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-fried-scallops",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中大火加熱至微微冒煙。",
+        "text": "平底鑊加入食油1茶匙，中大火加熱，避免油溫過高冒煙。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-pork-chop-rice",
+    "name": "鮮茄豬扒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "corn-fish-rice",
+    "name": "粟米魚柳飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "corn-fish-rice",
+        "step": 5,
+        "old": "如想汁更濃，可用少量水開生粉後加入，煮至粟米汁微稠。",
+        "text": "粟米汁煮至微稠即可；生粉已用於魚柳，不另加未列入材料表的生粉。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "thai-chicken-vermicelli",
+    "name": "泰式雞絲炒米粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "thai-chicken-vermicelli",
+        "step": 1,
+        "old": "米粉用溫水浸軟後瀝乾，雞胸肉切絲。",
+        "text": "米粉用溫水浸軟後瀝乾；雞胸肉、洋蔥及甘筍切絲。"
+      },
+      {
+        "slug": "thai-chicken-vermicelli",
+        "step": 2,
+        "old": "雞絲可先用少量生抽或魚露拌勻，醃 5 分鐘。",
+        "text": "雞絲可用材料表魚露的1/3份量拌勻，醃5分鐘；餘下留作炒米粉。"
+      },
+      {
+        "slug": "thai-chicken-vermicelli",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火炒雞絲至熟。",
+        "text": "鑊中加入食油1茶匙，先炒香洋蔥及甘筍，再加入雞絲炒至熟透。"
+      },
+      {
+        "slug": "thai-chicken-vermicelli",
+        "step": 5,
+        "old": "加入魚露約 1 湯匙和少量水，炒至米粉吸收調味。",
+        "text": "加入餘下魚露及少量清水，炒至米粉吸收調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "teriyaki-tofu-don",
+    "name": "照燒豆腐丼",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "teriyaki-tofu-don",
+        "step": 6,
+        "old": "將豆腐鋪在 180 克白飯上，淋上剩餘醬汁即可。",
+        "text": "將豆腐鋪在白飯上，淋上剩餘醬汁；如選用蔥花，可灑上食用。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "kimchi-egg-tofu",
+    "name": "韓式泡菜滑蛋豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "kimchi-egg-tofu",
+        "step": 4,
+        "old": "如味道不夠，可加少量生抽或鹽調整。",
+        "text": "加入生抽1茶匙拌勻。"
+      },
+      {
+        "slug": "kimchi-egg-tofu",
+        "step": 6,
+        "old": "灑上蔥花，蛋剛熟即可上碟。",
+        "text": "輕輕推至蛋液凝固熟透，即可上碟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "corn-fish-fillet-sauce",
+    "name": "粟米斑塊",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "minced-pork-vermicelli-pot",
+    "name": "肉碎粉絲煲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "mapo-tofu",
+    "name": "麻婆豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "mapo-tofu",
+        "step": 4,
+        "old": "加入豆瓣醬或麻婆醬約 1 湯匙，炒出紅油和香味。",
+        "text": "加入豆瓣醬1湯匙，炒出香味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "crispy-potato-pancake",
+    "name": "脆脆薯仔餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "crispy-potato-pancake",
+        "step": 3,
+        "old": "加入雞蛋、生粉 1 茶匙、蔥花、鹽少許和白胡椒少許拌勻。",
+        "text": "加入雞蛋、生粉3茶匙和鹽半茶匙，拌勻成餅糊。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-water-spinach",
+    "name": "蒜蓉通菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": true,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": {
+      "verification_review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "author": "Cindy",
+        "status": "comparison_reference_only_original_unverified",
+        "pending": [],
+        "findings": [
+          "未發現本輪檢查範圍內的材料與步驟數量矛盾。"
+        ],
+        "publisher": "The Sound of Cooking",
+        "comparison": "蒜香炒通菜技法相近，參考把梗葉分次下鑊；鹽種類及白胡椒選配不同，不是本版原始來源。",
+        "reference_url": "https://thesoundofcooking.com/stir-fried-morning-glory/",
+        "nutrition_validated": false
+      }
+    }
+  },
+  {
+    "slug": "onion-scrambled-egg",
+    "name": "洋蔥炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "kimchi-tofu-soup-xhs",
+    "name": "韓式泡菜豆腐湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "kimchi-tofu-soup-xhs",
+        "step": 5,
+        "old": "試味後按需要加鹽少許或生抽少許。",
+        "text": "試味後按需要分次加入材料表所列的鹽，不另加生抽。"
+      },
+      {
+        "slug": "kimchi-tofu-soup-xhs",
+        "step": 2,
+        "old": "鍋中加入少量油，中火炒泡菜 1 分鐘。",
+        "text": "鍋中取少量材料表所列的清水，放入泡菜煮1分鐘；餘下清水留待下一步加入。"
+      },
+      {
+        "slug": "kimchi-tofu-soup-xhs",
+        "step": 3,
+        "old": "加入清水約 300 毫升，煮滾後轉中火。",
+        "text": "加入餘下清水，總量為300毫升，煮滾後轉中火。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-beef-cubes-slices",
+    "name": "蒜片牛肉粒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "onion-chicken-steak-stir-fry",
+    "name": "洋蔥炒雞扒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "miso-tofu-soup-xhs",
+    "name": "味噌豆腐湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "dried-shrimp-vermicelli-napa",
+    "name": "蝦米粉絲紹菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "salt-pepper-tofu",
+    "name": "椒鹽豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "vinegar-potato-xhs",
+    "name": "酸辣薯仔絲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "vinegar-potato-xhs",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油8克，中火爆香蒜蓉。"
+      },
+      {
+        "slug": "vinegar-potato-xhs",
+        "step": 5,
+        "old": "加入醋約 1 湯匙、鹽少許，如想辣可加少量辣椒。",
+        "text": "加入醋10克及鹽1克，快速拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cucumber-scrambled-egg",
+    "name": "青瓜炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "curry-beef-brisket-rice",
+    "name": "咖哩牛腩飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "luncheon-meat-scrambled-egg",
+    "name": "午餐肉炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "sweet-and-sour-spare-ribs",
+    "name": "生炒骨",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "corn-carrot-pork-bone-soup",
+    "name": "粟米紅蘿蔔豬骨湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "corn-carrot-pork-bone-soup",
+        "step": 3,
+        "old": "湯鍋加入豬骨、粟米、紅蘿蔔、薑片和清水約 700 毫升。",
+        "text": "湯鍋加入豬骨、粟米、紅蘿蔔、薑片和清水900毫升。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "beef-with-scrambled-egg",
+    "name": "滑蛋牛肉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "beef-with-scrambled-egg",
+        "step": 2,
+        "old": "洋蔥切絲，雞蛋打散，蛋液加入鹽少許和 1 湯匙水。",
+        "text": "洋蔥切絲，雞蛋打散，蛋液加入少量清水拌勻，不另加鹽。"
+      },
+      {
+        "slug": "beef-with-scrambled-egg",
+        "step": 6,
+        "old": "加入牛肉回鑊，趁蛋仍嫩滑時拌勻即可。",
+        "text": "放回牛肉拌炒，直至牛肉熟透、蛋液凝固，即可上碟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "minced-pork-steamed-egg",
+    "name": "肉碎蒸蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "dace-lettuce-stir-fry",
+    "name": "豆豉鯪魚炒油麥菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "罐頭豆豉鯪魚以0.5件記錄，未交代是半罐、半條或瀝乾克數；暫勿用此數量換算採購或營養。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-potato-minced-pork",
+    "name": "番茄薯仔肉碎",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "bitter-melon-omelette",
+    "name": "涼瓜煎蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "black-bean-clams",
+    "name": "豉椒炒蜆",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "onion-pork-chop",
+    "name": "洋蔥豬扒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "onion-pork-chop",
+        "step": 5,
+        "old": "加入水和少量醃料汁煮成洋蔥汁。",
+        "text": "加入水2湯匙；如使用接觸過生豬肉的剩餘醃料，必須徹底煮沸，並確保醬汁中心達攝氏75度或以上至少30秒，再煮至洋蔥軟身。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "fermented-beancurd-water-spinach",
+    "name": "腐乳通菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "herb-baked-salmon-with-potatoes",
+    "name": "香草焗三文魚配薯仔",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "herb-baked-salmon-with-potatoes",
+        "step": 2,
+        "old": "蒜頭切蓉，西蘭花切小朵。",
+        "text": "蒜頭切蓉；如選用西蘭花，切小朵備用。"
+      },
+      {
+        "slug": "herb-baked-salmon-with-potatoes",
+        "step": 4,
+        "old": "取出烤盤，放入三文魚和西蘭花，淋上剩餘橄欖油。",
+        "text": "取出焗盤，放入三文魚；如選用西蘭花，一同放入，再淋上餘下橄欖油。"
+      }
+    ],
+    "pending": [
+      "菜名含香草，但材料及做法沒有香草；原版本待核，不自行新增香草用量。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "peking-pork-ribs",
+    "name": "京都骨",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "black-bean-steamed-pork-ribs",
+    "name": "豉汁蒸排骨",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "corn-minced-pork",
+    "name": "粟米肉碎",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "corn-minced-pork",
+        "step": 4,
+        "old": "加入粟米、生抽、蠔油和水，拌勻後煮滾。",
+        "text": "加入粟米、餘下生抽、蠔油和水，拌勻後煮滾。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shrimp-tofu-steamed-egg",
+    "name": "蝦仁豆腐蒸蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "shrimp-tofu-steamed-egg",
+        "step": 2,
+        "old": "雞蛋打散，加入約同等份量清水和鹽少許，拌勻。",
+        "text": "雞蛋打散，加入清水60毫升和鹽1克，拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "bitter-melon-beef",
+    "name": "涼瓜炒牛肉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "omelette",
+    "name": "奄列",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "green-pepper-scrambled-egg",
+    "name": "青椒炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "preserved-radish-omelette",
+    "name": "菜脯煎蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "broccoli-shrimp-steamed-egg",
+    "name": "西蘭花蝦仁蒸蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "broccoli-shrimp-steamed-egg",
+        "step": 3,
+        "old": "蛋液加入約同等份量的水和鹽少許，拌勻後過篩會更滑。",
+        "text": "蛋液加入清水60毫升和鹽1克，拌勻後過篩。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shrimp-egg-tofu-pot",
+    "name": "滑蛋蝦仁豆腐煲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法用食油，材料表未列用量；新增調味及營養待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "long-bean-scrambled-egg",
+    "name": "豆角炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tofu-egg-pancake",
+    "name": "豆腐蛋餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tofu-egg-pancake",
+        "step": 3,
+        "old": "如材料太濕，可加入少量生粉幫助成形。",
+        "text": "如材料太濕，先把豆腐多餘水分瀝去，再與蛋液拌勻；不另加未列入材料表的生粉。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "potato-braised-chicken-wings",
+    "name": "薯仔炆雞翼",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "basil-tomato-chicken-risotto",
+    "name": "羅勒番茄雞肉燴飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "basil-tomato-chicken-risotto",
+        "step": 6,
+        "old": "熄火後拌入羅勒和巴馬臣芝士，試味後即可上碟。",
+        "text": "熄火後拌入羅勒；如選用巴馬臣芝士，加入10克拌勻，試味後上碟。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "scallion-omelette-xhs",
+    "name": "蔥花煎蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "scallion-omelette-xhs",
+        "step": 1,
+        "old": "雞蛋打入碗中，加入蔥花、生抽約 1 茶匙和鹽少許。",
+        "text": "雞蛋打入碗中，加入蔥花、生抽4克和鹽1克。"
+      },
+      {
+        "slug": "scallion-omelette-xhs",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中小火加熱。",
+        "text": "平底鑊加入食油8克，中小火加熱。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-shrimp-xhs",
+    "name": "蒜香蝦仁",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-shrimp-xhs",
+        "step": 2,
+        "old": "蝦仁加入少量鹽和黑椒拌勻，靜置 5 分鐘。",
+        "text": "蝦仁加入材料表所列的白胡椒拌勻，靜置5分鐘。"
+      },
+      {
+        "slug": "garlic-shrimp-xhs",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中火炒香蒜蓉。",
+        "text": "平底鑊加入食油8克，中火炒香蒜蓉。"
+      },
+      {
+        "slug": "garlic-shrimp-xhs",
+        "step": 5,
+        "old": "加入生抽約 1 茶匙，快速拌勻。",
+        "text": "加入生抽6克，快速拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cheesy-meat-sauce-eggplant-bake",
+    "name": "焗芝士肉醬千層茄子",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cheesy-meat-sauce-eggplant-bake",
+        "step": 3,
+        "old": "同鍋炒香洋蔥和蒜蓉，加入免治牛肉炒散，再加入番茄和番茄醬煮成濃稠肉醬。",
+        "text": "同鍋炒香洋蔥和蒜蓉，加入免治牛肉炒散，再加入番茄和番茄醬；用材料表所列的鹽及黑胡椒分次調味，煮成濃稠肉醬。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-chicken-with-vegetables",
+    "name": "香煎雞胸配蒜香雜菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-chicken-with-vegetables",
+        "step": 4,
+        "old": "原鍋補少許油，下蒜蓉炒香。",
+        "text": "原鍋加入餘下橄欖油，放入蒜蓉炒香。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "chicken-rice-plate",
+    "name": "雞扒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "chicken-rice-plate",
+        "step": 2,
+        "old": "平底鑊加入 1 茶匙食油，中火加熱。",
+        "text": "平底鑊加入材料表所列的食油，中火加熱。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-chicken-xhs",
+    "name": "蒜香雞胸",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-chicken-xhs",
+        "step": 2,
+        "old": "加入生抽 1 茶匙、生粉少許、黑椒少許和蒜蓉拌勻。",
+        "text": "加入生抽8克、生粉4克、黑胡椒1克和蒜蓉拌勻。"
+      },
+      {
+        "slug": "garlic-chicken-xhs",
+        "step": 4,
+        "old": "平底鑊加入 1 茶匙食油，中火加熱。",
+        "text": "平底鑊加入食油8克，中火加熱。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": true,
+    "source_before": {
+      "nutrition_repair_20261025": {
+        "date": "2026-10-25",
+        "basis": "1 serving; 160g raw skinless boneless chicken breast; all added oil counted; generic soy sauce and canola oil are proxies for unspecified brands; no measured cooking losses",
+        "status": "reference_input_estimate_not_lab_measured",
+        "previous": {
+          "diet": [
+            "high_protein",
+            "low_fat",
+            "low_calorie"
+          ],
+          "kcal": 300,
+          "fat_g": 10,
+          "carbs_g": 2,
+          "protein_g": 35
+        },
+        "profiles": [
+          {
+            "grams": 160,
+            "fdc_id": 171077,
+            "per_100g": {
+              "kcal": 120,
+              "fat_g": 2.62,
+              "carbs_g": 0,
+              "protein_g": 22.5
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/171077/nutrients",
+            "description": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw"
+          },
+          {
+            "grams": 10,
+            "fdc_id": 169230,
+            "per_100g": {
+              "kcal": 149,
+              "fat_g": 0.5,
+              "carbs_g": 33.06,
+              "protein_g": 6.36
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/169230/nutrients",
+            "description": "Garlic, raw"
+          },
+          {
+            "grams": 4,
+            "fdc_id": 169698,
+            "per_100g": {
+              "kcal": 381,
+              "fat_g": 0.05,
+              "carbs_g": 91.27,
+              "protein_g": 0.26
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/169698/nutrients",
+            "description": "Cornstarch"
+          },
+          {
+            "grams": 1,
+            "fdc_id": 170931,
+            "per_100g": {
+              "kcal": 251,
+              "fat_g": 3.26,
+              "carbs_g": 63.95,
+              "protein_g": 10.39
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/170931/nutrients",
+            "description": "Spices, pepper, black"
+          },
+          {
+            "grams": 8,
+            "fdc_id": 174277,
+            "per_100g": {
+              "kcal": 53,
+              "fat_g": 0.57,
+              "carbs_g": 4.93,
+              "protein_g": 8.14
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/174277/nutrients",
+            "description": "Soy sauce made from soy and wheat (shoyu)"
+          },
+          {
+            "grams": 8,
+            "fdc_id": 172336,
+            "per_100g": {
+              "kcal": 884,
+              "fat_g": 100,
+              "carbs_g": 0,
+              "protein_g": 0
+            },
+            "source_url": "https://fdc.nal.usda.gov/food-details/172336/nutrients",
+            "description": "Oil, canola"
+          }
+        ],
+        "per_serving_unrounded": {
+          "kcal": 299.61,
+          "fat_g": 12.3222,
+          "carbs_g": 7.9907,
+          "protein_g": 37.4015
+        }
+      }
+    }
+  },
+  {
+    "slug": "baked-chicken-rice",
+    "name": "焗雞扒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "japanese-curry-vegetable-rice",
+    "name": "日式咖哩雜菜飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "japanese-curry-vegetable-rice",
+        "step": 4,
+        "old": "加入清水約 250 毫升，煮滾後轉中火煮 12 至 15 分鐘。",
+        "text": "加入清水220毫升，煮滾後轉中火煮12至15分鐘。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "baked-layered-eggplant-with-vegetables",
+    "name": "焗雜菜千層茄子",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "baked-layered-eggplant-with-vegetables",
+        "step": 3,
+        "old": "加入番茄和櫛瓜炒 3 至 4 分鐘，炒至微軟成蔬菜醬。",
+        "text": "加入番茄和櫛瓜炒3至4分鐘，以材料表所列的鹽及黑胡椒調味，煮至微軟成蔬菜醬。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "luncheon-meat-egg-instant-noodles",
+    "name": "餐蛋公仔麵",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "luncheon-meat-egg-instant-noodles",
+        "step": 5,
+        "old": "加入半包至一包調味粉，按鹹度調整。",
+        "text": "如所用公仔麵附有調味包，可按包裝建議及口味分次加入；沒有附調味包則不另加未列出的調味料。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "sesame-oil-mushroom-chicken-rice",
+    "name": "香菇麻油雞飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "材料表缺白米及雞肉用量，亦缺部分菇類、米酒、生抽及蔥；主材料未齊，暫勿依本表採購或計算營養。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "black-pepper-beef-with-mashed-potatoes",
+    "name": "黑椒牛柳粒配薯蓉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "creamy-spinach-mushroom-chicken-rice",
+    "name": "忌廉菠菜蘑菇雞肉飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "creamy-spinach-mushroom-chicken-rice",
+        "step": 1,
+        "old": "白飯先煮熟備用；雞胸切件，用鹽少許和黑胡椒少許調味。",
+        "text": "將白米90克按包裝指示煮熟備用；雞胸切件，用材料表所列的部分鹽和黑胡椒調味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-chicken-pasta",
+    "name": "蒜香雞肉意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-chicken-pasta",
+        "step": 3,
+        "old": "平底鑊加入少量油，中火煎熟雞肉，先盛起。",
+        "text": "平底鑊加入一半橄欖油，中火煎熟雞肉，先盛起。"
+      },
+      {
+        "slug": "garlic-chicken-pasta",
+        "step": 4,
+        "old": "同鑊加入橄欖油和蒜片，小火炒香 30 秒。",
+        "text": "同鑊加入餘下橄欖油和蒜片，小火炒香30秒。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "salted-fish-steamed-pork-patty",
+    "name": "鹹魚蒸肉餅",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pan-seared-pork-chop-with-apple-onion-sauce",
+    "name": "香煎豬扒配蘋果洋蔥汁",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-seared-pork-chop-with-apple-onion-sauce",
+        "step": 5,
+        "old": "加入蘋果片和糖少許，煮至蘋果微軟並帶焦糖香。",
+        "text": "加入蘋果片炒至微軟；糖為選配，如選用可加入半茶匙，炒至帶焦糖香。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "steamed-garlic-pumpkin",
+    "name": "蒜蓉蒸南瓜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "steamed-garlic-pumpkin",
+        "step": 6,
+        "old": "取出後可把碟底汁淋回南瓜表面即可。",
+        "text": "取出後把碟底汁淋回南瓜表面；如選用生抽，可按材料表所列份量淋上。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "chicken-congee",
+    "name": "雞粥",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "chicken-congee",
+        "step": 2,
+        "old": "加入雞湯或清水，煮滾後轉小火。",
+        "text": "加入雞湯700毫升，煮滾後轉小火。"
+      },
+      {
+        "slug": "chicken-congee",
+        "step": 6,
+        "old": "試味後即可上碗，喜歡可加蔥花。",
+        "text": "試味後即可上碗。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shrimp-scrambled-eggs",
+    "name": "蝦仁炒蛋",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "shrimp-scrambled-eggs",
+        "step": 2,
+        "old": "雞蛋打入碗中，加入鹽少許和 1 湯匙水或牛奶，打勻。",
+        "text": "雞蛋打入碗中，加入材料表所列的部分鹽，打勻。"
+      },
+      {
+        "slug": "shrimp-scrambled-eggs",
+        "step": 6,
+        "old": "輕輕拌至蛋剛熟即關火，利用餘溫完成。",
+        "text": "輕輕拌炒至蝦仁熟透、蛋液凝固；如選用蔥花，加入拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "miso-baked-fish-fillet",
+    "name": "味噌焗魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "miso-baked-fish-fillet",
+        "step": 2,
+        "old": "將味噌 1 湯匙、糖 1 茶匙和檸檬汁少許拌勻成醬。",
+        "text": "將味噌1湯匙、糖1茶匙和檸檬汁1茶匙拌勻成醬。"
+      },
+      {
+        "slug": "miso-baked-fish-fillet",
+        "step": 3,
+        "old": "將味噌醬均勻塗在魚柳表面，靜置 10 分鐘。",
+        "text": "焗盤抹上材料表所列的食油，再放上魚柳並均勻塗上味噌醬，靜置10分鐘。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "creamy-mushroom-pasta",
+    "name": "蘑菇忌廉意粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "yangzhou-fried-rice",
+    "name": "揚州炒飯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "yangzhou-fried-rice",
+        "step": 1,
+        "old": "雞蛋打散，蝦洗淨抹乾，蔥切粒，白飯預先撥鬆。",
+        "text": "雞蛋打散，蝦洗淨抹乾，白飯預先撥鬆；如選用蔥，切粒備用。"
+      },
+      {
+        "slug": "yangzhou-fried-rice",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火先炒蛋至半熟，盛起。",
+        "text": "鑊中加入半湯匙食油，中火先炒蛋至半熟，盛起。"
+      },
+      {
+        "slug": "yangzhou-fried-rice",
+        "step": 5,
+        "old": "加入鹽少許，如喜歡可加生抽約 1 茶匙調味。",
+        "text": "加入鹽1/8茶匙；如選用生抽，加入半茶匙調味。"
+      },
+      {
+        "slug": "yangzhou-fried-rice",
+        "step": 6,
+        "old": "放回炒蛋，加入蔥粒炒勻，飯粒乾爽即可。",
+        "text": "放回炒蛋炒勻；如選用蔥粒，一同加入，炒至蝦熟、飯粒乾爽即可。"
+      }
+    ],
+    "pending": [
+      "現有版本為蝦仁蛋炒飯，未含常見叉燒；菜名對應版本待核，不自行新增材料。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "lemon-spicy-pan-fried-chicken",
+    "name": "酸辣檸檬乾煎雞",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "lemon-spicy-pan-fried-chicken",
+        "step": 1,
+        "old": "雞腿肉抹乾水分，用鹽、黑胡椒及一半生抽抓勻，醃 10-15 分鐘。",
+        "text": "雞腿肉抹乾水分，用材料表所列的鹽及黑胡椒抓勻，醃10至15分鐘。"
+      },
+      {
+        "slug": "lemon-spicy-pan-fried-chicken",
+        "step": 2,
+        "old": "將檸檬汁、蒜蓉、辣椒、剩餘生抽和糖拌勻，備用。",
+        "text": "將檸檬汁、蒜蓉、辣椒及糖拌勻成醬汁，備用。"
+      }
+    ],
+    "pending": [
+      "蒜頭記錄為10瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shrimp-scrambled-egg-xhs",
+    "name": "滑蛋蝦仁",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "shrimp-scrambled-egg-xhs",
+        "step": 2,
+        "old": "蛋液加入鹽少許和 1 湯匙水或牛奶，打勻。",
+        "text": "蛋液加入材料表所列的鹽1克，打勻。"
+      },
+      {
+        "slug": "shrimp-scrambled-egg-xhs",
+        "step": 3,
+        "old": "平底鑊加入少量油，中火先炒蝦仁至剛轉色，盛起。",
+        "text": "平底鑊加入食油8克，中火先炒蝦仁至剛轉色，盛起。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "minced-pork-tofu",
+    "name": "肉碎豆腐",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "minced-pork-tofu",
+        "step": 6,
+        "old": "加入生粉水煮至汁微稠，豆腐完整即可上碟。",
+        "text": "從材料表所列的100毫升水中預留少量，拌勻生粉1茶匙後加入；煮至汁微稠、肉碎熟透即可。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-black-fungus-xhs",
+    "name": "涼拌木耳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cold-black-fungus-xhs",
+        "step": 4,
+        "old": "蒜頭切成蒜蓉，加入生抽約 8 克、醋約 6 克拌勻。",
+        "text": "蒜頭切蓉，加入生抽8克、醋6克、糖半茶匙及麻油半茶匙，拌勻。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-pea-shoots-xhs",
+    "name": "蒜蓉豆苗",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-pea-shoots-xhs",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油8克，中火爆香蒜蓉。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-okra-xhs",
+    "name": "涼拌秋葵",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cold-okra-xhs",
+        "step": 5,
+        "old": "將秋葵放入碗中，加入蒜蓉生抽和少量食油或麻油拌勻。",
+        "text": "將秋葵放入碗中，加入蒜蓉生抽、食油及麻油拌勻，各項用量按材料表。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-beef-cubes",
+    "name": "蒜香牛肉粒",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-beef-cubes",
+        "step": 3,
+        "old": "平底鑊大火加熱，加入少量油後放入牛肉粒。",
+        "text": "平底鑊加入一半牛油，中火加熱後放入牛肉粒。"
+      },
+      {
+        "slug": "garlic-beef-cubes",
+        "step": 5,
+        "old": "轉中火，加入牛油和蒜片，拌炒 30 秒。",
+        "text": "加入餘下牛油和蒜片，拌炒至蒜片出香味。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-potato-fish-soup",
+    "name": "番茄薯仔魚湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-potato-fish-soup",
+        "step": 3,
+        "old": "加入薯仔和清水約 400 毫升。",
+        "text": "加入薯仔和清水800毫升。"
+      },
+      {
+        "slug": "tomato-potato-fish-soup",
+        "step": 6,
+        "old": "最後加入鹽約 1 克調味即可。",
+        "text": "最後按材料表所列的鹽分次調味，即可上碗。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pan-fried-king-oyster-xhs",
+    "name": "香煎杏鮑菇",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-fried-king-oyster-xhs",
+        "step": 2,
+        "old": "平底鑊加入少量食油，中火加熱。",
+        "text": "平底鑊加入食油1茶匙及切碎的蒜頭，中火炒香。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "stir-fried-gai-lan-xhs",
+    "name": "清炒芥蘭",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "stir-fried-gai-lan-xhs",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油8克，中火爆香蒜蓉。"
+      },
+      {
+        "slug": "stir-fried-gai-lan-xhs",
+        "step": 6,
+        "old": "加入鹽調味，炒至剛熟仍爽口即可。",
+        "text": "加入鹽1克調味；如選用糖，加入1/4茶匙拌勻，炒至菜熟即可。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-napa-xhs",
+    "name": "蒜蓉娃娃菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-napa-xhs",
+        "step": 3,
+        "old": "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "text": "鑊中加入食油8克，中火爆香蒜蓉。"
+      },
+      {
+        "slug": "garlic-napa-xhs",
+        "step": 5,
+        "old": "加入 2 湯匙水，加蓋煮 2 至 3 分鐘至菜身變軟。",
+        "text": "加入水1湯匙，加蓋煮2至3分鐘至菜身變軟。"
+      }
+    ],
+    "pending": [
+      "菜名為娃娃菜，材料連到大白菜；細分類及對應營養尚待確認。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-seaweed-xhs",
+    "name": "涼拌海帶絲",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cold-seaweed-xhs",
+        "step": 4,
+        "old": "加入生抽約 8 克、醋約 6 克，如想微甜可加少量糖。",
+        "text": "加入生抽8克、醋6克、糖半茶匙和麻油半茶匙，拌勻。"
+      }
+    ],
+    "pending": [
+      "菜名及做法為海帶絲，材料卻連到紫菜120克；海帶的品種、生熟及泡發重量尚待確認。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "shredded-chicken-rice-vermicelli",
+    "name": "雞絲炒米粉",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "shredded-chicken-rice-vermicelli",
+        "step": 2,
+        "old": "雞絲加入生抽約 1 茶匙和生粉少許拌勻，醃 5 分鐘。",
+        "text": "雞絲加入材料表生抽的1/3份量拌勻，醃5分鐘；餘下留作炒米粉。"
+      },
+      {
+        "slug": "shredded-chicken-rice-vermicelli",
+        "step": 5,
+        "old": "加入米粉、生抽約 1 湯匙和少量水，炒至米粉吸收調味。",
+        "text": "加入米粉、餘下生抽及少量清水，炒至米粉熱透。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "beef-chow-fun",
+    "name": "乾炒牛河",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法仍提及材料表未列的洋蔥、食油、生粉、黑椒及老抽；配方份量待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "singapore-fried-rice-vermicelli",
+    "name": "星洲炒米",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "singapore-fried-rice-vermicelli",
+        "step": 1,
+        "old": "米粉用溫水浸軟後瀝乾，洋蔥和甘筍切絲，雞蛋打散。",
+        "text": "米粉用溫水浸軟後瀝乾，雞肉切絲，雞蛋打散。"
+      },
+      {
+        "slug": "singapore-fried-rice-vermicelli",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，先炒蛋至半熟，盛起。",
+        "text": "鑊中加入一半食油，先炒蛋至凝固，盛起。"
+      },
+      {
+        "slug": "singapore-fried-rice-vermicelli",
+        "step": 3,
+        "old": "同鑊炒香洋蔥、甘筍和蝦，炒至蝦轉色。",
+        "text": "同鑊加入餘下食油，放入雞肉炒至熟透。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "soy-sauce-fried-noodles",
+    "name": "豉油皇炒麵",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法仍提及材料表未列的洋蔥、食油及老抽；配方份量待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-eggplant",
+    "name": "蒜香茄子",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-chicken-wings",
+    "name": "蒜香雞翼",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "菜名及做法為雞翼，材料卻連到一般雞肉150克；雞翼的帶骨採購量及營養基準尚待確認。",
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "steamed-fish",
+    "name": "清蒸魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "steamed-fish",
+        "step": 1,
+        "old": "魚柳洗淨抹乾，薑切絲，蔥切絲。",
+        "text": "魚柳洗淨抹乾，薑切絲；如選用蔥，切絲備用。"
+      },
+      {
+        "slug": "steamed-fish",
+        "step": 5,
+        "old": "加入生抽約半湯匙，鋪上蔥絲和剩餘薑絲。",
+        "text": "加入生抽半湯匙和剩餘薑絲；如選用蔥絲，一同鋪上。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "minced-pork-potato",
+    "name": "薯仔炒肉碎",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [
+      "做法仍提及材料表未列的生抽、食油、蔥、鹽及白胡椒；不可直接假設用量。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "spinach-tofu-soup-xhs",
+    "name": "菠菜豆腐湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "miso-salmon",
+    "name": "味噌三文魚",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "miso-salmon",
+        "step": 4,
+        "old": "焗盤鋪上焗爐紙，放上三文魚。",
+        "text": "焗盤鋪上焗爐紙並抹上食油1茶匙，放上三文魚。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "kelp-tofu-soup-xhs",
+    "name": "海帶豆腐湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "kelp-tofu-soup-xhs",
+        "step": 2,
+        "old": "鍋中加入清水約 300 毫升，放入海帶和薑片。",
+        "text": "鍋中加入清水350毫升，放入海帶和薑片。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "garlic-enoki-xhs",
+    "name": "蒜蓉金針菇",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "garlic-enoki-xhs",
+        "step": 2,
+        "old": "蒜頭切碎，準備生抽約 1 茶匙。",
+        "text": "蒜頭切碎，準備生抽6克。"
+      },
+      {
+        "slug": "garlic-enoki-xhs",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中火炒香蒜蓉。",
+        "text": "平底鑊加入食油8克，中火炒香蒜蓉。"
+      },
+      {
+        "slug": "garlic-enoki-xhs",
+        "step": 5,
+        "old": "加入生抽拌勻，繼續煮至金針菇軟身。",
+        "text": "加入生抽及水1湯匙拌勻，繼續煮至金針菇軟身。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "lemon-butter-fish-fillet",
+    "name": "檸檬牛油魚柳",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "lemon-butter-fish-fillet",
+        "step": 2,
+        "old": "平底鑊加入牛油，小火煮溶。",
+        "text": "如選用蒜頭，先切碎；平底鑊加入牛油，小火炒香蒜頭，未選用則直接煮溶牛油。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "fuzzy-melon-pork-soup",
+    "name": "節瓜瘦肉湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "fuzzy-melon-pork-soup",
+        "step": 3,
+        "old": "湯鍋加入清水約 400 毫升，放入節瓜、豬肉片和薑片。",
+        "text": "湯鍋加入清水850毫升，放入節瓜、豬肉片和薑片。"
+      },
+      {
+        "slug": "fuzzy-melon-pork-soup",
+        "step": 6,
+        "old": "加入鹽約 1 克調味，試味後即可。",
+        "text": "最後按材料表所列的鹽分次調味，試味後上碗。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "tomato-fish-fillet-soup-xhs",
+    "name": "番茄魚片湯",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "tomato-fish-fillet-soup-xhs",
+        "step": 2,
+        "old": "鍋中加入 1 茶匙油，中火略炒番茄 1 分鐘。",
+        "text": "鍋中加入少量清水，放入番茄煮1分鐘，不另加未列入材料表的食油。"
+      },
+      {
+        "slug": "tomato-fish-fillet-soup-xhs",
+        "step": 3,
+        "old": "加入清水約 300 毫升和薑絲，煮滾。",
+        "text": "加入餘下清水及薑絲，清水總量為350毫升，煮滾。"
+      },
+      {
+        "slug": "tomato-fish-fillet-soup-xhs",
+        "step": 6,
+        "old": "加入鹽約 1 克調味，試味後即可。",
+        "text": "加入鹽1克調味；如選用蔥花，可灑上食用。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "stir-fried-choy-sum",
+    "name": "清炒菜心",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "stir-fried-choy-sum",
+        "step": 4,
+        "old": "再加入葉部和 1 湯匙水，快速翻炒。",
+        "text": "再加入葉部快炒；如選用清水，可按需要分次加入，最多30毫升。"
+      },
+      {
+        "slug": "stir-fried-choy-sum",
+        "step": 5,
+        "old": "加入鹽約 1 克調味。",
+        "text": "加入鹽1/8茶匙調味。"
+      }
+    ],
+    "pending": [
+      "蒜頭記錄為5瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "pan-fried-chicken-breast-xhs",
+    "name": "香煎雞胸（簡易版）",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "pan-fried-chicken-breast-xhs",
+        "step": 2,
+        "old": "加入生抽 1 茶匙、生粉少許和黑椒少許拌勻，醃 10 分鐘。",
+        "text": "加入生抽8克、生粉4克及黑胡椒1克拌勻，醃10分鐘。"
+      },
+      {
+        "slug": "pan-fried-chicken-breast-xhs",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙食油，中火加熱。",
+        "text": "平底鑊加入食油8克，中火加熱。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "herb-pan-fried-cod",
+    "name": "香草煎鱈魚",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "herb-pan-fried-cod",
+        "step": 3,
+        "old": "平底鑊加入 1 茶匙橄欖油，中火加熱。",
+        "text": "平底鑊加入食油1茶匙，中火加熱。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "black-pepper-beef-xhs",
+    "name": "黑椒牛肉片",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "black-pepper-beef-xhs",
+        "step": 1,
+        "old": "牛肉切片，用生抽 1 茶匙、生粉少許和黑椒少許拌勻，醃 10 分鐘。",
+        "text": "牛肉切片，用材料表所列的部分生抽、生粉及黑胡椒拌勻，醃10分鐘。"
+      },
+      {
+        "slug": "black-pepper-beef-xhs",
+        "step": 2,
+        "old": "鑊中加入 1 茶匙食油，大火加熱。",
+        "text": "鑊中加入食油8克，大火加熱。"
+      },
+      {
+        "slug": "black-pepper-beef-xhs",
+        "step": 4,
+        "old": "加入少量水和黑椒，再加生抽少許調整味道。",
+        "text": "加入餘下生抽及黑胡椒；如太乾，可逐少加入清水拌炒。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "mushroom-in-oyster-sauce",
+    "name": "蠔油冬菇",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "mushroom-in-oyster-sauce",
+        "step": 3,
+        "old": "加入蠔油 1 湯匙、生抽 1 茶匙、糖少許和清水 2 湯匙。",
+        "text": "加入蠔油1.5茶匙和清水60毫升；如選用生抽，加入半茶匙；如選用糖，加入1/4茶匙拌勻。"
+      }
+    ],
+    "pending": [
+      "材料只寫冬菇120克，做法需要浸發；未說明乾重或泡發重，營養與採購量待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "braised-eggplant",
+    "name": "魚香茄子",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "braised-eggplant",
+        "step": 2,
+        "old": "鑊中加入 1 湯匙食油，中火將茄子炒至略軟。",
+        "text": "鑊中加入食油2茶匙，中火將茄子炒至略軟。"
+      },
+      {
+        "slug": "braised-eggplant",
+        "step": 4,
+        "old": "加入生抽約 1 茶匙、糖少許和 2 湯匙清水。",
+        "text": "加入生抽1茶匙；如選用糖，加入半茶匙；如選用清水，可按需要加入最多40毫升。"
+      }
+    ],
+    "pending": [
+      "蒜頭記錄為8瓣，未找到原始記錄證明應為克或瓣；用量保留待核。"
+    ],
+    "review_status": "pending_evidence",
+    "nutrition_validated": false,
+    "source_before": null
+  },
+  {
+    "slug": "cold-tossed-baby-napa-cabbage",
+    "name": "涼拌娃娃菜",
+    "original_source_verified": false,
+    "comparison_reference_reviewed": false,
+    "changed_steps": [
+      {
+        "slug": "cold-tossed-baby-napa-cabbage",
+        "step": 1,
+        "old": "娃娃菜洗淨後切半或切段；蒜頭切成蒜蓉；辣椒切圈；香菜切碎備用。",
+        "text": "娃娃菜洗淨後切半或切段，蒜頭切蓉。"
+      },
+      {
+        "slug": "cold-tossed-baby-napa-cabbage",
+        "step": 4,
+        "old": "在碗中加入生抽、黑醋、麻油、鹽、蒜蓉和辣椒油，拌勻成醬汁。",
+        "text": "在碗中加入生抽1湯匙、醋1湯匙、麻油半茶匙、糖半茶匙及蒜蓉，拌勻成醬汁。"
+      },
+      {
+        "slug": "cold-tossed-baby-napa-cabbage",
+        "step": 6,
+        "old": "上碟後按喜好撒上辣椒圈和香菜即可食用。",
+        "text": "拌勻後上碟即可，不另加未列入材料表的辣椒、香菜或辣椒油。"
+      }
+    ],
+    "pending": [],
+    "review_status": "text_consistency_pass_only",
+    "nutrition_validated": false,
+    "source_before": null
+  }
+]
