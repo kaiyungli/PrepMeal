@@ -37,6 +37,16 @@ describe('public recipe evidence', () => {
     expect(recipeProvenance(null)).toMatchObject({ allergens: [], nutrition_is_estimate: false, source_attribution: null });
     expect(recipeProvenance({ allergens: 'fish', nutrition: [] }).allergens).toEqual([]);
   });
+  it('publishes unresolved quality notes without promoting comparison links to original sources', () => {
+    const p = recipeProvenance({
+      consistency_review: { public_notes: ['材料表缺主材料，份量待核。'], status: 'pending_evidence', internal: 'private ledger' },
+      verification_review: { reference_url: 'https://example.com/comparison' },
+    });
+    expect(p.data_quality_notes).toEqual(['材料表缺主材料，份量待核。']);
+    expect(p.source_attribution).toBeNull();
+    expect(JSON.stringify(p)).not.toContain('private ledger');
+    expect(recipeProvenance({ consistency_review: { public_notes: [1, null, '', '核對中'] } }).data_quality_notes).toEqual(['核對中']);
+  });
   it('keeps recipe total amounts distinct from per-serving nutrition', () => {
     const detail = normalizeRecipeDetail({ id: 'recipe', name: '炒麵', base_servings: 2,
       description: '家常版', source_data: { nutrition: { status: 'COMPLETE_REFERENCE_INPUT_ESTIMATE' } },

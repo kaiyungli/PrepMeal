@@ -1,5 +1,6 @@
 export interface RecipeProvenance {
   source_attribution: { website: string; author: string; url: string | null; note: string } | null;
+  data_quality_notes?: string[];
   nutrition_is_estimate: boolean;
   nutrition_notes: string[];
   allergens: string[];
@@ -30,7 +31,9 @@ export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   // Import notes can describe alternative products across an entire batch.
   // Do not present that free-text ledger as ingredients in this recipe.
   const hasAllergenNote = Boolean(text(source.allergen_note) || text(source.allergen_notes));
+  const qualityNotes = strings(record(source.consistency_review).public_notes);
   return {
+    ...(qualityNotes.length ? { data_quality_notes: qualityNotes } : {}),
     source_attribution: url || website || author || note ? { website, author, url, note } : null,
     nutrition_is_estimate: /estimate/i.test(text(nutrition.status)),
     nutrition_notes: strings(nutrition.limitations),

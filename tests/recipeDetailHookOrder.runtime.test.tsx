@@ -70,6 +70,13 @@ describe('recipe detail content hook order and deferred rendering', () => {
     expect(screen.queryByText(/自然冷卻|等油出煙/)).toBeNull();
   });
 
+  it('shows actual incomplete recipe data clearly without inventing attribution', () => {
+    render(<RecipeDetailContent recipe={{ ...a, data_quality_notes: ['材料表缺主材料，份量待核。'] }} />);
+    flushFrame();
+    expect(screen.getByText('資料核對')).toBeTruthy();
+    expect(screen.getByText('材料表缺主材料，份量待核。')).toBeTruthy();
+    expect(screen.queryByText('食譜來源')).toBeNull();
+  });
   it('empty → recipe renders without React hook-order errors', () => {
     const view = render(<RecipeDetailContent recipe={null} />);
     expect(view.container.textContent).toBe('');
