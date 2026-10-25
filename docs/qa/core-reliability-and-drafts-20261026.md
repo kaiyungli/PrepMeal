@@ -48,3 +48,7 @@ Deployment/live account acceptance: not performed. Latest main baseline 044895b7
 
 1B implementation commit: 88ab908ad49b4479423f2acb6cd4b297cc7f5189.
 Push of `fix/core-reliability-and-drafts` was rejected by automatic approval review: implementation authorization was not considered explicit permission to publish/push code to GitHub. No workaround or retry. Branch, commits and validation remain local; no PR, merge or production deployment. Explicit authorization for this branch push and draft PR is required to continue external delivery. Work packages 2–5 remain untouched.
+
+## Authorized draft delivery — 2026-10-26 Hong Kong
+
+Owner explicitly approved branch delivery and a draft PR. Git CLI lacked HTTPS credentials; authenticated GitHub tools published the identical tested tree 016a0b453c4bc76d0f6216fa818109090326a5a5 as commit adffe3eaf019e05d743285c485fb981f0797eecf. PR #123: https://github.com/kaiyungli/PrepMeal/pull/123 (open draft, base main). The earlier automatic approval gate is resolved. No merge or deployment was requested or performed. Browser/live account acceptance and mixed-serving-history verification remain pending; work package 2 has not started.
