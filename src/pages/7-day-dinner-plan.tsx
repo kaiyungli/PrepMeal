@@ -1,3 +1,4 @@
+import EditorialRecipeLink from '@/components/recipes/EditorialRecipeLink';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -7,7 +8,7 @@ const weeklyPlan = [
   { day: '星期二', recipe: '咖哩牛腩飯', slug: 'curry-beef-rice', time: '45分鐘', difficulty: '中等' },
   { day: '星期三', recipe: '鹽焗雞翼', slug: 'salt-baked-chicken-wings', time: '30分鐘', difficulty: '中等' },
   { day: '星期四', recipe: '清蒸石斑', slug: 'steamed-fish', time: '20分鐘', difficulty: '簡易' },
-  { day: '星期五', recipe: '楊州炒飯', slug: 'yangzhou-fried-rice', time: '25分鐘', difficulty: '中等' },
+  { day: '星期五', recipe: '揚州炒飯', slug: 'yangzhou-fried-rice', time: '25分鐘', difficulty: '中等' },
   { day: '星期六', recipe: '乾炒牛河', slug: 'dry-fried-beef-hor-fun', time: '20分鐘', difficulty: '中等' },
   { day: '星期日', recipe: '煲仔飯', slug: 'cantonese-clay-pot-rice', time: '60分鐘', difficulty: '較難' },
 ];
@@ -40,6 +41,7 @@ export default function SevenDayDinnerPlan() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main className="max-w-4xl mx-auto px-4 py-12">
+        <p className="mb-4 text-sm text-[#5A4030]">可點擊菜式名稱查看已上線食譜；標示「食譜暫未提供」的菜式目前只作餐單靈感。</p>
         <h1 className="text-3xl font-bold text-[#3A2010] mb-6 text-center">
           一週七天晚餐食譜完整攻略
         </h1>
@@ -158,9 +160,9 @@ export default function SevenDayDinnerPlan() {
                   <tr key={item.day} className="border-b border-[#E5DCC8]">
                     <td className="py-3 text-[#3A2010] font-medium">{item.day}</td>
                     <td className="py-3">
-                      <a href={`/recipes/${item.slug}`} className="text-[#9B6035] hover:underline">
+                      <EditorialRecipeLink slug={item.slug} className="text-[#9B6035] hover:underline">
                         {item.recipe}
-                      </a>
+                      </EditorialRecipeLink>
                     </td>
                     <td className="py-3 text-[#5A4030]">{item.time}</td>
                     <td className="py-3 text-[#5A4030]">{item.difficulty}</td>
@@ -195,7 +197,7 @@ export default function SevenDayDinnerPlan() {
                 星期一係每週既開始，通常都係最忙既時候。呢日既選擇係兩個快手菜：
                 青瓜炒蛋15分鐘就搞掂，粟米蛋花湯10分鐘就整好。
                 加埋都係25分鐘，放工翻到屋企就即刻有得食。
-                <a href="/recipes/cucumber-scrambled-egg" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="cucumber-scrambled-egg" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
@@ -217,7 +219,7 @@ export default function SevenDayDinnerPlan() {
                 星期二可以整啲較為複雜既野。咖哩牛腩要啲時間，
                 但係可以週末整定，放工翻熱就有得食。配埋白飯，
                 一個人食到好滿足。
-                <a href="/recipes/curry-beef-rice" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="curry-beef-rice" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
@@ -241,7 +243,7 @@ export default function SevenDayDinnerPlan() {
                 星期三既選擇係小朋友最鍾意既雞翼。
                 鹽焗雞翼香噴噴，屋企人一定鍾意食。
                 配埋一碟蒜蓉炒菜心，營養均衡。
-                <a href="/recipes/salt-baked-chicken-wings" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="salt-baked-chicken-wings" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
@@ -264,14 +266,14 @@ export default function SevenDayDinnerPlan() {
                 星期四要補下既時候。蒸魚最健康，
                 低脂肪高蛋白，岩哂注重健康既人士。
                 蒸10分鐘就搞掂。
-                <a href="/recipes/steamed-fish" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="steamed-fish" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
               <p className="text-[#5A4030] mt-4">
-                <strong>點解選擇楊州炒飯？</strong> - 星期五係每週既最後一個工作日，
+                <strong>點解選擇揚州炒飯？</strong> - 星期五係每週既最後一個工作日，
                 心情好梗係要整啲豐富啲既野慶祝下！
-                楊州炒飯有齊蛋白質、碳水、蔬菜，一個飯就解決哂整晚既需要。
+                揚州炒飯有齊蛋白質、碳水、蔬菜，一個飯就解決哂整晚既需要。
                 <br/><br/>
                 <strong>營養好處</strong> - 蛋既蛋白質、叉燒既蛋白質、
                 蝦仁既礦物質，同埋米既碳水，
@@ -282,11 +284,11 @@ export default function SevenDayDinnerPlan() {
                 <strong>岩幾多人</strong> - 3-6人家庭岩，呢個份量夠多人食。
               </p>
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期五 - 楊州炒飯</h3>
+              <h3 className="text-lg font-medium text-[#9B6035] mb-2">星期五 - 揚州炒飯</h3>
               <p className="text-[#5A4030]">
                 星期五放工心情好，整多啲配料既炒飯一家人食。
-                楊州炒飯配料豐富，蛋、叉燒、蝦仁全部都有。
-                <a href="/recipes/yangzhou-fried-rice" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                揚州炒飯配料豐富，蛋、叉燒、蝦仁全部都有。
+                <EditorialRecipeLink slug="yangzhou-fried-rice" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
@@ -308,7 +310,7 @@ export default function SevenDayDinnerPlan() {
               <p className="text-[#5A4030]">
                 星期六可以晏少少起身，整啲濕濕地既嘢食。
                 乾炒牛河係香港經典，一於去街市買定新鮮既河粉。
-                <a href="/recipes/dry-fried-beef-hor-fun" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="dry-fried-beef-hor-fun" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
             
@@ -331,7 +333,7 @@ export default function SevenDayDinnerPlan() {
               <p className="text-[#5A4030]">
                 星期日最悠閒，可以整煲仔飯慢慢享受。
                 記住要用香既米，撈埋啲臘味，正呀！
-                <a href="/recipes/cantonese-clay-pot-rice" className="text-[#9B6035] underline ml-1">[睇食譜]</a>
+                <EditorialRecipeLink slug="cantonese-clay-pot-rice" unavailableLabel="食譜暫未提供" className="text-[#9B6035] underline ml-1">[睇食譜]</EditorialRecipeLink>
               </p>
             </div>
           </div>
