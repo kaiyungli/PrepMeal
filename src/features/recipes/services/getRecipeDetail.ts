@@ -64,6 +64,7 @@ export interface RecipeDetailRow {
   protein_g: number | null;
   carbs_g: number | null;
   fat_g: number | null;
+  meal_role?: string | null;
   primary_protein: string | null;
   dish_type: string | null;
   diet: string[] | null;
@@ -110,14 +111,14 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
     );
     // Older RPC versions omit these columns. Re-check public visibility when
     // hydrating with the server client, which bypasses RLS.
-    if (rpcRecipe.base_servings === undefined || rpcRecipe.source_data === undefined || rpcRecipe.slug === undefined || needsIngredientMetadata) {
+    if (rpcRecipe.base_servings === undefined || rpcRecipe.source_data === undefined || rpcRecipe.slug === undefined || rpcRecipe.meal_role === undefined || needsIngredientMetadata) {
       const { data, error } = await supabase.from('recipes')
-        .select('base_servings, source_data, description, slug')
+        .select('base_servings, source_data, description, slug, meal_role')
         .eq('id', rpcRecipe.id).eq('is_public', true).maybeSingle();
       if (error) throw new Error('Recipe fetch failed');
       if (!data) throw new Error('Recipe not found');
       detail = { ...rpcRecipe, base_servings: data.base_servings ?? null,
-        source_data: data.source_data ?? null, description: data.description ?? null, slug: data.slug ?? null };
+        meal_role: data.meal_role ?? null, source_data: data.source_data ?? null, description: data.description ?? null, slug: data.slug ?? null };
     }
     if (needsIngredientMetadata) {
       const { data, error } = await supabase.from('recipe_ingredients')
@@ -182,6 +183,7 @@ export async function getRecipeDetail(recipeIdOrSlug: string, traceId?: string):
       cook_time_minutes,
       prep_time_minutes,
       cuisine,
+      meal_role,
       primary_protein,
       dish_type,
       diet,
