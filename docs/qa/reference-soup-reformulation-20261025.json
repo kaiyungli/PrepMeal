@@ -1,0 +1,2767 @@
+[
+  {
+    "slug": "dried-vegetable-pork-bone-soup",
+    "before": {
+      "name": "菜乾豬骨湯",
+      "description": "菜乾香氣濃郁，與豬骨煲出經典老火湯風味，鹹香而不膩。",
+      "base_servings": 1,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 90,
+      "total_time_minutes": 100,
+      "calories_per_serving": null,
+      "protein_g": null,
+      "carbs_g": null,
+      "fat_g": null,
+      "diet": [],
+      "protein": [
+        "pork"
+      ],
+      "primary_protein": "pork",
+      "source_data": {
+        "nutrition": {
+          "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+          "status": "insufficient_evidence",
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "servings": 1,
+          "components": [
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "USDA household tsp/tbsp mass",
+              "ingredient": "salt",
+              "input_unit": "tsp",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "description": "Salt, table",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173468",
+              "input_quantity": 0.5,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 3
+            },
+            {
+              "per_100": {
+                "kcal": 80,
+                "fat_g": 0.75,
+                "carbs_g": 17.77,
+                "protein_g": 1.82
+              },
+              "conversion": "listed grams",
+              "ingredient": "ginger",
+              "input_unit": "g",
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "description": "Ginger root, raw",
+              "contribution": {
+                "kcal": 4,
+                "fat_g": 0.0375,
+                "carbs_g": 0.8885,
+                "protein_g": 0.091
+              },
+              "reference_id": "169231",
+              "input_quantity": 5,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 5
+            },
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "listed metric volume; liquid density approximated1g/ml",
+              "ingredient": "water",
+              "input_unit": "ml",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "description": "Beverages, water, tap, drinking",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173647",
+              "input_quantity": 1000,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 1000
+            }
+          ],
+          "limitations": [
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+            "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+            "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+          ],
+          "calculated_at": "2026-10-25",
+          "missing_evidence": [
+            {
+              "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+              "ingredient": "pork-bones"
+            },
+            {
+              "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+              "ingredient": "dried-chinese-cabbage"
+            }
+          ],
+          "unrounded_totals": null,
+          "optional_ingredients_excluded": []
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "legacy_nutrition_reference_review",
+          "status": "nutrition_evidence_incomplete",
+          "public_notes": [
+            "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+          ],
+          "nutrition_validated": false,
+          "original_source_verified": false
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 10,
+            "carbs_g": 5,
+            "protein_g": 16,
+            "calories_per_serving": 180
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        }
+      }
+    },
+    "after": {
+      "name": "菜乾排骨湯（參考配方）",
+      "description": "菜乾與排骨慢煲出甘香湯味，連湯渣分成兩份享用。",
+      "base_servings": 2,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 70,
+      "cook_time_minutes": 100,
+      "total_time_minutes": 170,
+      "calories_per_serving": 287,
+      "protein_g": 16.6,
+      "carbs_g": 7.8,
+      "fat_g": 20.8,
+      "diet": [],
+      "protein": [
+        "pork"
+      ],
+      "primary_protein": "pork",
+      "source_data": {
+        "nutrition": {
+          "status": "reference_based_estimate",
+          "basis": "Whole-pot edible raw/dry input estimate divided by two; all broth and edible solids consumed; not broth-only or cooked-food assay.",
+          "servings": 2,
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "components": [
+            {
+              "ingredient": "salt",
+              "input_quantity": 2,
+              "input_unit": "g",
+              "nutrition_amount": 2.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "reference_id": "173468",
+              "description": "Salt, table"
+            },
+            {
+              "ingredient": "ginger",
+              "input_quantity": 6,
+              "input_unit": "g",
+              "nutrition_amount": 6.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 80.0,
+                "protein_g": 1.82,
+                "fat_g": 0.75,
+                "carbs_g": 17.77
+              },
+              "contribution": {
+                "kcal": 4.8,
+                "protein_g": 0.1092,
+                "fat_g": 0.045,
+                "carbs_g": 1.0662
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "reference_id": "169231",
+              "description": "Ginger root, raw"
+            },
+            {
+              "ingredient": "water",
+              "input_quantity": 1200,
+              "input_unit": "ml",
+              "nutrition_amount": 1200.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "reference_id": "173647",
+              "description": "Beverages, water, tap, drinking"
+            },
+            {
+              "ingredient": "pork-ribs",
+              "input_quantity": 300,
+              "input_unit": "g",
+              "nutrition_amount": 177.3,
+              "nutrition_unit": "g",
+              "edible_fraction": 0.591,
+              "conversion": "平均帶骨可食率59.1%",
+              "per_100": {
+                "kcal": 287.0,
+                "protein_g": 18.0,
+                "fat_g": 23.3,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 508.851,
+                "protein_g": 31.914,
+                "fat_g": 41.3109,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "reference_id": "I0304301",
+              "description": "豬小排"
+            },
+            {
+              "ingredient": "dried-chinese-cabbage",
+              "input_quantity": 20,
+              "input_unit": "g",
+              "nutrition_amount": 20.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 305,
+                "protein_g": 6.2,
+                "carbs_g": 72.9,
+                "fat_g": 0.8
+              },
+              "contribution": {
+                "kcal": 61.0,
+                "protein_g": 1.24,
+                "carbs_g": 14.58,
+                "fat_g": 0.16
+              },
+              "source_url": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-search3.php",
+              "reference_id": "0503020451050",
+              "description": "白菜(脫水)"
+            }
+          ],
+          "whole_pot_unrounded_totals": {
+            "kcal": 574.651,
+            "protein_g": 33.2632,
+            "carbs_g": 15.6462,
+            "fat_g": 41.5159
+          },
+          "unrounded_totals": {
+            "kcal": 287.3255,
+            "protein_g": 16.6316,
+            "carbs_g": 7.8231,
+            "fat_g": 20.75795
+          },
+          "missing_evidence": [],
+          "optional_ingredients_excluded": [],
+          "limitations": [
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。",
+            "排骨按台灣食品營養資料庫平均可食率59.1%換算；不是實秤肉量。品種、附肉及脂肪多少會令結果不同，未另計骨髓溶出。",
+            "假設可食肉、菜及湯全數食用，未校正汆水、浸洗、撇油及烹煮流失，並非成品化驗值。",
+            "800毫升是食譜指定的成品湯量目標，並非試煮量度；隔出湯料後量度湯量，按步驟補水或收濃。時間亦為做法估算，未經試煮。",
+            "菜乾使用食安中心「白菜(脫水)」資料；實購白菜品種、乾燥程度及浸洗流失可能不同。"
+          ],
+          "calculated_at": "2026-10-25",
+          "reference_registry": "docs/qa/reference-soup-profiles-20261025.json",
+          "portion": {
+            "broth_ml_per_serving": 400,
+            "target_whole_pot_broth_ml": 800,
+            "edible_solids_fraction_per_serving": 0.5,
+            "yield_status": "specified_target_not_measured"
+          }
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "three_soup_reference_reformulation",
+          "status": "resolved_by_disclosed_reformulation",
+          "original_source_verified": false,
+          "nutrition_validated": false,
+          "public_notes": [
+            "本頁是重新訂定的兩份參考配方，原始配方來源仍未核實；營養按可食材料估算，未經試煮或成品化驗。",
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。"
+          ]
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 10,
+            "carbs_g": 5,
+            "protein_g": 16,
+            "calories_per_serving": 180
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        },
+        "soup_reformulation_20261025": {
+          "date": "2026-10-25",
+          "status": "editorial_reference_reformulation",
+          "previous_recipe": {
+            "name": "菜乾豬骨湯",
+            "description": "菜乾香氣濃郁，與豬骨煲出經典老火湯風味，鹹香而不膩。",
+            "base_servings": 1,
+            "servings_unit": "bowl",
+            "prep_time_minutes": 10,
+            "cook_time_minutes": 90,
+            "total_time_minutes": 100,
+            "calories_per_serving": null,
+            "protein_g": null,
+            "carbs_g": null,
+            "fat_g": null,
+            "diet": [],
+            "protein": [
+              "pork"
+            ],
+            "primary_protein": "pork",
+            "source_data": {
+              "nutrition": {
+                "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+                "status": "insufficient_evidence",
+                "rounding": "half_up; kcal integer; macros one decimal",
+                "servings": 1,
+                "components": [
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "USDA household tsp/tbsp mass",
+                    "ingredient": "salt",
+                    "input_unit": "tsp",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+                    "description": "Salt, table",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173468",
+                    "input_quantity": 0.5,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 3
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 80,
+                      "fat_g": 0.75,
+                      "carbs_g": 17.77,
+                      "protein_g": 1.82
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "ginger",
+                    "input_unit": "g",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+                    "description": "Ginger root, raw",
+                    "contribution": {
+                      "kcal": 4,
+                      "fat_g": 0.0375,
+                      "carbs_g": 0.8885,
+                      "protein_g": 0.091
+                    },
+                    "reference_id": "169231",
+                    "input_quantity": 5,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 5
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "listed metric volume; liquid density approximated1g/ml",
+                    "ingredient": "water",
+                    "input_unit": "ml",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+                    "description": "Beverages, water, tap, drinking",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173647",
+                    "input_quantity": 1000,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 1000
+                  }
+                ],
+                "limitations": [
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+                  "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+                  "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+                ],
+                "calculated_at": "2026-10-25",
+                "missing_evidence": [
+                  {
+                    "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+                    "ingredient": "pork-bones"
+                  },
+                  {
+                    "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+                    "ingredient": "dried-chinese-cabbage"
+                  }
+                ],
+                "unrounded_totals": null,
+                "optional_ingredients_excluded": []
+              },
+              "consistency_review": {
+                "date": "2026-10-25",
+                "scope": "legacy_nutrition_reference_review",
+                "status": "nutrition_evidence_incomplete",
+                "public_notes": [
+                  "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+                ],
+                "nutrition_validated": false,
+                "original_source_verified": false
+              },
+              "nutrition_review_20261025": {
+                "status": "withheld_insufficient_evidence",
+                "previous_nutrition": {
+                  "diet": [
+                    "low_calorie"
+                  ],
+                  "fat_g": 10,
+                  "carbs_g": 5,
+                  "protein_g": 16,
+                  "calories_per_serving": 180
+                },
+                "original_source_verified": false,
+                "previous_consistency_review": {
+                  "date": "2026-10-25",
+                  "scope": "full_legacy_text_consistency",
+                  "status": "text_consistency_pass_only",
+                  "public_notes": [
+                    "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+                  ],
+                  "nutrition_validated": false,
+                  "original_source_verified": false
+                }
+              }
+            }
+          },
+          "previous_ingredients": [
+            {
+              "id": "6e16e0e0-ab86-4a76-9c56-3cc199175177",
+              "slug": "salt",
+              "unit": "tsp",
+              "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+              "quantity": 0.5,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+            },
+            {
+              "id": "02f43fb3-354a-4bf5-b5e4-caae8aa14dcc",
+              "slug": "ginger",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 5,
+              "group_key": "main",
+              "prep_note": "切片",
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "created_at": "2026-05-09T10:49:36.270933+00:00",
+              "is_optional": false,
+              "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+            },
+            {
+              "id": "523f8029-7d75-4245-85f8-69cea9efede2",
+              "slug": "water",
+              "unit": "ml",
+              "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+              "quantity": 1000,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+            },
+            {
+              "id": "7e0e4438-b477-4be6-b629-dd67e7044ad4",
+              "slug": "pork-bones",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 250,
+              "group_key": null,
+              "prep_note": "汆水備用",
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+            },
+            {
+              "id": "6c3b6f7f-c351-48af-ad5e-ba97c5ead109",
+              "slug": "dried-chinese-cabbage",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 40,
+              "group_key": null,
+              "prep_note": "浸軟洗淨",
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "4f390820-3a8e-46c1-87f4-763cdaf0fb4d"
+            }
+          ],
+          "previous_steps": [
+            {
+              "id": "5336d8ec-ec11-483e-ab8f-35fdcc2405d9",
+              "text": "菜乾用清水浸軟，沖洗乾淨後剪段。",
+              "step_no": 1,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 600
+            },
+            {
+              "id": "6547ea2e-0a69-495b-91f4-790205d0d334",
+              "text": "豬骨放入滾水中汆水 3 分鐘，撈起沖洗乾淨。",
+              "step_no": 2,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 240
+            },
+            {
+              "id": "e361b84f-ba3a-4a7b-9edf-f0d134029a91",
+              "text": "湯鍋加入菜乾、豬骨、薑片和清水1000毫升。",
+              "step_no": 3,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 120
+            },
+            {
+              "id": "27a449d8-7493-481e-979b-3666836d1d56",
+              "text": "大火煮滾後轉小火，加蓋煲約 1 小時 30 分鐘。",
+              "step_no": 4,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 5400
+            },
+            {
+              "id": "fa12f0c5-11c7-483c-805b-44409b283b00",
+              "text": "煲至湯色變深、菜乾出味。",
+              "step_no": 5,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 60
+            },
+            {
+              "id": "789f4a4e-ceb9-4bd8-abda-42157cc7e171",
+              "text": "最後加入鹽少許調味即可。",
+              "step_no": 6,
+              "image_url": null,
+              "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+              "time_seconds": 60
+            }
+          ],
+          "changes": [
+            "籠統豬骨改為帶骨小排",
+            "列明每份湯及可食湯渣",
+            "明確原料乾重、生重及非可食部",
+            "營養數值為材料投入估算"
+          ]
+        },
+        "source_attribution": {
+          "website": "PrepMeal",
+          "author": "PrepMeal 編輯整理",
+          "original_recipe_url": null,
+          "adaptation_note": "按可查證食材資料重新訂定的參考配方；營養來源為香港食安中心、台灣食品營養成分資料庫及USDA，並非以上機構發表的食譜。"
+        }
+      }
+    },
+    "ingredients_before": [
+      {
+        "id": "6e16e0e0-ab86-4a76-9c56-3cc199175177",
+        "slug": "salt",
+        "unit": "tsp",
+        "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+        "quantity": 0.5,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+      },
+      {
+        "id": "02f43fb3-354a-4bf5-b5e4-caae8aa14dcc",
+        "slug": "ginger",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 5,
+        "group_key": "main",
+        "prep_note": "切片",
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "created_at": "2026-05-09T10:49:36.270933+00:00",
+        "is_optional": false,
+        "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+      },
+      {
+        "id": "523f8029-7d75-4245-85f8-69cea9efede2",
+        "slug": "water",
+        "unit": "ml",
+        "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+        "quantity": 1000,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+      },
+      {
+        "id": "7e0e4438-b477-4be6-b629-dd67e7044ad4",
+        "slug": "pork-bones",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 250,
+        "group_key": null,
+        "prep_note": "汆水備用",
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+      },
+      {
+        "id": "6c3b6f7f-c351-48af-ad5e-ba97c5ead109",
+        "slug": "dried-chinese-cabbage",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 40,
+        "group_key": null,
+        "prep_note": "浸軟洗淨",
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "4f390820-3a8e-46c1-87f4-763cdaf0fb4d"
+      }
+    ],
+    "ingredients_after": [
+      {
+        "old_slug": "salt",
+        "slug": "salt",
+        "quantity": 2,
+        "unit": "g",
+        "prep_note": "全鍋共2克"
+      },
+      {
+        "old_slug": "ginger",
+        "slug": "ginger",
+        "quantity": 6,
+        "unit": "g",
+        "prep_note": "可食生重，切片"
+      },
+      {
+        "old_slug": "water",
+        "slug": "water",
+        "quantity": 1200,
+        "unit": "ml",
+        "prep_note": "煲湯用量1200毫升；浸菜乾及汆水用水另備、不計入此量"
+      },
+      {
+        "old_slug": "pork-bones",
+        "slug": "pork-ribs",
+        "quantity": 300,
+        "unit": "g",
+        "prep_note": "帶骨小排300克，購買生重；參考可食肉及脂肪約177.3克"
+      },
+      {
+        "old_slug": "dried-chinese-cabbage",
+        "slug": "dried-chinese-cabbage",
+        "quantity": 20,
+        "unit": "g",
+        "prep_note": "無添加糖、油或鹽的白菜乾，20克為浸泡前乾重；浸軟洗淨剪段"
+      }
+    ],
+    "steps_before": [
+      {
+        "id": "5336d8ec-ec11-483e-ab8f-35fdcc2405d9",
+        "text": "菜乾用清水浸軟，沖洗乾淨後剪段。",
+        "step_no": 1,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 600
+      },
+      {
+        "id": "6547ea2e-0a69-495b-91f4-790205d0d334",
+        "text": "豬骨放入滾水中汆水 3 分鐘，撈起沖洗乾淨。",
+        "step_no": 2,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 240
+      },
+      {
+        "id": "e361b84f-ba3a-4a7b-9edf-f0d134029a91",
+        "text": "湯鍋加入菜乾、豬骨、薑片和清水1000毫升。",
+        "step_no": 3,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 120
+      },
+      {
+        "id": "27a449d8-7493-481e-979b-3666836d1d56",
+        "text": "大火煮滾後轉小火，加蓋煲約 1 小時 30 分鐘。",
+        "step_no": 4,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 5400
+      },
+      {
+        "id": "fa12f0c5-11c7-483c-805b-44409b283b00",
+        "text": "煲至湯色變深、菜乾出味。",
+        "step_no": 5,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 60
+      },
+      {
+        "id": "789f4a4e-ceb9-4bd8-abda-42157cc7e171",
+        "text": "最後加入鹽少許調味即可。",
+        "step_no": 6,
+        "image_url": null,
+        "recipe_id": "9e94813f-2564-4ab3-a156-813c369c211f",
+        "time_seconds": 60
+      }
+    ],
+    "steps_after": [
+      {
+        "step_no": 1,
+        "text": "白菜乾20克以清水浸約60分鐘至軟，逐葉洗去沙粒，瀝乾剪段；薑6克切片。浸泡及清洗用水倒去，不使用材料表的煲湯用水。",
+        "time_seconds": 4200
+      },
+      {
+        "step_no": 2,
+        "text": "帶骨小排300克放入另外煮滾的清水，汆水3分鐘後撈起沖淨；汆水水倒去。",
+        "time_seconds": 240
+      },
+      {
+        "step_no": 3,
+        "text": "湯鍋加入排骨、菜乾、薑及材料表的清水1200毫升，大火煮滾。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 4,
+        "text": "轉小火加蓋煲約90分鐘，至排骨肉熟透且軟腍；期間如水量過少，加入滾水維持材料浸在湯中。",
+        "time_seconds": 5400
+      },
+      {
+        "step_no": 5,
+        "text": "用漏勺將湯料暫時盛起，量度湯量：不足800毫升補滾水，超過則開蓋略煮收至800毫升。放回湯料，加入鹽2克煮滾。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 6,
+        "text": "湯分成兩份，每份400毫升；菜乾及排骨亦各分一半。營養估算包括全部可食湯渣，排骨只吃肉、不吃骨。",
+        "time_seconds": 60
+      }
+    ]
+  },
+  {
+    "slug": "watercress-preserved-duck-gizzard-soup",
+    "before": {
+      "name": "西洋菜陳腎湯",
+      "description": "西洋菜清香帶微甘，配陳腎與豬骨煲出濃郁傳統廣東湯味。",
+      "base_servings": 1,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 100,
+      "total_time_minutes": 115,
+      "calories_per_serving": null,
+      "protein_g": null,
+      "carbs_g": null,
+      "fat_g": null,
+      "diet": [],
+      "protein": [
+        "mixed",
+        "pork"
+      ],
+      "primary_protein": "mixed",
+      "source_data": {
+        "nutrition": {
+          "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+          "status": "insufficient_evidence",
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "servings": 1,
+          "components": [
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "USDA household tsp/tbsp mass",
+              "ingredient": "salt",
+              "input_unit": "tsp",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "description": "Salt, table",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173468",
+              "input_quantity": 0.5,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 3
+            },
+            {
+              "per_100": {
+                "kcal": 80,
+                "fat_g": 0.75,
+                "carbs_g": 17.77,
+                "protein_g": 1.82
+              },
+              "conversion": "listed grams",
+              "ingredient": "ginger",
+              "input_unit": "g",
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "description": "Ginger root, raw",
+              "contribution": {
+                "kcal": 2.4,
+                "fat_g": 0.0225,
+                "carbs_g": 0.5331,
+                "protein_g": 0.0546
+              },
+              "reference_id": "169231",
+              "input_quantity": 3,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 3
+            },
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "listed metric volume; liquid density approximated1g/ml",
+              "ingredient": "water",
+              "input_unit": "ml",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "description": "Beverages, water, tap, drinking",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173647",
+              "input_quantity": 1000,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 1000
+            },
+            {
+              "per_100": {
+                "kcal": 21,
+                "fat_g": 0.3,
+                "carbs_g": 3.2,
+                "protein_g": 2.2
+              },
+              "conversion": "listed grams",
+              "ingredient": "watercress",
+              "input_unit": "g",
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "description": "豆瓣菜",
+              "contribution": {
+                "kcal": 25.2,
+                "fat_g": 0.36,
+                "carbs_g": 3.84,
+                "protein_g": 2.64
+              },
+              "reference_id": "E3500101",
+              "input_quantity": 120,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 120
+            }
+          ],
+          "limitations": [
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+            "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+            "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+          ],
+          "calculated_at": "2026-10-25",
+          "missing_evidence": [
+            {
+              "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+              "ingredient": "pork-bones"
+            },
+            {
+              "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+              "ingredient": "preserved-duck-gizzard"
+            }
+          ],
+          "unrounded_totals": null,
+          "optional_ingredients_excluded": []
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "legacy_nutrition_reference_review",
+          "status": "nutrition_evidence_incomplete",
+          "public_notes": [
+            "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+          ],
+          "nutrition_validated": false,
+          "original_source_verified": false
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 9,
+            "carbs_g": 6,
+            "protein_g": 15,
+            "calories_per_serving": 170
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        }
+      }
+    },
+    "after": {
+      "name": "西洋菜鮮鴨腎排骨湯（參考配方）",
+      "description": "西洋菜配鮮鴨腎與排骨慢煲，湯味清香，連湯渣分成兩份。",
+      "base_servings": 2,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 100,
+      "total_time_minutes": 115,
+      "calories_per_serving": 273,
+      "protein_g": 24.0,
+      "carbs_g": 4.8,
+      "fat_g": 17.5,
+      "diet": [],
+      "protein": [
+        "pork",
+        "mixed"
+      ],
+      "primary_protein": "mixed",
+      "source_data": {
+        "nutrition": {
+          "status": "reference_based_estimate",
+          "basis": "Whole-pot edible raw/dry input estimate divided by two; all broth and edible solids consumed; not broth-only or cooked-food assay.",
+          "servings": 2,
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "components": [
+            {
+              "ingredient": "salt",
+              "input_quantity": 2,
+              "input_unit": "g",
+              "nutrition_amount": 2.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "reference_id": "173468",
+              "description": "Salt, table"
+            },
+            {
+              "ingredient": "ginger",
+              "input_quantity": 6,
+              "input_unit": "g",
+              "nutrition_amount": 6.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 80.0,
+                "protein_g": 1.82,
+                "fat_g": 0.75,
+                "carbs_g": 17.77
+              },
+              "contribution": {
+                "kcal": 4.8,
+                "protein_g": 0.1092,
+                "fat_g": 0.045,
+                "carbs_g": 1.0662
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "reference_id": "169231",
+              "description": "Ginger root, raw"
+            },
+            {
+              "ingredient": "water",
+              "input_quantity": 1200,
+              "input_unit": "ml",
+              "nutrition_amount": 1200.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "reference_id": "173647",
+              "description": "Beverages, water, tap, drinking"
+            },
+            {
+              "ingredient": "watercress",
+              "input_quantity": 200,
+              "input_unit": "g",
+              "nutrition_amount": 200.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 21.0,
+                "protein_g": 2.2,
+                "fat_g": 0.3,
+                "carbs_g": 3.2
+              },
+              "contribution": {
+                "kcal": 42.0,
+                "protein_g": 4.4,
+                "fat_g": 0.6,
+                "carbs_g": 6.4
+              },
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "reference_id": "E3500101",
+              "description": "豆瓣菜"
+            },
+            {
+              "ingredient": "pork-ribs",
+              "input_quantity": 240,
+              "input_unit": "g",
+              "nutrition_amount": 141.84,
+              "nutrition_unit": "g",
+              "edible_fraction": 0.591,
+              "conversion": "平均帶骨可食率59.1%",
+              "per_100": {
+                "kcal": 287.0,
+                "protein_g": 18.0,
+                "fat_g": 23.3,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 407.0808,
+                "protein_g": 25.5312,
+                "fat_g": 33.04872,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "reference_id": "I0304301",
+              "description": "豬小排"
+            },
+            {
+              "ingredient": "fresh-duck-gizzard",
+              "input_quantity": 100,
+              "input_unit": "g",
+              "nutrition_amount": 100.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 92,
+                "protein_g": 17.9,
+                "carbs_g": 2.1,
+                "fat_g": 1.3
+              },
+              "contribution": {
+                "kcal": 92.0,
+                "protein_g": 17.9,
+                "carbs_g": 2.1,
+                "fat_g": 1.3
+              },
+              "source_url": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-search3.php",
+              "reference_id": "0507060922110",
+              "description": "鴨肫（鮮鴨腎；不是陳腎）"
+            }
+          ],
+          "whole_pot_unrounded_totals": {
+            "kcal": 545.8808,
+            "protein_g": 47.9404,
+            "carbs_g": 9.5662,
+            "fat_g": 34.99372
+          },
+          "unrounded_totals": {
+            "kcal": 272.9404,
+            "protein_g": 23.9702,
+            "carbs_g": 4.7831,
+            "fat_g": 17.49686
+          },
+          "missing_evidence": [],
+          "optional_ingredients_excluded": [],
+          "limitations": [
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。",
+            "排骨按台灣食品營養資料庫平均可食率59.1%換算；不是實秤肉量。品種、附肉及脂肪多少會令結果不同，未另計骨髓溶出。",
+            "假設可食肉、菜及湯全數食用，未校正汆水、浸洗、撇油及烹煮流失，並非成品化驗值。",
+            "800毫升是食譜指定的成品湯量目標，並非試煮量度；隔出湯料後量度湯量，按步驟補水或收濃。時間亦為做法估算，未經試煮。",
+            "原有陳腎已明確改為鮮鴨腎；營養資料不可套用於風乾鹽醃陳腎。"
+          ],
+          "calculated_at": "2026-10-25",
+          "reference_registry": "docs/qa/reference-soup-profiles-20261025.json",
+          "portion": {
+            "broth_ml_per_serving": 400,
+            "target_whole_pot_broth_ml": 800,
+            "edible_solids_fraction_per_serving": 0.5,
+            "yield_status": "specified_target_not_measured"
+          }
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "three_soup_reference_reformulation",
+          "status": "resolved_by_disclosed_reformulation",
+          "original_source_verified": false,
+          "nutrition_validated": false,
+          "public_notes": [
+            "本頁是重新訂定的兩份參考配方，原始配方來源仍未核實；營養按可食材料估算，未經試煮或成品化驗。",
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。",
+            "原有陳腎已明確改為鮮鴨腎；營養資料不可套用於風乾鹽醃陳腎。"
+          ]
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 9,
+            "carbs_g": 6,
+            "protein_g": 15,
+            "calories_per_serving": 170
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        },
+        "soup_reformulation_20261025": {
+          "date": "2026-10-25",
+          "status": "editorial_reference_reformulation",
+          "previous_recipe": {
+            "name": "西洋菜陳腎湯",
+            "description": "西洋菜清香帶微甘，配陳腎與豬骨煲出濃郁傳統廣東湯味。",
+            "base_servings": 1,
+            "servings_unit": "bowl",
+            "prep_time_minutes": 15,
+            "cook_time_minutes": 100,
+            "total_time_minutes": 115,
+            "calories_per_serving": null,
+            "protein_g": null,
+            "carbs_g": null,
+            "fat_g": null,
+            "diet": [],
+            "protein": [
+              "mixed",
+              "pork"
+            ],
+            "primary_protein": "mixed",
+            "source_data": {
+              "nutrition": {
+                "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+                "status": "insufficient_evidence",
+                "rounding": "half_up; kcal integer; macros one decimal",
+                "servings": 1,
+                "components": [
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "USDA household tsp/tbsp mass",
+                    "ingredient": "salt",
+                    "input_unit": "tsp",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+                    "description": "Salt, table",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173468",
+                    "input_quantity": 0.5,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 3
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 80,
+                      "fat_g": 0.75,
+                      "carbs_g": 17.77,
+                      "protein_g": 1.82
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "ginger",
+                    "input_unit": "g",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+                    "description": "Ginger root, raw",
+                    "contribution": {
+                      "kcal": 2.4,
+                      "fat_g": 0.0225,
+                      "carbs_g": 0.5331,
+                      "protein_g": 0.0546
+                    },
+                    "reference_id": "169231",
+                    "input_quantity": 3,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 3
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "listed metric volume; liquid density approximated1g/ml",
+                    "ingredient": "water",
+                    "input_unit": "ml",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+                    "description": "Beverages, water, tap, drinking",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173647",
+                    "input_quantity": 1000,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 1000
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 21,
+                      "fat_g": 0.3,
+                      "carbs_g": 3.2,
+                      "protein_g": 2.2
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "watercress",
+                    "input_unit": "g",
+                    "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+                    "description": "豆瓣菜",
+                    "contribution": {
+                      "kcal": 25.2,
+                      "fat_g": 0.36,
+                      "carbs_g": 3.84,
+                      "protein_g": 2.64
+                    },
+                    "reference_id": "E3500101",
+                    "input_quantity": 120,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 120
+                  }
+                ],
+                "limitations": [
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+                  "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+                  "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+                ],
+                "calculated_at": "2026-10-25",
+                "missing_evidence": [
+                  {
+                    "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+                    "ingredient": "pork-bones"
+                  },
+                  {
+                    "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+                    "ingredient": "preserved-duck-gizzard"
+                  }
+                ],
+                "unrounded_totals": null,
+                "optional_ingredients_excluded": []
+              },
+              "consistency_review": {
+                "date": "2026-10-25",
+                "scope": "legacy_nutrition_reference_review",
+                "status": "nutrition_evidence_incomplete",
+                "public_notes": [
+                  "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+                ],
+                "nutrition_validated": false,
+                "original_source_verified": false
+              },
+              "nutrition_review_20261025": {
+                "status": "withheld_insufficient_evidence",
+                "previous_nutrition": {
+                  "diet": [
+                    "low_calorie"
+                  ],
+                  "fat_g": 9,
+                  "carbs_g": 6,
+                  "protein_g": 15,
+                  "calories_per_serving": 170
+                },
+                "original_source_verified": false,
+                "previous_consistency_review": {
+                  "date": "2026-10-25",
+                  "scope": "full_legacy_text_consistency",
+                  "status": "text_consistency_pass_only",
+                  "public_notes": [
+                    "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+                  ],
+                  "nutrition_validated": false,
+                  "original_source_verified": false
+                }
+              }
+            }
+          },
+          "previous_ingredients": [
+            {
+              "id": "f90b61fe-e96e-4444-a5b1-1528c9913a59",
+              "slug": "salt",
+              "unit": "tsp",
+              "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+              "quantity": 0.5,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+            },
+            {
+              "id": "869d6029-b966-41fa-8b8c-6b9228e6d7a3",
+              "slug": "ginger",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 3,
+              "group_key": null,
+              "prep_note": "切片",
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+            },
+            {
+              "id": "620fee9c-9c7d-4571-94c5-83bbe46afb8a",
+              "slug": "water",
+              "unit": "ml",
+              "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+              "quantity": 1000,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+            },
+            {
+              "id": "4935538c-72b1-48a7-b3ae-1b784ec7d49d",
+              "slug": "watercress",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 120,
+              "group_key": null,
+              "prep_note": "洗淨",
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "f40c0bcd-1e8a-4d00-8a3d-83e97ecfe9b6"
+            },
+            {
+              "id": "294d5fe7-d740-43b0-b06a-35df6245aecb",
+              "slug": "pork-bones",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 220,
+              "group_key": null,
+              "prep_note": "汆水備用",
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+            },
+            {
+              "id": "9e61825e-63b2-4e83-aaf3-488506e9db84",
+              "slug": "preserved-duck-gizzard",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 60,
+              "group_key": null,
+              "prep_note": "浸洗切件",
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "6b95a00a-2123-4e11-aa26-d81f86e7cb6f"
+            }
+          ],
+          "previous_steps": [
+            {
+              "id": "3da300e1-b1be-4e5a-9caf-09432771f758",
+              "text": "西洋菜洗淨，陳腎浸洗後切件，薑切片。",
+              "step_no": 1,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 240
+            },
+            {
+              "id": "2fad22b7-8a43-4fcc-87ce-05e6d54c6805",
+              "text": "豬骨放入滾水汆水 3 分鐘，撈起沖洗乾淨。",
+              "step_no": 2,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 240
+            },
+            {
+              "id": "9860b6a7-89cd-483e-a306-0195c6578a22",
+              "text": "湯鍋加入豬骨、陳腎、薑片和清水1000毫升。",
+              "step_no": 3,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 120
+            },
+            {
+              "id": "4bde53d7-70a2-4ceb-a3ea-6e279f9f6f62",
+              "text": "大火煮滾後轉小火，先煲 1 小時。",
+              "step_no": 4,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 3600
+            },
+            {
+              "id": "00f9128d-4394-4e0c-ae89-c3e5a64fd5a2",
+              "text": "加入西洋菜，繼續煲 20 分鐘。",
+              "step_no": 5,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 1200
+            },
+            {
+              "id": "80d63f34-8d73-4549-aa81-07719a65bfe1",
+              "text": "最後加入鹽少許調味即可。",
+              "step_no": 6,
+              "image_url": null,
+              "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+              "time_seconds": 60
+            }
+          ],
+          "changes": [
+            "籠統豬骨改為帶骨小排",
+            "列明每份湯及可食湯渣",
+            "明確原料乾重、生重及非可食部",
+            "營養數值為材料投入估算",
+            "陳腎改為鮮鴨腎並同步改名"
+          ]
+        },
+        "source_attribution": {
+          "website": "PrepMeal",
+          "author": "PrepMeal 編輯整理",
+          "original_recipe_url": null,
+          "adaptation_note": "按可查證食材資料重新訂定的參考配方；營養來源為香港食安中心、台灣食品營養成分資料庫及USDA，並非以上機構發表的食譜。"
+        }
+      }
+    },
+    "ingredients_before": [
+      {
+        "id": "f90b61fe-e96e-4444-a5b1-1528c9913a59",
+        "slug": "salt",
+        "unit": "tsp",
+        "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+        "quantity": 0.5,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+      },
+      {
+        "id": "869d6029-b966-41fa-8b8c-6b9228e6d7a3",
+        "slug": "ginger",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 3,
+        "group_key": null,
+        "prep_note": "切片",
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+      },
+      {
+        "id": "620fee9c-9c7d-4571-94c5-83bbe46afb8a",
+        "slug": "water",
+        "unit": "ml",
+        "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+        "quantity": 1000,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+      },
+      {
+        "id": "4935538c-72b1-48a7-b3ae-1b784ec7d49d",
+        "slug": "watercress",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 120,
+        "group_key": null,
+        "prep_note": "洗淨",
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "f40c0bcd-1e8a-4d00-8a3d-83e97ecfe9b6"
+      },
+      {
+        "id": "294d5fe7-d740-43b0-b06a-35df6245aecb",
+        "slug": "pork-bones",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 220,
+        "group_key": null,
+        "prep_note": "汆水備用",
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+      },
+      {
+        "id": "9e61825e-63b2-4e83-aaf3-488506e9db84",
+        "slug": "preserved-duck-gizzard",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 60,
+        "group_key": null,
+        "prep_note": "浸洗切件",
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "6b95a00a-2123-4e11-aa26-d81f86e7cb6f"
+      }
+    ],
+    "ingredients_after": [
+      {
+        "old_slug": "salt",
+        "slug": "salt",
+        "quantity": 2,
+        "unit": "g",
+        "prep_note": "全鍋共2克"
+      },
+      {
+        "old_slug": "ginger",
+        "slug": "ginger",
+        "quantity": 6,
+        "unit": "g",
+        "prep_note": "可食生重，切片"
+      },
+      {
+        "old_slug": "water",
+        "slug": "water",
+        "quantity": 1200,
+        "unit": "ml",
+        "prep_note": "煲湯用量1200毫升；清洗及汆水用水另備、不計入此量"
+      },
+      {
+        "old_slug": "watercress",
+        "slug": "watercress",
+        "quantity": 200,
+        "unit": "g",
+        "prep_note": "摘去老根後的可食生重200克，仔細洗淨"
+      },
+      {
+        "old_slug": "pork-bones",
+        "slug": "pork-ribs",
+        "quantity": 240,
+        "unit": "g",
+        "prep_note": "帶骨小排240克，購買生重；參考可食肉及脂肪約141.84克"
+      },
+      {
+        "old_slug": "preserved-duck-gizzard",
+        "slug": "fresh-duck-gizzard",
+        "quantity": 100,
+        "unit": "g",
+        "prep_note": "鮮鴨腎100克，去內膜及雜質後的可食生重；不用鹽醃風乾陳腎"
+      }
+    ],
+    "steps_before": [
+      {
+        "id": "3da300e1-b1be-4e5a-9caf-09432771f758",
+        "text": "西洋菜洗淨，陳腎浸洗後切件，薑切片。",
+        "step_no": 1,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 240
+      },
+      {
+        "id": "2fad22b7-8a43-4fcc-87ce-05e6d54c6805",
+        "text": "豬骨放入滾水汆水 3 分鐘，撈起沖洗乾淨。",
+        "step_no": 2,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 240
+      },
+      {
+        "id": "9860b6a7-89cd-483e-a306-0195c6578a22",
+        "text": "湯鍋加入豬骨、陳腎、薑片和清水1000毫升。",
+        "step_no": 3,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 120
+      },
+      {
+        "id": "4bde53d7-70a2-4ceb-a3ea-6e279f9f6f62",
+        "text": "大火煮滾後轉小火，先煲 1 小時。",
+        "step_no": 4,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 3600
+      },
+      {
+        "id": "00f9128d-4394-4e0c-ae89-c3e5a64fd5a2",
+        "text": "加入西洋菜，繼續煲 20 分鐘。",
+        "step_no": 5,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 1200
+      },
+      {
+        "id": "80d63f34-8d73-4549-aa81-07719a65bfe1",
+        "text": "最後加入鹽少許調味即可。",
+        "step_no": 6,
+        "image_url": null,
+        "recipe_id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+        "time_seconds": 60
+      }
+    ],
+    "steps_after": [
+      {
+        "step_no": 1,
+        "text": "西洋菜摘去老根後秤200克，仔細清洗；鮮鴨腎去內膜及雜質後秤100克、切件，薑6克切片。鮮鴨腎不是鹽醃風乾的陳腎，不能按相同重量替換。",
+        "time_seconds": 600
+      },
+      {
+        "step_no": 2,
+        "text": "帶骨小排240克及鮮鴨腎放入另外煮滾的清水，汆水3分鐘後撈起沖淨；汆水水倒去。",
+        "time_seconds": 240
+      },
+      {
+        "step_no": 3,
+        "text": "湯鍋加入排骨、鮮鴨腎、薑及清水1200毫升，大火煮滾後轉小火加蓋煲70分鐘。",
+        "time_seconds": 4500
+      },
+      {
+        "step_no": 4,
+        "text": "加入洗淨的西洋菜，再加蓋煲20分鐘，至菜軟、排骨及鮮鴨腎完全熟透軟腍；如水量過少，加入滾水維持材料浸在湯中。",
+        "time_seconds": 1200
+      },
+      {
+        "step_no": 5,
+        "text": "用漏勺將湯料暫時盛起，量度湯量：不足800毫升補滾水，超過則開蓋略煮收至800毫升。放回湯料，加入鹽2克煮滾。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 6,
+        "text": "湯分成兩份，每份400毫升；西洋菜、鮮鴨腎及排骨亦各分一半。營養估算包括全部可食湯渣，排骨只吃肉、不吃骨。",
+        "time_seconds": 60
+      }
+    ]
+  },
+  {
+    "slug": "corn-carrot-pork-bone-soup",
+    "before": {
+      "name": "粟米紅蘿蔔豬骨湯",
+      "description": "粟米、紅蘿蔔與豬骨慢煲成家常湯，味道清甜溫和。",
+      "base_servings": 1,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 90,
+      "total_time_minutes": 100,
+      "calories_per_serving": null,
+      "protein_g": null,
+      "carbs_g": null,
+      "fat_g": null,
+      "diet": [],
+      "protein": [
+        "pork"
+      ],
+      "primary_protein": "pork",
+      "source_data": {
+        "nutrition": {
+          "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+          "status": "insufficient_evidence",
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "servings": 1,
+          "components": [
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "USDA household tsp/tbsp mass",
+              "ingredient": "salt",
+              "input_unit": "tsp",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "description": "Salt, table",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173468",
+              "input_quantity": 0.5,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 3
+            },
+            {
+              "per_100": {
+                "kcal": 80,
+                "fat_g": 0.75,
+                "carbs_g": 17.77,
+                "protein_g": 1.82
+              },
+              "conversion": "listed grams",
+              "ingredient": "ginger",
+              "input_unit": "g",
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "description": "Ginger root, raw",
+              "contribution": {
+                "kcal": 2.4,
+                "fat_g": 0.0225,
+                "carbs_g": 0.5331,
+                "protein_g": 0.0546
+              },
+              "reference_id": "169231",
+              "input_quantity": 3,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 3
+            },
+            {
+              "per_100": {
+                "kcal": 41,
+                "fat_g": 0.24,
+                "carbs_g": 9.58,
+                "protein_g": 0.93
+              },
+              "conversion": "listed grams",
+              "ingredient": "carrot",
+              "input_unit": "g",
+              "source_url": "https://fdc.nal.usda.gov/food-details/170393/nutrients",
+              "description": "Carrots, raw",
+              "contribution": {
+                "kcal": 32.8,
+                "fat_g": 0.192,
+                "carbs_g": 7.664,
+                "protein_g": 0.744
+              },
+              "reference_id": "170393",
+              "input_quantity": 80,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 80
+            },
+            {
+              "per_100": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "conversion": "listed metric volume; liquid density approximated1g/ml",
+              "ingredient": "water",
+              "input_unit": "ml",
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "description": "Beverages, water, tap, drinking",
+              "contribution": {
+                "kcal": 0,
+                "fat_g": 0,
+                "carbs_g": 0,
+                "protein_g": 0
+              },
+              "reference_id": "173647",
+              "input_quantity": 900,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 900
+            },
+            {
+              "per_100": {
+                "kcal": 107,
+                "fat_g": 2.5,
+                "carbs_g": 17.8,
+                "protein_g": 3.3
+              },
+              "conversion": "listed grams",
+              "ingredient": "corn",
+              "input_unit": "g",
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "description": "甜玉米",
+              "contribution": {
+                "kcal": 85.6,
+                "fat_g": 2,
+                "carbs_g": 14.24,
+                "protein_g": 2.64
+              },
+              "reference_id": "A0400301",
+              "input_quantity": 80,
+              "nutrition_unit": "g",
+              "reference_parts": null,
+              "nutrition_amount": 80
+            }
+          ],
+          "limitations": [
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+            "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+            "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+          ],
+          "calculated_at": "2026-10-25",
+          "missing_evidence": [
+            {
+              "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+              "ingredient": "pork-bones"
+            }
+          ],
+          "unrounded_totals": null,
+          "optional_ingredients_excluded": []
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "legacy_nutrition_reference_review",
+          "status": "nutrition_evidence_incomplete",
+          "public_notes": [
+            "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+            "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+          ],
+          "nutrition_validated": false,
+          "original_source_verified": false
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 8,
+            "carbs_g": 10,
+            "protein_g": 16,
+            "calories_per_serving": 180
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        }
+      }
+    },
+    "after": {
+      "name": "粟米紅蘿蔔排骨湯（參考配方）",
+      "description": "粟米、紅蘿蔔與排骨慢煲出清甜湯味，連湯渣分成兩份。",
+      "base_servings": 2,
+      "servings_unit": "bowl",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 100,
+      "total_time_minutes": 110,
+      "calories_per_serving": 355,
+      "protein_g": 18.8,
+      "carbs_g": 19.1,
+      "fat_g": 22.4,
+      "diet": [],
+      "protein": [
+        "pork"
+      ],
+      "primary_protein": "pork",
+      "source_data": {
+        "nutrition": {
+          "status": "reference_based_estimate",
+          "basis": "Whole-pot edible raw/dry input estimate divided by two; all broth and edible solids consumed; not broth-only or cooked-food assay.",
+          "servings": 2,
+          "rounding": "half_up; kcal integer; macros one decimal",
+          "components": [
+            {
+              "ingredient": "salt",
+              "input_quantity": 2,
+              "input_unit": "g",
+              "nutrition_amount": 2.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+              "reference_id": "173468",
+              "description": "Salt, table"
+            },
+            {
+              "ingredient": "ginger",
+              "input_quantity": 6,
+              "input_unit": "g",
+              "nutrition_amount": 6.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 80.0,
+                "protein_g": 1.82,
+                "fat_g": 0.75,
+                "carbs_g": 17.77
+              },
+              "contribution": {
+                "kcal": 4.8,
+                "protein_g": 0.1092,
+                "fat_g": 0.045,
+                "carbs_g": 1.0662
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+              "reference_id": "169231",
+              "description": "Ginger root, raw"
+            },
+            {
+              "ingredient": "carrot",
+              "input_quantity": 160,
+              "input_unit": "g",
+              "nutrition_amount": 160.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 41,
+                "protein_g": 0.93,
+                "carbs_g": 9.58,
+                "fat_g": 0.24
+              },
+              "contribution": {
+                "kcal": 65.6,
+                "protein_g": 1.488,
+                "carbs_g": 15.328,
+                "fat_g": 0.384
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/170393/nutrients",
+              "reference_id": "170393",
+              "description": "Carrots, raw"
+            },
+            {
+              "ingredient": "water",
+              "input_quantity": 1200,
+              "input_unit": "ml",
+              "nutrition_amount": 1200.0,
+              "nutrition_unit": "g",
+              "edible_fraction": 1.0,
+              "conversion": "指定的可食生重／乾重；水按1克／毫升",
+              "per_100": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 0.0,
+                "protein_g": 0.0,
+                "fat_g": 0.0,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+              "reference_id": "173647",
+              "description": "Beverages, water, tap, drinking"
+            },
+            {
+              "ingredient": "corn",
+              "input_quantity": 200,
+              "input_unit": "g",
+              "nutrition_amount": 122.6,
+              "nutrition_unit": "g",
+              "edible_fraction": 0.613,
+              "conversion": "去衣鬚後連芯粟米按平均可食率61.3%",
+              "per_100": {
+                "kcal": 107.0,
+                "protein_g": 3.3,
+                "fat_g": 2.5,
+                "carbs_g": 17.8
+              },
+              "contribution": {
+                "kcal": 131.182,
+                "protein_g": 4.0458,
+                "fat_g": 3.065,
+                "carbs_g": 21.8228
+              },
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "reference_id": "A0400301",
+              "description": "甜玉米"
+            },
+            {
+              "ingredient": "pork-ribs",
+              "input_quantity": 300,
+              "input_unit": "g",
+              "nutrition_amount": 177.3,
+              "nutrition_unit": "g",
+              "edible_fraction": 0.591,
+              "conversion": "平均帶骨可食率59.1%",
+              "per_100": {
+                "kcal": 287.0,
+                "protein_g": 18.0,
+                "fat_g": 23.3,
+                "carbs_g": 0.0
+              },
+              "contribution": {
+                "kcal": 508.851,
+                "protein_g": 31.914,
+                "fat_g": 41.3109,
+                "carbs_g": 0.0
+              },
+              "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+              "reference_id": "I0304301",
+              "description": "豬小排"
+            }
+          ],
+          "whole_pot_unrounded_totals": {
+            "kcal": 710.433,
+            "protein_g": 37.557,
+            "carbs_g": 38.217,
+            "fat_g": 44.8049
+          },
+          "unrounded_totals": {
+            "kcal": 355.2165,
+            "protein_g": 18.7785,
+            "carbs_g": 19.1085,
+            "fat_g": 22.40245
+          },
+          "missing_evidence": [],
+          "optional_ingredients_excluded": [],
+          "limitations": [
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。",
+            "排骨按台灣食品營養資料庫平均可食率59.1%換算；不是實秤肉量。品種、附肉及脂肪多少會令結果不同，未另計骨髓溶出。",
+            "假設可食肉、菜及湯全數食用，未校正汆水、浸洗、撇油及烹煮流失，並非成品化驗值。",
+            "800毫升是食譜指定的成品湯量目標，並非試煮量度；隔出湯料後量度湯量，按步驟補水或收濃。時間亦為做法估算，未經試煮。"
+          ],
+          "calculated_at": "2026-10-25",
+          "reference_registry": "docs/qa/reference-soup-profiles-20261025.json",
+          "portion": {
+            "broth_ml_per_serving": 400,
+            "target_whole_pot_broth_ml": 800,
+            "edible_solids_fraction_per_serving": 0.5,
+            "yield_status": "specified_target_not_measured"
+          }
+        },
+        "consistency_review": {
+          "date": "2026-10-25",
+          "scope": "three_soup_reference_reformulation",
+          "status": "resolved_by_disclosed_reformulation",
+          "original_source_verified": false,
+          "nutrition_validated": false,
+          "public_notes": [
+            "本頁是重新訂定的兩份參考配方，原始配方來源仍未核實；營養按可食材料估算，未經試煮或成品化驗。",
+            "營養按整鍋可食材料投入量除以2估算，每份包括400毫升湯及一半可食湯渣；只飲湯時不適用，骨、粟米芯等不計入可食重量。"
+          ]
+        },
+        "nutrition_review_20261025": {
+          "status": "withheld_insufficient_evidence",
+          "previous_nutrition": {
+            "diet": [
+              "low_calorie"
+            ],
+            "fat_g": 8,
+            "carbs_g": 10,
+            "protein_g": 16,
+            "calories_per_serving": 180
+          },
+          "original_source_verified": false,
+          "previous_consistency_review": {
+            "date": "2026-10-25",
+            "scope": "full_legacy_text_consistency",
+            "status": "text_consistency_pass_only",
+            "public_notes": [
+              "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+            ],
+            "nutrition_validated": false,
+            "original_source_verified": false
+          }
+        },
+        "soup_reformulation_20261025": {
+          "date": "2026-10-25",
+          "status": "editorial_reference_reformulation",
+          "previous_recipe": {
+            "name": "粟米紅蘿蔔豬骨湯",
+            "description": "粟米、紅蘿蔔與豬骨慢煲成家常湯，味道清甜溫和。",
+            "base_servings": 1,
+            "servings_unit": "bowl",
+            "prep_time_minutes": 10,
+            "cook_time_minutes": 90,
+            "total_time_minutes": 100,
+            "calories_per_serving": null,
+            "protein_g": null,
+            "carbs_g": null,
+            "fat_g": null,
+            "diet": [],
+            "protein": [
+              "pork"
+            ],
+            "primary_protein": "pork",
+            "source_data": {
+              "nutrition": {
+                "basis": "Required edible ingredient inputs, not cooked-food assay; optional ingredients excluded.",
+                "status": "insufficient_evidence",
+                "rounding": "half_up; kcal integer; macros one decimal",
+                "servings": 1,
+                "components": [
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "USDA household tsp/tbsp mass",
+                    "ingredient": "salt",
+                    "input_unit": "tsp",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+                    "description": "Salt, table",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173468",
+                    "input_quantity": 0.5,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 3
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 80,
+                      "fat_g": 0.75,
+                      "carbs_g": 17.77,
+                      "protein_g": 1.82
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "ginger",
+                    "input_unit": "g",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+                    "description": "Ginger root, raw",
+                    "contribution": {
+                      "kcal": 2.4,
+                      "fat_g": 0.0225,
+                      "carbs_g": 0.5331,
+                      "protein_g": 0.0546
+                    },
+                    "reference_id": "169231",
+                    "input_quantity": 3,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 3
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 41,
+                      "fat_g": 0.24,
+                      "carbs_g": 9.58,
+                      "protein_g": 0.93
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "carrot",
+                    "input_unit": "g",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/170393/nutrients",
+                    "description": "Carrots, raw",
+                    "contribution": {
+                      "kcal": 32.8,
+                      "fat_g": 0.192,
+                      "carbs_g": 7.664,
+                      "protein_g": 0.744
+                    },
+                    "reference_id": "170393",
+                    "input_quantity": 80,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 80
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "conversion": "listed metric volume; liquid density approximated1g/ml",
+                    "ingredient": "water",
+                    "input_unit": "ml",
+                    "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+                    "description": "Beverages, water, tap, drinking",
+                    "contribution": {
+                      "kcal": 0,
+                      "fat_g": 0,
+                      "carbs_g": 0,
+                      "protein_g": 0
+                    },
+                    "reference_id": "173647",
+                    "input_quantity": 900,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 900
+                  },
+                  {
+                    "per_100": {
+                      "kcal": 107,
+                      "fat_g": 2.5,
+                      "carbs_g": 17.8,
+                      "protein_g": 3.3
+                    },
+                    "conversion": "listed grams",
+                    "ingredient": "corn",
+                    "input_unit": "g",
+                    "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+                    "description": "甜玉米",
+                    "contribution": {
+                      "kcal": 85.6,
+                      "fat_g": 2,
+                      "carbs_g": 14.24,
+                      "protein_g": 2.64
+                    },
+                    "reference_id": "A0400301",
+                    "input_quantity": 80,
+                    "nutrition_unit": "g",
+                    "reference_parts": null,
+                    "nutrition_amount": 80
+                  }
+                ],
+                "limitations": [
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。",
+                  "按一人份材料投入量估算，選配材料及未列用量的額外調味另計；並非原食譜公布或成品化驗數據。",
+                  "食材可食部分及用油假設全數吃下，未估烹煮流失、瀝油、煎粉剩餘或醬汁殘留；液體密度近似1克／毫升。"
+                ],
+                "calculated_at": "2026-10-25",
+                "missing_evidence": [
+                  {
+                    "reason": "沒有足夠可食部／乾濕處理或熬湯攝取資料，不能由購買重量推算成品營養。",
+                    "ingredient": "pork-bones"
+                  }
+                ],
+                "unrounded_totals": null,
+                "optional_ingredients_excluded": []
+              },
+              "consistency_review": {
+                "date": "2026-10-25",
+                "scope": "legacy_nutrition_reference_review",
+                "status": "nutrition_evidence_incomplete",
+                "public_notes": [
+                  "原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。",
+                  "骨湯欠缺可食肉量、成品湯量及實際飲用／食用比例，不能從骨重可靠推算營養；已撤下原有未核實總數。"
+                ],
+                "nutrition_validated": false,
+                "original_source_verified": false
+              },
+              "nutrition_review_20261025": {
+                "status": "withheld_insufficient_evidence",
+                "previous_nutrition": {
+                  "diet": [
+                    "low_calorie"
+                  ],
+                  "fat_g": 8,
+                  "carbs_g": 10,
+                  "protein_g": 16,
+                  "calories_per_serving": 180
+                },
+                "original_source_verified": false,
+                "previous_consistency_review": {
+                  "date": "2026-10-25",
+                  "scope": "full_legacy_text_consistency",
+                  "status": "text_consistency_pass_only",
+                  "public_notes": [
+                    "原始食譜來源及營養依據尚未核實；本輪只核對材料表與文字的一致性，並非試煮或完整營養驗證。"
+                  ],
+                  "nutrition_validated": false,
+                  "original_source_verified": false
+                }
+              }
+            }
+          },
+          "previous_ingredients": [
+            {
+              "id": "9120cfee-1e9e-4e81-9fab-341b166d3fcc",
+              "slug": "salt",
+              "unit": "tsp",
+              "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+              "quantity": 0.5,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+            },
+            {
+              "id": "eed6cdbf-4068-4666-9f0d-f527bfc86488",
+              "slug": "ginger",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 3,
+              "group_key": null,
+              "prep_note": "切片",
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+            },
+            {
+              "id": "2ae388a3-7734-4828-8994-5138f8fcd19d",
+              "slug": "carrot",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 80,
+              "group_key": null,
+              "prep_note": "切件",
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "cdb1b819-fd70-42f6-84db-2e18df3bb993"
+            },
+            {
+              "id": "3f101511-c7e2-4464-ba4d-00a9b651f893",
+              "slug": "water",
+              "unit": "ml",
+              "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+              "quantity": 900,
+              "group_key": null,
+              "prep_note": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+            },
+            {
+              "id": "50d4dae2-b6f9-4363-b1f6-76a2b06b8443",
+              "slug": "corn",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 80,
+              "group_key": null,
+              "prep_note": "切段",
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "61902ac1-c897-4231-828c-9ca3475c7e02"
+            },
+            {
+              "id": "9f6e89b0-4243-461b-89d1-e64a092e8734",
+              "slug": "pork-bones",
+              "unit": "g",
+              "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+              "quantity": 250,
+              "group_key": null,
+              "prep_note": "汆水備用",
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "created_at": "2026-04-16T09:28:49.131068+00:00",
+              "is_optional": false,
+              "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+            }
+          ],
+          "previous_steps": [
+            {
+              "id": "c9ae2f03-e3ff-4975-ba0e-27bd360d13f3",
+              "text": "豬骨放入滾水汆水 3 分鐘，撈起沖洗乾淨。",
+              "step_no": 1,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 240
+            },
+            {
+              "id": "c54385f0-dd34-41f2-8303-579a662cffb3",
+              "text": "粟米切段，紅蘿蔔去皮切件，薑切片。",
+              "step_no": 2,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 150
+            },
+            {
+              "id": "dd12b833-f483-448d-a01a-9fdb5431d301",
+              "text": "湯鍋加入豬骨、粟米、紅蘿蔔、薑片和清水900毫升。",
+              "step_no": 3,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 120
+            },
+            {
+              "id": "6c4cd1bc-04e3-4a70-88b0-39529c83ddef",
+              "text": "大火煮滾後轉小火，加蓋煲約 1 小時 30 分鐘。",
+              "step_no": 4,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 5400
+            },
+            {
+              "id": "d9b62f89-19d0-4714-b0d2-709fcaa902a1",
+              "text": "煲至湯味濃郁、紅蘿蔔軟身。",
+              "step_no": 5,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 60
+            },
+            {
+              "id": "e16a4803-2846-4069-bca6-97c29af8fe3b",
+              "text": "最後加入鹽少許調味即可。",
+              "step_no": 6,
+              "image_url": null,
+              "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+              "time_seconds": 60
+            }
+          ],
+          "changes": [
+            "籠統豬骨改為帶骨小排",
+            "列明每份湯及可食湯渣",
+            "明確原料乾重、生重及非可食部",
+            "營養數值為材料投入估算"
+          ]
+        },
+        "source_attribution": {
+          "website": "PrepMeal",
+          "author": "PrepMeal 編輯整理",
+          "original_recipe_url": null,
+          "adaptation_note": "按可查證食材資料重新訂定的參考配方；營養來源為香港食安中心、台灣食品營養成分資料庫及USDA，並非以上機構發表的食譜。"
+        }
+      }
+    },
+    "ingredients_before": [
+      {
+        "id": "9120cfee-1e9e-4e81-9fab-341b166d3fcc",
+        "slug": "salt",
+        "unit": "tsp",
+        "unit_id": "32628b7c-90e9-4051-ba9e-14f9009fce6e",
+        "quantity": 0.5,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "92a6a27a-ad0b-4375-b166-935d7455c9ff"
+      },
+      {
+        "id": "eed6cdbf-4068-4666-9f0d-f527bfc86488",
+        "slug": "ginger",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 3,
+        "group_key": null,
+        "prep_note": "切片",
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "97bfe128-a7b7-4b58-89fb-caa68463405a"
+      },
+      {
+        "id": "2ae388a3-7734-4828-8994-5138f8fcd19d",
+        "slug": "carrot",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 80,
+        "group_key": null,
+        "prep_note": "切件",
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "cdb1b819-fd70-42f6-84db-2e18df3bb993"
+      },
+      {
+        "id": "3f101511-c7e2-4464-ba4d-00a9b651f893",
+        "slug": "water",
+        "unit": "ml",
+        "unit_id": "36910543-acbd-4c66-8c04-3e12d09dec5a",
+        "quantity": 900,
+        "group_key": null,
+        "prep_note": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "4d32e561-50ac-4bb4-be6e-43c12a72e397"
+      },
+      {
+        "id": "50d4dae2-b6f9-4363-b1f6-76a2b06b8443",
+        "slug": "corn",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 80,
+        "group_key": null,
+        "prep_note": "切段",
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "61902ac1-c897-4231-828c-9ca3475c7e02"
+      },
+      {
+        "id": "9f6e89b0-4243-461b-89d1-e64a092e8734",
+        "slug": "pork-bones",
+        "unit": "g",
+        "unit_id": "85a3c302-07da-45e1-b3a9-2eb8ecbce93f",
+        "quantity": 250,
+        "group_key": null,
+        "prep_note": "汆水備用",
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "created_at": "2026-04-16T09:28:49.131068+00:00",
+        "is_optional": false,
+        "ingredient_id": "2c58f05d-0e8f-44f9-9c89-f1603ab3a7be"
+      }
+    ],
+    "ingredients_after": [
+      {
+        "old_slug": "salt",
+        "slug": "salt",
+        "quantity": 2,
+        "unit": "g",
+        "prep_note": "全鍋共2克"
+      },
+      {
+        "old_slug": "ginger",
+        "slug": "ginger",
+        "quantity": 6,
+        "unit": "g",
+        "prep_note": "可食生重，切片"
+      },
+      {
+        "old_slug": "carrot",
+        "slug": "carrot",
+        "quantity": 160,
+        "unit": "g",
+        "prep_note": "去皮後可食生重160克，切件"
+      },
+      {
+        "old_slug": "water",
+        "slug": "water",
+        "quantity": 1200,
+        "unit": "ml",
+        "prep_note": "煲湯用量1200毫升；汆水用水另備、不計入此量"
+      },
+      {
+        "old_slug": "corn",
+        "slug": "corn",
+        "quantity": 200,
+        "unit": "g",
+        "prep_note": "去衣及鬚後連芯生重200克，切段；按可食率61.3%估算粟米粒122.6克，只吃粟米粒、不吃芯"
+      },
+      {
+        "old_slug": "pork-bones",
+        "slug": "pork-ribs",
+        "quantity": 300,
+        "unit": "g",
+        "prep_note": "帶骨小排300克，購買生重；參考可食肉及脂肪約177.3克"
+      }
+    ],
+    "steps_before": [
+      {
+        "id": "c9ae2f03-e3ff-4975-ba0e-27bd360d13f3",
+        "text": "豬骨放入滾水汆水 3 分鐘，撈起沖洗乾淨。",
+        "step_no": 1,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 240
+      },
+      {
+        "id": "c54385f0-dd34-41f2-8303-579a662cffb3",
+        "text": "粟米切段，紅蘿蔔去皮切件，薑切片。",
+        "step_no": 2,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 150
+      },
+      {
+        "id": "dd12b833-f483-448d-a01a-9fdb5431d301",
+        "text": "湯鍋加入豬骨、粟米、紅蘿蔔、薑片和清水900毫升。",
+        "step_no": 3,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 120
+      },
+      {
+        "id": "6c4cd1bc-04e3-4a70-88b0-39529c83ddef",
+        "text": "大火煮滾後轉小火，加蓋煲約 1 小時 30 分鐘。",
+        "step_no": 4,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 5400
+      },
+      {
+        "id": "d9b62f89-19d0-4714-b0d2-709fcaa902a1",
+        "text": "煲至湯味濃郁、紅蘿蔔軟身。",
+        "step_no": 5,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 60
+      },
+      {
+        "id": "e16a4803-2846-4069-bca6-97c29af8fe3b",
+        "text": "最後加入鹽少許調味即可。",
+        "step_no": 6,
+        "image_url": null,
+        "recipe_id": "550f3386-8db4-418e-8608-c169717675b8",
+        "time_seconds": 60
+      }
+    ],
+    "steps_after": [
+      {
+        "step_no": 1,
+        "text": "粟米去衣及鬚後連芯秤200克，切段；紅蘿蔔去皮後秤160克、切件，薑6克切片。粟米重量含芯，紅蘿蔔重量不含皮。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 2,
+        "text": "帶骨小排300克放入另外煮滾的清水，汆水3分鐘後撈起沖淨；汆水水倒去。",
+        "time_seconds": 240
+      },
+      {
+        "step_no": 3,
+        "text": "湯鍋加入排骨、粟米、紅蘿蔔、薑及清水1200毫升，大火煮滾。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 4,
+        "text": "轉小火加蓋煲約90分鐘，至紅蘿蔔及排骨肉熟透軟腍；期間如水量過少，加入滾水維持材料浸在湯中。",
+        "time_seconds": 5400
+      },
+      {
+        "step_no": 5,
+        "text": "用漏勺將湯料暫時盛起，量度湯量：不足800毫升補滾水，超過則開蓋略煮收至800毫升。放回湯料，加入鹽2克煮滾。",
+        "time_seconds": 300
+      },
+      {
+        "step_no": 6,
+        "text": "湯分成兩份，每份400毫升；粟米、紅蘿蔔及排骨亦各分一半。營養估算包括全部可食湯渣，只吃粟米粒及排骨肉，粟米芯和骨不食用。",
+        "time_seconds": 60
+      }
+    ]
+  }
+]

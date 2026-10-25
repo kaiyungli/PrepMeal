@@ -1,0 +1,299 @@
+{
+  "date": "2026-10-25",
+  "profiles": {
+    "pork-ribs": {
+      "basis": "per_100g",
+      "description": "豬小排",
+      "values": {
+        "kcal": 287.0,
+        "protein_g": 18.0,
+        "fat_g": 23.3,
+        "carbs_g": 0.0
+      },
+      "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+      "dataset_page": "https://data.gov.tw/dataset/8543",
+      "source_type": "TFDA_OFFICIAL_OPEN_DATA",
+      "food_code": "I0304301",
+      "sample_preparation": "樣品狀態:生,豬背脊部位; 前處理描述:去骨,混合均勻打碎",
+      "sample_refuse_percent": 40.9,
+      "sample_unit_weight": "138.0克",
+      "retrieved_at": "2026-10-25",
+      "raw_cells": {
+        "熱量": "287",
+        "粗蛋白": "18.0",
+        "粗脂肪": "23.3",
+        "總碳水化合物": "0.0"
+      }
+    },
+    "salt": {
+      "basis": "per_100g",
+      "fdc_id": 173468,
+      "description": "Salt, table",
+      "values": {
+        "kcal": 0.0,
+        "protein_g": 0.0,
+        "fat_g": 0.0,
+        "carbs_g": 0.0
+      },
+      "source_url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+      "retrieved_at": "2026-10-25",
+      "source_type": "USDA_FDC_20261025",
+      "household_measures": [
+        {
+          "amount": 1.0,
+          "measure": "tsp",
+          "grams": 6.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "tbsp",
+          "grams": 18.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "cup",
+          "grams": 292.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "dash",
+          "grams": 0.4
+        }
+      ],
+      "household_measure_source": "USDA SR28 02047"
+    },
+    "water": {
+      "basis": "per_100g",
+      "fdc_id": 173647,
+      "description": "Beverages, water, tap, drinking",
+      "values": {
+        "kcal": 0.0,
+        "protein_g": 0.0,
+        "fat_g": 0.0,
+        "carbs_g": 0.0
+      },
+      "source_url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+      "retrieved_at": "2026-10-25",
+      "source_type": "USDA_FDC_20261025",
+      "household_measures": [
+        {
+          "amount": 1.0,
+          "measure": "fl oz",
+          "grams": 29.6
+        },
+        {
+          "amount": 1.0,
+          "measure": "serving 8 fl oz",
+          "grams": 237.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "liter",
+          "grams": 1000.0
+        }
+      ],
+      "household_measure_source": "USDA SR28 14411"
+    },
+    "ginger": {
+      "basis": "per_100g",
+      "fdc_id": 169231,
+      "description": "Ginger root, raw",
+      "values": {
+        "kcal": 80.0,
+        "protein_g": 1.82,
+        "fat_g": 0.75,
+        "carbs_g": 17.77
+      },
+      "source_url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+      "retrieved_at": "2026-10-25",
+      "source_type": "USDA_FDC_20261025",
+      "household_measures": [
+        {
+          "amount": 1.0,
+          "measure": "tsp",
+          "grams": 2.0
+        },
+        {
+          "amount": 0.25,
+          "measure": "cup slices (1\" dia)",
+          "grams": 24.0
+        },
+        {
+          "amount": 5.0,
+          "measure": "slices (1\" dia)",
+          "grams": 11.0
+        }
+      ],
+      "household_measure_source": "USDA SR28 11216"
+    },
+    "carrot": {
+      "basis": "per_100g",
+      "description": "Carrots, raw",
+      "values": {
+        "kcal": 41,
+        "protein_g": 0.93,
+        "carbs_g": 9.58,
+        "fat_g": 0.24
+      },
+      "source_url": "https://fdc.nal.usda.gov/food-details/170393/nutrients",
+      "source_type": "PRIOR_VERIFIED_REFERENCE",
+      "reference_verified_at": "2026-10-19",
+      "fdc_id": 170393,
+      "food_code": null,
+      "household_measures": [
+        {
+          "amount": 1.0,
+          "measure": "cup chopped",
+          "grams": 128.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "cup grated",
+          "grams": 110.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "cup strips or slices",
+          "grams": 122.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "large (7-1/4\" to 8-/1/2\" long)",
+          "grams": 72.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "medium",
+          "grams": 61.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "small (5-1/2\" long)",
+          "grams": 50.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "slice",
+          "grams": 3.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "strip large (3\" long)",
+          "grams": 7.0
+        },
+        {
+          "amount": 1.0,
+          "measure": "strip medium",
+          "grams": 4.0
+        }
+      ],
+      "household_measure_source": "USDA SR28 11124"
+    },
+    "corn": {
+      "basis": "per_100g",
+      "description": "甜玉米",
+      "values": {
+        "kcal": 107.0,
+        "protein_g": 3.3,
+        "fat_g": 2.5,
+        "carbs_g": 17.8
+      },
+      "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+      "dataset_page": "https://data.gov.tw/dataset/8543",
+      "source_type": "TFDA_OFFICIAL_OPEN_DATA",
+      "food_code": "A0400301",
+      "sample_preparation": "樣品狀態:生; 前處理描述:取玉米粒,混合均勻打碎",
+      "sample_refuse_percent": 38.7,
+      "sample_unit_weight": "142.0克",
+      "retrieved_at": "2026-10-25",
+      "raw_cells": {
+        "熱量": "107",
+        "粗蛋白": "3.3",
+        "粗脂肪": "2.5",
+        "總碳水化合物": "17.8"
+      }
+    },
+    "watercress": {
+      "basis": "per_100g",
+      "description": "豆瓣菜",
+      "values": {
+        "kcal": 21.0,
+        "protein_g": 2.2,
+        "fat_g": 0.3,
+        "carbs_g": 3.2
+      },
+      "source_url": "https://data.fda.gov.tw/data/opendata/export/20/json",
+      "dataset_page": "https://data.gov.tw/dataset/8543",
+      "source_type": "TFDA_OFFICIAL_OPEN_DATA",
+      "food_code": "E3500101",
+      "sample_preparation": "樣品狀態:生; 前處理描述:混合均勻打碎",
+      "sample_refuse_percent": null,
+      "sample_unit_weight": "0.0克",
+      "retrieved_at": "2026-10-25",
+      "raw_cells": {
+        "熱量": "21",
+        "粗蛋白": "2.2",
+        "粗脂肪": "0.3",
+        "總碳水化合物": "3.2"
+      }
+    },
+    "dried-chinese-cabbage": {
+      "basis": "per_100g_edible_input",
+      "description": "白菜(脫水)",
+      "values": {
+        "kcal": 305,
+        "protein_g": 6.2,
+        "carbs_g": 72.9,
+        "fat_g": 0.8
+      },
+      "source_type": "HK_CFS_CFC2002Ed2",
+      "source_url": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-search3.php",
+      "report_endpoint": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-myreport.php",
+      "report_request_method": "POST",
+      "report_request_fields": {
+        "fg_id": "03",
+        "fsg_id": "02",
+        "food_id": "0503020451050",
+        "forFC": "1"
+      },
+      "food_code": "0503020451050",
+      "retrieved_at": "2026-10-25",
+      "report_sha256": "add9ea57f2f7940887c4a46c609108e9f4ffd2bce689ba77aa725aa26fa8d8dd",
+      "raw_cells": {
+        "能量（千卡）": "305",
+        "蛋白質（克）": "6.2",
+        "碳水化合物（克）": "72.9",
+        "脂肪（克）": "0.8"
+      }
+    },
+    "fresh-duck-gizzard": {
+      "basis": "per_100g_edible_input",
+      "description": "鴨肫（鮮鴨腎；不是陳腎）",
+      "values": {
+        "kcal": 92,
+        "protein_g": 17.9,
+        "carbs_g": 2.1,
+        "fat_g": 1.3
+      },
+      "source_type": "HK_CFS_CFC2002Ed2",
+      "source_url": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-search3.php",
+      "report_endpoint": "https://www.cfs.gov.hk/tc_chi/nutrient/fc-myreport.php",
+      "report_request_method": "POST",
+      "report_request_fields": {
+        "fg_id": "07",
+        "fsg_id": "06",
+        "food_id": "0507060922110",
+        "forFC": "1"
+      },
+      "food_code": "0507060922110",
+      "retrieved_at": "2026-10-25",
+      "report_sha256": "d28ff1eed5c29efb2f9c2abe5d93e23d40c4ddec4d6ee63f16b717bbc06124a6",
+      "raw_cells": {
+        "能量（千卡）": "92",
+        "蛋白質（克）": "17.9",
+        "碳水化合物（克）": "2.1",
+        "脂肪（克）": "1.3"
+      }
+    }
+  }
+}
