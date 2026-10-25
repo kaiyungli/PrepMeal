@@ -1,0 +1,624 @@
+{
+  "bacon": {
+    "basis": "per_100g",
+    "fdc_id": 168277,
+    "description": "Pork, cured, bacon, unprepared",
+    "url": "https://fdc.nal.usda.gov/food-details/168277/nutrients",
+    "values": {
+      "kcal": 393.0,
+      "protein_g": 13.66,
+      "fat_g": 37.13,
+      "carbs_g": 0.0
+    }
+  },
+  "bean-sprouts": {
+    "basis": "per_100g",
+    "fdc_id": 169957,
+    "description": "Mung beans, mature seeds, sprouted, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169957/nutrients",
+    "values": {
+      "kcal": 30.0,
+      "protein_g": 3.04,
+      "fat_g": 0.18,
+      "carbs_g": 5.94
+    }
+  },
+  "black-pepper": {
+    "basis": "per_100g",
+    "fdc_id": 170931,
+    "description": "Spices, pepper, black",
+    "url": "https://fdc.nal.usda.gov/food-details/170931/nutrients",
+    "values": {
+      "kcal": 251.0,
+      "protein_g": 10.39,
+      "fat_g": 3.26,
+      "carbs_g": 63.95
+    }
+  },
+  "bok-choy": {
+    "basis": "per_100g",
+    "fdc_id": 170390,
+    "description": "Cabbage, chinese (pak-choi), raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170390/nutrients",
+    "values": {
+      "kcal": 13.0,
+      "protein_g": 1.5,
+      "fat_g": 0.2,
+      "carbs_g": 2.18
+    }
+  },
+  "boneless-chicken-thigh": {
+    "basis": "per_100g",
+    "fdc_id": 173627,
+    "description": "Chicken, broilers or fryers, dark meat, thigh, meat only, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/173627/nutrients",
+    "values": {
+      "kcal": 121.0,
+      "protein_g": 19.66,
+      "fat_g": 4.12,
+      "carbs_g": 0.0
+    }
+  },
+  "broccoli": {
+    "basis": "per_100g",
+    "fdc_id": 170379,
+    "description": "Broccoli, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170379/nutrients",
+    "values": {
+      "kcal": 34.0,
+      "protein_g": 2.82,
+      "fat_g": 0.37,
+      "carbs_g": 6.64
+    }
+  },
+  "cabbage": {
+    "basis": "per_100g",
+    "fdc_id": 169975,
+    "description": "Cabbage, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169975/nutrients",
+    "values": {
+      "kcal": 25.0,
+      "protein_g": 1.28,
+      "fat_g": 0.1,
+      "carbs_g": 5.8
+    }
+  },
+  "chicken-breast": {
+    "basis": "per_100g",
+    "fdc_id": 171077,
+    "description": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/171077/nutrients",
+    "values": {
+      "kcal": 120.0,
+      "protein_g": 22.5,
+      "fat_g": 2.62,
+      "carbs_g": 0.0
+    }
+  },
+  "chili": {
+    "basis": "per_100g",
+    "fdc_id": 170106,
+    "description": "Peppers, hot chili, red, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170106/nutrients",
+    "values": {
+      "kcal": 40.0,
+      "protein_g": 1.87,
+      "fat_g": 0.44,
+      "carbs_g": 8.81
+    }
+  },
+  "choy-sum": {
+    "basis": "per_100g",
+    "fdc_id": 170390,
+    "description": "Cabbage, chinese (pak-choi), raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170390/nutrients",
+    "values": {
+      "kcal": 13.0,
+      "protein_g": 1.5,
+      "fat_g": 0.2,
+      "carbs_g": 2.18
+    }
+  },
+  "cooked-rice": {
+    "basis": "per_100g",
+    "fdc_id": 168882,
+    "description": "Rice, white, short-grain, enriched, cooked",
+    "url": "https://fdc.nal.usda.gov/food-details/168882/nutrients",
+    "values": {
+      "kcal": 130.0,
+      "protein_g": 2.36,
+      "fat_g": 0.19,
+      "carbs_g": 28.73
+    }
+  },
+  "cooking-oil": {
+    "basis": "per_100g",
+    "fdc_id": 172336,
+    "description": "Oil, canola",
+    "url": "https://fdc.nal.usda.gov/food-details/172336/nutrients",
+    "values": {
+      "kcal": 884.0,
+      "protein_g": 0.0,
+      "fat_g": 100.0,
+      "carbs_g": 0.0
+    }
+  },
+  "cornstarch": {
+    "basis": "per_100g",
+    "fdc_id": 169698,
+    "description": "Cornstarch",
+    "url": "https://fdc.nal.usda.gov/food-details/169698/nutrients",
+    "values": {
+      "kcal": 381.0,
+      "protein_g": 0.26,
+      "fat_g": 0.05,
+      "carbs_g": 91.27
+    }
+  },
+  "egg": {
+    "basis": "per_100g",
+    "fdc_id": 171287,
+    "description": "Egg, whole, raw, fresh",
+    "url": "https://fdc.nal.usda.gov/food-details/171287/nutrients",
+    "values": {
+      "kcal": 143.0,
+      "protein_g": 12.56,
+      "fat_g": 9.51,
+      "carbs_g": 0.72
+    }
+  },
+  "pasteurised-egg": {
+    "basis": "per_100g",
+    "fdc_id": 171287,
+    "description": "Egg, whole, raw, fresh",
+    "url": "https://fdc.nal.usda.gov/food-details/171287/nutrients",
+    "values": {
+      "kcal": 143.0,
+      "protein_g": 12.56,
+      "fat_g": 9.51,
+      "carbs_g": 0.72
+    }
+  },
+  "eggplant": {
+    "basis": "per_100g",
+    "fdc_id": 169228,
+    "description": "Eggplant, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169228/nutrients",
+    "values": {
+      "kcal": 25.0,
+      "protein_g": 0.98,
+      "fat_g": 0.18,
+      "carbs_g": 5.88
+    }
+  },
+  "enoki": {
+    "basis": "per_100g",
+    "fdc_id": 169382,
+    "description": "Mushrooms, enoki, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169382/nutrients",
+    "values": {
+      "kcal": 37.0,
+      "protein_g": 2.66,
+      "fat_g": 0.29,
+      "carbs_g": 7.81
+    }
+  },
+  "garlic": {
+    "basis": "per_100g",
+    "fdc_id": 169230,
+    "description": "Garlic, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169230/nutrients",
+    "values": {
+      "kcal": 149.0,
+      "protein_g": 6.36,
+      "fat_g": 0.5,
+      "carbs_g": 33.06
+    }
+  },
+  "ginger": {
+    "basis": "per_100g",
+    "fdc_id": 169231,
+    "description": "Ginger root, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169231/nutrients",
+    "values": {
+      "kcal": 80.0,
+      "protein_g": 1.82,
+      "fat_g": 0.75,
+      "carbs_g": 17.77
+    }
+  },
+  "green-beans": {
+    "basis": "per_100g",
+    "fdc_id": 169961,
+    "description": "Beans, snap, green, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169961/nutrients",
+    "values": {
+      "kcal": 31.0,
+      "protein_g": 1.83,
+      "fat_g": 0.22,
+      "carbs_g": 6.97
+    }
+  },
+  "green-bell-pepper": {
+    "basis": "per_100g",
+    "fdc_id": 170427,
+    "description": "Peppers, sweet, green, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170427/nutrients",
+    "values": {
+      "kcal": 20.0,
+      "protein_g": 0.86,
+      "fat_g": 0.17,
+      "carbs_g": 4.64
+    }
+  },
+  "lemon-juice": {
+    "basis": "per_100g",
+    "fdc_id": 167747,
+    "description": "Lemon juice, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/167747/nutrients",
+    "values": {
+      "kcal": 22.0,
+      "protein_g": 0.35,
+      "fat_g": 0.24,
+      "carbs_g": 6.9
+    }
+  },
+  "baby-napa": {
+    "basis": "per_100g",
+    "fdc_id": 169979,
+    "description": "Cabbage, chinese (pe-tsai), raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169979/nutrients",
+    "values": {
+      "kcal": 16.0,
+      "protein_g": 1.2,
+      "fat_g": 0.2,
+      "carbs_g": 3.23
+    }
+  },
+  "olive-oil": {
+    "basis": "per_100g",
+    "fdc_id": 171413,
+    "description": "Oil, olive, salad or cooking",
+    "url": "https://fdc.nal.usda.gov/food-details/171413/nutrients",
+    "values": {
+      "kcal": 884.0,
+      "protein_g": 0.0,
+      "fat_g": 100.0,
+      "carbs_g": 0.0
+    }
+  },
+  "oyster-sauce": {
+    "basis": "per_100g",
+    "fdc_id": 174529,
+    "description": "Sauce, oyster, ready-to-serve",
+    "url": "https://fdc.nal.usda.gov/food-details/174529/nutrients",
+    "values": {
+      "kcal": 51.0,
+      "protein_g": 1.35,
+      "fat_g": 0.25,
+      "carbs_g": 10.92
+    }
+  },
+  "parmesan-cheese": {
+    "basis": "per_100g",
+    "fdc_id": 170848,
+    "description": "Cheese, parmesan, hard",
+    "url": "https://fdc.nal.usda.gov/food-details/170848/nutrients",
+    "values": {
+      "kcal": 392.0,
+      "protein_g": 35.75,
+      "fat_g": 25.0,
+      "carbs_g": 3.22
+    }
+  },
+  "pasta": {
+    "basis": "per_100g",
+    "fdc_id": 169736,
+    "description": "Pasta, dry, enriched",
+    "url": "https://fdc.nal.usda.gov/food-details/169736/nutrients",
+    "values": {
+      "kcal": 371.0,
+      "protein_g": 13.04,
+      "fat_g": 1.51,
+      "carbs_g": 74.67
+    }
+  },
+  "potato": {
+    "basis": "per_100g",
+    "fdc_id": 170026,
+    "description": "Potatoes, flesh and skin, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170026/nutrients",
+    "values": {
+      "kcal": 77.0,
+      "protein_g": 2.05,
+      "fat_g": 0.09,
+      "carbs_g": 17.49
+    }
+  },
+  "salmon-fillet": {
+    "basis": "per_100g",
+    "fdc_id": 175167,
+    "description": "Fish, salmon, Atlantic, farmed, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/175167/nutrients",
+    "values": {
+      "kcal": 208.0,
+      "protein_g": 20.42,
+      "fat_g": 13.42,
+      "carbs_g": 0.0
+    }
+  },
+  "salt": {
+    "basis": "per_100g",
+    "fdc_id": 173468,
+    "description": "Salt, table",
+    "url": "https://fdc.nal.usda.gov/food-details/173468/nutrients",
+    "values": {
+      "kcal": 0.0,
+      "protein_g": 0.0,
+      "fat_g": 0.0,
+      "carbs_g": 0.0
+    }
+  },
+  "sesame-oil": {
+    "basis": "per_100g",
+    "fdc_id": 171016,
+    "description": "Oil, sesame, salad or cooking",
+    "url": "https://fdc.nal.usda.gov/food-details/171016/nutrients",
+    "values": {
+      "kcal": 884.0,
+      "protein_g": 0.0,
+      "fat_g": 100.0,
+      "carbs_g": 0.0
+    }
+  },
+  "shiitake-mushroom": {
+    "basis": "per_100g",
+    "fdc_id": 169242,
+    "description": "Mushrooms, shiitake, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169242/nutrients",
+    "values": {
+      "kcal": 34.0,
+      "protein_g": 2.24,
+      "fat_g": 0.49,
+      "carbs_g": 6.79
+    }
+  },
+  "shrimp": {
+    "basis": "per_100g",
+    "fdc_id": 175179,
+    "description": "Crustaceans, shrimp, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/175179/nutrients",
+    "values": {
+      "kcal": 85.0,
+      "protein_g": 20.1,
+      "fat_g": 0.51,
+      "carbs_g": 0.0
+    }
+  },
+  "soy-sauce": {
+    "basis": "per_100g",
+    "fdc_id": 174277,
+    "description": "Soy sauce made from soy and wheat (shoyu)",
+    "url": "https://fdc.nal.usda.gov/food-details/174277/nutrients",
+    "values": {
+      "kcal": 53.0,
+      "protein_g": 8.14,
+      "fat_g": 0.57,
+      "carbs_g": 4.93
+    }
+  },
+  "spinach": {
+    "basis": "per_100g",
+    "fdc_id": 168462,
+    "description": "Spinach, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/168462/nutrients",
+    "values": {
+      "kcal": 23.0,
+      "protein_g": 2.86,
+      "fat_g": 0.39,
+      "carbs_g": 3.63
+    }
+  },
+  "spring-onion": {
+    "basis": "per_100g",
+    "fdc_id": 170005,
+    "description": "Onions, spring or scallions (includes tops and bulb), raw",
+    "url": "https://fdc.nal.usda.gov/food-details/170005/nutrients",
+    "values": {
+      "kcal": 32.0,
+      "protein_g": 1.83,
+      "fat_g": 0.19,
+      "carbs_g": 7.34
+    }
+  },
+  "sugar": {
+    "basis": "per_100g",
+    "fdc_id": 169655,
+    "description": "Sugars, granulated",
+    "url": "https://fdc.nal.usda.gov/food-details/169655/nutrients",
+    "values": {
+      "kcal": 387.0,
+      "protein_g": 0.0,
+      "fat_g": 0.0,
+      "carbs_g": 99.98
+    }
+  },
+  "beef": {
+    "basis": "per_100g",
+    "fdc_id": 174055,
+    "description": "Beef, top sirloin, steak, separable lean only, trimmed to 1/8\" fat, all grades, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/174055/nutrients",
+    "values": {
+      "kcal": 131.0,
+      "protein_g": 22.09,
+      "fat_g": 4.08,
+      "carbs_g": 0.0
+    }
+  },
+  "minced-pork": {
+    "basis": "per_100g",
+    "fdc_id": 168372,
+    "description": "Pork, ground, 84% lean / 16% fat, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/168372/nutrients",
+    "values": {
+      "kcal": 218.0,
+      "protein_g": 17.99,
+      "fat_g": 16.0,
+      "carbs_g": 0.44
+    }
+  },
+  "rice-noodles": {
+    "basis": "per_100g",
+    "fdc_id": 168914,
+    "description": "Rice noodles, cooked",
+    "url": "https://fdc.nal.usda.gov/food-details/168914/nutrients",
+    "values": {
+      "kcal": 108.0,
+      "protein_g": 1.79,
+      "fat_g": 0.2,
+      "carbs_g": 24.01
+    }
+  },
+  "egg-noodles": {
+    "basis": "per_100g",
+    "fdc_id": 169732,
+    "description": "Noodles, egg, enriched, cooked",
+    "url": "https://fdc.nal.usda.gov/food-details/169732/nutrients",
+    "values": {
+      "kcal": 138.0,
+      "protein_g": 4.54,
+      "fat_g": 2.07,
+      "carbs_g": 25.16
+    }
+  },
+  "crab-stick": {
+    "basis": "per_100g",
+    "fdc_id": 174203,
+    "description": "Crustaceans, crab, alaska king, imitation, made from surimi",
+    "url": "https://fdc.nal.usda.gov/food-details/174203/nutrients",
+    "values": {
+      "kcal": 95.0,
+      "protein_g": 7.62,
+      "fat_g": 0.46,
+      "carbs_g": 15.0
+    }
+  },
+  "kelp": {
+    "basis": "per_100g",
+    "fdc_id": 168457,
+    "description": "Seaweed, kelp, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/168457/nutrients",
+    "values": {
+      "kcal": 43.0,
+      "protein_g": 1.68,
+      "fat_g": 0.56,
+      "carbs_g": 9.57
+    }
+  },
+  "romaine-lettuce": {
+    "basis": "per_100g",
+    "fdc_id": 169247,
+    "description": "Lettuce, cos or romaine, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169247/nutrients",
+    "values": {
+      "kcal": 17.0,
+      "protein_g": 1.23,
+      "fat_g": 0.3,
+      "carbs_g": 3.29
+    }
+  },
+  "lettuce": {
+    "basis": "per_100g",
+    "fdc_id": 169248,
+    "description": "Lettuce, iceberg (includes crisphead types), raw",
+    "url": "https://fdc.nal.usda.gov/food-details/169248/nutrients",
+    "values": {
+      "kcal": 14.0,
+      "protein_g": 0.9,
+      "fat_g": 0.14,
+      "carbs_g": 2.97
+    }
+  },
+  "tofu": {
+    "basis": "per_100g",
+    "fdc_id": 172448,
+    "description": "Tofu, firm, prepared with calcium sulfate and magnesium chloride (nigari)",
+    "url": "https://fdc.nal.usda.gov/food-details/172448/nutrients",
+    "values": {
+      "kcal": 78.0,
+      "protein_g": 9.04,
+      "fat_g": 4.17,
+      "carbs_g": 2.85
+    }
+  },
+  "rice": {
+    "basis": "per_100g",
+    "fdc_id": 168931,
+    "description": "Rice, white, short-grain, raw, unenriched",
+    "url": "https://fdc.nal.usda.gov/food-details/168931/nutrients",
+    "values": {
+      "kcal": 358.0,
+      "protein_g": 6.5,
+      "fat_g": 0.52,
+      "carbs_g": 79.15
+    }
+  },
+  "chicken-wings": {
+    "basis": "per_100g",
+    "fdc_id": 172390,
+    "description": "Chicken, broilers or fryers, wing, meat and skin, raw",
+    "url": "https://fdc.nal.usda.gov/food-details/172390/nutrients",
+    "values": {
+      "kcal": 191.0,
+      "protein_g": 17.52,
+      "fat_g": 12.85,
+      "carbs_g": 0.0
+    }
+  },
+  "water": {
+    "basis": "per_100g",
+    "fdc_id": 173647,
+    "description": "Beverages, water, tap, drinking",
+    "url": "https://fdc.nal.usda.gov/food-details/173647/nutrients",
+    "values": {
+      "kcal": 0.0,
+      "protein_g": 0.0,
+      "fat_g": 0.0,
+      "carbs_g": 0.0
+    }
+  },
+  "dark-soy-sauce": {
+    "basis": "per_100ml",
+    "url": "https://shop.lkk.com/products/premium-dark-sauce-250ml-%E7%89%B9%E7%B4%9A%E8%80%81%E6%8A%BD-250%E6%AF%AB%E5%8D%87",
+    "description": "LKK Premium Dark Soy 250ml label, checked 2026-10-19",
+    "values": {
+      "kcal": 240,
+      "protein_g": 2,
+      "fat_g": 0,
+      "carbs_g": 60
+    }
+  },
+  "vinegar": {
+    "basis": "per_100g",
+    "fdc_id": 172237,
+    "url": "https://fdc.nal.usda.gov/food-details/172237/nutrients",
+    "description": "Vinegar, distilled, generic proxy; not a brand label",
+    "values": {
+      "kcal": 18,
+      "protein_g": 0,
+      "fat_g": 0,
+      "carbs_g": 0.04
+    }
+  },
+  "dace-with-black-bean": {
+    "basis": "per_100g",
+    "url": "https://www.consumer.org.hk/f/article_tab/400851/408632/525-Canned-fish-Table-N-Sample-003.pdf",
+    "description": "Consumer Council issue 525 sample 1 Eagle Coin, tested fish portion only; historic batch, not current whole-can label",
+    "values": {
+      "kcal": 318,
+      "protein_g": 35.2,
+      "fat_g": 18.9,
+      "carbs_g": 1.8
+    }
+  }
+}
