@@ -26,6 +26,7 @@ export interface NormalizedRecipe extends RecipeProvenance {
   protein_g: number | null;
   carbs_g: number | null;
   fat_g: number | null;
+  meal_role: string | null;
   primary_protein: string | null;
   dish_type: string | null;
   diet: string[] | null;
@@ -86,6 +87,7 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
     protein_g: recipe.protein_g ?? null,
     carbs_g: recipe.carbs_g ?? null,
     fat_g: recipe.fat_g ?? null,
+    meal_role: recipe.meal_role ?? null,
     primary_protein: recipe.primary_protein || null,
     dish_type: recipe.dish_type || null,
     diet: recipe.diet || null,

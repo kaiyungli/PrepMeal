@@ -1,3 +1,4 @@
+import { normalizeRecipeDetail } from '../src/features/recipes/mappers/normalizeRecipeDetail';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Public recipe-detail routes must never return a recipe unless
@@ -147,7 +148,7 @@ describe('getRecipeDetail public visibility', () => {
     }
   });
   it('returns a recipe from the RPC without running the fallback', async () => {
-    const rpcRecipe = { id: PUBLIC_ID, slug: 'public-recipe', name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null };
+    const rpcRecipe = { id: PUBLIC_ID, slug: 'public-recipe', name: 'Public recipe', ingredients: [], steps: [], base_servings: 1, source_data: null, meal_role: 'protein_main' };
     db.rpcResult = { data: rpcRecipe, error: null };
 
     await expect(getRecipeDetail(PUBLIC_ID)).resolves.toEqual(rpcRecipe);
@@ -260,10 +261,13 @@ describe('/api/recipes/[id] public visibility', () => {
 describe('legacy RPC provenance hydration', () => {
   it('hydrates missing metadata only from the public parent', async () => {
     recipes[0].base_servings = 2;
+    recipes[0].meal_role = 'protein_main';
     recipes[0].source_data = { source_url: 'https://example.com/recipe' };
     db.rpcResult = { data: { id: PUBLIC_ID, ingredients: [], steps: [] }, error: null };
     const detail = await getRecipeDetail(PUBLIC_ID);
     expect(detail.base_servings).toBe(2);
+    expect(detail.meal_role).toBe('protein_main');
+    expect(normalizeRecipeDetail(detail).meal_role).toBe('protein_main');
     expect(detail.source_data).toEqual(recipes[0].source_data);
     expect(recipeQueries()[0].filters).toContainEqual(['is_public', true]);
   });

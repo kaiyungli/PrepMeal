@@ -59,6 +59,17 @@ describe('recipe detail content hook order and deferred rendering', () => {
     expect(screen.getByText('家常改編')).toBeTruthy();
   });
 
+  it('renders canonical method, role and food safety guidance in the actual detail view', () => {
+    render(<RecipeDetailContent recipe={{ ...a, method: 'steamed', meal_role: 'veg_side' }} />);
+    flushFrame();
+    expect(screen.getByText(/水滾後才放入食材/)).toBeTruthy();
+    expect(screen.getByText(/可搭配豆腐、蛋、魚或肉類主菜/)).toBeTruthy();
+    expect(screen.getByText(/兩小時內放進攝氏4度或以下/)).toBeTruthy();
+    expect(screen.getByText(/只翻熱一次/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: '參考：食物安全中心剩食處理指引' }).getAttribute('href')).toContain('cfs.gov.hk');
+    expect(screen.queryByText(/自然冷卻|等油出煙/)).toBeNull();
+  });
+
   it('empty → recipe renders without React hook-order errors', () => {
     const view = render(<RecipeDetailContent recipe={null} />);
     expect(view.container.textContent).toBe('');
