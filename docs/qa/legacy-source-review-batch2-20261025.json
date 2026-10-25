@@ -1,0 +1,359 @@
+{
+  "rows": [
+    {
+      "name": "蒜蓉生菜",
+      "slug": "garlic-lettuce",
+      "steps": [
+        "生菜洗淨切段，瀝乾水份；蒜頭切碎。",
+        "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "轉大火，加入生菜快速翻炒 30 秒。",
+        "加入 1 湯匙水，幫助生菜均勻受熱。",
+        "加入鹽約 1 克調味，快速拌勻。",
+        "生菜剛軟身即上碟，避免過熟出水。"
+      ],
+      "ingredients": [
+        {
+          "qty": 0.3333333333333333,
+          "slug": "cooking-oil",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 8,
+          "slug": "garlic",
+          "unit": "clove",
+          "optional": false
+        },
+        {
+          "qty": 180,
+          "slug": "lettuce",
+          "unit": "g",
+          "optional": false
+        },
+        {
+          "qty": 0.125,
+          "slug": "salt",
+          "unit": "tsp",
+          "optional": false
+        },
+        {
+          "qty": 20,
+          "slug": "water",
+          "unit": "ml",
+          "optional": true
+        }
+      ],
+      "source_data": null,
+      "review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "status": "comparison_reference_only_original_unverified",
+        "publisher": "The Woks of Life",
+        "author": "Bill",
+        "reference_url": "https://thewoksoflife.com/stir-fried-lettuce/",
+        "comparison": "同樣炒生菜；參考另有薑及多款醬料，本版為蒜鹽清炒，不能沿用其用量或營養。",
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "pending": [
+          "蒜頭為8瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "nutrition_validated": false
+      }
+    },
+    {
+      "name": "蒜蓉油麥菜",
+      "slug": "garlic-romaine-lettuce",
+      "steps": [
+        "油麥菜洗淨切段，蒜頭切碎。",
+        "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "轉大火，加入油麥菜快速翻炒。",
+        "加入 1 湯匙水幫助受熱均勻。",
+        "加入鹽約 1 克調味。",
+        "炒至剛軟身即上碟，避免出太多水。"
+      ],
+      "ingredients": [
+        {
+          "qty": 0.3333333333333333,
+          "slug": "cooking-oil",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 8,
+          "slug": "garlic",
+          "unit": "clove",
+          "optional": false
+        },
+        {
+          "qty": 180,
+          "slug": "romaine-lettuce",
+          "unit": "g",
+          "optional": false
+        },
+        {
+          "qty": 0.125,
+          "slug": "salt",
+          "unit": "tsp",
+          "optional": false
+        },
+        {
+          "qty": 20,
+          "slug": "water",
+          "unit": "ml",
+          "optional": true
+        }
+      ],
+      "source_data": null,
+      "review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "status": "comparison_reference_only_original_unverified",
+        "publisher": "The Woks of Life",
+        "author": "Bill",
+        "reference_url": "https://thewoksoflife.com/stir-fried-lettuce/",
+        "comparison": "參考可用羅馬生菜，但油麥菜不可直接當作完全相同品種；只比對蒜香快炒及避免過熟的技法，參考有額外醬料。",
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "pending": [
+          "蒜頭為8瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "nutrition_validated": false
+      }
+    },
+    {
+      "name": "蒜蓉通菜",
+      "slug": "garlic-water-spinach",
+      "steps": [
+        "通菜洗淨切段，蒜頭切蓉。",
+        "鑊中加入食油，中火爆香蒜蓉。",
+        "轉大火加入通菜。",
+        "加入水，快速翻炒 1 至 2 分鐘。",
+        "加入鹽調味。",
+        "通菜剛軟身仍翠綠即可上碟。"
+      ],
+      "ingredients": [
+        {
+          "qty": 1,
+          "slug": "cooking-oil",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 2,
+          "slug": "garlic",
+          "unit": "clove",
+          "optional": false
+        },
+        {
+          "qty": 1,
+          "slug": "salt",
+          "unit": "g",
+          "optional": false
+        },
+        {
+          "qty": 1,
+          "slug": "water",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 180,
+          "slug": "water-spinach",
+          "unit": "g",
+          "optional": false
+        }
+      ],
+      "source_data": null,
+      "review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "status": "comparison_reference_only_original_unverified",
+        "publisher": "The Sound of Cooking",
+        "author": "Cindy",
+        "reference_url": "https://thesoundofcooking.com/stir-fried-morning-glory/",
+        "comparison": "蒜香炒通菜技法相近，參考把梗葉分次下鑊；鹽種類及白胡椒選配不同，不是本版原始來源。",
+        "findings": [
+          "未發現本輪檢查範圍內的材料與步驟數量矛盾。"
+        ],
+        "pending": [],
+        "nutrition_validated": false
+      }
+    },
+    {
+      "name": "清炒椰菜",
+      "slug": "stir-fried-cabbage",
+      "steps": [
+        "椰菜洗淨切粗絲，蒜頭切碎。",
+        "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "加入椰菜，大火翻炒 2 分鐘。",
+        "加入 1 至 2 湯匙水，幫助椰菜受熱變軟。",
+        "加入鹽約 1 克調味。",
+        "炒至椰菜剛熟仍爽口即可。"
+      ],
+      "ingredients": [
+        {
+          "qty": 180,
+          "slug": "cabbage",
+          "unit": "g",
+          "optional": false
+        },
+        {
+          "qty": 0.3333333333333333,
+          "slug": "cooking-oil",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 5,
+          "slug": "garlic",
+          "unit": "clove",
+          "optional": false
+        },
+        {
+          "qty": 0.125,
+          "slug": "salt",
+          "unit": "tsp",
+          "optional": false
+        },
+        {
+          "qty": 20,
+          "slug": "water",
+          "unit": "ml",
+          "optional": true
+        }
+      ],
+      "source_data": null,
+      "review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "status": "comparison_reference_only_original_unverified",
+        "publisher": "The Woks of Life",
+        "author": "Judy",
+        "reference_url": "https://thewoksoflife.com/chinese-cabbage-stir-fry/",
+        "comparison": "只作炒椰菜技法比對；參考含肉及辣椒、多款調味，本版是素菜，不能照搬配方或營養。",
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "pending": [
+          "蒜頭為5瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "nutrition_validated": false
+      }
+    },
+    {
+      "name": "清炒小白菜",
+      "slug": "stir-fried-bok-choy",
+      "steps": [
+        "小白菜洗淨切段，蒜頭切碎。",
+        "鑊中加入 1 茶匙食油，中火爆香蒜蓉。",
+        "先加入菜梗部分快炒 1 分鐘。",
+        "加入葉部和 1 湯匙水，大火翻炒。",
+        "加入鹽約 1 克調味。",
+        "炒至剛熟仍翠綠即可。"
+      ],
+      "ingredients": [
+        {
+          "qty": 180,
+          "slug": "bok-choy",
+          "unit": "g",
+          "optional": false
+        },
+        {
+          "qty": 0.3333333333333333,
+          "slug": "cooking-oil",
+          "unit": "tbsp",
+          "optional": false
+        },
+        {
+          "qty": 5,
+          "slug": "garlic",
+          "unit": "clove",
+          "optional": false
+        },
+        {
+          "qty": 0.125,
+          "slug": "salt",
+          "unit": "tsp",
+          "optional": false
+        },
+        {
+          "qty": 20,
+          "slug": "water",
+          "unit": "ml",
+          "optional": true
+        }
+      ],
+      "source_data": null,
+      "review": {
+        "date": "2026-10-25",
+        "batch": 2,
+        "status": "comparison_reference_only_original_unverified",
+        "publisher": "The Woks of Life",
+        "author": "Kaitlin",
+        "reference_url": "https://thewoksoflife.com/stir-fried-bok-choy-recipe/",
+        "comparison": "梗葉及蒜香翻炒技法可作比對；參考有薑、麻油等額外調味，比例不可直接沿用。",
+        "findings": [
+          "水20毫升為選配，步驟卻要求必加，且部分份量不同；鹽1/8茶匙與步驟約1克不一致。"
+        ],
+        "pending": [
+          "蒜頭為5瓣配180克菜，未找到原始記錄證明應為克或瓣，保留待核。"
+        ],
+        "nutrition_validated": false
+      }
+    }
+  ],
+  "nutrition_hash": "e2f5721aff983541eddeb7dff252009e",
+  "ingredients_hash": "5d90027fcc6ccbd5d8ca385e62a9b0ad",
+  "patches": [
+    {
+      "slug": "garlic-lettuce",
+      "step": 4,
+      "old": "加入 1 湯匙水，幫助生菜均勻受熱。",
+      "text": "如鑊太乾，可按需要加入最多20毫升選配清水，繼續翻炒。"
+    },
+    {
+      "slug": "garlic-lettuce",
+      "step": 5,
+      "old": "加入鹽約 1 克調味，快速拌勻。",
+      "text": "加入鹽1/8茶匙調味，快速拌勻。"
+    },
+    {
+      "slug": "garlic-romaine-lettuce",
+      "step": 4,
+      "old": "加入 1 湯匙水幫助受熱均勻。",
+      "text": "如鑊太乾，可按需要加入最多20毫升選配清水，繼續翻炒。"
+    },
+    {
+      "slug": "garlic-romaine-lettuce",
+      "step": 5,
+      "old": "加入鹽約 1 克調味。",
+      "text": "加入鹽1/8茶匙調味，快速拌勻。"
+    },
+    {
+      "slug": "stir-fried-cabbage",
+      "step": 4,
+      "old": "加入 1 至 2 湯匙水，幫助椰菜受熱變軟。",
+      "text": "如鑊太乾，可按需要加入最多20毫升選配清水，繼續翻炒。"
+    },
+    {
+      "slug": "stir-fried-cabbage",
+      "step": 5,
+      "old": "加入鹽約 1 克調味。",
+      "text": "加入鹽1/8茶匙調味，快速拌勻。"
+    },
+    {
+      "slug": "stir-fried-bok-choy",
+      "step": 4,
+      "old": "加入葉部和 1 湯匙水，大火翻炒。",
+      "text": "加入葉部大火翻炒；如鑊太乾，可按需要加入最多20毫升選配清水。"
+    },
+    {
+      "slug": "stir-fried-bok-choy",
+      "step": 5,
+      "old": "加入鹽約 1 克調味。",
+      "text": "加入鹽1/8茶匙調味，快速拌勻。"
+    }
+  ]
+}
