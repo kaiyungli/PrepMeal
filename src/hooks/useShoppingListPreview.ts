@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
 
 interface PreviewPlanDay {
-  items?: Array<{ recipeId?: string | number | null }>;
+  items?: Array<{ recipeId?: string | number | null; servings?: number }>;
 }
 interface ShoppingPreviewResponse {
   toBuy?: Array<{ items?: Array<{ name: string; quantity?: string | number | null; unit?: string | null; unitDisplay?: string | null }> }>;
@@ -53,7 +53,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
   // Parent renders may rebuild the plan array without changing its meals.
   // Only actual ingredient-request inputs should invalidate loaded results.
   const planKey = JSON.stringify([selectionKey(selections), options.resetKey, weeklyPlan.flatMap(day => (day.items || [])
-    .flatMap(item => item.recipeId ? [String(item.recipeId)] : []))]);
+    .flatMap(item => item.recipeId ? [[String(item.recipeId), item.servings ?? 2]] : []))]);
   const { enabled = true } = options;
   const [previewList, setPreviewList] = useState<Array<{name: string, qty: string, unit: string}>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -125,6 +125,8 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
     setIsAuthRequired(false);
     
     try {
+      const portions = new Set(plan.flatMap(day => day.items || []).filter(item => item.recipeId).map(item => item.servings ?? 2));
+      if (portions.size > 1) throw new Error('餐單含不同人數份量，請分開查看購物清單');
       const token = await getAccessToken();
       if (currentRequestId !== requestIdRef.current) return;
       if (!token) {
@@ -140,7 +142,7 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
         body: JSON.stringify({ 
           recipeIds,
           pantryIngredients: [],
-          servings: 1,
+          servings: plan.flatMap(day => day.items || []).find(item => item.recipeId)?.servings ?? 2,
           ...(Object.keys(scopeSelections(selections, recipeIds)).length ? { optionalSelections: scopeSelections(selections, recipeIds) } : {})
         })
       });

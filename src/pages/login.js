@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -33,11 +33,13 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   // removed localLoading - use emailSubmitting
   const [error, setError] = useState('');
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
-  const [facebookLoading, setFacebookLoading] = useState(false);
+  const [pendingMethod, setPendingMethod] = useState(null);
+  const submittingRef = useRef(false);
+  const googleLoading = pendingMethod === 'google';
+  const appleLoading = pendingMethod === 'apple';
+  const facebookLoading = pendingMethod === 'facebook';
+  const emailSubmitting = pendingMethod === 'email';
   const [message, setMessage] = useState('');
-  const [emailSubmitting, setEmailSubmitting] = useState(false);
 
   // Use auth state with loading indicator
   const { user, isAuthenticated, loading: authLoading, signInWithGoogle, signInWithApple, signInWithFacebook } = useAuth();
@@ -54,47 +56,26 @@ export default function LoginPage() {
     }
   }, [authLoading, isAuthenticated, user, router]);
 
-  const handleGoogleLogin = async () => {
-    console.log('🔥 Google login clicked');
+  const handleOAuthLogin = async (provider, signIn) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setPendingMethod(provider);
     setError('');
     try {
-      await signInWithGoogle();
-      // OAuth triggers redirect, don't reset loading here
+      await signIn();
     } catch (err) {
-      console.error('Google login error:', err);
-      setError(err.message || 'Google 登入失敗');
-      setEmailSubmitting(false);
-    }
-  };
-
-  const handleAppleLogin = async () => {
-    console.log('🔥 Apple login clicked');
-    setError('');
-    try {
-      await signInWithApple();
-      // OAuth triggers redirect, don't reset loading here
-    } catch (err) {
-      console.error('Apple login error:', err);
-      setError(err.message || 'Apple 登入失敗');
-      setEmailSubmitting(false);
-    }
-  };
-
-  const handleFacebookLogin = async () => {
-    console.log('🔥 Facebook login clicked');
-    setError('');
-    try {
-      await signInWithFacebook();
-      // OAuth triggers redirect, don't reset loading here
-    } catch (err) {
-      console.error('Facebook login error:', err);
-      setError(err.message || 'Facebook 登入失敗');
-      setEmailSubmitting(false);
+      setError(err.message || '登入失敗，請重試');
+    } finally {
+      submittingRef.current = false;
+      setPendingMethod(null);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setPendingMethod('email');
     setError('');
     setMessage('');
 
@@ -118,11 +99,11 @@ export default function LoginPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setEmailSubmitting(false);
+      submittingRef.current = false;
+      setPendingMethod(null);
     }
   };
 
-  const submitting = emailSubmitting;
 
   return (
     <>
@@ -153,7 +134,7 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => handleOAuthLogin('google', signInWithGoogle)}
             disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
@@ -168,7 +149,7 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => { setAppleLoading(true); handleAppleLogin(); }}
+            onClick={() => handleOAuthLogin('apple', signInWithApple)}
             disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
@@ -180,7 +161,7 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => { setFacebookLoading(true); handleFacebookLogin(); }}
+            onClick={() => handleOAuthLogin('facebook', signInWithFacebook)}
             disabled={emailSubmitting || googleLoading || appleLoading || facebookLoading}
             style={{ width: '100%', padding: '12px', background: 'white', color: '#3A2010', border: '1px solid #E5DCC8', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}
           >
@@ -222,6 +203,7 @@ export default function LoginPage() {
           <p style={{ textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
             {isSignUp ? '已經有帳戶？' : '未有任何帳戶？'}
             <button
+              disabled={pendingMethod !== null}
               onClick={() => { setIsSignUp(!isSignUp); setError(''); setMessage(''); }}
               style={{ background: 'none', border: 'none', color: colors.yellow, cursor: 'pointer', fontWeight: '600', marginLeft: '4px' }}
             >

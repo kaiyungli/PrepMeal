@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Modal from '@/components/ui/Modal';
+import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 import OptionalIngredientChoices from '@/components/shopping/OptionalIngredientChoices';
 import type { ShoppingListViewModel, ShoppingListItemViewModel } from '@/features/shopping-list/types';
 import { CATEGORY_ICONS, CATEGORY_LABELS, SHOPPING_CATEGORY_ORDER } from '@/features/shopping-list/constants';
@@ -12,7 +13,7 @@ interface ShoppingListModalProps {
   shoppingListView: ShoppingListViewModel | null;
   loading?: boolean;
   error?: string | null;
-  onCopy: () => void;
+  onCopy: () => Promise<boolean> | boolean;
 }
 
 const EMPTY_VIEW: ShoppingListViewModel = {
@@ -32,6 +33,14 @@ export default function ShoppingListModal({
   onCopy,
 }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const [copying, setCopying] = useState(false);
+  const copyVersion = useRef(0);
+  useEffect(() => {
+    copyVersion.current += 1;
+    setCopied(false); setCopyFailed(false); setCopying(false);
+    return () => { copyVersion.current += 1; };
+  }, [isOpen, shoppingListView]);
   const [viewMode, setViewMode] = useState<'category' | 'recipe'>('category');
 
   const viewModel = useMemo(() => {
@@ -39,10 +48,19 @@ export default function ShoppingListModal({
     return shoppingListView;
   }, [shoppingListView]);
 
-  const handleCopy = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    onCopy?.();
+  const handleCopy = async () => {
+    const version = ++copyVersion.current;
+    setCopying(true); setCopied(false); setCopyFailed(false);
+    try {
+      const success = await onCopy();
+      if (version !== copyVersion.current) return;
+      setCopied(success === true);
+      setCopyFailed(success !== true);
+    } catch {
+      if (version === copyVersion.current) setCopyFailed(true);
+    } finally {
+      if (version === copyVersion.current) setCopying(false);
+    }
   };
 
   // Group sections by category order
@@ -87,12 +105,17 @@ export default function ShoppingListModal({
         </div>
         <button
           onClick={handleCopy}
+          disabled={loading || !!error || isEmpty || copying}
           className="px-4 py-2 bg-[#9B6035] text-white rounded-lg text-sm hover:bg-[#7a4a2a] transition"
         >
-          {copied ? '✅ 已複製!' : '📋 複製清單'}
+          {copying ? '複製中…' : copied ? '✅ 已複製!' : '📋 複製清單'}
         </button>
       </div>
 
+      {copyFailed && <div role="alert" className="mb-4">
+        <p>未能複製，請選取以下文字自行複製：</p>
+        <textarea aria-label="清單文字" readOnly value={formatShoppingListCopyText(viewModel)} className="w-full h-40 border p-2" onFocus={event => event.target.select()} />
+      </div>}
       <OptionalIngredientChoices groups={viewModel.optionalIngredients} />
       {viewModel.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
       {loading ? (

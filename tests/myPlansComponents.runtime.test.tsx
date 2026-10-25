@@ -361,7 +361,7 @@ describe('Saved plan shopping list request failures', () => {
     const { rerender } = render(<ShoppingListSection recipeIds={['recipe-a']} servings={1} />);
     await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });
     await waitFor(() => expect(screen.getByText('雞蛋')).toBeTruthy());
-    fireEvent.click(screen.getByRole('button', { name: '✕' }));
+    fireEvent.click(screen.getByRole('button', { name: '關閉購物清單' }));
     rerender(<ShoppingListSection recipeIds={['recipe-b']} servings={1} />);
     expect(drawerContent()).toBeNull(); expect(fetchMock).toHaveBeenCalledTimes(1);
     await act(async () => { fireEvent.click(screen.getByText('查看購物清單')); });

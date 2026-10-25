@@ -24,7 +24,9 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   // otherwise also run handleOpen.
   return (
     <>
-      <div
+      <button
+        type="button"
+        aria-haspopup="dialog"
         onClick={handleOpen}
         onTouchStart={() => {}}
         className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex active:scale-95 transition-transform duration-100 touch-manipulation"
@@ -39,7 +41,7 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
             <span className="text-xs text-[#AA7A50]">載入中...</span>
           )}
         </div>
-      </div>
+      </button>
 
       <ShoppingListDrawer
         isOpen={isOpen}

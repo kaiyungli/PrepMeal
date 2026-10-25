@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGeneratePageController } from '@/features/generate';
 import { getDefaultPlanName } from '@/features/generate/mappers/normalizePlanForSave';
@@ -17,10 +18,15 @@ import Toast, { useToast } from '@/components/ui/Toast';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
-import { useRef, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRef, useEffect, useState } from 'react';
 
 export default function GeneratePage() {
+  const { user, loading } = useAuth();
+  if (loading) return <p role="status" className="p-6">確認登入狀態…</p>;
+  return <GenerateWorkspace key={user?.id || 'guest'} />;
+}
+
+function GenerateWorkspace() {
   const headerCtrl = useHeaderController();
   const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
@@ -52,46 +58,6 @@ export default function GeneratePage() {
       meta: { page: '/generate' }
     });
   }, []);
-  
-  // Hydrate seed plan from homepage
-  const router = useRouter();
-  useEffect(() => {
-    // Wait for router to be ready and check source
-    if (!router.isReady) return;
-    if (router.query.source !== 'home-plan') return;
-    if (typeof window === 'undefined') return;
-    
-    const raw = sessionStorage.getItem('prepmeal:generateSeedPlan');
-    if (!raw) return;
-    
-    try {
-      const parsed = JSON.parse(raw);
-      if (!parsed?.weeklyPlan || !Array.isArray(parsed.weeklyPlan)) return;
-      
-      // Map to generate page format
-      const dayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-      const hydratedPlan = {};
-      
-      parsed.weeklyPlan.forEach((day, idx) => {
-        const key = dayKeys[idx] || `day${idx}`;
-        hydratedPlan[key] = (day.items || []).map((item) => ({
-          id: item.recipeId,
-          recipeName: item.recipeName,
-          servings: item.servings || 2
-        }));
-      });
-      
-      // Apply to generate page state if has items
-      if (Object.keys(hydratedPlan).some(k => hydratedPlan[k]?.length > 0)) {
-        ctrl.setWeeklyPlan(hydratedPlan);
-      }
-      
-      sessionStorage.removeItem('prepmeal:generateSeedPlan');
-    } catch (error) {
-      console.error('[generate] Failed to hydrate seed plan', error);
-      sessionStorage.removeItem('prepmeal:generateSeedPlan');
-    }
-  }, [router.query.source]);
   
   const {
     preferences: prefs,
@@ -130,6 +96,12 @@ export default function GeneratePage() {
     handleAddRandomRecipe,
   } = ctrl;
   
+  const confirmClear = () => {
+    if (hasRecipes && !window.confirm('清空目前餐單？已保存到「我的餐單」的餐單不受影響。')) return;
+    handleClearAll();
+    ctrl.draft.clearNotices();
+  };
+
   return (
     <>
       <Header {...headerCtrl} />
@@ -146,6 +118,19 @@ export default function GeneratePage() {
               為你安排每日晚餐，簡單方便
             </p>
           </div>
+          <div role="status" className="text-sm text-[#3A2010]">
+            {ctrl.draft.ready ? ctrl.draft.message : '正在讀取草稿…'}
+            {ctrl.draft.notices.map(note => <p key={note}>{note}</p>)}
+          </div>
+          {ctrl.draft.conflict && <div className="flex gap-3">
+            <button type="button" className={UI.buttonGhost} onClick={() => ctrl.draft.resolveConflict(false)}>載入另一分頁草稿</button>
+            <button type="button" className={UI.buttonGhost} onClick={() => ctrl.draft.resolveConflict(true)}>保留此頁草稿</button>
+          </div>}
+          {ctrl.recipesError && <div role="alert" className="rounded-xl bg-white border border-red-300 p-4">
+            <p>{ctrl.recipesError}</p>
+            <button type="button" className={UI.buttonGhost} onClick={ctrl.retryRecipes} disabled={loadingRecipes}>重新載入食譜</button>
+          </div>}
+          <fieldset disabled={!ctrl.draft.ready || ctrl.draft.conflict} className="space-y-4 min-w-0">
           <GenerateSettings
             daysPerWeek={prefs.daysPerWeek}
             setDaysPerWeek={prefs.setDaysPerWeek}
@@ -159,19 +144,20 @@ export default function GeneratePage() {
             setBudget={prefs.setBudget}
             filters={prefs.filters}
             setFilters={prefs.setFilters}
-            onClearAll={handleClearAll}
+            onClearAll={confirmClear}
             isFilterExpanded={isFilterExpanded}
             handleToggleFilterExpanded={handleToggleFilterExpanded}
           />
 
           <GenerateActions
+            recipesError={ctrl.recipesError}
             isSaving={isSaving}
             isLoadingRecipes={loadingRecipes}
             availableRecipeCount={allRecipes.length}
             filteredRecipeCount={filteredRecipes.length}
             selectedCount={selectedCount}
             hasRecipes={hasRecipes}
-            onClear={handleClearAll}
+            onClear={confirmClear}
             onShoppingList={handleOpenShoppingList}
             onGenerate={handleGenerate}
             onSave={openSaveDialog}
@@ -191,7 +177,7 @@ export default function GeneratePage() {
             onAddRandom={handleAddRandomRecipe}
             onRecipeClick={handleRecipeClick}
           />
-        
+          </fieldset>
         </div>
 
         {isSaveDialogOpen && (

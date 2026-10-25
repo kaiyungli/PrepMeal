@@ -35,7 +35,7 @@ export function useGeneratePreferences() {
   // === Preference Settings ===
   const [budget, setBudget] = useState('normal');
   const [ingredientReuse, setIngredientReuse] = useState('normal');
-  const [exclusions, setExclusions] = useState([]);  // Separate: avoid vs include
+  const [exclusions, setExclusions] = useState(/** @type {string[]} */ ([]));  // Separate: avoid vs include
 
   // === Legacy-derived state for server-side API params ===
   // Derive cuisines from filters.cuisine

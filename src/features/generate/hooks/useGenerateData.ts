@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { fetchAvailableRecipes } from '../index';
 import { perfNow, perfLog } from '@/utils/perf';
@@ -10,12 +10,18 @@ export function useGenerateData() {
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   
+  const [recipesError, setRecipesError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const retryRecipes = useCallback(() => setAttempt(value => value + 1), []);
+
   // Pantry state
   const [pantryIngredients, setPantryIngredients] = useState<string[]>([]);
   
   // Fetch recipes on mount
   useEffect(() => {
+    let active = true;
     setLoadingRecipes(true);
+    setRecipesError(null);
     const start = perfNow();
     
     perfLog({
@@ -27,6 +33,7 @@ export function useGenerateData() {
     
     fetchAvailableRecipes()
       .then(recipes => {
+        if (!active) return;
         const end = perfNow();
         setAllRecipes(recipes);
         perfLog({
@@ -39,6 +46,8 @@ export function useGenerateData() {
         });
       })
       .catch(() => {
+        if (!active) return;
+        setRecipesError('未能載入食譜，請檢查網絡後重試。');
         const end = perfNow();
         perfLog({
           event: 'generate_data_load',
@@ -48,8 +57,9 @@ export function useGenerateData() {
           end
         });
       })
-      .finally(() => setLoadingRecipes(false));
-  }, []);
+      .finally(() => { if (active) setLoadingRecipes(false); });
+    return () => { active = false; };
+  }, [attempt]);
   
   // Read pantry from URL
   useEffect(() => {
@@ -63,6 +73,8 @@ export function useGenerateData() {
   return {
     allRecipes,
     loadingRecipes,
+    recipesError,
+    retryRecipes,
     pantryIngredients
   };
 }

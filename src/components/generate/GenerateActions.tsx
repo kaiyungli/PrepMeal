@@ -2,6 +2,7 @@ import { UI } from '@/styles/ui';
 // Generate page action buttons component
 
 interface GenerateActionsProps {
+  recipesError?: string | null;
   isSaving: boolean;
   isLoadingRecipes: boolean;
   availableRecipeCount: number;
@@ -15,6 +16,7 @@ interface GenerateActionsProps {
 }
 
 export default function GenerateActions({ 
+  recipesError,
   isSaving,
   isLoadingRecipes,
   availableRecipeCount,
@@ -72,7 +74,7 @@ export default function GenerateActions({
       </div>
       {isLoadingRecipes ? (
         <p role="status" className="w-full text-sm text-[#3A2010]">正在載入食譜…</p>
-      ) : filteredRecipeCount === 0 ? (
+      ) : !recipesError && filteredRecipeCount === 0 ? (
         <p role="status" className="w-full text-sm text-[#3A2010]">
           {availableRecipeCount === 0
             ? '暫時沒有可用食譜，請稍後再試。'

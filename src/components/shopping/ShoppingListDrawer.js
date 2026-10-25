@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { createPortal } from 'react-dom';
 
 import { formatUnit, formatQuantity } from '@/lib/formatters';
 import { CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/features/shopping-list/constants';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import OptionalIngredientChoices from './OptionalIngredientChoices';
 
 /**
@@ -21,6 +22,8 @@ export default function ShoppingListDrawer({
   onFetch 
 }) {
   const [mounted, setMounted] = useState(false);
+  const titleId = useId();
+  const dialogRef = useDialogFocus(mounted && isOpen);
   const [viewMode, setViewMode] = useState('category'); // 'category' | 'recipe'
 
   useEffect(() => {
@@ -141,11 +144,11 @@ export default function ShoppingListDrawer({
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
       
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white z-50 shadow-xl flex flex-col">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="fixed inset-y-0 right-0 w-full max-w-md bg-white z-50 shadow-xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#E5DCC8]">
-          <h2 className="text-lg font-semibold">購物清單</h2>
-          <button onClick={onClose} className="p-2 hover:bg-[#F4EDDD] rounded-full">✕</button>
+          <h2 id={titleId} className="text-lg font-semibold">購物清單</h2>
+          <button type="button" aria-label="關閉購物清單" onClick={onClose} className="p-2 hover:bg-[#F4EDDD] rounded-full">✕</button>
         </div>
 
         {/* View Mode Toggle */}

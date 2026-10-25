@@ -9,6 +9,8 @@ import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 
 type GeneratePreferences = ReturnType<typeof useGeneratePreferences>;
 
+import { useGenerateDraft } from './useGenerateDraft';
+
 import { useGenerateData } from './useGenerateData';
 import { useFilteredRecipes } from './useFilteredRecipes';
 import { useGeneratePlan } from './useGeneratePlan';
@@ -69,8 +71,14 @@ export function useGeneratePageController({
     [plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay]
   );
   
+  const draft = useGenerateDraft({ userId: user?.id ?? null, allRecipes: data.allRecipes,
+    loadingRecipes: data.loadingRecipes, recipesError: data.recipesError, preferences,
+    weeklyPlan: plan.weeklyPlan, lockedSlots: plan.lockedSlots,
+    setWeeklyPlan: plan.setWeeklyPlan, setLockedSlots: plan.setLockedSlots });
+
   // Actions hook (called once)
   const actions = useGenerateActions({
+    loginRedirect: draft.prepareLogin,
     weeklyPlan: visiblePlan,
     pantryIngredients: data.pantryIngredients,
     servings,
@@ -117,6 +125,7 @@ export function useGeneratePageController({
   );
   
   return {
+    draft,
     // Preferences
     preferences,
     daysPerWeek,
@@ -126,6 +135,8 @@ export function useGeneratePageController({
     // Data
     allRecipes: data.allRecipes,
     loadingRecipes: data.loadingRecipes,
+    recipesError: data.recipesError,
+    retryRecipes: data.retryRecipes,
     pantryIngredients: data.pantryIngredients,
     filteredRecipes,
     

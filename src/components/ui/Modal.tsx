@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useId } from 'react'
+
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,6 +25,8 @@ export default function Modal({
   header,
   floating
 }: ModalProps) {
+  const dialogRef = useDialogFocus(isOpen);
+  const titleId = useId();
   // ESC key to close
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -33,18 +37,6 @@ export default function Modal({
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -65,7 +57,7 @@ export default function Modal({
         padding: '20px'
       }}
     >
-      <div 
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : '詳細資料'} tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           background: 'white',
@@ -81,6 +73,7 @@ export default function Modal({
       >
         {/* Close button - fixed at top right */}
         <button
+          aria-label="關閉視窗"
           onClick={onClose}
           style={{
             position: 'absolute',
@@ -109,7 +102,7 @@ export default function Modal({
             padding: '20px 24px 0 24px',
             flexShrink: 0
           }}>
-            <h2 style={{
+            <h2 id={titleId} style={{
               fontSize: '20px',
               fontWeight: 700,
               color: colors.brown,
