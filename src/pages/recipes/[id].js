@@ -65,7 +65,7 @@ export default function RecipeDetail({ recipe, error }) {
 
       <div className="min-h-screen bg-[#F8F3E8]">
         <div className="max-w-[800px] mx-auto py-6 px-4">
-          <RecipeDetailContent recipe={safeRecipe} />
+          <RecipeDetailContent recipe={safeRecipe} showAds />
         </div>
       </div>
     </>

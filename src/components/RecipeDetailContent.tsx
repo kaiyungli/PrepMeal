@@ -44,6 +44,7 @@ interface RecipeDetailContentProps {
     steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
   } | null
   isLoading?: boolean
+  showAds?: boolean
   isFavorite?: boolean
   favoriteLoading?: boolean
   onFavoriteClick?: () => void | Promise<void>
@@ -64,7 +65,7 @@ const getUnitLabel = (unit?: string | { code?: string; name?: string; display_na
   return typeof unit === 'object' ? unit.display_name_zh || formatUnit(unit) : formatUnit(unit);
 };
 
-export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick }: RecipeDetailContentProps) {
+export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false }: RecipeDetailContentProps) {
   // Defer heavy sections to reduce initial paint cost on iPad
   const recipeId = recipe?.id;
   const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
@@ -223,7 +224,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         )}
 
         {/* Ad between ingredients and steps */}
-        <RecipeDetailInArticleAd className="my-6" />
+        {showAds && <RecipeDetailInArticleAd className="my-6" />}
 
         {/* Steps Card - Deferred */}
         {showHeavySections ? (
