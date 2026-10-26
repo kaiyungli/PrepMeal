@@ -49,3 +49,16 @@ Owner passed functional acceptance but rejected the crowded UI. After online ref
 Validation: full 2,237 unit +201 component tests passed (2,438 total), TypeScript, changed interactive components ESLint and whitespace checks passed. Runtime checks include on-demand editing/addition, bought reveal/undo, shared view state, extra edit/delete, focus restoration and cancelled native sharing. Production build verification recorded with delivery. Physical visual approval of this UI remains pending; functional approval refers to the prior version and is not automatically extended to the new presentation.
 
 References informing this revision: AnyList official lists/details behavior (https://www.anylist.com/lists), Bring official list/tile choice (https://www.getbring.com/blog-posts/the-best-shopping-list-app), NN/g progressive disclosure (https://www.nngroup.com/articles/progressive-disclosure/). No claim that one layout is universally most comfortable.
+
+## Compact density revision from IMG_0845.png
+
+Owner accepted the arrangement/style but requested significantly less row spacing and a goal of seeing a roughly ten-item list on one phone screen. The attached phone screenshot was inspected directly.
+
+- Mobile item minimum height 56 → 36 CSS px (desktop 44); smaller empty vertical padding, 20px visual checkbox, 15px item text and 36px edit target. Long names, quantities, notes and larger text may still expand rows; no clipping or forced scaling.
+- Category gaps 20 → 4px, category heading padding reduced. Header height/padding reduced while retaining the warm white/brown visual system.
+- Count, arrangement selector and share action share one toolbar; removed the redundant category-explanation row (recipe-total explanation retained in recipe view).
+- Bought reveal and food/storage information now share one compact metadata row. Normal save status appears there, retaining live status announcements and prominent errors.
+- Add footer reduced to a 40px action plus small safe-area padding; editing forms retain their original input sizes.
+- Scrolling remains available for longer lists, expanded information/share panels, long notes and accessibility text. Ten-item single-screen fit is a design target, not a verified guarantee for every viewport or browser/text setting.
+
+Validation for this presentation-only revision: 201 component tests, TypeScript, changed-file ESLint and whitespace passed; production build verified during delivery. No data, computation, persistence, recipe, schema or auth changes. Actual compact-layout phone acceptance remains pending.
