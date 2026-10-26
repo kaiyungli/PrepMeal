@@ -42,6 +42,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: [
+      'tests/shoppingProgress.runtime.test.tsx',
       'tests/generateDraftPage.runtime.test.tsx',
       'tests/generateDraft.runtime.test.tsx',
       'tests/coreReliability.runtime.test.tsx',

@@ -129,8 +129,8 @@ describe('fetchGeneratedPlanShoppingList consumer-boundary unit safety', () => {
 
     expect(viewModel.sections).toHaveLength(1);
     expect(viewModel.sections[0].items).toEqual([
-      { ingredientId: 'beef-1', name: '牛肉', quantityText: '200 克', quantityPending: false },
-      { ingredientId: 'beef-1', name: '牛肉', quantityText: '2 千克', quantityPending: false },
+      { ingredientId: 'beef-1', name: '牛肉', quantityText: '200 克', quantityPending: false, quantity: 200, unit: 'g' },
+      { ingredientId: 'beef-1', name: '牛肉', quantityText: '2 千克', quantityPending: false, quantity: 2, unit: 'kg' },
     ]);
   });
 });

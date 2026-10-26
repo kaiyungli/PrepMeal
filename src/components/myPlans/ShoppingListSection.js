@@ -1,3 +1,4 @@
+import { useSavedShoppingProgress } from '@/features/shopping-list/progress/useSavedShoppingProgress';
 import { useState } from 'react';
 import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
 import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanShoppingList';
@@ -6,8 +7,9 @@ import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanSho
  * ShoppingListSection - triggers drawer with shopping list
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
-export default function ShoppingListSection({ recipeIds, servings = 1 }) {
+export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined }) {
   const [isOpen, setIsOpen] = useState(false);
+  const progress = useSavedShoppingProgress(planId, isOpen);
   const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings });
 
   const handleOpen = () => {
@@ -44,6 +46,7 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
       </button>
 
       <ShoppingListDrawer
+        progressState={planId ? progress : undefined}
         isOpen={isOpen}
         onClose={handleClose}
         shoppingList={shoppingList}

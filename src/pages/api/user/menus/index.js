@@ -1,3 +1,4 @@
+import { validProgress } from '@/features/shopping-list/progress/model';
 // Menu Plans API - GET, POST
 // Uses real database schema: menu_plans, menu_plan_items
 
@@ -90,7 +91,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { name, week_start_date, days_count, items } = req.body || {};
+      const { name, week_start_date, days_count, items, shopping_progress } = req.body || {};
       
       if (
         typeof name !== 'string' ||
@@ -101,14 +102,16 @@ export default async function handler(req, res) {
         return res.status(400).json(ApiResponse.badRequest('name, week_start_date, and items are required'));
       }
 
+      if (shopping_progress !== undefined && (!validProgress(shopping_progress) || JSON.stringify(shopping_progress).length > 200000)) return res.status(400).json(ApiResponse.badRequest('Invalid shopping progress'));
       try {
         const { data: planId, error: planError } = await userSupabase.rpc(
-          'create_menu_plan_atomic',
+          shopping_progress ? 'create_menu_plan_with_shopping' : 'create_menu_plan_atomic',
           {
             p_name: name,
             p_week_start_date: week_start_date,
             p_days_count: days_count,
             p_items: items,
+            ...(shopping_progress ? { p_progress: shopping_progress } : {}),
           }
         );
 

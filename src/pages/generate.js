@@ -197,6 +197,9 @@ function GenerateWorkspace() {
 
         <ShoppingListModal 
           isOpen={showShoppingList} 
+          progress={ctrl.draft.shoppingProgress}
+          onProgressChange={ctrl.draft.setShoppingProgress}
+          progressDisabled={!ctrl.draft.ready || ctrl.draft.conflict}
           onClose={handleCloseShoppingList}
           shoppingListView={shoppingListView}
           loading={isShoppingListLoading}

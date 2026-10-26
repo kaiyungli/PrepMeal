@@ -1,3 +1,4 @@
+import { validProgress, type ShoppingProgress } from '@/features/shopping-list/progress/model';
 export const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000;
 export const TRANSFER_KEY = 'prepmeal:generate-draft-transfer:v1';
 export const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
@@ -7,6 +8,7 @@ export type DraftPreferences = {
   filters: Record<string, string[]>;
 };
 export type DraftSnapshot = {
+  shoppingProgress?: ShoppingProgress;
   weeklyPlan: Record<string, (string | null)[]>;
   lockedSlots: Record<string, boolean>;
   preferences: DraftPreferences;
@@ -22,7 +24,8 @@ export function parseDraft(raw: string | null, owner: string, now = Date.now()):
   try {
     const value = JSON.parse(raw);
     if (value?.version !== 1 || value.owner !== owner || !Number.isFinite(value.savedAt) || value.savedAt > now || !value.snapshot) throw new Error();
-    const { weeklyPlan, lockedSlots, preferences: p, notices } = value.snapshot;
+    const { weeklyPlan, lockedSlots, preferences: p, notices, shoppingProgress } = value.snapshot;
+    if (shoppingProgress !== undefined && !validProgress(shoppingProgress)) throw new Error();
     const strings = (items: unknown): items is string[] => Array.isArray(items) && items.length <= 40 && items.every(x => typeof x === 'string' && x.length <= 200);
     if (!weeklyPlan || typeof weeklyPlan !== 'object' || Array.isArray(weeklyPlan) ||
       Object.keys(weeklyPlan).some(key => !DAY_KEYS.includes(key as typeof DAY_KEYS[number])) ||

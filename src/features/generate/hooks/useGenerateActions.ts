@@ -4,7 +4,10 @@ import { normalizePlanForSave, saveGeneratedPlan } from '../index';
 import { resolvePlanName } from '../mappers/normalizePlanForSave';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 
+import type { ShoppingProgress } from '@/features/shopping-list/progress/model';
+
 interface UseGenerateActionsOptions {
+  shoppingProgress?: ShoppingProgress;
   loginRedirect?: () => string;
   weeklyPlan: any;
   pantryIngredients: string[];
@@ -17,6 +20,7 @@ interface UseGenerateActionsOptions {
 }
 
 export function useGenerateActions({
+  shoppingProgress,
   loginRedirect,
   weeklyPlan,
   pantryIngredients,
@@ -134,6 +138,7 @@ export function useGenerateActions({
     }
 
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
+    if (shoppingProgress) payload.shopping_progress = shoppingProgress;
     if (customName !== undefined) {
       const name = customName.trim();
       if (name.length > 100) {
@@ -166,7 +171,7 @@ export function useGenerateActions({
       saveInFlightRef.current = false;
       setIsSaving(false);
     }
-  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek, loginRedirect]);
+  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek, loginRedirect, shoppingProgress]);
 
   const handleClearAll = useCallback(() => {
     handleCloseRecipe();

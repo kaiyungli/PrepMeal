@@ -82,6 +82,8 @@ export interface ShoppingListResponse {
 // ===== UI/View Model =====
 
 export interface ShoppingListItemViewModel {
+  quantity?: number | null;
+  unit?: string;
   ingredientId: string | null;
   name: string;
   quantityText: string;

@@ -78,6 +78,8 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
     const category = mapRawCategoryToKey(section.category);
     const items: ShoppingListItemViewModel[] = (section.items || []).map((item): ShoppingListItemViewModel => ({
       ingredientId: item.ingredientId,
+      quantity: item.quantity,
+      unit: item.unit || '',
       name: item.name,
       quantityText: formatQuantityDisplay(item.quantity, item.unitDisplay || item.unit || '', item.quantityPending),
       quantityPending: item.quantityPending,

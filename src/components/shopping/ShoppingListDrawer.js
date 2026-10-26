@@ -1,3 +1,5 @@
+import ShoppingListV2 from './ShoppingListV2';
+import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
 import { useState, useEffect, useId } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -14,6 +16,7 @@ import OptionalIngredientChoices from './OptionalIngredientChoices';
  * - by recipe: 跟菜式排
  */
 export default function ShoppingListDrawer({ 
+  progressState = undefined,
   isOpen, 
   onClose, 
   shoppingList, 
@@ -54,6 +57,12 @@ export default function ShoppingListDrawer({
   }, [isOpen]);
 
   if (!mounted || !isOpen) return null;
+
+  const unifiedView = shoppingList && progressState ? mapShoppingListResponseToViewModel({
+    ...shoppingList,
+    pantry: shoppingList.byCategory?.pantry || [],
+    toBuy: Object.entries(shoppingList.byCategory?.toBuy || {}).map(([category, items]) => ({ category, items })),
+  }) : null;
 
   const renderCategoryView = (data) => {
     if (!data?.byCategory?.toBuy) return null;
@@ -152,7 +161,7 @@ export default function ShoppingListDrawer({
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex border-b border-[#E5DCC8]">
+        {!progressState && <div className="flex border-b border-[#E5DCC8]">
           <button
             onClick={() => setViewMode('category')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
@@ -175,10 +184,11 @@ export default function ShoppingListDrawer({
           </button>
         </div>
 
+        }
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          <OptionalIngredientChoices groups={shoppingList?.optionalIngredients} />
-          {shoppingList?.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
+          {!progressState && <OptionalIngredientChoices groups={shoppingList?.optionalIngredients} />}
+          {!progressState && shoppingList?.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
           {loading && <p className="text-center py-8 text-[var(--color-text-muted)]">載入中...</p>}
           {!loading && error && (
             <div className="text-center py-8">
@@ -200,7 +210,14 @@ export default function ShoppingListDrawer({
               {shoppingList.notice}
             </p>
           )}
-          {!loading && !error && shoppingList && !shoppingList.noUsableRecipes && (
+          {progressState && !loading && !error && unifiedView && <>
+            <ShoppingListV2 view={unifiedView} progress={progressState.progress} onChange={progressState.change} disabled={!progressState.ready} status={progressState.status} />
+            {!progressState.ready && <div className="flex gap-2 mt-3">
+              <button type="button" className="border rounded-lg p-3" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>
+              {!progressState.conflict && progressState.status.includes('未能保存') && <button type="button" className="border rounded-lg p-3" onClick={progressState.retrySave}>重試保存</button>}
+            </div>}
+          </>}
+          {!progressState && !loading && !error && shoppingList && !shoppingList.noUsableRecipes && (
             viewMode === 'category' 
               ? renderCategoryView(shoppingList)
               : renderRecipeView(shoppingList)

@@ -285,11 +285,11 @@ describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
 
   it('passes the controller recipeIds and avgServings straight to ShoppingListSection', () => {
     expect(page).toMatch(/const \{[^}]*\brecipeIds,[^}]*\bavgServings,[^}]*\} = controller;/);
-    expect(page).toContain('<ShoppingListSection recipeIds={recipeIds} servings={avgServings} />');
+    expect(page).toMatch(/<ShoppingListSection[^>]*recipeIds=\{recipeIds\} servings=\{avgServings\}/);
   });
 
   it('posts those props to /api/shopping-list without transforming them', () => {
-    expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1 })');
+    expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined })');
     expect(section).toContain('useSavedPlanShoppingList({ recipeIds, servings })');
     expect(section).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
     expect(request).toContain('export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions)');

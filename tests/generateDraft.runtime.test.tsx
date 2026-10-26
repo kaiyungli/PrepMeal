@@ -77,11 +77,15 @@ describe('draft lifecycle', () => {
 
   it('transfers only the matching same-tab guest login handoff, then consumes it', () => {
     const guest = renderHook(() => useWorkspace(null));
-    act(() => guest.result.current.setWeeklyPlan({ mon: [recipes[1]] }));
+    act(() => {
+      guest.result.current.setWeeklyPlan({ mon: [recipes[1]] });
+      guest.result.current.draft.setShoppingProgress({ version: 1, items: {}, extras: [{ id: 'shopping-x', name: '紙巾', quantity: '2', unit: '包', checked: true, note: '實機測試' }] });
+    });
     const redirect = guest.result.current.draft.prepareLogin(); guest.unmount();
     router.query = { resumeDraft: new URL(redirect, 'https://example.com').searchParams.get('resumeDraft')! };
     const signedIn = renderHook(() => useWorkspace('A'));
     expect(signedIn.result.current.weeklyPlan.mon[0]?.id).toBe('b');
+    expect(signedIn.result.current.draft.shoppingProgress.extras[0]).toMatchObject({ name: '紙巾', checked: true, note: '實機測試' });
     expect(sessionStorage.getItem(TRANSFER_KEY)).toBeNull();
     expect(localStorage.getItem(draftKey('guest'))).toBeNull();
     expect(parseDraft(localStorage.getItem(draftKey('user:A')), 'user:A').status).toBe('ok');

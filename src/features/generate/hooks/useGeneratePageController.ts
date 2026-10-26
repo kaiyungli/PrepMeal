@@ -79,6 +79,7 @@ export function useGeneratePageController({
   // Actions hook (called once)
   const actions = useGenerateActions({
     loginRedirect: draft.prepareLogin,
+    shoppingProgress: draft.shoppingProgress,
     weeklyPlan: visiblePlan,
     pantryIngredients: data.pantryIngredients,
     servings,
@@ -144,7 +145,7 @@ export function useGeneratePageController({
     weeklyPlan: plan.weeklyPlan,
     setWeeklyPlan: plan.setWeeklyPlan,
     lockedSlots: plan.lockedSlots,
-    handleGenerate: plan.handleGenerate,
+    handleGenerate: () => { draft.resetShoppingProgress(); plan.handleGenerate(); },
     handleReplaceRecipe: plan.handleReplaceRecipe,
     handleResetPlan: plan.handleResetPlan,
     lockSlot: plan.lockSlot,
@@ -170,7 +171,7 @@ export function useGeneratePageController({
     // Handlers
     handleAddRandomRecipe: handlers.handleAddRandomRecipe,
     removeRecipe: handlers.removeRecipe,
-    handleClearAll: handlers.handleClearAll,
+    handleClearAll: () => { draft.resetShoppingProgress(); handlers.handleClearAll(); },
     
     // Filters
     filters,

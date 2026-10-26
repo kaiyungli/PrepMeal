@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { DAY_KEYS, TRANSFER_KEY, draftKey, draftOwner, draftFingerprint, encodeDraft, hydrateDraft, parseDraft, type DraftSnapshot } from '../draftStore';
 
+import { emptyProgress, type ShoppingProgress } from '@/features/shopping-list/progress/model';
+
 type Recipe = { id: string | number; [key: string]: unknown };
 type Options = {
   userId: string | null; allRecipes: Recipe[]; loadingRecipes: boolean; recipesError: string | null;
@@ -20,6 +22,7 @@ export function useGenerateDraft(options: Options) {
   const router = useRouter();
   const owner = draftOwner(userId);
   const key = draftKey(owner);
+  const [shoppingProgress, setShoppingProgress] = useState<ShoppingProgress>(emptyProgress);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
   const [notices, setNotices] = useState<string[]>([]);
@@ -28,6 +31,7 @@ export function useGenerateDraft(options: Options) {
   const lastSnapshot = useRef('');
   const lastStored = useRef<string | null>(null);
   const snapshot: DraftSnapshot = useMemo(() => ({
+    shoppingProgress,
     weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, (weeklyPlan[day] || []).map(recipe => recipe?.id != null ? String(recipe.id) : null)])),
     lockedSlots,
     preferences: { daysPerWeek: prefs.daysPerWeek, dailyComposition: prefs.dailyComposition,
@@ -35,11 +39,12 @@ export function useGenerateDraft(options: Options) {
       ingredientReuse: prefs.ingredientReuse, exclusions: prefs.exclusions, filters: prefs.filters },
     notices,
   }), [weeklyPlan, lockedSlots, prefs.daysPerWeek, prefs.dailyComposition, prefs.allowCompleteMeal, prefs.servings,
-    prefs.budget, prefs.ingredientReuse, prefs.exclusions, prefs.filters, notices]);
+    prefs.budget, prefs.ingredientReuse, prefs.exclusions, prefs.filters, notices, shoppingProgress]);
   const fingerprint = draftFingerprint(snapshot);
 
   const apply = useCallback((saved: DraftSnapshot) => {
     const restored = hydrateDraft(saved, allRecipes);
+    setShoppingProgress(saved.shoppingProgress || emptyProgress());
     setWeeklyPlan(restored.weeklyPlan);
     setLockedSlots(restored.lockedSlots);
     setNotices(restored.notices);
@@ -49,7 +54,7 @@ export function useGenerateDraft(options: Options) {
     prefs.setBudget(p.budget); prefs.setIngredientReuse(p.ingredientReuse);
     prefs.setExclusions(p.exclusions); prefs.setFilters(p.filters);
     // Baseline uses hydrated identities and only locks that still refer to meals.
-    lastSnapshot.current = draftFingerprint({ ...saved,
+    lastSnapshot.current = draftFingerprint({ ...saved, shoppingProgress: saved.shoppingProgress || emptyProgress(),
       weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, restored.weeklyPlan[day].map(recipe => recipe ? String(recipe.id) : null)])),
       lockedSlots: restored.lockedSlots, notices: restored.notices });
   }, [allRecipes, setWeeklyPlan, setLockedSlots, prefs]);
@@ -90,7 +95,7 @@ export function useGenerateDraft(options: Options) {
         if (raw) {
           const seed = JSON.parse(raw);
           if (Array.isArray(seed?.weeklyPlan)) {
-            const imported: DraftSnapshot = { ...snapshot, lockedSlots: {}, notices: [],
+            const imported: DraftSnapshot = { ...snapshot, shoppingProgress: emptyProgress(), lockedSlots: {}, notices: [],
               weeklyPlan: Object.fromEntries(DAY_KEYS.map((day, index) => [day,
                 (seed.weeklyPlan[index]?.items || []).slice(0, 3).map((item: { recipeId?: string | number }) => item.recipeId != null ? String(item.recipeId) : null)])) };
             apply(imported); restored = true;
@@ -163,5 +168,5 @@ export function useGenerateDraft(options: Options) {
     sessionStorage.setItem(TRANSFER_KEY, JSON.stringify({ nonce, createdAt: Date.now(), draft: encodeDraft('guest', snapshot) }));
     return `/generate?resumeDraft=${encodeURIComponent(nonce)}`;
   };
-  return { ready, message, notices, conflict, resolveConflict, prepareLogin, clearNotices: () => setNotices([]) };
+  return { shoppingProgress, setShoppingProgress, resetShoppingProgress: () => setShoppingProgress(emptyProgress()), ready, message, notices, conflict, resolveConflict, prepareLogin, clearNotices: () => setNotices([]) };
 }
