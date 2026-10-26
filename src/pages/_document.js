@@ -1,7 +1,8 @@
 import { Html, Head, Main, NextScript } from 'next/document';
+import { ADSENSE_CLIENT_ID } from '@/constants/ads';
 
 /**
- * Custom document with global SEO and AdSense
+ * Custom document with SEO and non-executing AdSense verification
  */
 export default function Document() {
   return (
@@ -21,12 +22,8 @@ export default function Document() {
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         
-        {/* AdSense - visible in view-source */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7449807224140811"
-          crossOrigin="anonymous"
-        />
+        {/* Non-executing ownership verification, including ad-free pages. */}
+        <meta name="google-adsense-account" content={ADSENSE_CLIENT_ID} />
       </Head>
       <body>
         <Main />
