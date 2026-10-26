@@ -68,6 +68,6 @@ export function getPlanAvailabilityWarnings({
     if (supply >= demand) return [];
     const label = getSlotRoleLabel(role);
     const prefix = keptLockCount || reserved.size ? '除已鎖定菜式外，' : '';
-    return [`${prefix}目前有 ${supply} 道可用${label}，尚需安排 ${demand} 個${label}位，未足夠生成全週不重複餐單。可調整篩選條件或減少天數。`];
+    return [`${prefix}只有 ${supply} 道可用${label}，不足以填滿 ${demand} 個${label}位（全週不重複）。請調整篩選或減少天數。`];
   });
 }

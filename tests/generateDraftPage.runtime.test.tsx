@@ -33,7 +33,7 @@ describe('real generate page draft integration', () => {
     expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('4');
     expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy();
     expect(screen.getByText(/已還原草稿/)).toBeTruthy();
-    expect(screen.getByText(/除已鎖定菜式外，目前有 0 道可用完整餐，尚需安排 2 個完整餐位/)).toBeTruthy();
+    expect(screen.getByText(/除已鎖定菜式外，只有 0 道可用完整餐，不足以填滿 2 個完整餐位/)).toBeTruthy();
     expect(screen.getAllByText('欠一道完整餐')).toHaveLength(2);
   });
 
@@ -46,7 +46,7 @@ describe('real generate page draft integration', () => {
     expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy();
     // Unlocking changes the next generation's demand without changing the plan.
     fireEvent.click(screen.getByRole('button', { name: '解鎖' }));
-    expect(screen.getByText(/目前有 1 道可用完整餐，尚需安排 3 個完整餐位/)).toBeTruthy();
+    expect(screen.getByText(/只有 1 道可用完整餐，不足以填滿 3 個完整餐位/)).toBeTruthy();
     expect(screen.getAllByText('帳戶A晚餐')).toHaveLength(2);
   });
 

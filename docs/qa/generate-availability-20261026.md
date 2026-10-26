@@ -23,3 +23,9 @@ Add role-specific warnings before generation and persistent role labels on empty
 ## Delivery state
 
 Implementation and automated validation complete. Same draft PR #123 / preview branch; no merge or production deployment authorized. Real-device acceptance of these new messages remains pending. Prior shopping-list flight-mode acceptance also remains pending. Source checks refer to this branch, not a new production-site audit.
+
+## Approved compact action layout
+
+Owner approved the single-row mockup after IMG_0858.png exposed wrapped button labels. The action row now has three equal columns with no emoji, 44px minimum touch height and unbroken labels; only Generate uses the brown primary fill. Shopping and Save use pale bordered styling and truthful disabled states. Mobile padding is 16px and the row spans the card; desktop retains an inline toolbar. Shortage wording was shortened while retaining usable supply, pending demand, locked-meal context and the non-repeat rule. Existing button actions and generation rules are unchanged.
+
+Validation: 12 focused unit tests and all 207 component tests passed, plus TypeScript, changed-file ESLint and production build. No new tests were added for this reversible styling change; existing behavior checks were updated for the approved labels. Physical mobile layout acceptance pending.

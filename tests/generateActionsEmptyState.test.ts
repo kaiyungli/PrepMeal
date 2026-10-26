@@ -28,7 +28,7 @@ function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeC
 }
 
 function generateButton(markup: string) {
-  return markup.match(/<button\b[^>]*>✨ 一鍵生成<\/button>/)?.[0];
+  return markup.match(/<button\b[^>]*>一鍵生成<\/button>/)?.[0];
 }
 
 describe('generation availability', () => {
@@ -59,8 +59,8 @@ describe('generation availability', () => {
     const html = renderActions({ isLoadingRecipes: false, availableRecipeCount: 3, filteredRecipeCount: 0, hasRecipes: true });
     expect(generateButton(html)).toContain('disabled=""');
     expect(html).toContain('沒有食譜符合目前條件，請調整篩選條件。');
-    expect(html.match(/<button\b[^>]*>🛒 購物清單<\/button>/)?.[0]).not.toContain('disabled=""');
-    expect(html.match(/<button\b[^>]*>💾 保存<\/button>/)?.[0]).not.toContain('disabled=""');
+    expect(html.match(/<button\b[^>]*>購物清單<\/button>/)?.[0]).not.toContain('disabled=""');
+    expect(html.match(/<button\b[^>]*>保存<\/button>/)?.[0]).not.toContain('disabled=""');
   });
 
   it('enables generation and hides availability messages when candidates exist', () => {
