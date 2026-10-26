@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanShoppingList';
 import ShoppingListV2 from '@/components/shopping/ShoppingListV2';
+import { shoppingOfflineKey, parseOfflineProgress } from '@/features/shopping-list/progress/offlineStore';
 import { useSavedShoppingProgress } from '@/features/shopping-list/progress/useSavedShoppingProgress';
 import { emptyProgress, type ShoppingProgress } from '@/features/shopping-list/progress/model';
 import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
-const auth = vi.hoisted(() => ({ user: { id: 'A' }, getAccessToken: vi.fn(async () => 'token') }));
+const auth = vi.hoisted(() => ({ user: { id: 'A' }, isAuthenticated: true, getAccessToken: vi.fn(async () => 'token') }));
 vi.mock('@/hooks/useAuth', () => ({ useAuth: () => auth }));
 vi.mock('@/components/shopping/OptionalIngredientChoices', () => ({ default: () => null }));
 const view = mapShoppingListResponseToViewModel({ pantry: [], toBuy: [{ category: 'meat', items: [{ ingredientId: 'chicken', name: '雞肉', normalizedName: 'chicken', quantity: 200, unit: 'g', category: 'meat', source: 'recipe_ingredients', quantityPending: false }] }], byRecipe: [{ recipeId: 'a', recipeName: '雞飯', pantry: [], toBuy: [{ ingredientId: 'chicken', name: '雞肉', quantity: 200, unit: 'g' }] }], summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 } });
 function Workspace() { const [progress, setProgress] = useState(emptyProgress); return <ShoppingListV2 view={view} progress={progress} onChange={setProgress} />; }
-beforeEach(() => { auth.user.id = 'A'; });
+beforeEach(() => { auth.user.id = 'A'; localStorage.clear(); Object.defineProperty(navigator, 'onLine', { configurable: true, value: true }); });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 const response = (body: unknown, status=200) => Promise.resolve(new Response(JSON.stringify(body), { status }));
 describe('shopping UI and cloud save', () => {
@@ -90,32 +92,137 @@ describe('shopping UI and cloud save', () => {
     await waitFor(() => expect(navigator.share).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('已開啟分享。')).toBeNull();
   });
-  it('serializes rapid writes, keeping the latest edit and new server revision', async () => {
+  it('sends aligned meal portions and restores only the matching account/plan/portion list offline', async () => {
+    const api = { pantry: [], toBuy: [{ category: 'meat', items: [{ ingredientId: 'a', name: '雞肉', quantity: 600, unit: 'g' }] }], byRecipe: [], unavailableRecipeCount: 0 };
+    const fetch = vi.fn((_url: string, _options: RequestInit) => response(api)); vi.stubGlobal('fetch', fetch);
+    const props = { recipeIds: ['a','a'], servings: 3, recipeServings: [2,4], planId: 'plan' };
+    const first = renderHook(() => useSavedPlanShoppingList(props));
+    await act(async () => first.result.current.fetchShoppingList());
+    expect(JSON.parse(fetch.mock.calls[0][1].body as string).recipeServings).toEqual([2,4]);
+    first.unmount(); fetch.mockRejectedValue(new Error('offline'));
+    const again = renderHook(() => useSavedPlanShoppingList(props));
+    await act(async () => again.result.current.fetchShoppingList());
+    expect(again.result.current.shoppingList?.notice).toContain('上次保存');
+    expect(again.result.current.shoppingList?.byCategory.toBuy.meat).toHaveLength(1);
+    again.unmount();
+    const changed = renderHook(() => useSavedPlanShoppingList({ ...props, recipeServings: [1,1] }));
+    await act(async () => changed.result.current.fetchShoppingList()); expect(changed.result.current.shoppingList).toBeNull(); changed.unmount();
+    auth.user.id = 'B';
+    const other = renderHook(() => useSavedPlanShoppingList(props));
+    await act(async () => other.result.current.fetchShoppingList()); expect(other.result.current.shoppingList).toBeNull();
+  });
+  it('serializes rapid writes, keeping latest edits and acknowledged revisions', async () => {
+    let remote = emptyProgress(), rev = 0;
     let resolveFirst!: (value: Response) => void;
-    const fetch = vi.fn().mockImplementationOnce(() => response({ progress: null, revision: 0 }))
-      .mockImplementationOnce(() => new Promise<Response>(resolve => { resolveFirst = resolve; }))
-      .mockImplementationOnce(() => response({ revision: 2 })); vi.stubGlobal('fetch', fetch);
+    const puts: Array<{progress: ShoppingProgress; revision: number}> = [];
+    const fetch = vi.fn(async (_url: string, options: RequestInit) => {
+      if (options.method === 'GET') return new Response(JSON.stringify({ progress: remote, revision: rev }));
+      const body = JSON.parse(options.body as string); puts.push(body);
+      remote = body.progress; rev++;
+      if (puts.length === 1) return new Promise<Response>(resolve => { resolveFirst = resolve; });
+      return new Response(JSON.stringify({ revision: rev }));
+    }); vi.stubGlobal('fetch', fetch);
     const hook = renderHook(() => useSavedShoppingProgress('plan', true));
     await waitFor(() => expect(hook.result.current.ready).toBe(true));
     const p: ShoppingProgress = { ...emptyProgress(), extras: [{ id: 'x', name: '牛奶', quantity: '1', unit: '樽', note: '', checked: false }] };
     act(() => hook.result.current.change(p));
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(puts).toHaveLength(1));
     act(() => hook.result.current.change({ ...p, extras: [{ ...p.extras[0], checked: true }] }));
     await act(async () => resolveFirst(new Response(JSON.stringify({ revision: 1 }))));
-    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(3));
-    const sent = JSON.parse(fetch.mock.calls[2][1].body);
-    expect(sent.revision).toBe(1); expect(sent.progress.extras[0].checked).toBe(true);
+    await waitFor(() => expect(puts).toHaveLength(2));
+    expect(puts[1].revision).toBe(1); expect(puts[1].progress.extras[0].checked).toBe(true);
     await waitFor(() => expect(hook.result.current.status).toContain('已保存'));
   });
-  it('stops on conflicts, reloads explicitly and hides another account response', async () => {
-    const fetch = vi.fn().mockImplementationOnce(() => response({ progress: emptyProgress(), revision: 3 }))
-      .mockImplementationOnce(() => response({}, 409)).mockImplementationOnce(() => response({ progress: emptyProgress(), revision: 4 })); vi.stubGlobal('fetch', fetch);
+  it('restores offline edits after unmount/reload, then syncs on reconnect', async () => {
+    let remote = emptyProgress(), rev = 3;
+    const fetch = vi.fn(async (_url: string, options: RequestInit) => {
+      if (options.method === 'GET') return new Response(JSON.stringify({ progress: remote, revision: rev }));
+      const body = JSON.parse(options.body as string); expect(body.revision).toBe(rev);
+      remote = body.progress; rev++; return new Response(JSON.stringify({ revision: rev }));
+    }); vi.stubGlobal('fetch', fetch);
+    const first = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(first.result.current.ready).toBe(true));
+    Object.defineProperty(navigator, 'onLine', { configurable: true, value: false });
+    const p: ShoppingProgress = { ...emptyProgress(), extras: [{ id: 'offline-x', name: '紙巾', quantity: '2', unit: '包', note: '街市', checked: true }] };
+    act(() => first.result.current.change(p));
+    await waitFor(() => expect(first.result.current.status).toContain('離線修改已保存'));
+    first.unmount();
+    const second = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(second.result.current.ready).toBe(true));
+    expect(second.result.current.progress).toEqual(p);
+    Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
+    await act(async () => window.dispatchEvent(new Event('online')));
+    await waitFor(() => expect(second.result.current.status).toContain('已保存到帳戶'));
+    expect(remote).toEqual(p);
+    const local = parseOfflineProgress(localStorage.getItem(shoppingOfflineKey('A', 'plan')), JSON.stringify(['A','plan']));
+    expect(local?.pending).toBe(false);
+  });
+  it('recognizes a committed PUT with a lost response, and preserves newer queued edits', async () => {
+    let remote = emptyProgress(), rev = 0, loseResponse = true;
+    let rejectLost!: (reason: Error) => void;
+    const fetch = vi.fn(async (_url: string, options: RequestInit) => {
+      if (options.method === 'GET') return new Response(JSON.stringify({ progress: remote, revision: rev }));
+      const body = JSON.parse(options.body as string); remote = body.progress; rev++;
+      if (loseResponse) { loseResponse = false; return new Promise<Response>((_resolve, reject) => { rejectLost = reject; }); }
+      return new Response(JSON.stringify({ revision: rev }));
+    }); vi.stubGlobal('fetch', fetch);
+    const first = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(first.result.current.ready).toBe(true));
+    const p: ShoppingProgress = { ...emptyProgress(), extras: [{ id: 'x', name: '牛奶', quantity: '1', unit: '樽', note: '', checked: false }] };
+    act(() => first.result.current.change(p));
+    await waitFor(() => expect(rev).toBe(1));
+    const newer = { ...p, extras: [{ ...p.extras[0], checked: true }] };
+    act(() => first.result.current.change(newer));
+    await act(async () => rejectLost(new Error('connection lost after commit')));
+    await waitFor(() => expect(first.result.current.needsRetry).toBe(true));
+    first.unmount();
+    const again = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(again.result.current.ready).toBe(true));
+    await waitFor(() => expect(again.result.current.needsRetry).toBe(false));
+    await waitFor(() => expect(rev).toBe(2));
+    expect(remote.extras[0].checked).toBe(true); expect(again.result.current.conflict).toBe(false);
+  });
+  it('preserves a durable outbox on cloud conflict and only discards after confirmation', async () => {
+    let rev = 3;
+    const fetch = vi.fn(async () => new Response(JSON.stringify({ progress: emptyProgress(), revision: rev })));
+    vi.stubGlobal('fetch', fetch);
     const hook = renderHook(() => useSavedShoppingProgress('plan', true));
     await waitFor(() => expect(hook.result.current.ready).toBe(true));
-    act(() => hook.result.current.change(emptyProgress()));
+    Object.defineProperty(navigator, 'onLine', { configurable: true, value: false });
+    act(() => hook.result.current.change({ ...emptyProgress(), extras: [{ id: 'x', name: '紙巾', quantity: '', unit: '', note: '', checked: true }] }));
+    rev = 4; Object.defineProperty(navigator, 'onLine', { configurable: true, value: true });
+    await act(async () => window.dispatchEvent(new Event('online')));
     await waitFor(() => expect(hook.result.current.conflict).toBe(true));
-    expect(hook.result.current.ready).toBe(false);
+    const key = shoppingOfflineKey('A', 'plan'); const before = localStorage.getItem(key);
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    await act(async () => hook.result.current.reload()); expect(localStorage.getItem(key)).toBe(before);
+    vi.mocked(window.confirm).mockReturnValue(true);
     await act(async () => hook.result.current.reload());
-    expect(hook.result.current.conflict).toBe(false); expect(hook.result.current.ready).toBe(true);
+    expect(hook.result.current.conflict).toBe(false); expect(hook.result.current.progress).toEqual(emptyProgress());
+  });
+  it('hides an offline account outbox immediately when the account changes', async () => {
+    const scope = JSON.stringify(['A','plan']);
+    const p = { ...emptyProgress(), extras: [{ id: 'private', name: 'A私人物品', quantity: '', unit: '', note: '', checked: true }] };
+    localStorage.setItem(shoppingOfflineKey('A','plan'), JSON.stringify({ version: 1, scope, savedAt: Date.now(), revision: 1, progress: p, pending: true }));
+    Object.defineProperty(navigator, 'onLine', { configurable: true, value: false });
+    const hook = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(hook.result.current.progress.extras).toHaveLength(1));
+    auth.user.id = 'B'; hook.rerender();
+    expect(hook.result.current.progress.extras).toEqual([]);
+    expect(hook.result.current.ready).toBe(false);
+  });
+  it('reports storage failure truthfully and separates account/plan outboxes', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => response({ progress: emptyProgress(), revision: 1 })));
+    const hook = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(hook.result.current.ready).toBe(true));
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+    act(() => hook.result.current.change(emptyProgress()));
+    expect(hook.result.current.ready).toBe(false); expect(hook.result.current.status).toContain('只在此頁');
+    hook.unmount(); vi.restoreAllMocks(); auth.user.id = 'B';
+    const other = renderHook(() => useSavedShoppingProgress('plan', true));
+    await waitFor(() => expect(other.result.current.ready).toBe(true));
+    expect(other.result.current.progress.extras).toEqual([]);
+    expect(shoppingOfflineKey('A','plan')).not.toBe(shoppingOfflineKey('B','plan'));
+    expect(shoppingOfflineKey('A','plan')).not.toBe(shoppingOfflineKey('A','other-plan'));
   });
 });

@@ -103,6 +103,8 @@ export function usePlanDetailController({
   // once per occurrence, and /api/shopping-list counts the repeats.
   const recipeIds = items.map(i => i.recipe_id).filter(Boolean);
 
+  const recipeServings = items.filter(i => i.recipe_id).map(i => i.servings ?? 1);
+
   const avgServings =
     items.length > 0
       ? Math.round(items.reduce((sum, i) => sum + (i.servings || 1), 0) / items.length)
@@ -115,6 +117,7 @@ export function usePlanDetailController({
     mealSlotGroupsByDay,
 
     recipeIds,
+    recipeServings,
     avgServings,
 
     loading,

@@ -38,6 +38,8 @@ function ItemRow({ name, quantity, note, checked, onCheck, onEdit }: {
 function compactStatus(status?: string) {
   if (!status) return '';
   if (/失敗|未能|無法|另一|超過|請勿|已暫停/.test(status)) return status;
+  if (status.includes('離線')) return '離線 · 修改保留此瀏覽器';
+  if (status.includes('尚未同步')) return '待同步 · 修改保留此瀏覽器';
   if (status.includes('草稿')) return '此瀏覽器草稿 · 保留7日';
   if (status.includes('保存採購進度')) return '保存中…';
   if (/讀取/.test(status)) return '讀取中…';

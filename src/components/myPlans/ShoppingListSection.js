@@ -7,10 +7,10 @@ import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanSho
  * ShoppingListSection - triggers drawer with shopping list
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
-export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined }) {
+export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined, recipeServings = undefined }) {
   const [isOpen, setIsOpen] = useState(false);
   const progress = useSavedShoppingProgress(planId, isOpen);
-  const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings });
+  const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings, recipeServings, planId });
 
   const handleOpen = () => {
     if (!shoppingList) {

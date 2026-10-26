@@ -133,10 +133,10 @@ async function loadController(rows: PlanRow[], planId = '5d2f6a0e-8c1b-4e7a-9f3d
 
 // The body ShoppingListSection posts: { recipeIds, servings } from the
 // controller (see the source-level pass-through test below).
-async function requestShoppingList(controller: { recipeIds: string[]; avgServings: number }) {
+async function requestShoppingList(controller: { recipeIds: string[]; avgServings: number; recipeServings?: number[] }) {
   const { status, body } = await callHandler(shoppingListHandler as never, {
     method: 'POST',
-    body: { recipeIds: controller.recipeIds, servings: controller.avgServings },
+    body: { recipeIds: controller.recipeIds, servings: controller.avgServings, recipeServings: controller.recipeServings },
   });
   expect(status).toBe(200);
   return body as ShoppingListResponse;
@@ -231,6 +231,11 @@ describe('usePlanDetailController saved-plan occurrences', () => {
 });
 
 describe('saved plan → /api/shopping-list', () => {
+  it('carries each saved meal portion through the real controller/API path without averaging', async () => {
+    const controller = await loadController([meal('2026-10-05', RECIPE_A, 2), meal('2026-10-06', RECIPE_B, 1), meal('2026-10-07', RECIPE_A, 4)]);
+    expect(controller.recipeServings).toEqual([2,1,4]);
+    expect(toBuy(await requestShoppingList(controller))).toEqual({ 雞蛋: 15, 番茄: 6, 豆腐: 1 });
+  });
   it('keeps single-occurrence quantities unchanged', async () => {
     const body = await requestShoppingList(await loadController([meal('2026-10-05', RECIPE_A)]));
 
@@ -289,12 +294,12 @@ describe('/my-plans/[id] → ShoppingListSection request pass-through', () => {
   });
 
   it('posts those props to /api/shopping-list without transforming them', () => {
-    expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined })');
-    expect(section).toContain('useSavedPlanShoppingList({ recipeIds, servings })');
+    expect(section).toContain('export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined, recipeServings = undefined })');
+    expect(section).toContain('useSavedPlanShoppingList({ recipeIds, servings, recipeServings, planId })');
     expect(section).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
-    expect(request).toContain('export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions)');
+    expect(request).toContain('export function useSavedPlanShoppingList({ recipeIds, servings, recipeServings, planId }: UseSavedPlanShoppingListOptions)');
     expect(request).toContain("fetch('/api/shopping-list'");
     expect(request).toContain('body: JSON.stringify({ recipeIds, servings,');
-    expect(request).not.toMatch(/recipeIds\s*=|new Set|\.filter\(|\.reduce\(/);
+    expect(request).toContain('...(recipeServings ? { recipeServings } : {})');
   });
 });

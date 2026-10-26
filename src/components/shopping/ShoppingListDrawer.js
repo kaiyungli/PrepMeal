@@ -67,11 +67,11 @@ export default function ShoppingListDrawer({
 
   if (progressState) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
     {loading ? <p role="status" className="p-6">載入中...</p> : error ? <div className="p-6"><p role="alert" className="text-red-700">{error}</p>{onFetch && <button type="button" className="mt-4 min-h-11 rounded-xl border px-4" onClick={onFetch}>重試</button>}</div> : unifiedView ? <>
-      {shoppingList.notice && <p className="px-5 pt-3 text-sm text-[#77573F]">{shoppingList.notice}</p>}
+      {shoppingList.notice && <div className="px-4 pt-2 text-sm text-[#77573F]"><p role="status">{shoppingList.notice}</p>{shoppingList.offlineSnapshot && onFetch && <button type="button" className="min-h-9 underline" onClick={onFetch}>更新清單</button>}</div>}
       <ShoppingListV2 view={unifiedView} progress={progressState.progress} onChange={progressState.change} disabled={!progressState.ready} status={progressState.status} />
-      {!progressState.ready && <div className="flex shrink-0 gap-2 bg-[#FFFEFB] px-5 pb-4">
-        <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>
-        {!progressState.conflict && progressState.status.includes('未能保存') && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.retrySave}>重試保存</button>}
+      {(!progressState.ready || progressState.needsRetry) && <div className="flex shrink-0 gap-2 bg-[#FFFEFB] px-5 pb-4">
+        {!progressState.ready && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>}
+        {!progressState.conflict && progressState.needsRetry && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.retrySave}>重試保存</button>}
       </div>}
     </> : <p className="p-6 text-sm">正在讀取購物清單…</p>}
   </ShoppingListSheet>;

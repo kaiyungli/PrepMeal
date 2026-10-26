@@ -62,3 +62,17 @@ Owner accepted the arrangement/style but requested significantly less row spacin
 - Scrolling remains available for longer lists, expanded information/share panels, long notes and accessibility text. Ten-item single-screen fit is a design target, not a verified guarantee for every viewport or browser/text setting.
 
 Validation for this presentation-only revision: 201 component tests, TypeScript, changed-file ESLint and whitespace passed; production build verified during delivery. No data, computation, persistence, recipe, schema or auth changes. Actual compact-layout phone acceptance remains pending.
+
+## Per-meal servings and durable offline purchasing
+
+Owner explicitly authorized fixing both remaining gaps, retaining the accepted compact UI.
+
+- Saved plan IDs now travel with an aligned `recipeServings` array. The API validates each occurrence (finite, >0, <=100; exact alignment and bounded count), canonicalizes IDs, sums requested portions per recipe and divides by that recipe's base servings. Uniform legacy clients remain compatible. Private/missing recipe counting and optional ingredients retain their existing visibility rules.
+- Controller → detail page → section → authenticated shopping hook/API carries the per-meal values. The old average is retained only as a legacy fallback/summary; the new saved-plan calculation uses per-meal portions.
+- Account/plan-scoped local snapshots retain pending progress and the last confirmed revision for seven days. Each edit is persisted before a write attempt. Online events and reopening the list retry synchronization; local storage failures explicitly report that edits exist only in the current page.
+- The synchronizer reads cloud state before writing, keeps revision compare-and-swap, recognizes a previously committed write whose response was lost, and preserves newer queued edits. Remote conflicts stop writes and retain the pending snapshot; discarding local changes requires explicit confirmation and a successful cloud read.
+- Cross-tab storage changes stop overwrites; stale account responses are hidden, and refs reset when scope changes even without the keyed parent. No access tokens are stored in the new records.
+- A bounded account/plan/request-scoped ingredient snapshot enables use of a previously opened list when its API is unavailable. It clearly labels last-known data, refreshes on reconnect and offers manual refresh. Changed portions/selections or another account cannot reuse that snapshot.
+- Offline support protects edits to a previously loaded list; it does not add a service worker or guarantee a first website load without a network. Long offline periods beyond seven days, cleared browser data and unavailable browser storage are not durable storage guarantees.
+
+Validation: full 2,251 unit +206 component tests =2,457 passed. Final cache reconnect refinement was followed by all 206 component tests and targeted API/controller/isolation/offline unit tests; TypeScript, changed new-module ESLint and whitespace checks passed. Production build verified during delivery. Tests cover unequal portions, repeated/canonicalized recipes, fractional base servings, invalid input rejection, offline reload/reconnect, committed-write/lost-response with newer edits, storage failure, conflict confirmation, account/plan isolation and cached ingredient scope. No database migration, auth setting, recipe content or production application deployment change. Physical airplane-mode acceptance remains pending.
