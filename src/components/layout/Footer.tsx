@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PrivacyOptionsButton from '@/components/ads/PrivacyOptionsButton';
 
 export default function Footer() {
   return (
@@ -53,8 +54,9 @@ export default function Footer() {
 
         <div className="border-t border-[#E7E0D4] pt-8">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 text-sm opacity-60">
-            <div className="flex gap-4">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
               <Link href="/privacy" className="hover:opacity-100">隱私政策</Link>
+              <PrivacyOptionsButton className="hover:opacity-100" />
               <Link href="/faq" className="hover:opacity-100">常見問題</Link>
               <Link href="/terms" className="hover:opacity-100">服務條款</Link>
             </div>
