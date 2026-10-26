@@ -1,106 +1,39 @@
-import SEO from '@/components/seo/SEO';
-import Layout from '@/components/layout/Layout';
+import Link from 'next/link';
+import InformationPage, { SiteContact } from '@/components/layout/InformationPage';
 
 export default function About() {
   return (
-    <Layout>
-      <SEO
-        title="關於"
-        description="關於今晚食乜 - 智能食譜搜尋及餐單規劃平台"
-        canonical="https://eatwhathk.com/about"
-      />
-      
-      <main className="max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold text-[#3A2010] mb-8 text-center">
-          關於今晚食乜
-        </h1>
-        
-        <div className="space-y-8 text-[#5A4030]">
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              我們是誰
-            </h2>
-            <p>
-              今晚食乜（eatwhathk.com）是一個專為香港家庭設計的智能食譜搜尋及餐單規劃平台。
-              我們明白香港人每天工作繁忙，放工後還要諗今晚食乜真係頭痕。
-              所以我哋創立呢個平台，希望幫大家慳時間、慳腳骨力。
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              為什麼建立今晚食乜
-            </h2>
-            <p>
-              我哋發現好多人每晚都為咗「今晚食咩」而苦惱。
-              去街市唔知買乜，睇完食譜又唔記得要買咩材料。
-              所以我哋希望提供一個一站式解決方案，
-              由搜尋食譜、生成餐單到整理購物清單，一次過搞掂。
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              我們如何幫助香港家庭
-            </h2>
-            <p>
-              今晚食乜提供三大功能：
-            </p>
-            <ul className="list-disc pl-5 mt-2 space-y-1">
-              <li>智能食譜搜尋 - 按食材、難度、時間、卡路里篩選</li>
-              <li>一鍵生成餐單 - AI 根據口味配對，一 click 生成七日晚餐</li>
-              <li>自動購物清單 - 整合所有食材，慳時間慳腳骨力</li>
-            </ul>
-            <p className="mt-2">
-              用戶可以直接 save 餐單到帳戶，唔使每次都用紙筆記。
-              而且我哋支援 Google 登入，幾秒就搞得掂。
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              食譜與餐單資料來源
-            </h2>
-            <p>
-              我哋既食譜來自公開既食譜資料庫，經過編輯審核同分類。
-              所有食譜都標明難度、烹飪時間、卡路里同埋材料，
-              確保資料準確可靠。餐單就由 AI 根據用戶既口味同偏好自動生成。
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              AI 餐單生成的用途與限制
-            </h2>
-            <p>
-              AI 餐單生成功能可以幫你快速解決「今晚食咩」既問題，
-              但生成既餐單僅供參考。我哋建議用戶在使用前自行判斷食材同分量是否適合自己既口味同需要。
-              我哋唔會收集任何敏感既個人資料，所有資料都會安全儲存。
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-              聯絡方式
-            </h2>
-            <p className="mb-2">
-              有問題或建議？歡迎聯絡我哋！
-            </p>
-            <p className="mb-1">
-              <span className="font-medium">Email：</span>
-              <a href="mailto:eatwhathk247@gmail.com" className="text-[#9B6035] underline">
-                eatwhathk247@gmail.com
-              </a>
-            </p>
-            <p>
-              <span className="font-medium">電話：</span>
-              <a href="tel:+85294959673" className="text-[#9B6035] underline">
-                +852 9495 9673
-              </a>
-            </p>
-          </section>
-        </div>
-      </main>
-    </Layout>
+    <InformationPage title="關於今晚食乜" description="為香港家庭整理家常食譜、配對晚餐及準備購物清單，減少每日諗餸的時間。" path="/about">
+      <section>
+        <h2>為香港家庭減少每日諗餸的煩惱</h2>
+        <p>今晚食乜（eatwhathk.com）是一個家常食譜搜尋及餐單規劃網站。我們希望由「今晚煮甚麼」到「要買哪些材料」，都可以更容易安排。</p>
+        <p>我們以香港日常煮食需要為出發點，整理材料份量、做法、時間及分類，讓你按自己的時間、口味和需要選擇。</p>
+      </section>
+      <section>
+        <h2>你可以在這裏做甚麼？</h2>
+        <ul>
+          <li>搜尋食譜：按名稱、材料及頁面提供的條件尋找家常菜。</li>
+          <li>安排晚餐：選擇3、5或7天、用餐人數及菜式組合，配對現有食譜，並鎖定或替換菜式。</li>
+          <li>準備買餸：登入後使用購物清單，整理所需食材、勾選已買物品及加入額外物品。</li>
+          <li>保存安排：登入後收藏食譜及保存餐單，方便之後再查看。</li>
+        </ul>
+        <p>餐單由系統按篩選條件及配對規則安排現有食譜。條件過窄或可用食譜不足時，可能無法填滿所有餐位。</p>
+      </section>
+      <section>
+        <h2>食譜與資料如何整理？</h2>
+        <p>站內食譜由編輯整理，內容可能參考外部食譜或營養資料；請以各食譜頁列出的來源、改編及營養依據為準。來源連結供讀者查閱，不表示本站擁有來源網站的內容。</p>
+        <p>我們會持續核對及修訂內容，但材料品牌、食材大小、設備及煮食方法都可能影響結果。時間與營養數值屬參考或估算，並非每道菜均經實驗室分析或專業營養評估。</p>
+      </section>
+      <section>
+        <h2>使用前請留意</h2>
+        <p>篩選標籤及餐單配對不能保證排除所有致敏原，也不代表餐單適合所有健康狀況。請核對材料、產品標籤、份量及食物安全需要；如有特定健康或飲食需要，應向合資格專業人士查詢。</p>
+        <p>草稿和部分採購資料可保存在目前瀏覽器，但不等同已保存到帳戶，也不代表整個網站可離線使用。詳情可參閱<Link href="/faq">常見問題</Link>及<Link href="/privacy">私隱政策</Link>。</p>
+      </section>
+      <section>
+        <h2>聯絡我們</h2>
+        <p>如果發現材料、步驟、來源或功能有問題，歡迎附上相關頁面連結及問題說明，讓我們跟進。</p>
+        <SiteContact />
+      </section>
+    </InformationPage>
   );
 }

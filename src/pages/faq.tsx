@@ -1,79 +1,73 @@
-import SEO from '@/components/seo/SEO';
-import Layout from '@/components/layout/Layout';
+import Link from 'next/link';
+import InformationPage, { SiteContact } from '@/components/layout/InformationPage';
 
 const faqItems = [
   {
-    question: '今晚食乜是什麼？',
-    answer: '今晚食乜是一個專為香港家庭設計的智能食譜搜尋及餐單規劃平台。我們收錄大量家常食譜，幫助用戶快速解決「今晚食咩」的煩惱。',
+    question: '一定要登入才能使用嗎？',
+    answer: '不用登入也可以瀏覽、搜尋食譜及生成餐單。收藏食譜、保存餐單到帳戶及使用購物清單需要登入；可用登入方式以登入頁及實際配置為準。',
   },
   {
     question: '如何搜尋食譜？',
-    answer: '你可以使用搜尋欄輸入食譜名稱、材料或關鍵字。亦可以使用篩選功能，按難度、烹飪時間、食材類型等方式篩選。',
+    answer: '在搜尋欄輸入菜名、材料或關鍵字，再配合頁面提供的菜系、主要蛋白、時間及其他篩選。找不到結果時，可減少篩選條件或換一個關鍵字。',
   },
   {
     question: '如何生成餐單？',
-    answer: '在首頁點擊「生成餐單」按鈕，選擇人數和日期數目，系統會根據你的口味偏好自動配對食譜，生成一週餐單。',
+    answer: '在「生成餐單」選擇3、5或7天、1至6人及菜式組合，再設定偏好。系統會按條件及配對規則從現有食譜中安排菜式。你可以鎖定想保留的菜式，再替換其他位置。',
   },
   {
-    question: '如何儲存餐單？',
-    answer: '生成餐單後，點擊「儲存餐單」即可保存到你的帳戶。你可以在「我的餐單」中查看和管理所有已儲存的餐單。',
+    question: '為甚麼餐單有空位或顯示食譜不足？',
+    answer: '當篩選條件較窄、符合菜式角色的食譜不足，或鎖定與不重複安排的條件無法同時滿足時，可能無法填滿全部餐位。請按頁面提示放寬條件、減少天數或調整鎖定菜式，再核對生成結果。',
   },
   {
-    question: '如何產生購物清單？',
-    answer: '在已儲存的餐單中，點擊「購物清單」按鈕，系統會自動整合所有食材，生成可購買的清單。你可以直接在超市使用。',
+    question: '草稿和已保存餐單有甚麼分別？',
+    answer: '草稿主要保存在目前瀏覽器，最後一次成功保存後7日內可還原；不是雲端餐單，也不會單靠草稿在另一裝置出現。要跨裝置查看，請登入後按「保存」，並確認成功，再到「我的餐單」查看。瀏覽器禁止儲存或清除網站資料會影響草稿。',
   },
   {
-    question: '可以按食材搜尋嗎？',
-    answer: '可以！你可以在搜尋欄輸入特定食材，如「牛肉」、「豆腐」等，系統會顯示包含該食材的食譜。',
+    question: '如何開啟購物清單？',
+    answer: '登入後，可在生成頁已選擇菜式的餐單，或「我的餐單」中的已保存餐單開啟購物清單，核對材料、勾選已買物品及加入額外物品。請留意頁面顯示資料是留在本機、等待同步，還是已保存到帳戶。',
+  },
+  {
+    question: '不同用餐人數如何換算材料？',
+    answer: '購物清單會按餐單設定的人數，相對於食譜原本份數換算可計算的材料數量。這不代表每道菜的原始食譜文字都會重寫。「適量」、不同大小的食材及未能互換的單位仍需自行判斷；購買前請核對原食譜。',
+  },
+  {
+    question: '斷網後還可以用嗎？',
+    answer: '部分已載入的帳戶餐單採購資料可在目前瀏覽器保留勾選、備註及額外物品修改，連線恢復及身份有效後會嘗試同步。不是整個網站都能離線，新裝置或尚未載入的清單可能不能使用。請留意保存、衝突或重試提示；未同步前不要清除網站資料。',
   },
   {
     question: '可以收藏食譜嗎？',
-    answer: '可以。點擊食譜卡片上的心形圖標即可收藏。收藏的食譜會保存在「收藏」頁面，方便日後快速查看。',
+    answer: '可以。登入後按食譜卡片的心形按鈕，並在「收藏」頁查看。若保存失敗，請按畫面提示重試；不要只憑按鈕外觀判斷是否已成功保存。',
   },
   {
-    question: '餐單如何計算？',
-    answer: '餐單會根據你選擇的人數自動計算每道菜的分量。系統亦會提供營養資訊，幫助你了解每日的熱量及蛋白質攝取。',
+    question: '營養、飲食標籤及致敏原提示可以完全依賴嗎？',
+    answer: '不能。營養數值通常是按材料及份量推算的參考值，實際結果受品牌、可食用重量及做法影響。篩選及標籤不能保證適合減重、疾病或所有過敏需要；請核對材料、包裝及交叉接觸風險，有需要時向合資格專業人士查詢。',
   },
   {
-    question: '是否適合減肥人士？',
-    answer: '我們有健康餐、低脂餐等分類。你可以按「健康」或「低脂」篩選，亦可在食譜詳情頁查看卡路里和營養資訊。',
+    question: '食譜資料從何而來？如何回報問題？',
+    answer: '食譜由編輯整理，請查看各食譜頁的來源、改編及營養依據。若發現份量、材料、步驟、圖片或來源有問題，可透過「聯絡我們」附上頁面連結及說明，讓我們核對。',
   },
   {
-    question: '食譜資料從何而來？',
-    answer: '我們的食譜來自公開的食譜資料庫及用戶分享。所有食譜都經過編輯審核，確保資料準確。',
+    question: '忘記密碼、收不到驗證郵件，或想刪除帳戶怎麼辦？',
+    answer: '如一直使用第三方登入，請先使用原本的登入方式。Email用戶可先查看垃圾郵件，仍無法登入或收信時請聯絡我們。查閱、更正或刪除帳戶資料亦可透過聯絡方式提出；我們可能先核實身份。請勿傳送密碼或驗證碼。',
   },
 ];
 
 export default function Faq() {
   return (
-    <Layout>
-      <SEO
-        title="常見問題"
-        description="今晚食乜常見問題解答"
-        canonical="https://eatwhathk.com/faq"
-      />
-      
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-bold text-[#3A2010] mb-8 text-center">
-          常見問題
-        </h1>
-        
-        <div className="space-y-6">
-          {faqItems.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl p-6 shadow-sm"
-            >
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-3">
-                {index + 1}. {item.question}
-              </h2>
-              <p className="text-[#5A4030] leading-relaxed">
-                {item.answer}
-              </p>
-            </div>
-          ))}
-        </div>
-      </main>
-    </Layout>
+    <InformationPage title="常見問題" description="了解今晚食乜的登入、餐單生成、草稿、購物清單、人數換算及離線保存限制。" path="/faq">
+      <div className="space-y-4">
+        {faqItems.map(item => (
+          <section key={item.question} className="bg-white rounded-xl p-5 sm:p-6 shadow-sm">
+            <h2>{item.question}</h2>
+            <p>{item.answer}</p>
+          </section>
+        ))}
+      </div>
+      <section>
+        <h2>仍然需要幫忙？</h2>
+        <p>可前往<Link href="/contact">聯絡我們</Link>，或參閱<Link href="/privacy">私隱政策</Link>及<Link href="/terms">服務條款</Link>。</p>
+        <SiteContact />
+      </section>
+    </InformationPage>
   );
 }

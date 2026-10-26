@@ -1,112 +1,61 @@
-import Head from 'next/head';
-import SEO from '@/components/seo/SEO';
-import Header from '@/components/layout/Header';
-import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
-import Footer from '@/components/layout/Footer';
+import Link from 'next/link';
+import InformationPage, { SiteContact } from '@/components/layout/InformationPage';
 
-/**
- * Privacy Policy 隱私政策
- */
 export default function Privacy() {
   return (
-    <>
-      <SEO
-        title="隱私政策"
-        description="PrepMeal 隱私政策 - 了解我們如何收集、使用、保護您的個人資料。"
-        canonical="https://eatwhathk.com/privacy"
-      />
-      <Head>
-        <title>隱私政策 | PrepMeal</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      
-      <div className="min-h-screen bg-[#F8F3E8]">
-        <Header {...useHeaderController()} />
-        
-        <main className="max-w-3xl mx-auto px-4 py-12">
-          <h1 className="text-2xl font-bold text-[#3A2010] mb-6">隱私政策</h1>
-          
-          <div className="space-y-6 text-[#5A4030]">
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">概述</h2>
-              <p>PrepMeal 重視您的隱私。本政策說明我們如何收集、使用、保護您的個人資料。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">收集的資料</h2>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Google 登入資訊（電郵地址、Google 帳戶資料）</li>
-                <li>食譜收藏及個人偏好</li>
-                <li>餐單計劃資料</li>
-                <li>購物清單資料</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">Google AdSense 及廣告</h2>
-              <p>本網站使用 Google AdSense 顯示廣告。Google 可能使用 Cookie 根據您的興趣顯示相關廣告。您可隨時在 Google 廣告設定中停用個人化廣告。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">Cookies</h2>
-              <p>我們使用必要的 Cookies 維持登入狀態及服務運作。Google AdSense 亦可能設置廣告相關 Cookies。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">資料使用</h2>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>提供個人化食譜推薦</li>
-                <li>改善用戶體驗</li>
-                <li>分析流量及使用情況</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">資料保護</h2>
-              <p>我們採用適當的安全措施保護您的資料，並僅保留必要時間。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">聯絡我們</h2>
-              <p>如有任何疑問，請聯繫我們：
-              <br />
-              電郵：eatwhathk247@gmail.com
-              <br />
-              電話：+852 9495 9673</p>
-            </section>
-
-            <p className="text-sm text-[#AA7A50] pt-4">最後更新：2026年6月21日</p>
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">資料保留期限</h2>
-            <p>我們只會於達成相關用途所需期間內保留個人資料。</p>
-            <p className="mt-2">帳戶資料一般會於帳戶存在期間保留。</p>
-            <p className="mt-2">用戶建立的餐單、收藏及相關設定會於帳戶存續期間保存，以提供服務功能。</p>
-            <p className="mt-2">如用戶要求刪除帳戶，我們會於合理期間內刪除或匿名化相關資料，惟法律、保安或技術需要保留的資料除外。</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">用戶權利</h2>
-            <p>你有權查閱、更正或刪除你的個人資料。</p>
-            <p className="mt-2">如希望查詢、更正或刪除相關資料，可透過本頁提供的聯絡方式與我們聯絡。</p>
-            <p className="mt-2">我們會於合理時間內處理相關要求，並於適用情況下作出回覆。</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">第三方服務</h2>
-            <p>為提供網站功能及改善服務質素，我們可能使用第三方服務供應商，包括但不限於：</p>
-            <ul className="list-disc pl-5 mt-2 space-y-1">
-              <li>Google Authentication（登入服務）</li>
-              <li>Google AdSense（廣告服務）</li>
-              <li>Vercel（網站託管服務）</li>
-            </ul>
-            <p className="mt-2">上述第三方服務可能根據其自身私隱政策處理相關資料。</p>
-          </section>
-
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
-    </>
+    <InformationPage title="私隱政策" description="了解今晚食乜的帳戶資料、瀏覽器草稿、離線採購進度及廣告資料處理。" path="/privacy">
+      <section>
+        <h2>本政策的範圍</h2>
+        <p>本政策說明今晚食乜（eatwhathk.com）在提供食譜、餐單及購物清單服務時如何處理資料。你可以不登入瀏覽公開食譜及生成餐單；收藏、雲端保存及購物清單等帳戶功能需要登入。</p>
+      </section>
+      <section>
+        <h2>我們處理哪些資料，以及用來做甚麼？</h2>
+        <ul>
+          <li>帳戶及登入資料：以Email註冊或登入時提供的電郵及驗證資料；使用第三方登入時，登入供應商按授權提供的識別資料，例如電郵、名稱或頭像。這些資料用於建立帳戶、驗證身份及維持登入。</li>
+          <li>使用功能時提供的資料：收藏、餐單、人數、篩選及排除條件、購物清單勾選、額外物品與備註，用於配對食譜、計算材料及保存你的安排。部分資料只保存在瀏覽器，部分會在登入及使用保存功能時傳送至帳戶服務。</li>
+          <li>技術資料：網站託管、登入及廣告服務可能處理IP位址、瀏覽器／裝置資料、請求網址、時間及錯誤記錄，用於傳送網頁、保安、排查故障及提供相關服務。</li>
+          <li>聯絡資料：你透過電郵或電話主動提供的內容，用於回覆查詢及處理資料要求。請勿在餐單備註或一般查詢中提交密碼、身份證資料或不必要的健康資料。</li>
+        </ul>
+        <p>Email密碼驗證由Supabase Auth處理；第三方帳戶的密碼由該登入供應商處理。請只在相應的安全登入畫面輸入登入資料。</p>
+      </section>
+      <section>
+        <h2>瀏覽器儲存、草稿及離線資料</h2>
+        <p>網站使用localStorage、sessionStorage及相關登入儲存機制，在目前瀏覽器保留登入狀態、篩選設定、餐單草稿、暫存清單及採購進度。這些儲存機制與Cookie不同；關閉Cookie不一定會清除它們。</p>
+        <ul>
+          <li>餐單草稿：有效草稿可在最後一次保存後7日內還原；修改並成功保存會更新時間。草稿不等同已按「保存」存入帳戶的餐單。</li>
+          <li>離線採購進度：已載入的帳戶餐單可保留部分本機採購進度及待同步修改，程式只接受7日有效期內的紀錄；恢復連線及身份有效時會嘗試同步，衝突或失敗時可能需要你處理或重試。</li>
+          <li>7日是上述紀錄的讀取有效期，不表示瀏覽器會在第7日背景自動刪除所有資料。其他登入或快取資料亦不一定使用相同期限。</li>
+          <li>你可在瀏覽器設定清除本站的Cookie及網站資料，包括本機儲存。這可能令你登出，並失去尚未同步的草稿或修改；清除本機資料不會同時刪除雲端帳戶資料。</li>
+        </ul>
+        <p>本機資料可能在登出或切換帳戶後仍留在裝置上，不能把登出當作已清除資料。共用裝置使用者應先確認雲端保存完成，再登出及清除本站資料。私人瀏覽或儲存限制可能令本機保存失效。</p>
+      </section>
+      <section>
+        <h2>服務供應商及資料傳送</h2>
+        <ul>
+          <li>Supabase：處理帳戶驗證及儲存餐單、收藏與相關帳戶資料。</li>
+          <li>Vercel：提供網站託管及請求處理。</li>
+          <li>登入供應商：在你選擇相應登入方式時，按其授權流程及私隱政策處理登入資料；可用方式以登入頁及實際配置為準。</li>
+          <li>Google及廣告合作夥伴：在載入廣告服務時，按下述方式處理廣告相關資料。</li>
+        </ul>
+        <p>上述服務可能在香港以外處理資料，並按其自身服務條款及私隱政策運作。傳送至外部服務的資料不會因你清除本站本機儲存而一併刪除。</p>
+      </section>
+      <section>
+        <h2>Google AdSense、Cookie及廣告選擇</h2>
+        <p>本站載入Google AdSense廣告服務。Google及其他廣告供應商可能使用Cookie、網頁信標、IP位址或其他識別技術，處理瀏覽網址、裝置及廣告互動等資料，以提供及量度廣告、防止濫用，並按適用設定或同意狀態提供個人化廣告。</p>
+        <p>你可查閱<a href="https://policies.google.com/technologies/partner-sites?hl=zh-HK">Google如何使用合作夥伴網站及應用程式的資料</a>，並透過<a href="https://adssettings.google.com/">Google廣告設定</a>管理廣告個人化。關閉個人化不等於移除廣告或停止所有廣告量度。</p>
+        <p>你亦可透過瀏覽器管理Cookie及網站資料。如果頁面提供廣告同意或私隱選項，可在該介面查看及更改選擇；Google帳戶廣告設定不能代替網站上的同意選擇。</p>
+      </section>
+      <section>
+        <h2>保留、查閱、更正及刪除</h2>
+        <p>帳戶餐單、收藏及相關設定一般會在帳戶使用期間保留，供你再次查看。我們按提供服務、處理查詢及保安等用途需要保留相關資料；備份或服務供應商紀錄可能有不同保留安排，不保證即時由所有副本移除。</p>
+        <p>如需查閱、更正或要求刪除帳戶及相關資料，請透過以下聯絡方式提出，並說明要求。我們可能先核實你的身份，以免把資料交給其他人或刪錯帳戶；會按適用要求處理及回覆。網站目前沒有自助刪除帳戶按鈕。</p>
+        <p>刪除雲端資料不會自動清除各裝置的本機副本，請亦在使用過的瀏覽器清除本站資料。申請刪除前，請先保存你仍需要的資料。</p>
+        <SiteContact />
+      </section>
+      <section>
+        <h2>政策更新</h2>
+        <p>當功能或資料處理方式有變更時，我們會更新本頁及日期。服務使用方式可參閱<Link href="/faq">常見問題</Link>及<Link href="/terms">服務條款</Link>。</p>
+      </section>
+    </InformationPage>
   );
 }
