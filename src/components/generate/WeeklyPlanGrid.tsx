@@ -1,6 +1,8 @@
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import Image from 'next/image'
 import { getSelectionReasonLabel, sortSelectionReasons } from '@/features/generate/config/selectionReasons';
+import { getSlotRoleForIndex } from '@/features/generate/utils/slotRoleFilter';
+import { getSlotRoleLabel } from '@/features/generate/utils/planFeedback';
 
 // Get meal role label for display
 function getMealRoleLabel(recipe: Recipe): string | null {
@@ -108,6 +110,7 @@ interface WeeklyPlanGridProps {
   lockedSlots: Record<string, boolean>
   daysPerWeek: number
   dishesPerDay: number
+  dailyComposition?: string
   onRecipeClick: (recipe: Recipe) => void
   onReplace: (dayKey: string, index: number) => void
   onLock: (dayKey: string, index: number) => void
@@ -121,6 +124,7 @@ export default function WeeklyPlanGrid({
   lockedSlots,
   daysPerWeek,
   dishesPerDay,
+  dailyComposition = 'meat_veg',
   onRecipeClick,
   onReplace,
   onLock,
@@ -130,7 +134,7 @@ export default function WeeklyPlanGrid({
 }: WeeklyPlanGridProps) {
   const weekDates = getWeekDates()
   const days = weekDates.slice(0, daysPerWeek)
-  const handleRecipePrefetch = (recipe: any, source: string) => {
+  const handleRecipePrefetch = (recipe: Recipe, source: string) => {
     if (!recipe?.id) return;
     console.log('[recipe-card] prefetch_triggered', { recipeId: recipe.id, source, entry: 'generate' });
     prefetchRecipeDetail(recipe.id);
@@ -246,12 +250,19 @@ export default function WeeklyPlanGrid({
                       </div>
                     </div>
                   ) : (
+                    <div className="rounded-lg border border-dashed border-[#DDD0B0] text-center">
+                      <p className="pt-3 text-sm text-[#66594B]">
+                        欠一道{getSlotRoleLabel(getSlotRoleForIndex(dailyComposition, index))}
+                      </p>
                     <button
+                      type="button"
+                      aria-label={`${day.label}第${index + 1}道：添加${getSlotRoleLabel(getSlotRoleForIndex(dailyComposition, index))}`}
                       onClick={() => onAddRandom(day.key, index)}
-                      className="w-full py-3 border-2 border-dashed border-[#DDD0B0] rounded-lg text-[#AA7A50] text-sm hover:border-[#9B6035] hover:text-[#9B6035] transition-colors"
+                      className="w-full py-3 rounded-lg text-[#AA7A50] text-sm hover:text-[#9B6035] transition-colors"
                     >
                       + 添加
                     </button>
+                    </div>
                   )}
                 </div>
               )

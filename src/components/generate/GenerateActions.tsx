@@ -7,6 +7,7 @@ interface GenerateActionsProps {
   isLoadingRecipes: boolean;
   availableRecipeCount: number;
   filteredRecipeCount: number;
+  availabilityWarnings?: string[];
   selectedCount: number;
   hasRecipes: boolean;
   onClear: () => void;
@@ -21,6 +22,7 @@ export default function GenerateActions({
   isLoadingRecipes,
   availableRecipeCount,
   filteredRecipeCount,
+  availabilityWarnings = [],
   selectedCount,
   hasRecipes,
   onClear,
@@ -80,6 +82,10 @@ export default function GenerateActions({
             ? '暫時沒有可用食譜，請稍後再試。'
             : '沒有食譜符合目前條件，請調整篩選條件。'}
         </p>
+      ) : !recipesError && availabilityWarnings.length > 0 ? (
+        <div role="status" className="w-full text-sm text-[#3A2010] border-t border-[#DDD0B0] pt-2">
+          {availabilityWarnings.map(message => <p key={message}>{message}</p>)}
+        </div>
       ) : null}
     </div>
   );

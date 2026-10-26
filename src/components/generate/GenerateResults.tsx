@@ -34,6 +34,7 @@ interface GenerateResultsProps {
   lockedSlots: Record<string, boolean>
   daysPerWeek: number
   dishesPerDay: number
+  dailyComposition?: string
   filteredRecipes: Recipe[]
   onLock: (dayKey: string, index: number) => void
   onUnlock: (dayKey: string, index: number) => void
@@ -49,6 +50,7 @@ export default function GenerateResults({
   lockedSlots,
   daysPerWeek,
   dishesPerDay,
+  dailyComposition,
   filteredRecipes,
   onLock,
   onUnlock,
@@ -80,7 +82,7 @@ export default function GenerateResults({
   // Log results render when plan changes
   useEffect(() => {
     if (hasRecipes) {
-      const dayCount = Object.values(weeklyPlan).filter((arr: any) => arr?.some(Boolean)).length;
+      const dayCount = Object.values(weeklyPlan).filter(arr => arr?.some(Boolean)).length;
       perfLog({
         traceId,
         event: 'generate_results',
@@ -109,6 +111,7 @@ export default function GenerateResults({
         lockedSlots={lockedSlots}
         daysPerWeek={daysPerWeek}
         dishesPerDay={dishesPerDay}
+        dailyComposition={dailyComposition}
         onRecipeClick={onRecipeClick}
         onReplace={replaceRecipe}
         onLock={onLock}

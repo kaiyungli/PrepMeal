@@ -33,6 +33,21 @@ describe('real generate page draft integration', () => {
     expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('4');
     expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy();
     expect(screen.getByText(/已還原草稿/)).toBeTruthy();
+    expect(screen.getByText(/除已鎖定菜式外，目前有 0 道可用完整餐，尚需安排 2 個完整餐位/)).toBeTruthy();
+    expect(screen.getAllByText('欠一道完整餐')).toHaveLength(2);
+  });
+
+  it('fills just the selected gap and updates its persistent role label and supply warning', async () => {
+    render(<GeneratePage />);
+    await waitFor(() => expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: '第二天第1道：添加完整餐' }));
+    expect(screen.getAllByText('帳戶A晚餐')).toHaveLength(2);
+    expect(screen.getAllByText('欠一道完整餐')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy();
+    // Unlocking changes the next generation's demand without changing the plan.
+    fireEvent.click(screen.getByRole('button', { name: '解鎖' }));
+    expect(screen.getByText(/目前有 1 道可用完整餐，尚需安排 3 個完整餐位/)).toBeTruthy();
+    expect(screen.getAllByText('帳戶A晚餐')).toHaveLength(2);
   });
 
   it('hides A data immediately when switching accounts or logging out', async () => {

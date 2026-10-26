@@ -155,6 +155,7 @@ function GenerateWorkspace() {
             isLoadingRecipes={loadingRecipes}
             availableRecipeCount={allRecipes.length}
             filteredRecipeCount={filteredRecipes.length}
+            availabilityWarnings={ctrl.availabilityWarnings}
             selectedCount={selectedCount}
             hasRecipes={hasRecipes}
             onClear={confirmClear}
@@ -169,6 +170,7 @@ function GenerateWorkspace() {
             lockedSlots={lockedSlots}
             daysPerWeek={daysPerWeek}
             dishesPerDay={effectiveDishesPerDay}
+            dailyComposition={prefs.dailyComposition}
             filteredRecipes={filteredRecipes}
             onLock={lockSlot}
             onUnlock={unlockSlot}

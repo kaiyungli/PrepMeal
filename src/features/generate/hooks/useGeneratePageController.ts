@@ -18,6 +18,7 @@ import { useGenerateHandlers } from './useGenerateHandlers';
 import { useGenerateActions } from './useGenerateActions';
 import type { GenerateNotify } from './useGeneratePlan';
 import { getVisiblePlan } from '../utils/visiblePlan';
+import { getPlanAvailabilityWarnings } from '../utils/planAvailability';
 
 export function useGeneratePageController({
   preferences,
@@ -70,6 +71,13 @@ export function useGeneratePageController({
     () => getVisiblePlan(plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay),
     [plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay]
   );
+
+  const availabilityWarnings = useMemo(() => getPlanAvailabilityWarnings({
+    recipes: filteredRecipes, composition: dailyComposition, daysPerWeek,
+    cuisines: preferences.cuisines, exclusions: preferences.exclusions, allowCompleteMeal,
+    weeklyPlan: plan.weeklyPlan, lockedSlots: plan.lockedSlots,
+  }), [filteredRecipes, dailyComposition, daysPerWeek, preferences.cuisines,
+    preferences.exclusions, allowCompleteMeal, plan.weeklyPlan, plan.lockedSlots]);
   
   const draft = useGenerateDraft({ userId: user?.id ?? null, allRecipes: data.allRecipes,
     loadingRecipes: data.loadingRecipes, recipesError: data.recipesError, preferences,
@@ -138,6 +146,7 @@ export function useGeneratePageController({
     loadingRecipes: data.loadingRecipes,
     recipesError: data.recipesError,
     retryRecipes: data.retryRecipes,
+    availabilityWarnings,
     pantryIngredients: data.pantryIngredients,
     filteredRecipes,
     
