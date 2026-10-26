@@ -1,114 +1,54 @@
-import Head from 'next/head';
-import Header from '@/components/layout/Header';
-import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
-import Footer from '@/components/layout/Footer';
-import SEO from '@/components/seo/SEO';
+import Link from 'next/link';
+import InformationPage, { SiteContact } from '@/components/layout/InformationPage';
 
 export default function Terms() {
   return (
-    <>
-      <SEO
-        title="服務條款"
-        description="今晚食乜服務條款與使用規範。"
-        canonical="https://eatwhathk.com/terms"
-      />
-      <Head>
-        <title>服務條款｜今晚食乜</title>
-      </Head>
-      
-      <div className="min-h-screen bg-[#F8F3E8]">
-        <Header {...useHeaderController()} />
-        
-        <main className="max-w-3xl mx-auto px-4 py-12">
-          <h1 className="text-2xl font-bold text-[#3A2010] mb-6">服務條款</h1>
-          
-          <p className="text-sm text-[#AA7A50] mb-4">最後更新日期：2026年6月</p>
-          
-          <p className="mb-6">
-            使用今晚食乜（eatwhathk.com）即表示你同意遵守本服務條款及相關政策。
-          </p>
-          
-          <div className="space-y-6 text-[#5A4030]">
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">服務說明</h2>
-              <p>今晚食乜提供 AI 智能食譜搜尋、每週餐單生成及購物清單管理功能。本服務將持續改進，我們保留隨時調整服務內容的權利。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">使用者責任</h2>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>請確保您提供的資料真實準確</li>
-                <li>勿使用本服務進行任何違法或不當用途</li>
-                <li>勿複製或轉發受版權保護的食譜內容</li>
-                <li>保護您的帳戶安全，切勿分享登入資訊</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">食譜與內容聲明</h2>
-              <p>本服務展示的食譜來自開放食譜庫或用戶分享。我們盡力確保食譜資訊準確，但不保證所有內容完全正確。使用者在製作食物前請自行判斷食材及步驟是否適合。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">帳戶與登入</h2>
-              <p>本服務使用 Google 帳戶作為主要登入方式。登入即表示您同意 Google 的服務條款及隱私政策。我們不會存取您的 Google 密碼或其他敏感資料。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">廣告與第三方服務</h2>
-              <p>本服務可能顯示 Google 廣告及包含第三方連結。這些廣告和連結的內容與我們無關，我們不對其負責。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">免責聲明</h2>
-              <p>本服務按現況提供，不提供任何明示或暗示擔保。您使用本服務即表示同意承擔相關風險。我們不對任何使用直接或間接損失負責，包括但不限於食譜製作過程中的任何問題。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">條款修改權利</h2>
-              <p>我們保留隨時修改本服務條款的權利。繼續使用本服務即表示同意修改後的條款。如不同意條款，請停止使用本服務。</p>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold text-[#3A2010] mb-2">聯絡方式</h2>
-              <p>如對本服務條款有任何疑問，請聯繫我們：
-              <br />
-              電郵：eatwhathk247@gmail.com
-              <br />
-              電話：+852 9495 9673</p>
-            </section>
-
-            <p className="text-sm text-[#AA7A50] pt-4">生效日期：2026年6月21日</p>
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">AI生成內容聲明</h2>
-            <p>本網站部分功能會利用人工智能技術協助生成餐單建議、食譜推薦及購物清單。</p>
-            <p className="mt-2">相關內容僅供一般參考用途，可能出現不完整、過時或不適用於特定人士的情況。</p>
-            <p className="mt-2">用戶應自行判斷相關內容是否符合個人需要，並於有需要時自行作出調整。</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">健康與營養免責聲明</h2>
-            <p>本網站提供的食譜、營養及飲食相關內容僅供一般資訊用途，並不構成醫療、營養或專業健康建議。</p>
-            <p className="mt-2">如你有食物過敏、慢性疾病、懷孕、特殊飲食需求或其他健康狀況，應先諮詢醫生、註冊營養師或其他專業人士意見。</p>
-            <p className="mt-2">用戶因使用本網站內容而產生的任何風險，需自行承擔。</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">知識產權</h2>
-            <p>除另有註明外，本網站之內容、文字、圖片、設計、標誌及相關資料均屬今晚食乜所有或獲授權使用。</p>
-            <p className="mt-2">未經書面同意，不得複製、修改、重新發布或作商業用途使用。</p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-semibold text-[#3A2010] mb-2">帳戶終止</h2>
-            <p>如發現用戶濫用服務、從事違法活動、干擾網站運作、進行未經授權的自動化存取或其他損害網站及其他用戶利益的行為，我們有權暫停或終止相關帳戶及服務存取權限。</p>
-          </section>
-
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
-    </>
+    <InformationPage title="服務條款" description="今晚食乜的服務範圍、帳戶使用、資料保存及食譜參考限制。" path="/terms">
+      <section>
+        <h2>服務範圍</h2>
+        <p>今晚食乜（eatwhathk.com）提供食譜搜尋、按條件配對現有食譜的餐單規劃，以及帳戶收藏、餐單保存及購物清單功能。餐單按系統規則安排，不保證所有條件下都能填滿餐位或符合每個人的需要。</p>
+        <p>使用服務前請閱讀本條款及<Link href="/privacy">私隱政策</Link>。如不同意，請停止使用相關服務。功能可能因維護、網絡、供應商或資料更新而調整或暫時不可用。</p>
+      </section>
+      <section>
+        <h2>帳戶與使用責任</h2>
+        <ul>
+          <li>你可瀏覽公開食譜及生成餐單；收藏、雲端保存及購物清單等功能需要登入。Email及第三方登入方式以登入頁及實際配置為準。</li>
+          <li>請使用有權使用的帳戶及聯絡資料，妥善保管登入資料，並在共用裝置使用後登出。</li>
+          <li>不得未經授權存取他人資料、干擾服務、繞過存取限制，或利用本站進行違法活動。</li>
+          <li>如發現帳戶或資料有異常，請聯絡我們；不要透過一般電郵傳送密碼或驗證碼。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>食譜、份量、時間及營養</h2>
+        <p>食譜由編輯整理；外部參考來源、改編及營養依據以各食譜頁所示為準。材料份量、人數換算、時間、營養數值及分類均供一般參考，可能受品牌、可食用重量、設備或製作方式影響。</p>
+        <p>購物清單會按餐單人數及食譜份量整理材料，但「適量」等描述不能精確換算，不同單位亦未必能直接合併。請在購買和烹調前核對原食譜、家中已有材料及實際需要。</p>
+        <p>本站不提供個人醫療或營養診斷。飲食標籤、排除條件及致敏原提示不能保證排除所有風險；請自行核對產品標籤、交叉接觸及食物安全。如有特定健康需要，請向合資格專業人士查詢。</p>
+      </section>
+      <section>
+        <h2>草稿、保存及離線限制</h2>
+        <p>瀏覽器草稿與雲端餐單是不同的紀錄。請以頁面保存或同步狀態確認資料是否已存入帳戶，不要只因畫面仍顯示內容就視為雲端保存成功。</p>
+        <p>部分已載入的採購資料可在離線時保留修改，但不保證整站、所有清單或新裝置都可離線使用。恢復連線後可能需要重新登入、重試或處理衝突。清除瀏覽器資料、使用私人瀏覽、裝置故障或本機紀錄過期，都可能令尚未同步的內容無法還原。</p>
+        <p>本機紀錄的有效期及清除方式見<Link href="/privacy">私隱政策</Link>；操作說明見<Link href="/faq">常見問題</Link>。</p>
+      </section>
+      <section>
+        <h2>內容及知識產權</h2>
+        <p>本站文字、圖片、設計及引用資料可能涉及不同權利人。列出來源是為了提供參考，不代表來源內容已授權作任何用途，也不表示本站擁有所有引用內容。</p>
+        <p>使用或轉載內容前，請先核實相應權利及取得所需許可。外部網站的內容與使用條件由其管理者負責。如你認為本站內容涉及權利問題，請提供相關頁面、作品及權利說明，讓我們核實及跟進。</p>
+      </section>
+      <section>
+        <h2>廣告及第三方服務</h2>
+        <p>本站使用第三方託管、帳戶及廣告服務，亦可能包含外部連結。廣告出現不代表我們推薦或保證相關產品；前往第三方網站或購買前，請自行核對其條件。資料處理及廣告選擇見<Link href="/privacy">私隱政策</Link>。</p>
+      </section>
+      <section>
+        <h2>服務限制及問題處理</h2>
+        <p>我們會持續修正問題，但不保證服務永不中斷，或所有資料均完整、準確及適用。發現錯誤時，請先停止依賴有問題的內容並向我們回報；重要安排請保留自己的紀錄。</p>
+        <p>如帳戶涉及濫用、未經授權存取或干擾服務，我們可能限制或暫停相關存取，以保護服務及其他使用者。本條款不排除或限制適用法律不容排除或限制的權利或責任。</p>
+      </section>
+      <section>
+        <h2>更新及聯絡</h2>
+        <p>服務或條款有變更時，我們會更新本頁日期。若對功能、帳戶、內容或本條款有疑問，請聯絡我們。</p>
+        <SiteContact />
+      </section>
+    </InformationPage>
   );
 }
