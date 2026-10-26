@@ -1,3 +1,4 @@
+import ShoppingListSheet from './ShoppingListSheet';
 import ShoppingListV2 from './ShoppingListV2';
 import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
 import { useState, useEffect, useId } from 'react';
@@ -26,7 +27,7 @@ export default function ShoppingListDrawer({
 }) {
   const [mounted, setMounted] = useState(false);
   const titleId = useId();
-  const dialogRef = useDialogFocus(mounted && isOpen);
+  const dialogRef = useDialogFocus(mounted && isOpen && !progressState);
   const [viewMode, setViewMode] = useState('category'); // 'category' | 'recipe'
 
   useEffect(() => {
@@ -41,13 +42,13 @@ export default function ShoppingListDrawer({
 
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && !progressState) {
         onClose();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, progressState]);
 
   // Reset view mode when opening new
   useEffect(() => {
@@ -63,6 +64,17 @@ export default function ShoppingListDrawer({
     pantry: shoppingList.byCategory?.pantry || [],
     toBuy: Object.entries(shoppingList.byCategory?.toBuy || {}).map(([category, items]) => ({ category, items })),
   }) : null;
+
+  if (progressState) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
+    {loading ? <p role="status" className="p-6">載入中...</p> : error ? <div className="p-6"><p role="alert" className="text-red-700">{error}</p>{onFetch && <button type="button" className="mt-4 min-h-11 rounded-xl border px-4" onClick={onFetch}>重試</button>}</div> : unifiedView ? <>
+      {shoppingList.notice && <p className="px-5 pt-3 text-sm text-[#77573F]">{shoppingList.notice}</p>}
+      <ShoppingListV2 view={unifiedView} progress={progressState.progress} onChange={progressState.change} disabled={!progressState.ready} status={progressState.status} />
+      {!progressState.ready && <div className="flex shrink-0 gap-2 bg-[#FFFEFB] px-5 pb-4">
+        <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>
+        {!progressState.conflict && progressState.status.includes('未能保存') && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.retrySave}>重試保存</button>}
+      </div>}
+    </> : <p className="p-6 text-sm">正在讀取購物清單…</p>}
+  </ShoppingListSheet>;
 
   const renderCategoryView = (data) => {
     if (!data?.byCategory?.toBuy) return null;
@@ -210,13 +222,6 @@ export default function ShoppingListDrawer({
               {shoppingList.notice}
             </p>
           )}
-          {progressState && !loading && !error && unifiedView && <>
-            <ShoppingListV2 view={unifiedView} progress={progressState.progress} onChange={progressState.change} disabled={!progressState.ready} status={progressState.status} />
-            {!progressState.ready && <div className="flex gap-2 mt-3">
-              <button type="button" className="border rounded-lg p-3" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>
-              {!progressState.conflict && progressState.status.includes('未能保存') && <button type="button" className="border rounded-lg p-3" onClick={progressState.retrySave}>重試保存</button>}
-            </div>}
-          </>}
           {!progressState && !loading && !error && shoppingList && !shoppingList.noUsableRecipes && (
             viewMode === 'category' 
               ? renderCategoryView(shoppingList)

@@ -34,3 +34,18 @@ Verified applied migration version, RLS and all three policies. Security advisor
 Implementation and automated checks complete. Publish as a separate commit on the existing draft PR #123 preview branch so its already-authorized callback/share link remains usable. This adds work package 2 to that PR; work package 1 remains preserved in prior commits. Main and production application code must remain unchanged until explicitly approved.
 
 Pending: deployed preview acceptance, owner physical iPhone/iPad sharing/keyboard/touch checks, second real device/account acceptance, merge and production deployment. Do not mark physical-device QA complete from automated tests.
+
+## UI revision after owner feedback
+
+Owner passed functional acceptance but rejected the crowded UI. After online references were discussed, the owner instructed implementing the UI first for review. This revision is an implementation preview, not a claim that the owner approved its visual design.
+
+- Replaced the generated-plan modal and saved-plan drawer presentation with one shared shopping sheet: full-height on phones, bounded dialog on larger screens, safe-area padding and one list scroll surface.
+- Compact separated rows show check, ingredient, right-aligned quantity, a small edit control and an optional note. Empty note fields and the four-field add form no longer occupy the list.
+- Editing/addition temporarily replaces list content with a focused form; return/save restores the trigger focus. Existing quantity/extras/notes semantics remain intact.
+- Bought items collect in one collapsed section, with a five-second undo affordance. The category/recipe views share bought state.
+- Sharing options appear on request; pantry/optional ingredients/full storage explanation have a separate expandable information area. Errors/conflicts remain visible outside that collapsed area.
+- A fixed footer contains the add action and a compact, truthful storage status. No new database migration or auth/access configuration change.
+
+Validation: full 2,237 unit +201 component tests passed (2,438 total), TypeScript, changed interactive components ESLint and whitespace checks passed. Runtime checks include on-demand editing/addition, bought reveal/undo, shared view state, extra edit/delete, focus restoration and cancelled native sharing. Production build verification recorded with delivery. Physical visual approval of this UI remains pending; functional approval refers to the prior version and is not automatically extended to the new presentation.
+
+References informing this revision: AnyList official lists/details behavior (https://www.anylist.com/lists), Bring official list/tile choice (https://www.getbring.com/blog-posts/the-best-shopping-list-app), NN/g progressive disclosure (https://www.nngroup.com/articles/progressive-disclosure/). No claim that one layout is universally most comfortable.

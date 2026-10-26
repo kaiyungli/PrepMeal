@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
+import ShoppingListSheet from '@/components/shopping/ShoppingListSheet';
 import ShoppingListV2 from '@/components/shopping/ShoppingListV2';
 import type { ShoppingProgress } from '@/features/shopping-list/progress/model';
 import Modal from '@/components/ui/Modal';
@@ -13,6 +14,7 @@ interface ShoppingListModalProps {
   progress?: ShoppingProgress;
   onProgressChange?: (progress: ShoppingProgress) => void;
   progressDisabled?: boolean;
+  progressStatus?: string;
   isOpen: boolean;
   onClose: () => void;
   shoppingListView: ShoppingListViewModel | null;
@@ -30,7 +32,7 @@ const EMPTY_VIEW: ShoppingListViewModel = {
 };
 
 export default function ShoppingListModal({
-  progress, onProgressChange, progressDisabled,
+  progress, onProgressChange, progressDisabled, progressStatus,
   isOpen,
   onClose,
   shoppingListView,
@@ -82,10 +84,10 @@ export default function ShoppingListModal({
 
   if (!isOpen) return null;
 
-  if (progress && onProgressChange) return <Modal isOpen={isOpen} title="🛒 購物清單" onClose={onClose} maxWidth="600px">
-    {loading ? <p role="status">正在整理購物清單...</p> : error ? <p role="alert">{error}</p> : shoppingListView ?
-      <ShoppingListV2 view={viewModel} progress={progress} onChange={onProgressChange} disabled={progressDisabled} status="採購進度隨此瀏覽器草稿保留7日；保存餐單後可跨裝置查看。" /> : <p>暫無食材</p>}
-  </Modal>;
+  if (progress && onProgressChange) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
+    {loading ? <p role="status" className="p-6">正在整理購物清單...</p> : error ? <p role="alert" className="p-6 text-red-700">{error}</p> : shoppingListView ?
+      <ShoppingListV2 view={viewModel} progress={progress} onChange={onProgressChange} disabled={progressDisabled} status={progressStatus} /> : <p className="p-6">暫無食材</p>}
+  </ShoppingListSheet>;
   const isEmpty = viewModel.isEmpty;
 
   return (
