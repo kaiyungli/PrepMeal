@@ -8,15 +8,17 @@ type Availability = {
   availableRecipeCount: number;
   filteredRecipeCount: number;
   hasRecipes?: boolean;
+  availabilityWarnings?: string[];
 };
 
-function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeCount, hasRecipes = false }: Availability) {
+function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeCount, hasRecipes = false, availabilityWarnings }: Availability) {
   return renderToStaticMarkup(createElement(GenerateActions, {
     isSaving: false,
     isLoadingRecipes,
     availableRecipeCount,
     filteredRecipeCount,
     hasRecipes,
+    availabilityWarnings,
     selectedCount: hasRecipes ? 1 : 0,
     onClear: vi.fn(),
     onShoppingList: vi.fn(),
@@ -26,10 +28,19 @@ function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeC
 }
 
 function generateButton(markup: string) {
-  return markup.match(/<button\b[^>]*>✨ 一鍵生成<\/button>/)?.[0];
+  return markup.match(/<button\b[^>]*>一鍵生成<\/button>/)?.[0];
 }
 
 describe('generation availability', () => {
+  it('warns about role shortages without blocking generation and hides stale warnings while loading', () => {
+    const props = { isLoadingRecipes: false, availableRecipeCount: 3, filteredRecipeCount: 2,
+      availabilityWarnings: ['目前只有兩道配菜'] };
+    const html = renderActions(props);
+    expect(html).toContain('目前只有兩道配菜');
+    expect(generateButton(html)).not.toContain('disabled=""');
+    expect(renderActions({ ...props, isLoadingRecipes: true })).not.toContain('目前只有兩道配菜');
+    expect(renderActions({ ...props, filteredRecipeCount: 0 })).not.toContain('目前只有兩道配菜');
+  });
   it('keeps generation disabled while recipes load without claiming filters have no matches', () => {
     const html = renderActions({ isLoadingRecipes: true, availableRecipeCount: 0, filteredRecipeCount: 0 });
     expect(generateButton(html)).toContain('disabled=""');
@@ -48,8 +59,8 @@ describe('generation availability', () => {
     const html = renderActions({ isLoadingRecipes: false, availableRecipeCount: 3, filteredRecipeCount: 0, hasRecipes: true });
     expect(generateButton(html)).toContain('disabled=""');
     expect(html).toContain('沒有食譜符合目前條件，請調整篩選條件。');
-    expect(html.match(/<button\b[^>]*>🛒 購物清單<\/button>/)?.[0]).not.toContain('disabled=""');
-    expect(html.match(/<button\b[^>]*>💾 保存<\/button>/)?.[0]).not.toContain('disabled=""');
+    expect(html.match(/<button\b[^>]*>購物清單<\/button>/)?.[0]).not.toContain('disabled=""');
+    expect(html.match(/<button\b[^>]*>保存<\/button>/)?.[0]).not.toContain('disabled=""');
   });
 
   it('enables generation and hides availability messages when candidates exist', () => {

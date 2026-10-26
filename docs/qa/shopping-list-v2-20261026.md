@@ -1,0 +1,78 @@
+# Work package 2 — Shopping list V2
+
+2026-10-26 (Hong Kong). Owner approved the discussed scope, requested implementation first and physical-device acceptance afterwards.
+
+## Implemented
+
+- Shared interactive list for /generate and saved-plan details: category/recipe views, bought count, hide bought, bought entries sorted after remaining entries within each group.
+- Recipe view uses the same aggregate checklist and clearly labels total meal-plan quantities. Category quantities retain canonical number/unit metadata; incompatible units never share a checkbox.
+- Optional ingredients and dietary notes retained. Per-item notes; separately editable/removable extras with quantity/unit/note and bought state.
+- Reconcile after recipe/serving/optional changes: unchanged/decreased demand retains check; increased/unknown changed quantity or unit requires another check with notice. Unused recipe items disappear; extras remain. Generate/clear resets the entire new plan's progress.
+- Versioned, validated progress travels in the existing account-scoped seven-day browser draft, cross-tab conflict handling and explicit guest-login handoff. Older drafts remain readable without renewing expiry merely on opening.
+- Saving a new meal plan and initial progress uses a single invoker-rights transaction. Existing clients without progress keep their existing RPC path.
+- Saved plans load/save private account progress; serialized queued edits, revision compare-and-swap, visible errors/retry and explicit conflict reload. Cross-device changes load on page reload; no live collaboration subscription.
+- Remaining/all copy and native mobile share, including notes/extras. Clipboard failure exposes selectable text; cancelled share is not success.
+
+## Database
+
+Applied additive migration `20261025194734_shopping_list_progress_v2`: new FK-cascaded `menu_plan_shopping_progress`, RLS select/insert/update restricted by parent ownership, anonymous table access revoked. New `create_menu_plan_with_shopping` SECURITY INVOKER RPC grants execute only to authenticated. Original tables, recipes and Auth settings unchanged.
+
+Verified applied migration version, RLS and all three policies. Security advisors unchanged: existing recipe/menu SECURITY DEFINER warnings and leaked-password protection notice; no finding for the new table/RPC. Existing warnings remain tracked separately (https://supabase.com/docs/guides/database/database-linter).
+
+## Verification
+
+- Full suite: 2,237 unit + 198 component tests = 2,435 passing.
+- After final review changes: 8 shopping model/database tests and all 198 component tests passed again; TypeScript passed.
+- Real Postgres semantics via PGlite: atomic rollback, owner/other-account/anon access, outdated revision rejection, parent-delete cascade.
+- UI/runtime: checks/hide, notes/extras, remaining/all copy, clipboard failure, rapid serialized writes, conflict reload; guest handoff includes checked extras and notes.
+- Production build passed using public client configuration (no private service credential used for local build).
+- New files ESLint and whitespace checks passed. Drawer retains two pre-existing set-state-in-effect lint findings; repository-wide lint is not claimed clean.
+- Self-review covered account/plan-keyed mounts, stale response guards, unit-safe keys, bounded untrusted progress and invoker/RLS permissions.
+
+## Delivery state
+
+Implementation and automated checks complete. Publish as a separate commit on the existing draft PR #123 preview branch so its already-authorized callback/share link remains usable. This adds work package 2 to that PR; work package 1 remains preserved in prior commits. Main and production application code must remain unchanged until explicitly approved.
+
+Pending: deployed preview acceptance, owner physical iPhone/iPad sharing/keyboard/touch checks, second real device/account acceptance, merge and production deployment. Do not mark physical-device QA complete from automated tests.
+
+## UI revision after owner feedback
+
+Owner passed functional acceptance but rejected the crowded UI. After online references were discussed, the owner instructed implementing the UI first for review. This revision is an implementation preview, not a claim that the owner approved its visual design.
+
+- Replaced the generated-plan modal and saved-plan drawer presentation with one shared shopping sheet: full-height on phones, bounded dialog on larger screens, safe-area padding and one list scroll surface.
+- Compact separated rows show check, ingredient, right-aligned quantity, a small edit control and an optional note. Empty note fields and the four-field add form no longer occupy the list.
+- Editing/addition temporarily replaces list content with a focused form; return/save restores the trigger focus. Existing quantity/extras/notes semantics remain intact.
+- Bought items collect in one collapsed section, with a five-second undo affordance. The category/recipe views share bought state.
+- Sharing options appear on request; pantry/optional ingredients/full storage explanation have a separate expandable information area. Errors/conflicts remain visible outside that collapsed area.
+- A fixed footer contains the add action and a compact, truthful storage status. No new database migration or auth/access configuration change.
+
+Validation: full 2,237 unit +201 component tests passed (2,438 total), TypeScript, changed interactive components ESLint and whitespace checks passed. Runtime checks include on-demand editing/addition, bought reveal/undo, shared view state, extra edit/delete, focus restoration and cancelled native sharing. Production build verification recorded with delivery. Physical visual approval of this UI remains pending; functional approval refers to the prior version and is not automatically extended to the new presentation.
+
+References informing this revision: AnyList official lists/details behavior (https://www.anylist.com/lists), Bring official list/tile choice (https://www.getbring.com/blog-posts/the-best-shopping-list-app), NN/g progressive disclosure (https://www.nngroup.com/articles/progressive-disclosure/). No claim that one layout is universally most comfortable.
+
+## Compact density revision from IMG_0845.png
+
+Owner accepted the arrangement/style but requested significantly less row spacing and a goal of seeing a roughly ten-item list on one phone screen. The attached phone screenshot was inspected directly.
+
+- Mobile item minimum height 56 → 36 CSS px (desktop 44); smaller empty vertical padding, 20px visual checkbox, 15px item text and 36px edit target. Long names, quantities, notes and larger text may still expand rows; no clipping or forced scaling.
+- Category gaps 20 → 4px, category heading padding reduced. Header height/padding reduced while retaining the warm white/brown visual system.
+- Count, arrangement selector and share action share one toolbar; removed the redundant category-explanation row (recipe-total explanation retained in recipe view).
+- Bought reveal and food/storage information now share one compact metadata row. Normal save status appears there, retaining live status announcements and prominent errors.
+- Add footer reduced to a 40px action plus small safe-area padding; editing forms retain their original input sizes.
+- Scrolling remains available for longer lists, expanded information/share panels, long notes and accessibility text. Ten-item single-screen fit is a design target, not a verified guarantee for every viewport or browser/text setting.
+
+Validation for this presentation-only revision: 201 component tests, TypeScript, changed-file ESLint and whitespace passed; production build verified during delivery. No data, computation, persistence, recipe, schema or auth changes. Actual compact-layout phone acceptance remains pending.
+
+## Per-meal servings and durable offline purchasing
+
+Owner explicitly authorized fixing both remaining gaps, retaining the accepted compact UI.
+
+- Saved plan IDs now travel with an aligned `recipeServings` array. The API validates each occurrence (finite, >0, <=100; exact alignment and bounded count), canonicalizes IDs, sums requested portions per recipe and divides by that recipe's base servings. Uniform legacy clients remain compatible. Private/missing recipe counting and optional ingredients retain their existing visibility rules.
+- Controller → detail page → section → authenticated shopping hook/API carries the per-meal values. The old average is retained only as a legacy fallback/summary; the new saved-plan calculation uses per-meal portions.
+- Account/plan-scoped local snapshots retain pending progress and the last confirmed revision for seven days. Each edit is persisted before a write attempt. Online events and reopening the list retry synchronization; local storage failures explicitly report that edits exist only in the current page.
+- The synchronizer reads cloud state before writing, keeps revision compare-and-swap, recognizes a previously committed write whose response was lost, and preserves newer queued edits. Remote conflicts stop writes and retain the pending snapshot; discarding local changes requires explicit confirmation and a successful cloud read.
+- Cross-tab storage changes stop overwrites; stale account responses are hidden, and refs reset when scope changes even without the keyed parent. No access tokens are stored in the new records.
+- A bounded account/plan/request-scoped ingredient snapshot enables use of a previously opened list when its API is unavailable. It clearly labels last-known data, refreshes on reconnect and offers manual refresh. Changed portions/selections or another account cannot reuse that snapshot.
+- Offline support protects edits to a previously loaded list; it does not add a service worker or guarantee a first website load without a network. Long offline periods beyond seven days, cleared browser data and unavailable browser storage are not durable storage guarantees.
+
+Validation: full 2,251 unit +206 component tests =2,457 passed. Final cache reconnect refinement was followed by all 206 component tests and targeted API/controller/isolation/offline unit tests; TypeScript, changed new-module ESLint and whitespace checks passed. Production build verified during delivery. Tests cover unequal portions, repeated/canonicalized recipes, fractional base servings, invalid input rejection, offline reload/reconnect, committed-write/lost-response with newer edits, storage failure, conflict confirmation, account/plan isolation and cached ingredient scope. No database migration, auth setting, recipe content or production application deployment change. Physical airplane-mode acceptance remains pending.

@@ -32,6 +32,7 @@ export default function PlanDetailPage() {
     items,
     mealSlotGroupsByDay,
     recipeIds,
+    recipeServings,
     avgServings,
     loading: dataLoading,
     error,
@@ -109,7 +110,7 @@ export default function PlanDetailPage() {
                   </div>
                   {items.length > 0 && (
                     <div className="mt-4 lg:mt-0 lg:ml-4">
-                      <ShoppingListSection recipeIds={recipeIds} servings={avgServings} />
+                      <ShoppingListSection key={`${id}:${user?.id || 'guest'}`} planId={id} recipeIds={recipeIds} servings={avgServings} recipeServings={recipeServings} />
                     </div>
                   )}
                 </div>

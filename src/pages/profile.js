@@ -122,7 +122,7 @@ export default function ProfilePage() {
         <div style={{ maxWidth: '600px', margin: '0 auto 60px', padding: '0 20px' }}>
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)' }}>
             <h2 style={{ fontSize: '20px', fontWeight: 700, color: colors.brown, marginBottom: '16px' }}>儲存既食譜</h2>
-            <p style={{ color: colors.textLight, fontSize: '14px' }}>暫時未有儲存既食譜</p>
+            <Link href="/favorites" className="text-[#9B6035] underline">查看我的收藏食譜 →</Link>
           </div>
         </div>
 

@@ -1,3 +1,5 @@
+import { readShoppingCache } from '../savedShoppingCache';
+import { shoppingOfflineKey } from '@/features/shopping-list/progress/offlineStore';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
@@ -9,6 +11,7 @@ const SIGN_IN_REQUIRED = '請先登入以查看購物清單';
 
 // The shape ShoppingListDrawer renders.
 export interface SavedPlanShoppingList {
+  offlineSnapshot?: boolean;
   optionalIngredients?: OptionalIngredientGroup[];
   dietaryNotes?: string[];
   byCategory: { pantry: unknown[]; toBuy: Record<string, unknown[]> };
@@ -20,6 +23,8 @@ export interface SavedPlanShoppingList {
 interface UseSavedPlanShoppingListOptions {
   recipeIds: string[];
   servings: number;
+  recipeServings?: number[];
+  planId?: string;
 }
 
 interface ListState {
@@ -39,13 +44,13 @@ interface ListState {
  * to an account/recipe-occurrences/servings scope. Concurrent calls for that
  * scope are deduplicated; switching scope cancels obsolete work.
  */
-export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanShoppingListOptions) {
+export function useSavedPlanShoppingList({ recipeIds, servings, recipeServings, planId }: UseSavedPlanShoppingListOptions) {
   const { getAccessToken, user, isAuthenticated } = useAuth();
   const { selections: allSelections } = useOptionalSelections(user?.id);
   const selections = scopeSelections(allSelections, recipeIds);
   const optionalKey = selectionKey(selections);
   // Keep every occurrence: repeated meals contribute repeated ingredients.
-  const key = JSON.stringify([user?.id, isAuthenticated, recipeIds, servings, optionalKey]);
+  const key = JSON.stringify([user?.id, isAuthenticated, recipeIds, servings, recipeServings, optionalKey]);
   const [state, setState] = useState<ListState | null>(null);
   const requestRef = useRef<{ key: string; active: boolean; controller: AbortController } | null>(null);
   const invalidate = useCallback(() => {
@@ -74,11 +79,11 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
         setState({ key, shoppingList: null, error: SIGN_IN_REQUIRED, loading: false });
         return;
       }
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('Offline');
       const token = await getAccessToken();
       if (!request.active) return;
       if (!token) {
-        setState({ key, shoppingList: null, error: SIGN_IN_REQUIRED, loading: false });
-        return;
+        throw new Error(SIGN_IN_REQUIRED);
       }
       const res = await fetch('/api/shopping-list', {
         method: 'POST',
@@ -86,7 +91,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ recipeIds, servings, ...(Object.keys(selections).length ? { optionalSelections: selections } : {}) }),
+        body: JSON.stringify({ recipeIds, servings, ...(recipeServings ? { recipeServings } : {}), ...(Object.keys(selections).length ? { optionalSelections: selections } : {}) }),
         signal: request.controller.signal
       });
       if (!request.active) return;
@@ -95,6 +100,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
 
       if (!res.ok || !data || data.error) {
         console.error('[saved-plan-shopping-list] request failed:', res.status, data?.error);
+        if (res.status >= 500) throw new Error('Shopping list unavailable');
         setState({ key, shoppingList: null, error: SHOPPING_LIST_LOAD_ERROR, loading: false });
         return;
       }
@@ -130,7 +136,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
           : `有 ${unavailableCount} 個餐點嘅食譜已經唔再提供，購物清單未包括佢哋`;
       }
 
-      setState({ key, loading: false, error: null, shoppingList: {
+      const result: SavedPlanShoppingList = {
         optionalIngredients: Array.isArray(data.optionalIngredients) ? data.optionalIngredients : [],
         dietaryNotes: Array.isArray(data.dietaryNotes) ? data.dietaryNotes : [],
         byCategory: {
@@ -140,15 +146,34 @@ export function useSavedPlanShoppingList({ recipeIds, servings }: UseSavedPlanSh
         byRecipe: normalizedByRecipe,
         notice,
         noUsableRecipes: unavailableCount > 0 && unavailableCount >= recipeIds.length
-      } });
+      };
+      if (planId) {
+        try { localStorage.setItem(shoppingOfflineKey(user.id, planId, 'list'), JSON.stringify({ version: 1, scope: key, savedAt: Date.now(), list: result })); } catch { /* Online data remains usable; a missing cache cannot fabricate an offline list. */ }
+      }
+      setState({ key, loading: false, error: null, shoppingList: result });
     } catch (err) {
       if (!request.active) return;
+      if (planId && user?.id && isAuthenticated) {
+        try {
+          const cached = readShoppingCache(localStorage.getItem(shoppingOfflineKey(user.id, planId, 'list')), key);
+          if (cached) {
+            setState({ key, loading: false, error: null, shoppingList: { ...cached, offlineSnapshot: true,
+              notice: ['未能連線，顯示此瀏覽器上次保存的食材清單；尚未核對最新食譜。', cached.notice].filter(Boolean).join(' ') } });
+            return;
+          }
+        } catch { /* Preserve the original visible load error. */ }
+      }
       console.error('[saved-plan-shopping-list] request failed:', err);
-      setState({ key, shoppingList: null, error: SHOPPING_LIST_LOAD_ERROR, loading: false });
+      setState({ key, shoppingList: null, error: err instanceof Error && err.message === SIGN_IN_REQUIRED ? SIGN_IN_REQUIRED : SHOPPING_LIST_LOAD_ERROR, loading: false });
     } finally {
       if (requestRef.current === request) requestRef.current = null;
     }
-  }, [getAccessToken, recipeIds, servings, key, invalidate, isAuthenticated, user?.id, selections]);
+  }, [getAccessToken, recipeIds, servings, recipeServings, planId, key, invalidate, isAuthenticated, user?.id, selections]);
 
+  useEffect(() => {
+    const reconnect = () => { if (shoppingList?.offlineSnapshot) void fetchShoppingList(); };
+    window.addEventListener('online', reconnect);
+    return () => window.removeEventListener('online', reconnect);
+  }, [shoppingList?.offlineSnapshot, fetchShoppingList]);
   return { shoppingList, loading, error, fetchShoppingList };
 }

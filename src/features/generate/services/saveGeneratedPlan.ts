@@ -13,6 +13,7 @@ export interface PlanItem {
 }
 
 export interface SavePlanPayload {
+  shopping_progress?: import('@/features/shopping-list/progress/model').ShoppingProgress;
   name: string;
   week_start_date: string;
   days_count: number;

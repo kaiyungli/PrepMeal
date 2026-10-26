@@ -155,11 +155,21 @@ export default async function handler(
   // each one contributes ingredients, but query the database by unique
   // canonical id.
   const recipeOccurrences = new Map<string, number>();
+  // Optional per-occurrence portions; never average different saved meals.
+  const perMeal = body?.recipeServings;
+  if (perMeal !== undefined && (!Array.isArray(body?.recipeIds) || body.recipeIds.length > 200 ||
+    !Array.isArray(perMeal) || perMeal.length !== body.recipeIds.length ||
+    body.recipeIds.some(id => typeof id !== 'string' || !id.trim()) ||
+    perMeal.some(value => typeof value !== 'number' || !Number.isFinite(value) || value <= 0 || value > 100))) {
+    return res.status(400).json({ error: 'Invalid recipeServings' });
+  }
+  const requestedServings = new Map<string, number>();
   if (Array.isArray(body?.recipeIds)) {
-    for (const id of body.recipeIds) {
+    for (const [index, id] of body.recipeIds.entries()) {
       if (typeof id === 'string' && id.trim() !== '') {
         const recipeId = canonicalRecipeId(id);
         recipeOccurrences.set(recipeId, (recipeOccurrences.get(recipeId) ?? 0) + 1);
+        if (Array.isArray(perMeal)) requestedServings.set(recipeId, (requestedServings.get(recipeId) ?? 0) + perMeal[index]);
       }
     }
   }
@@ -232,7 +242,8 @@ export default async function handler(
 
     if (visibilityError) throw visibilityError;
     const servingScales = new Map((visibleRecipes || []).map(recipe => [
-      canonicalRecipeId(String(recipe.id)), recipeServingScale(servings, recipe.base_servings),
+      canonicalRecipeId(String(recipe.id)), recipeServingScale(
+        requestedServings.get(canonicalRecipeId(String(recipe.id))) ?? servings * (recipeOccurrences.get(canonicalRecipeId(String(recipe.id))) || 0), recipe.base_servings),
     ]));
     const vegetarianRecipeIds = new Set((visibleRecipes || [])
       .filter(recipe => Array.isArray(recipe.diet) && recipe.diet.some((tag: string) => tag === 'vegetarian' || tag === 'egg_lacto'))
@@ -362,7 +373,7 @@ export default async function handler(
         ingredientId: ri.ingredient_id,
         name: ing.name,
         normalizedName: ing.name,
-        quantity: rowQuantity(ri.quantity) * servingScales.get(canonicalRecipeId(String(ri.recipe_id)))! * occurrences,
+        quantity: rowQuantity(ri.quantity) * servingScales.get(canonicalRecipeId(String(ri.recipe_id)))!,
         unit: unitCode,
         unitDisplay: unitDisplay,
         category: mapRawCategoryToKey(ing.shopping_category ?? null),

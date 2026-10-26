@@ -1,3 +1,4 @@
+import { useSavedShoppingProgress } from '@/features/shopping-list/progress/useSavedShoppingProgress';
 import { useState } from 'react';
 import ShoppingListDrawer from '@/components/shopping/ShoppingListDrawer';
 import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanShoppingList';
@@ -6,9 +7,10 @@ import { useSavedPlanShoppingList } from '@/features/plans/hooks/useSavedPlanSho
  * ShoppingListSection - triggers drawer with shopping list
  * Uses API via ShoppingListDrawer - server-side data boundary
  */
-export default function ShoppingListSection({ recipeIds, servings = 1 }) {
+export default function ShoppingListSection({ recipeIds, servings = 1, planId = undefined, recipeServings = undefined }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings });
+  const progress = useSavedShoppingProgress(planId, isOpen);
+  const { shoppingList, loading, error, fetchShoppingList } = useSavedPlanShoppingList({ recipeIds, servings, recipeServings, planId });
 
   const handleOpen = () => {
     if (!shoppingList) {
@@ -24,7 +26,9 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
   // otherwise also run handleOpen.
   return (
     <>
-      <div
+      <button
+        type="button"
+        aria-haspopup="dialog"
         onClick={handleOpen}
         onTouchStart={() => {}}
         className="px-4 py-3 rounded-lg border-2 border-[#C8D49A] bg-white hover:bg-[#FAFAF5] cursor-pointer transition-colors inline-flex active:scale-95 transition-transform duration-100 touch-manipulation"
@@ -39,9 +43,10 @@ export default function ShoppingListSection({ recipeIds, servings = 1 }) {
             <span className="text-xs text-[#AA7A50]">載入中...</span>
           )}
         </div>
-      </div>
+      </button>
 
       <ShoppingListDrawer
+        progressState={planId ? progress : undefined}
         isOpen={isOpen}
         onClose={handleClose}
         shoppingList={shoppingList}

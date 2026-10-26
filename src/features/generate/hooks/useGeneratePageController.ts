@@ -9,6 +9,8 @@ import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 
 type GeneratePreferences = ReturnType<typeof useGeneratePreferences>;
 
+import { useGenerateDraft } from './useGenerateDraft';
+
 import { useGenerateData } from './useGenerateData';
 import { useFilteredRecipes } from './useFilteredRecipes';
 import { useGeneratePlan } from './useGeneratePlan';
@@ -16,6 +18,7 @@ import { useGenerateHandlers } from './useGenerateHandlers';
 import { useGenerateActions } from './useGenerateActions';
 import type { GenerateNotify } from './useGeneratePlan';
 import { getVisiblePlan } from '../utils/visiblePlan';
+import { getPlanAvailabilityWarnings } from '../utils/planAvailability';
 
 export function useGeneratePageController({
   preferences,
@@ -68,9 +71,23 @@ export function useGeneratePageController({
     () => getVisiblePlan(plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay),
     [plan.weeklyPlan, daysPerWeek, effectiveDishesPerDay]
   );
+
+  const availabilityWarnings = useMemo(() => getPlanAvailabilityWarnings({
+    recipes: filteredRecipes, composition: dailyComposition, daysPerWeek,
+    cuisines: preferences.cuisines, exclusions: preferences.exclusions, allowCompleteMeal,
+    weeklyPlan: plan.weeklyPlan, lockedSlots: plan.lockedSlots,
+  }), [filteredRecipes, dailyComposition, daysPerWeek, preferences.cuisines,
+    preferences.exclusions, allowCompleteMeal, plan.weeklyPlan, plan.lockedSlots]);
   
+  const draft = useGenerateDraft({ userId: user?.id ?? null, allRecipes: data.allRecipes,
+    loadingRecipes: data.loadingRecipes, recipesError: data.recipesError, preferences,
+    weeklyPlan: plan.weeklyPlan, lockedSlots: plan.lockedSlots,
+    setWeeklyPlan: plan.setWeeklyPlan, setLockedSlots: plan.setLockedSlots });
+
   // Actions hook (called once)
   const actions = useGenerateActions({
+    loginRedirect: draft.prepareLogin,
+    shoppingProgress: draft.shoppingProgress,
     weeklyPlan: visiblePlan,
     pantryIngredients: data.pantryIngredients,
     servings,
@@ -117,6 +134,7 @@ export function useGeneratePageController({
   );
   
   return {
+    draft,
     // Preferences
     preferences,
     daysPerWeek,
@@ -126,6 +144,9 @@ export function useGeneratePageController({
     // Data
     allRecipes: data.allRecipes,
     loadingRecipes: data.loadingRecipes,
+    recipesError: data.recipesError,
+    retryRecipes: data.retryRecipes,
+    availabilityWarnings,
     pantryIngredients: data.pantryIngredients,
     filteredRecipes,
     
@@ -133,7 +154,7 @@ export function useGeneratePageController({
     weeklyPlan: plan.weeklyPlan,
     setWeeklyPlan: plan.setWeeklyPlan,
     lockedSlots: plan.lockedSlots,
-    handleGenerate: plan.handleGenerate,
+    handleGenerate: () => { draft.resetShoppingProgress(); plan.handleGenerate(); },
     handleReplaceRecipe: plan.handleReplaceRecipe,
     handleResetPlan: plan.handleResetPlan,
     lockSlot: plan.lockSlot,
@@ -159,7 +180,7 @@ export function useGeneratePageController({
     // Handlers
     handleAddRandomRecipe: handlers.handleAddRandomRecipe,
     removeRecipe: handlers.removeRecipe,
-    handleClearAll: handlers.handleClearAll,
+    handleClearAll: () => { draft.resetShoppingProgress(); handlers.handleClearAll(); },
     
     // Filters
     filters,

@@ -4,7 +4,11 @@ import { normalizePlanForSave, saveGeneratedPlan } from '../index';
 import { resolvePlanName } from '../mappers/normalizePlanForSave';
 import { formatShoppingListCopyText } from '@/features/shopping-list/mappers';
 
+import type { ShoppingProgress } from '@/features/shopping-list/progress/model';
+
 interface UseGenerateActionsOptions {
+  shoppingProgress?: ShoppingProgress;
+  loginRedirect?: () => string;
   weeklyPlan: any;
   pantryIngredients: string[];
   servings: number;
@@ -16,6 +20,8 @@ interface UseGenerateActionsOptions {
 }
 
 export function useGenerateActions({
+  shoppingProgress,
+  loginRedirect,
   weeklyPlan,
   pantryIngredients,
   servings,
@@ -100,7 +106,7 @@ export function useGenerateActions({
 
   // Copy shopping list
   const handleCopyShoppingList = useCallback(async () => {
-    if (!shoppingListView) return '';
+    if (!shoppingListView) return false;
     
     const copyText = formatShoppingListCopyText(shoppingListView);
     
@@ -108,9 +114,11 @@ export function useGenerateActions({
       await navigator.clipboard.writeText(copyText);
       setSaveNotice('✅ 已複製到剪貼簿');
       setTimeout(() => setSaveNotice(''), 3000);
+      return true;
     } catch {
-      setSaveNotice('❌ 複製失敗');
+      setSaveNotice('❌ 複製失敗，請選取清單文字複製');
       setTimeout(() => setSaveNotice(''), 3000);
+      return false;
     }
   }, [shoppingListView]);
 
@@ -120,11 +128,17 @@ export function useGenerateActions({
     // and retained callbacks while token retrieval is still pending.
     if (saveInFlightRef.current) return;
     if (!isAuthenticated) {
-      window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      try {
+        const redirect = loginRedirect ? loginRedirect() : window.location.pathname;
+        window.location.href = '/login?redirect=' + encodeURIComponent(redirect);
+      } catch {
+        setSaveNotice('未能保留登入前草稿，請保留此頁，稍後再試。');
+      }
       return;
     }
 
     const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
+    if (shoppingProgress) payload.shopping_progress = shoppingProgress;
     if (customName !== undefined) {
       const name = customName.trim();
       if (name.length > 100) {
@@ -157,7 +171,7 @@ export function useGenerateActions({
       saveInFlightRef.current = false;
       setIsSaving(false);
     }
-  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek]);
+  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek, loginRedirect, shoppingProgress]);
 
   const handleClearAll = useCallback(() => {
     handleCloseRecipe();

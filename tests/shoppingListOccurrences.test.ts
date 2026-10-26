@@ -78,7 +78,7 @@ function pgId(id: string): string {
 // Behaves like PostgREST `.in()`: each matching row is returned once, no
 // matter how many times an id appears in the filter list. `returnedRows`
 // replaces the ingredient query result outright.
-function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b', RECIPE_C], returnedRows?: IngredientRow[]) {
+function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b', RECIPE_C], returnedRows?: IngredientRow[], baseServings = 1) {
   const visibilityQueryIds: string[][] = [];
   const ingredientQueryIds: string[][] = [];
 
@@ -94,7 +94,7 @@ function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b', RECIPE_C], re
               eq: async () => {
                 visibilityQueryIds.push([...ids]);
                 const requested = ids.map(pgId);
-                return { data: publicRecipeIds.filter((id) => requested.includes(id)).map((id) => ({ id })), error: null };
+                return { data: publicRecipeIds.filter((id) => requested.includes(id)).map((id) => ({ id, base_servings: baseServings })), error: null };
               },
             }),
           }),
@@ -118,8 +118,8 @@ function createDatabase(publicRecipeIds = ['recipe-a', 'recipe-b', RECIPE_C], re
   return { client, visibilityQueryIds, ingredientQueryIds };
 }
 
-async function request(recipeIds: string[], servings = 1, publicRecipeIds?: string[], returnedRows?: IngredientRow[]) {
-  const database = createDatabase(publicRecipeIds, returnedRows);
+async function request(recipeIds: string[], servings = 1, publicRecipeIds?: string[], returnedRows?: IngredientRow[], recipeServings?: unknown, baseServings = 1) {
+  const database = createDatabase(publicRecipeIds, returnedRows, baseServings);
   createClientMock.mockReturnValue(database.client);
   const response = {
     statusCode: 200,
@@ -128,7 +128,7 @@ async function request(recipeIds: string[], servings = 1, publicRecipeIds?: stri
     json(body: unknown) { this.body = body; return this; },
   };
   await handler(
-    { method: 'POST', headers: { authorization: 'Bearer token' }, body: { recipeIds, pantryIngredients: [], servings } } as unknown as NextApiRequest,
+    { method: 'POST', headers: { authorization: 'Bearer token' }, body: { recipeIds, pantryIngredients: [], servings, ...(recipeServings !== undefined ? { recipeServings } : {}) } } as unknown as NextApiRequest,
     response as unknown as NextApiResponse,
   );
   return { ...database, statusCode: response.statusCode, body: response.body as ShoppingListResponse };
@@ -158,6 +158,28 @@ beforeEach(() => {
 });
 
 describe('/api/shopping-list recipe occurrences', () => {
+  it('sums different portions for repeated recipes and weights each distinct recipe independently', async () => {
+    const repeated = await request(['recipe-a', 'recipe-a'], 99, undefined, undefined, [2, 4]);
+    expect(toBuyQuantities(repeated.body)).toEqual({ '雞蛋|pc': 12, '豬肉|g': 600 });
+    const mixed = await request(['recipe-a', 'recipe-b'], 99, undefined, undefined, [1, 4]);
+    expect(toBuyQuantities(mixed.body)).toEqual({ '雞蛋|pc': 14, '豬肉|g': 100, '番茄|pc': 4 });
+    expect(byRecipeQuantities(mixed.body)['recipe-b']['雞蛋|隻']).toBe(12);
+  });
+  it('divides each requested total by the recipe base servings, retaining fractions', async () => {
+    const result = await request(['recipe-a','recipe-b'], 99, undefined, undefined, [3,1], 2);
+    expect(toBuyQuantities(result.body)).toEqual({ '雞蛋|pc': 4.5, '豬肉|g': 150, '番茄|pc': 0.5 });
+  });
+  it('canonicalizes repeated ids before summing their portions', async () => {
+    const result = await request([RECIPE_C_SPELLINGS[0], RECIPE_C_SPELLINGS[1]], 99, undefined, undefined, [1, 3]);
+    expect(toBuyQuantities(result.body)).toEqual({ '雞蛋|pc': 8, '豬肉|g': 400 });
+  });
+  it.each([[2], [2, 0], [2, -1], [2, 101], ['2', 4], [2, null], 'invalid'])(
+    'rejects malformed per-occurrence portions %j', async (...value) => {
+      const portions = value.length === 1 ? value[0] : value;
+      const result = await request(['recipe-a', 'recipe-a'], 1, undefined, undefined, portions);
+      expect(result.statusCode).toBe(400);
+      expect(result.visibilityQueryIds).toHaveLength(0);
+    });
   it('keeps single-occurrence quantities unchanged', async () => {
     const { statusCode, body } = await request(['recipe-a']);
 

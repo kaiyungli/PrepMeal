@@ -39,6 +39,15 @@ describe('homepage shopping preview', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
+  it('invalidates quantities when the actual plan servings change', async () => {
+    const { result, rerender } = renderHook(({ servings }) => useShoppingListPreview([{ items: [{ recipeId: 'recipe-a', servings }] }], { enabled: false }), { initialProps: { servings: 2 } });
+    await act(async () => { await result.current.refresh(); });
+    rerender({ servings: 4 });
+    expect(result.current.previewList).toEqual([]);
+    await act(async () => { await result.current.refresh(); });
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).servings).toBe(4);
+  });
+
   it('uses the API display unit selected for the user', async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ toBuy: [{ items: [
       { name: '牛肉', quantity: 200, unit: 'g', unitDisplay: '克' },
@@ -61,6 +70,7 @@ describe('homepage shopping preview', () => {
     expect(result.current.isInitialized).toBe(true);
     expect(result.current.previewList).toEqual([{ name: '測試洋蔥', qty: '2', unit: 'g' }]);
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).recipeIds).toEqual(['recipe-a']);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).servings).toBe(2);
   });
 
   it('distinguishes a successful empty result from not loaded', async () => {

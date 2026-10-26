@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import ShoppingListSheet from './ShoppingListSheet';
+import ShoppingListV2 from './ShoppingListV2';
+import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
+import { useState, useEffect, useId } from 'react';
 import { createPortal } from 'react-dom';
 
 import { formatUnit, formatQuantity } from '@/lib/formatters';
 import { CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/features/shopping-list/constants';
+import { useDialogFocus } from '@/hooks/useDialogFocus';
 import OptionalIngredientChoices from './OptionalIngredientChoices';
 
 /**
@@ -13,6 +17,7 @@ import OptionalIngredientChoices from './OptionalIngredientChoices';
  * - by recipe: 跟菜式排
  */
 export default function ShoppingListDrawer({ 
+  progressState = undefined,
   isOpen, 
   onClose, 
   shoppingList, 
@@ -21,6 +26,8 @@ export default function ShoppingListDrawer({
   onFetch 
 }) {
   const [mounted, setMounted] = useState(false);
+  const titleId = useId();
+  const dialogRef = useDialogFocus(mounted && isOpen && !progressState);
   const [viewMode, setViewMode] = useState('category'); // 'category' | 'recipe'
 
   useEffect(() => {
@@ -35,13 +42,13 @@ export default function ShoppingListDrawer({
 
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && !progressState) {
         onClose();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, progressState]);
 
   // Reset view mode when opening new
   useEffect(() => {
@@ -51,6 +58,23 @@ export default function ShoppingListDrawer({
   }, [isOpen]);
 
   if (!mounted || !isOpen) return null;
+
+  const unifiedView = shoppingList && progressState ? mapShoppingListResponseToViewModel({
+    ...shoppingList,
+    pantry: shoppingList.byCategory?.pantry || [],
+    toBuy: Object.entries(shoppingList.byCategory?.toBuy || {}).map(([category, items]) => ({ category, items })),
+  }) : null;
+
+  if (progressState) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
+    {loading ? <p role="status" className="p-6">載入中...</p> : error ? <div className="p-6"><p role="alert" className="text-red-700">{error}</p>{onFetch && <button type="button" className="mt-4 min-h-11 rounded-xl border px-4" onClick={onFetch}>重試</button>}</div> : unifiedView ? <>
+      {shoppingList.notice && <div className="px-4 pt-2 text-sm text-[#77573F]"><p role="status">{shoppingList.notice}</p>{shoppingList.offlineSnapshot && onFetch && <button type="button" className="min-h-9 underline" onClick={onFetch}>更新清單</button>}</div>}
+      <ShoppingListV2 view={unifiedView} progress={progressState.progress} onChange={progressState.change} disabled={!progressState.ready} status={progressState.status} />
+      {(!progressState.ready || progressState.needsRetry) && <div className="flex shrink-0 gap-2 bg-[#FFFEFB] px-5 pb-4">
+        {!progressState.ready && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.reload}>{progressState.conflict ? '重新載入採購進度' : '重試讀取'}</button>}
+        {!progressState.conflict && progressState.needsRetry && <button type="button" className="min-h-11 rounded-xl border px-4 text-sm" onClick={progressState.retrySave}>重試保存</button>}
+      </div>}
+    </> : <p className="p-6 text-sm">正在讀取購物清單…</p>}
+  </ShoppingListSheet>;
 
   const renderCategoryView = (data) => {
     if (!data?.byCategory?.toBuy) return null;
@@ -141,15 +165,15 @@ export default function ShoppingListDrawer({
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
       
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white z-50 shadow-xl flex flex-col">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="fixed inset-y-0 right-0 w-full max-w-md bg-white z-50 shadow-xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#E5DCC8]">
-          <h2 className="text-lg font-semibold">購物清單</h2>
-          <button onClick={onClose} className="p-2 hover:bg-[#F4EDDD] rounded-full">✕</button>
+          <h2 id={titleId} className="text-lg font-semibold">購物清單</h2>
+          <button type="button" aria-label="關閉購物清單" onClick={onClose} className="p-2 hover:bg-[#F4EDDD] rounded-full">✕</button>
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex border-b border-[#E5DCC8]">
+        {!progressState && <div className="flex border-b border-[#E5DCC8]">
           <button
             onClick={() => setViewMode('category')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
@@ -172,10 +196,11 @@ export default function ShoppingListDrawer({
           </button>
         </div>
 
+        }
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
-          <OptionalIngredientChoices groups={shoppingList?.optionalIngredients} />
-          {shoppingList?.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
+          {!progressState && <OptionalIngredientChoices groups={shoppingList?.optionalIngredients} />}
+          {!progressState && shoppingList?.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
           {loading && <p className="text-center py-8 text-[var(--color-text-muted)]">載入中...</p>}
           {!loading && error && (
             <div className="text-center py-8">
@@ -197,7 +222,7 @@ export default function ShoppingListDrawer({
               {shoppingList.notice}
             </p>
           )}
-          {!loading && !error && shoppingList && !shoppingList.noUsableRecipes && (
+          {!progressState && !loading && !error && shoppingList && !shoppingList.noUsableRecipes && (
             viewMode === 'category' 
               ? renderCategoryView(shoppingList)
               : renderRecipeView(shoppingList)
