@@ -24,7 +24,7 @@ const CARD_FIELDS = `
 
 // The home catalogue is regenerated with the page every five minutes. Fetching
 // the filter fields once avoids a network round trip on every filter click.
-const HOME_FIELDS = `${CARD_FIELDS.trim()}, description, speed, diet, flavor, times_shown`;
+const HOME_FIELDS = `${CARD_FIELDS.trim()}, description, speed, diet, flavor, times_shown, base_servings`;
 const HOME_CATALOG_LIMIT = 1000;
 
 export async function fetchHomeRecipeCatalog() {
