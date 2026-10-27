@@ -4,19 +4,19 @@ import Layout from '@/components/layout/Layout';
 import SEO from '@/components/seo/SEO';
 import type { GuideRecipe } from '@/features/guides/guideRecipes';
 
-export function GuidePage({ title, description, path, children }: {
-  title: string; description: string; path: string; children: ReactNode;
+export function GuidePage({ title, description, path, children, updated = '2026-10-26' }: {
+  title: string; description: string; path: string; children: ReactNode; updated?: string;
 }) {
   return <Layout><SEO title={title} description={description} canonical={`https://eatwhathk.com${path}`} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
       '@context': 'https://schema.org', '@type': 'Article', headline: title, description,
-      author: { '@type': 'Organization', name: '今晚食乜' }, dateModified: '2026-10-26',
+      author: { '@type': 'Organization', name: '今晚食乜' }, dateModified: updated,
       mainEntityOfPage: `https://eatwhathk.com${path}`,
     }).replace(/</g, '\\u003c') }} />
     <main className="max-w-4xl mx-auto px-4 py-12 text-[#5A4030]">
       <h1 className="text-3xl font-bold text-[#3A2010] mb-6 text-center">{title}</h1>
       <p className="text-lg mb-4 text-center">{description}</p>
-      <p className="text-sm text-center mb-8">內容更新：2026年10月26日</p>
+      <p className="text-sm text-center mb-8">內容更新：{updated.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1年$2月$3日')}</p>
       <div className="space-y-8 leading-relaxed">{children}</div>
       <nav aria-label="相關閱讀" className="mt-10 flex flex-wrap gap-4 border-t border-[#DDD0B0] pt-6">
         <Link href="/recipes" className="underline">搜尋全部食譜</Link>

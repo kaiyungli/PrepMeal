@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { selectGuideRecipes } from '@/features/guides/guideRecipes';
+import { selectPracticalExamples } from '@/features/guides/practicalExamples';
 const catalogue = [
   { id: 'a', slug: 'real-a', name: '快手菜', cuisine: 'chinese', total_time_minutes: 20 },
   { id: 'b', slug: 'real-b', name: '完整餐', cuisine: 'western', total_time_minutes: 30, is_complete_meal: true },
@@ -27,6 +28,22 @@ describe('guide catalogue selection', () => {
   });
 });
 const fetchCatalogueMock = vi.hoisted(() => vi.fn<() => Promise<unknown[] | null>>());
+describe('practical examples from the public catalogue', () => {
+  const example = { id: 'public-id', slug: 'garlic-chicken-pasta', name: '目前公開名稱', base_servings: 2,
+    prep_time_minutes: 11, cook_time_minutes: 17, total_time_minutes: 28, author_id: 'not-for-page' };
+  it('keeps current public names, servings and times without copying unrelated columns', () => {
+    const [row] = selectPracticalExamples([example]);
+    expect(row).toMatchObject({ name: '目前公開名稱', base_servings: 2, total_time_minutes: 28 });
+    expect(row).not.toHaveProperty('author_id');
+  });
+  it('does not invent a link when an example disappears from the public catalogue', () => {
+    expect(selectPracticalExamples([])).toEqual([]);
+    expect(selectPracticalExamples([{ ...example, slug: 'unreviewed' }])).toEqual([]);
+  });
+  it.each([{ base_servings: 0 }, { prep_time_minutes: null }, { total_time_minutes: NaN }])('omits incomplete example metadata: %s', missing => {
+    expect(selectPracticalExamples([{ ...example, ...missing }])).toEqual([]);
+  });
+});
 vi.mock('@/lib/recipesServer', () => ({ fetchHomeRecipeCatalog: fetchCatalogueMock }));
 import { getGuideProps } from '@/features/guides/guideRecipes.server';
 it('does not regenerate an empty page after a failed complete-catalogue load', async () => {
