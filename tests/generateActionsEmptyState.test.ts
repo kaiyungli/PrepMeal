@@ -9,11 +9,13 @@ type Availability = {
   filteredRecipeCount: number;
   hasRecipes?: boolean;
   availabilityWarnings?: string[];
+  isAuthenticated?: boolean;
 };
 
-function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeCount, hasRecipes = false, availabilityWarnings }: Availability) {
+function renderActions({ isLoadingRecipes, availableRecipeCount, filteredRecipeCount, hasRecipes = false, availabilityWarnings, isAuthenticated }: Availability) {
   return renderToStaticMarkup(createElement(GenerateActions, {
     isSaving: false,
+    isAuthenticated,
     isLoadingRecipes,
     availableRecipeCount,
     filteredRecipeCount,
@@ -32,6 +34,11 @@ function generateButton(markup: string) {
 }
 
 describe('generation availability', () => {
+  it('shows the login requirement to guests but not signed-in users', () => {
+    const props = { isLoadingRecipes: false, availableRecipeCount: 3, filteredRecipeCount: 2 };
+    expect(renderActions({ ...props, isAuthenticated: false })).toContain('可預覽購物清單；登入後可保存餐單');
+    expect(renderActions({ ...props, isAuthenticated: true })).not.toContain('可預覽購物清單；登入後可保存餐單');
+  });
   it('warns about role shortages without blocking generation and hides stale warnings while loading', () => {
     const props = { isLoadingRecipes: false, availableRecipeCount: 3, filteredRecipeCount: 2,
       availabilityWarnings: ['目前只有兩道配菜'] };
