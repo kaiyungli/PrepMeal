@@ -85,7 +85,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
     <Layout>
       <SEO
         title="今晚食乜"
-        description="AI智能食譜搜尋及每週餐單生成。一click生成一週餐單，簡化每日晚飯選擇。"
+        description="為香港日常晚餐而設：搜尋家常食譜、按條件安排3、5或7日餐單，並整理購物清單。"
         ogType="website"
       />
       <main className="flex-1">
@@ -101,7 +101,6 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
           onRefreshShoppingList={refreshShoppingList}
         />
         <HomeHowItWorks />
-        <HomeAboutSection />
         <div className="max-w-[1200px] mx-auto px-4">
           <HomeFiltersSection
             searchQuery={searchQuery}
@@ -151,6 +150,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
             <p className="text-[#AA7A50]">沒有找到食譜</p>
           </div>
         )}
+        <HomeAboutSection />
       </main>
       {toast && <Toast {...toast} />}
     </Layout>

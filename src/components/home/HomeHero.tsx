@@ -100,12 +100,13 @@ function HomeHero({
               今晚<br/>食乜
             </h1>
             
-            <div className="mt-8">
+            <p className="mt-6 text-base leading-relaxed text-[#7A5A38] md:text-lg">按口味、時間同用餐人數，安排幾日晚餐。</p>
+            <div className="mt-6">
               <button
                 onClick={onPrimaryAction}
                 className="px-12 py-5 rounded-full bg-[#9B6035] text-white font-bold text-lg shadow-md hover:opacity-95 transition-opacity"
               >
-                生成食譜
+                安排餐單
               </button>
             </div>
           </div>
