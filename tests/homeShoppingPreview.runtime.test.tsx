@@ -97,9 +97,18 @@ describe('homepage shopping preview', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it.each(['no-user', 'no-token'])('shows auth-required without fetching: %s', async (mode) => {
-    if (mode === 'no-user') auth.user = null;
-    else auth.getAccessToken.mockResolvedValue(null);
+  it('allows guests to preview without sending an authorization header', async () => {
+    auth.user = null;
+    const { result } = renderHook(() => useShoppingListPreview(plan, { enabled: false }));
+    await act(async () => { await result.current.refresh(); });
+    expect(result.current.isInitialized).toBe(true);
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/shopping-list-preview');
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBeUndefined();
+    expect(auth.getAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('requires reauthentication when a signed-in user loses their token', async () => {
+    auth.getAccessToken.mockResolvedValue(null);
     const { result } = renderHook(() => useShoppingListPreview(plan, { enabled: false }));
     await act(async () => { await result.current.refresh(); });
     expect(result.current.isAuthRequired).toBe(true);
