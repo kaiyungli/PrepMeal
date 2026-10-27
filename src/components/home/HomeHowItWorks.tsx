@@ -18,7 +18,7 @@ export default function HomeHowItWorks() {
     {
       number: '3',
       title: '整理購物清單',
-      description: '登入後按餐單人數整理材料，採購時逐項勾選。',
+      description: '按餐單人數查看材料；登入後可保存餐單。',
     },
   ];
 
