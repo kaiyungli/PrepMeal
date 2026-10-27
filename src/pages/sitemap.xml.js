@@ -16,6 +16,10 @@ const STATIC_URLS = [
   { loc: '/hk-dinner-ideas', changefreq: 'weekly', priority: 0.8 },
   { loc: '/ingredient-pairing-guide', changefreq: 'weekly', priority: 0.8 },
   { loc: '/healthy-dinner-guide', changefreq: 'weekly', priority: 0.8 },
+  { loc: '/30-minute-dinner-recipes', changefreq: 'weekly', priority: 0.8 },
+  { loc: '/50-classic-hk-recipes', changefreq: 'weekly', priority: 0.8 },
+  { loc: '/hong-kong-market-shopping-guide', changefreq: 'weekly', priority: 0.8 },
+  { loc: '/7-day-dinner-plan', changefreq: 'weekly', priority: 0.8 },
 ];
 
 function escapeXml(text) {
