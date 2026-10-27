@@ -7,7 +7,7 @@ export default function Privacy() {
     <InformationPage title="私隱政策" description="了解今晚食乜的帳戶資料、瀏覽器草稿、離線採購進度及廣告資料處理。" path="/privacy">
       <section>
         <h2>本政策的範圍</h2>
-        <p>本政策說明今晚食乜（eatwhathk.com）在提供食譜、餐單及購物清單服務時如何處理資料。你可以不登入瀏覽公開食譜及生成餐單；收藏、雲端保存及購物清單等帳戶功能需要登入。</p>
+        <p>本政策說明今晚食乜（eatwhathk.com）在提供食譜、餐單及購物清單服務時如何處理資料。你可以不登入瀏覽公開食譜及生成餐單；亦可預覽生成餐單的購物清單；收藏及雲端保存等帳戶功能需要登入。</p>
       </section>
       <section>
         <h2>我們處理哪些資料，以及用來做甚麼？</h2>
