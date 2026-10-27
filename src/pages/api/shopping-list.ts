@@ -141,14 +141,22 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ShoppingListResponse | { error: string }>
 ) {
+  return handleShoppingList(req, res, false);
+}
+
+export async function handleShoppingList(
+  req: NextApiRequest,
+  res: NextApiResponse<ShoppingListResponse | { error: string }>,
+  publicPreview: boolean
+) {
   console.log('[shopping-list-api] handler hit');
   
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const userId = await requireAuth(req, res);
-  if (!userId) return;
+  const userId = publicPreview ? null : await requireAuth(req, res);
+  if (!publicPreview && !userId) return;
 
   const body = req.body as Record<string, unknown>;
   // A plan can contain the same recipe more than once. Count occurrences so
