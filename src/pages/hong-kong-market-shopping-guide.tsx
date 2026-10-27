@@ -12,7 +12,7 @@ export default function MarketGuide({ recipes }: { recipes: GuideRecipe[] }) {
       <p>比較同一重量、品種及品質的食材，並留意是否需要另加處理費或配送費。本頁唔提供即時格價，亦唔保證街市一定比超市平。價錢會隨季節、供應、地區及品牌改變，請以購買當日標示為準。</p>
     </GuideSection>
     <GuideSection title="用網站購物清單記低採購進度">
-      <ul className="list-disc pl-5 space-y-2"><li>登入後打開餐單購物清單，逐項勾選已買，亦可以加入額外物品及備註。</li><li>有材料已經喺屋企，先核對實際份量；「已買」只係採購進度，唔係自動追蹤的庫存。</li><li>改菜式或人數後，再核對重新計算的材料。份量增加的項目可能需要重新確認。</li><li>出門前先連線載入已保存清單；離線保存有本機儲存限制，唔代表首次斷網都可以打開網站。</li></ul>
+      <ul className="list-disc pl-5 space-y-2"><li>生成餐單後可預覽購物清單；登入後亦可開啟已保存餐單的清單，逐項勾選已買，亦可以加入額外物品及備註。</li><li>有材料已經喺屋企，先核對實際份量；「已買」只係採購進度，唔係自動追蹤的庫存。</li><li>改菜式或人數後，再核對重新計算的材料。份量增加的項目可能需要重新確認。</li><li>出門前先連線載入已保存清單；離線保存有本機儲存限制，唔代表首次斷網都可以打開網站。</li></ul>
     </GuideSection>
     <GuideSection title="由現有家常菜開始安排"><GuideRecipeList recipes={recipes} /></GuideSection>
     <GuideSection title="帶住清單，最後再核對一次">
