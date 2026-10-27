@@ -109,15 +109,6 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
       return;
     }
     
-    if (!userId) {
-      setPreviewList([]);
-      setError(null);
-      setIsLoading(false);
-      setIsInitialized(false);
-      setIsAuthRequired(true);
-      return;
-    }
-    
     inFlightRef.current = true;
     setIsInitialized(false);
     setIsLoading(true);
@@ -127,17 +118,17 @@ export function useShoppingListPreview(weeklyPlan: PreviewPlanDay[] = EMPTY_PLAN
     try {
       const portions = new Set(plan.flatMap(day => day.items || []).filter(item => item.recipeId).map(item => item.servings ?? 2));
       if (portions.size > 1) throw new Error('餐單含不同人數份量，請分開查看購物清單');
-      const token = await getAccessToken();
+      const token = userId ? await getAccessToken() : null;
       if (currentRequestId !== requestIdRef.current) return;
-      if (!token) {
+      if (userId && !token) {
         setIsAuthRequired(true);
         throw new Error('Authentication required');
       }
-      const response = await fetch('/api/shopping-list', {
+      const response = await fetch(token ? '/api/shopping-list' : '/api/shopping-list-preview', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ 
           recipeIds,
