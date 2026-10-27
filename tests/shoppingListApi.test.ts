@@ -15,7 +15,7 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: createClientMock,
 }));
 
-import handler from '../src/pages/api/shopping-list';
+import handler, { handleShoppingList } from '../src/pages/api/shopping-list';
 
 function createResponse() {
   const response = {
@@ -101,6 +101,19 @@ function createDatabase({
 }
 
 describe('/api/shopping-list security boundary', () => {
+  it('allows public preview without reading account preferences or requiring login', async () => {
+    const database = createDatabase({ visibleRecipeIds: [] });
+    createClientMock.mockReturnValue(database.client);
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';
+    process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-only-secret';
+    const { response, apiResponse } = createResponse();
+    await handleShoppingList(createRequest({ method: 'POST', headers: {}, body: { recipeIds: ['private-id'], servings: 2, userId: 'spoofed' } }), apiResponse, true);
+    expect(response.statusCode).toBe(200);
+    expect(requireAuthMock).not.toHaveBeenCalled();
+    expect(database.preferenceUserIds).toEqual([]);
+    expect(database.getIngredientQueryCount()).toBe(0);
+    expect(JSON.stringify(response.body)).not.toContain('private-id');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://example.supabase.co';

@@ -23,10 +23,10 @@ import { useRef, useEffect, useState } from 'react';
 export default function GeneratePage() {
   const { user, loading } = useAuth();
   if (loading) return <p role="status" className="p-6">確認登入狀態…</p>;
-  return <GenerateWorkspace key={user?.id || 'guest'} />;
+  return <GenerateWorkspace key={user?.id || 'guest'} isAuthenticated={!!user} />;
 }
 
-function GenerateWorkspace() {
+function GenerateWorkspace({ isAuthenticated }) {
   const headerCtrl = useHeaderController();
   const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
@@ -150,6 +150,7 @@ function GenerateWorkspace() {
           />
 
           <GenerateActions
+            isAuthenticated={isAuthenticated}
             recipesError={ctrl.recipesError}
             isSaving={isSaving}
             isLoadingRecipes={loadingRecipes}

@@ -2,6 +2,7 @@ import { UI } from '@/styles/ui';
 // Generate page action buttons component
 
 interface GenerateActionsProps {
+  isAuthenticated?: boolean;
   recipesError?: string | null;
   isSaving: boolean;
   isLoadingRecipes: boolean;
@@ -17,6 +18,7 @@ interface GenerateActionsProps {
 }
 
 export default function GenerateActions({ 
+  isAuthenticated = false,
   recipesError,
   isSaving,
   isLoadingRecipes,
@@ -36,10 +38,11 @@ export default function GenerateActions({
 
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-4 flex flex-wrap justify-between items-center gap-3">
-      <div className='flex gap-2 items-center'>
+      <div className='flex flex-wrap gap-x-2 gap-y-1 items-center'>
         <span className='text-sm font-semibold text-[#3A2010]'>
           已選擇 {selectedCount} 餐
         </span>
+        {!isAuthenticated && <span className="text-xs text-[#765C42]">可預覽購物清單；登入後可保存餐單</span>}
         {hasRecipes && (
           <button
             onClick={onClear}

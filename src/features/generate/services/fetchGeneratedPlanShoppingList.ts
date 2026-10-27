@@ -11,7 +11,7 @@ import { selectionKey, scopeSelections, type OptionalSelections } from '@/featur
 export interface FetchShoppingListOptions {
   optionalSelections?: OptionalSelections;
   traceId?: string;
-  token: string;
+  token: string | null;
   cacheScope: string;
 }
 
@@ -143,11 +143,11 @@ export async function fetchGeneratedPlanShoppingList(
   try {
     const fetchStart = perfNow();
     
-    const res = await fetch('/api/shopping-list', {
+    const res = await fetch(options.token ? '/api/shopping-list' : '/api/shopping-list-preview', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${options.token}`,
+        ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
       },
       body: JSON.stringify({
         recipeIds,

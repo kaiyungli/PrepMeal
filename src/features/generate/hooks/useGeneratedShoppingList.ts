@@ -52,20 +52,19 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (!preload) log('memory_hit', 0, { hasView: true, hasError: false });
       return;
     }
-    if (preload && (isShoppingListLoading || recipeIds.length === 0 || !isAuthenticated || !userId)) return;
+    if (preload && (isShoppingListLoading || recipeIds.length === 0)) return;
     invalidate();
     const request = { active: true };
     requestRef.current = request;
     setState({ key, view: null, error: null, loading: true });
     if (preload) log('preload_start');
     try {
-      if (!isAuthenticated || !userId) throw new Error('請先登入以查看購物清單');
-      const token = await getAccessToken();
+      const token = isAuthenticated && userId ? await getAccessToken() : null;
       if (!request.active) return;
-      if (!token) throw new Error('請先登入以查看購物清單');
+      if (isAuthenticated && !token) throw new Error('登入已失效，請重新登入');
       const started = Date.now();
       const view = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings,
-        { traceId, token, cacheScope: userId, optionalSelections: selections });
+        { traceId, token, cacheScope: userId || 'guest-preview', optionalSelections: selections });
       if (!request.active) return;
       setState({ key, view, error: null, loading: false });
       log(preload ? 'preload_ready' : 'ready', Date.now() - started, view.summary);
