@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PrivacyOptionsButton from '@/components/ads/PrivacyOptionsButton';
 import InformationPage, { SiteContact } from '@/components/layout/InformationPage';
 
 export default function Privacy() {
@@ -43,7 +44,9 @@ export default function Privacy() {
         <h2>Google AdSense、Cookie及廣告選擇</h2>
         <p>本站設有Google AdSense廣告整合。在廣告服務啟用並載入的頁面，Google及其他廣告供應商可能使用Cookie、網頁信標、IP位址或其他識別技術，處理瀏覽網址、裝置及廣告互動等資料，以提供及量度廣告、防止濫用，並按適用設定或同意狀態提供個人化廣告。</p>
         <p>你可查閱<a href="https://policies.google.com/technologies/partner-sites?hl=zh-HK">Google如何使用合作夥伴網站及應用程式的資料</a>，並透過<a href="https://adssettings.google.com/">Google廣告設定</a>管理廣告個人化。關閉個人化不等於移除廣告或停止所有廣告量度。</p>
-        <p>你亦可透過瀏覽器管理Cookie及網站資料。如果頁面提供廣告同意或私隱選項，可在該介面查看及更改選擇；Google帳戶廣告設定不能代替網站上的同意選擇。</p>
+        <p>你可使用下方或頁尾的「管理私隱選項」，在Google同意服務可用及適用時重新開啟介面，選擇同意、不同意或管理選項。請在Google介面內完成選擇；本站不會把按下入口當作已同意或已撤回。</p>
+        <PrivacyOptionsButton />
+        <p>如服務未載入、受到瀏覽器阻擋或不適用於你目前的地區，入口會顯示提示，不會為此載入廣告。你亦可透過瀏覽器管理Cookie及網站資料；Google帳戶廣告設定不能代替網站上的同意選擇，清除網站資料亦可能令你登出及失去未同步草稿。</p>
       </section>
       <section>
         <h2>保留、查閱、更正及刪除</h2>
