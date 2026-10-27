@@ -150,14 +150,14 @@ describe('Generate shopping list response isolation', () => {
   });
 
   it('logout hides cached content and prevents authenticated service calls', async () => {
-    service.fetchGeneratedPlanShoppingList.mockResolvedValueOnce(view('private'));
+    service.fetchGeneratedPlanShoppingList.mockResolvedValueOnce(view('private')).mockResolvedValueOnce(view('guest'));
     const { result, rerender } = mount();
     await act(async () => { await result.current.handleOpenShoppingList(); });
     rerender({ ...defaults, isAuthenticated: false, userId: null });
     expect(result.current.shoppingListView).toBeNull();
     await act(async () => { await result.current.handleOpenShoppingList(); });
-    expect(result.current.shoppingListError).toBe('請先登入以查看購物清單');
-    expect(service.fetchGeneratedPlanShoppingList).toHaveBeenCalledTimes(1);
+    expect(result.current.shoppingListView).toEqual(view('guest'));
+    expect(service.fetchGeneratedPlanShoppingList.mock.calls[1][3]).toMatchObject({ token: null, cacheScope: 'guest-preview' });
   });
 
   it.each(['clear', 'unmount', 'scope-change'] as const)('does not start a fetch after a delayed token lookup and %s', async action => {
