@@ -71,3 +71,19 @@ describe('measurement precision', () => {
     expect(formatQuantityForDisplay(null, 'g')).toBe('');
   });
 });
+
+
+describe('nutrition note formats', () => {
+  it('keeps existing notes, removes duplicates and excludes batch-specific policy details', () => {
+    const prefix = '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。';
+    const result = recipeProvenance({ nutrition: { limitations: [' 原有提示 '], evidence_cautions: ['原有提示', '另一提示', null], policy: prefix + '另一道菜的專屬資料。' } });
+    expect(result.nutrition_notes).toEqual(['原有提示', '另一提示', prefix]);
+  });
+  it('preserves the alternate shared estimate limitation', () => {
+    const prefix = '基本版不含選配；依可食原料及保留情境估算，非化驗值。';
+    expect(recipeProvenance({ nutrition: { policy: prefix + '其他菜式的材料' } }).nutrition_notes).toEqual([prefix]);
+  });
+  it('does not publish an unrelated policy ledger', () => {
+    expect(recipeProvenance({ nutrition: { policy: '內部記錄', evidence_cautions: [] } }).nutrition_notes).toEqual([]);
+  });
+});
