@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import GeneratePage from '@/pages/generate';
+import { renderToString } from 'react-dom/server';
+import type { ReactNode } from 'react';
 import { draftKey, encodeDraft, parseDraft, type DraftSnapshot } from '@/features/generate/draftStore';
 
 const state = vi.hoisted(() => ({ user: { id: 'A' } as { id: string } | null, loading: false, notice: vi.fn() }));
 vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: state.user, loading: state.loading, isAuthenticated: !!state.user, getAccessToken: async () => 'test-token' }) }));
 vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: {} }) }));
-vi.mock('next/head', () => ({ default: () => null }));
+vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => children }));
 vi.mock('@/components/layout/Header', () => ({ default: () => null }));
 vi.mock('@/components/layout/Footer', () => ({ default: () => null }));
 vi.mock('@/features/layout/hooks/useHeaderController', () => ({ useHeaderController: () => ({}) }));
@@ -27,6 +29,38 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('real generate page draft integration', () => {
+  it('renders public purpose and steps on the server while auth is unresolved, without reading a private draft', () => {
+    state.loading = true;
+    const readStorage = vi.spyOn(Storage.prototype, 'getItem');
+    const html = renderToString(<GeneratePage />);
+    expect(html).toContain('先安排幾日晚餐，再集中一至兩次買餸');
+    expect(html).toContain('揀日數同人數');
+    expect(html).toContain('保存到帳戶需登入');
+    expect(html).toContain('<title>一週晚餐餐單生成器 | 今晚食乜</title>');
+    expect(html).toContain('rel="canonical" href="https://eatwhathk.com/generate"');
+    expect(html).toContain('name="description"');
+    expect(html).not.toContain('noindex');
+    expect(html).not.toContain('帳戶A晚餐');
+    expect(html).not.toContain('一鍵生成');
+    expect(readStorage).not.toHaveBeenCalled();
+  });
+
+  it('keeps public content visible and unmounts private controls while auth is checked again', async () => {
+    const { rerender } = render(<GeneratePage />);
+    await waitFor(() => expect(screen.getAllByText('帳戶A晚餐').length).toBeGreaterThan(0));
+    state.loading = true;
+    rerender(<GeneratePage />);
+    expect(screen.getByRole('heading', { name: '一週餐單', level: 1 })).toBeTruthy();
+    expect(screen.getByRole('list', { name: '安排餐單步驟' })).toBeTruthy();
+    expect(screen.queryByText('帳戶A晚餐')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^保存$/ })).toBeNull();
+    state.user = null; state.loading = false;
+    rerender(<GeneratePage />);
+    await waitFor(() => expect(screen.getByText('已選擇 0 餐')).toBeTruthy());
+    expect(screen.queryByText('帳戶A晚餐')).toBeNull();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
+
   it('rehydrates the real controller and page, including servings and lock', async () => {
     render(<GeneratePage />);
     await waitFor(() => expect(screen.getAllByText('帳戶A晚餐').length).toBeGreaterThan(0));
