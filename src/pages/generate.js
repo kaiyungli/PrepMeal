@@ -4,7 +4,8 @@ import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGeneratePageController } from '@/features/generate';
 import { getDefaultPlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
-import Head from 'next/head';
+import SEO from '@/components/seo/SEO';
+import GenerateIntro from '@/components/generate/GenerateIntro';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import Footer from '@/components/layout/Footer';
@@ -22,12 +23,24 @@ import { useRef, useEffect, useState } from 'react';
 
 export default function GeneratePage() {
   const { user, loading } = useAuth();
-  if (loading) return <p role="status" className="p-6">確認登入狀態…</p>;
-  return <GenerateWorkspace key={user?.id || 'guest'} isAuthenticated={!!user} />;
+  const headerCtrl = useHeaderController();
+  return (
+    <>
+      <SEO title="一週晚餐餐單生成器" description="按3、5或7日及用餐人數安排晚餐，鎖定喜歡的菜式、替換其他菜，再整理買餸材料。毋須登入即可查看購物清單，登入後可保存餐單。" canonical="https://eatwhathk.com/generate" />
+      <Header {...headerCtrl} />
+      <main className="min-h-screen bg-[#F8F3E8]">
+        <div className="max-w-[1400px] mx-auto px-6 pt-6 pb-10 space-y-4">
+          <GenerateIntro />
+          {loading ? <p role="status" className="text-sm text-[#3A2010]">確認登入狀態，準備餐單工具…</p> :
+            <GenerateWorkspace key={user?.id || 'guest'} isAuthenticated={!!user} />}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
 }
 
 function GenerateWorkspace({ isAuthenticated }) {
-  const headerCtrl = useHeaderController();
   const traceIdRef = useRef(createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
   const { toast, showToast } = useToast();
@@ -104,20 +117,6 @@ function GenerateWorkspace({ isAuthenticated }) {
 
   return (
     <>
-      <Header {...headerCtrl} />
-      <Head><title>今晚食乜 - 一週餐單</title></Head>
-      <div className="min-h-screen bg-[#F8F3E8]">
-        
-        <div className="max-w-[1400px] mx-auto px-6 pt-6 pb-10 space-y-4">
-          {/* Hero */}
-          <div className="bg-[#9B6035] rounded-xl px-6 py-8 text-center">
-            <h1 className='text-[clamp(1.5rem,4vw,2.5rem)] font-black text-white mb-2'>
-              一週餐單
-            </h1>
-            <p className='text-white/80 text-base'>
-              為你安排每日晚餐，簡單方便
-            </p>
-          </div>
           <div role="status" className="text-sm text-[#3A2010]">
             {ctrl.draft.ready ? ctrl.draft.message : '正在讀取草稿…'}
             {ctrl.draft.notices.map(note => <p key={note}>{note}</p>)}
@@ -181,8 +180,6 @@ function GenerateWorkspace({ isAuthenticated }) {
             onRecipeClick={handleRecipeClick}
           />
           </fieldset>
-        </div>
-
         {isSaveDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSaveDialogOpen(false); }}>
             <form role="dialog" aria-modal="true" aria-labelledby="save-plan-title" onSubmit={submitSave} onKeyDown={(event) => { if (event.key === 'Escape') setSaveDialogOpen(false); }} className="w-full max-w-md rounded-xl border border-[#DDD0B0] bg-white p-6 shadow-xl">
@@ -218,8 +215,6 @@ function GenerateWorkspace({ isAuthenticated }) {
           loading={modalLoading}
         />
 
-        <Footer />
-        
         {toast && <Toast toast={toast} />}
         
         {saveNotice && (
@@ -230,7 +225,6 @@ function GenerateWorkspace({ isAuthenticated }) {
             </div>
           </div>
         )}
-      </div>
     </>
   );
 }
