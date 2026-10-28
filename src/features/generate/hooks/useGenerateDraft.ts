@@ -22,6 +22,7 @@ export function useGenerateDraft(options: Options) {
   const router = useRouter();
   const owner = draftOwner(userId);
   const key = draftKey(owner);
+  const [planName, setPlanName] = useState('');
   const [shoppingProgress, setShoppingProgress] = useState<ShoppingProgress>(emptyProgress);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
@@ -31,6 +32,7 @@ export function useGenerateDraft(options: Options) {
   const lastSnapshot = useRef('');
   const lastStored = useRef<string | null>(null);
   const snapshot: DraftSnapshot = useMemo(() => ({
+    planName,
     shoppingProgress,
     weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, (weeklyPlan[day] || []).map(recipe => recipe?.id != null ? String(recipe.id) : null)])),
     lockedSlots,
@@ -38,12 +40,13 @@ export function useGenerateDraft(options: Options) {
       allowCompleteMeal: prefs.allowCompleteMeal, servings: prefs.servings, budget: prefs.budget,
       ingredientReuse: prefs.ingredientReuse, exclusions: prefs.exclusions, filters: prefs.filters },
     notices,
-  }), [weeklyPlan, lockedSlots, prefs.daysPerWeek, prefs.dailyComposition, prefs.allowCompleteMeal, prefs.servings,
+  }), [planName, weeklyPlan, lockedSlots, prefs.daysPerWeek, prefs.dailyComposition, prefs.allowCompleteMeal, prefs.servings,
     prefs.budget, prefs.ingredientReuse, prefs.exclusions, prefs.filters, notices, shoppingProgress]);
   const fingerprint = draftFingerprint(snapshot);
 
   const apply = useCallback((saved: DraftSnapshot) => {
     const restored = hydrateDraft(saved, allRecipes);
+    setPlanName(saved.planName || '');
     setShoppingProgress(saved.shoppingProgress || emptyProgress());
     setWeeklyPlan(restored.weeklyPlan);
     setLockedSlots(restored.lockedSlots);
@@ -54,7 +57,7 @@ export function useGenerateDraft(options: Options) {
     prefs.setBudget(p.budget); prefs.setIngredientReuse(p.ingredientReuse);
     prefs.setExclusions(p.exclusions); prefs.setFilters(p.filters);
     // Baseline uses hydrated identities and only locks that still refer to meals.
-    lastSnapshot.current = draftFingerprint({ ...saved, shoppingProgress: saved.shoppingProgress || emptyProgress(),
+    lastSnapshot.current = draftFingerprint({ ...saved, planName: saved.planName || '', shoppingProgress: saved.shoppingProgress || emptyProgress(),
       weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, restored.weeklyPlan[day].map(recipe => recipe ? String(recipe.id) : null)])),
       lockedSlots: restored.lockedSlots, notices: restored.notices });
   }, [allRecipes, setWeeklyPlan, setLockedSlots, prefs]);
@@ -95,7 +98,7 @@ export function useGenerateDraft(options: Options) {
         if (raw) {
           const seed = JSON.parse(raw);
           if (Array.isArray(seed?.weeklyPlan)) {
-            const imported: DraftSnapshot = { ...snapshot, shoppingProgress: emptyProgress(), lockedSlots: {}, notices: [],
+            const imported: DraftSnapshot = { ...snapshot, planName: '', shoppingProgress: emptyProgress(), lockedSlots: {}, notices: [],
               weeklyPlan: Object.fromEntries(DAY_KEYS.map((day, index) => [day,
                 (seed.weeklyPlan[index]?.items || []).slice(0, 3).map((item: { recipeId?: string | number }) => item.recipeId != null ? String(item.recipeId) : null)])) };
             apply(imported); restored = true;
@@ -168,5 +171,5 @@ export function useGenerateDraft(options: Options) {
     sessionStorage.setItem(TRANSFER_KEY, JSON.stringify({ nonce, createdAt: Date.now(), draft: encodeDraft('guest', snapshot) }));
     return `/generate?resumeDraft=${encodeURIComponent(nonce)}`;
   };
-  return { shoppingProgress, setShoppingProgress, resetShoppingProgress: () => setShoppingProgress(emptyProgress()), ready, message, notices, conflict, resolveConflict, prepareLogin, clearNotices: () => setNotices([]) };
+  return { planName, setPlanName, shoppingProgress, setShoppingProgress, resetShoppingProgress: () => setShoppingProgress(emptyProgress()), ready, message, notices, conflict, resolveConflict, prepareLogin, clearNotices: () => setNotices([]) };
 }

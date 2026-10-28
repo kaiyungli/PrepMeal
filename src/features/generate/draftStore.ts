@@ -8,6 +8,7 @@ export type DraftPreferences = {
   filters: Record<string, string[]>;
 };
 export type DraftSnapshot = {
+  planName?: string;
   shoppingProgress?: ShoppingProgress;
   weeklyPlan: Record<string, (string | null)[]>;
   lockedSlots: Record<string, boolean>;
@@ -24,7 +25,8 @@ export function parseDraft(raw: string | null, owner: string, now = Date.now()):
   try {
     const value = JSON.parse(raw);
     if (value?.version !== 1 || value.owner !== owner || !Number.isFinite(value.savedAt) || value.savedAt > now || !value.snapshot) throw new Error();
-    const { weeklyPlan, lockedSlots, preferences: p, notices, shoppingProgress } = value.snapshot;
+    const { weeklyPlan, lockedSlots, preferences: p, notices, shoppingProgress, planName } = value.snapshot;
+    if (planName !== undefined && (typeof planName !== 'string' || planName.length > 100)) throw new Error();
     if (shoppingProgress !== undefined && !validProgress(shoppingProgress)) throw new Error();
     const strings = (items: unknown): items is string[] => Array.isArray(items) && items.length <= 40 && items.every(x => typeof x === 'string' && x.length <= 200);
     if (!weeklyPlan || typeof weeklyPlan !== 'object' || Array.isArray(weeklyPlan) ||

@@ -3,11 +3,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import GeneratePage from '@/pages/generate';
 import { renderToString } from 'react-dom/server';
 import type { ReactNode } from 'react';
-import { draftKey, encodeDraft, parseDraft, type DraftSnapshot } from '@/features/generate/draftStore';
+import { TRANSFER_KEY, draftKey, encodeDraft, parseDraft, type DraftSnapshot } from '@/features/generate/draftStore';
 
-const state = vi.hoisted(() => ({ user: { id: 'A' } as { id: string } | null, loading: false, notice: vi.fn() }));
+const state = vi.hoisted(() => ({ user: { id: 'A' } as { id: string } | null, loading: false, notice: vi.fn(), query: {} as Record<string, string>, save: vi.fn() }));
 vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: state.user, loading: state.loading, isAuthenticated: !!state.user, getAccessToken: async () => 'test-token' }) }));
-vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: {} }) }));
+vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: state.query }) }));
+vi.mock('@/features/generate/services/saveGeneratedPlan', () => ({ saveGeneratedPlan: (...args: unknown[]) => state.save(...args) }));
 vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => children }));
 vi.mock('@/components/layout/Header', () => ({ default: () => null }));
 vi.mock('@/components/layout/Footer', () => ({ default: () => null }));
@@ -23,12 +24,59 @@ const snapshot: DraftSnapshot = { weeklyPlan: { mon: ['a'] }, lockedSlots: { 'mo
   preferences: { daysPerWeek: 3, dailyComposition: 'complete_meal', servings: 4, allowCompleteMeal: true,
     budget: 'normal', ingredientReuse: 'normal', exclusions: [], filters: { cuisine: [], dish_type: [], protein: [], method: [], speed: [], difficulty: [], diet: [], flavor: [] } } };
 beforeEach(() => {
-  localStorage.clear(); sessionStorage.clear(); state.user = { id: 'A' }; state.loading = false;
+  localStorage.clear(); sessionStorage.clear(); state.user = { id: 'A' }; state.loading = false; state.query = {};
+  state.save.mockReset().mockResolvedValue({ success: true });
   localStorage.setItem(draftKey('user:A'), encodeDraft('user:A', snapshot));
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('real generate page draft integration', () => {
+  it('keeps the default naming behavior for old drafts without a custom name', async () => {
+    render(<GeneratePage />);
+    await waitFor(() => expect((screen.getByRole('button', { name: /^保存$/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }));
+    expect((screen.getByRole('textbox', { name: '餐單名稱' }) as HTMLInputElement).value).toBe('');
+    fireEvent.click(screen.getByRole('button', { name: '保存餐單' }));
+    await waitFor(() => expect(state.save).toHaveBeenCalledTimes(1));
+    expect(state.save.mock.calls[0][0].name).toMatch(/^4人 3日餐單 /);
+  });
+
+  it('keeps the entered name through guest login, dialog reopening and the saved request', async () => {
+    state.user = null;
+    localStorage.setItem(draftKey('guest'), encodeDraft('guest', snapshot));
+    const guest = render(<GeneratePage />);
+    await waitFor(() => expect((screen.getByRole('button', { name: /^保存$/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }));
+    fireEvent.change(screen.getByRole('textbox', { name: '餐單名稱' }), { target: { value: '下週五日晚餐' } });
+    // Capture the real login handoff, stopping before jsdom navigation.
+    const setItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
+      setItem.call(this, key, value);
+      if (this === sessionStorage && key === TRANSFER_KEY) throw new Error('stop before navigation');
+    });
+    fireEvent.click(screen.getByRole('button', { name: '保存餐單' }));
+    await waitFor(() => expect(sessionStorage.getItem(TRANSFER_KEY)).not.toBeNull());
+    const transfer = JSON.parse(sessionStorage.getItem(TRANSFER_KEY)!);
+    guest.unmount();
+    vi.restoreAllMocks();
+    state.user = { id: 'A' }; state.query = { resumeDraft: transfer.nonce };
+    const signedIn = render(<GeneratePage />);
+    await waitFor(() => expect(screen.getByText(/已接續登入前的草稿/)).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }));
+    expect((screen.getByRole('textbox', { name: '餐單名稱' }) as HTMLInputElement).value).toBe('下週五日晚餐');
+    fireEvent.click(screen.getByRole('button', { name: '取消' }));
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }));
+    expect((screen.getByRole('textbox', { name: '餐單名稱' }) as HTMLInputElement).value).toBe('下週五日晚餐');
+    fireEvent.click(screen.getByRole('button', { name: '保存餐單' }));
+    await waitFor(() => expect(state.save).toHaveBeenCalledTimes(1));
+    expect(state.save.mock.calls[0][0].name).toBe('下週五日晚餐');
+    signedIn.unmount();
+    render(<GeneratePage />);
+    await waitFor(() => expect((screen.getByRole('button', { name: /^保存$/ }) as HTMLButtonElement).disabled).toBe(false));
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }));
+    expect((screen.getByRole('textbox', { name: '餐單名稱' }) as HTMLInputElement).value).toBe('下週五日晚餐');
+  });
+
   it('renders public purpose and steps on the server while auth is unresolved, without reading a private draft', () => {
     state.loading = true;
     const readStorage = vi.spyOn(Storage.prototype, 'getItem');

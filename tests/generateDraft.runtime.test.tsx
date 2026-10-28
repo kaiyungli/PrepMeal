@@ -65,14 +65,17 @@ describe('draft lifecycle', () => {
   });
 
   it('separates guest and account drafts; normal sign-in never inherits another owner', () => {
-    localStorage.setItem(draftKey('user:A'), encodeDraft('user:A', saved));
-    localStorage.setItem(draftKey('guest'), encodeDraft('guest', { ...saved, weeklyPlan: { mon: ['b'] } }));
+    localStorage.setItem(draftKey('user:A'), encodeDraft('user:A', { ...saved, planName: 'A的晚餐' }));
+    localStorage.setItem(draftKey('guest'), encodeDraft('guest', { ...saved, planName: '訪客晚餐', weeklyPlan: { mon: ['b'] } }));
     const a = renderHook(() => useWorkspace('A'));
-    expect(a.result.current.weeklyPlan.mon[0]?.id).toBe('a'); a.unmount();
+    expect(a.result.current.weeklyPlan.mon[0]?.id).toBe('a');
+    expect(a.result.current.draft.planName).toBe('A的晚餐'); a.unmount();
     const b = renderHook(() => useWorkspace('B'));
-    expect(b.result.current.weeklyPlan).toEqual({}); b.unmount();
+    expect(b.result.current.weeklyPlan).toEqual({});
+    expect(b.result.current.draft.planName).toBe(''); b.unmount();
     const guest = renderHook(() => useWorkspace(null));
     expect(guest.result.current.weeklyPlan.mon[0]?.id).toBe('b');
+    expect(guest.result.current.draft.planName).toBe('訪客晚餐');
   });
 
   it('transfers only the matching same-tab guest login handoff, then consumes it', () => {
