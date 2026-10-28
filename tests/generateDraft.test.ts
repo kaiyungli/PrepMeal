@@ -7,6 +7,18 @@ const snapshot: DraftSnapshot = {
     budget: 'budget', ingredientReuse: 'normal', exclusions: ['chicken'], filters: { cuisine: ['chinese'], dish_type: [], protein: [], method: [], speed: [], difficulty: [], diet: [], flavor: [] } },
 };
 describe('seven-day draft contract', () => {
+  it('accepts legacy unnamed drafts and bounded names but rejects malformed names', () => {
+    expect(parseDraft(encodeDraft('guest', snapshot), 'guest').status).toBe('ok');
+    for (const planName of ['', '下週五日晚餐', '名'.repeat(100)]) {
+      const parsed = parseDraft(encodeDraft('guest', { ...snapshot, planName }), 'guest');
+      expect(parsed.status).toBe('ok');
+      if (parsed.status === 'ok') expect(parsed.draft.snapshot.planName).toBe(planName);
+    }
+    for (const planName of [null, {}, 12, '名'.repeat(101)]) {
+      const raw = JSON.stringify({ version: 1, owner: 'guest', savedAt: Date.now(), snapshot: { ...snapshot, planName } });
+      expect(parseDraft(raw, 'guest').status).toBe('invalid');
+    }
+  });
   it('preserves identity, slot gaps, settings and locks without storing recipe display objects', () => {
     const raw = encodeDraft('user:a', snapshot, 1000);
     const parsed = parseDraft(raw, 'user:a', 1001);

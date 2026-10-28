@@ -46,11 +46,10 @@ function GenerateWorkspace({ isAuthenticated }) {
   const { toast, showToast } = useToast();
   const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current, showToast });
   const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [planName, setPlanName] = useState('');
+  const { planName, setPlanName } = ctrl.draft;
   const [defaultPlanName, setDefaultPlanName] = useState('');
   const openSaveDialog = () => {
     setDefaultPlanName(getDefaultPlanName(preferences.servings, preferences.daysPerWeek));
-    setPlanName('');
     setSaveDialogOpen(true);
   };
   const submitSave = async (event) => {
