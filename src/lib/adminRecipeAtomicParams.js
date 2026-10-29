@@ -174,6 +174,15 @@ export function buildRecipeAtomicParams(rawBody) {
     if (result.error) return { error: result.error };
   }
 
+  // Never relabel a multi-person recipe as one person without scaling its
+  // ingredients and steps. Single create/update and bulk import share this gate.
+  if (checks.servings.value !== 1) {
+    return { error: '食譜必須以1人份填寫，請先換算材料及步驟用量。' };
+  }
+  if (b.base_servings !== undefined && normInteger(b.base_servings, 'base_servings', 1, null).value !== 1) {
+    return { error: invalidMsg('base_servings') };
+  }
+
   return {
     params: {
       p_name: b.name,

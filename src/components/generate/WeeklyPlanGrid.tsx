@@ -25,7 +25,7 @@ function getTimeLabel(recipe: Recipe): string | null {
 // Get difficulty label
 function getDifficultyLabel(difficulty?: string): string | null {
   if (!difficulty) return null;
-  const map: Record<string, string> = { easy: '簡單', medium: '中等', hard: '困難' };
+  const map: Record<string, string> = { easy: '容易', medium: '中等', hard: '困難' };
   return map[difficulty] || null;
 }
 
@@ -217,7 +217,7 @@ export default function WeeklyPlanGrid({
                             )}
                             {recipe.calories_per_serving && (
                               <span className="text-sm px-3 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
-                                🔥 {recipe.calories_per_serving} kcal
+                                🔥 {recipe.calories_per_serving} 卡路里／人
                               </span>
                             )}
                             {getDifficultyLabel(recipe.difficulty) && (

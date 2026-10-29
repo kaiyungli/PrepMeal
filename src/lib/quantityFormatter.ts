@@ -47,7 +47,8 @@ const FRACTIONS: Record<number, string> = {
 };
 
 function findFraction(q: number): string | null {
-  const tolerance = 1e-9;
+  // Stored one-person thirds are normalised to six decimal places.
+  const tolerance = 5e-7;
   // Check for whole number + fraction
   const whole = Math.floor(q);
   const frac = q - whole;
@@ -60,6 +61,15 @@ function findFraction(q: number): string | null {
   return null;
 }
 
+function readableMeasurement(qty: number): string {
+  const magnitude = Math.abs(qty);
+  // Keep tiny seasoning quantities nonzero, without showing calculation tails.
+  const rounded = magnitude >= 10 ? Number(qty.toFixed(1))
+    : magnitude >= 0.1 ? Number(qty.toFixed(2)) : Number(qty.toPrecision(2));
+  const approximate = Math.abs(qty - rounded) > Math.max(magnitude * 1e-12, Number.MIN_VALUE);
+  return `${approximate ? '約' : ''}${rounded}`;
+}
+
 export function formatQuantityForDisplay(quantity: number | null | undefined, unit: string | { code?: string; name?: string; display_name_zh?: string } | null | undefined, options: { roundCount?: boolean } = {}): string {
   if (quantity == null || !Number.isFinite(quantity)) return '';
   if (quantity === 0) return '0';
@@ -69,7 +79,7 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
   
   // Measurement units retain small quantities (e.g. 0.15g of seasoning).
   if (MASS_UNITS.includes(normUnit) || VOLUME_UNITS.includes(normUnit)) {
-    return Number(qty.toPrecision(12)).toString();
+    return readableMeasurement(qty);
   }
   
   // Cooking measures may use familiar exact fractions. Other amounts must
@@ -77,12 +87,12 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
   if (FRACTION_UNITS.includes(normUnit)) {
     const frac = findFraction(qty);
     if (frac) return frac;
-    return Number(qty.toPrecision(12)).toString();
+    return readableMeasurement(qty);
   }
   
   // count units - round up to integer
   if (COUNT_UNITS.includes(normUnit)) {
-    if (options.roundCount === false) return findFraction(qty) || Number(qty.toPrecision(12)).toString();
+    if (options.roundCount === false) return findFraction(qty) || readableMeasurement(qty);
     return Math.ceil(qty).toString();
   }
   

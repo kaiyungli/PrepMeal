@@ -155,7 +155,7 @@ const FULL_BODY = {
   description: 'A quick side',
   prep_time: 5,
   cook_time: 7,
-  servings: 3,
+  servings: 1,
   image_url: 'http://example.test/a.jpg',
   calories_per_serving: 120,
   is_public: false,
@@ -253,6 +253,7 @@ describe('admin recipes API: a validation failure short-circuits before the RPC'
     ['non-array ingredients', { ...VALID_MIN_BODY, ingredients: 'nope' }, 'Invalid value for "ingredients"'],
     ['"false" string is_public', { ...VALID_MIN_BODY, is_public: 'false' }, 'Invalid value for "is_public"'],
     ['servings 0 (live CHECK)', { ...VALID_MIN_BODY, servings: 0 }, 'Invalid value for "servings"'],
+    ['multi-person original', { ...VALID_MIN_BODY, servings: 2 }, '食譜必須以1人份填寫，請先換算材料及步驟用量。'],
   ])('POST: %s -> 400 with the generic message, no RPC', async (_label, body, expected) => {
     const { rpc, res } = await runPost(body);
     expect(res.statusCode).toBe(400);

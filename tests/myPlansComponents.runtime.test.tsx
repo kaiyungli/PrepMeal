@@ -92,7 +92,7 @@ describe('PlanRecipeCard with a valid recipe (unchanged)', () => {
     expect(img?.getAttribute('src')).toBe(RECIPE_A.image_url);
     expect(img?.getAttribute('alt')).toBe('番茄炒蛋');
     expect(img?.className).toContain('w-14 h-14');
-    expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320卡→');
+    expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320 卡路里／人→');
   });
 
   it('F. Link mode without an image shows the placeholder', () => {
@@ -100,7 +100,7 @@ describe('PlanRecipeCard with a valid recipe (unchanged)', () => {
 
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('a')?.getAttribute('href')).toBe('/recipes/recipe-b');
-    expect(container.textContent).toBe('🍽️蒸豆腐午餐 · 2人份15分鐘 · 180卡→');
+    expect(container.textContent).toBe('🍽️蒸豆腐午餐 · 2人份15分鐘 · 180 卡路里／人→');
     expect(container.querySelector('.w-10.h-10')).not.toBeNull();
   });
 
@@ -111,7 +111,7 @@ describe('PlanRecipeCard with a valid recipe (unchanged)', () => {
     expect(container.querySelector('a')).toBeNull();
     const button = screen.getByRole('button');
     expect(button.className).toBe('w-full text-left cursor-pointer');
-    expect(button.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320卡→');
+    expect(button.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320 卡路里／人→');
     fireEvent.click(button);
     expect(onClick).toHaveBeenCalledTimes(1);
     fireEvent.mouseEnter(button);
@@ -139,9 +139,9 @@ describe('PlanDaySection with a missing recipe', () => {
     const dinner = bucket('晚餐');
     const cards = dinner.querySelector('.space-y-2')!.children;
     expect([...cards].map((c) => c.textContent)).toEqual([
-      '番茄炒蛋晚餐 · 2人份10分鐘 · 320卡→',
+      '番茄炒蛋晚餐 · 2人份10分鐘 · 320 卡路里／人→',
       `🍽️${UNAVAILABLE}晚餐 · 2人份`,
-      '🍽️蒸豆腐晚餐 · 2人份15分鐘 · 180卡→',
+      '🍽️蒸豆腐晚餐 · 2人份15分鐘 · 180 卡路里／人→',
     ]);
     const buttons = within(dinner).getAllByRole('button');
     expect(buttons).toHaveLength(2);
@@ -176,8 +176,8 @@ describe('PlanRecipeCard calories', () => {
   it('A. shows calories_per_serving for a saved recipe', () => {
     const { container } = render(<PlanRecipeCard item={planItem('a', 'dinner', RECIPE_A)} onClick={vi.fn()} compact />);
 
-    expect(container.textContent).toContain('10分鐘 · 320卡');
-    expect(metaLine(container)).toBe('10分鐘 · 320卡');
+    expect(container.textContent).toContain('10分鐘 · 320 卡路里／人');
+    expect(metaLine(container)).toBe('10分鐘 · 320 卡路里／人');
   });
 
   it.each([
@@ -192,7 +192,7 @@ describe('PlanRecipeCard calories', () => {
     expect(container.textContent).toContain('10分鐘');
     expect(container.textContent).not.toMatch(/undefined|null|NaN|320/);
     expect(metaLine(container)).toBe('10分鐘');
-    expect(container.textContent).not.toMatch(/卡|0卡|--/);
+    expect(container.textContent).not.toMatch(/卡|0 卡路里／人|--/);
     expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘→');
     expect(screen.getByRole('button')).toBeTruthy();
   });
@@ -206,7 +206,7 @@ describe('PlanRecipeCard calories', () => {
   });
 
   it.each([
-    ['time missing', { total_time_minutes: null }, '320卡'],
+    ['time missing', { total_time_minutes: null }, '320 卡路里／人'],
     ['time and calories missing', { total_time_minutes: undefined, calories_per_serving: null }, null],
   ])('B. %s leaves no dangling label or separator', (_label, overrides, expected) => {
     const recipe = { ...RECIPE_A, ...overrides } as unknown as typeof RECIPE_A;

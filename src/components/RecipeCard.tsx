@@ -171,17 +171,17 @@ function RecipeCard({
         </div>
       )}
       
-      <div className="flex items-center gap-3 text-xs text-[#AA7A50]">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-[#AA7A50]">
         {recipeCalories && (
           <span className="flex items-center gap-1">
             <span>🔥</span>
-            <span>{recipeCalories}卡</span>
+            <span>{recipeCalories} 卡路里／人</span>
           </span>
         )}
         {recipeProteinGrams && (
           <span className="flex items-center gap-1">
             <span>💪</span>
-            <span>{recipeProteinGrams}g蛋白</span>
+            <span>{recipeProteinGrams}g 蛋白質／人</span>
           </span>
         )}
         {recipeDiet.length > 0 && !recipeProteinGrams && (

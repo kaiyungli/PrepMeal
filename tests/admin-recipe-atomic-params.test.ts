@@ -64,7 +64,7 @@ const FULL = {
   difficulty: 'easy',
   prep_time: 5,
   cook_time: 7,
-  servings: 3,
+  servings: 1,
   image_url: 'http://example.test/a.jpg',
   calories_per_serving: 120,
   is_public: false,
@@ -255,7 +255,7 @@ describe('adminRecipeAtomicParams: integer fields (prep_time, cook_time, serving
     ['integer number', { prep_time: 12 }, 'p_prep_time_minutes', 12],
     ['integer string', { prep_time: '12' }, 'p_prep_time_minutes', 12],
     ['integer-valued decimal string', { cook_time: '20.0' }, 'p_cook_time_minutes', 20],
-    ['servings integer string', { servings: '4' }, 'p_base_servings', 4],
+    ['servings integer string', { servings: '1.0' }, 'p_base_servings', 1],
     ['servings 1 (CHECK boundary)', { servings: 1 }, 'p_base_servings', 1],
     ['prep_time 0 (defensive min)', { prep_time: 0 }, 'p_prep_time_minutes', 0],
     ['calories integer', { calories_per_serving: 450 }, 'p_calories_per_serving', 450],
@@ -286,6 +286,18 @@ describe('adminRecipeAtomicParams: integer fields (prep_time, cook_time, serving
     ['servings -2 (< live CHECK)', { servings: -2 }, 'servings'],
   ])('invalid %s -> 400 for that field', (_label, patch, field) => {
     expect(err({ ...REQUIRED_MIN, ...patch })).toBe(`Invalid value for "${field}"`);
+  });
+});
+
+describe('one-person recipe boundary', () => {
+  it.each([2, 3, 4, 5, 6, '2'])('rejects a multi-person original (%s) without changing amounts', servings => {
+    const body = { ...REQUIRED_MIN, servings, ingredients: [{ quantity: 500 }] };
+    const before = JSON.stringify(body);
+    expect(buildRecipeAtomicParams(body)).toEqual({ error: '食譜必須以1人份填寫，請先換算材料及步驟用量。' });
+    expect(JSON.stringify(body)).toBe(before);
+  });
+  it('rejects a conflicting database-field alias', () => {
+    expect(buildRecipeAtomicParams({ ...REQUIRED_MIN, servings: 1, base_servings: 2 })).toEqual({ error: 'Invalid value for "base_servings"' });
   });
 });
 
@@ -374,7 +386,7 @@ describe('adminRecipeAtomicParams: output shape (serialization safety)', () => {
       p_difficulty: 'easy',
       p_prep_time_minutes: 5,
       p_cook_time_minutes: 7,
-      p_base_servings: 3,
+      p_base_servings: 1,
       p_image_url: 'http://example.test/a.jpg',
       p_calories_per_serving: 120,
       p_is_public: false,

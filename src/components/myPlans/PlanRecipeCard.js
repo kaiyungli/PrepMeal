@@ -56,7 +56,7 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
   const hasValue = (value) => value !== null && value !== undefined && value !== '';
   const recipeMeta = [
     hasValue(recipe.total_time_minutes) && `${recipe.total_time_minutes}分鐘`,
-    hasValue(recipe.calories_per_serving) && `${recipe.calories_per_serving}卡`,
+    hasValue(recipe.calories_per_serving) && `${recipe.calories_per_serving} 卡路里／人`,
   ].filter(Boolean).join(' · ');
 
   const cardContent = (

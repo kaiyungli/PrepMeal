@@ -469,6 +469,20 @@ describe('admin recipes import API: bounded concurrency and stable ordering', ()
 });
 
 describe('admin recipes import API: mixed success/failure batch', () => {
+  it('rejects a multi-person recipe before its RPC while importing a one-person recipe', async () => {
+    const mock = mockSupabase({ ingredients: [{ id: 'ing-1', slug: 'broccoli' }], units: [{ id: 'unit-1', code: 'piece' }] });
+    const handler = await loadHandler();
+    const res = makeRes();
+    await handler(makeReq({ headers: { cookie: validAdminCookie() }, body: envelope([
+      validRecipe('multi', { servings: 4 }), validRecipe('single', { servings: 1 }),
+    ]) }), res);
+    const body = res.body as { success: number; failed: number; results: Array<{ success: boolean; error?: string }> };
+    expect(body.success).toBe(1);
+    expect(body.failed).toBe(1);
+    expect(body.results[0].error).toContain('1人份');
+    expect(mock.rpc).toHaveBeenCalledTimes(1);
+    expect(mock.rpc.mock.calls[0][1]).toMatchObject({ p_slug: 'single', p_base_servings: 1 });
+  });
   it('a validation failure (unknown reference) and an RPC failure coexist with successes, preserving order', async () => {
     const mock = mockSupabase({
       ingredients: [{ id: 'ing-1', slug: 'broccoli' }],
