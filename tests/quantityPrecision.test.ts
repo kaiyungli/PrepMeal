@@ -8,6 +8,14 @@ it.each([[0.125, 'pc', '1/8'], [0.25, 'pc', '1/4'], [0.5, 'egg', '1/2'], [1.5, '
 import { formatQuantityDisplay } from '@/features/shopping-list/types';
 
 describe('measured ingredient amounts retain their actual quantity', () => {
+  it.each([
+    [166.666667, 'g', '約166.7'], [0.666667, '克', '約0.67'],
+    [33.333333, 'ml', '約33.3'], [0.033333, 'g', '約0.033'],
+    [0.00001, 'g', '0.00001'], [0.15, 'g', '0.15'],
+    [0.333333, 'tsp', '1/3'], [0.666667, 'pc', '2/3'],
+  ])('shows readable one-person amount %s %s without altering its input', (quantity, unit, expected) => {
+    expect(formatQuantityForDisplay(quantity as number, unit as string, { roundCount: false })).toBe(expected);
+  });
   it.each(['cup', 'cups', '杯'])('keeps a quarter %s instead of rounding it to a full cup', unit => {
     expect(formatQuantityForDisplay(0.25, unit)).toBe('1/4');
   });

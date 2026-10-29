@@ -319,7 +319,7 @@ describe('round trip: export -> resolve -> buildRecipeAtomicParams', () => {
       difficulty: 'easy',
       prep_time_minutes: 5,
       cook_time_minutes: 7,
-      base_servings: 3,
+      base_servings: 1,
       image_url: 'http://example.test/a.jpg',
       calories_per_serving: 120,
       is_public: false,

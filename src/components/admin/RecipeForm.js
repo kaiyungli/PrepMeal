@@ -20,7 +20,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
 
   const [form, setForm] = useState({
     name: '', slug: '', description: '', cuisine: 'chinese', dish_type: 'main', difficulty: 'easy',
-    prep_time: 15, cook_time: 20, servings: 2, image_url: '', calories_per_serving: '', is_public: true,
+    prep_time: 15, cook_time: 20, servings: 1, image_url: '', calories_per_serving: '', is_public: true,
     method: 'stir_fry', speed: 'normal',
     servings_unit: 'portion', meal_role: '', is_complete_meal: false, primary_protein: '', budget_level: '', reuse_group: '',
     ingredients: [], steps: [],
@@ -126,7 +126,7 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
         ...recipe,
         prep_time: recipe.prep_time_minutes || recipe.prep_time || 15,
         cook_time: recipe.cook_time_minutes || recipe.cook_time || 20,
-        servings: recipe.base_servings || recipe.servings || 2,
+        servings: recipe.base_servings || recipe.servings || 1,
         method: recipe.method || 'stir_fry',
         speed: recipe.speed || 'normal',
         servings_unit: recipe.servings_unit || 'portion',
@@ -273,11 +273,12 @@ export default function RecipeForm({ recipe, existingRecipes = [], onSave, onCan
             <input type="number" value={form.cook_time} onChange={e => handleChange('cook_time', parseInt(e.target.value) || 0)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#AA7A50] mb-1">份量</label>
-            <input type="number" value={form.servings} onChange={e => handleChange('servings', parseInt(e.target.value) || 1)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" />
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1" htmlFor="recipe-base-servings">食譜原方（人份）</label>
+            <input id="recipe-base-servings" type="number" value={form.servings} readOnly className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" />
+            <p className="text-xs text-[#AA7A50] mt-1">材料及營養固定以1人份填寫。</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#AA7A50] mb-1">熱量/份</label>
+            <label className="block text-sm font-medium text-[#AA7A50] mb-1">每人份熱量（卡路里）</label>
             <input type="number" value={form.calories_per_serving || ''} onChange={e => handleChange('calories_per_serving', e.target.value)} className="w-full px-3 py-2 border border-[#DDD0B0] rounded-lg text-[#3A2010]" placeholder="可選" />
           </div>
         </div>

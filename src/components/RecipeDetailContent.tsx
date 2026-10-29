@@ -164,7 +164,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                 <div className="rounded-lg px-4 py-2 flex items-center gap-1" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                   <Flame className="w-4 h-4 text-white" />
                   <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
-                    {recipe.calories_per_serving} 卡
+                    {recipe.calories_per_serving} 卡路里／人
                   </span>
                 </div>
               )}

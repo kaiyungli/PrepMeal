@@ -1,0 +1,5978 @@
+{
+  "date": "2026-10-29",
+  "status": "NUTRITION_VERIFIED_REFERENCE_LEDGER_COMPLETED",
+  "scope": "Arithmetic checks of existing recipe references and assumptions for displayed kcal, protein, carbohydrate and fat. Not new laboratory validation, not sodium verification or a fresh verification of all external source labels.",
+  "catalogue": 290,
+  "one_person": 290,
+  "arithmetic_pass": 290,
+  "selected_model": "189 component ledgers, 75 profile ledgers (documented upper retention/label-bound scenarios where used), 25 one-person reference ledgers, one explicit chicken-wing input model.",
+  "checks": [
+    {
+      "id": "00049f07-c924-4c47-9a48-ff373b6c445b",
+      "name": "粟米斑塊",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 439.196,
+        "protein_g": 35.93933333333334,
+        "carbs_g": 21.295526666666667,
+        "fat_g": 25.38905333333333
+      },
+      "published": {
+        "kcal": 439,
+        "protein_g": 35.9,
+        "carbs_g": 21.3,
+        "fat_g": 25.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0084b56c-e61d-46fb-9e5d-5482b3ca56e6",
+      "name": "白灼蝦",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 164.2,
+        "protein_g": 36.54500000000001,
+        "carbs_g": 2.511,
+        "fat_g": 1.012
+      },
+      "published": {
+        "kcal": 164,
+        "protein_g": 36.5,
+        "carbs_g": 2.5,
+        "fat_g": 1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "00aab1ac-1d4d-4434-8132-8787c4672d44",
+      "name": "日式壽喜燒牛肉飯（簡易版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 737.1949999999999,
+        "protein_g": 35.360855,
+        "carbs_g": 110.30732,
+        "fat_g": 13.736219999999998
+      },
+      "published": {
+        "kcal": 737,
+        "protein_g": 35.4,
+        "carbs_g": 110.3,
+        "fat_g": 13.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "00cb4a29-ed39-4f18-9df6-e8ce2fb32dfd",
+      "name": "青咖哩雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 676.3340000000001,
+        "protein_g": 39.980799999999995,
+        "carbs_g": 19.354360000000003,
+        "fat_g": 51.2718
+      },
+      "published": {
+        "kcal": 676,
+        "protein_g": 40,
+        "carbs_g": 19.4,
+        "fat_g": 51.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0285dc52-d7f1-4b68-9332-b433130df09e",
+      "name": "雞胸豆腐蛋餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 308.14,
+        "protein_g": 33.3356,
+        "carbs_g": 8.686200000000001,
+        "fat_g": 15.524000000000001
+      },
+      "published": {
+        "kcal": 308,
+        "protein_g": 33.3,
+        "carbs_g": 8.7,
+        "fat_g": 15.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "03e3a194-18bc-41f3-bd5a-828e14114f09",
+      "name": "番茄蛋花湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 133.86,
+        "protein_g": 7.6000000000000005,
+        "carbs_g": 6.195,
+        "fat_g": 9.055
+      },
+      "published": {
+        "kcal": 134,
+        "protein_g": 7.6,
+        "carbs_g": 6.2,
+        "fat_g": 9.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0402a93c-c480-44aa-a328-aa26cb798d7f",
+      "name": "清炒節瓜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 85.38,
+        "protein_g": 1.1016,
+        "carbs_g": 7.3836,
+        "fat_g": 6.390000000000001
+      },
+      "published": {
+        "kcal": 85,
+        "protein_g": 1.1,
+        "carbs_g": 7.4,
+        "fat_g": 6.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0472b240-170b-4334-9d74-afb67a570ba2",
+      "name": "滑蛋牛肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 372.94899999999996,
+        "protein_g": 40.056353333333334,
+        "carbs_g": 8.085156666666666,
+        "fat_g": 18.987543333333335
+      },
+      "published": {
+        "kcal": 373,
+        "protein_g": 40.1,
+        "carbs_g": 8.1,
+        "fat_g": 19
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "047b77a1-6e33-44c0-8a74-c773b2463412",
+      "name": "豆角炒肉碎",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 317.047,
+        "protein_g": 18.5398,
+        "carbs_g": 14.98958,
+        "fat_g": 21.389
+      },
+      "published": {
+        "kcal": 317,
+        "protein_g": 18.5,
+        "carbs_g": 15,
+        "fat_g": 21.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "054d6c0a-3c09-4f83-8efe-b3292db846c8",
+      "name": "雞胸沙律",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 334.64825,
+        "protein_g": 31.296992499999998,
+        "carbs_g": 11.5392125,
+        "fat_g": 18.344994999999997
+      },
+      "published": {
+        "kcal": 335,
+        "protein_g": 31.3,
+        "carbs_g": 11.5,
+        "fat_g": 18.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "05c72cc2-74c5-45af-87b2-6fb8c999581b",
+      "name": "韓式豬肉豆腐小煎餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 560.1920000000001,
+        "protein_g": 35.238679999999995,
+        "carbs_g": 14.627750000000002,
+        "fat_g": 40.48752
+      },
+      "published": {
+        "kcal": 560,
+        "protein_g": 35.2,
+        "carbs_g": 14.6,
+        "fat_g": 40.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "060b93b5-2fa9-449a-8c7d-724ef1daddb8",
+      "name": "豆豉鯪魚炒油麥菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 236.67666666666665,
+        "protein_g": 20.43893333333333,
+        "carbs_g": 8.076733333333333,
+        "fat_g": 14.5354
+      },
+      "published": {
+        "kcal": 237,
+        "protein_g": 20.4,
+        "carbs_g": 8.1,
+        "fat_g": 14.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "063799e5-790a-4a53-93bd-39775b3fcd00",
+      "name": "日式味噌田樂茄子",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 188.8615,
+        "protein_g": 5.0062999999999995,
+        "carbs_g": 27.3379,
+        "fat_g": 6.511449999999999
+      },
+      "published": {
+        "kcal": 189,
+        "protein_g": 5,
+        "carbs_g": 27.3,
+        "fat_g": 6.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0679c8a0-b244-4426-967c-e61fb25fa6bd",
+      "name": "蒜香牛肉粒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 284.49649999999997,
+        "protein_g": 33.911885,
+        "carbs_g": 3.7168249999999996,
+        "fat_g": 14.313490000000002
+      },
+      "published": {
+        "kcal": 284,
+        "protein_g": 33.9,
+        "carbs_g": 3.7,
+        "fat_g": 14.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "07ae992e-ee0a-4002-b7b9-a8ec848d13da",
+      "name": "南瓜鮮菇雞絲飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 603.09,
+        "protein_g": 33.1882,
+        "carbs_g": 92.27579999999999,
+        "fat_g": 10.1493
+      },
+      "published": {
+        "kcal": 603,
+        "protein_g": 33.2,
+        "carbs_g": 92.3,
+        "fat_g": 10.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "083e9e5b-824b-4f63-acd9-7ac2fcdba8e2",
+      "name": "照燒雞粒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 252.86325,
+        "protein_g": 27.916742499999998,
+        "carbs_g": 8.5042125,
+        "fat_g": 11.266245
+      },
+      "published": {
+        "kcal": 253,
+        "protein_g": 27.9,
+        "carbs_g": 8.5,
+        "fat_g": 11.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0aeb44cd-f33f-4b3a-bc87-8a7581c026a6",
+      "name": "青椒牛肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 252.77666666666664,
+        "protein_g": 28.0962,
+        "carbs_g": 7.830666666666667,
+        "fat_g": 11.858066666666666
+      },
+      "published": {
+        "kcal": 253,
+        "protein_g": 28.1,
+        "carbs_g": 7.8,
+        "fat_g": 11.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0b80929f-a8de-40cb-a7d0-135db34344a7",
+      "name": "蠔油青椒芽菜炒豬肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 198.371,
+        "protein_g": 19.53729,
+        "carbs_g": 9.27495,
+        "fat_g": 9.96496
+      },
+      "published": {
+        "kcal": 198,
+        "protein_g": 19.5,
+        "carbs_g": 9.3,
+        "fat_g": 10
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0c392024-c491-45d9-bac5-393f9095f160",
+      "name": "青椒炒雞丁（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 225.10366666666667,
+        "protein_g": 28.25353333333333,
+        "carbs_g": 9.404213333333335,
+        "fat_g": 7.790900000000001
+      },
+      "published": {
+        "kcal": 225,
+        "protein_g": 28.3,
+        "carbs_g": 9.4,
+        "fat_g": 7.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0ce59d40-dca2-4637-94a6-e482978c9228",
+      "name": "黑椒牛柳粒配薯蓉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 498.10599999999994,
+        "protein_g": 36.472939999999994,
+        "carbs_g": 36.3521,
+        "fat_g": 23.17936
+      },
+      "published": {
+        "kcal": 498,
+        "protein_g": 36.5,
+        "carbs_g": 36.4,
+        "fat_g": 23.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0d2911ac-2887-4ec8-a682-c8fa5d2a33f6",
+      "name": "番茄薯仔肉碎",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 379.557,
+        "protein_g": 20.368199999999998,
+        "carbs_g": 36.691179999999996,
+        "fat_g": 17.861200000000004
+      },
+      "published": {
+        "kcal": 380,
+        "protein_g": 20.4,
+        "carbs_g": 36.7,
+        "fat_g": 17.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0dde3fb7-ae93-4abe-a2da-8553582c0ec1",
+      "name": "青醬雜菜意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 639.0232499999998,
+        "protein_g": 21.6777425,
+        "carbs_g": 85.91971249999999,
+        "fat_g": 23.218745
+      },
+      "published": {
+        "kcal": 639,
+        "protein_g": 21.7,
+        "carbs_g": 85.9,
+        "fat_g": 23.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "0ebe6067-44f1-4d26-9c59-6fa9375269d9",
+      "name": "焗雜菜千層茄子",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 419.82325000000003,
+        "protein_g": 19.1903425,
+        "carbs_g": 31.8933125,
+        "fat_g": 26.094745
+      },
+      "published": {
+        "kcal": 420,
+        "protein_g": 19.2,
+        "carbs_g": 31.9,
+        "fat_g": 26.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1007e867-9dc6-44ab-868e-46b297f4710b",
+      "name": "蒜蓉西蘭花",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 109.92,
+        "protein_g": 5.457599999999999,
+        "carbs_g": 13.9356,
+        "fat_g": 5.196
+      },
+      "published": {
+        "kcal": 110,
+        "protein_g": 5.5,
+        "carbs_g": 13.9,
+        "fat_g": 5.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "10fdbf67-c387-49b9-8b48-ee775454eff5",
+      "name": "韓式泡菜滑蛋豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 221.189,
+        "protein_g": 18.549419999999998,
+        "carbs_g": 6.20129,
+        "fat_g": 14.73921
+      },
+      "published": {
+        "kcal": 221,
+        "protein_g": 18.5,
+        "carbs_g": 6.2,
+        "fat_g": 14.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "113306c5-0ff0-4bc1-b363-e55487851d48",
+      "name": "蜜糖芥末雞柳",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 400.07550000000003,
+        "protein_g": 42.0447,
+        "carbs_g": 20.072875000000003,
+        "fat_g": 16.337625
+      },
+      "published": {
+        "kcal": 400,
+        "protein_g": 42,
+        "carbs_g": 20.1,
+        "fat_g": 16.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "116a305a-d4ad-48a8-8862-a5a467d0b914",
+      "name": "番茄魚片湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 141,
+        "protein_g": 19.611,
+        "carbs_g": 9.2235,
+        "fat_g": 3.9375
+      },
+      "published": {
+        "kcal": 141,
+        "protein_g": 19.6,
+        "carbs_g": 9.2,
+        "fat_g": 3.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "13a6c777-fce5-4f8a-93d0-1dca46eb9caa",
+      "name": "蒜蓉娃娃菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 108.24000000000001,
+        "protein_g": 2.4288,
+        "carbs_g": 7.812799999999999,
+        "fat_g": 8.36
+      },
+      "published": {
+        "kcal": 108,
+        "protein_g": 2.4,
+        "carbs_g": 7.8,
+        "fat_g": 8.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "140cc939-2017-4c31-a833-0341300fa3b7",
+      "name": "泰式蒜香魚露炒椰菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 114.60499999999999,
+        "protein_g": 3.3211000000000004,
+        "carbs_g": 13.8566,
+        "fat_g": 6.2307500000000005
+      },
+      "published": {
+        "kcal": 115,
+        "protein_g": 3.3,
+        "carbs_g": 13.9,
+        "fat_g": 6.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "147d483b-7b07-4f47-8fa8-5312423a27da",
+      "name": "蜜糖雞翼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 250.37,
+        "protein_g": 11.396199999999999,
+        "carbs_g": 19.4446,
+        "fat_g": 14.8062
+      },
+      "published": {
+        "kcal": 250,
+        "protein_g": 11.4,
+        "carbs_g": 19.4,
+        "fat_g": 14.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "14da0f5a-7fbc-4f76-b887-f1885dae3cd7",
+      "name": "焗芝士肉醬千層茄子",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 500.80300000000005,
+        "protein_g": 30.65157,
+        "carbs_g": 27.648650000000004,
+        "fat_g": 31.12098
+      },
+      "published": {
+        "kcal": 501,
+        "protein_g": 30.7,
+        "carbs_g": 27.6,
+        "fat_g": 31.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "173c40bd-9160-4f28-a0bd-fce17bdb1058",
+      "name": "白蘿蔔牛肉湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 150.70000000000002,
+        "protein_g": 21.232,
+        "carbs_g": 6.8285,
+        "fat_g": 3.8895
+      },
+      "published": {
+        "kcal": 151,
+        "protein_g": 21.2,
+        "carbs_g": 6.8,
+        "fat_g": 3.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "17e8f091-aba8-4375-9327-64e0d82a3f99",
+      "name": "泰式菠蘿炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 521.5799999999999,
+        "protein_g": 34.4788,
+        "carbs_g": 65.8492,
+        "fat_g": 12.338799999999997
+      },
+      "published": {
+        "kcal": 522,
+        "protein_g": 34.5,
+        "carbs_g": 65.8,
+        "fat_g": 12.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "193c3b41-c1c3-4a26-a069-3285cfbe11a9",
+      "name": "照燒豆腐丼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 431.64,
+        "protein_g": 18.347999999999995,
+        "carbs_g": 65.457,
+        "fat_g": 11.187
+      },
+      "published": {
+        "kcal": 432,
+        "protein_g": 18.3,
+        "carbs_g": 65.5,
+        "fat_g": 11.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "19ccf93b-df76-400a-b8a5-9fc4f9ccd25e",
+      "name": "清炒芥蘭",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 114.64,
+        "protein_g": 3.2288,
+        "carbs_g": 7.7648,
+        "fat_g": 8.52
+      },
+      "published": {
+        "kcal": 115,
+        "protein_g": 3.2,
+        "carbs_g": 7.8,
+        "fat_g": 8.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1ab360fe-b0de-4652-aada-c4fbcb13077b",
+      "name": "椰奶咖喱蝦仁",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 540.645,
+        "protein_g": 44.160500000000006,
+        "carbs_g": 13.962650000000002,
+        "fat_g": 36.86925
+      },
+      "published": {
+        "kcal": 541,
+        "protein_g": 44.2,
+        "carbs_g": 14,
+        "fat_g": 36.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1b704d61-0ed8-4944-9588-07f0eccf8dfb",
+      "name": "蝦仁炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 423.26,
+        "protein_g": 38.94,
+        "carbs_g": 1.08,
+        "fat_g": 28.775
+      },
+      "published": {
+        "kcal": 423,
+        "protein_g": 38.9,
+        "carbs_g": 1.1,
+        "fat_g": 28.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1ca7b32b-2375-4436-9b26-59db03a06801",
+      "name": "西班牙蒜香菠菜炒鷹嘴豆",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 535.4816250000001,
+        "protein_g": 17.58308125,
+        "carbs_g": 50.52924125,
+        "fat_g": 31.328707500000004
+      },
+      "published": {
+        "kcal": 536,
+        "protein_g": 17.6,
+        "carbs_g": 50.5,
+        "fat_g": 31.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1d8364f5-5068-4bfc-992b-81abbfe7810a",
+      "name": "蒜蓉粉絲蒸帶子（簡易版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 244.58299365,
+        "protein_g": 9.287833335099998,
+        "carbs_g": 43.3333832743,
+        "fat_g": 3.7345159917000004
+      },
+      "published": {
+        "kcal": 245,
+        "protein_g": 9.3,
+        "carbs_g": 43.3,
+        "fat_g": 3.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1dca6ca8-fefb-4f10-a615-0eb92c222139",
+      "name": "香煎鯛魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 278.22325,
+        "protein_g": 31.5597425,
+        "carbs_g": 1.1177125,
+        "fat_g": 15.918745000000001
+      },
+      "published": {
+        "kcal": 278,
+        "protein_g": 31.6,
+        "carbs_g": 1.1,
+        "fat_g": 15.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "1f18bcb4-3f67-4db7-b7be-2e56501952e4",
+      "name": "蒸肉餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 313.1066666666666,
+        "protein_g": 25.6236,
+        "carbs_g": 2.0958666666666663,
+        "fat_g": 22.431066666666666
+      },
+      "published": {
+        "kcal": 313,
+        "protein_g": 25.6,
+        "carbs_g": 2.1,
+        "fat_g": 22.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "201affc0-a59d-4012-9656-346d4a1d5fff",
+      "name": "蒜蓉生菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 73.92,
+        "protein_g": 2.0016000000000003,
+        "carbs_g": 7.3296,
+        "fat_g": 4.782
+      },
+      "published": {
+        "kcal": 74,
+        "protein_g": 2,
+        "carbs_g": 7.3,
+        "fat_g": 4.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "20af1f29-2caf-406e-9869-6647ea75eb40",
+      "name": "番茄薯仔紅蘿蔔肉碎湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 212.50000112000004,
+        "protein_g": 13.955000069899997,
+        "carbs_g": 15.4950000917,
+        "fat_g": 10.8666667211
+      },
+      "published": {
+        "kcal": 212,
+        "protein_g": 14,
+        "carbs_g": 15.5,
+        "fat_g": 10.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2144aa30-8efd-4f60-8228-cff67b5556b6",
+      "name": "豉油皇炒芽菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 113.98599999999999,
+        "protein_g": 6.368720000000001,
+        "carbs_g": 15.14567,
+        "fat_g": 4.89771
+      },
+      "published": {
+        "kcal": 114,
+        "protein_g": 6.4,
+        "carbs_g": 15.1,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2182c221-84d0-408d-af8d-370e977c03de",
+      "name": "涼瓜煎蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 285.536,
+        "protein_g": 13.6224,
+        "carbs_g": 4.83166,
+        "fat_g": 23.69272
+      },
+      "published": {
+        "kcal": 286,
+        "protein_g": 13.6,
+        "carbs_g": 4.8,
+        "fat_g": 23.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "221c4285-a059-4efe-b606-1604101236e2",
+      "name": "豉汁蒸魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 261.25,
+        "protein_g": 36.9125,
+        "carbs_g": 12.604,
+        "fat_g": 8.358500000000001
+      },
+      "published": {
+        "kcal": 261,
+        "protein_g": 36.9,
+        "carbs_g": 12.6,
+        "fat_g": 8.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "24103b87-1d26-4d15-a0be-873823ff7081",
+      "name": "日式白菜豬肉千層鍋",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 991.57525,
+        "protein_g": 23.723770000000005,
+        "carbs_g": 20.174222500000003,
+        "fat_g": 91.13928750000001
+      },
+      "published": {
+        "kcal": 992,
+        "protein_g": 23.7,
+        "carbs_g": 20.2,
+        "fat_g": 91.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "24a17129-1fb6-4168-9f0a-4239b45a1dcb",
+      "name": "麻婆豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 346.90600000000006,
+        "protein_g": 28.28015333333333,
+        "carbs_g": 13.686536666666667,
+        "fat_g": 21.336543333333335
+      },
+      "published": {
+        "kcal": 347,
+        "protein_g": 28.3,
+        "carbs_g": 13.7,
+        "fat_g": 21.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "251e1d9d-0ab1-4ce9-beaa-aaaf2a024e4a",
+      "name": "生炒骨",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 727.7400000000001,
+        "protein_g": 22.01422,
+        "carbs_g": 34.454969999999996,
+        "fat_g": 55.60431
+      },
+      "published": {
+        "kcal": 728,
+        "protein_g": 22,
+        "carbs_g": 34.5,
+        "fat_g": 55.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "26321be2-7fa8-47cf-9fcb-4a865bfbe7f3",
+      "name": "吞拿魚粟米牛油電飯煲飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 342.00175,
+        "protein_g": 9.694169999999998,
+        "carbs_g": 60.9362375,
+        "fat_g": 5.8127425
+      },
+      "published": {
+        "kcal": 342,
+        "protein_g": 9.7,
+        "carbs_g": 60.9,
+        "fat_g": 5.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "26e8f9ed-c5d9-4b24-930e-fc6045a11f5b",
+      "name": "鹹魚蒸肉餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 401.58600000000007,
+        "protein_g": 30.033353333333327,
+        "carbs_g": 5.499736666666666,
+        "fat_g": 28.831543333333336
+      },
+      "published": {
+        "kcal": 402,
+        "protein_g": 30,
+        "carbs_g": 5.5,
+        "fat_g": 28.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "27e0797a-77f1-4687-91ba-9221cf8b3b8f",
+      "name": "肉碎蒸蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 340.099,
+        "protein_g": 27.383419999999997,
+        "carbs_g": 1.33329,
+        "fat_g": 24.590210000000003
+      },
+      "published": {
+        "kcal": 340,
+        "protein_g": 27.4,
+        "carbs_g": 1.3,
+        "fat_g": 24.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "28cf0aee-c708-481c-8533-7b03ae9d0fb4",
+      "name": "泰式檸檬蒸魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 193.12,
+        "protein_g": 28.86509,
+        "carbs_g": 10.50767,
+        "fat_g": 5.483280000000001
+      },
+      "published": {
+        "kcal": 193,
+        "protein_g": 28.9,
+        "carbs_g": 10.5,
+        "fat_g": 5.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "29f64d43-dd17-4428-8708-445c8ecf6cd3",
+      "name": "日式親子丼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 585.86,
+        "protein_g": 45.008,
+        "carbs_g": 67.506,
+        "fat_g": 13.145999999999999
+      },
+      "published": {
+        "kcal": 586,
+        "protein_g": 45,
+        "carbs_g": 67.5,
+        "fat_g": 13.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2aaec965-feb8-4b14-a62a-5633ab8ceb19",
+      "name": "清炒椰菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 93.72,
+        "protein_g": 2.6856000000000004,
+        "carbs_g": 12.4236,
+        "fat_g": 4.71
+      },
+      "published": {
+        "kcal": 94,
+        "protein_g": 2.7,
+        "carbs_g": 12.4,
+        "fat_g": 4.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2eeddb92-86ee-4ab3-9d85-89eb57989e01",
+      "name": "煙肉粟米薯仔牛奶湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 140.02000085,
+        "protein_g": 5.1087000282,
+        "carbs_g": 20.7534999257,
+        "fat_g": 4.8136667793
+      },
+      "published": {
+        "kcal": 140,
+        "protein_g": 5.1,
+        "carbs_g": 20.8,
+        "fat_g": 4.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2efb4c55-8fd2-466a-9135-eadd27af16b7",
+      "name": "蒜香炆茄子",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 136.32666666666665,
+        "protein_g": 2.5797333333333334,
+        "carbs_g": 12.830533333333335,
+        "fat_g": 9.3844
+      },
+      "published": {
+        "kcal": 136,
+        "protein_g": 2.6,
+        "carbs_g": 12.8,
+        "fat_g": 9.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2f8f2164-7cc7-40a7-b557-d6ea455dfa15",
+      "name": "日式冷蕎麥麵",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 370.28,
+        "protein_g": 16.431250000000002,
+        "carbs_g": 81.6135,
+        "fat_g": 0.76125
+      },
+      "published": {
+        "kcal": 370,
+        "protein_g": 16.4,
+        "carbs_g": 81.6,
+        "fat_g": 0.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "2ff3f98b-58c0-46bf-8ff5-141d3addca04",
+      "name": "蜜糖蒜香煎豬扒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 282.7275,
+        "protein_g": 20.9610375,
+        "carbs_g": 14.067175,
+        "fat_g": 15.799075
+      },
+      "published": {
+        "kcal": 283,
+        "protein_g": 21,
+        "carbs_g": 14.1,
+        "fat_g": 15.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "30aaa4c4-48d3-4e2b-8d43-82e48087965b",
+      "name": "上湯娃娃菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 97.05000000000001,
+        "protein_g": 5.3508,
+        "carbs_g": 8.6058,
+        "fat_g": 5.775
+      },
+      "published": {
+        "kcal": 97,
+        "protein_g": 5.4,
+        "carbs_g": 8.6,
+        "fat_g": 5.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "32d07a6d-ef89-4b13-9f27-ea073b836f77",
+      "name": "番茄肉醬意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 708.1229999999999,
+        "protein_g": 34.40337,
+        "carbs_g": 85.82045000000001,
+        "fat_g": 25.33098
+      },
+      "published": {
+        "kcal": 708,
+        "protein_g": 34.4,
+        "carbs_g": 85.8,
+        "fat_g": 25.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "33ce56c8-d05c-49a9-b8e2-eb6499bcbdd8",
+      "name": "韓式家常雜菜粉絲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 371.3710279999999,
+        "protein_g": 3.9590790000000005,
+        "carbs_g": 61.88178399999999,
+        "fat_g": 13.099283999999999
+      },
+      "published": {
+        "kcal": 371,
+        "protein_g": 4,
+        "carbs_g": 61.9,
+        "fat_g": 13.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "34e01988-7217-4251-b6ad-167648188e66",
+      "name": "蠔油冬菇",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 85.17,
+        "protein_g": 2.8095000000000003,
+        "carbs_g": 9.130799999999999,
+        "fat_g": 5.1105
+      },
+      "published": {
+        "kcal": 85,
+        "protein_g": 2.8,
+        "carbs_g": 9.1,
+        "fat_g": 5.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "34eabb40-e270-4f05-b2d1-2a045f4cd948",
+      "name": "蒜蓉金針菇",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 144.3,
+        "protein_g": 5.1144,
+        "carbs_g": 15.3168,
+        "fat_g": 8.5192
+      },
+      "published": {
+        "kcal": 144,
+        "protein_g": 5.1,
+        "carbs_g": 15.3,
+        "fat_g": 8.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "356789a4-fb3a-415a-b0d0-43c123f6e4c0",
+      "name": "咕嚕肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 694.697,
+        "protein_g": 32.479800000000004,
+        "carbs_g": 47.65768,
+        "fat_g": 41.758500000000005
+      },
+      "published": {
+        "kcal": 695,
+        "protein_g": 32.5,
+        "carbs_g": 47.7,
+        "fat_g": 41.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3698b763-2da4-4413-a25b-39b3fbc1a3d9",
+      "name": "蒜香牛油蝦意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 595.2429999999999,
+        "protein_g": 36.78637,
+        "carbs_g": 71.65765,
+        "fat_g": 17.946379999999998
+      },
+      "published": {
+        "kcal": 595,
+        "protein_g": 36.8,
+        "carbs_g": 71.7,
+        "fat_g": 17.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "371093a9-4250-4990-8626-79b4be10dd38",
+      "name": "泡菜大蔥炒豬肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 469.84499999999997,
+        "protein_g": 8.753599999999999,
+        "carbs_g": 7.417333333333334,
+        "fat_g": 45.294599999999996
+      },
+      "published": {
+        "kcal": 470,
+        "protein_g": 8.8,
+        "carbs_g": 7.4,
+        "fat_g": 45.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "37560d69-a723-4bb3-91b4-0ded9a53eaac",
+      "name": "粟米蛋花湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 201.5,
+        "protein_g": 10.3315,
+        "carbs_g": 22.087,
+        "fat_g": 7.7645
+      },
+      "published": {
+        "kcal": 202,
+        "protein_g": 10.3,
+        "carbs_g": 22.1,
+        "fat_g": 7.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "37e2e10f-0ab4-4b81-982d-67f7500177b2",
+      "name": "蛋炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 393.38,
+        "protein_g": 11,
+        "carbs_g": 57.82,
+        "fat_g": 12.135
+      },
+      "published": {
+        "kcal": 393,
+        "protein_g": 11,
+        "carbs_g": 57.8,
+        "fat_g": 12.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "37e9e8b3-9ec8-4236-bfb9-189ec0cc5c66",
+      "name": "冬菇肉碎炆冬瓜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 329.274,
+        "protein_g": 20.685599999999994,
+        "carbs_g": 14.410765,
+        "fat_g": 21.708680000000005
+      },
+      "published": {
+        "kcal": 329,
+        "protein_g": 20.7,
+        "carbs_g": 14.4,
+        "fat_g": 21.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3ba9d74a-4d7a-460f-bb7b-3811b72f87a1",
+      "name": "韓式泡菜煎餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 393.1585,
+        "protein_g": 5.101375,
+        "carbs_g": 29.887165,
+        "fat_g": 29.0065
+      },
+      "published": {
+        "kcal": 393,
+        "protein_g": 5.1,
+        "carbs_g": 29.9,
+        "fat_g": 29
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3cc5efb4-ec35-4db7-b6e6-f6b555d2676c",
+      "name": "日式三文魚炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 540.5070000000001,
+        "protein_g": 19.288490000000003,
+        "carbs_g": 43.922459999999994,
+        "fat_g": 31.24648
+      },
+      "published": {
+        "kcal": 541,
+        "protein_g": 19.3,
+        "carbs_g": 43.9,
+        "fat_g": 31.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3ccd1f69-85cc-4dd6-bdc4-6f3ff2de9016",
+      "name": "忌廉蘑菇豬扒（免酒簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 567.5815,
+        "protein_g": 38.946135000000005,
+        "carbs_g": 7.292225000000001,
+        "fat_g": 43.08814
+      },
+      "published": {
+        "kcal": 568,
+        "protein_g": 38.9,
+        "carbs_g": 7.3,
+        "fat_g": 43.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3e812e48-fc4e-440d-8c80-7dc58377c16c",
+      "name": "芝麻醬拌四季豆（現成醬版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 108.30688336520075,
+        "protein_g": 3.1500000000000004,
+        "carbs_g": 12.27,
+        "fat_g": 6.3
+      },
+      "published": {
+        "kcal": 108,
+        "protein_g": 3.2,
+        "carbs_g": 12.3,
+        "fat_g": 6.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3ecc09f9-949a-460e-af41-88474be6fbab",
+      "name": "蒜香檸檬吞拿魚意粉",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 438.994,
+        "protein_g": 22.35522,
+        "carbs_g": 44.35394000000001,
+        "fat_g": 18.66123
+      },
+      "published": {
+        "kcal": 439,
+        "protein_g": 22.4,
+        "carbs_g": 44.4,
+        "fat_g": 18.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "3ef3f87b-8dbb-40b5-b97d-95e23426d426",
+      "name": "豉椒炒蜆",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 209.8485,
+        "protein_g": 8.87202,
+        "carbs_g": 9.774220000000001,
+        "fat_g": 16.15946
+      },
+      "published": {
+        "kcal": 210,
+        "protein_g": 8.9,
+        "carbs_g": 9.8,
+        "fat_g": 16.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4198438f-c136-4c39-a5fc-cd2b1e850b7e",
+      "name": "韓式醬燒薯仔",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 234.32412200000005,
+        "protein_g": 4.981485,
+        "carbs_g": 43.75738999999999,
+        "fat_g": 5.135622499999999
+      },
+      "published": {
+        "kcal": 234,
+        "protein_g": 5,
+        "carbs_g": 43.8,
+        "fat_g": 5.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "42cacc97-ca27-4bbf-8f30-9b284160e223",
+      "name": "照燒三文魚",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 497.34325,
+        "protein_g": 37.8957425,
+        "carbs_g": 19.3037125,
+        "fat_g": 28.854744999999998
+      },
+      "published": {
+        "kcal": 497,
+        "protein_g": 37.9,
+        "carbs_g": 19.3,
+        "fat_g": 28.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "43383349-c72f-4752-954d-03e1e86c6eaa",
+      "name": "日式醬香生菜豬肉卷",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 556.075,
+        "protein_g": 10.5505,
+        "carbs_g": 3.1697499999999996,
+        "fat_g": 55.65275
+      },
+      "published": {
+        "kcal": 556,
+        "protein_g": 10.6,
+        "carbs_g": 3.2,
+        "fat_g": 55.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4355baeb-12b9-483b-9d61-696fcdb505ab",
+      "name": "番茄滑蛋豆腐煲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 239.73999999999998,
+        "protein_g": 18.183999999999997,
+        "carbs_g": 8.448,
+        "fat_g": 15.998999999999999
+      },
+      "published": {
+        "kcal": 240,
+        "protein_g": 18.2,
+        "carbs_g": 8.4,
+        "fat_g": 16
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "446124e6-ac8b-462d-8a3b-1ed34173379b",
+      "name": "韓式辣炒魷魚",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 400.4645,
+        "protein_g": 27.008635,
+        "carbs_g": 34.60441,
+        "fat_g": 17.15056
+      },
+      "published": {
+        "kcal": 400,
+        "protein_g": 27,
+        "carbs_g": 34.6,
+        "fat_g": 17.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "46b73cec-0c16-4479-ba99-77780d7fe299",
+      "name": "蠔油西蘭花",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 114.63,
+        "protein_g": 5.509799999999999,
+        "carbs_g": 14.9094,
+        "fat_g": 5.226
+      },
+      "published": {
+        "kcal": 115,
+        "protein_g": 5.5,
+        "carbs_g": 14.9,
+        "fat_g": 5.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4781fcff-e2a6-47ec-9ebc-9287c5b7cf0c",
+      "name": "牛油煎蝦",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 272.3765,
+        "protein_g": 36.808585,
+        "carbs_g": 2.728025,
+        "fat_g": 13.151990000000001
+      },
+      "published": {
+        "kcal": 272,
+        "protein_g": 36.8,
+        "carbs_g": 2.7,
+        "fat_g": 13.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "48416608-d870-4b65-9f3f-4349ae800f89",
+      "name": "酸辣檸檬乾煎雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 343.155625,
+        "protein_g": 44.06387125,
+        "carbs_g": 9.16451625,
+        "fat_g": 13.6813725
+      },
+      "published": {
+        "kcal": 343,
+        "protein_g": 44.1,
+        "carbs_g": 9.2,
+        "fat_g": 13.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4991fb9e-d625-4fd2-b245-b091ce8d4054",
+      "name": "腐乳通菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 193.4835,
+        "protein_g": 5.4216,
+        "carbs_g": 10.10139,
+        "fat_g": 15.497999999999998
+      },
+      "published": {
+        "kcal": 193,
+        "protein_g": 5.4,
+        "carbs_g": 10.1,
+        "fat_g": 15.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4a3c756d-a472-47b6-b0f2-0245dbbe4c70",
+      "name": "日式鹽燒鯖魚（焗爐版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 315.84999999999997,
+        "protein_g": 27.951249999999998,
+        "carbs_g": 0.7675,
+        "fat_g": 20.853
+      },
+      "published": {
+        "kcal": 316,
+        "protein_g": 28,
+        "carbs_g": 0.8,
+        "fat_g": 20.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4b437b93-e3ec-4399-8f76-de6dac058eb7",
+      "name": "海帶豆腐湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 115.19999999999999,
+        "protein_g": 11.498999999999999,
+        "carbs_g": 8.3085,
+        "fat_g": 5.121499999999999
+      },
+      "published": {
+        "kcal": 115,
+        "protein_g": 11.5,
+        "carbs_g": 8.3,
+        "fat_g": 5.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4bc7a1af-dce3-4ef5-9990-24d55a295d9c",
+      "name": "涼拌秋葵",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 117.92999999999999,
+        "protein_g": 3.9278000000000004,
+        "carbs_g": 13.552999999999999,
+        "fat_g": 6.6106
+      },
+      "published": {
+        "kcal": 118,
+        "protein_g": 3.9,
+        "carbs_g": 13.6,
+        "fat_g": 6.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4ce07cf9-9224-4764-897d-7b138aedcc3b",
+      "name": "日式醬香蘿蔔炆雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 315.43,
+        "protein_g": 31.510399999999997,
+        "carbs_g": 24.6423,
+        "fat_g": 6.3927000000000005
+      },
+      "published": {
+        "kcal": 315,
+        "protein_g": 31.5,
+        "carbs_g": 24.6,
+        "fat_g": 6.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4d591143-29c7-44a6-aa34-6a0563d76c57",
+      "name": "滑蛋蝦仁",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 284.28,
+        "protein_g": 28.7864,
+        "carbs_g": 1.3072,
+        "fat_g": 17.9332
+      },
+      "published": {
+        "kcal": 284,
+        "protein_g": 28.8,
+        "carbs_g": 1.3,
+        "fat_g": 17.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4edc9c30-d4bb-4f0a-b5e2-5cf72b4c02d7",
+      "name": "韓式辣炒雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 567.2806666666667,
+        "protein_g": 27.755733333333335,
+        "carbs_g": 24.424693333333334,
+        "fat_g": 39.035399999999996
+      },
+      "published": {
+        "kcal": 567,
+        "protein_g": 27.8,
+        "carbs_g": 24.4,
+        "fat_g": 39
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "4f78c647-2ea3-4ef2-a788-3c0773bcd603",
+      "name": "蟹柳滑蛋豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 224.92666666666665,
+        "protein_g": 22.13413333333333,
+        "carbs_g": 13.042933333333332,
+        "fat_g": 10.0654
+      },
+      "published": {
+        "kcal": 225,
+        "protein_g": 22.1,
+        "carbs_g": 13,
+        "fat_g": 10.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "50b7a0f7-2951-4fbf-aac1-c43114fb8b28",
+      "name": "雜菇豆腐菜心湯烏冬",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 430.3666666666667,
+        "protein_g": 24.350949999999997,
+        "carbs_g": 66.59665,
+        "fat_g": 10.282683333333333
+      },
+      "published": {
+        "kcal": 430,
+        "protein_g": 24.4,
+        "carbs_g": 66.6,
+        "fat_g": 10.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "51ffdd9a-22d7-43ca-8d54-96e877eee53c",
+      "name": "新加坡胡椒肉骨茶",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 570.8275000000001,
+        "protein_g": 29.771700000000003,
+        "carbs_g": 27.205575000000003,
+        "fat_g": 38.8091
+      },
+      "published": {
+        "kcal": 571,
+        "protein_g": 29.8,
+        "carbs_g": 27.2,
+        "fat_g": 38.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "52043e65-9e24-44a7-9434-dbc66ce36c02",
+      "name": "羅宋湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 415.83983333333333,
+        "protein_g": 37.343484999999994,
+        "carbs_g": 43.648425,
+        "fat_g": 11.179156666666666
+      },
+      "published": {
+        "kcal": 416,
+        "protein_g": 37.3,
+        "carbs_g": 43.6,
+        "fat_g": 11.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "52757240-8030-4ae0-b705-66e074c8b162",
+      "name": "蒜香焗三文魚配薯仔",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 531.231625,
+        "protein_g": 31.88367125,
+        "carbs_g": 27.41065625,
+        "fat_g": 32.4473725
+      },
+      "published": {
+        "kcal": 531,
+        "protein_g": 31.9,
+        "carbs_g": 27.4,
+        "fat_g": 32.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "52f80de1-87df-4e5d-9c12-184449419847",
+      "name": "涼拌番茄",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 48.653999999999996,
+        "protein_g": 1.584,
+        "carbs_g": 11.201160000000002,
+        "fat_g": 0.36
+      },
+      "published": {
+        "kcal": 49,
+        "protein_g": 1.6,
+        "carbs_g": 11.2,
+        "fat_g": 0.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "53530b41-1a27-41ec-8ead-cf87ae1aaa59",
+      "name": "日式雞肉碎三色丼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 693.006,
+        "protein_g": 37.33410000000001,
+        "carbs_g": 92.40964000000001,
+        "fat_g": 16.944499999999998
+      },
+      "published": {
+        "kcal": 693,
+        "protein_g": 37.3,
+        "carbs_g": 92.4,
+        "fat_g": 16.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "550f3386-8db4-418e-8608-c169717675b8",
+      "name": "粟米紅蘿蔔排骨湯（參考配方）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 355.2165,
+        "protein_g": 18.7785,
+        "carbs_g": 19.1085,
+        "fat_g": 22.40245
+      },
+      "published": {
+        "kcal": 355,
+        "protein_g": 18.8,
+        "carbs_g": 19.1,
+        "fat_g": 22.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "555a6ea5-b18f-4ba4-8caf-1945b0808304",
+      "name": "肉碎芽菜芙蓉煎蛋（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 253.83834041,
+        "protein_g": 10.909999993899998,
+        "carbs_g": 2.5315103088,
+        "fat_g": 22.4605873327
+      },
+      "published": {
+        "kcal": 254,
+        "protein_g": 10.9,
+        "carbs_g": 2.5,
+        "fat_g": 22.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "558fef74-be29-4855-bccb-93acc122c593",
+      "name": "肉碎粉絲煲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 449.927,
+        "protein_g": 19.8817,
+        "carbs_g": 41.08878000000001,
+        "fat_g": 22.934700000000003
+      },
+      "published": {
+        "kcal": 450,
+        "protein_g": 19.9,
+        "carbs_g": 41.1,
+        "fat_g": 22.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "559f8476-da13-4e6f-a729-7743e808c37a",
+      "name": "洋蔥炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 308.536,
+        "protein_g": 13.7224,
+        "carbs_g": 10.47166,
+        "fat_g": 23.62272
+      },
+      "published": {
+        "kcal": 309,
+        "protein_g": 13.7,
+        "carbs_g": 10.5,
+        "fat_g": 23.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "57fb6db3-8712-4af9-b365-c0ac16b9b944",
+      "name": "薑蔥炒雞片",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 365.2135,
+        "protein_g": 26.200099999999996,
+        "carbs_g": 9.333540000000001,
+        "fat_g": 24.160555000000002
+      },
+      "published": {
+        "kcal": 365,
+        "protein_g": 26.2,
+        "carbs_g": 9.3,
+        "fat_g": 24.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5a0bc693-4e74-404a-9203-7c6889470219",
+      "name": "薑蔥魚片白菜湯米粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 473.1493333333333,
+        "protein_g": 37.100783333333325,
+        "carbs_g": 67.19479333333337,
+        "fat_g": 5.706353333333333
+      },
+      "published": {
+        "kcal": 473,
+        "protein_g": 37.1,
+        "carbs_g": 67.2,
+        "fat_g": 5.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5ac57672-0c3c-4eec-8976-2f219e4c54ae",
+      "name": "希臘檸檬香草焗雞配薯仔（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 749.395,
+        "protein_g": 41.130900000000004,
+        "carbs_g": 46.01800000000001,
+        "fat_g": 44.550250000000005
+      },
+      "published": {
+        "kcal": 749,
+        "protein_g": 41.1,
+        "carbs_g": 46,
+        "fat_g": 44.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5ada5229-ef1e-4931-841b-436db62c8943",
+      "name": "肉碎豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 404.477,
+        "protein_g": 34.05313333333333,
+        "carbs_g": 13.021246666666668,
+        "fat_g": 25.762533333333334
+      },
+      "published": {
+        "kcal": 404,
+        "protein_g": 34.1,
+        "carbs_g": 13,
+        "fat_g": 25.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5b4f8238-1df2-4521-878f-bb9ed73b19fa",
+      "name": "韓式泡菜豆腐湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 111.16,
+        "protein_g": 12.094399999999998,
+        "carbs_g": 6.4072,
+        "fat_g": 5.5192
+      },
+      "published": {
+        "kcal": 111,
+        "protein_g": 12.1,
+        "carbs_g": 6.4,
+        "fat_g": 5.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5d018a6a-749a-4fa9-abf1-d8b793a0e2a1",
+      "name": "越式香茅煎豬扒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 245.24177400000002,
+        "protein_g": 32.00817687,
+        "carbs_g": 8.032891690000001,
+        "fat_g": 8.87592231
+      },
+      "published": {
+        "kcal": 245,
+        "protein_g": 32,
+        "carbs_g": 8,
+        "fat_g": 8.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5d0e5bd3-3573-4df1-8257-6b5c555feb0b",
+      "name": "京都骨",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 719.1550000000001,
+        "protein_g": 21.92582,
+        "carbs_g": 32.125969999999995,
+        "fat_g": 55.59581
+      },
+      "published": {
+        "kcal": 719,
+        "protein_g": 21.9,
+        "carbs_g": 32.1,
+        "fat_g": 55.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5d62b852-95c0-443c-a7af-9c2144428ca9",
+      "name": "蒜蓉魚滑蒸勝瓜（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 127.98100000000001,
+        "protein_g": 11.3834,
+        "carbs_g": 14.82111,
+        "fat_g": 2.5689200000000003
+      },
+      "published": {
+        "kcal": 128,
+        "protein_g": 11.4,
+        "carbs_g": 14.8,
+        "fat_g": 2.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "5f8c5b9f-a044-4919-b954-c4bcd49e12de",
+      "name": "豆豉涼瓜蒸排骨（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 345.261,
+        "protein_g": 19.3939,
+        "carbs_g": 8.862559999999998,
+        "fat_g": 25.42382
+      },
+      "published": {
+        "kcal": 345,
+        "protein_g": 19.4,
+        "carbs_g": 8.9,
+        "fat_g": 25.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "60e2dba0-1c51-45d1-96bd-66296651dec7",
+      "name": "日式薑汁燒豬肉",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 194.60699999999997,
+        "protein_g": 21.77238,
+        "carbs_g": 9.85356,
+        "fat_g": 7.03194
+      },
+      "published": {
+        "kcal": 195,
+        "protein_g": 21.8,
+        "carbs_g": 9.9,
+        "fat_g": 7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "616ed72f-1f0b-47bf-8888-dba8d79ef7b0",
+      "name": "日式牛肉薯仔煮",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 328.44350000000003,
+        "protein_g": 18.247675,
+        "carbs_g": 48.4851,
+        "fat_g": 6.17155
+      },
+      "published": {
+        "kcal": 328,
+        "protein_g": 18.2,
+        "carbs_g": 48.5,
+        "fat_g": 6.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "63a5ab23-6828-44fc-9084-22a07b2d45d6",
+      "name": "粟米魚柳飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 529.34,
+        "protein_g": 34.302933333333335,
+        "carbs_g": 75.10586666666666,
+        "fat_g": 11.707333333333334
+      },
+      "published": {
+        "kcal": 529,
+        "protein_g": 34.3,
+        "carbs_g": 75.1,
+        "fat_g": 11.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "64191215-0bce-47fb-9c68-aca58a01a1c9",
+      "name": "脆脆薯仔餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 379.74,
+        "protein_g": 10.4008,
+        "carbs_g": 42.6416,
+        "fat_g": 18.939
+      },
+      "published": {
+        "kcal": 380,
+        "protein_g": 10.4,
+        "carbs_g": 42.6,
+        "fat_g": 18.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6570b737-3fbc-4670-956f-d0e52559fe11",
+      "name": "香煎雞胸（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 272.71000000000004,
+        "protein_g": 34.5155,
+        "carbs_g": 4.6847,
+        "fat_g": 12.010200000000001
+      },
+      "published": {
+        "kcal": 273,
+        "protein_g": 34.5,
+        "carbs_g": 4.7,
+        "fat_g": 12
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "66129a6f-9968-4737-b2ae-68c4b0dd3821",
+      "name": "清炒西芹百合",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 143.25,
+        "protein_g": 3.2987999999999995,
+        "carbs_g": 23.9358,
+        "fat_g": 4.779
+      },
+      "published": {
+        "kcal": 143,
+        "protein_g": 3.3,
+        "carbs_g": 23.9,
+        "fat_g": 4.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "66990dbc-a04f-4603-a738-a1ded916f07c",
+      "name": "香煎豬扒配蘋果洋蔥汁",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 413.80299999999994,
+        "protein_g": 34.25947000000001,
+        "carbs_g": 16.74485,
+        "fat_g": 23.25748
+      },
+      "published": {
+        "kcal": 414,
+        "protein_g": 34.3,
+        "carbs_g": 16.7,
+        "fat_g": 23.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "67b6aef3-9215-41ce-afcf-fdd2d66e4907",
+      "name": "香煎帶子",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 115.19,
+        "protein_g": 8.4014,
+        "carbs_g": 1.7474999999999998,
+        "fat_g": 8.8481
+      },
+      "published": {
+        "kcal": 115,
+        "protein_g": 8.4,
+        "carbs_g": 1.7,
+        "fat_g": 8.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "68623080-6a5f-4a3c-b109-49c0c270b7e9",
+      "name": "鮮茄吞拿魚意粉（一鍋煮）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 541.6614999999999,
+        "protein_g": 29.952985,
+        "carbs_g": 80.985925,
+        "fat_g": 9.873289999999999
+      },
+      "published": {
+        "kcal": 542,
+        "protein_g": 30,
+        "carbs_g": 81,
+        "fat_g": 9.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "68abae98-7609-4337-ab3b-4e4a6597bd76",
+      "name": "牛肉炒洋蔥",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 333.94325,
+        "protein_g": 29.051142500000005,
+        "carbs_g": 11.1517125,
+        "fat_g": 19.120945
+      },
+      "published": {
+        "kcal": 334,
+        "protein_g": 29.1,
+        "carbs_g": 11.2,
+        "fat_g": 19.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "68c07822-4ff1-41fb-a225-735dea948702",
+      "name": "豉汁蒸排骨",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 410.67659999999995,
+        "protein_g": 23.02835333333333,
+        "carbs_g": 8.698336666666668,
+        "fat_g": 31.073083333333333
+      },
+      "published": {
+        "kcal": 411,
+        "protein_g": 23,
+        "carbs_g": 8.7,
+        "fat_g": 31.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "68f1c838-ef2e-4b0b-8232-5df00bf84b81",
+      "name": "蒜蓉豆苗",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 129.14,
+        "protein_g": 6.0588,
+        "carbs_g": 9.2448,
+        "fat_g": 8.79
+      },
+      "published": {
+        "kcal": 129,
+        "protein_g": 6.1,
+        "carbs_g": 9.2,
+        "fat_g": 8.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6a61b440-2996-4f74-bb3f-a116c25ffa6c",
+      "name": "日式玉子燒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 182.15335100000001,
+        "protein_g": 9.63706938,
+        "carbs_g": 3.67086831,
+        "fat_g": 14.14770019
+      },
+      "published": {
+        "kcal": 182,
+        "protein_g": 9.6,
+        "carbs_g": 3.7,
+        "fat_g": 14.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6aee29f1-6829-4d7a-a2c0-d43c5abc5fb8",
+      "name": "豉油番茄炒牛肉（免醃版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 239.166,
+        "protein_g": 29.77389,
+        "carbs_g": 7.3777,
+        "fat_g": 8.96501
+      },
+      "published": {
+        "kcal": 239,
+        "protein_g": 29.8,
+        "carbs_g": 7.4,
+        "fat_g": 9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6c26019b-399f-4808-87b7-95af53e00786",
+      "name": "港式火腿雜菜湯通粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 659.0185,
+        "protein_g": 36.13625,
+        "carbs_g": 104.964675,
+        "fat_g": 10.7089
+      },
+      "published": {
+        "kcal": 659,
+        "protein_g": 36.1,
+        "carbs_g": 105,
+        "fat_g": 10.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6d9a3e2d-31d9-4621-aef0-856038c1373b",
+      "name": "黑椒牛肉片",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 252.42000000000002,
+        "protein_g": 27.3774,
+        "carbs_g": 5.3242,
+        "fat_g": 13.0088
+      },
+      "published": {
+        "kcal": 252,
+        "protein_g": 27.4,
+        "carbs_g": 5.3,
+        "fat_g": 13
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6eeaa50a-da2c-40d6-9545-103c274eba63",
+      "name": "粟米肉碎",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 420.477,
+        "protein_g": 23.531133333333333,
+        "carbs_g": 28.769246666666668,
+        "fat_g": 23.622533333333333
+      },
+      "published": {
+        "kcal": 420,
+        "protein_g": 23.5,
+        "carbs_g": 28.8,
+        "fat_g": 23.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6f243da5-911a-4704-b0bd-860a4cd0a89a",
+      "name": "蒜泥白肉（薄肉快煮版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 267.975,
+        "protein_g": 23.121850000000002,
+        "carbs_g": 4.4735,
+        "fat_g": 17.05305
+      },
+      "published": {
+        "kcal": 268,
+        "protein_g": 23.1,
+        "carbs_g": 4.5,
+        "fat_g": 17.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "6fa12fd1-ac3b-4d8b-a2d3-ac8b6459c35e",
+      "name": "香菇麻油雞飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 494.472,
+        "protein_g": 29.534999999999997,
+        "carbs_g": 63.6222,
+        "fat_g": 12.382499999999999
+      },
+      "published": {
+        "kcal": 494,
+        "protein_g": 29.5,
+        "carbs_g": 63.6,
+        "fat_g": 12.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "706424ea-b414-44ae-972f-c93d6c39ff4f",
+      "name": "番茄豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 331.28066666666666,
+        "protein_g": 20.06073333333333,
+        "carbs_g": 15.230693333333335,
+        "fat_g": 23.5854
+      },
+      "published": {
+        "kcal": 331,
+        "protein_g": 20.1,
+        "carbs_g": 15.2,
+        "fat_g": 23.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "709f465d-f8db-439f-a76b-1991283aa424",
+      "name": "蒸水蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 71.5,
+        "protein_g": 6.28,
+        "carbs_g": 0.36,
+        "fat_g": 4.755
+      },
+      "published": {
+        "kcal": 72,
+        "protein_g": 6.3,
+        "carbs_g": 0.4,
+        "fat_g": 4.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "730703aa-438f-416a-b775-c7eb1e4c5892",
+      "name": "忌廉菠菜蘑菇雞肉飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 843.6729999999999,
+        "protein_g": 40.44926999999999,
+        "carbs_g": 82.06865,
+        "fat_g": 39.28548
+      },
+      "published": {
+        "kcal": 844,
+        "protein_g": 40.4,
+        "carbs_g": 82.1,
+        "fat_g": 39.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "74ac8b53-880d-4136-a955-64dcc803e9ec",
+      "name": "羅勒番茄雞肉燴飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 765.823,
+        "protein_g": 32.57777,
+        "carbs_g": 78.59665000000001,
+        "fat_g": 35.86918
+      },
+      "published": {
+        "kcal": 766,
+        "protein_g": 32.6,
+        "carbs_g": 78.6,
+        "fat_g": 35.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "753c1993-6d5c-4804-ad85-051ef57f2ccf",
+      "name": "蒜片牛肉粒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 346.06225,
+        "protein_g": 34.283029166666665,
+        "carbs_g": 5.476535833333333,
+        "fat_g": 20.229621666666667
+      },
+      "published": {
+        "kcal": 346,
+        "protein_g": 34.3,
+        "carbs_g": 5.5,
+        "fat_g": 20.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7709749a-94ba-44fb-aba1-ca5ca4425d2d",
+      "name": "洋蔥豬扒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 457.587,
+        "protein_g": 35.406333333333336,
+        "carbs_g": 13.449446666666669,
+        "fat_g": 28.635533333333335
+      },
+      "published": {
+        "kcal": 458,
+        "protein_g": 35.4,
+        "carbs_g": 13.4,
+        "fat_g": 28.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "77a0840e-85af-4529-8719-4adfb9947821",
+      "name": "韓式吞拿魚紫菜飯糰（簡易拌飯版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 354.3780769230769,
+        "protein_g": 15.64575,
+        "carbs_g": 48.2905,
+        "fat_g": 10.36048076923077
+      },
+      "published": {
+        "kcal": 354,
+        "protein_g": 15.6,
+        "carbs_g": 48.3,
+        "fat_g": 10.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "789c4dc7-e011-4813-8385-0da404e939e4",
+      "name": "薯仔炒肉碎",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 506.7566666666667,
+        "protein_g": 26.489633333333327,
+        "carbs_g": 42.44493333333333,
+        "fat_g": 26.4519
+      },
+      "published": {
+        "kcal": 507,
+        "protein_g": 26.5,
+        "carbs_g": 42.4,
+        "fat_g": 26.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "793ba258-c35b-4c26-a7cc-e08b64541dcf",
+      "name": "上湯浸菠菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 105.05,
+        "protein_g": 7.7668,
+        "carbs_g": 8.5998,
+        "fat_g": 6.039000000000001
+      },
+      "published": {
+        "kcal": 105,
+        "protein_g": 7.8,
+        "carbs_g": 8.6,
+        "fat_g": 6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "79688204-3b31-4951-bdc4-59c695eabb01",
+      "name": "法式白酒煮青口",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 226.34325,
+        "protein_g": 18.412017499999997,
+        "carbs_g": 9.3930375,
+        "fat_g": 9.485295
+      },
+      "published": {
+        "kcal": 226,
+        "protein_g": 18.4,
+        "carbs_g": 9.4,
+        "fat_g": 9.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7975d3e4-6b85-428a-b7f0-8a9468d4302a",
+      "name": "薑蔥豉油蒸豆腐（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 139.1475,
+        "protein_g": 9.011825000000002,
+        "carbs_g": 3.0859125,
+        "fat_g": 11.023625000000001
+      },
+      "published": {
+        "kcal": 139,
+        "protein_g": 9,
+        "carbs_g": 3.1,
+        "fat_g": 11
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7986fa4d-f3eb-4450-9e35-1f9a8ede379f",
+      "name": "節瓜鹹蛋湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 133.38,
+        "protein_g": 8.356,
+        "carbs_g": 5.6884999999999994,
+        "fat_g": 9.324499999999999
+      },
+      "published": {
+        "kcal": 133,
+        "protein_g": 8.4,
+        "carbs_g": 5.7,
+        "fat_g": 9.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7a38108c-faf6-422c-b353-67581d940fb4",
+      "name": "奄列",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 305.94325000000003,
+        "protein_g": 19.9297425,
+        "carbs_g": 2.8937125000000004,
+        "fat_g": 23.369745
+      },
+      "published": {
+        "kcal": 306,
+        "protein_g": 19.9,
+        "carbs_g": 2.9,
+        "fat_g": 23.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7bbaa915-bc87-4c6e-863c-206245a94af9",
+      "name": "吞拿魚豆腐蛋餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 359.616,
+        "protein_g": 38.693333333333335,
+        "carbs_g": 6.055526666666666,
+        "fat_g": 20.00705333333333
+      },
+      "published": {
+        "kcal": 360,
+        "protein_g": 38.7,
+        "carbs_g": 6.1,
+        "fat_g": 20
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7d86b770-f8ab-4bde-b3fe-88624931fe84",
+      "name": "白汁海鮮飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 757.3474166666666,
+        "protein_g": 38.74810708333333,
+        "carbs_g": 74.88609791666667,
+        "fat_g": 33.0333075
+      },
+      "published": {
+        "kcal": 757,
+        "protein_g": 38.7,
+        "carbs_g": 74.9,
+        "fat_g": 33
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "7eba5374-0d0a-4ef0-ae15-8dd54ef38018",
+      "name": "粟米煎蛋餅",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 271.99633061000003,
+        "protein_g": 10.7847166763,
+        "carbs_g": 35.24446671169999,
+        "fat_g": 11.764716344
+      },
+      "published": {
+        "kcal": 272,
+        "protein_g": 10.8,
+        "carbs_g": 35.2,
+        "fat_g": 11.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8024a51f-d8a6-4458-9ac0-2f162e528f3e",
+      "name": "金銀蛋莧菜（清水版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 170.37500000000003,
+        "protein_g": 11.757,
+        "carbs_g": 9.319499999999998,
+        "fat_g": 10.862499999999999
+      },
+      "published": {
+        "kcal": 170,
+        "protein_g": 11.8,
+        "carbs_g": 9.3,
+        "fat_g": 10.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "83980cab-2499-4388-aaf5-61caf00738b1",
+      "name": "牛油蘑菇意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 552.6265,
+        "protein_g": 17.419085,
+        "carbs_g": 81.31302500000001,
+        "fat_g": 18.20749
+      },
+      "published": {
+        "kcal": 553,
+        "protein_g": 17.4,
+        "carbs_g": 81.3,
+        "fat_g": 18.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "86dd6cd9-46c7-431e-a671-5516b0558286",
+      "name": "蠔油生菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 105.75999999999999,
+        "protein_g": 1.8666,
+        "carbs_g": 7.5306000000000015,
+        "fat_g": 8.265
+      },
+      "published": {
+        "kcal": 106,
+        "protein_g": 1.9,
+        "carbs_g": 7.5,
+        "fat_g": 8.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8719bd8b-6d94-46c1-ac4b-a072b7153382",
+      "name": "豬肉炒椰菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 333.24,
+        "protein_g": 28.849000000000004,
+        "carbs_g": 13.8676,
+        "fat_g": 18.5522
+      },
+      "published": {
+        "kcal": 333,
+        "protein_g": 28.8,
+        "carbs_g": 13.9,
+        "fat_g": 18.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "884c47af-bb79-435c-a4ec-21151721833a",
+      "name": "蒜蓉油麥菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 79.32,
+        "protein_g": 2.5956,
+        "carbs_g": 7.905600000000001,
+        "fat_g": 5.07
+      },
+      "published": {
+        "kcal": 79,
+        "protein_g": 2.6,
+        "carbs_g": 7.9,
+        "fat_g": 5.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8a2e7e8e-095e-40db-89ba-d3619461c541",
+      "name": "西芹彩椒炒鮮魷",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 199.19600000000003,
+        "protein_g": 21.405100000000004,
+        "carbs_g": 13.596560000000004,
+        "fat_g": 6.115870000000001
+      },
+      "published": {
+        "kcal": 199,
+        "protein_g": 21.4,
+        "carbs_g": 13.6,
+        "fat_g": 6.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8bb606da-1fa9-4a7b-b7c9-77a8c7286bce",
+      "name": "吞拿魚粟米焗薯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 536.8932500000001,
+        "protein_g": 42.5697425,
+        "carbs_g": 55.872712500000006,
+        "fat_g": 15.603745000000002
+      },
+      "published": {
+        "kcal": 537,
+        "protein_g": 42.6,
+        "carbs_g": 55.9,
+        "fat_g": 15.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8bfb5fc7-6031-400c-805a-ed19a70fc5c3",
+      "name": "泰式炒河粉（雞肉）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 527.54,
+        "protein_g": 34.3124,
+        "carbs_g": 56.838800000000006,
+        "fat_g": 16.916199999999996
+      },
+      "published": {
+        "kcal": 528,
+        "protein_g": 34.3,
+        "carbs_g": 56.8,
+        "fat_g": 16.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8d7d22fe-8c9b-4511-a29b-19170cf6eb07",
+      "name": "涼拌青瓜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 103.754,
+        "protein_g": 2.9065000000000003,
+        "carbs_g": 14.540560000000001,
+        "fat_g": 4.8552
+      },
+      "published": {
+        "kcal": 104,
+        "protein_g": 2.9,
+        "carbs_g": 14.5,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8df34ca9-b92d-4c71-b79a-7c8f2ad455ac",
+      "name": "榨菜蒸梅頭肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 278.041,
+        "protein_g": 22.4301,
+        "carbs_g": 4.8948599999999995,
+        "fat_g": 18.12117
+      },
+      "published": {
+        "kcal": 278,
+        "protein_g": 22.4,
+        "carbs_g": 4.9,
+        "fat_g": 18.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8edb64a0-ed7b-4292-9e34-38bc64bb6a20",
+      "name": "蝦仁豆腐蒸蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 209,
+        "protein_g": 29.39,
+        "carbs_g": 3.21,
+        "fat_g": 9.282
+      },
+      "published": {
+        "kcal": 209,
+        "protein_g": 29.4,
+        "carbs_g": 3.2,
+        "fat_g": 9.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8ee3207f-a816-40e9-8180-6eaef318e17e",
+      "name": "雜菜炒烏冬",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 410.88666666666666,
+        "protein_g": 10.7974,
+        "carbs_g": 71.0708,
+        "fat_g": 10.990533333333332
+      },
+      "published": {
+        "kcal": 411,
+        "protein_g": 10.8,
+        "carbs_g": 71.1,
+        "fat_g": 11
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8efd030b-5d41-453f-bdbd-5723803a4f36",
+      "name": "焗豬扒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 790.3866666666668,
+        "protein_g": 47.50313333333334,
+        "carbs_g": 64.00893333333333,
+        "fat_g": 37.2574
+      },
+      "published": {
+        "kcal": 790,
+        "protein_g": 47.5,
+        "carbs_g": 64,
+        "fat_g": 37.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8f02080a-b2a9-4700-b00b-d0f486ae0c29",
+      "name": "冬瓜蝦米湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 53.8,
+        "protein_g": 6.521,
+        "carbs_g": 6.2885,
+        "fat_g": 0.6174999999999999
+      },
+      "published": {
+        "kcal": 54,
+        "protein_g": 6.5,
+        "carbs_g": 6.3,
+        "fat_g": 0.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "8f07d643-e558-47d0-b5e1-9ecabe16e68f",
+      "name": "韓式泡菜炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 360.08900000000006,
+        "protein_g": 11.839419999999999,
+        "carbs_g": 54.25529,
+        "fat_g": 10.02721
+      },
+      "published": {
+        "kcal": 360,
+        "protein_g": 11.8,
+        "carbs_g": 54.3,
+        "fat_g": 10
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "90d23ff8-7a4b-403b-b82b-35541302db7c",
+      "name": "蒜蓉蒸蝦",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 136.72666666666666,
+        "protein_g": 29.21013333333333,
+        "carbs_g": 3.5689333333333333,
+        "fat_g": 0.7944000000000001
+      },
+      "published": {
+        "kcal": 137,
+        "protein_g": 29.2,
+        "carbs_g": 3.6,
+        "fat_g": 0.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "91132717-231d-4916-81ee-5e886b5ffd16",
+      "name": "蕃茄炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 211.25333333333333,
+        "protein_g": 13.88,
+        "carbs_g": 6.555,
+        "fat_g": 14.476666666666667
+      },
+      "published": {
+        "kcal": 211,
+        "protein_g": 13.9,
+        "carbs_g": 6.6,
+        "fat_g": 14.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "93468176-c808-4456-99e0-8893c7dc609c",
+      "name": "菲律賓酸香醬油炆雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 482.175125,
+        "protein_g": 33.567461249999994,
+        "carbs_g": 3.79259625,
+        "fat_g": 35.687372499999995
+      },
+      "published": {
+        "kcal": 482,
+        "protein_g": 33.6,
+        "carbs_g": 3.8,
+        "fat_g": 35.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "944d3601-a283-4522-a4df-af284132058d",
+      "name": "銀芽鮮蔬炒雞柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 262.03,
+        "protein_g": 33.2811,
+        "carbs_g": 14.04945,
+        "fat_g": 8.28585
+      },
+      "published": {
+        "kcal": 262,
+        "protein_g": 33.3,
+        "carbs_g": 14,
+        "fat_g": 8.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "94cea914-80cf-4bb7-a6b5-0c3039ce094d",
+      "name": "泰式雞絲炒米粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 553.48,
+        "protein_g": 24.622799999999998,
+        "carbs_g": 95.4232,
+        "fat_g": 7.8578
+      },
+      "published": {
+        "kcal": 553,
+        "protein_g": 24.6,
+        "carbs_g": 95.4,
+        "fat_g": 7.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "952d14b9-33ff-44c9-84f0-7af3ada9350b",
+      "name": "洋蔥炒雞扒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 543.657,
+        "protein_g": 28.89313333333333,
+        "carbs_g": 14.841246666666667,
+        "fat_g": 40.778533333333336
+      },
+      "published": {
+        "kcal": 544,
+        "protein_g": 28.9,
+        "carbs_g": 14.8,
+        "fat_g": 40.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "963283b2-68b2-441f-8aa1-b1d49494b32b",
+      "name": "打拋豬飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 575.5239999999999,
+        "protein_g": 27.722089999999998,
+        "carbs_g": 60.75083,
+        "fat_g": 24.173479999999998
+      },
+      "published": {
+        "kcal": 576,
+        "protein_g": 27.7,
+        "carbs_g": 60.8,
+        "fat_g": 24.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "971115e3-ed72-40e3-86bf-054e3f9741c1",
+      "name": "日式甘辛炒牛蒡",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 139.649,
+        "protein_g": 1.9570500000000002,
+        "carbs_g": 19.5498,
+        "fat_g": 5.99745
+      },
+      "published": {
+        "kcal": 140,
+        "protein_g": 2,
+        "carbs_g": 19.5,
+        "fat_g": 6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "9815a71b-e33e-441d-a524-78eb13990ead",
+      "name": "涼拌娃娃菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 76.93700000000001,
+        "protein_g": 3.8440000000000003,
+        "carbs_g": 10.691980000000001,
+        "fat_g": 2.7312
+      },
+      "published": {
+        "kcal": 77,
+        "protein_g": 3.8,
+        "carbs_g": 10.7,
+        "fat_g": 2.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "98324881-2f67-4fea-8c6b-95631c644f86",
+      "name": "煎三文魚",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 496.62649999999996,
+        "protein_g": 36.875485,
+        "carbs_g": 0.735425,
+        "fat_g": 37.69349
+      },
+      "published": {
+        "kcal": 497,
+        "protein_g": 36.9,
+        "carbs_g": 0.7,
+        "fat_g": 37.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "98bb1cd9-f558-4c8c-8d53-db68fb90be59",
+      "name": "白菜粉絲炆魚片頭",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 257.346,
+        "protein_g": 13.356600000000002,
+        "carbs_g": 36.48751,
+        "fat_g": 7.026119999999999
+      },
+      "published": {
+        "kcal": 257,
+        "protein_g": 13.4,
+        "carbs_g": 36.5,
+        "fat_g": 7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "99394e7f-ef03-4c1e-8030-278e9653094f",
+      "name": "涼瓜炒牛肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 340.757,
+        "protein_g": 29.589133333333336,
+        "carbs_g": 12.519246666666668,
+        "fat_g": 19.273533333333333
+      },
+      "published": {
+        "kcal": 341,
+        "protein_g": 29.6,
+        "carbs_g": 12.5,
+        "fat_g": 19.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "9b57f597-db0f-4876-a085-d8c05f054ff7",
+      "name": "味噌豆腐湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 140.23999999999998,
+        "protein_g": 15.311699999999998,
+        "carbs_g": 10.5686,
+        "fat_g": 6.2802999999999995
+      },
+      "published": {
+        "kcal": 140,
+        "protein_g": 15.3,
+        "carbs_g": 10.6,
+        "fat_g": 6.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "9d4a5d2a-f872-4dfb-acc4-39c55a7ce11f",
+      "name": "紅咖哩雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 670.3340000000001,
+        "protein_g": 39.760799999999996,
+        "carbs_g": 19.078360000000004,
+        "fat_g": 51.151799999999994
+      },
+      "published": {
+        "kcal": 670,
+        "protein_g": 39.8,
+        "carbs_g": 19.1,
+        "fat_g": 51.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "9e92a54f-e6e2-4437-bed8-5cb31a9143c4",
+      "name": "沙茶牛肉煮菜心",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 286.99333854,
+        "protein_g": 25.4273000663,
+        "carbs_g": 6.910933489000001,
+        "fat_g": 17.5615005027
+      },
+      "published": {
+        "kcal": 287,
+        "protein_g": 25.4,
+        "carbs_g": 6.9,
+        "fat_g": 17.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "9e94813f-2564-4ab3-a156-813c369c211f",
+      "name": "菜乾排骨湯（參考配方）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 287.32550000000003,
+        "protein_g": 16.631600000000002,
+        "carbs_g": 7.8231,
+        "fat_g": 20.75795
+      },
+      "published": {
+        "kcal": 287,
+        "protein_g": 16.6,
+        "carbs_g": 7.8,
+        "fat_g": 20.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a0a9d821-8e2b-445f-9c0d-6e4dc7f3090b",
+      "name": "番茄豆腐燴飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 449.47333333333336,
+        "protein_g": 20.708,
+        "carbs_g": 67.1154,
+        "fat_g": 12.121866666666666
+      },
+      "published": {
+        "kcal": 449,
+        "protein_g": 20.7,
+        "carbs_g": 67.1,
+        "fat_g": 12.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a2308bb5-667b-4221-b25d-a64f7c1069af",
+      "name": "蒜香茄子",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 207.36700000000002,
+        "protein_g": 3.9210000000000003,
+        "carbs_g": 18.46318,
+        "fat_g": 14.532200000000001
+      },
+      "published": {
+        "kcal": 207,
+        "protein_g": 3.9,
+        "carbs_g": 18.5,
+        "fat_g": 14.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a2eee8c2-0e5f-48fb-bd2c-fc098b7b74ff",
+      "name": "泰式酸辣海鮮粉絲沙律",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 373.15250000000003,
+        "protein_g": 21.78265,
+        "carbs_g": 35.47667500000001,
+        "fat_g": 17.453574999999997
+      },
+      "published": {
+        "kcal": 373,
+        "protein_g": 21.8,
+        "carbs_g": 35.5,
+        "fat_g": 17.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a3571df6-9864-4d74-b140-70f0c52bcd6a",
+      "name": "雞粉焗雞翼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 217.20000000000002,
+        "protein_g": 15.967999999999998,
+        "carbs_g": 0.64,
+        "fat_g": 16.225
+      },
+      "published": {
+        "kcal": 217,
+        "protein_g": 16,
+        "carbs_g": 0.6,
+        "fat_g": 16.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a390d711-a5af-48a4-9a74-1f18c94ac3c0",
+      "name": "豉油皇炒麵",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 385.3803333333333,
+        "protein_g": 11.796766666666668,
+        "carbs_g": 55.266446666666674,
+        "fat_g": 13.959299999999999
+      },
+      "published": {
+        "kcal": 385,
+        "protein_g": 11.8,
+        "carbs_g": 55.3,
+        "fat_g": 14
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a3ad014f-a834-438b-8b6b-d8483f0e6441",
+      "name": "越式焦糖炆魚",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 393.41525000000007,
+        "protein_g": 40.213325,
+        "carbs_g": 14.04649,
+        "fat_g": 18.58715
+      },
+      "published": {
+        "kcal": 393,
+        "protein_g": 40.2,
+        "carbs_g": 14,
+        "fat_g": 18.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a4165f61-26cc-417b-b5f7-39ca17f365f9",
+      "name": "日式海鮮炒麵（家常版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 578.0250294117646,
+        "protein_g": 38.644935000000004,
+        "carbs_g": 81.30410735294114,
+        "fat_g": 10.70044
+      },
+      "published": {
+        "kcal": 578,
+        "protein_g": 38.6,
+        "carbs_g": 81.3,
+        "fat_g": 10.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a78f5d98-d9a6-4c9d-907c-1269ae8f4c88",
+      "name": "黑椒牛肉菜心炒烏冬",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 641.0160000000001,
+        "protein_g": 31.107490000000002,
+        "carbs_g": 63.386449999999996,
+        "fat_g": 30.32716
+      },
+      "published": {
+        "kcal": 641,
+        "protein_g": 31.1,
+        "carbs_g": 63.4,
+        "fat_g": 30.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a857763a-b6b6-4df6-9005-81d31a6ea592",
+      "name": "泰式青木瓜沙律",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 193.92062500000003,
+        "protein_g": 8.78015625,
+        "carbs_g": 26.8122875,
+        "fat_g": 7.219562499999999
+      },
+      "published": {
+        "kcal": 194,
+        "protein_g": 8.8,
+        "carbs_g": 26.8,
+        "fat_g": 7.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a869d6e3-1079-4dd8-a519-eb601216421c",
+      "name": "清炒小白菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 72.12,
+        "protein_g": 3.0816000000000003,
+        "carbs_g": 5.9076,
+        "fat_g": 4.890000000000001
+      },
+      "published": {
+        "kcal": 72,
+        "protein_g": 3.1,
+        "carbs_g": 5.9,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a8c1c77b-b47e-4908-9908-c9ecb04ce1f0",
+      "name": "節瓜瘦肉湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 169.8,
+        "protein_g": 25.5546,
+        "carbs_g": 5.9331000000000005,
+        "fat_g": 4.6185
+      },
+      "published": {
+        "kcal": 170,
+        "protein_g": 25.6,
+        "carbs_g": 5.9,
+        "fat_g": 4.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a8d4792f-c55f-4b96-a4b8-3d7ad91dc085",
+      "name": "雞粥",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 456.576,
+        "protein_g": 40.6444,
+        "carbs_g": 58.07866,
+        "fat_g": 7.219720000000001
+      },
+      "published": {
+        "kcal": 457,
+        "protein_g": 40.6,
+        "carbs_g": 58.1,
+        "fat_g": 7.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a8e0f8cb-4272-4f4d-984a-b4acbfb355da",
+      "name": "香煎雞胸配蒜香雜菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 371.953,
+        "protein_g": 37.81757,
+        "carbs_g": 15.422449999999998,
+        "fat_g": 18.14298
+      },
+      "published": {
+        "kcal": 372,
+        "protein_g": 37.8,
+        "carbs_g": 15.4,
+        "fat_g": 18.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a9bc8a27-62d6-4696-b497-4ee843500560",
+      "name": "日式醬香青瓜彩椒炒豬肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 659.02,
+        "protein_g": 12.4131,
+        "carbs_g": 14.732533333333333,
+        "fat_g": 61.17979999999999
+      },
+      "published": {
+        "kcal": 659,
+        "protein_g": 12.4,
+        "carbs_g": 14.7,
+        "fat_g": 61.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "a9e4a872-b2b5-43b5-a267-538e9a798b62",
+      "name": "涼拌海帶絲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 94.02433333333333,
+        "protein_g": 3.0488,
+        "carbs_g": 15.963980000000001,
+        "fat_g": 3.0142666666666664
+      },
+      "published": {
+        "kcal": 94,
+        "protein_g": 3,
+        "carbs_g": 16,
+        "fat_g": 3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "aa293f16-97ad-4ecd-bf2d-d4a1f99e75e8",
+      "name": "番茄炒椰菜花（家常茄汁版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 90.93431658882353,
+        "protein_g": 2.3783999936,
+        "carbs_g": 10.823978414805882,
+        "fat_g": 5.0408003324
+      },
+      "published": {
+        "kcal": 91,
+        "protein_g": 2.4,
+        "carbs_g": 10.8,
+        "fat_g": 5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "aa83c327-b63c-4e3e-bcf5-1e99469c0ddf",
+      "name": "乾煸四季豆",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 124.41,
+        "protein_g": 3.6756000000000006,
+        "carbs_g": 14.529599999999999,
+        "fat_g": 7.176
+      },
+      "published": {
+        "kcal": 124,
+        "protein_g": 3.7,
+        "carbs_g": 14.5,
+        "fat_g": 7.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "abca2600-75a8-42a0-bf3c-579f01ed80c0",
+      "name": "豉汁彩椒雞球（現成豆豉醬版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 469.971,
+        "protein_g": 31.008100000000002,
+        "carbs_g": 12.764160000000002,
+        "fat_g": 31.86737
+      },
+      "published": {
+        "kcal": 470,
+        "protein_g": 31,
+        "carbs_g": 12.8,
+        "fat_g": 31.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "abe99804-e55c-4db9-a2bf-a1c2eb78bc61",
+      "name": "蒜蓉菠菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 90.12,
+        "protein_g": 5.529599999999999,
+        "carbs_g": 8.5176,
+        "fat_g": 5.232
+      },
+      "published": {
+        "kcal": 90,
+        "protein_g": 5.5,
+        "carbs_g": 8.5,
+        "fat_g": 5.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ae81d0bc-8f63-44c4-aca6-eed5c48b6706",
+      "name": "日式咖哩雜菜飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 595.2533333333333,
+        "protein_g": 9.980444444444442,
+        "carbs_g": 102.488,
+        "fat_g": 15.052888888888889
+      },
+      "published": {
+        "kcal": 595,
+        "protein_g": 10,
+        "carbs_g": 102.5,
+        "fat_g": 15.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ae8896a9-a3c5-4bfa-b886-fbf25fa3192e",
+      "name": "卡邦尼意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 738.5432500000001,
+        "protein_g": 32.9382425,
+        "carbs_g": 75.8807125,
+        "fat_g": 32.311745
+      },
+      "published": {
+        "kcal": 739,
+        "protein_g": 32.9,
+        "carbs_g": 75.9,
+        "fat_g": 32.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "aed121cd-4a81-4c2f-aa2e-e04fab6b0ee4",
+      "name": "電飯煲海南雞飯（簡易版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 588.1760000000002,
+        "protein_g": 27.103400000000004,
+        "carbs_g": 64.29214999999999,
+        "fat_g": 23.419249999999998
+      },
+      "published": {
+        "kcal": 588,
+        "protein_g": 27.1,
+        "carbs_g": 64.3,
+        "fat_g": 23.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "af939a33-ebe9-4b4a-ae2d-07c46ba2331d",
+      "name": "蒜香雞翼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 253.69325,
+        "protein_g": 18.9645425,
+        "carbs_g": 3.0125125,
+        "fat_g": 18.051244999999998
+      },
+      "published": {
+        "kcal": 254,
+        "protein_g": 19,
+        "carbs_g": 3,
+        "fat_g": 18.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "af9625e5-46dd-4952-bb4b-2cfe34771927",
+      "name": "星洲炒米",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 617.04,
+        "protein_g": 26.268199999999997,
+        "carbs_g": 89.4654,
+        "fat_g": 16.822400000000002
+      },
+      "published": {
+        "kcal": 617,
+        "protein_g": 26.3,
+        "carbs_g": 89.5,
+        "fat_g": 16.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "afc398ca-ac87-43d5-8ced-2fb3e1a48507",
+      "name": "日式牛油雜菇三文魚包",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 615.6509999999998,
+        "protein_g": 49.22243999999999,
+        "carbs_g": 13.0837,
+        "fat_g": 39.319410000000005
+      },
+      "published": {
+        "kcal": 616,
+        "protein_g": 49.2,
+        "carbs_g": 13.1,
+        "fat_g": 39.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "afcc4ab8-edbb-4229-9790-a6d4b1a201d9",
+      "name": "西芹腰果炒蝦仁",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 213.9255,
+        "protein_g": 22.59341,
+        "carbs_g": 8.590405,
+        "fat_g": 10.422024999999998
+      },
+      "published": {
+        "kcal": 214,
+        "protein_g": 22.6,
+        "carbs_g": 8.6,
+        "fat_g": 10.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b30cbb08-e3b0-4f1f-8474-d16487b945ac",
+      "name": "金菇肥牛卷",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 329.9985,
+        "protein_g": 11.898625000000001,
+        "carbs_g": 6.5946,
+        "fat_g": 28.821875
+      },
+      "published": {
+        "kcal": 330,
+        "protein_g": 11.9,
+        "carbs_g": 6.6,
+        "fat_g": 28.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b333f252-424a-40a3-a160-23c287de07f4",
+      "name": "雜菜蛋炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 543.1866666666666,
+        "protein_g": 20.2424,
+        "carbs_g": 67.9108,
+        "fat_g": 20.412533333333332
+      },
+      "published": {
+        "kcal": 543,
+        "protein_g": 20.2,
+        "carbs_g": 67.9,
+        "fat_g": 20.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b3d03435-db93-4196-bbdb-b93b73c14587",
+      "name": "涼拌木耳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 87.877,
+        "protein_g": 2.1128,
+        "carbs_g": 15.03998,
+        "fat_g": 2.4455999999999998
+      },
+      "published": {
+        "kcal": 88,
+        "protein_g": 2.1,
+        "carbs_g": 15,
+        "fat_g": 2.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b43272f4-41a7-49b9-92cd-a273435cbf92",
+      "name": "乾炒牛河",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 494.71,
+        "protein_g": 33.7967,
+        "carbs_g": 54.09790000000001,
+        "fat_g": 15.5212
+      },
+      "published": {
+        "kcal": 495,
+        "protein_g": 33.8,
+        "carbs_g": 54.1,
+        "fat_g": 15.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b438cf0e-17af-4a83-9dc9-d3708c347135",
+      "name": "蒜蓉通菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 172.3,
+        "protein_g": 3.9816000000000003,
+        "carbs_g": 8.2836,
+        "fat_g": 14.57
+      },
+      "published": {
+        "kcal": 172,
+        "protein_g": 4,
+        "carbs_g": 8.3,
+        "fat_g": 14.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b52a24e0-573a-4158-9297-bf4f09a74b73",
+      "name": "青椒炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 287.345,
+        "protein_g": 13.74182,
+        "carbs_g": 5.10495,
+        "fat_g": 23.68893
+      },
+      "published": {
+        "kcal": 287,
+        "protein_g": 13.7,
+        "carbs_g": 5.1,
+        "fat_g": 23.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b5402590-4c59-41b6-9a2d-69ccabb3b991",
+      "name": "清炒菜心",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 72.12,
+        "protein_g": 3.0816000000000003,
+        "carbs_g": 5.9076,
+        "fat_g": 4.890000000000001
+      },
+      "published": {
+        "kcal": 72,
+        "protein_g": 3.1,
+        "carbs_g": 5.9,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b5bcb5a0-0726-44e1-ba3a-2d3f9a867bcb",
+      "name": "地中海檸檬鷹嘴豆沙律",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 266.4335,
+        "protein_g": 10.193664999999996,
+        "carbs_g": 35.742925,
+        "fat_g": 10.507834999999998
+      },
+      "published": {
+        "kcal": 266,
+        "protein_g": 10.2,
+        "carbs_g": 35.7,
+        "fat_g": 10.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b5cc0d1a-9c67-4f55-bed2-861b1d631d01",
+      "name": "菜脯煎蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 284.636,
+        "protein_g": 13.263900000000001,
+        "carbs_g": 4.19866,
+        "fat_g": 23.83222
+      },
+      "published": {
+        "kcal": 285,
+        "protein_g": 13.3,
+        "carbs_g": 4.2,
+        "fat_g": 23.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b6d8af51-cd40-4cc5-a5cb-8e4da0967b28",
+      "name": "餐蛋公仔麵",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 645.7,
+        "protein_g": 24.1615,
+        "carbs_g": 47.387,
+        "fat_g": 39.4145
+      },
+      "published": {
+        "kcal": 646,
+        "protein_g": 24.2,
+        "carbs_g": 47.4,
+        "fat_g": 39.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b8cd10e9-6682-4291-a138-8affc8d46aa0",
+      "name": "叉燒炒蛋",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 336.91999999999996,
+        "protein_g": 21.2612,
+        "carbs_g": 17.824709999999996,
+        "fat_g": 19.941119999999998
+      },
+      "published": {
+        "kcal": 337,
+        "protein_g": 21.2,
+        "carbs_g": 17.8,
+        "fat_g": 20
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b8db6f3f-c794-4dee-8015-5b4b02175bc5",
+      "name": "蝦米粉絲紹菜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 264.59,
+        "protein_g": 12.3632,
+        "carbs_g": 42.68580000000001,
+        "fat_g": 5.3352
+      },
+      "published": {
+        "kcal": 265,
+        "protein_g": 12.4,
+        "carbs_g": 42.7,
+        "fat_g": 5.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "b91ad24d-b706-4eb1-b3a8-d247b8c0f1a7",
+      "name": "香草煎鱈魚",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 165.85425,
+        "protein_g": 26.935602499999998,
+        "carbs_g": 0.7019625,
+        "fat_g": 5.552235
+      },
+      "published": {
+        "kcal": 166,
+        "protein_g": 26.9,
+        "carbs_g": 0.7,
+        "fat_g": 5.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ba76a284-8dca-4002-bede-39fb698983b2",
+      "name": "上海炒年糕",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 633.3066666666666,
+        "protein_g": 21.071133333333332,
+        "carbs_g": 94.67093333333332,
+        "fat_g": 19.3904
+      },
+      "published": {
+        "kcal": 633,
+        "protein_g": 21.1,
+        "carbs_g": 94.7,
+        "fat_g": 19.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "baa7c100-632b-4d95-8268-13ffcea570d5",
+      "name": "味噌三文魚",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 466.903,
+        "protein_g": 39.361720000000005,
+        "carbs_g": 8.77335,
+        "fat_g": 29.70791
+      },
+      "published": {
+        "kcal": 467,
+        "protein_g": 39.4,
+        "carbs_g": 8.8,
+        "fat_g": 29.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "baba54c6-bfe8-4d29-ad94-a6140bc6e912",
+      "name": "蝦仁蛋炒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 433.67,
+        "protein_g": 21.05,
+        "carbs_g": 57.82,
+        "fat_g": 12.14
+      },
+      "published": {
+        "kcal": 434,
+        "protein_g": 21.1,
+        "carbs_g": 57.8,
+        "fat_g": 12.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "bb378af9-9522-4588-b776-4bd3a9f246cc",
+      "name": "紫菜蛋花湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 82.5,
+        "protein_g": 8.4415,
+        "carbs_g": 2.942,
+        "fat_g": 4.9495
+      },
+      "published": {
+        "kcal": 83,
+        "protein_g": 8.4,
+        "carbs_g": 2.9,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "bb681471-3c7b-472d-936a-e834eac6bc1f",
+      "name": "清蒸魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 186.64,
+        "protein_g": 29.916800000000002,
+        "carbs_g": 5.816,
+        "fat_g": 5.8656
+      },
+      "published": {
+        "kcal": 187,
+        "protein_g": 29.9,
+        "carbs_g": 5.8,
+        "fat_g": 5.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "bba95d20-058e-4e69-840c-ab438aed6574",
+      "name": "日式芝麻拌菠菜",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 65.57600000000001,
+        "protein_g": 3.119905,
+        "carbs_g": 7.1350725,
+        "fat_g": 3.4859775000000006
+      },
+      "published": {
+        "kcal": 66,
+        "protein_g": 3.1,
+        "carbs_g": 7.1,
+        "fat_g": 3.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "bcb38612-d449-4822-ad8c-0e63a9e8f988",
+      "name": "白汁蘑菇雞扒意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 942.303,
+        "protein_g": 45.28877,
+        "carbs_g": 76.47405,
+        "fat_g": 50.88437999999999
+      },
+      "published": {
+        "kcal": 942,
+        "protein_g": 45.3,
+        "carbs_g": 76.5,
+        "fat_g": 50.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "be32a7bc-91be-4945-a15f-8c0d36fbeeab",
+      "name": "鮮茄豬扒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 622.1729999999999,
+        "protein_g": 37.79815333333334,
+        "carbs_g": 73.77131666666666,
+        "fat_g": 18.785543333333333
+      },
+      "published": {
+        "kcal": 622,
+        "protein_g": 37.8,
+        "carbs_g": 73.8,
+        "fat_g": 18.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "be9dfc90-1ab4-4504-9507-c370e5d11197",
+      "name": "韓式辣醬炒豬肉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 740.1660000000002,
+        "protein_g": 41.89894499999999,
+        "carbs_g": 30.243910000000003,
+        "fat_g": 48.07307499999999
+      },
+      "published": {
+        "kcal": 740,
+        "protein_g": 41.9,
+        "carbs_g": 30.2,
+        "fat_g": 48.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "bedaefbc-1601-411d-8aba-dc8ef234e96b",
+      "name": "椒鹽豆腐",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 512.06,
+        "protein_g": 23.0278,
+        "carbs_g": 23.7265,
+        "fat_g": 38.490100000000005
+      },
+      "published": {
+        "kcal": 512,
+        "protein_g": 23,
+        "carbs_g": 23.7,
+        "fat_g": 38.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c015cd96-b723-40e4-a74b-cb9b4c1b4a8e",
+      "name": "日式豉油炆南瓜（簡易版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 196.8675,
+        "protein_g": 3.8878500000000003,
+        "carbs_g": 43.727975,
+        "fat_g": 0.522675
+      },
+      "published": {
+        "kcal": 197,
+        "protein_g": 3.9,
+        "carbs_g": 43.7,
+        "fat_g": 0.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c075a8d8-ff58-4335-8b35-62c482492865",
+      "name": "一鑊牛肉碎西蘭花燴麵",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 744.345,
+        "protein_g": 36.347249999999995,
+        "carbs_g": 69.49919999999999,
+        "fat_g": 35.7889
+      },
+      "published": {
+        "kcal": 744,
+        "protein_g": 36.3,
+        "carbs_g": 69.5,
+        "fat_g": 35.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c09336c5-4868-4d6a-88e4-32313529d11d",
+      "name": "酸辣薯仔絲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 220.06,
+        "protein_g": 4.071599999999999,
+        "carbs_g": 33.4696,
+        "fat_g": 8.192
+      },
+      "published": {
+        "kcal": 220,
+        "protein_g": 4.1,
+        "carbs_g": 33.5,
+        "fat_g": 8.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c33d2e50-6191-4830-8c20-368b188396e3",
+      "name": "南瓜濃湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 573.1432500000001,
+        "protein_g": 15.358742499999998,
+        "carbs_g": 53.5677125,
+        "fat_g": 35.667745
+      },
+      "published": {
+        "kcal": 573,
+        "protein_g": 15.4,
+        "carbs_g": 53.6,
+        "fat_g": 35.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c5ba657e-15c2-4d48-9d33-bfc70ead04e9",
+      "name": "菠菜豆腐湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 120.6,
+        "protein_g": 13.798999999999998,
+        "carbs_g": 7.9384999999999994,
+        "fat_g": 5.431499999999999
+      },
+      "published": {
+        "kcal": 121,
+        "protein_g": 13.8,
+        "carbs_g": 7.9,
+        "fat_g": 5.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c6e2c02e-3cdf-41b9-ab07-6c410c88f22d",
+      "name": "牛油蒜香蘑菇炒荷蘭豆",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 63.055,
+        "protein_g": 2.7839,
+        "carbs_g": 6.80075,
+        "fat_g": 3.0610999999999997
+      },
+      "published": {
+        "kcal": 63,
+        "protein_g": 2.8,
+        "carbs_g": 6.8,
+        "fat_g": 3.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c8307f45-9b0c-47e9-b540-67ba64c4a239",
+      "name": "咖哩雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 361.4033333333333,
+        "protein_g": 37.315000000000005,
+        "carbs_g": 29.959999999999997,
+        "fat_g": 9.759666666666666
+      },
+      "published": {
+        "kcal": 361,
+        "protein_g": 37.3,
+        "carbs_g": 30,
+        "fat_g": 9.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c89ac925-09a7-4dea-8c05-ebac60b8d310",
+      "name": "韓式蒜香芝麻炒翠玉瓜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 121.28,
+        "protein_g": 2.3773,
+        "carbs_g": 6.225,
+        "fat_g": 10.498999999999999
+      },
+      "published": {
+        "kcal": 121,
+        "protein_g": 2.4,
+        "carbs_g": 6.2,
+        "fat_g": 10.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c8e34269-c73a-498b-a63d-8596faeddbe8",
+      "name": "泰式沙爹雞扒配花生醬",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 442.90322299999997,
+        "protein_g": 36.23146938,
+        "carbs_g": 9.11205831,
+        "fat_g": 30.04410019
+      },
+      "published": {
+        "kcal": 443,
+        "protein_g": 36.2,
+        "carbs_g": 9.1,
+        "fat_g": 30
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "c987684d-6054-4a8e-8157-7634cbdda1e1",
+      "name": "午餐肉炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 438.156,
+        "protein_g": 23.4339,
+        "carbs_g": 5.17866,
+        "fat_g": 35.312219999999996
+      },
+      "published": {
+        "kcal": 438,
+        "protein_g": 23.4,
+        "carbs_g": 5.2,
+        "fat_g": 35.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ca6d6562-82db-4db9-b437-b9c0f2b22dca",
+      "name": "西蘭花蝦仁蒸蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 158.2,
+        "protein_g": 22.606,
+        "carbs_g": 5.672,
+        "fat_g": 5.408
+      },
+      "published": {
+        "kcal": 158,
+        "protein_g": 22.6,
+        "carbs_g": 5.7,
+        "fat_g": 5.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "caa91d0e-b488-49b7-8f24-b453a9b2f5cd",
+      "name": "涼拌青瓜粉絲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 200.267,
+        "protein_g": 2.3372,
+        "carbs_g": 42.674180000000014,
+        "fat_g": 2.5122000000000004
+      },
+      "published": {
+        "kcal": 200,
+        "protein_g": 2.3,
+        "carbs_g": 42.7,
+        "fat_g": 2.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "cac951ef-c704-4527-9477-56d5a09512ec",
+      "name": "番茄薯仔魚湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 322.6533333333333,
+        "protein_g": 30.8706,
+        "carbs_g": 29.939099999999996,
+        "fat_g": 10.437166666666666
+      },
+      "published": {
+        "kcal": 323,
+        "protein_g": 30.9,
+        "carbs_g": 29.9,
+        "fat_g": 10.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ce02296b-8cd3-47ac-86df-154188604f6e",
+      "name": "日式咖喱豬肉湯烏冬",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 392.54650000000004,
+        "protein_g": 17.470270000000003,
+        "carbs_g": 74.74236499999999,
+        "fat_g": 2.8137350000000003
+      },
+      "published": {
+        "kcal": 393,
+        "protein_g": 17.5,
+        "carbs_g": 74.7,
+        "fat_g": 2.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ce9915f3-8cf3-4422-8721-d34216cfccb4",
+      "name": "日式南蠻雞",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 787.2195680000001,
+        "protein_g": 33.13127046,
+        "carbs_g": 12.07661122,
+        "fat_g": 66.58544076
+      },
+      "published": {
+        "kcal": 787,
+        "protein_g": 33.1,
+        "carbs_g": 12.1,
+        "fat_g": 66.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "cfeeeff6-edcb-41f1-9fb1-8ae55a3bbf1d",
+      "name": "梅菜蒸肉餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 420.057,
+        "protein_g": 30.494333333333326,
+        "carbs_g": 14.302246666666667,
+        "fat_g": 26.782533333333337
+      },
+      "published": {
+        "kcal": 420,
+        "protein_g": 30.5,
+        "carbs_g": 14.3,
+        "fat_g": 26.8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "cff160c9-1e99-4c9e-bbb6-d6143ec25e52",
+      "name": "西多士配炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 387.28,
+        "protein_g": 18.723,
+        "carbs_g": 30.829600000000003,
+        "fat_g": 20.5274
+      },
+      "published": {
+        "kcal": 387,
+        "protein_g": 18.7,
+        "carbs_g": 30.8,
+        "fat_g": 20.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d017d3a4-f0bc-4670-82dd-76becb24bc91",
+      "name": "泰式香草酸辣肉碎沙律",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 341.04632499999997,
+        "protein_g": 24.860306249999997,
+        "carbs_g": 14.97988875,
+        "fat_g": 20.1440125
+      },
+      "published": {
+        "kcal": 341,
+        "protein_g": 24.9,
+        "carbs_g": 15,
+        "fat_g": 20.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d1d32280-ebf7-4525-a777-81734e9a08ba",
+      "name": "雞扒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 700.6265000000001,
+        "protein_g": 30.449885000000002,
+        "carbs_g": 53.613225,
+        "fat_g": 39.38569
+      },
+      "published": {
+        "kcal": 701,
+        "protein_g": 30.4,
+        "carbs_g": 53.6,
+        "fat_g": 39.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d2027e11-d8b0-4af3-a459-774c7ad25bf5",
+      "name": "意式雜菜意粉湯（快手版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 287.116,
+        "protein_g": 9.818750000000001,
+        "carbs_g": 37.92875,
+        "fat_g": 10.8575
+      },
+      "published": {
+        "kcal": 287,
+        "protein_g": 9.8,
+        "carbs_g": 37.9,
+        "fat_g": 10.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d22592d0-7e14-4893-b1e3-0569636f01e1",
+      "name": "滑蛋蝦仁豆腐煲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 277.65999999999997,
+        "protein_g": 33.78789999999999,
+        "carbs_g": 4.4428,
+        "fat_g": 14.710700000000001
+      },
+      "published": {
+        "kcal": 278,
+        "protein_g": 33.8,
+        "carbs_g": 4.4,
+        "fat_g": 14.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d3a86877-a40b-4fc0-8166-ad66bbad89c2",
+      "name": "雞絲炒米粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 559.66,
+        "protein_g": 25.124399999999998,
+        "carbs_g": 96.49080000000001,
+        "fat_g": 7.9572
+      },
+      "published": {
+        "kcal": 560,
+        "protein_g": 25.1,
+        "carbs_g": 96.5,
+        "fat_g": 8
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d4089cde-3615-47b0-a1a6-a71b92211509",
+      "name": "西洋菜鮮鴨腎排骨湯（參考配方）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 272.9404,
+        "protein_g": 23.9702,
+        "carbs_g": 4.7831,
+        "fat_g": 17.49686
+      },
+      "published": {
+        "kcal": 273,
+        "protein_g": 24,
+        "carbs_g": 4.8,
+        "fat_g": 17.5
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d4145182-e574-41cb-84da-b5676cdfd334",
+      "name": "港式茄汁蝦仁",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 169.54300000000003,
+        "protein_g": 17.781549999999996,
+        "carbs_g": 7.175630000000002,
+        "fat_g": 7.248285000000001
+      },
+      "published": {
+        "kcal": 170,
+        "protein_g": 17.8,
+        "carbs_g": 7.2,
+        "fat_g": 7.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d42a4d9c-317d-4dd1-9f7b-6169db0a5fc8",
+      "name": "豆角炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 310.536,
+        "protein_g": 15.502400000000002,
+        "carbs_g": 8.57166,
+        "fat_g": 23.642719999999997
+      },
+      "published": {
+        "kcal": 311,
+        "protein_g": 15.5,
+        "carbs_g": 8.6,
+        "fat_g": 23.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d4e1d9ef-3604-47fa-8d58-9d9e407cc802",
+      "name": "西班牙薯仔洋蔥蛋餅",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 365.35,
+        "protein_g": 12.770000000000001,
+        "carbs_g": 29.109999999999996,
+        "fat_g": 22.292499999999997
+      },
+      "published": {
+        "kcal": 365,
+        "protein_g": 12.8,
+        "carbs_g": 29.1,
+        "fat_g": 22.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d5537271-e1a5-4a4a-9104-912066557bc8",
+      "name": "檸檬芝士西蘭花意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 674.07,
+        "protein_g": 24.928875,
+        "carbs_g": 80.54562500000002,
+        "fat_g": 29.218600000000002
+      },
+      "published": {
+        "kcal": 674,
+        "protein_g": 24.9,
+        "carbs_g": 80.5,
+        "fat_g": 29.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "d8bd8db7-974b-47d0-99cd-d1330138a286",
+      "name": "瑞士雞翼（現成瑞士汁版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 207.61249999999998,
+        "protein_g": 14.511125000000002,
+        "carbs_g": 13.319500000000001,
+        "fat_g": 10.34525
+      },
+      "published": {
+        "kcal": 208,
+        "protein_g": 14.5,
+        "carbs_g": 13.3,
+        "fat_g": 10.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "da2b2dba-09df-4bae-9b0c-0be8938be3e8",
+      "name": "蒜蓉蒸南瓜",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 181.92,
+        "protein_g": 3.8016,
+        "carbs_g": 33.1236,
+        "fat_g": 4.890000000000001
+      },
+      "published": {
+        "kcal": 182,
+        "protein_g": 3.8,
+        "carbs_g": 33.1,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "dca04e7d-d817-4d7d-8c1b-c63aa7b1a0d8",
+      "name": "蘑菇忌廉意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 919.1232499999999,
+        "protein_g": 26.7343425,
+        "carbs_g": 90.7817125,
+        "fat_g": 51.147745
+      },
+      "published": {
+        "kcal": 919,
+        "protein_g": 26.7,
+        "carbs_g": 90.8,
+        "fat_g": 51.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "dca619a0-d617-487b-a86a-27078b798e13",
+      "name": "韓式海鮮蔥餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 515.2428000000001,
+        "protein_g": 19.840315,
+        "carbs_g": 37.406155,
+        "fat_g": 32.26846
+      },
+      "published": {
+        "kcal": 515,
+        "protein_g": 19.8,
+        "carbs_g": 37.4,
+        "fat_g": 32.3
+      },
+      "issues": [],
+      "notes": [
+        "Seafood allocations are 20g each. Clam reference is USDA SR28 15157 raw clam (86kcal/14.67g protein), not the 37kcal generic clams profile used by another recipe."
+      ],
+      "diffs": []
+    },
+    {
+      "id": "dd1ee9ab-c33b-49e7-8fb0-769c6c908a69",
+      "name": "味噌焗魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 255.79399999999998,
+        "protein_g": 29.491799999999998,
+        "carbs_g": 12.60706,
+        "fat_g": 10.933700000000002
+      },
+      "published": {
+        "kcal": 256,
+        "protein_g": 29.5,
+        "carbs_g": 12.6,
+        "fat_g": 10.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ddc92d24-dbf7-4b11-8152-9fc0b7f61944",
+      "name": "韓式涼拌芽菜",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 73.95475,
+        "protein_g": 3.9526850000000007,
+        "carbs_g": 8.080060000000001,
+        "fat_g": 3.9861574999999996
+      },
+      "published": {
+        "kcal": 74,
+        "protein_g": 4,
+        "carbs_g": 8.1,
+        "fat_g": 4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "de2d96d1-3f46-4009-bde3-496a5c591e12",
+      "name": "咖哩牛腩飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 864.2299999999999,
+        "protein_g": 40.789,
+        "carbs_g": 79.872,
+        "fat_g": 40.93299999999999
+      },
+      "published": {
+        "kcal": 864,
+        "protein_g": 40.8,
+        "carbs_g": 79.9,
+        "fat_g": 40.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e3345160-5e9a-45ab-b6aa-41926d5a36d0",
+      "name": "西湖牛肉羹（豆腐雜蔬版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 148.6505,
+        "protein_g": 15.290510000000001,
+        "carbs_g": 8.235104999999999,
+        "fat_g": 6.109975
+      },
+      "published": {
+        "kcal": 149,
+        "protein_g": 15.3,
+        "carbs_g": 8.3,
+        "fat_g": 6.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e383cfeb-cba5-46c0-a82d-4d9960433ad7",
+      "name": "蒜香雞肉意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 710.3065,
+        "protein_g": 40.731885,
+        "carbs_g": 78.380825,
+        "fat_g": 24.98649
+      },
+      "published": {
+        "kcal": 710,
+        "protein_g": 40.7,
+        "carbs_g": 78.4,
+        "fat_g": 25
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e45784b5-3593-4509-acc3-a2e02d3089b6",
+      "name": "豆腐蛋餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 235.34,
+        "protein_g": 19.0275,
+        "carbs_g": 4.7170000000000005,
+        "fat_g": 16.6025
+      },
+      "published": {
+        "kcal": 235,
+        "protein_g": 19,
+        "carbs_g": 4.7,
+        "fat_g": 16.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e57873c3-9d2f-4b5e-9da2-c3d42d52cf33",
+      "name": "墨西哥彩椒雞肉薄餅",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 521.841378,
+        "protein_g": 33.805152500000005,
+        "carbs_g": 56.981345,
+        "fat_g": 17.7397625
+      },
+      "published": {
+        "kcal": 522,
+        "protein_g": 33.8,
+        "carbs_g": 57,
+        "fat_g": 17.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e678f804-19ee-4aad-a3c5-d69dcae9827d",
+      "name": "薯仔炆雞翼",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 342.317,
+        "protein_g": 15.154199999999998,
+        "carbs_g": 37.87738,
+        "fat_g": 14.983200000000002
+      },
+      "published": {
+        "kcal": 342,
+        "protein_g": 15.2,
+        "carbs_g": 37.9,
+        "fat_g": 15
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e7afd2fb-eb3f-4f9e-babe-5c3c20c089c2",
+      "name": "午餐肉薯仔洋蔥炒粒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 374.387,
+        "protein_g": 12.209389999999999,
+        "carbs_g": 28.790949999999995,
+        "fat_g": 23.719260000000002
+      },
+      "published": {
+        "kcal": 374,
+        "protein_g": 12.2,
+        "carbs_g": 28.8,
+        "fat_g": 23.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "e803d48f-061d-414f-8376-5fab42bf1f4d",
+      "name": "青瓜炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 286.536,
+        "protein_g": 13.4024,
+        "carbs_g": 5.48766,
+        "fat_g": 23.654719999999998
+      },
+      "published": {
+        "kcal": 287,
+        "protein_g": 13.4,
+        "carbs_g": 5.5,
+        "fat_g": 23.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ea6243a0-b663-452b-a854-bfd006996086",
+      "name": "泰式香煎魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 231.02,
+        "protein_g": 28.777199999999997,
+        "carbs_g": 10.0936,
+        "fat_g": 9.962599999999998
+      },
+      "published": {
+        "kcal": 231,
+        "protein_g": 28.8,
+        "carbs_g": 10.1,
+        "fat_g": 10
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "eb11805c-e2fc-4196-a890-40244bca9f74",
+      "name": "日式味噌牛油炒雜菇",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 148.12,
+        "protein_g": 6.2846,
+        "carbs_g": 13.145200000000003,
+        "fat_g": 9.3798
+      },
+      "published": {
+        "kcal": 148,
+        "protein_g": 6.3,
+        "carbs_g": 13.1,
+        "fat_g": 9.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "eb7fb246-3225-4947-9710-a7f4cc47271d",
+      "name": "香煎杏鮑菇",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 122.30225,
+        "protein_g": 5.5419625,
+        "carbs_g": 16.5608025,
+        "fat_g": 4.923955
+      },
+      "published": {
+        "kcal": 122,
+        "protein_g": 5.5,
+        "carbs_g": 16.6,
+        "fat_g": 4.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ebadc314-8c21-4d4d-8af6-967cbe8b2275",
+      "name": "蠔油椰菜鮮菇炒豆腐（家常版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 241.96500000000003,
+        "protein_g": 16.795800000000003,
+        "carbs_g": 18.1106,
+        "fat_g": 12.682300000000001
+      },
+      "published": {
+        "kcal": 242,
+        "protein_g": 16.8,
+        "carbs_g": 18.1,
+        "fat_g": 12.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ed42a6a1-78ad-47b1-bc86-4ac2200af9bf",
+      "name": "德式煙肉薯仔暖沙律（普通黃芥末版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 214.17599871000002,
+        "protein_g": 6.134479999999999,
+        "carbs_g": 31.353041333399993,
+        "fat_g": 7.285159999999999
+      },
+      "published": {
+        "kcal": 214,
+        "protein_g": 6.1,
+        "carbs_g": 31.4,
+        "fat_g": 7.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ee392489-1257-4b80-8b6a-3ca4891ffb78",
+      "name": "蒜香豬扒粒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 333.836,
+        "protein_g": 32.220353333333335,
+        "carbs_g": 8.755936666666667,
+        "fat_g": 18.14154333333333
+      },
+      "published": {
+        "kcal": 334,
+        "protein_g": 32.2,
+        "carbs_g": 8.8,
+        "fat_g": 18.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ee639829-6ec3-4852-b036-1d0e58d66a45",
+      "name": "意式香辣番茄長通粉",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 524.8009999999999,
+        "protein_g": 14.685649999999999,
+        "carbs_g": 81.83715000000001,
+        "fat_g": 15.64675
+      },
+      "published": {
+        "kcal": 525,
+        "protein_g": 14.7,
+        "carbs_g": 81.8,
+        "fat_g": 15.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f008e174-99f2-49f7-b32b-ea58e6f2b23d",
+      "name": "泰式椰奶雞湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 352.80375,
+        "protein_g": 28.258675000000004,
+        "carbs_g": 8.381825,
+        "fat_g": 24.4316125
+      },
+      "published": {
+        "kcal": 353,
+        "protein_g": 28.3,
+        "carbs_g": 8.4,
+        "fat_g": 24.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f596ddf5-3f08-4f87-bda6-c7904a605202",
+      "name": "白汁雞肉意粉",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 888.1265000000001,
+        "protein_g": 45.370084999999996,
+        "carbs_g": 82.27502500000001,
+        "fat_g": 41.96849
+      },
+      "published": {
+        "kcal": 888,
+        "protein_g": 45.4,
+        "carbs_g": 82.3,
+        "fat_g": 42
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f6620034-a8ac-4cde-a116-c1ccfd3bfd15",
+      "name": "蔥花煎蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 219.68,
+        "protein_g": 13.1052,
+        "carbs_g": 1.798,
+        "fat_g": 17.5556
+      },
+      "published": {
+        "kcal": 220,
+        "protein_g": 13.1,
+        "carbs_g": 1.8,
+        "fat_g": 17.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f6c30911-7e95-4286-8511-5d431aa06c2e",
+      "name": "勝瓜炒蛋",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 147.42000328,
+        "protein_g": 8.1436666764,
+        "carbs_g": 5.4895000689,
+        "fat_g": 10.100833670500002
+      },
+      "published": {
+        "kcal": 147,
+        "protein_g": 8.1,
+        "carbs_g": 5.5,
+        "fat_g": 10.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f7415cac-3de3-4217-8754-9fa36bfbb4ff",
+      "name": "蒜香蝦仁",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 192.57600000000002,
+        "protein_g": 25.3068,
+        "carbs_g": 4.01346,
+        "fat_g": 8.708919999999999
+      },
+      "published": {
+        "kcal": 193,
+        "protein_g": 25.3,
+        "carbs_g": 4,
+        "fat_g": 8.7
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f80ecbf2-ce52-4c35-a264-79eb0206422b",
+      "name": "韓式家常拌飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 689.5056280000001,
+        "protein_g": 31.952199999999998,
+        "carbs_g": 82.0174,
+        "fat_g": 26.061799999999998
+      },
+      "published": {
+        "kcal": 690,
+        "protein_g": 32,
+        "carbs_g": 82,
+        "fat_g": 26.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "f9b874d8-62a2-430c-abe3-a12376fe94b9",
+      "name": "台式三杯雞（簡易版）",
+      "basis": "Documented upper retention/label-bound scenario",
+      "calculated": {
+        "kcal": 567.2750000000001,
+        "protein_g": 36.03209999999999,
+        "carbs_g": 9.06578,
+        "fat_g": 41.958859999999994
+      },
+      "published": {
+        "kcal": 567,
+        "protein_g": 36,
+        "carbs_g": 9.1,
+        "fat_g": 42
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fb489d22-6358-40d3-ab88-8bb362258d46",
+      "name": "照燒雞扒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 478.0165833333333,
+        "protein_g": 27.5717425,
+        "carbs_g": 19.7037125,
+        "fat_g": 31.441411666666667
+      },
+      "published": {
+        "kcal": 478,
+        "protein_g": 27.6,
+        "carbs_g": 19.7,
+        "fat_g": 31.4
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fb5189f8-1561-402d-8fd6-edf8d828a94b",
+      "name": "金針菇豆腐煲",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 189.9,
+        "protein_g": 14.91,
+        "carbs_g": 15.0714,
+        "fat_g": 9.9162
+      },
+      "published": {
+        "kcal": 190,
+        "protein_g": 14.9,
+        "carbs_g": 15.1,
+        "fat_g": 9.9
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fbe26ff9-0b29-480c-926f-e82e3f51123d",
+      "name": "忌廉蘑菇湯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 521.94325,
+        "protein_g": 17.4187425,
+        "carbs_g": 22.877712499999998,
+        "fat_g": 43.065745
+      },
+      "published": {
+        "kcal": 522,
+        "protein_g": 17.4,
+        "carbs_g": 22.9,
+        "fat_g": 43.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fcea6858-8d5f-4de2-a761-9cd10020bf06",
+      "name": "焗雞扒飯",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 866.8866666666667,
+        "protein_g": 41.218133333333334,
+        "carbs_g": 64.38393333333333,
+        "fat_g": 48.627399999999994
+      },
+      "published": {
+        "kcal": 867,
+        "protein_g": 41.2,
+        "carbs_g": 64.4,
+        "fat_g": 48.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fd63e73a-9b5e-4087-a7ba-399f4c7042c1",
+      "name": "蒜香南瓜炒蝦仁（家常版）",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 283.215,
+        "protein_g": 27.663200000000003,
+        "carbs_g": 32.63419999999999,
+        "fat_g": 5.113
+      },
+      "published": {
+        "kcal": 283,
+        "protein_g": 27.7,
+        "carbs_g": 32.6,
+        "fat_g": 5.1
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "fe923544-02da-4eba-a61e-436366cf0d59",
+      "name": "檸檬牛油魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 241.44325000000003,
+        "protein_g": 27.4972425,
+        "carbs_g": 5.1587125,
+        "fat_g": 13.565745
+      },
+      "published": {
+        "kcal": 241,
+        "protein_g": 27.5,
+        "carbs_g": 5.2,
+        "fat_g": 13.6
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "feb53292-415f-4e28-ae83-2f21d6fcbddb",
+      "name": "蒜香雞胸",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 299.61,
+        "protein_g": 37.401500000000006,
+        "carbs_g": 7.9906999999999995,
+        "fat_g": 12.3222
+      },
+      "published": {
+        "kcal": 300,
+        "protein_g": 37.4,
+        "carbs_g": 8,
+        "fat_g": 12.3
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ff2d0784-7319-443f-b455-15768b76df4d",
+      "name": "茄汁煮魚柳",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 279.80400000000003,
+        "protein_g": 29.082800000000002,
+        "carbs_g": 21.94516,
+        "fat_g": 10.207
+      },
+      "published": {
+        "kcal": 280,
+        "protein_g": 29.1,
+        "carbs_g": 21.9,
+        "fat_g": 10.2
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    },
+    {
+      "id": "ffd3fc62-4335-4f2f-8de6-e66f8fdb4df1",
+      "name": "日式大阪燒",
+      "basis": "Recorded edible input references",
+      "calculated": {
+        "kcal": 497.90201766666667,
+        "protein_g": 16.26748604666667,
+        "carbs_g": 63.61288497666666,
+        "fat_g": 20.038966856666665
+      },
+      "published": {
+        "kcal": 498,
+        "protein_g": 16.3,
+        "carbs_g": 63.6,
+        "fat_g": 20
+      },
+      "issues": [],
+      "notes": [],
+      "diffs": []
+    }
+  ],
+  "seafood_reference_completion": {
+    "recipe_id": "dca619a0-d617-487b-a86a-27078b798e13",
+    "expected_updated_at": "2026-10-24 18:47:23.626881+00",
+    "before": {
+      "name": "蝦仁／魷魚／蜆肉各20g（生、已清理）",
+      "quantity": 60,
+      "allergens": [
+        "crustaceans",
+        "molluscs"
+      ],
+      "unit_code": "g",
+      "mass_basis": "RECIPE_MASS",
+      "allocations": [
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "shrimp",
+          "ingredient_state": "raw_cleaned"
+        },
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "squid",
+          "ingredient_state": "raw_cleaned"
+        },
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "clam",
+          "ingredient_state": "raw_cleaned"
+        }
+      ],
+      "is_optional": false,
+      "amount_basis": "ADAPT: total 60g/person, 20g each peeled shrimp, cleaned squid and clam meat; not a source-stated ratio",
+      "component_id": "10-06",
+      "variant_rule": "base",
+      "base_servings": 1,
+      "food_identity": "seafood_mix",
+      "ingredient_id": "55f3b9df-84dd-4788-bc7b-d9272d181f60",
+      "default_included": true,
+      "ingredient_state": "raw_or_packaged",
+      "nutrition_source": null,
+      "nutrition_status": "NOT_CALCULABLE",
+      "preparation_note": "按表中生／熟／瀝水狀態備料；用量為每人份。",
+      "edible_grams_estimate": 60,
+      "removed_before_eating": false,
+      "source_entry_original": "海鮮混合約56.5–71g"
+    },
+    "after": {
+      "name": "蝦仁／魷魚／蜆肉各20g（生、已清理）",
+      "quantity": 60,
+      "allergens": [
+        "crustaceans",
+        "molluscs"
+      ],
+      "unit_code": "g",
+      "mass_basis": "RECIPE_MASS",
+      "allocations": [
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "shrimp",
+          "ingredient_state": "raw_cleaned"
+        },
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "squid",
+          "ingredient_state": "raw_cleaned"
+        },
+        {
+          "quantity": 20,
+          "unit_code": "g",
+          "food_identity": "clam",
+          "ingredient_state": "raw_cleaned"
+        }
+      ],
+      "is_optional": false,
+      "amount_basis": "ADAPT: total 60g/person, 20g each peeled shrimp, cleaned squid and clam meat; not a source-stated ratio",
+      "component_id": "10-06",
+      "variant_rule": "base",
+      "base_servings": 1,
+      "food_identity": "seafood_mix",
+      "ingredient_id": "55f3b9df-84dd-4788-bc7b-d9272d181f60",
+      "default_included": true,
+      "ingredient_state": "raw_or_packaged",
+      "nutrition_source": {
+        "per_100g": {
+          "kcal": 87.66666666666667,
+          "protein_g": 16.783333333333335,
+          "carbs_g": 2.216666666666667,
+          "fat_g": 0.9499999999999998
+        },
+        "source_url": "https://www.ars.usda.gov/ARSUserFiles/80400525/Data/SR/SR28/dnload/sr28asc.zip",
+        "description": "Equal-weight raw peeled shrimp, cleaned squid and clam meat composite, 20g each per recipe; estimate, not assay",
+        "reference_parts": [
+          {
+            "ingredient": "shrimp",
+            "weight_fraction": 0.3333333333333333,
+            "values": {
+              "kcal": 85,
+              "fat_g": 0.51,
+              "carbs_g": 0,
+              "protein_g": 20.1
+            },
+            "source": "https://fdc.nal.usda.gov/food-details/175179/nutrients"
+          },
+          {
+            "ingredient": "squid",
+            "weight_fraction": 0.3333333333333333,
+            "values": {
+              "kcal": 92,
+              "fat_g": 1.38,
+              "carbs_g": 3.08,
+              "protein_g": 15.58,
+              "sodium_mg": 44
+            },
+            "source": "https://fdc.nal.usda.gov/food-details/174223/nutrients"
+          },
+          {
+            "ingredient": "clam",
+            "weight_fraction": 0.3333333333333333,
+            "values": {
+              "kcal": 86,
+              "protein_g": 14.67,
+              "carbs_g": 3.57,
+              "fat_g": 0.96
+            },
+            "source": "https://www.ars.usda.gov/ARSUserFiles/80400525/Data/SR/SR28/dnload/sr28asc.zip",
+            "reference_id": "USDA_SR28_15157"
+          }
+        ],
+        "checked_nutrients": [
+          "kcal",
+          "protein_g",
+          "carbs_g",
+          "fat_g"
+        ]
+      },
+      "nutrition_status": "REFERENCE_ESTIMATE",
+      "preparation_note": "按表中生／熟／瀝水狀態備料；用量為每人份。",
+      "edible_grams_estimate": 60,
+      "removed_before_eating": false,
+      "source_entry_original": "海鮮混合約56.5–71g"
+    }
+  },
+  "database_constraint": "Prepared in migration; not applied by this report.",
+  "ui_rules": {
+    "calories": "卡路里／人",
+    "protein": "g 蛋白質／人",
+    "easy": "容易",
+    "rounded_values_marked": "約",
+    "calculations_keep_original_precision": true
+  },
+  "tests": {
+    "unit": 2321,
+    "components": 234,
+    "build": "passed using public read credentials only; no service-role secret used",
+    "visual_screenshot": "Unavailable: browser policy blocks local file previews"
+  },
+  "comparison_tolerance": {
+    "kcal": 1.01,
+    "macros_g": 0.16,
+    "reason": "Older component ledgers include rounded label conversions; this is a consistency check, not evidence of laboratory accuracy."
+  }
+}
