@@ -40,6 +40,9 @@ export default defineConfig({
   plugins: [myPlansComponentJsx()],
   resolve: baseConfig.resolve,
   test: {
+    // Real page/controller tests need a responsive event loop for waitFor.
+    // Run files serially without relaxing their assertions or deadlines.
+    maxWorkers: 1,
     environment: 'jsdom',
     include: [
       'tests/adPolicy.runtime.test.tsx',
