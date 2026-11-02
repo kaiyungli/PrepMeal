@@ -9,3 +9,7 @@ it('matches fixed-ratio units but keeps density and count conversions separate',
   expect(sameGrocery(row(null, 'g'), row('a', 'g'))).toBe(false);
   expect(sameGrocery(row(null, 'g'), row(null, 'g'))).toBe(true);
 });
+
+it('matches Chinese API display units to canonical master units', () => {
+  for (const [code, display] of [['g','克'], ['kg','公斤'], ['ml','毫升'], ['l','公升'], ['tsp','茶匙'], ['tbsp','湯匙'], ['pc','件']]) expect(sameGrocery(row('a', code), row('a', display))).toBe(true);
+});
