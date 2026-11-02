@@ -69,7 +69,7 @@ function GenerateWorkspace({ isAuthenticated }) {
       duration: 0,
       meta: { page: '/generate' }
     });
-  }, []);
+  }, [traceId]);
   
   const {
     preferences: prefs,
@@ -83,7 +83,6 @@ function GenerateWorkspace({ isAuthenticated }) {
     isFilterExpanded,
     handleToggleFilterExpanded,
     hasRecipes,
-    preloadShoppingList,
     selectedCount,
     selectedRecipe,
     modalLoading,

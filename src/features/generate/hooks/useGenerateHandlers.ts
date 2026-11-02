@@ -109,32 +109,6 @@ export function getCandidatesForAddRandom(
 }
 
 
-interface UseGenerateHandlersOptions {
-  budget?: string;
-  weeklyPlan: Record<string, (Recipe | null)[]>;
-  setWeeklyPlan: import('react').Dispatch<import('react').SetStateAction<Record<string, (Recipe | null)[]>>>;
-  filteredRecipes: Recipe[];
-  clearFilters: () => void;
-  actionsClearAll: () => void;
-  handleResetPlan: () => void;
-  dailyComposition: string;
-  allowCompleteMeal?: boolean;
-  notify?: GenerateNotify;
-}
-
-export function useGenerateHandlers({
-  weeklyPlan,
-  setWeeklyPlan,
-  filteredRecipes,
-  clearFilters,
-  actionsClearAll,
-  handleResetPlan,
-  dailyComposition,
-  budget,
-  allowCompleteMeal,
-  notify,
-}: UseGenerateHandlersOptions) {
-  
 // Apply soft budget preference (filter, not block)
 // Extract ingredient keywords from existing recipes
 function getIngredientKeywords(weeklyPlan: Record<string, (Recipe | null)[]>): string[] {
@@ -163,7 +137,34 @@ function applyIngredientReusePreference(candidates: Recipe[], weeklyPlan: Record
   return reuseCandidates.length > 0 ? reuseCandidates : candidates;
 }
 
-const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): void => {
+
+interface UseGenerateHandlersOptions {
+  budget?: string;
+  weeklyPlan: Record<string, (Recipe | null)[]>;
+  setWeeklyPlan: import('react').Dispatch<import('react').SetStateAction<Record<string, (Recipe | null)[]>>>;
+  filteredRecipes: Recipe[];
+  clearFilters: () => void;
+  actionsClearAll: () => void;
+  handleResetPlan: () => void;
+  dailyComposition: string;
+  allowCompleteMeal?: boolean;
+  notify?: GenerateNotify;
+}
+
+export function useGenerateHandlers({
+  weeklyPlan,
+  setWeeklyPlan,
+  filteredRecipes,
+  clearFilters,
+  actionsClearAll,
+  handleResetPlan,
+  dailyComposition,
+  budget,
+  allowCompleteMeal,
+  notify,
+}: UseGenerateHandlersOptions) {
+
+  const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): void => {
     const composition = dailyComposition || 'meat_veg';
     const nextSlotRole = getSlotRoleForIndex(composition, slotIndex);
     
