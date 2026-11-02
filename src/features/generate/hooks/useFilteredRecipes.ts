@@ -1,3 +1,4 @@
+import { isLunchboxCandidate } from '../workweek';
 import { useMemo } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
 import { perfNow, perfLog } from '@/utils/perf';
@@ -7,9 +8,10 @@ interface UseFilteredRecipesOptions {
   exclusions: string[];
   filters: any;
   traceId?: string;
+  packLunch?: boolean;
 }
 
-export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }: UseFilteredRecipesOptions) {
+export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId, packLunch = false }: UseFilteredRecipesOptions) {
   const filteredRecipes = useMemo(() => {
     const start = perfNow();
     
@@ -33,6 +35,7 @@ export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }:
     const exclusionCount = exclusions?.length || 0;
     
     const result = allRecipes.filter((recipe: any) => {
+      if (packLunch && !isLunchboxCandidate(recipe)) return false;
       // Negative filter: exclusions
       if (exclusions?.length) {
         const proteins = [...(recipe.protein || [])];
@@ -71,7 +74,7 @@ export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }:
     });
     
     return result;
-  }, [allRecipes, exclusions, filters]);
+  }, [allRecipes, exclusions, filters, packLunch, traceId]);
   
   return filteredRecipes;
 }

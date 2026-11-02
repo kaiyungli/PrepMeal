@@ -31,6 +31,8 @@ export function useGeneratePreferences() {
   const [dailyComposition, setDailyComposition] = useState('complete_meal');
   const [allowCompleteMeal, setAllowCompleteMeal] = useState(true);
   const [servings, setServings] = useState(2);
+  const [packLunch, setPackLunch] = useState(false);
+  const [shoppingTrips, setShoppingTrips] = useState(1);
   
   // === Preference Settings ===
   const [budget, setBudget] = useState('normal');
@@ -125,6 +127,7 @@ export function useGeneratePreferences() {
     dailyComposition, setDailyComposition,
     allowCompleteMeal, setAllowCompleteMeal,
     servings, setServings,
+    packLunch, setPackLunch, shoppingTrips, setShoppingTrips,
     
     // Preference settings
     budget, setBudget,

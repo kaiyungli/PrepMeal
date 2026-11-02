@@ -101,6 +101,18 @@ function createDatabase({
 }
 
 describe('/api/shopping-list security boundary', () => {
+
+  it('excludes plain cooking water without hiding broth or bottled drinks', async () => {
+    const rows = ['water','chicken-broth','mineral-water'].map((slug,index) => ({recipe_id:'recipe-1',ingredient_id:slug,quantity:100,
+      ingredients:{id:slug,name:['水','雞湯','樽裝礦泉水'][index],slug,shopping_category:'other'},recipes:{id:'recipe-1',name:'飯'},units:{code:'ml',display_name_zh:'毫升'}}));
+    createClientMock.mockReturnValue(createDatabase({ingredientRows:rows}).client);
+    const {response,apiResponse}=createResponse();
+    await handleShoppingList(createRequest({method:'POST',headers:{},body:{recipeIds:['recipe-1'],servings:1}}),apiResponse,true);
+    const result=response.body as ShoppingListResponse;
+    expect(result.toBuy.flatMap(group=>group.items).map(item=>item.name)).toEqual(['雞湯','樽裝礦泉水']);
+    expect(result.byRecipe[0].toBuy.map(item=>item.name)).toEqual(['雞湯','樽裝礦泉水']);
+    expect(result.summary.toBuyCount).toBe(2);
+  });
   it('allows public preview without reading account preferences or requiring login', async () => {
     const database = createDatabase({ visibleRecipeIds: [] });
     createClientMock.mockReturnValue(database.client);
@@ -309,7 +321,7 @@ describe('/api/shopping-list security boundary', () => {
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
     // 200 g + 0.2 kg = 400 g, never 200.2 g.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'beef-1', quantity: 400, unit: 'g', unitDisplay: 'g' }),
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 400, unit: 'g', unitDisplay: '克' }),
     ]);
   });
 
@@ -348,7 +360,7 @@ describe('/api/shopping-list security boundary', () => {
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
     // 2 tsp + 3 tbsp = 11 tsp.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: 'tsp' }),
+      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: '茶匙' }),
     ]);
   });
 

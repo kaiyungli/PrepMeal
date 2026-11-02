@@ -58,10 +58,10 @@ describe('GenerateSettings: single-choice settings via SegmentedControl', () => 
 
   it('leaves servings as the existing native select, unconverted', () => {
     render(createElement(StatefulGenerateSettingsHarness));
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
+    const select = screen.getByRole('combobox', { name: '用餐人數' }) as HTMLSelectElement;
     expect(select.value).toBe('2');
     fireEvent.change(select, { target: { value: '4' } });
-    expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('4');
+    expect((screen.getByRole('combobox', { name: '用餐人數' }) as HTMLSelectElement).value).toBe('4');
   });
 });
 

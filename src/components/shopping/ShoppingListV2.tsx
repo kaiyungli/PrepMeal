@@ -1,9 +1,12 @@
+import FoodStorageInfo from './FoodStorageInfo';
+import { sameGrocery, batchQuantities } from '@/features/shopping-list/recipeQuantities';
+import type { ShoppingBatch } from '@/features/generate/workweek';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ShoppingListItemViewModel, ShoppingListViewModel } from '@/features/shopping-list/types';
 import { itemKey, reconcileProgress, shoppingText, type ExtraItem, type ShoppingProgress } from '@/features/shopping-list/progress/model';
 import OptionalIngredientChoices from './OptionalIngredientChoices';
 
-type Props = { view: ShoppingListViewModel; progress: ShoppingProgress; onChange: (p: ShoppingProgress) => void; disabled?: boolean; status?: string };
+type Props = { batches?: ShoppingBatch[]; view: ShoppingListViewModel; progress: ShoppingProgress; onChange: (p: ShoppingProgress) => void; disabled?: boolean; status?: string };
 type Editor = { kind: 'ingredient'; key: string; name: string } | { kind: 'extra'; id: string | null };
 type Undo = { kind: 'ingredient' | 'extra'; key: string; name: string };
 const secondary = 'min-h-11 rounded-xl px-3 py-2 text-sm font-medium text-[#77573F] hover:bg-[#F3EFE8] focus-visible:outline-2 focus-visible:outline-[#9B6035] disabled:opacity-40';
@@ -48,8 +51,9 @@ function compactStatus(status?: string) {
   return status;
 }
 
-export default function ShoppingListV2({ view, progress, onChange, disabled = false, status }: Props) {
+export default function ShoppingListV2({ batches = [], view, progress, onChange, disabled = false, status }: Props) {
   const [mode, setMode] = useState<'category' | 'recipe'>('category');
+  const [batchIndex, setBatchIndex] = useState(0);
   const [showBought, setShowBought] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -138,11 +142,11 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
     catch (error) { if (!(error instanceof Error && error.name === 'AbortError')) { setNotice('未能分享，請選取清單文字。'); setFallback(true); } }
     finally { setBusy(false); }
   };
-  const renderItem = (item: ShoppingListItemViewModel, prefix: string) => <ItemRow key={`${prefix}:${itemKey(item)}`}
-    name={item.name} quantity={item.quantityPending ? '數量待補' : item.quantityText} note={current.items[itemKey(item)]?.note || ''}
-    checked={!!current.items[itemKey(item)]?.checked}
-    onCheck={checked => { updateItem(item, { checked }); setUndo(checked ? { kind: 'ingredient', key: itemKey(item), name: item.name } : null); }}
-    onEdit={() => beginEditor({ kind: 'ingredient', key: itemKey(item), name: item.name })} />;
+  const renderItem = (item: ShoppingListItemViewModel, prefix: string, purchaseItem = item) => <ItemRow key={`${prefix}:${itemKey(item)}`}
+    name={item.name} quantity={item.quantityPending ? '數量待補' : item.quantityText} note={current.items[itemKey(purchaseItem)]?.note || ''}
+    checked={!!current.items[itemKey(purchaseItem)]?.checked}
+    onCheck={checked => { updateItem(purchaseItem, { checked }); setUndo(checked ? { kind: 'ingredient', key: itemKey(purchaseItem), name: item.name } : null); }}
+    onEdit={() => beginEditor({ kind: 'ingredient', key: itemKey(purchaseItem), name: purchaseItem.name })} />;
   const renderExtra = (extra: ExtraItem) => <ItemRow key={extra.id} name={extra.name} quantity={[extra.quantity, extra.unit].filter(Boolean).join(' ')} note={extra.note} checked={extra.checked}
     onCheck={checked => { onChange({ ...current, extras: current.extras.map(i => i.id === extra.id ? { ...i, checked } : i) }); setUndo(checked ? { kind: 'extra', key: extra.id, name: extra.name } : null); }}
     onEdit={() => beginEditor({ kind: 'extra', id: extra.id })} />;
@@ -198,7 +202,7 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
             </button>
           </div>
         </div>
-        {mode === 'recipe' && <p className="pb-1 text-[11px] text-[#938576]">顯示整份餐單總量</p>}
+        {mode === 'recipe' && <p className="pb-1 text-[11px] text-[#938576]">顯示各菜式所需量；勾選代表全週已買齊該項食材。同菜重複出現時合計。</p>}
         {showShare && <fieldset id={shareId} disabled={disabled} className="mt-3 rounded-xl bg-[#F5F1EB] p-3">
           <label className="flex items-center justify-between text-sm">分享範圍<select className="min-h-11 rounded-lg bg-white px-3 text-sm" value={shareAll ? 'all' : 'remaining'} onChange={e => { setShareAll(e.target.value === 'all'); setFallback(false); }}><option value="remaining">尚欠</option><option value="all">全部</option></select></label>
           <div className="mt-2 grid grid-cols-2 gap-2"><button type="button" className={`${secondary} bg-white`} disabled={busy || !total} onClick={copy}>複製清單</button><button type="button" className={`${secondary} bg-white`} disabled={busy || !total} onClick={share}>分享清單</button></div>
@@ -207,6 +211,12 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
       <div ref={listRef} tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-1 outline-none sm:px-6 sm:pb-3">
         {notice && <p role="status" className="mb-3 rounded-lg bg-[#F5EFE4] p-3 text-sm leading-relaxed">{notice}</p>}
         {fallback && <label className="mb-4 block text-sm">清單文字<textarea aria-label="清單文字" className={`${input} h-44`} readOnly value={text} onFocus={e => e.target.select()} /></label>}
+        {batches.length > 0 && <details className="mb-3 rounded-xl border border-[#E5DFD4] p-3 text-sm">
+          <summary className="min-h-9 cursor-pointer font-medium">分批買餸參考</summary>
+          <label className="my-2 block">採購批次<select aria-label="採購批次" value={Math.min(batchIndex, batches.length - 1)} onChange={event => setBatchIndex(Number(event.target.value))} className="ml-2 max-w-full rounded-lg border p-2">{batches.map((batch, index) => <option key={batch.label} value={index}>{batch.label}</option>)}</select></label>
+          <p className="mb-2 text-xs leading-5">以下係該批需求，未扣已買進度及包裝餘量；採購勾選同分享仍按全週清單。買第二批前先核對餘料。第一批可買齊乾貨，後段鮮貨按包裝期限補買。</p>
+          <ul>{batchQuantities(view, batches[Math.min(batchIndex, batches.length - 1)]).map((item, index) => <li key={index} className="flex justify-between gap-3 border-b py-1"><span>{item.name}</span><span>{item.quantityText}</span></li>)}</ul>
+        </details>}
         <fieldset disabled={disabled} className="min-w-0">
           {mode === 'category' ? view.sections.map(section => {
             const remaining = unbought(section.items);
@@ -215,10 +225,13 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
               {remaining.map(i => renderItem(i, section.categoryKey))}
             </section> : null;
           }) : view.byRecipe.map((recipe, index) => {
-            const names = new Set(recipe.toBuy.map(i => i.name));
-            const remaining = unbought(items.filter(i => names.has(i.name)));
+            const remaining = recipe.toBuy.flatMap(local => {
+              const purchase = items.find(item => sameGrocery(item, local));
+              if (!purchase || current.items[itemKey(purchase)]?.checked) return [];
+              return [{ local: { ...purchase, ...local, ingredientId: local.ingredientId ?? purchase.ingredientId, quantityPending: local.quantityPending ?? false }, purchase }];
+            });
             return remaining.length ? <section key={`${recipe.recipeId}:${index}`} className="mb-1 sm:mb-2">
-              <h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">{recipe.recipeName}</h3>{remaining.map(i => renderItem(i, String(index)))}
+              <h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">{recipe.recipeName}</h3>{remaining.map(({ local, purchase }) => renderItem(local, String(index), purchase))}
             </section> : null;
           })}
           {current.extras.some(i => !i.checked) && <section className="mb-1 sm:mb-2"><h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">額外物品</h3>{current.extras.filter(i => !i.checked).map(renderExtra)}</section>}
@@ -228,7 +241,7 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
         {!!(bought || view.pantry.length || view.optionalIngredients?.length || view.dietaryNotes?.length || status) && <section className="mt-1 border-t border-[#EDE8DF]">
           <div className="flex items-center gap-3">
             {!!bought && <button type="button" disabled={disabled} aria-expanded={showBought} aria-controls={boughtId} className="flex min-h-8 shrink-0 items-center gap-2 text-xs text-[#756B5F] sm:min-h-10" onClick={() => setShowBought(!showBought)}><span>已買 {bought} 項</span><span aria-hidden="true">{showBought ? '−' : '＋'}</span></button>}
-            {!!(view.pantry.length || view.optionalIngredients?.length || view.dietaryNotes?.length || status) && <button type="button" aria-expanded={showInfo} aria-controls={infoId} className="flex min-h-8 min-w-0 flex-1 items-center justify-end gap-2 text-[11px] text-[#8B8175] sm:min-h-10" onClick={() => setShowInfo(!showInfo)}><span>食材與保存資訊</span>{!statusError && statusText && <span className="truncate">{statusText}</span>}<span aria-hidden="true">{showInfo ? '−' : '＋'}</span></button>}
+            {!!(view.pantry.length || view.optionalIngredients?.length || view.dietaryNotes?.length || status) && <button type="button" aria-expanded={showInfo} aria-controls={infoId} className="flex min-h-8 min-w-0 flex-1 items-center justify-end gap-2 text-[11px] text-[#8B8175] sm:min-h-10" onClick={() => setShowInfo(!showInfo)}><span>食材與草稿資訊</span>{!statusError && statusText && <span className="truncate">{statusText}</span>}<span aria-hidden="true">{showInfo ? '−' : '＋'}</span></button>}
           </div>
           {showBought && !!bought && <fieldset disabled={disabled} id={boughtId}>{boughtItems.map(i => renderItem(i, 'bought'))}{boughtExtras.map(renderExtra)}</fieldset>}
           {showInfo && <div id={infoId} className="space-y-4 pb-4 text-sm text-[#756B5F]">
@@ -238,6 +251,7 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
             {status && <p>{status}</p>}
           </div>}
         </section>}
+        <FoodStorageInfo />
       </div>
     </>}
     <footer className="shrink-0 border-t border-[#EDE8DF] bg-[#FFFEFB] px-4 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-2 sm:pb-2">

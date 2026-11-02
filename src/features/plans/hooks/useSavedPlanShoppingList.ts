@@ -15,7 +15,7 @@ export interface SavedPlanShoppingList {
   optionalIngredients?: OptionalIngredientGroup[];
   dietaryNotes?: string[];
   byCategory: { pantry: unknown[]; toBuy: Record<string, unknown[]> };
-  byRecipe: Array<{ recipeName: string; pantry: unknown[]; toBuy: unknown[] }>;
+  byRecipe: Array<{ recipeId?: string | null; recipeName: string; pantry: unknown[]; toBuy: unknown[] }>;
   notice: string | null;
   noUsableRecipes: boolean;
 }
@@ -118,6 +118,7 @@ export function useSavedPlanShoppingList({ recipeIds, servings, recipeServings, 
       if (data.byRecipe && Array.isArray(data.byRecipe)) {
         for (const rb of data.byRecipe) {
           normalizedByRecipe.push({
+            recipeId: rb.recipeId ?? null,
             recipeName: rb.recipeName || rb.name || 'Unknown',
             pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
             toBuy: Array.isArray(rb.toBuy) ? rb.toBuy : []

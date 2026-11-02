@@ -1,5 +1,7 @@
 'use client';
 
+import FoodStorageInfo from '@/components/shopping/FoodStorageInfo';
+import type { ShoppingBatch } from '@/features/generate/workweek';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import ShoppingListSheet from '@/components/shopping/ShoppingListSheet';
 import ShoppingListV2 from '@/components/shopping/ShoppingListV2';
@@ -11,6 +13,7 @@ import type { ShoppingListViewModel, ShoppingListItemViewModel } from '@/feature
 import { CATEGORY_ICONS, CATEGORY_LABELS, SHOPPING_CATEGORY_ORDER } from '@/features/shopping-list/constants';
 
 interface ShoppingListModalProps {
+  batches?: ShoppingBatch[];
   progress?: ShoppingProgress;
   onProgressChange?: (progress: ShoppingProgress) => void;
   progressDisabled?: boolean;
@@ -32,7 +35,7 @@ const EMPTY_VIEW: ShoppingListViewModel = {
 };
 
 export default function ShoppingListModal({
-  progress, onProgressChange, progressDisabled, progressStatus,
+  batches, progress, onProgressChange, progressDisabled, progressStatus,
   isOpen,
   onClose,
   shoppingListView,
@@ -86,7 +89,7 @@ export default function ShoppingListModal({
 
   if (progress && onProgressChange) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
     {loading ? <p role="status" className="p-6">正在整理購物清單...</p> : error ? <p role="alert" className="p-6 text-red-700">{error}</p> : shoppingListView ?
-      <ShoppingListV2 view={viewModel} progress={progress} onChange={onProgressChange} disabled={progressDisabled} status={progressStatus} /> : <p className="p-6">暫無食材</p>}
+      <ShoppingListV2 batches={batches} view={viewModel} progress={progress} onChange={onProgressChange} disabled={progressDisabled} status={progressStatus} /> : <p className="p-6">暫無食材</p>}
   </ShoppingListSheet>;
   const isEmpty = viewModel.isEmpty;
 
@@ -128,6 +131,7 @@ export default function ShoppingListModal({
         <p>未能複製，請選取以下文字自行複製：</p>
         <textarea aria-label="清單文字" readOnly value={formatShoppingListCopyText(viewModel)} className="w-full h-40 border p-2" onFocus={event => event.target.select()} />
       </div>}
+      <FoodStorageInfo />
       <OptionalIngredientChoices groups={viewModel.optionalIngredients} />
       {viewModel.dietaryNotes?.map(note => <p key={note} className="mb-3 text-sm">{note}</p>)}
       {loading ? (

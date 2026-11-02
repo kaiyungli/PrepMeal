@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { dayPortions } from '../workweek';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchGeneratedPlanShoppingList } from '../services/fetchGeneratedPlanShoppingList';
 import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 import { perfLog } from '@/utils/perf';
@@ -8,6 +9,8 @@ interface Options {
   weeklyPlan: Record<string, Array<{ id?: string | null } | null>>;
   pantryIngredients: string[];
   servings: number;
+  daysPerWeek?: number;
+  packLunch?: boolean;
   isAuthenticated: boolean;
   userId: string | null;
   getAccessToken: () => Promise<string | null>;
@@ -21,14 +24,16 @@ interface ListState {
 }
 
 export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings,
-  isAuthenticated, userId, getAccessToken, traceId }: Options) {
+  isAuthenticated, userId, getAccessToken, traceId, daysPerWeek = 7, packLunch = false }: Options) {
   // Preserve repeated recipes: each occurrence contributes to shopping quantities.
   const { selections: allSelections } = useOptionalSelections(userId);
   const recipeIds = Object.values(weeklyPlan || {}).flat().flatMap(recipe => recipe?.id ? [String(recipe.id)] : []).sort();
+  const recipeServings = useMemo(() => packLunch ? Object.entries(weeklyPlan || {}).flatMap(([day, recipes]) => recipes.flatMap(recipe => recipe?.id ? [dayPortions(day, daysPerWeek, servings, true)] : [])) : undefined, [weeklyPlan, daysPerWeek, servings, packLunch]);
+  const portionKey = packLunch ? Object.entries(weeklyPlan || {}).flatMap(([day, recipes]) => recipes.flatMap(recipe => recipe?.id ? [[String(recipe.id), dayPortions(day, daysPerWeek, servings, true)]] : [])) : null;
   const selections = scopeSelections(allSelections, recipeIds);
   const optionalKey = selectionKey(selections);
   const previousSelection = useRef({ userId, optionalKey });
-  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, pantryIngredients.slice().sort(), optionalKey]);
+  const key = JSON.stringify([userId, isAuthenticated, recipeIds, servings, portionKey, packLunch, daysPerWeek, pantryIngredients.slice().sort(), optionalKey]);
   const [state, setState] = useState<ListState | null>(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const requestRef = useRef<{ active: boolean } | null>(null);
@@ -64,7 +69,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (isAuthenticated && !token) throw new Error('登入已失效，請重新登入');
       const started = Date.now();
       const view = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings,
-        { traceId, token, cacheScope: userId || 'guest-preview', optionalSelections: selections });
+        { traceId, token, cacheScope: userId || 'guest-preview', optionalSelections: selections, ...(packLunch ? { recipeServings: recipeServings } : {}) });
       if (!request.active) return;
       setState({ key, view, error: null, loading: false });
       log(preload ? 'preload_ready' : 'ready', Date.now() - started, view.summary);
@@ -76,7 +81,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       if (requestRef.current === request) requestRef.current = null;
     }
   }, [key, shoppingListView, isShoppingListLoading, recipeIds.length, isAuthenticated, userId,
-    getAccessToken, weeklyPlan, pantryIngredients, servings, traceId, invalidate, selections]);
+    getAccessToken, weeklyPlan, pantryIngredients, servings, packLunch, recipeServings, traceId, invalidate, selections]);
 
   useEffect(() => {
     const previous = previousSelection.current;

@@ -1,3 +1,4 @@
+import { isLunchboxCandidate } from '../workweek';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useGeneratedShoppingList } from './useGeneratedShoppingList';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
@@ -12,6 +13,7 @@ interface UseGenerateActionsOptions {
   weeklyPlan: any;
   pantryIngredients: string[];
   servings: number;
+  packLunch?: boolean;
   daysPerWeek: number;
   isAuthenticated: boolean;
   userId: string | null;
@@ -25,6 +27,7 @@ export function useGenerateActions({
   weeklyPlan,
   pantryIngredients,
   servings,
+  packLunch = false,
   daysPerWeek,
   isAuthenticated,
   userId,
@@ -47,7 +50,7 @@ export function useGenerateActions({
 
   const { shoppingListView, showShoppingList, isShoppingListLoading, shoppingListError,
     preloadShoppingList, handleOpenShoppingList, handleCloseShoppingList, clearShoppingList,
-  } = useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings, isAuthenticated, userId, getAccessToken, traceId });
+  } = useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings, packLunch, daysPerWeek, isAuthenticated, userId, getAccessToken, traceId });
 
   // Save State
   const [saveNotice, setSaveNotice] = useState('');
@@ -127,6 +130,9 @@ export function useGenerateActions({
     // State updates are asynchronous; the ref also blocks same-tick clicks
     // and retained callbacks while token retrieval is still pending.
     if (saveInFlightRef.current) return;
+    if (packLunch && Object.values(weeklyPlan).flat().some(recipe => recipe && !isLunchboxCandidate(recipe))) {
+      setSaveNotice('目前有菜式未核對帶飯做法，請換菜或重新生成後再保存。'); return;
+    }
     if (!isAuthenticated) {
       try {
         const redirect = loginRedirect ? loginRedirect() : window.location.pathname;
@@ -137,7 +143,7 @@ export function useGenerateActions({
       return;
     }
 
-    const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek);
+    const payload = normalizePlanForSave(weeklyPlan, servings, daysPerWeek, packLunch);
     if (shoppingProgress) payload.shopping_progress = shoppingProgress;
     if (customName !== undefined) {
       const name = customName.trim();
@@ -171,7 +177,7 @@ export function useGenerateActions({
       saveInFlightRef.current = false;
       setIsSaving(false);
     }
-  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek, loginRedirect, shoppingProgress]);
+  }, [isAuthenticated, getAccessToken, weeklyPlan, servings, daysPerWeek, packLunch, loginRedirect, shoppingProgress]);
 
   const handleClearAll = useCallback(() => {
     handleCloseRecipe();

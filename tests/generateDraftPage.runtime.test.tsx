@@ -112,7 +112,7 @@ describe('real generate page draft integration', () => {
   it('rehydrates the real controller and page, including servings and lock', async () => {
     render(<GeneratePage />);
     await waitFor(() => expect(screen.getAllByText('帳戶A晚餐').length).toBeGreaterThan(0));
-    expect((screen.getByRole('combobox') as HTMLSelectElement).value).toBe('4');
+    expect((screen.getByRole('combobox', { name: '用餐人數' }) as HTMLSelectElement).value).toBe('4');
     expect(screen.getByRole('button', { name: '解鎖' })).toBeTruthy();
     expect(screen.getByText(/已還原草稿/)).toBeTruthy();
     expect(screen.getByText(/除已鎖定菜式外，只有 0 道可用完整餐，不足以填滿 2 個完整餐位/)).toBeTruthy();

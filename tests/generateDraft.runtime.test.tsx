@@ -25,6 +25,15 @@ beforeEach(() => { localStorage.clear(); sessionStorage.clear(); router.query = 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('draft lifecycle', () => {
+  it('preserves lunch portions and shopping trips through draft reload', () => {
+    const first = renderHook(() => useWorkspace(null));
+    act(() => { first.result.current.preferences.setPackLunch(true); first.result.current.preferences.setShoppingTrips(2); });
+    first.unmount();
+    const restored = renderHook(() => useWorkspace(null));
+    expect(restored.result.current.preferences.packLunch).toBe(true);
+    expect(restored.result.current.preferences.shoppingTrips).toBe(2);
+  });
+
   it('waits for catalogue before restoring; reload preserves meals, gaps, settings and locks', async () => {
     const { result, unmount } = renderHook(() => useWorkspace(null));
     act(() => {

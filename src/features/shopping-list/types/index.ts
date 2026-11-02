@@ -59,6 +59,7 @@ export interface ShoppingListRecipeGroup {
     quantity: number | null;
     unit: string;
     quantityPending?: boolean;
+    unitCode?: string;
   }[];
 }
 
@@ -101,7 +102,7 @@ export interface ShoppingListRecipeGroupViewModel {
   recipeId: string | null;
   recipeName: string;
   pantry: { name: string }[];
-  toBuy: { name: string; quantityText: string }[];
+  toBuy: (Partial<ShoppingListItemViewModel> & { name: string; quantityText: string })[];
 }
 
 export interface ShoppingListViewModel {
