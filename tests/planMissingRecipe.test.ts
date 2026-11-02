@@ -116,7 +116,7 @@ describe('usePlanDetailController with a partial recipe lookup', () => {
     expect('recipe' in controller.items[1]).toBe(false);
     expect(controller.items[1].recipe_id).toBe(RECIPE_B);
     expect(controller.recipeIds).toEqual([RECIPE_A, RECIPE_B, RECIPE_A]);
-    expect(controller.mealSlotGroupsByDay[0].map((g) => [g.mealSlot, g.items.map((i: { recipe_id: string }) => i.recipe_id)])).toEqual([
+    expect(controller.mealSlotGroupsByDay[0].map((g) => [g.mealSlot, g.items.map((i: { recipe_id: string | null }) => i.recipe_id)])).toEqual([
       ['dinner', [RECIPE_A]],
       ['snack', [RECIPE_B]],
     ]);

@@ -19,7 +19,7 @@ import Toast, { useToast } from '@/components/ui/Toast';
 
 import { UI } from '@/styles/ui';
 import { perfLog, createPerfTraceId } from '@/utils/perf';
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function GeneratePage() {
   const { user, loading } = useAuth();
@@ -41,10 +41,10 @@ export default function GeneratePage() {
 }
 
 function GenerateWorkspace({ isAuthenticated }) {
-  const traceIdRef = useRef(createPerfTraceId('generate_page'));
+  const [traceId] = useState(() => createPerfTraceId('generate_page'));
   const preferences = useGeneratePreferences();
   const { toast, showToast } = useToast();
-  const ctrl = useGeneratePageController({ preferences, traceId: traceIdRef.current, showToast });
+  const ctrl = useGeneratePageController({ preferences, traceId: traceId, showToast });
   const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
   const { planName, setPlanName } = ctrl.draft;
   const [defaultPlanName, setDefaultPlanName] = useState('');
@@ -62,7 +62,7 @@ function GenerateWorkspace({ isAuthenticated }) {
   // Log page mount (effect fires, so duration is 0)
   useEffect(() => {
     perfLog({
-      traceId: traceIdRef.current,
+      traceId: traceId,
       event: 'generate_page_mount',
       stage: 'page_mount',
       label: 'generate.page.mount',
@@ -164,7 +164,7 @@ function GenerateWorkspace({ isAuthenticated }) {
           />
 
           <GenerateResults
-            traceId={traceIdRef.current}
+            traceId={traceId}
             weeklyPlan={weeklyPlan}
             lockedSlots={lockedSlots}
             daysPerWeek={daysPerWeek}

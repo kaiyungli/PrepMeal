@@ -18,17 +18,17 @@ interface GenerateSettingsProps {
   budget: string;
   setBudget: (v: string) => void;
   // Legacy props - ignored in unified mode
-  dietMode?: any;
-  exclusions?: any;
-  toggleExclusion?: any;
-  cuisines?: any;
-  toggleCuisine?: any;
-  cookingConstraints?: any;
-  toggleConstraint?: any;
-  ingredientReuse?: any;
-  setIngredientReuse?: any;
-  pantryIngredients?: any;
-  setPantryIngredients?: any;
+  dietMode?: string;
+  exclusions?: string[];
+  toggleExclusion?: (value: string) => void;
+  cuisines?: string[];
+  toggleCuisine?: (value: string) => void;
+  cookingConstraints?: string[];
+  toggleConstraint?: (value: string) => void;
+  ingredientReuse?: string;
+  setIngredientReuse?: (value: string) => void;
+  pantryIngredients?: string[];
+  setPantryIngredients?: (values: string[]) => void;
   // New unified filter props
   filters: Record<string, string[]>;
   setFilters: (f: Record<string, string[]>) => void;

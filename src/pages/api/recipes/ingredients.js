@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 // API to fetch ingredients for multiple recipes
 export default async function handler(req, res) {
   const { recipeIds } = req.query;
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Missing env vars' });
   }
   
-  const { createClient } = require('@supabase/supabase-js');
+
   const supabase = createClient(supabaseUrl, supabaseKey);
   
   try {

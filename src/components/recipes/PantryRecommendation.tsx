@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { recommendRecipes, type Recipe, type Recommendation } from '@/lib/ingredientMatcher';
+import { recommendRecipes, type Recipe } from '@/lib/ingredientMatcher';
 
 interface PantryRecommendationProps {
   recipes: Recipe[];
@@ -11,17 +11,8 @@ interface PantryRecommendationProps {
 }
 
 export default function PantryRecommendation({ recipes, pantryIngredients = [] }: PantryRecommendationProps) {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-
-  // Auto-search when pantryIngredients changes
-  useEffect(() => {
-    if (pantryIngredients.length > 0 && recipes.length > 0) {
-      const results = recommendRecipes(pantryIngredients, recipes);
-      setRecommendations(results);
-    } else {
-      setRecommendations([]);
-    }
-  }, [pantryIngredients, recipes]);
+  const recommendations = useMemo(() => pantryIngredients.length && recipes.length
+    ? recommendRecipes(pantryIngredients, recipes) : [], [pantryIngredients, recipes]);
 
   // Don't show section if no pantry ingredients
   if (pantryIngredients.length === 0) {

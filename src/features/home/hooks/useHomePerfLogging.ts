@@ -8,14 +8,8 @@
 import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-// Lazy-loaded perf utils to avoid init order issues
-const getPerfUtils = () => {
-  try {
-    return require('@/utils/perf');
-  } catch {
-    return { perfNow: () => Date.now(), perfLog: () => {}, measurePageLoadMetrics: () => {} };
-  }
-};
+import * as perfUtils from '@/utils/perf';
+const getPerfUtils = () => perfUtils;
 
 export function useHomePerfLogging() {
   // First load start timestamp ref - created once on component mount

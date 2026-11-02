@@ -58,8 +58,8 @@ describe('explicit meal_role is authoritative for composition slots', () => {
     const result = replaceRecipeInPlan(plan, 'mon', 0, [complete], {
       dailyComposition: 'meat_veg', allowCompleteMeal: true,
     });
-    expect(result?.mon[0].id).toBe('rice');
-    expect(result?.mon[1].id).toBe('veg');
+    expect(result?.mon[0]?.id).toBe('rice');
+    expect(result?.mon[1]?.id).toBe('veg');
   });
 
   it('leaves a missing main empty rather than placing protein_side in it', () => {

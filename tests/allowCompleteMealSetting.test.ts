@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
@@ -39,7 +40,7 @@ const configFor = (mode: Mode, allowCompleteMeal: boolean | undefined, extra: ob
   dailyComposition: mode, isWeekend: () => false, allowCompleteMeal, ...extra,
 });
 const isComplete = (r: unknown) => matchesSlotRole(r as never, 'complete_meal');
-const ids = (day: Array<{ id: string } | null | undefined>) => day.map(r => r?.id ?? null);
+const ids = (day: Array<{ id: string | number } | null | undefined>) => day.map(r => r?.id ?? null);
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
@@ -170,7 +171,7 @@ describe('add random', () => {
 });
 
 describe('hooks: setting reaches Replace and Add; failures keep the plan', () => {
-  const planOptions = (allowCompleteMeal: boolean, filteredRecipes: unknown[], notify: GenerateNotify) => ({
+  const planOptions = (allowCompleteMeal: boolean, filteredRecipes: Recipe[], notify: GenerateNotify) => ({
     filteredRecipes, dailyComposition: 'meat_veg', daysPerWeek: 1, effectiveDishesPerDay: 2,
     cuisines: [], exclusions: [], cookingConstraints: [], budget: 'normal', pantryIngredients: [], allowCompleteMeal, notify,
   });

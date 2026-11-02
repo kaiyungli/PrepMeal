@@ -11,7 +11,7 @@ import { useFilteredRecipes } from '@/features/recipes/hooks/useFilteredRecipes'
 import { filterHomeCatalog, PAGE_SIZE, HomeCatalogRecipe } from '@/features/home/filterHomeCatalog';
 
 interface UseHomeRecipeFiltersOptions {
-  initialRecipes?: unknown[];
+  initialRecipes?: import('@/features/home/filterHomeCatalog').HomeCatalogRecipe[];
   initialTotalCount?: number;
   catalog?: HomeCatalogRecipe[] | null;
 }

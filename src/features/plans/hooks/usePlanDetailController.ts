@@ -1,3 +1,6 @@
+import type { mapPlanResponse, mapItemsWithRecipes } from '../mappers/mapMenuPlanResponse';
+type SavedPlan = ReturnType<typeof mapPlanResponse>;
+type SavedItem = ReturnType<typeof mapItemsWithRecipes>[number] & { mealSlot: import('../mappers/mapPlanMealSlots').PlanMealSlot };
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { getPlanDetail } from '../services/getPlanDetail';
 import { mapPlanItemsByDay } from '../mappers/mapPlanItemsByDay';
@@ -12,9 +15,9 @@ interface UsePlanDetailControllerOptions {
 
 interface DetailState {
   key: string;
-  plan: any;
-  items: any[];
-  groupedItems: Record<number, any[]>;
+  plan: SavedPlan | null;
+  items: SavedItem[];
+  groupedItems: Record<number, SavedItem[]>;
   loading: boolean;
   error: string | null;
   selectedRecipeId: string | null;
@@ -101,7 +104,7 @@ export function usePlanDetailController({
 
   // One id per saved meal: a recipe planned on several days or slots is sent
   // once per occurrence, and /api/shopping-list counts the repeats.
-  const recipeIds = items.map(i => i.recipe_id).filter(Boolean);
+  const recipeIds = items.map(i => i.recipe_id).filter((id): id is string => typeof id === 'string' && !!id);
 
   const recipeServings = items.filter(i => i.recipe_id).map(i => i.servings ?? 1);
 

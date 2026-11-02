@@ -125,7 +125,7 @@ describe('recipe preview response isolation', () => {
     expect(result.current.recipe).toEqual(a);
     expect(result.current.loading).toBe(true);
     await act(async () => { second.resolve({ ...detailA, name: 'Fresh A' }); });
-    expect(result.current.recipe.name).toBe('Fresh A');
+    expect(result.current.recipe?.name).toBe('Fresh A');
   });
 
   it('switching to full-detail B clears A error and does not fetch', async () => {

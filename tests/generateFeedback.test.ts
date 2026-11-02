@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
@@ -81,7 +82,7 @@ describe('visible plan', () => {
   });
 });
 
-const planOptions = (filteredRecipes: unknown[], dailyComposition: string, notify: GenerateNotify) => ({
+const planOptions = (filteredRecipes: Recipe[], dailyComposition: string, notify: GenerateNotify) => ({
   filteredRecipes, dailyComposition, daysPerWeek: 2,
   effectiveDishesPerDay: dailyComposition === 'complete_meal' ? 1 : 2,
   cuisines: [], exclusions: [], cookingConstraints: [], budget: 'normal', pantryIngredients: [], notify,
@@ -162,7 +163,7 @@ describe('useGeneratePlan feedback', () => {
 });
 
 describe('useGenerateHandlers feedback', () => {
-  const handlerOptions = (filteredRecipes: unknown[], weeklyPlan: Record<string, unknown[]>, notify: GenerateNotify, setWeeklyPlan = vi.fn()) => ({
+  const handlerOptions = (filteredRecipes: Recipe[], weeklyPlan: Record<string, (Recipe | null)[]>, notify: GenerateNotify, setWeeklyPlan = vi.fn()) => ({
     weeklyPlan, setWeeklyPlan, filteredRecipes, clearFilters: vi.fn(), actionsClearAll: vi.fn(),
     handleResetPlan: vi.fn(), dailyComposition: 'complete_meal', notify,
   });
@@ -180,7 +181,7 @@ describe('useGenerateHandlers feedback', () => {
 
   it('Add with an eligible recipe fills only that slot and stays quiet', () => {
     const notify = vi.fn<GenerateNotify>();
-    let plan: Record<string, unknown[]> = { mon: [null], tue: [COMPLETE] };
+    let plan: Record<string, (Recipe | null)[]> = { mon: [null], tue: [COMPLETE] };
     const setWeeklyPlan = vi.fn((update: (prev: typeof plan) => typeof plan) => { plan = update(plan); });
     const { result } = renderHook(() => useGenerateHandlers(handlerOptions([MAIN, COMPLETE], plan, notify, setWeeklyPlan)));
     act(() => result.current.handleAddRandomRecipe('mon', 0));

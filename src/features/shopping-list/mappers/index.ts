@@ -106,14 +106,18 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
   
   // Map byRecipe if present in response
   const byRecipe = Array.isArray(response?.byRecipe) 
-    ? response.byRecipe.map((rb: any) => ({
+    ? response.byRecipe.map((rb) => ({
         recipeId: rb.recipeId,
         recipeName: rb.recipeName || 'Unknown',
         pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
         toBuy: Array.isArray(rb.toBuy) 
-          ? rb.toBuy.map((i: any) => ({
+          ? rb.toBuy.map((i) => ({
+              ingredientId: i.ingredientId ?? null,
               name: i.name,
-              quantityText: formatQuantityDisplay(i.quantity, i.unitDisplay || i.unit || '', i.quantityPending),
+              quantity: i.quantity,
+              unit: i.unit || '',
+              quantityPending: i.quantityPending === true,
+              quantityText: formatQuantityDisplay(i.quantity, i.unitDisplay || i.unit || '', i.quantityPending === true),
             }))
           : [],
       }))

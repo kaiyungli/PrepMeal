@@ -139,7 +139,7 @@ async function reload(planId: string) {
 // Day index → recipe ids in displayed order, as Plan Detail shows them.
 const daysOf = (c: Awaited<ReturnType<typeof reload>>) => Object.fromEntries(
   Object.entries(c.mealSlotGroupsByDay).map(([day, groups]) => [
-    day, groups.flatMap((g) => g.items.map((i: { recipe_id: string }) => i.recipe_id)),
+    day, groups.flatMap((g) => g.items.map((i: { recipe_id: string | null }) => i.recipe_id)),
   ]),
 );
 

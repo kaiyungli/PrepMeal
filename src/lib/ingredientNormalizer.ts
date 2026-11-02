@@ -126,7 +126,7 @@ export function findMatchingCanonical(
 /**
  * Get recipe canonical ingredients with fallback
  */
-export function getRecipeCanonicalIngredients(recipe: any): string[] {
+export function getRecipeCanonicalIngredients(recipe: { canonical_ingredients?: string[] | null; ingredients_list?: string[]; ingredients?: unknown }): string[] {
   // Primary: canonical_ingredients from recipe
   if (recipe.canonical_ingredients?.length) {
     return recipe.canonical_ingredients;

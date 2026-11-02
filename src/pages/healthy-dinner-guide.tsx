@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -165,9 +166,9 @@ export default function HealthyDinnerGuide() {
               揀「健康」或「低脂」，幾秒就搵到啱既餸。
             </p>
             <p className="mt-3">
-              <a href="/recipes" className="text-[#9B6035] underline font-medium">
+              <Link href="/recipes" className="text-[#9B6035] underline font-medium">
                 搜尋健康食譜 →
-              </a>
+              </Link>
             </p>
           </section>
         </div>

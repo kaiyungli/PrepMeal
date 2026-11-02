@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 import { scoreCandidates } from './recipeScorer';
 import { matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { getSlotRoleForIndex, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
@@ -14,15 +15,15 @@ const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 /**
  * Get recent recipes for diversity (previous 1-2 days only)
  */
-function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey: string): any[] {
+function getRecentRecipesForDiversity(weeklyPlan: Record<string, (Recipe | null)[]>, dayKey: string): Recipe[] {
   const currentIdx = DAY_ORDER.indexOf(dayKey);
   if (currentIdx <= 0) return [];
   
-  const recent: any[] = [];
+  const recent: Recipe[] = [];
   for (let i = 1; i <= 2; i++) {
     const prevDay = DAY_ORDER[currentIdx - i];
     if (prevDay && weeklyPlan[prevDay]) {
-      recent.push(...weeklyPlan[prevDay].filter(Boolean));
+      recent.push(...weeklyPlan[prevDay].filter((recipe): recipe is Recipe => !!recipe));
     }
   }
   
@@ -32,22 +33,22 @@ function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey:
 /**
  * Check if candidate repeats recent protein or method
  */
-function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
+function hasRecentDuplicate(candidate: Recipe, recent: Recipe[]): boolean {
   if (!recent.length) return false;
   
   const recentProteins = recent.map(r => r.primary_protein).filter(Boolean);
   const recentMethods = recent.map(r => r.method).filter(Boolean);
   
   return (
-    (candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
-    (candidate.method && recentMethods.includes(candidate.method))
+    !!(candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
+    !!(candidate.method && recentMethods.includes(candidate.method))
   );
 }
 
 /**
  * Build reason metadata for selection
  */
-function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], budget?: string, weeklyPlan?: Record<string, any[]>): string[] {
+function buildSelectionReasons(candidate: Recipe, slotRole: string, recent: Recipe[], budget?: string, weeklyPlan?: Record<string, (Recipe | null)[]>): string[] {
   const reasons: string[] = [];
   
   // 1. Slot role
@@ -94,8 +95,8 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
  * Apply soft budget preference (filter, not block)
  */
 // Extract ingredient keywords from existing recipes
-function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
-  const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
+function getIngredientKeywords(weeklyPlan: Record<string, (Recipe | null)[]>): string[] {
+  const allRecipes = Object.values(weeklyPlan).flat().flat().filter((recipe): recipe is Recipe => !!recipe);
   const keywords: string[] = [];
   
   for (const recipe of allRecipes) {
@@ -109,7 +110,7 @@ function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
 }
 
 // Apply ingredient reuse preference (soft bias)
-function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<string, any[]>): any[] {
+function applyIngredientReusePreference(candidates: Recipe[], weeklyPlan: Record<string, (Recipe | null)[]>): Recipe[] {
   const keywords = getIngredientKeywords(weeklyPlan);
   if (keywords.length === 0) return candidates;
   
@@ -122,12 +123,12 @@ function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<st
 }
 
 export function replaceRecipeInPlan(
-  weeklyPlan: Record<string, any[]>,
+  weeklyPlan: Record<string, (Recipe | null)[]>,
   dayKey: string,
   index: number,
-  availableCandidates: any[],
-  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: string[]; allowCompleteMeal?: boolean }
-): Record<string, any[]> | null {
+  availableCandidates: Recipe[],
+  options?: { dailyComposition?: string; budget?: string; excludeRecipeIds?: (string | number)[]; allowCompleteMeal?: boolean }
+): Record<string, (Recipe | null)[]> | null {
   const composition = options?.dailyComposition || 'meat_veg';
   const slotRole = getSlotRoleForIndex(composition, index);
   
@@ -144,24 +145,24 @@ export function replaceRecipeInPlan(
   // on this day. Reuse on a different day is still allowed.
   const sameDayRecipeIds = new Set(
     (weeklyPlan[dayKey] || [])
-      .filter((r: { id?: string } | null, slotIndex: number) => slotIndex !== index && r?.id)
-      .map((r: { id?: string } | null) => r?.id)
+      .filter((r: { id?: string | number } | null, slotIndex: number) => slotIndex !== index && r?.id)
+      .map((r: { id?: string | number } | null) => r?.id)
   );
   availableCandidates = availableCandidates.filter(
-    (c: { id?: string } | null) => c?.id && c.id !== currentRecipe?.id && !sameDayRecipeIds.has(c.id)
+    (c: { id?: string | number } | null) => c?.id && c.id !== currentRecipe?.id && !sameDayRecipeIds.has(c.id)
   );
 
   // Get all used recipe IDs from entire weekly plan
   const usedRecipeIds = new Set(
     Object.values(weeklyPlan)
       .flat()
-      .filter(Boolean)
-      .map((r: any) => r.id)
+      .filter((recipe): recipe is Recipe => !!recipe)
+      .map((r: Recipe) => r.id)
   );
   
   // Filter out candidates already used in weekly plan (but allow current)
   const unusedCandidates = availableCandidates.filter(
-    (c: any) => c?.id && c.id !== currentRecipe?.id && !usedRecipeIds.has(c.id)
+    (c: Recipe) => c?.id && c.id !== currentRecipe?.id && !usedRecipeIds.has(c.id)
   );
   
   // Get history IDs to exclude recent selections for this slot
@@ -169,20 +170,20 @@ export function replaceRecipeInPlan(
   
   // Priority A: exact role + unused + not history
   let candidates = unusedCandidates.filter(
-    (c: any) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
+    (c: Recipe) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
   );
   
   // Priority B: exact role + not current + not history
   if (!candidates.length) {
     candidates = availableCandidates.filter(
-      (c: any) => c.id !== currentRecipe?.id && matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
+      (c: Recipe) => c.id !== currentRecipe?.id && matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal) && !historyIds.has(c.id)
     );
   }
   
   // Priority C: exact role + unused (replacement history no longer excluded)
   if (!candidates.length) {
     candidates = unusedCandidates.filter(
-      (c: any) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal)
+      (c: Recipe) => matchesConfiguredSlotRole(c, slotRole, composition, options?.allowCompleteMeal)
     );
   }
   
@@ -191,20 +192,20 @@ export function replaceRecipeInPlan(
   if (allowsCrossRoleFallback(slotRole)) {
     // Priority D: unused + not history
     if (!candidates.length) {
-      candidates = unusedCandidates.filter((c: any) => !historyIds.has(c.id));
+      candidates = unusedCandidates.filter((c: Recipe) => !historyIds.has(c.id));
     }
     
-    // Priority E: any non-current + not history
+    // Priority E: Recipe non-current + not history
     if (!candidates.length) {
       candidates = availableCandidates.filter(
-        (c: any) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
+        (c: Recipe) => c.id !== currentRecipe?.id && !historyIds.has(c.id)
       );
     }
     
-    // Priority F: any non-current
+    // Priority F: Recipe non-current
     if (!candidates.length) {
       candidates = availableCandidates.filter(
-        (c: any) => c.id !== currentRecipe?.id
+        (c: Recipe) => c.id !== currentRecipe?.id
       );
     }
   }

@@ -8,13 +8,13 @@ interface PreferenceSectionProps {
   setBudget: (v: string) => void;
   ingredientReuse: string;
   setIngredientReuse: (v: string) => void;
-  CUISINES: any[];
+  CUISINES: { value: string; label: string }[];
   cuisines: string[];
   toggleCuisine: (v: string) => void;
-  COOKING_CONSTRAINTS: any[];
+  COOKING_CONSTRAINTS: { value: string; label: string }[];
   cookingConstraints: string[];
   toggleConstraint: (v: string) => void;
-  EXCLUSIONS: any[];
+  EXCLUSIONS: { value: string; label: string }[];
   exclusions: string[];
   toggleExclusion: (v: string) => void;
 }

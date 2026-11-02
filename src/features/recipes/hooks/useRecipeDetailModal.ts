@@ -1,261 +1,74 @@
-/**
- * useRecipeDetailModal - Shared hook for recipe detail modal
- * 
- * Handles:
- * - Full recipe state
- * - Loading state
- * - Abort controller for fetch cancellation
- * - Fetch via API endpoint
- * - Merge selectedRecipe + fetched detail
- * - Cleanup on close/unmount
- */
 import { useState, useEffect, useRef, useCallback } from 'react';
+import type { RecipeDetailContentProps } from '@/components/RecipeDetailContent';
 import { getCachedRecipeDetail, setCachedRecipeDetail, getInflightRecipeDetail } from '../services/recipeDetailClientCache';
 
-interface UseRecipeDetailModalOptions {
-  /** Called when modal should close */
-  onClose: () => void;
+type DetailRecipe = NonNullable<RecipeDetailContentProps['recipe']>;
+type State = { selection: DetailRecipe | null; full: DetailRecipe | null; loading: boolean; error: string | null };
+function initialState(selection: DetailRecipe | null): State {
+  const cached = selection && getCachedRecipeDetail(selection.id);
+  const full = cached ? { ...selection, ...cached }
+    : selection && Array.isArray(selection.ingredients) && Array.isArray(selection.steps) ? selection : null;
+  return { selection, full, loading: !!selection && !full, error: null };
 }
 
-interface UseRecipeDetailModalResult {
-  /** The recipe to display (merged selected + full detail) */
-  recipe: any;
-  /** Whether fetch is in progress */
-  loading: boolean;
-  /** Error message if fetch failed */
-  error: string | null;
-  /** Close handler - aborts fetch and calls onClose */
-  close: () => void;
-}
-
-/**
- * Hook for managing recipe detail modal state
- * @param selectedRecipe - The recipe selected by user (may be partial)
- * @param options - Hook options
- * @returns Modal state and handlers
- */
-export function useRecipeDetailModal(
-  selectedRecipe: any, 
-  options: UseRecipeDetailModalOptions
-): UseRecipeDetailModalResult {
-  const [fullRecipe, setFullRecipe] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function useRecipeDetailModal(selectedRecipe: DetailRecipe | null, { onClose }: { onClose: () => void }) {
+  const [state, setState] = useState(() => initialState(selectedRecipe));
+  // Scope state to this exact opening, including A → B → A transitions. Reset
+  // before committing a different selection rather than from a sync effect.
+  if (state.selection !== selectedRecipe) setState(initialState(selectedRecipe));
   const cancelRequestRef = useRef<(() => void) | null>(null);
 
-  const { onClose } = options;
-
-  // Check if selectedRecipe already has full detail
-  const hasFullDetail =
-    selectedRecipe &&
-    Array.isArray(selectedRecipe.ingredients) &&
-    Array.isArray(selectedRecipe.steps);
-
-  // Fetch full detail when needed
   useEffect(() => {
-    // A shared prefetch cannot be aborted by this modal. Invalidate its
-    // callbacks locally, and use the same guard for queued direct-fetch work.
     let active = true;
     const controller = new AbortController();
-    const cancel = () => {
-      active = false;
-      controller.abort();
-    };
+    const cancel = () => { active = false; controller.abort(); };
     const cleanup = () => {
       cancel();
       if (cancelRequestRef.current === cancel) cancelRequestRef.current = null;
     };
-    const isCurrent = () => active && !controller.signal.aborted;
     cancelRequestRef.current = cancel;
-
-    // Clear state on every selection change, including cache/full-detail hits.
-    setFullRecipe(null);
-    setLoading(false);
-    setError(null);
     if (!selectedRecipe) return cleanup;
 
-    // Check in-memory cache first
-    const cachedDetail = getCachedRecipeDetail(selectedRecipe.id);
-
-    if (cachedDetail) {
-      console.log('[recipe-modal] detail_cache_hit', {
-        recipeId: selectedRecipe.id,
-        ingredientCount: cachedDetail.ingredients?.length || 0,
-        stepCount: cachedDetail.steps?.length || 0
+    const current = () => active && !controller.signal.aborted;
+    const ready = initialState(selectedRecipe).full;
+    if (ready) {
+      // A shared cache may have completed between render and effect setup.
+      Promise.resolve(ready).then(full => {
+        if (current()) setState({ selection: selectedRecipe, full, loading: false, error: null });
       });
-
-      setFullRecipe({ ...selectedRecipe, ...cachedDetail });
       return cleanup;
     }
-    // Cache miss - need to fetch
-    console.log('[recipe-modal] detail_cache_miss', {
-      recipeId: selectedRecipe.id
-    });
-
-    // Check if prefetch is already inflight
-    const inflightDetail = getInflightRecipeDetail(selectedRecipe.id);
-
-    if (inflightDetail) {
-      const traceId = `${selectedRecipe.id}-modal-inflight-${Date.now()}`;
-      const inflightStart = Date.now();
-
-      console.log('[recipe-modal] inflight_reuse_start', {
-        traceId,
-        recipeId: selectedRecipe.id
-      });
-
-      setLoading(true);
-      setError(null);
-
-      inflightDetail
-        .then(recipe => {
-          if (!isCurrent()) return;
-          console.log('[recipe-modal] inflight_reuse_done', {
-            traceId,
-            recipeId: selectedRecipe.id,
-            duration_ms: Date.now() - inflightStart,
-            hasRecipe: Boolean(recipe),
-            ingredientCount: recipe?.ingredients?.length || 0,
-            stepCount: recipe?.steps?.length || 0
-          });
-
-          if (recipe) {
-            setFullRecipe({ ...selectedRecipe, ...recipe });
-          }
-        })
-        .catch(err => {
-          if (!isCurrent()) return;
-          const errorMsg = err?.message || 'Failed to load recipe detail';
-          console.error('[recipe-modal] inflight_reuse_failed', {
-            traceId,
-            recipeId: selectedRecipe.id,
-            message: errorMsg
-          });
-          setError(errorMsg);
-        })
-        .finally(() => {
-          if (isCurrent()) setLoading(false);
-        });
-
-      return cleanup;
-    }
-
-    // Already have full detail - use directly
-    if (hasFullDetail) {
-      console.log('[recipe-modal] full_detail_cache_hit', {
-        recipeId: selectedRecipe.id,
-        ingredientCount: selectedRecipe.ingredients?.length || 0,
-        stepCount: selectedRecipe.steps?.length || 0
-      });
-      setFullRecipe(selectedRecipe);
-      return cleanup;
-    }
-
-    // Need to fetch full detail
-    const traceId = `${selectedRecipe.id}-${Date.now()}`;
-    const fetchStart = Date.now();
-
-    console.log('[recipe-modal] fetch_start', {
-      traceId,
-      recipeId: selectedRecipe.id,
-      hasFullDetail
-    });
-
-    setLoading(true);
-
-    // Fetch via API endpoint (client-safe)
-    fetch(`/api/recipes/${selectedRecipe.id}`, { 
+    const shared = getInflightRecipeDetail(selectedRecipe.id);
+    const work = shared || fetch(`/api/recipes/${selectedRecipe.id}`, {
       signal: controller.signal,
-      headers: {
-        'x-perf-trace-id': traceId
-      }
-    })
-      .then(res => {
-        if (!isCurrent()) return;
-        console.log('[recipe-modal] response_received', {
-          traceId,
-          recipeId: selectedRecipe.id,
-          duration_ms: Date.now() - fetchStart,
-          status: res.status
-        });
+      headers: { 'x-perf-trace-id': `${selectedRecipe.id}-${Date.now()}` },
+    }).then(res => {
+      if (!res.ok) throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
+      return res.json();
+    }).then(data => data?.recipe as DetailRecipe | null);
 
-        if (!res.ok) {
-          throw new Error(`Failed to fetch recipe detail: HTTP ${res.status}`);
-        }
-        return res.json();
-      })
-      .then(data => {
-        if (!isCurrent()) return;
-        console.log('[recipe-modal] json_parsed', {
-          traceId,
-          recipeId: selectedRecipe.id,
-          duration_ms: Date.now() - fetchStart,
-          hasRecipe: Boolean(data?.recipe),
-          ingredientCount: data?.recipe?.ingredients?.length || 0,
-          stepCount: data?.recipe?.steps?.length || 0
-        });
-
-        if (data?.recipe) {
-          // Merge selected recipe with full detail
-          const mergedRecipe = { ...selectedRecipe, ...data.recipe };
-          
-          // Cache for future modal opens
-          setCachedRecipeDetail(selectedRecipe.id, mergedRecipe);
-          
-          setFullRecipe(mergedRecipe);
-          
-          console.log('[recipe-modal] render_ready', {
-            traceId,
-            recipeId: selectedRecipe.id,
-            duration_ms: Date.now() - fetchStart
-          });
-        }
-      })
-      .catch(err => {
-        if (!isCurrent()) return;
-        if (err?.name === 'AbortError') {
-          console.log('[recipe-modal] fetch_aborted', {
-            traceId,
-            recipeId: selectedRecipe.id
-          });
-          return;
-        }
-        
-        const errorMsg = err?.message || 'Failed to load recipe detail';
-        console.error('[recipe-modal] fetch_failed', {
-          traceId,
-          recipeId: selectedRecipe.id,
-          message: errorMsg
-        });
-        setError(errorMsg);
-      })
-      .finally(() => {
-        if (isCurrent()) {
-          setLoading(false);
-        }
-      });
+    work.then(recipe => {
+      if (!current()) return;
+      const full = recipe ? { ...selectedRecipe, ...recipe } : null;
+      // Shared prefetch owns its cache. Cancelled direct fetches must never
+      // populate it, even if a queued response ignores AbortController.
+      if (full && !shared) setCachedRecipeDetail(selectedRecipe.id, full);
+      setState({ selection: selectedRecipe, full, loading: false, error: null });
+    }).catch(error => {
+      if (!current()) return;
+      setState({ selection: selectedRecipe, full: null, loading: false,
+        error: error instanceof Error ? error.message : 'Failed to load recipe detail' });
+    });
     return cleanup;
-  }, [selectedRecipe, hasFullDetail]);
+  }, [selectedRecipe]);
 
-  // Close handler - aborts fetch and cleans up
   const close = useCallback(() => {
     cancelRequestRef.current?.();
     cancelRequestRef.current = null;
-    setLoading(false);
-    setFullRecipe(null);
-    setError(null);
+    setState({ selection: selectedRecipe, full: null, loading: false, error: null });
     onClose();
-  }, [onClose]);
+  }, [onClose, selectedRecipe]);
 
-  // Do not render the previous selection while the next effect is pending.
-  const recipe = selectedRecipe && fullRecipe?.id === selectedRecipe.id
-    ? fullRecipe
-    : selectedRecipe;
-
-  return {
-    recipe,
-    loading,
-    error,
-    close
-  };
+  const visible = state.selection === selectedRecipe ? state : initialState(selectedRecipe);
+  return { recipe: visible.full || selectedRecipe, loading: visible.loading, error: visible.error, close };
 }

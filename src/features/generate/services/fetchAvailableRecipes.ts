@@ -6,7 +6,7 @@
 import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
 import { findCatalogueIdProblem } from './catalogueIdentity';
 
-export interface Recipe {
+export interface Recipe extends Record<string, unknown> {
   id: string | number;
   name: string;
   description: string | null;

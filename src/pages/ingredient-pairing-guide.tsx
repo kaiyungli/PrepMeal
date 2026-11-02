@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -135,9 +136,9 @@ export default function IngredientPairingGuide() {
               一 search 就搵到唔同既配搭食譜。
             </p>
             <p className="mt-3">
-              <a href="/recipes" className="text-[#9B6035] underline font-medium">
+              <Link href="/recipes" className="text-[#9B6035] underline font-medium">
                 搜尋食譜 →
-              </a>
+              </Link>
             </p>
           </section>
         </div>

@@ -14,7 +14,7 @@ interface LegacyGenerateInput {
   pantryIngredients?: string[];
   ingredientReuse?: string;
   budget?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

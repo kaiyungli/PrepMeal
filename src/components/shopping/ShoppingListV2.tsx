@@ -1,3 +1,4 @@
+import { sameGrocery } from '@/features/shopping-list/recipeQuantities';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import type { ShoppingListItemViewModel, ShoppingListViewModel } from '@/features/shopping-list/types';
 import { itemKey, reconcileProgress, shoppingText, type ExtraItem, type ShoppingProgress } from '@/features/shopping-list/progress/model';
@@ -138,8 +139,8 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
     catch (error) { if (!(error instanceof Error && error.name === 'AbortError')) { setNotice('未能分享，請選取清單文字。'); setFallback(true); } }
     finally { setBusy(false); }
   };
-  const renderItem = (item: ShoppingListItemViewModel, prefix: string) => <ItemRow key={`${prefix}:${itemKey(item)}`}
-    name={item.name} quantity={item.quantityPending ? '數量待補' : item.quantityText} note={current.items[itemKey(item)]?.note || ''}
+  const renderItem = (item: ShoppingListItemViewModel, prefix: string, quantityText = item.quantityText, quantityPending = item.quantityPending) => <ItemRow key={`${prefix}:${itemKey(item)}`}
+    name={item.name} quantity={quantityPending ? '數量待補' : quantityText} note={current.items[itemKey(item)]?.note || ''}
     checked={!!current.items[itemKey(item)]?.checked}
     onCheck={checked => { updateItem(item, { checked }); setUndo(checked ? { kind: 'ingredient', key: itemKey(item), name: item.name } : null); }}
     onEdit={() => beginEditor({ kind: 'ingredient', key: itemKey(item), name: item.name })} />;
@@ -198,7 +199,7 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
             </button>
           </div>
         </div>
-        {mode === 'recipe' && <p className="pb-1 text-[11px] text-[#938576]">顯示整份餐單總量</p>}
+        {mode === 'recipe' && <p className="pb-1 text-[11px] text-[#938576]">顯示各菜所需份量；勾選代表全週採購進度</p>}
         {showShare && <fieldset id={shareId} disabled={disabled} className="mt-3 rounded-xl bg-[#F5F1EB] p-3">
           <label className="flex items-center justify-between text-sm">分享範圍<select className="min-h-11 rounded-lg bg-white px-3 text-sm" value={shareAll ? 'all' : 'remaining'} onChange={e => { setShareAll(e.target.value === 'all'); setFallback(false); }}><option value="remaining">尚欠</option><option value="all">全部</option></select></label>
           <div className="mt-2 grid grid-cols-2 gap-2"><button type="button" className={`${secondary} bg-white`} disabled={busy || !total} onClick={copy}>複製清單</button><button type="button" className={`${secondary} bg-white`} disabled={busy || !total} onClick={share}>分享清單</button></div>
@@ -215,10 +216,12 @@ export default function ShoppingListV2({ view, progress, onChange, disabled = fa
               {remaining.map(i => renderItem(i, section.categoryKey))}
             </section> : null;
           }) : view.byRecipe.map((recipe, index) => {
-            const names = new Set(recipe.toBuy.map(i => i.name));
-            const remaining = unbought(items.filter(i => names.has(i.name)));
+            const remaining = recipe.toBuy.flatMap(need => {
+              const master = items.find(item => sameGrocery(item, need));
+              return master && !current.items[itemKey(master)]?.checked ? [{ master, need }] : [];
+            });
             return remaining.length ? <section key={`${recipe.recipeId}:${index}`} className="mb-1 sm:mb-2">
-              <h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">{recipe.recipeName}</h3>{remaining.map(i => renderItem(i, String(index)))}
+              <h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">{recipe.recipeName}</h3>{remaining.map(({ master, need }) => renderItem(master, `${index}:${itemKey(need)}`, need.quantityText, need.quantityPending))}
             </section> : null;
           })}
           {current.extras.some(i => !i.checked) && <section className="mb-1 sm:mb-2"><h3 className="border-b border-[#E5DFD4] py-0.5 text-[11px] leading-4 font-semibold text-[#8B7460]">額外物品</h3>{current.extras.filter(i => !i.checked).map(renderExtra)}</section>}

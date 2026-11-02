@@ -36,8 +36,8 @@ export function getSelectionReasonLabel(key: string): string {
  */
 export function sortSelectionReasons(reasons: string[]): string[] {
   return [...reasons].sort((a, b) => {
-    const aIdx = SELECTION_REASON_ORDER.indexOf(a as any);
-    const bIdx = SELECTION_REASON_ORDER.indexOf(b as any);
+    const aIdx = SELECTION_REASON_ORDER.indexOf(a as typeof SELECTION_REASON_ORDER[number]);
+    const bIdx = SELECTION_REASON_ORDER.indexOf(b as typeof SELECTION_REASON_ORDER[number]);
     if (aIdx === -1 && bIdx === -1) return 0;
     if (aIdx === -1) return 1;
     if (bIdx === -1) return -1;

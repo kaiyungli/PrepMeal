@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -147,9 +148,9 @@ export default function MealPlanExample() {
               仲會自動整理成購物清單，唔洗自己寫。
             </p>
             <p className="mt-3">
-              <a href="/generate" className="text-[#9B6035] underline font-medium">
+              <Link href="/generate" className="text-[#9B6035] underline font-medium">
                 一 click 生成你自己既餐單 →
-              </a>
+              </Link>
             </p>
           </section>
 

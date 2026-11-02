@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 /**
  * Meal Planner - Wrapper around core meal planning logic
  * 
@@ -19,7 +20,7 @@ export interface MealPlannerConfig {
   allowCompleteMeal?: boolean;
   pantryIngredients: string[];
   lockedSlots: Record<string, boolean>;
-  lockedRecipes: Record<string, any>;
+  lockedRecipes: Record<string, Recipe>;
   traceId?: string;
 }
 
@@ -30,8 +31,8 @@ export interface MealPlannerConfig {
  * @returns Generated weekly plan
  */
 export function generateWeeklyPlan(
-  availableRecipes: any[],
+  availableRecipes: Recipe[],
   config: MealPlannerConfig
-): Record<string, any[]> {
+): Record<string, (Recipe | null)[]> {
   return planWeekAdvanced(availableRecipes, config);
 }

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { saveGeneratedPlan, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
+import { saveGeneratedPlan, buildSavePayload, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
 import { getDefaultPlanName, normalizePlanForSave, resolvePlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
 const payload: SavePlanPayload = {
@@ -83,5 +83,19 @@ describe('generated plan naming', () => {
     const request = fetchMock.mock.calls[0][1];
     expect(JSON.parse(request.body).name).toBe('週末家庭餐單');
     expect(JSON.parse(request.body).items).toEqual(edited.items);
+  });
+});
+
+describe('local calendar save date', () => {
+  it('uses local date rather than UTC at either side of midnight', () => {
+    vi.useFakeTimers();
+    try {
+      for (const date of [new Date(2026, 10, 2, 0, 30), new Date(2026, 10, 2, 23, 30)]) {
+        vi.setSystemTime(date);
+        const saved = normalizePlanForSave({ mon: [{ id: 'recipe-1' }] }, 1, 5);
+        expect(saved.week_start_date).toBe('2026-11-02');
+        expect(buildSavePayload({ mon: [{ id: 'recipe-1' }] }, 1, 5).week_start_date).toBe('2026-11-02');
+      }
+    } finally { vi.useRealTimers(); }
   });
 });

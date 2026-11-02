@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { fetchAvailableRecipes } from '../index';
 import { perfNow, perfLog } from '@/utils/perf';
@@ -7,21 +7,21 @@ export function useGenerateData() {
   const router = useRouter();
   
   // Recipe state
-  const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const [allRecipes, setAllRecipes] = useState<Awaited<ReturnType<typeof fetchAvailableRecipes>>>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(true);
   
   const [recipesError, setRecipesError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const retryRecipes = useCallback(() => setAttempt(value => value + 1), []);
+  const retryRecipes = useCallback(() => { setLoadingRecipes(true); setRecipesError(null); setAttempt(value => value + 1); }, []);
 
   // Pantry state
-  const [pantryIngredients, setPantryIngredients] = useState<string[]>([]);
+  const ingredients = router.query.ingredients;
+  const pantryIngredients = useMemo(() => ingredients
+    ? ingredients.toString().split(',').map(i => i.trim()).filter(Boolean) : [], [ingredients]);
   
   // Fetch recipes on mount
   useEffect(() => {
     let active = true;
-    setLoadingRecipes(true);
-    setRecipesError(null);
     const start = perfNow();
     
     perfLog({
@@ -60,15 +60,6 @@ export function useGenerateData() {
       .finally(() => { if (active) setLoadingRecipes(false); });
     return () => { active = false; };
   }, [attempt]);
-  
-  // Read pantry from URL
-  useEffect(() => {
-    const { ingredients } = router.query;
-    if (ingredients) {
-      const parsed = ingredients.toString().split(',').map(i => i.trim()).filter(Boolean);
-      setPantryIngredients(parsed);
-    }
-  }, [router.query]);
   
   return {
     allRecipes,

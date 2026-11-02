@@ -1,3 +1,5 @@
+import type { RecipeDetailContentProps } from '@/components/RecipeDetailContent';
+type DetailRecipe = NonNullable<RecipeDetailContentProps['recipe']>;
 import React from 'react';
 import RecipeDetailModal from '@/components/RecipeDetailModal';
 import { useRecipeDetailModal } from '@/features/recipes/hooks/useRecipeDetailModal';
@@ -7,7 +9,7 @@ import { useRecipeDetailModal } from '@/features/recipes/hooks/useRecipeDetailMo
  * Now uses shared hook for fetch + state logic
  */
 interface RecipeModalControllerProps {
-  selectedRecipe: any;
+  selectedRecipe: DetailRecipe | null;
   onClose: () => void;
   isFavorite?: boolean;
   favoriteLoading?: boolean;
