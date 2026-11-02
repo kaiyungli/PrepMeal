@@ -1,5 +1,5 @@
 import type { Recipe } from '@/lib/mealPlanner';
-import { scoreCandidates } from './recipeScorer';
+
 import { matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { getSlotRoleForIndex, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
 import { matchesBudgetPreference, preferBudgetRecipes } from './budgetPreference';

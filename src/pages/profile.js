@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
-import Footer from '@/components/layout/Footer';
+
 import { Button, Input } from '@/components';
 import supabase from '@/lib/supabase';
 

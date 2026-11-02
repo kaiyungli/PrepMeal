@@ -14,25 +14,7 @@ export interface FilterRecipe {
 // ============================================
 // IMPORTS FROM CENTRALIZED CONSTANTS
 // ============================================
-import { 
-  CUISINE_OPTIONS, 
-  DISH_TYPE_OPTIONS, 
-  PROTEIN_OPTIONS, 
-  METHOD_OPTIONS, 
-  SPEED_OPTIONS, 
-  DIFFICULTY_OPTIONS, 
-  DIET_OPTIONS, 
-  FLAVOR_OPTIONS,
-  CUISINE_MAP,
-  DISH_TYPE_MAP,
-  PROTEIN_MAP,
-  METHOD_MAP,
-  SPEED_MAP,
-  DIFFICULTY_MAP,
-  DIET_MAP,
-  FLAVOR_MAP,
-  getLabel as getLabelTaxonomy,
-} from './taxonomy';
+import { CUISINE_OPTIONS, DISH_TYPE_OPTIONS, PROTEIN_OPTIONS, METHOD_OPTIONS, SPEED_OPTIONS, DIFFICULTY_OPTIONS, DIET_OPTIONS, FLAVOR_OPTIONS, FLAVOR_MAP } from './taxonomy';
 
 import { RECIPE_FILTER_GROUPS } from './filterGroups';
 

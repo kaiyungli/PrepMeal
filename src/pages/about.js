@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
-import Footer from '@/components/layout/Footer';
+
 
 const colors = {
   background: '#F8F3E8',

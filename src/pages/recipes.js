@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';

@@ -6,7 +6,7 @@
  */
 
 import { useRef, useEffect } from 'react';
-import { useRouter } from 'next/router';
+
 
 import * as perfUtils from '@/utils/perf';
 const getPerfUtils = () => perfUtils;
