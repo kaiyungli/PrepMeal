@@ -35,13 +35,13 @@ function FavoriteButton({
     e.stopPropagation();
     e.nativeEvent?.stopImmediatePropagation?.();
     
-    // Don't call onClick if disabled or loading
+    // Pending feedback does not block another optimistic toggle; disabled does.
     if (disabled || !onClick) {
       return;
     }
     
     onClick();
-  }, [disabled, loading, onClick]);
+  }, [disabled, onClick]);
 
   // Compute button state
   const isDisabled = disabled;

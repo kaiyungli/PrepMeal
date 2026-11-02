@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 type CardRecipe = ComponentProps<typeof RecipeCard>['recipe'] & { id: string | number };
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import RecipeCard from '@/components/RecipeCard';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
@@ -33,7 +33,7 @@ function RecipeGridItem({
   isPending?: boolean;
   onFavoriteClick?: () => void | Promise<void>;
 }) {
-  const handlePrefetch = (source: string) => {
+  const handlePrefetch = () => {
     if (recipe?.id) {
       prefetchRecipeDetail(recipe.id);
     }
@@ -42,9 +42,9 @@ function RecipeGridItem({
   return (
     <div 
       className="col-span-12 sm:col-span-6 md:col-span-4"
-      onMouseEnter={() => handlePrefetch('hover')}
-      onFocus={() => handlePrefetch('focus')}
-      onTouchStart={() => handlePrefetch('touch')}
+      onMouseEnter={() => handlePrefetch()}
+      onFocus={() => handlePrefetch()}
+      onTouchStart={() => handlePrefetch()}
     >
       <RecipeCard
         recipe={recipe}
@@ -57,12 +57,8 @@ function RecipeGridItem({
   );
 }
 
-const MemoizedGridItem = React.memo(RecipeGridItem, (prev, next) => {
-  if (prev.recipe?.id !== next.recipe?.id) return false;
-  if (prev.isFavorite !== next.isFavorite) return false;
-  if (prev.isPending !== next.isPending) return false;
-  return true;
-});
+// Compare every prop so updated recipe data and event callbacks reach the card.
+const MemoizedGridItem = React.memo(RecipeGridItem);
 
 /**
  * HomeRecipeGrid - recipe grid with infinite scroll
@@ -86,8 +82,7 @@ function HomeRecipeGrid({
   const safeRecipes = (recipes || []);
   
   // First 6 recipes for prefetch
-  const prefetchRecipes = safeRecipes.slice(0, 6);
-  const prefetchKey = prefetchRecipes.map(r => r.id).join(',');
+  const prefetchRecipes = useMemo(() => recipes.slice(0, 6), [recipes]);
   
   // Prefetch first 6 recipe detail pages
   useEffect(() => {
@@ -112,7 +107,7 @@ function HomeRecipeGrid({
     return () => {
       timers.forEach(clearTimeout);
     };
-  }, [prefetchKey, router]);
+  }, [prefetchRecipes, router]);
   
   // Infinite scroll detection
   useEffect(() => {
