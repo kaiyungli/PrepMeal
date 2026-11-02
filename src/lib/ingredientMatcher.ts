@@ -3,7 +3,7 @@
  * Matches user ingredients against recipe data in memory
  */
 
-import { normalizeIngredient, normalizeIngredients, getCanonicalIngredients, findMatchingCanonical } from './ingredientNormalizer';
+import { normalizeIngredients, findMatchingCanonical } from './ingredientNormalizer';
 
 export interface Recipe {
   id: string;

@@ -8,7 +8,7 @@
  */
 
 import { isRecipeHighProtein, isRecipeLowFat, isRecipeLowCalorie } from '@/constants/nutritionRules';
-import { isRecipeVegetarianByIngredients, isRecipeEggLactoByIngredients, deriveIngredientDietTags, type IngredientInput } from '@/constants/ingredientDietRules';
+import { deriveIngredientDietTags, type IngredientInput } from '@/constants/ingredientDietRules';
 
 /**
  * Recipe interface for diet tag derivation

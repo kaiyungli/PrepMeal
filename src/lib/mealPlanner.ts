@@ -12,7 +12,7 @@
  * - speed: quick, normal
  */
 import { normalizeIngredients, getRecipeCanonicalIngredients } from './ingredientNormalizer'
-import { perfNow, perfMeasure, perfLog } from '@/utils/perf';
+import { perfNow, perfLog } from '@/utils/perf';
 import { PLANNER_WEIGHTS, PLANNER_RULES } from '@/constants/planner';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
 import { matchesBudgetPreference, preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';

@@ -1,7 +1,7 @@
 import type { HomeCatalogRecipe as ListRecipe } from '@/features/home/filterHomeCatalog';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
-import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
+import { buildRecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
 import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 // Cache configuration

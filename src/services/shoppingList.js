@@ -5,7 +5,7 @@
  * NO React - Pure functions only
  */
 
-import { normalizeCategory, CATEGORY_ORDER, CATEGORY_LABELS } from '@/constants/shoppingCategories';
+import { normalizeCategory } from '@/constants/shoppingCategories';
 
 /**
  * Normalize quantities by unit type

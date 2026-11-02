@@ -1,6 +1,6 @@
 // Unified filter shell for generate page - reuses recipes page design language
 import { useState } from 'react';
-import FilterSection from '@/components/filters/FilterSection';
+
 
 interface FilterOption {
   value: string;

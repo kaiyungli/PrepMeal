@@ -2,7 +2,7 @@ import { generateCookingTips, generatePairingSuggestions, generateStorageTips, S
 import Image from 'next/image'
 import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react';
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
 import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'

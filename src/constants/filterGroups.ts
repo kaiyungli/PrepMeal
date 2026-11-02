@@ -3,24 +3,7 @@
 // ============================================
 // Build filter group definitions from taxonomy constants
 
-import {
-  CUISINE_MAP,
-  CUISINE_OPTIONS,
-  DISH_TYPE_MAP,
-  DISH_TYPE_OPTIONS,
-  PROTEIN_MAP,
-  PROTEIN_OPTIONS,
-  METHOD_MAP,
-  METHOD_OPTIONS,
-  SPEED_MAP,
-  SPEED_OPTIONS,
-  DIFFICULTY_MAP,
-  DIFFICULTY_OPTIONS,
-  DIET_MAP,
-  DIET_OPTIONS,
-  FLAVOR_MAP,
-  FLAVOR_OPTIONS,
-} from './taxonomy';
+import { CUISINE_OPTIONS, DISH_TYPE_OPTIONS, PROTEIN_OPTIONS, METHOD_OPTIONS, SPEED_OPTIONS, DIFFICULTY_OPTIONS, DIET_OPTIONS, FLAVOR_OPTIONS } from './taxonomy';
 
 // ============================================
 // RECIPE FILTER GROUPS (8 groups)

@@ -1,5 +1,5 @@
 // Generate page settings - Unified filter system
-import { useState } from 'react';
+
 import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 import { buildFilterSections } from '@/constants/filterGroups';
