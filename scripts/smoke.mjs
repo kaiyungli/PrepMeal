@@ -11,13 +11,17 @@ function wait(ms) {
 async function waitForServer(timeoutMs = 60000) {
   const startedAt = Date.now()
   while (Date.now() - startedAt < timeoutMs) {
+    let res
     try {
-      const res = await fetch(`${baseUrl}/api/recipes`)
-      if (res.status === 200) {
-        return
-      }
+      res = await fetch(`${baseUrl}/api/recipes`)
     } catch {
-      // keep polling
+      // Server may not be listening yet; retry connection errors only.
+      await wait(1000)
+      continue
+    }
+    if (res.status === 200) return
+    if (res.status >= 500) {
+      throw new Error(`Recipes API returned HTTP ${res.status} during smoke readiness`)
     }
     await wait(1000)
   }
