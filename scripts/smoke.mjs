@@ -13,7 +13,7 @@ async function waitForServer(timeoutMs = 60000) {
   while (Date.now() - startedAt < timeoutMs) {
     try {
       const res = await fetch(`${baseUrl}/api/recipes`)
-      if ([200, 500].includes(res.status)) {
+      if (res.status === 200) {
         return
       }
     } catch {
@@ -42,7 +42,7 @@ const dev = spawn('npm', ['run', 'dev', '--', '-p', String(port)], {
 
 try {
   await waitForServer()
-  await checkJsonEndpoint('/api/recipes', [200, 500])
+  await checkJsonEndpoint('/api/recipes', [200])
   await checkJsonEndpoint('/api/admin/check', [200, 401])
   console.log('Smoke checks passed')
 } finally {
