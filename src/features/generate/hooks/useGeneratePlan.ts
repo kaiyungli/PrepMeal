@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 import { useState, useCallback } from 'react';
 import { getWeekDates } from '@/utils/dateUtils';
 import { generateWeeklyPlan, replaceRecipeInPlan } from '../index';
@@ -14,17 +15,17 @@ const DAYS = getWeekDates();
 
 // Empty slots are null so each recipe keeps its slot index.
 interface WeeklyPlan {
-  [dayKey: string]: any[];
+  [dayKey: string]: (Recipe | null)[];
 }
 
 interface UseGeneratePlanOptions {
-  filteredRecipes: any[];
+  filteredRecipes: Recipe[];
   dailyComposition?: string;
   daysPerWeek: number;
   effectiveDishesPerDay: number;
   cuisines: string[];
   exclusions: string[];
-  cookingConstraints: any;
+  cookingConstraints: string[];
   budget: string;
   allowCompleteMeal?: boolean;
   pantryIngredients: string[];
@@ -53,7 +54,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     DAYS.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {}) as WeeklyPlan
   );
   const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
-  const [replacementHistory, setReplacementHistory] = useState<Record<string, string[]>>({});
+  const [replacementHistory, setReplacementHistory] = useState<Record<string, (string | number)[]>>({});
 
   const compositionKey = dailyComposition || 'meat_veg';
   const compositionConfig = COMPOSITION_CONFIG[compositionKey as keyof typeof COMPOSITION_CONFIG] || COMPOSITION_CONFIG.meat_veg;
@@ -78,7 +79,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
     });
     
     // Collect locked recipes
-    const lockedRecipes: Record<string, any> = {};
+    const lockedRecipes: Record<string, Recipe> = {};
     Object.entries(lockedSlots).forEach(([key, isLocked]) => {
       if (isLocked) {
         const [dayKey, indexStr] = key.split('-');
@@ -109,7 +110,7 @@ export function useGeneratePlan(options: UseGeneratePlanOptions) {
 
     // Calculate metrics
     const generatedRecipeCount = Object.values(newPlan).flat().filter(Boolean).length;
-    const generatedDayCount = Object.values(newPlan).filter((arr: any) => arr?.some(Boolean)).length;
+    const generatedDayCount = Object.values(newPlan).filter((arr) => arr?.some(Boolean)).length;
     const lockedSlotCount = Object.values(lockedSlots).filter(Boolean).length;
     
     const end = perfNow();

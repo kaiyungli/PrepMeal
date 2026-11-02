@@ -56,7 +56,7 @@ function HomeFilterHarness() {
     createElement(
       'output',
       { 'data-testid': 'result-names' },
-      state.recipesList.map((recipe: { name: string }) => recipe.name).join(',')
+      state.recipesList.map((recipe: { name?: string | null }) => recipe.name).join(',')
     )
   );
 }

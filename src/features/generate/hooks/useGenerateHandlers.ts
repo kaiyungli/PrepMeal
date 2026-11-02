@@ -1,3 +1,4 @@
+import type { Recipe } from '@/lib/mealPlanner';
 import { useCallback } from 'react';
 import { matchesConfiguredSlotRole } from '@/lib/slotRoles';
 import { getSlotRoleForIndex, matchesSlotRole, allowsCrossRoleFallback, fitsDailyCompleteMealLimit, fitsCompleteMealSetting, getOtherSlotsInDay } from '../utils/slotRoleFilter';
@@ -7,34 +8,34 @@ import type { GenerateNotify } from './useGeneratePlan';
 
 const DAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
-function getRecentRecipesForDiversity(weeklyPlan: Record<string, any[]>, dayKey: string): any[] {
+function getRecentRecipesForDiversity(weeklyPlan: Record<string, (Recipe | null)[]>, dayKey: string): Recipe[] {
   const currentIdx = DAY_ORDER.indexOf(dayKey);
   if (currentIdx <= 0) return [];
   
-  const recent: any[] = [];
+  const recent: Recipe[] = [];
   for (let i = 1; i <= 2; i++) {
     const prevDay = DAY_ORDER[currentIdx - i];
     if (prevDay && weeklyPlan[prevDay]) {
-      recent.push(...weeklyPlan[prevDay].filter(Boolean));
+      recent.push(...weeklyPlan[prevDay].filter((recipe): recipe is Recipe => !!recipe));
     }
   }
   
   return recent;
 }
 
-function hasRecentDuplicate(candidate: any, recent: any[]): boolean {
+function hasRecentDuplicate(candidate: Recipe, recent: Recipe[]): boolean {
   if (!recent.length) return false;
   
   const recentProteins = recent.map(r => r.primary_protein).filter(Boolean);
   const recentMethods = recent.map(r => r.method).filter(Boolean);
   
   return (
-    (candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
-    (candidate.method && recentMethods.includes(candidate.method))
+    !!(candidate.primary_protein && recentProteins.includes(candidate.primary_protein)) ||
+    !!(candidate.method && recentMethods.includes(candidate.method))
   );
 }
 
-function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], budget?: string, weeklyPlan?: Record<string, any[]>): string[] {
+function buildSelectionReasons(candidate: Recipe, slotRole: string, recent: Recipe[], budget?: string, weeklyPlan?: Record<string, (Recipe | null)[]>): string[] {
   const reasons: string[] = [];
   
   if (slotRole === 'protein_main' && candidate.primary_protein) {
@@ -80,26 +81,26 @@ function buildSelectionReasons(candidate: any, slotRole: string, recent: any[], 
  * slots that allow a cross-role fallback. A complete-meal slot stays empty.
  */
 export function getCandidatesForAddRandom(
-  filteredRecipes: any[],
-  weeklyPlan: Record<string, any[]>,
+  filteredRecipes: Recipe[],
+  weeklyPlan: Record<string, (Recipe | null)[]>,
   dayKey: string,
   slotRole: string,
   // Slot being filled, composition and allowCompleteMeal, for the complete-meal rules
   slot?: { index: number; composition: string; allowCompleteMeal?: boolean }
-): any[] {
+): Recipe[] {
   // Get recipes already in this day
-  const dayRecipes = (weeklyPlan[dayKey] || []).filter(Boolean);
-  const dayRecipeIds = new Set(dayRecipes.map((r: any) => r.id));
+  const dayRecipes = (weeklyPlan[dayKey] || []).filter((recipe): recipe is Recipe => !!recipe);
+  const dayRecipeIds = new Set(dayRecipes.map((r: Recipe) => r.id));
 
   // Filter out already-used recipes, a second complete meal for the day and
   // complete meals the allowCompleteMeal setting excludes
   const otherSlotsInDay = slot ? getOtherSlotsInDay(weeklyPlan, dayKey, slot.index, slot.composition) : dayRecipes;
-  const unused = filteredRecipes.filter((r: any) => !dayRecipeIds.has(r.id)
+  const unused = filteredRecipes.filter((r: Recipe) => !dayRecipeIds.has(r.id)
     && fitsDailyCompleteMealLimit(r, otherSlotsInDay)
     && (!slot || fitsCompleteMealSetting(r, slot.composition, slot.allowCompleteMeal)));
 
   // Exact role match first
-  const exact = unused.filter((r: any) => slot
+  const exact = unused.filter((r: Recipe) => slot
     ? matchesConfiguredSlotRole(r, slotRole, slot.composition, slot.allowCompleteMeal)
     : matchesSlotRole(r, slotRole));
   if (exact.length > 0) return exact;
@@ -110,9 +111,9 @@ export function getCandidatesForAddRandom(
 
 interface UseGenerateHandlersOptions {
   budget?: string;
-  weeklyPlan: any;
-  setWeeklyPlan: (plan: any) => void;
-  filteredRecipes: any[];
+  weeklyPlan: Record<string, (Recipe | null)[]>;
+  setWeeklyPlan: import('react').Dispatch<import('react').SetStateAction<Record<string, (Recipe | null)[]>>>;
+  filteredRecipes: Recipe[];
   clearFilters: () => void;
   actionsClearAll: () => void;
   handleResetPlan: () => void;
@@ -136,8 +137,8 @@ export function useGenerateHandlers({
   
 // Apply soft budget preference (filter, not block)
 // Extract ingredient keywords from existing recipes
-function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
-  const allRecipes = Object.values(weeklyPlan).flat().flat().filter(Boolean);
+function getIngredientKeywords(weeklyPlan: Record<string, (Recipe | null)[]>): string[] {
+  const allRecipes = Object.values(weeklyPlan).flat().flat().filter((recipe): recipe is Recipe => !!recipe);
   const keywords: string[] = [];
   
   for (const recipe of allRecipes) {
@@ -150,7 +151,7 @@ function getIngredientKeywords(weeklyPlan: Record<string, any[]>): string[] {
 }
 
 // Apply ingredient reuse preference (soft bias)
-function applyIngredientReusePreference(candidates: any[], weeklyPlan: Record<string, any[]>): any[] {
+function applyIngredientReusePreference(candidates: Recipe[], weeklyPlan: Record<string, (Recipe | null)[]>): Recipe[] {
   const keywords = getIngredientKeywords(weeklyPlan);
   if (keywords.length === 0) return candidates;
   
@@ -181,7 +182,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
         slotIndex,
         nextSlotRole,
         filteredCount: filteredRecipes.length,
-        dayRecipeCount: (weeklyPlan[dayKey] || []).filter(Boolean).length,
+        dayRecipeCount: (weeklyPlan[dayKey] || []).filter((recipe): recipe is Recipe => !!recipe).length,
       });
       notify?.(buildNoCandidateFeedback(nextSlotRole), 'info', FEEDBACK_DURATION_MS);
       return;
@@ -189,7 +190,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
     
     // Diversity filter (BEFORE preferences)
     const recent = getRecentRecipesForDiversity(weeklyPlan, dayKey);
-    const diverseCandidates = candidates.filter((r: any) => !hasRecentDuplicate(r, recent));
+    const diverseCandidates = candidates.filter((r: Recipe) => !hasRecentDuplicate(r, recent));
     candidates = diverseCandidates.length > 0 ? diverseCandidates : candidates;
     
     // Budget preference (after diversity)
@@ -205,7 +206,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
     const reasons = buildSelectionReasons(random, nextSlotRole, recent, budget, weeklyPlan);
     const randomWithReasons = { ...random, selectionReasons: reasons };
     
-    setWeeklyPlan((prev: Record<string, any[]>) => {
+    setWeeklyPlan((prev: Record<string, (Recipe | null)[]>) => {
       const dayRecipes = [...(prev[dayKey] || [])];
       dayRecipes[slotIndex] = randomWithReasons;
       return { ...prev, [dayKey]: dayRecipes };
@@ -213,7 +214,7 @@ const handleAddRandomRecipe = useCallback((dayKey: string, slotIndex: number): v
   }, [weeklyPlan, filteredRecipes, setWeeklyPlan, dailyComposition, budget, allowCompleteMeal, notify]);
 
   const removeRecipe = useCallback((dayKey: string, index: number): void => {
-    setWeeklyPlan((prev: Record<string, any[]>) => {
+    setWeeklyPlan((prev: Record<string, (Recipe | null)[]>) => {
       const dayRecipes = [...(prev[dayKey] || [])];
       dayRecipes[index] = null;
       return { ...prev, [dayKey]: dayRecipes };

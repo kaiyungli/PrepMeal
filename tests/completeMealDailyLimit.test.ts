@@ -24,7 +24,7 @@ const configFor = (mode: keyof typeof COMPOSITION_CONFIG, daysPerWeek = 1, extra
   dailyComposition: mode, isWeekend: () => false, ...extra,
 });
 
-type Slot = { id: string } | null | undefined;
+type Slot = { id: string | number } | null | undefined;
 const completeCountPerDay = (plan: Record<string, Slot[]>) =>
   Object.values(plan).map(day => day.filter(r => matchesSlotRole(r as never, 'complete_meal')).length);
 
@@ -159,7 +159,7 @@ describe('replace: never duplicate another slot on the same day', () => {
     expect(replaceRecipeInPlan(plan, 'mon', 0, [main(1), main(2)], {
       dailyComposition: 'two_meat_one_veg',
     })).toBeNull();
-    expect(plan.mon.map(r => r.id)).toEqual(['main-1', 'main-2', 'veg-1']);
+    expect(plan.mon.map(r => r?.id)).toEqual(['main-1', 'main-2', 'veg-1']);
   });
 
   it('may reuse a recipe from a different day when no globally unused candidate exists', () => {
@@ -170,7 +170,7 @@ describe('replace: never duplicate another slot on the same day', () => {
     const result = replaceRecipeInPlan(plan, 'mon', 0, [main(3), main(2)], {
       dailyComposition: 'two_meat_one_veg',
     });
-    expect(result?.mon.map(r => r.id)).toEqual(['main-3', 'main-2', 'veg-1']);
+    expect(result?.mon.map(r => r?.id)).toEqual(['main-3', 'main-2', 'veg-1']);
   });
 
   it('rejects a same-day duplicate even after replacement history is exhausted', () => {

@@ -48,7 +48,7 @@ describe('saved plan detail scope isolation', () => {
     await act(async () => { if (outcome === 'success') a.resolve(detail('qa-plan-a')); else a.reject(new Error('old error')); });
     expectEmpty(result.current); expect(result.current.loading).toBe(true); expect(result.current.error).toBeNull();
     await act(async () => { b.resolve(detail('qa-plan-b')); });
-    expect(result.current.plan.id).toBe('qa-plan-b'); expect(result.current.loading).toBe(false);
+    expect(result.current.plan?.id).toBe('qa-plan-b'); expect(result.current.loading).toBe(false);
   });
 
   it('B remains visible when A finishes last', async () => {
@@ -56,7 +56,7 @@ describe('saved plan detail scope isolation', () => {
     const { result, rerender } = mount(); await flush();
     rerender({ ...defaults, planId: 'qa-plan-b' }); await flush();
     await act(async () => { a.resolve(detail('qa-plan-a')); });
-    expect(result.current.plan.id).toBe('qa-plan-b'); expect(result.current.recipeIds).toEqual(['qa-plan-b-recipe']);
+    expect(result.current.plan?.id).toBe('qa-plan-b'); expect(result.current.recipeIds).toEqual(['qa-plan-b-recipe']);
   });
 
   it('never exposes a pre-logout plan during any render on same-account login', async () => {
@@ -86,7 +86,7 @@ describe('saved plan detail scope isolation', () => {
     const { result, rerender } = mount(); await flush();
     rerender({ ...defaults, userId: 'qa-user-b' }); expectEmpty(result.current);
     await act(async () => { pending.resolve(detail('account-B')); });
-    expect(result.current.plan.id).toBe('account-B'); expect(service.getPlanDetail).toHaveBeenCalledTimes(2);
+    expect(result.current.plan?.id).toBe('account-B'); expect(service.getPlanDetail).toHaveBeenCalledTimes(2);
   });
 
   it.each(['plan', 'logout', 'unmount'] as const)('does not start obsolete API work after a delayed token and %s', async change => {
@@ -97,7 +97,7 @@ describe('saved plan detail scope isolation', () => {
     else if (change === 'logout') rerender({ ...defaults, isAuthenticated: false }); else unmount();
     await act(async () => { delayed.resolve('synthetic-token'); });
     expect(service.getPlanDetail).toHaveBeenCalledTimes(change === 'plan' ? 1 : 0);
-    if (change === 'plan') expect(result.current.plan.id).toBe('qa-plan-b');
+    if (change === 'plan') expect(result.current.plan?.id).toBe('qa-plan-b');
   });
 
   it('keeps successful data and selection through a same-account token callback refresh', async () => {
@@ -116,7 +116,7 @@ describe('saved plan detail scope isolation', () => {
     rerender({ ...defaults, planId: 'qa-plan-b' }); await flush();
     rerender({ ...defaults }); expectEmpty(result.current);
     await act(async () => { a.resolve(detail('qa-plan-a')); });
-    expect(result.current.selectedRecipeId).toBeNull(); expect(result.current.plan.id).toBe('qa-plan-a');
+    expect(result.current.selectedRecipeId).toBeNull(); expect(result.current.plan?.id).toBe('qa-plan-a');
   });
 
   it('current failure clears old content and a new scope can recover', async () => {
@@ -126,7 +126,7 @@ describe('saved plan detail scope isolation', () => {
     rerender({ ...defaults, planId: 'qa-plan-b' }); await flush();
     expectEmpty(result.current); expect(result.current.error).toBe('current error'); expect(result.current.loading).toBe(false);
     rerender({ ...defaults, planId: 'qa-plan-c' }); await flush();
-    expect(result.current.error).toBeNull(); expect(result.current.plan.id).toBe('qa-plan-c');
+    expect(result.current.error).toBeNull(); expect(result.current.plan?.id).toBe('qa-plan-c');
   });
 
   it('missing token prevents an unauthenticated API request', async () => {
@@ -157,7 +157,7 @@ describe('saved plan detail scope isolation', () => {
     const { result, rerender, unmount } = renderHook(props => usePlanDetailController(props), { initialProps: defaults,
       wrapper: ({ children }) => createElement(StrictMode, null, children) }); await flush();
     expect(service.getPlanDetail).toHaveBeenCalledTimes(1);
-    await act(async () => { first.resolve(detail('qa-plan-a')); }); expect(result.current.plan.id).toBe('qa-plan-a');
+    await act(async () => { first.resolve(detail('qa-plan-a')); }); expect(result.current.plan?.id).toBe('qa-plan-a');
     rerender({ ...defaults, planId: 'qa-plan-b' }); await flush(); unmount();
     await act(async () => { second.resolve(detail('qa-plan-b')); }); expectEmpty(result.current);
   });

@@ -6,7 +6,7 @@ import { DAY_KEYS, TRANSFER_KEY, draftKey, draftOwner, draftFingerprint, encodeD
 
 import { emptyProgress, type ShoppingProgress } from '@/features/shopping-list/progress/model';
 
-type Recipe = { id: string | number; [key: string]: unknown };
+import type { Recipe } from '@/lib/mealPlanner';
 type Options = {
   userId: string | null; allRecipes: Recipe[]; loadingRecipes: boolean; recipesError: string | null;
   preferences: ReturnType<typeof useGeneratePreferences>;

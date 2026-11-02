@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import SEO from '@/components/seo/SEO';
 import Layout from '@/components/layout/Layout';
 
@@ -166,9 +167,9 @@ export default function HkDinnerIdeas() {
               仲會自動寫埋shopping list，唔洗自己諗。
             </p>
             <p className="mt-3">
-              <a href="/generate" className="text-[#9B6035] underline font-medium">
+              <Link href="/generate" className="text-[#9B6035] underline font-medium">
                 一 click 生成你自己既餐單 →
-              </a>
+              </Link>
             </p>
           </section>
         </div>

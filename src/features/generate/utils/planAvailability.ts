@@ -3,7 +3,7 @@ import { normalizeIngredients } from '@/lib/ingredientNormalizer';
 import { fitsCompleteMealSetting, fitsDailyCompleteMealLimit, matchesConfiguredSlotRole, matchesSlotRole, type SlotRoleRecipe } from '@/lib/slotRoles';
 import { getSlotRoleLabel } from './planFeedback';
 
-type Recipe = SlotRoleRecipe & { id: string; cuisine?: string; protein?: string[] };
+type Recipe = SlotRoleRecipe & { id: string | number; cuisine?: string | null; protein?: string[] | null };
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 /** A necessary-supply warning, not a promise that the planner can fill every slot. */
@@ -26,7 +26,7 @@ export function getPlanAvailabilityWarnings({
     fitsCompleteMealSetting(recipe, composition, allowCompleteMeal)
   ).map(recipe => [recipe.id, recipe])).values()];
   const eligibleIds = new Set(eligible.map(recipe => recipe.id));
-  const reserved = new Set<string>();
+  const reserved = new Set<string | number>();
   const needed: Record<string, number> = {};
   const pendingByDay: { role: string; otherLocks: Recipe[] }[][] = [];
   let keptLockCount = 0;

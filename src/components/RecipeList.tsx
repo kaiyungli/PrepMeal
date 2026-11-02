@@ -1,10 +1,12 @@
+import type { ComponentProps } from 'react';
+type CardRecipe = ComponentProps<typeof RecipeCard>['recipe'] & { id: string | number };
 import React from 'react';
 import RecipeCard from '@/components/RecipeCard';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 
 interface RecipeListProps {
-  recipes: any[];
-  onRecipeClick?: (recipe: any) => void;
+  recipes: CardRecipe[];
+  onRecipeClick?: (recipe: CardRecipe) => void;
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;

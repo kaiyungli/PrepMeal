@@ -226,3 +226,37 @@ describe('shopping UI and cloud save', () => {
     expect(shoppingOfflineKey('A','plan')).not.toBe(shoppingOfflineKey('A','other-plan'));
   });
 });
+
+describe('per-recipe quantities with whole-week purchase progress', () => {
+  it('shows each recipe quantity without importing a same-name ingredient or incompatible unit', () => {
+    const item = (ingredientId: string, quantity: number, unit: string) => ({
+      ingredientId, name: '薯仔', normalizedName: 'potato', quantity, unit,
+      category: 'vegetable' as const, source: 'recipe_ingredients' as const, quantityPending: false,
+    });
+    const response = {
+      pantry: [], toBuy: [{ category: 'vegetable' as const, items: [item('potato', 330, 'g'), item('other', 90, 'g'), item('potato', 2, 'pc')] }],
+      byRecipe: [
+        { recipeId: 'fish', recipeName: '三文魚配薯仔', pantry: [], toBuy: [item('potato', 150, 'g')] },
+        { recipeId: 'beef', recipeName: '牛柳配薯蓉', pantry: [], toBuy: [item('potato', 180, 'g')] },
+      ], summary: { pantryCount: 0, toBuyCount: 3, sectionCount: 1 },
+    };
+    const view = mapShoppingListResponseToViewModel(response);
+    function RecipeWorkspace() {
+      const [progress, setProgress] = useState(emptyProgress);
+      return <ShoppingListV2 view={view} progress={progress} onChange={setProgress} />;
+    }
+    render(<RecipeWorkspace />);
+    fireEvent.change(screen.getByLabelText('清單排列'), { target: { value: 'recipe' } });
+    expect(screen.getByRole('checkbox', { name: '薯仔 150 g' })).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: '薯仔 180 g' })).toBeTruthy();
+    expect(screen.queryByRole('checkbox', { name: '薯仔 330 g' })).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: '薯仔 90 g' })).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: '薯仔 2 pc' })).toBeNull();
+    fireEvent.click(screen.getByRole('checkbox', { name: '薯仔 150 g' }));
+    expect(screen.queryByRole('checkbox', { name: '薯仔 180 g' })).toBeNull();
+    fireEvent.change(screen.getByLabelText('清單排列'), { target: { value: 'category' } });
+    expect(screen.getByText('已買 1／共 3 項')).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: '薯仔 90 g' })).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: '薯仔 2 pc' })).toBeTruthy();
+  });
+});

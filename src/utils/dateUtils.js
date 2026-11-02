@@ -27,3 +27,8 @@ export function getInitialWeekPlan() {
   const days = getWeekDates();
   return days.reduce((acc, day) => ({ ...acc, [day.key]: [] }), {});
 }
+
+// Calendar date in the user's timezone, without converting midnight to UTC.
+export function localDateISO(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}

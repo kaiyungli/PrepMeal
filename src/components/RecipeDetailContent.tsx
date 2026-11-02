@@ -10,7 +10,7 @@ import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 
-interface RecipeDetailContentProps {
+export interface RecipeDetailContentProps {
   recipe: Partial<Provenance> & {
     meal_role?: string | null
     dish_type?: string | null
@@ -18,30 +18,30 @@ interface RecipeDetailContentProps {
     primary_protein?: string | null
     base_servings?: number | null
     dietary_notes?: string[]
-    id: string
-    name: string
-    image_url?: string
-    description?: string
-    cuisine?: string
-    difficulty?: string
-    speed?: string
-    method?: string
-    calories_per_serving?: number
-    protein_g?: number
-    carbs_g?: number
-    fat_g?: number
+    id: string | number
+    name?: string | null
+    image_url?: string | null
+    description?: string | null
+    cuisine?: string | null
+    difficulty?: string | null
+    speed?: string | null
+    method?: string | null
+    calories_per_serving?: number | null
+    protein_g?: number | null
+    carbs_g?: number | null
+    fat_g?: number | null
     ingredients?: Array<{
-      display_name?: string
-      name?: string
-      slug?: string
+      display_name?: string | null
+      name?: string | null
+      slug?: string | null
       quantity?: number | null
       is_optional?: boolean
       prep_note?: string | null
       unit?: { code?: string; name?: string; display_name_zh?: string } | string | null
-      shopping_category?: string
-      source?: string
+      shopping_category?: string | null
+      source?: string | null
     }>
-    steps?: Array<{ step_no: number; text: string; time_seconds?: number }>
+    steps?: Array<string | { step_no: number; text: string; time_seconds?: number | null }>
   } | null
   isLoading?: boolean
   showAds?: boolean
@@ -114,7 +114,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         {recipe.image_url ? (
           <Image 
             src={recipe.image_url} 
-            alt={recipe.name} 
+            alt={recipe.name || '食譜'}
             fill 
             className="object-cover"
             sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 1200px" />
@@ -198,7 +198,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             </div>
           ) : ingredients.length > 0 ? (
             <ul className="space-y-3">
-              {ingredients.map((ing: any, i: number) => (
+              {ingredients.map((ing, i: number) => (
                 <li key={i} className="flex justify-between py-2 border-b" style={{ borderColor: '#DDD0B0' }}>
                   <div style={{ color: '#3A2010' }}>
                     <span>{ing.display_name || ing.name || ing.slug}</span>
@@ -238,10 +238,10 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             </div>
           ) : steps.length > 0 ? (
             <ol className="space-y-4">
-              {steps.map((step: any, i: number) => {
+              {steps.map((step, i: number) => {
                 const stepText = typeof step === 'string' ? step : (step?.text || '');
-                const stepNo = step?.step_no ?? (i + 1);
-                const stepTime = step?.time_seconds || 0;
+                const stepNo = typeof step === 'string' ? i + 1 : step.step_no ?? (i + 1);
+                const stepTime = typeof step === 'string' ? 0 : step.time_seconds || 0;
                 return (
                 <li key={i} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{ backgroundColor: '#9B6035', color: 'white' }}>

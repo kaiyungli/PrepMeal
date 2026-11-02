@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
@@ -184,9 +185,9 @@ function AccountPlansPage({ auth }) {
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-[#3A2010]">我的餐單</h1>
-            <a href="/generate" className={UI.buttonPrimaryPill}>
+            <Link href="/generate" className={UI.buttonPrimaryPill}>
               生成新餐單
-            </a>
+            </Link>
           </div>
 
           {loading ? (
@@ -203,9 +204,9 @@ function AccountPlansPage({ auth }) {
           ) : plans.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-[#7A746B] mb-4">你仲未生成任何餐單</p>
-              <a href="/generate" className={UI.textLink}>
+              <Link href="/generate" className={UI.textLink}>
                 去生成 →
-              </a>
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

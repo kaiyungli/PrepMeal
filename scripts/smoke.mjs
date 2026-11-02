@@ -1,54 +1,32 @@
 import { spawn } from 'node:child_process'
-import assert from 'node:assert/strict'
+import { once } from 'node:events'
+import { createRequire } from 'node:module'
+import { waitForServer, checkJsonEndpoint } from './smokeChecks.mjs'
 
-const port = 3010
-const baseUrl = `http://127.0.0.1:${port}`
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function waitForServer(timeoutMs = 60000) {
-  const startedAt = Date.now()
-  while (Date.now() - startedAt < timeoutMs) {
-    try {
-      const res = await fetch(`${baseUrl}/api/recipes`)
-      if ([200, 500].includes(res.status)) {
-        return
-      }
-    } catch {
-      // keep polling
-    }
-    await wait(1000)
-  }
-  throw new Error('Timed out waiting for dev server')
-}
-
-async function checkJsonEndpoint(path, allowedStatuses) {
-  const res = await fetch(`${baseUrl}${path}`)
-  assert.ok(
-    allowedStatuses.includes(res.status),
-    `${path} returned ${res.status}, expected one of ${allowedStatuses.join(', ')}`
-  )
-
-  const body = await res.text()
-  assert.doesNotThrow(() => JSON.parse(body), `${path} did not return valid JSON`)
-}
-
-const dev = spawn('npm', ['run', 'dev', '--', '-p', String(port)], {
-  stdio: 'inherit',
-  env: process.env,
+const require = createRequire(import.meta.url)
+const baseUrl = 'http://127.0.0.1:3010'
+// Spawn Next directly so cleanup owns the server, not an intermediate npm shell.
+// Explicit loopback binding also avoids unnecessary interface enumeration.
+const dev = spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'dev', '-H', '127.0.0.1', '-p', '3010'], {
+  stdio: 'inherit', env: process.env,
 })
+let running = true
+dev.once('exit', () => { running = false })
+dev.once('error', () => { running = false })
 
+// Success must be explicit, even if a child or runtime terminates early.
+process.exitCode = 1
 try {
-  await waitForServer()
-  await checkJsonEndpoint('/api/recipes', [200, 500])
-  await checkJsonEndpoint('/api/admin/check', [200, 401])
+  await waitForServer(baseUrl, { isRunning: () => running })
+  await checkJsonEndpoint(baseUrl, '/api/recipes', [200])
+  await checkJsonEndpoint(baseUrl, '/api/admin/check', [200, 401])
   console.log('Smoke checks passed')
+  process.exitCode = 0
 } finally {
-  dev.kill('SIGTERM')
-  await wait(1000)
-  if (!dev.killed) {
-    dev.kill('SIGKILL')
+  if (running) {
+    const exited = once(dev, 'exit')
+    const timer = setTimeout(() => dev.kill('SIGKILL'), 2000)
+    dev.kill('SIGTERM')
+    try { await exited } finally { clearTimeout(timer) }
   }
 }

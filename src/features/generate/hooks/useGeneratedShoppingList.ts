@@ -5,7 +5,7 @@ import { perfLog } from '@/utils/perf';
 import { useOptionalSelections, selectionKey, scopeSelections } from '@/features/shopping-list/optionalSelections';
 
 interface Options {
-  weeklyPlan: Record<string, Array<{ id?: string | null } | null>>;
+  weeklyPlan: Record<string, Array<{ id?: string | number | null } | null>>;
   pantryIngredients: string[];
   servings: number;
   isAuthenticated: boolean;

@@ -1,3 +1,5 @@
+import type { InputHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import type { ShoppingListViewModel } from '@/features/shopping-list/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import LoginPage from '@/pages/login';
@@ -14,8 +16,8 @@ vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: null, loading: false
   signInWithGoogle: mocks.oauth, signInWithApple: mocks.oauth, signInWithFacebook: mocks.oauth }) }));
 vi.mock('@/lib/supabase', () => ({ default: { auth: { signInWithPassword: mocks.email } } }));
 vi.mock('@/components', () => ({
-  Input: ({ label, onChange, ...props }: any) => <label>{label}<input {...props} onChange={e => onChange(e.target.value)} /></label>,
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Input: ({ label, onChange, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> & { label: string; onChange: (value: string) => void }) => <label>{label}<input {...props} onChange={e => onChange(e.target.value)} /></label>,
+  Button: ({ children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props}>{children}</button>,
 }));
 vi.mock('@/features/generate/index', () => ({ fetchAvailableRecipes: mocks.fetchRecipes }));
 vi.mock('@/components/shopping/OptionalIngredientChoices', () => ({ default: () => null }));
@@ -51,7 +53,7 @@ describe('core reliability', () => {
   it('does not report copied while pending or denied, and offers selectable fallback text', async () => {
     let resolve!: (success: boolean) => void;
     const onCopy = vi.fn(() => new Promise<boolean>(done => { resolve = done; }));
-    const view: any = { pantry: [], sections: [{ categoryKey: 'vegetables', items: [{ name: '洋蔥', quantityText: '2個' }] }], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 }, isEmpty: false };
+    const view: ShoppingListViewModel = { pantry: [], sections: [{ categoryKey: 'vegetable', categoryLabel: '蔬菜', categoryIcon: '', items: [{ ingredientId: null, name: '洋蔥', quantityText: '2個', quantityPending: false }] }], byRecipe: [], summary: { pantryCount: 0, toBuyCount: 1, sectionCount: 1 }, isEmpty: false };
     render(<ShoppingListModal isOpen onClose={() => {}} shoppingListView={view} onCopy={onCopy} />);
     fireEvent.click(screen.getByRole('button', { name: '📋 複製清單' }));
     expect(screen.queryByText('✅ 已複製!')).toBeNull();

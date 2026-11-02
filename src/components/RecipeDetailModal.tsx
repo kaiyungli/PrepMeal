@@ -1,3 +1,5 @@
+import type { RecipeDetailContentProps } from '@/components/RecipeDetailContent';
+type DetailRecipe = NonNullable<RecipeDetailContentProps['recipe']>;
 import Modal from '@/components/ui/Modal'
 import RecipeDetailContent from './RecipeDetailContent'
 import { useRouter } from 'next/router'
@@ -5,7 +7,7 @@ import { useRouter } from 'next/router'
 interface RecipeDetailModalProps {
   isOpen: boolean
   onClose: () => void
-  recipe?: any
+  recipe?: DetailRecipe | null
   loading?: boolean
   error?: string | null
   isFavorite?: boolean
@@ -62,7 +64,7 @@ export default function RecipeDetailModal({
       floating={floatingButton}
     >
       <RecipeDetailContent 
-        recipe={recipe} 
+        recipe={recipe ?? null}
         isLoading={loading} 
         isFavorite={isFavorite}
         favoriteLoading={favoriteLoading}

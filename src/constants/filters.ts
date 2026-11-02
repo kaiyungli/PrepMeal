@@ -1,3 +1,9 @@
+export interface FilterRecipe {
+  diet?: unknown;
+  flavor?: unknown;
+  cuisine?: string | null; dish_type?: string | null; primary_protein?: string | null;
+  method?: string | null; speed?: string | null; difficulty?: string | null;
+}
 // ============================================
 // UNIFIED FILTER SYSTEM - Single Source of Truth
 // ============================================
@@ -72,7 +78,7 @@ export const FILTER_GROUPS = RECIPE_FILTER_GROUPS;
  * Get effective diet array for filtering
  * Returns empty array if null/undefined
  */
-export function getEffectiveDiet(recipe: any): string[] {
+export function getEffectiveDiet(recipe: FilterRecipe): string[] {
   if (recipe.diet && Array.isArray(recipe.diet)) {
     return recipe.diet;
   }
@@ -83,7 +89,7 @@ export function getEffectiveDiet(recipe: any): string[] {
  * Get effective flavor array for filtering
  * Returns empty array if null/undefined
  */
-export function getEffectiveFlavor(recipe: any): string[] {
+export function getEffectiveFlavor(recipe: FilterRecipe): string[] {
   const extractCanonical = (val: string): string => {
     if (!val) return "";
     const lower = val.toLowerCase().trim();
@@ -134,7 +140,7 @@ export function getEffectiveFlavor(recipe: any): string[] {
  * Normalize recipe for filter matching
  * Consolidates all compatibility logic in one place
  */
-export function normalizeRecipeForFilter(recipe: any) {
+export function normalizeRecipeForFilter(recipe: FilterRecipe) {
   return {
     ...recipe,
     _effectiveDiet: getEffectiveDiet(recipe),
@@ -155,7 +161,7 @@ export function normalizeRecipeForFilter(recipe: any) {
  *   are sibling values, not an umbrella - no expansion between them
  * - diet/flavor arrays match if the recipe contains ANY selected value
  */
-export function recipeMatchesFilters(recipe: any, filters: Record<string, string[]>): boolean {
+export function recipeMatchesFilters(recipe: FilterRecipe, filters: Record<string, string[]>): boolean {
   const normalized = normalizeRecipeForFilter(recipe);
 
   for (const [groupKey, selectedValues] of Object.entries(filters)) {
@@ -167,23 +173,23 @@ export function recipeMatchesFilters(recipe: any, filters: Record<string, string
 
     switch (groupKey) {
       case 'cuisine':
-        matches = selectedValues.includes(normalized.cuisine);
+        matches = typeof normalized.cuisine === 'string' && selectedValues.includes(normalized.cuisine);
         break;
       case 'dish_type':
-        matches = selectedValues.includes(normalized.dish_type);
+        matches = typeof normalized.dish_type === 'string' && selectedValues.includes(normalized.dish_type);
         break;
       case 'protein':
         // "主要蛋白" - matches primary_protein only, never protein[].
-        matches = selectedValues.includes(normalized.primary_protein);
+        matches = typeof normalized.primary_protein === 'string' && selectedValues.includes(normalized.primary_protein);
         break;
       case 'method':
-        matches = selectedValues.includes(normalized.method);
+        matches = typeof normalized.method === 'string' && selectedValues.includes(normalized.method);
         break;
       case 'speed':
-        matches = selectedValues.includes(normalized.speed);
+        matches = typeof normalized.speed === 'string' && selectedValues.includes(normalized.speed);
         break;
       case 'difficulty':
-        matches = selectedValues.includes(normalized.difficulty);
+        matches = typeof normalized.difficulty === 'string' && selectedValues.includes(normalized.difficulty);
         break;
       case 'diet':
         // Array intersection - recipe.diet[] contains any selected

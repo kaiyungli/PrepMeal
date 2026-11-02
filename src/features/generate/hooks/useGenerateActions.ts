@@ -1,3 +1,5 @@
+import type { RecipeDetailContentProps } from '@/components/RecipeDetailContent';
+type DetailRecipe = NonNullable<RecipeDetailContentProps['recipe']>;
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useGeneratedShoppingList } from './useGeneratedShoppingList';
 import { normalizePlanForSave, saveGeneratedPlan } from '../index';
@@ -9,7 +11,7 @@ import type { ShoppingProgress } from '@/features/shopping-list/progress/model';
 interface UseGenerateActionsOptions {
   shoppingProgress?: ShoppingProgress;
   loginRedirect?: () => string;
-  weeklyPlan: any;
+  weeklyPlan: Record<string, ({ id: string | number } | null)[]>;
   pantryIngredients: string[];
   servings: number;
   daysPerWeek: number;
@@ -32,7 +34,7 @@ export function useGenerateActions({
   traceId,
 }: UseGenerateActionsOptions) {
   // Modal State
-  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<DetailRecipe | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const recipeCache = useRef(new Map());
   const clickStartRef = useRef<number>(0);
@@ -55,7 +57,7 @@ export function useGenerateActions({
   const saveInFlightRef = useRef(false);
 
   // Recipe click handler
-  const handleRecipeClick = useCallback(async (recipe: any) => {
+  const handleRecipeClick = useCallback(async (recipe: { id: string | number }) => {
     cancelRecipeRequest();
     const version = recipeRequestVersion.current;
     clickStartRef.current = performance.now();

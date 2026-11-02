@@ -1,3 +1,4 @@
+import { localDateISO } from '@/utils/dateUtils';
 /**
  * Save Generated Plan Service
  * 
@@ -104,7 +105,7 @@ export function buildSavePayload(
   
   return {
     name,
-    week_start_date: new Date().toISOString().split('T')[0],
+    week_start_date: localDateISO(),
     days_count: daysPerWeek,
     items,
   };

@@ -1,3 +1,4 @@
+import type { User, Session, OAuthResponse } from '@supabase/supabase-js';
 // Auth Context — shared auth state singleton
 // Mounted once in _app.js, consumed via useAuthContext
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
@@ -8,15 +9,15 @@ import { invalidateFavoritesCache } from '@/hooks/useFavorites';
 import { favoritesSessionIdentity } from '@/utils/favoritesSession';
 
 interface AuthContextValue {
-  user: any | null;
-  session: any | null;
+  user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
   loading: boolean;
   hydrated: boolean;
   favoritesEpoch: number;
-  signInWithGoogle: () => Promise<any>;
-  signInWithApple: () => Promise<any>;
-  signInWithFacebook: () => Promise<any>;
+  signInWithGoogle: () => Promise<OAuthResponse["data"]>;
+  signInWithApple: () => Promise<OAuthResponse["data"]>;
+  signInWithFacebook: () => Promise<OAuthResponse["data"]>;
   signOut: () => Promise<void>;
   getAccessToken: () => Promise<string | null>;
 }
@@ -24,8 +25,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
-  const [session, setSession] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const initialLoadDone = useRef(false);

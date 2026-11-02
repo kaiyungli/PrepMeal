@@ -1,11 +1,14 @@
 'use client';
+import RecipeCard from '@/components/RecipeCard';
+import type { ComponentProps } from 'react';
+type CardRecipe = ComponentProps<typeof RecipeCard>['recipe'] & { id: string | number };
 
 import { useState, useCallback } from 'react';
 import HomeRecipeGrid from '@/components/home/HomeRecipeGrid';
 import HomeModalController from '@/components/home/HomeModalController';
 
 interface HomeRecipesSectionProps {
-  recipes: any[];
+  recipes: CardRecipe[];
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
@@ -26,9 +29,9 @@ export default function HomeRecipesSection({
   hasMore,
   loadingMore,
 }: HomeRecipesSectionProps) {
-  const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<CardRecipe | null>(null);
 
-  const handleRecipeClick = useCallback((recipe: any) => {
+  const handleRecipeClick = useCallback((recipe: CardRecipe) => {
     setSelectedRecipe({ ...recipe });
   }, []);
 

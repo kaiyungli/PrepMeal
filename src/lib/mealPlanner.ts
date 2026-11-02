@@ -48,7 +48,7 @@ const RANDOM_FACTOR = PLANNER_WEIGHTS.RANDOM_FACTOR;
 // Unified state update for locked / perfect match / normal selection
 function applyRecipeSelection(
   recipe: Recipe,
-  usedRecipeIds: Set<string>,
+  usedRecipeIds: Set<string | number>,
   recentProteins: string[],
   recentMethods: string[]
 ) {
@@ -59,22 +59,22 @@ function applyRecipeSelection(
   if (method) recentMethods.push(method)
 }
 
-interface Recipe {
-  id: string
+export interface Recipe {
+  id: string | number
   name: string
   description?: string | null
   protein?: string[] | null
   meal_role?: string | null
   is_complete_meal?: boolean | null
-  method?: string
-  difficulty?: string
-  speed?: string
+  method?: string | null
+  difficulty?: string | null
+  speed?: string | null
   primary_protein?: string | null
-  dish_type?: string
+  dish_type?: string | null
   ingredients_list?: string[]
   canonical_ingredients?: string[] | null
   budget_level?: string | null
-  cuisine?: string
+  cuisine?: string | null
   score?: number
   [key: string]: unknown
 }
@@ -211,7 +211,7 @@ export interface PlanConfig {
 function getCandidatesWithFallback(
   recipes: Recipe[], 
   slotRole: string,
-  usedRecipeIds: Set<string>,
+  usedRecipeIds: Set<string | number>,
   composition: string,
   allowCompleteMeal?: boolean
 ): Recipe[] {
@@ -265,7 +265,7 @@ export function planWeekAdvanced(
 
   const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].slice(0, daysPerWeek);
   const result: WeeklyPlanResult = {};
-  const usedRecipeIds = new Set<string>(); // Track used recipes to avoid repeats
+  const usedRecipeIds = new Set<string | number>(); // Track used recipes to avoid repeats
   const recentProteins: string[] = [];
   const recentMethods: string[] = [];
   const usedPantryIngredients: string[] = [];

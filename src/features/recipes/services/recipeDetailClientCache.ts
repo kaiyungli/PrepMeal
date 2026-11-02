@@ -1,3 +1,5 @@
+import type { RecipeDetailContentProps } from '@/components/RecipeDetailContent';
+type DetailRecipe = NonNullable<RecipeDetailContentProps['recipe']>;
 /**
  * Recipe Detail Client Cache
  * 
@@ -8,18 +10,18 @@
 import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 type CachedRecipeDetail = {
-  recipe: any;
+  recipe: DetailRecipe;
   cachedAt: number;
 };
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const detailCache = new Map<string, CachedRecipeDetail>();
-const inflightRequests = new Map<string, Promise<any>>();
+const inflightRequests = new Map<string, Promise<DetailRecipe | null>>();
 
 /**
  * Get cached recipe detail if available and not expired
  */
-export function getCachedRecipeDetail(recipeId: string): any | null {
+export function getCachedRecipeDetail(recipeId: string | number): DetailRecipe | null {
   if (!recipeId) return null;
 
   const key = String(recipeId);
@@ -39,7 +41,7 @@ export function getCachedRecipeDetail(recipeId: string): any | null {
 /**
  * Set cached recipe detail
  */
-export function setCachedRecipeDetail(recipeId: string, recipe: any): void {
+export function setCachedRecipeDetail(recipeId: string | number, recipe: DetailRecipe | null): void {
   if (!recipeId || !recipe) return;
   
   console.log('[recipe-prefetch] cache_set', {
@@ -61,13 +63,13 @@ export function setCachedRecipeDetail(recipeId: string, recipe: any): void {
 /**
  * Get inflight request for a recipe ID if one exists
  */
-export function getInflightRecipeDetail(recipeId: string): Promise<any> | null {
+export function getInflightRecipeDetail(recipeId: string | number): Promise<DetailRecipe | null> | null {
   const key = String(recipeId || '');
   if (!key) return null;
   return inflightRequests.get(key) || null;
 }
 
-export function prefetchRecipeDetail(recipeId: string): Promise<any | null> {
+export function prefetchRecipeDetail(recipeId: string | number): Promise<DetailRecipe | null> {
   const key = String(recipeId || '');
   if (!key) return Promise.resolve(null);
 

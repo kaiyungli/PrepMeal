@@ -1,15 +1,16 @@
+import type { FilterRecipe } from '@/constants/filters';
 import { useMemo } from 'react';
 import { recipeMatchesFilters } from '@/constants/filters';
 import { perfNow, perfLog } from '@/utils/perf';
 
-interface UseFilteredRecipesOptions {
-  allRecipes: any[];
+interface UseFilteredRecipesOptions<R> {
+  allRecipes: R[];
   exclusions: string[];
-  filters: any;
+  filters: Record<string, string[]>;
   traceId?: string;
 }
 
-export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }: UseFilteredRecipesOptions) {
+export function useFilteredRecipes<R extends FilterRecipe & { protein?: string[] | null }>({ allRecipes, exclusions, filters, traceId }: UseFilteredRecipesOptions<R>) {
   const filteredRecipes = useMemo(() => {
     const start = perfNow();
     
@@ -27,25 +28,25 @@ export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }:
     }
     
     // Count active filter groups
-    const activeFilterGroups = filters ? Object.values(filters).filter((arr: any) => arr?.length).length : 0;
+    const activeFilterGroups = filters ? Object.values(filters).filter((arr) => arr?.length).length : 0;
     
     // Count exclusions
     const exclusionCount = exclusions?.length || 0;
     
-    const result = allRecipes.filter((recipe: any) => {
+    const result = allRecipes.filter((recipe) => {
       // Negative filter: exclusions
       if (exclusions?.length) {
         const proteins = [...(recipe.protein || [])];
         if (recipe.primary_protein) proteins.push(recipe.primary_protein);
         for (const p of proteins) {
-          if (p && (exclusions as any).includes(p)) return false;
+          if (p && exclusions.includes(p)) return false;
         }
       }
       
       // Positive filter: recipeMatchesFilters
       if (filters && Object.keys(filters).length > 0) {
         try {
-          if (!recipeMatchesFilters(recipe as any, filters as any)) return false;
+          if (!recipeMatchesFilters(recipe, filters)) return false;
         } catch {
           // A recipe that cannot be checked must not bypass active filters.
           return false;
@@ -71,7 +72,7 @@ export function useFilteredRecipes({ allRecipes, exclusions, filters, traceId }:
     });
     
     return result;
-  }, [allRecipes, exclusions, filters]);
+  }, [allRecipes, exclusions, filters, traceId]);
   
   return filteredRecipes;
 }

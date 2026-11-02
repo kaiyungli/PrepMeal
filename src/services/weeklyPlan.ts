@@ -22,7 +22,7 @@ export interface Recipe {
   id: string | number;
   name: string;
   image_url?: string;
-  ingredients?: any;
+  ingredients?: unknown;
 }
 
 const DAY_NAMES = ['週一', '週二', '週三', '週四', '週五', '週六', '週日'];

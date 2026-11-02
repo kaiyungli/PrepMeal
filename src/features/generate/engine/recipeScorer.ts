@@ -1,10 +1,11 @@
+import type { Recipe } from '@/lib/mealPlanner';
 /**
  * Recipe Scorer - Pure scoring logic for recipe replacement
  * 
  * Used by recipeReplacer to score candidates for diversity.
  */
 export interface ScoredRecipe {
-  recipe: any;
+  recipe: Recipe;
   score: number;
 }
 
@@ -14,7 +15,7 @@ export interface ScoredRecipe {
  * @param existingRecipes - All recipes currently in plan
  * @returns Scored recipe with deterministic score
  */
-export function scoreRecipeForReplacement(candidate: any, existingRecipes: any[]): ScoredRecipe {
+export function scoreRecipeForReplacement(candidate: Recipe, existingRecipes: Recipe[]): ScoredRecipe {
   let score = 5; // base score
   
   // Repeat penalty - avoid recipes already in plan
@@ -61,7 +62,7 @@ export function scoreRecipeForReplacement(candidate: any, existingRecipes: any[]
  * @param existingRecipes - Recipes already in plan
  * @returns Sorted array of scored recipes
  */
-export function scoreCandidates(candidates: any[], existingRecipes: any[]): ScoredRecipe[] {
+export function scoreCandidates(candidates: Recipe[], existingRecipes: Recipe[]): ScoredRecipe[] {
   const scored = candidates
     .map(candidate => scoreRecipeForReplacement(candidate, existingRecipes));
   

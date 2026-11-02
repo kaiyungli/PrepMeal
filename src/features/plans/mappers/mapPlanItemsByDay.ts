@@ -1,11 +1,13 @@
-export function mapPlanItemsByDay(plan: any, items: any[]) {
+export type PlanCalendar = { week_start_date?: string | null; days_count?: number };
+export type DatedPlanItem = { date: string };
+export function mapPlanItemsByDay<T extends DatedPlanItem>(plan: PlanCalendar | null, items: T[]) {
   if (!plan || !Array.isArray(items)) return {};
 
   const startDate = plan.week_start_date
     ? new Date(plan.week_start_date)
     : null;
 
-  const grouped: Record<number, any[]> = {};
+  const grouped: Record<number, T[]> = {};
 
   items.forEach((item) => {
     const itemDate = new Date(item.date);

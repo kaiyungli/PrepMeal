@@ -7,8 +7,8 @@ interface PlanData {
   daysPerWeek: number
   dishesPerDay: number
   servings: number
-  weeklyPlan: any
-  settings: any
+  weeklyPlan: unknown
+  settings: unknown
 }
 
 export async function saveMenuPlan(planData: PlanData) {

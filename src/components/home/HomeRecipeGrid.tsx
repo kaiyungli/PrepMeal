@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+type CardRecipe = ComponentProps<typeof RecipeCard>['recipe'] & { id: string | number };
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import RecipeCard from '@/components/RecipeCard';
@@ -5,8 +7,8 @@ import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailCl
 import { canStartSpeculativeFetch } from '@/utils/speculativeFetch';
 
 interface HomeRecipeGridProps {
-  recipes: any[];
-  onRecipeClick?: (recipe: any) => void;
+  recipes: CardRecipe[];
+  onRecipeClick?: (recipe: CardRecipe) => void;
   isFavorite?: (recipeId: string | number) => boolean;
   isPending?: (recipeId: string | number) => boolean;
   onFavoriteClick?: (recipeId: string | number) => void | Promise<void>;
@@ -25,8 +27,8 @@ function RecipeGridItem({
   isPending,
   onFavoriteClick 
 }: { 
-  recipe: any;
-  onRecipeClick?: (recipe: any) => void;
+  recipe: CardRecipe;
+  onRecipeClick?: (recipe: CardRecipe) => void;
   isFavorite?: boolean;
   isPending?: boolean;
   onFavoriteClick?: () => void | Promise<void>;
@@ -78,7 +80,7 @@ function HomeRecipeGrid({
   const router = useRouter();
   const prefetchedRef = useRef(new Set());
   const loadMoreRef = useRef(loadMore);
-  loadMoreRef.current = loadMore;
+  useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
   
   // Safe recipes list for rendering
   const safeRecipes = (recipes || []);

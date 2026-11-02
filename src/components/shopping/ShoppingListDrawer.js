@@ -1,13 +1,17 @@
 import ShoppingListSheet from './ShoppingListSheet';
 import ShoppingListV2 from './ShoppingListV2';
 import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/mappers';
-import { useState, useEffect, useId } from 'react';
+import { useState, useEffect, useId, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
 import { formatUnit, formatQuantity } from '@/lib/formatters';
 import { CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/features/shopping-list/constants';
 import { useDialogFocus } from '@/hooks/useDialogFocus';
 import OptionalIngredientChoices from './OptionalIngredientChoices';
+
+const subscribeToMount = () => () => {};
+const clientMounted = () => true;
+const serverMounted = () => false;
 
 /**
  * ShoppingListDrawer - Reusable drawer/modal for shopping list
@@ -25,14 +29,11 @@ export default function ShoppingListDrawer({
   error,
   onFetch 
 }) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeToMount, clientMounted, serverMounted);
   const titleId = useId();
   const dialogRef = useDialogFocus(mounted && isOpen && !progressState);
   const [viewMode, setViewMode] = useState('category'); // 'category' | 'recipe'
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (isOpen && !shoppingList && !loading && !error && onFetch) {
@@ -50,12 +51,11 @@ export default function ShoppingListDrawer({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose, progressState]);
 
-  // Reset view mode when opening new
-  useEffect(() => {
-    if (isOpen) {
-      setViewMode('category');
-    }
-  }, [isOpen]);
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setViewMode('category');
+  }
 
   if (!mounted || !isOpen) return null;
 

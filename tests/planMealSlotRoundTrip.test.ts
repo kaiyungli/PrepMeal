@@ -123,7 +123,7 @@ async function reload(planId: string) {
 
 const slotsByDay = (controller: Awaited<ReturnType<typeof reload>>) => Object.fromEntries(
   Object.entries(controller.mealSlotGroupsByDay).map(([day, groups]) => [
-    day, groups.map((g) => [g.mealSlot, g.label, g.items.map((i: { recipe_id: string }) => i.recipe_id)]),
+    day, groups.map((g) => [g.mealSlot, g.label, g.items.map((i: { recipe_id: string | null }) => i.recipe_id)]),
   ]),
 );
 

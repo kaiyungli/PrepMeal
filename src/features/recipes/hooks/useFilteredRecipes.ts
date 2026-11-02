@@ -1,7 +1,4 @@
-/**
- * Shared hook for API-driven filtered recipe results
- * Handles: fetch, debounce, race prevention, loading, error states, pagination prefetch
- */
+import type { HomeCatalogRecipe as ListRecipe } from '@/features/home/filterHomeCatalog';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchRecipesFromAPI } from '@/features/recipes/services/fetchRecipesFromAPI';
 import { buildRecipeApiParams, RecipeApiParams } from '@/features/recipes/mappers/buildRecipeApiParams';
@@ -12,9 +9,9 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const PAGE_SIZE = 24;
 
 // Module-level cache (shared across hook instances)
-const recipeCache = new Map<string, { data: any[]; timestamp: number; total: number }>();
+const recipeCache = new Map<string, { data: ListRecipe[]; timestamp: number; total: number }>();
 
-function getCacheKey(filters: any, searchQuery: string, sortBy: string, limit: number, page: number): string {
+function getCacheKey(filters: Record<string, string[]>, searchQuery: string, sortBy: string, limit: number, page: number): string {
   return JSON.stringify({ filters, searchQuery, sortBy, limit, page });
 }
 
@@ -28,7 +25,7 @@ export interface UseFilteredRecipesOptions {
 }
 
 export interface UseFilteredRecipesResult {
-  recipes: any[];
+  recipes: ListRecipe[];
   totalCount: number;
   loading: boolean;
   fetchError: string;
@@ -39,7 +36,7 @@ export interface UseFilteredRecipesResult {
 }
 
 export function useFilteredRecipes(
-  initialRecipes: any[],
+  initialRecipes: ListRecipe[],
   options: UseFilteredRecipesOptions
 ): UseFilteredRecipesResult {
   const { filters, searchQuery, sortBy = 'newest', enabled = true } = options;
@@ -58,7 +55,7 @@ export function useFilteredRecipes(
   const isListSettled = useCallback(() => listSettledRef.current, []);
   
   // Page cache for prefetching
-  const pageCacheRef = useRef(new Map<number, { recipes: any[]; total: number }>());
+  const pageCacheRef = useRef(new Map<number, { recipes: ListRecipe[]; total: number }>());
   const prefetchingPagesRef = useRef(new Map<number, Promise<Awaited<ReturnType<typeof fetchRecipesFromAPI>>>>());
   const generationRef = useRef(0);
   const activeRef = useRef(false);
@@ -160,8 +157,8 @@ export function useFilteredRecipes(
       if (!current()) return;
       setRecipes(prev => {
         if (!current()) return prev;
-        const ids = new Set(prev.map((r: any) => r.id));
-        const merged = [...prev, ...newRecipes.filter((r: any) => !ids.has(r.id))];
+        const ids = new Set(prev.map((r) => r.id));
+        const merged = [...prev, ...newRecipes.filter((r: ListRecipe) => !ids.has(r.id))];
         setHasMore(merged.length < total);
         return merged;
       });

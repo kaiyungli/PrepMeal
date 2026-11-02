@@ -31,7 +31,7 @@ export function formatServings(num: number): string {
 }
 
 // Generate random menu for week
-export function generateWeeklyMenu(recipes: any[], servings: number = 2) {
+export function generateWeeklyMenu(recipes: { name: string }[], servings: number = 2) {
   const days = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
   
   const shuffled = [...recipes].sort(() => 0.5 - Math.random());
@@ -60,11 +60,11 @@ export function generateWeeklyMenu(recipes: any[], servings: number = 2) {
   };
 }
 
-export function calculateDailyCalories(menuItem: any): number {
+export function calculateDailyCalories(menuItem: { recipe?: { calories?: number } } | null): number {
   return menuItem?.recipe?.calories || 0;
 }
 
-export function calculateWeeklyCalories(menu: any[]): number {
+export function calculateWeeklyCalories(menu: { recipe?: { calories?: number } }[]): number {
   return menu.reduce((sum, item) => sum + (item.recipe?.calories || 0), 0);
 }
 
@@ -80,7 +80,7 @@ export function formatTags(tags: string[] | null): string {
   return tags.join(', ');
 }
 
-export function validateRecipe(data: any): { valid: boolean; errors: string[] } {
+export function validateRecipe(data: { name?: string; cooking_time?: number; calories?: number }): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   
   if (!data.name || data.name.trim() === '') {

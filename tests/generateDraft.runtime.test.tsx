@@ -15,7 +15,7 @@ const saved: DraftSnapshot = {
 };
 function useWorkspace(userId: string | null, loadingRecipes = false) {
   const preferences = useGeneratePreferences();
-  const [weeklyPlan, setWeeklyPlan] = useState<Record<string, ({ id: string | number; [key: string]: unknown } | null)[]>>({});
+  const [weeklyPlan, setWeeklyPlan] = useState<Record<string, (import('@/lib/mealPlanner').Recipe | null)[]>>({});
   const [lockedSlots, setLockedSlots] = useState<Record<string, boolean>>({});
   const draft = useGenerateDraft({ userId, allRecipes: recipes, loadingRecipes, recipesError: null,
     preferences, weeklyPlan, lockedSlots, setWeeklyPlan, setLockedSlots });

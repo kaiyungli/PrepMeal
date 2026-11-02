@@ -1,3 +1,4 @@
+import { localDateISO } from '@/utils/dateUtils';
 /**
  * Normalize Plan for Save
  * 
@@ -57,7 +58,7 @@ export function normalizePlanForSave(
 
   return {
     name,
-    week_start_date: new Date().toISOString().split('T')[0],
+    week_start_date: localDateISO(),
     days_count: daysPerWeek,
     items,
   };
