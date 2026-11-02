@@ -3,7 +3,9 @@
  * 
  * Transforms weekly plan into API payload for saving.
  */
+import { dayPortions } from '../workweek';
 import { SavePlanPayload } from '../services/saveGeneratedPlan';
+import { localCalendarDate } from '@/lib/localCalendarDate';
 
 const DAY_INDEX_MAP = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
 
@@ -26,7 +28,8 @@ export function getDefaultPlanName(servings: number, daysPerWeek: number): strin
 export function normalizePlanForSave(
   weeklyPlan: Record<string, Array<{ id?: string | number } | null | undefined>>,
   servings: number,
-  daysPerWeek: number
+  daysPerWeek: number,
+  packLunch = false
 ): SavePlanPayload {
   const items: Array<{
     day_index: number;
@@ -47,7 +50,7 @@ export function normalizePlanForSave(
           day_index: dayIndex,
           meal_type: 'dinner',
           recipe_id: String(recipe.id),
-          servings: servings,
+          servings: dayPortions(dayKey, daysPerWeek, servings, packLunch),
         });
       }
     }
@@ -57,7 +60,7 @@ export function normalizePlanForSave(
 
   return {
     name,
-    week_start_date: new Date().toISOString().split('T')[0],
+    week_start_date: localCalendarDate(),
     days_count: daysPerWeek,
     items,
   };

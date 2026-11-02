@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { saveGeneratedPlan, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
+import { buildSavePayload, saveGeneratedPlan, type SavePlanPayload } from '@/features/generate/services/saveGeneratedPlan';
 import { getDefaultPlanName, normalizePlanForSave, resolvePlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
 const payload: SavePlanPayload = {
@@ -18,7 +18,20 @@ const payload: SavePlanPayload = {
 };
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
+});
+
+describe('saved plan calendar date', () => {
+  it.each(['2026-10-20T16:30:00Z', '2026-12-31T16:30:00Z', '2026-10-20T01:30:00Z', '2027-01-01T01:30:00Z'])('saves the local calendar date at %s', timestamp => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date(timestamp));
+    const date = new Date();
+    const expected = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const plan = { mon: [{ id: 'recipe-1' }] };
+    expect(normalizePlanForSave(plan, 2, 3).week_start_date).toBe(expected);
+    expect(buildSavePayload(plan, 2, 3).week_start_date).toBe(expected);
+    expect(normalizePlanForSave(plan, 2, 3).items[0].day_index).toBe(0);
+  });
 });
 
 describe('saveGeneratedPlan', () => {

@@ -68,7 +68,7 @@ function itemIdentity(item: ShoppingListBuyItem): string {
   return item.ingredientId ? `id:${item.ingredientId}` : `name:${item.name}`;
 }
 
-function convertMixedUnits(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+function convertMixedUnits(items: ShoppingListBuyItem[], language = 'zh'): ShoppingListBuyItem[] {
   const unitsByGroup = new Map<string, Set<string>>();
   for (const item of items) {
     const unit = normalizeUnit(item.unit);
@@ -89,17 +89,17 @@ function convertMixedUnits(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] 
       unit: spec.target,
       // Mixed source displays may be "湯匙" or "千克", neither of which
       // describes the converted target. Use the canonical target code.
-      unitDisplay: spec.target,
+      unitDisplay: language === 'en' ? spec.target : spec.target === 'tsp' ? '茶匙' : spec.target === 'g' ? '克' : '毫升',
     };
   });
 }
 
 // Merge by ingredient identity plus normalized (and, when safe, converted)
 // unit. Non-convertible units always remain separate.
-function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+function mergeItems(items: ShoppingListBuyItem[], language = 'zh'): ShoppingListBuyItem[] {
   const map = new Map<string, ShoppingListBuyItem>();
 
-  for (const item of convertMixedUnits(items)) {
+  for (const item of convertMixedUnits(items, language)) {
     const normalizedUnit = normalizeUnit(item.unit);
     const key = item.ingredientId
       ? `id:${item.ingredientId}__${normalizedUnit}`
@@ -340,6 +340,8 @@ export async function handleShoppingList(
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
+      // Plain cooking water is not a grocery purchase. Keep broth and bottled drinks.
+      if (ing.slug === 'water') continue;
       // Vegetarian tags describe the base recipe. Animal add-ons are not
       // selected by recipeIds alone; keep all required ingredients unchanged.
       if (ri.is_optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
@@ -395,7 +397,7 @@ export async function handleShoppingList(
     console.log('[shopping-list api] items before merge:', allItems.length);
     console.log('[shopping-list api] first item sample:', allItems[0] || null);
     
-    const mergedItems = mergeItems(allItems);
+    const mergedItems = mergeItems(allItems, unitLanguage);
     console.log('[shopping-list api] items after merge:', mergedItems.length);
 
     const pantryNames = new Set(pantryIngredients.map(pantryNameKey).filter(Boolean));
@@ -428,7 +430,7 @@ export async function handleShoppingList(
       }
       const arr = categoryMap.get(cat)!;
       arr.push(item);
-      categoryMap.set(cat, mergeItems(arr));
+      categoryMap.set(cat, mergeItems(arr, unitLanguage));
     }
 
     console.log('[shopping-list api] categoryMap keys:', Array.from(categoryMap.keys()));
@@ -458,7 +460,7 @@ export async function handleShoppingList(
     // Merge items within each recipe group
     const byRecipe: ShoppingListRecipeGroup[] = [];
     for (const [, group] of recipeGroups) {
-      const mergedInRecipe = mergeItems(group.items);
+      const mergedInRecipe = mergeItems(group.items, unitLanguage);
       const pantryInRecipe = mergedInRecipe.filter(isInPantry);
       byRecipe.push({
         recipeId: group.recipeId,
@@ -472,6 +474,7 @@ export async function handleShoppingList(
           name: item.name,
           quantity: item.quantity,
           unit: item.unitDisplay || item.unit || '',
+          unitCode: item.unit,
           quantityPending: item.quantityPending,
         })),
       });

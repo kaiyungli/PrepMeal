@@ -112,6 +112,7 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
         pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
         toBuy: Array.isArray(rb.toBuy) 
           ? rb.toBuy.map((i: any) => ({
+              ingredientId: i.ingredientId ?? null, quantity: i.quantity, unit: i.unitCode || i.unit || '', quantityPending: i.quantityPending === true,
               name: i.name,
               quantityText: formatQuantityDisplay(i.quantity, i.unitDisplay || i.unit || '', i.quantityPending),
             }))

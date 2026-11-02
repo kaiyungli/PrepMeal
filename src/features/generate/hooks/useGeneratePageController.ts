@@ -2,6 +2,7 @@
  * useGeneratePageController - Main orchestration hook for Generate page
  * Composes: useGenerateData + useFilteredRecipes + useGeneratePlan + useGenerateHandlers + useGenerateActions
  */
+import { shoppingBatches, isLunchboxCandidate } from '../workweek';
 import { useMemo, useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { COMPOSITION_CONFIG } from '@/constants/composition';
@@ -47,6 +48,7 @@ export function useGeneratePageController({
     allRecipes: data.allRecipes,
     exclusions: preferences.exclusions,
     filters,
+    packLunch: preferences.packLunch,
     traceId
   });
   
@@ -91,6 +93,7 @@ export function useGeneratePageController({
     weeklyPlan: visiblePlan,
     pantryIngredients: data.pantryIngredients,
     servings,
+    packLunch: preferences.packLunch,
     daysPerWeek,
     isAuthenticated,
     userId: user?.id ?? null,
@@ -146,7 +149,8 @@ export function useGeneratePageController({
     loadingRecipes: data.loadingRecipes,
     recipesError: data.recipesError,
     retryRecipes: data.retryRecipes,
-    availabilityWarnings,
+    availabilityWarnings: [...availabilityWarnings, ...(preferences.packLunch && Object.values(visiblePlan).flat().some(recipe => recipe && !isLunchboxCandidate(recipe)) ? ['目前有菜式未核對帶飯做法，請換菜或重新生成後再保存。'] : [])],
+    shoppingBatches: shoppingBatches(visiblePlan, daysPerWeek, servings, preferences.packLunch, preferences.shoppingTrips),
     pantryIngredients: data.pantryIngredients,
     filteredRecipes,
     

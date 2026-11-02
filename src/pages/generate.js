@@ -138,6 +138,8 @@ function GenerateWorkspace({ isAuthenticated }) {
             setAllowCompleteMeal={prefs.setAllowCompleteMeal}
             servings={prefs.servings}
             setServings={prefs.setServings}
+            packLunch={prefs.packLunch} setPackLunch={prefs.setPackLunch}
+            shoppingTrips={prefs.shoppingTrips} setShoppingTrips={prefs.setShoppingTrips}
             budget={prefs.budget}
             setBudget={prefs.setBudget}
             filters={prefs.filters}
@@ -202,6 +204,7 @@ function GenerateWorkspace({ isAuthenticated }) {
           progressDisabled={!ctrl.draft.ready || ctrl.draft.conflict}
           onClose={handleCloseShoppingList}
           shoppingListView={shoppingListView}
+          batches={ctrl.shoppingBatches}
           loading={isShoppingListLoading}
           error={shoppingListError}
           onCopy={handleCopyShoppingList}

@@ -37,11 +37,11 @@ export function useGenerateDraft(options: Options) {
     weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, (weeklyPlan[day] || []).map(recipe => recipe?.id != null ? String(recipe.id) : null)])),
     lockedSlots,
     preferences: { daysPerWeek: prefs.daysPerWeek, dailyComposition: prefs.dailyComposition,
-      allowCompleteMeal: prefs.allowCompleteMeal, servings: prefs.servings, budget: prefs.budget,
+      allowCompleteMeal: prefs.allowCompleteMeal, packLunch: prefs.packLunch, shoppingTrips: prefs.shoppingTrips, servings: prefs.servings, budget: prefs.budget,
       ingredientReuse: prefs.ingredientReuse, exclusions: prefs.exclusions, filters: prefs.filters },
     notices,
   }), [planName, weeklyPlan, lockedSlots, prefs.daysPerWeek, prefs.dailyComposition, prefs.allowCompleteMeal, prefs.servings,
-    prefs.budget, prefs.ingredientReuse, prefs.exclusions, prefs.filters, notices, shoppingProgress]);
+    prefs.packLunch, prefs.shoppingTrips, prefs.budget, prefs.ingredientReuse, prefs.exclusions, prefs.filters, notices, shoppingProgress]);
   const fingerprint = draftFingerprint(snapshot);
 
   const apply = useCallback((saved: DraftSnapshot) => {
@@ -54,10 +54,11 @@ export function useGenerateDraft(options: Options) {
     const p = saved.preferences;
     prefs.setDaysPerWeek(p.daysPerWeek); prefs.setDailyComposition(p.dailyComposition);
     prefs.setAllowCompleteMeal(p.allowCompleteMeal); prefs.setServings(p.servings);
+    prefs.setPackLunch(p.packLunch ?? false); prefs.setShoppingTrips(p.shoppingTrips ?? 1);
     prefs.setBudget(p.budget); prefs.setIngredientReuse(p.ingredientReuse);
     prefs.setExclusions(p.exclusions); prefs.setFilters(p.filters);
     // Baseline uses hydrated identities and only locks that still refer to meals.
-    lastSnapshot.current = draftFingerprint({ ...saved, planName: saved.planName || '', shoppingProgress: saved.shoppingProgress || emptyProgress(),
+    lastSnapshot.current = draftFingerprint({ ...saved, preferences: { ...saved.preferences, packLunch: p.packLunch ?? false, shoppingTrips: p.shoppingTrips ?? 1 }, planName: saved.planName || '', shoppingProgress: saved.shoppingProgress || emptyProgress(),
       weeklyPlan: Object.fromEntries(DAY_KEYS.map(day => [day, restored.weeklyPlan[day].map(recipe => recipe ? String(recipe.id) : null)])),
       lockedSlots: restored.lockedSlots, notices: restored.notices });
   }, [allRecipes, setWeeklyPlan, setLockedSlots, prefs]);

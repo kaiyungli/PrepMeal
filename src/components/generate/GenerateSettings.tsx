@@ -15,6 +15,8 @@ interface GenerateSettingsProps {
   setAllowCompleteMeal: (v: boolean) => void;
   servings: number;
   setServings: (v: number) => void;
+  packLunch?: boolean; setPackLunch?: (value: boolean) => void;
+  shoppingTrips?: number; setShoppingTrips?: (value: number) => void;
   budget: string;
   setBudget: (v: string) => void;
   // Legacy props - ignored in unified mode
@@ -79,6 +81,7 @@ export default function GenerateSettings({
   dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
   budget, setBudget,
+  packLunch = false, setPackLunch, shoppingTrips = 1, setShoppingTrips,
   filters,
   setFilters,
   onClearAll,
@@ -112,6 +115,14 @@ export default function GenerateSettings({
 
   return (
     <div>
+      <div className="mb-3 rounded-xl border border-[#DDD0B0] bg-white p-4 text-sm text-[#3A2010]">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={packLunch} onChange={event => setPackLunch?.(event.target.checked)} />翌日帶飯（最後一日除外）</label>
+          <label className="flex items-center gap-2">買餸次數<select aria-label="買餸次數" value={shoppingTrips} onChange={event => setShoppingTrips?.(Number(event.target.value))} className="rounded-lg border border-[#DDD0B0] p-2"><option value={1}>一次買齊</option><option value={2}>分兩批買</option></select></label>
+        </div>
+        {packLunch && <p className="mt-2 text-xs leading-5">只選已核對全熟做法嘅菜式；前 {daysPerWeek - 1} 日每人煮兩份，最後一日一份，共每人 {daysPerWeek * 2 - 1} 餐。第一日午餐另備。保存時會記錄實際煮食份量。</p>}
+        <p className="mt-2 text-xs leading-5">「完整餐」係餐單分類，唔代表營養均衡；請確認主食、蛋白質同蔬菜配搭。食譜時間未包含額外煮飯、分盒及多人加量時間。</p>
+      </div>
       {/* Planning Controls - embedded in header */}
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls */}
@@ -165,6 +176,7 @@ export default function GenerateSettings({
             <div className="flex flex-col gap-2">
               <span className="text-xs font-medium text-[#7A5A38]">份量</span>
               <select
+                aria-label="用餐人數"
                 value={servings}
                 onChange={(e) => setServings(parseInt(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-[#E5DCC8] text-[#3A2010] focus:outline-none"

@@ -4,6 +4,7 @@ export const TRANSFER_KEY = 'prepmeal:generate-draft-transfer:v1';
 export const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 export type DraftPreferences = {
   daysPerWeek: number; dailyComposition: string; allowCompleteMeal: boolean;
+  packLunch?: boolean; shoppingTrips?: number;
   servings: number; budget: string; ingredientReuse: string; exclusions: string[];
   filters: Record<string, string[]>;
 };
@@ -34,6 +35,8 @@ export function parseDraft(raw: string | null, owner: string, now = Date.now()):
       Object.values(weeklyPlan).some(items => !Array.isArray(items) || items.length > 3 || items.some(id => id !== null && (typeof id !== 'string' || !id.length || id.length > 200))) ||
       !lockedSlots || typeof lockedSlots !== 'object' || Array.isArray(lockedSlots) ||
       Object.entries(lockedSlots).some(([key, flag]) => !/^(mon|tue|wed|thu|fri|sat|sun)-[0-2]$/.test(key) || typeof flag !== 'boolean') ||
+      (p?.packLunch !== undefined && typeof p.packLunch !== 'boolean') ||
+      (p?.shoppingTrips !== undefined && ![1, 2].includes(p.shoppingTrips)) ||
       !p || ![3, 5, 7].includes(p.daysPerWeek) || !['complete_meal', 'meat_veg', 'two_meat_one_veg'].includes(p.dailyComposition) ||
       !Number.isInteger(p.servings) || p.servings < 1 || p.servings > 6 || typeof p.allowCompleteMeal !== 'boolean' ||
       !['budget', 'normal', 'premium'].includes(p.budget) || !['low', 'normal', 'high'].includes(p.ingredientReuse) ||

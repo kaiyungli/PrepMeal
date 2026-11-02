@@ -9,13 +9,14 @@ import { perfNow, perfLog } from '@/utils/perf';
 import { selectionKey, scopeSelections, type OptionalSelections } from '@/features/shopping-list/optionalSelections';
 
 export interface FetchShoppingListOptions {
+  recipeServings?: number[];
   optionalSelections?: OptionalSelections;
   traceId?: string;
   token: string | null;
   cacheScope: string;
 }
 
-const CACHE_KEY = 'shopping_list_v3';
+const CACHE_KEY = 'shopping_list_v4';
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface CachePayload {
@@ -100,7 +101,7 @@ export async function fetchGeneratedPlanShoppingList(
 
   // Build cache key
   const optionalSelections = scopeSelections(options.optionalSelections || {}, recipeIds);
-  const cacheKey = JSON.stringify([getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings), selectionKey(optionalSelections)]);
+  const cacheKey = JSON.stringify([getCacheKey(options.cacheScope, recipeIds, pantryIngredients, servings), selectionKey(optionalSelections), options.recipeServings ? recipeIds.map((id, index) => [id, options.recipeServings![index]]).sort((a,b) => String(a[0]).localeCompare(String(b[0])) || Number(a[1]) - Number(b[1])) : null]);
   
   // Check cache first
   const cachedData = getFromCache(cacheKey);
@@ -153,6 +154,7 @@ export async function fetchGeneratedPlanShoppingList(
         recipeIds,
         pantryIngredients,
         servings,
+        ...(options.recipeServings ? { recipeServings: options.recipeServings } : {}),
         ...(Object.keys(optionalSelections).length ? { optionalSelections } : {}),
       }),
     });
