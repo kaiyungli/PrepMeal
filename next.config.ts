@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyRecipeRedirects } from "./src/constants/legacyRecipeRedirects";
 
 const nextConfig: NextConfig = {
   images: {
@@ -18,6 +19,9 @@ const nextConfig: NextConfig = {
     return [
       // Retired legacy weekly-menu page; /generate is the current planner.
       { source: '/menu', destination: '/generate', permanent: true },
+      ...Object.entries(legacyRecipeRedirects).map(([from, to]) => ({
+        source: `/recipes/${from}`, destination: `/recipes/${to}`, permanent: true,
+      })),
     ];
   },
 };
