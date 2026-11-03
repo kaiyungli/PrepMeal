@@ -6,7 +6,7 @@ import GenerateSettings from '@/components/generate/GenerateSettings';
 
 afterEach(cleanup);
 
-const collapseClass = '[@media(min-width:1280px)_and_(pointer:fine)]:hidden';
+const collapseClass = 'xl:hidden';
 
 function setup(hasRecipes = false) {
   const handlers = {
@@ -50,6 +50,9 @@ describe('Generate settings responsive collapse', () => {
     update({ hasRecipes: true });
     const toggle = screen.getByRole('button', { name: '修改設定' });
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    // Desktop summary is available without a pointer:fine media requirement.
+    expect(toggle.parentElement?.parentElement?.className).toContain('xl:flex');
+    expect(toggle.parentElement?.parentElement?.className).not.toContain('pointer:fine');
     expect(controlsRegion().className).toContain(collapseClass);
     expect(screen.getByText(/目前設定：3 日 · 一份完整餐 · 1 人 · 一般/)).toBeTruthy();
   });
