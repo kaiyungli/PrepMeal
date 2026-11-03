@@ -146,9 +146,9 @@ describe('real generate page draft integration', () => {
     const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true);
     render(<GeneratePage />);
     await waitFor(() => expect(screen.getAllByText('帳戶A晚餐').length).toBeGreaterThan(0));
-    fireEvent.click(screen.getByRole('button', { name: '🗑️ 清空' }));
+    fireEvent.click(screen.getByRole('button', { name: '清空餐單' }));
     expect(screen.getAllByText('帳戶A晚餐').length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', { name: '🗑️ 清空' }));
+    fireEvent.click(screen.getByRole('button', { name: '清空餐單' }));
     expect(confirm).toHaveBeenCalledTimes(2);
     await waitFor(() => expect(screen.queryByText('帳戶A晚餐')).toBeNull());
     const stored = parseDraft(localStorage.getItem(draftKey('user:A')), 'user:A');

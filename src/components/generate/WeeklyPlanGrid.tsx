@@ -125,20 +125,20 @@ export default function WeeklyPlanGrid({
   // Prefetch helper
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 ${daysPerWeek === 7 ? 'xl:grid-cols-4' : ''}`}>
       {days.map(day => (
         <div 
           key={day.key}
           className={`rounded-xl overflow-hidden ${
-            day.isWeekend ? 'bg-[#C8D49A]/30' : 'bg-white'
-          } shadow-md`}
+            day.isWeekend ? 'bg-[#F2F4E9]' : 'bg-white'
+          } border border-[#E8DFD0]`}
         >
           {/* Day Header */}
           <div className={`px-3 py-2 flex justify-between items-center ${
-            day.isWeekend ? 'bg-[#C8D49A]' : 'bg-[#9B6035]'
+            day.isWeekend ? 'bg-[#E7EDD5] text-[#3D4C25]' : 'bg-[#F0E5D6] text-[#5D3B24]'
           }`}>
             <div>
-              <span className="text-white font-bold text-sm">{day.label}</span>
+              <span className="font-semibold text-sm">{day.label}</span>
             </div>
           </div>
 
@@ -151,9 +151,9 @@ export default function WeeklyPlanGrid({
               return (
                 <div key={index} className="relative">
                   {recipe ? (
-                    <div className="bg-[#F8F3E8] rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+                    <div className="bg-white rounded-lg overflow-hidden flex flex-col">
                       <div 
-                        className="h-44 sm:h-48 relative cursor-pointer overflow-hidden"
+                        className="aspect-video relative cursor-pointer overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035]"
                         onMouseEnter={() => handleRecipePrefetch(recipe, 'hover')}
                         onFocus={() => handleRecipePrefetch(recipe, 'focus')}
                         onTouchStart={() => handleRecipePrefetch(recipe, 'touch')}
@@ -168,66 +168,65 @@ export default function WeeklyPlanGrid({
                         }}
                       >
                         {recipe.image_url ? (
-                          <Image src={recipe.image_url} alt={recipe.name} fill className="object-cover" />
+                          <Image src={recipe.image_url} alt={recipe.name} fill sizes="(min-width: 1280px) 420px, (min-width: 768px) 50vw, 100vw" className="object-cover" />
                         ) : (
                           <div className="h-full flex items-center justify-center bg-gray-200">
                             <span className="text-2xl">🍳</span>
                           </div>
                         )}
                         {isLocked && (
-                          <div className="absolute top-1 right-1 bg-yellow-400 text-xs px-1 rounded">
-                            🔒
+                          <div className="absolute top-2 right-2 bg-white/95 text-[#3A2010] text-xs px-2 py-1 rounded-md">
+                            已鎖定
                           </div>
                         )}
                       </div>
-                      <div className="p-3 flex flex-col">
-                        <div className="flex items-center gap-2 flex-wrap mb-3">
-                          <span className="text-base font-bold text-[#3A2010] truncate">{recipe.name}</span>
-                          {getMealRoleLabel(recipe) && (
-                            <span className="text-[10px] px-2 py-0.5 bg-[#E8E4DC] text-[#8B7355] rounded-full">
+                      <div className="p-4 flex flex-col">
+                        <div className="mb-2">
+                          <h3 className="min-h-12 text-base leading-6 font-semibold text-[#3A2010] break-words">{recipe.name}</h3>
+                          {dishesPerDay > 1 && getMealRoleLabel(recipe) && (
+                            <span className="text-xs text-[#66594B]">
                               {getMealRoleLabel(recipe)}
                             </span>
                           )}
                         </div>
                         {/* Metadata: time, calories, difficulty, cuisine, speed */}
                         {recipe.difficulty || getTimeLabel(recipe) || recipe.calories_per_serving ? (
-                          <div className="mb-3 flex flex-wrap gap-2">
+                          <div className="min-h-12 flex flex-wrap content-start gap-x-3 gap-y-1 text-sm text-[#66594B]">
                             {getTimeLabel(recipe) && (
-                              <span className="text-sm px-3 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
-                                ⏱ {getTimeLabel(recipe)}
+                              <span className="whitespace-nowrap">
+                                {getTimeLabel(recipe)}
                               </span>
                             )}
                             {recipe.calories_per_serving && (
-                              <span className="text-sm px-3 py-1 bg-[#F4EDDD] text-[#9B6035] rounded-full">
-                                🔥 {recipe.calories_per_serving} 卡路里／人
+                              <span className="whitespace-nowrap">
+                                {recipe.calories_per_serving} 卡路里／人
                               </span>
                             )}
                             {getDifficultyLabel(recipe.difficulty) && (
-                              <span className="text-sm px-3 py-1 bg-[#E8F4E8] text-[#4A7040] rounded-full">
+                              <span className="whitespace-nowrap">
                                 {getDifficultyLabel(recipe.difficulty)}
                               </span>
                             )}
                           </div>
                         ) : null}
-                        <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#EEE7DB] pt-3">
                           <button
                             onClick={() => onReplace(day.key, index)}
-                            className="flex-1 whitespace-nowrap text-sm font-medium bg-[#A66336] text-white rounded-full px-4 py-1.5 shadow-sm hover:bg-[#8B5230] active:scale-95 transition-all"
+                            className="flex-1 min-h-10 whitespace-nowrap text-sm font-semibold text-[#794B2B] bg-[#F5EDE2] rounded-lg px-3 py-2 hover:bg-[#ECE0D0] focus-visible:outline-2 focus-visible:outline-[#9B6035]"
                           >
                             換一道
                           </button>
                           <button
+                            aria-pressed={isLocked}
                             onClick={() => isLocked ? onUnlock(day.key, index) : onLock(day.key, index)}
-                            className="whitespace-nowrap text-sm bg-white/70 border border-[#E0CBB2] text-[#8B5A2B] rounded-full px-3 py-1.5 hover:bg-white active:scale-95 transition-all"
+                            className="min-h-10 whitespace-nowrap text-sm border border-[#E0CBB2] text-[#65482F] rounded-lg px-3 py-2 hover:bg-[#F8F3E8] focus-visible:outline-2 focus-visible:outline-[#9B6035]"
                           >
                             {isLocked ? '解鎖' : '鎖定'}
                           </button>
-                          <button
-                            onClick={() => onRemove(day.key, index)}
-                            className="whitespace-nowrap text-sm bg-red-50 border border-red-100 text-red-500 rounded-full px-3 py-1.5 hover:bg-red-100 active:scale-95 transition-all"
-                          >
-                            移除
-                          </button>
+                          <details className="group">
+                            <summary aria-label={`${day.label}第${index + 1}道更多操作`} className="flex min-h-10 min-w-10 cursor-pointer list-none items-center justify-center rounded-lg text-[#66594B] hover:bg-[#F8F3E8] focus-visible:outline-2 focus-visible:outline-[#9B6035]">⋯</summary>
+                            <button type="button" onClick={() => onRemove(day.key, index)} className="min-h-10 rounded-lg px-3 py-2 text-sm text-[#A12E2E] hover:bg-red-50">移除</button>
+                          </details>
                         </div>
                       </div>
                     </div>

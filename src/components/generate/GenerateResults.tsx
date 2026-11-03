@@ -95,15 +95,6 @@ export default function GenerateResults({
 
   return (
     <div className="bg-white rounded-xl border border-[#DDD0B0] p-6">
-      {/* Summary */}
-      {hasRecipes && (
-        <div className="mb-4 flex items-center gap-2">
-          <span className="text-sm font-semibold text-[#3A2010]">
-            已選擇 {selectedCount} 餐
-          </span>
-        </div>
-      )}
-
       {/* Weekly Plan Grid */}
       <WeeklyPlanGrid
         weeklyPlan={weeklyPlan}

@@ -3,9 +3,11 @@
 import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 import { buildFilterSections } from '@/constants/filterGroups';
+import { useId, useState } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface GenerateSettingsProps {
+  hasRecipes?: boolean;
   daysPerWeek: number;
   setDaysPerWeek: (v: number) => void;
   
@@ -75,6 +77,7 @@ function CheckIcon() {
 }
 
 export default function GenerateSettings({ 
+  hasRecipes = false,
   daysPerWeek, setDaysPerWeek,
   dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
@@ -86,6 +89,12 @@ export default function GenerateSettings({
   handleToggleFilterExpanded
 }: GenerateSettingsProps) {
   
+  const [editingSettings, setEditingSettings] = useState(false);
+  const settingsId = useId();
+  const desktopCollapsed = hasRecipes && !editingSettings;
+  const compositionLabel = DAILY_COMPOSITION_OPTIONS.find(option => option.value === dailyComposition)?.label;
+  const budgetLabel = BUDGET_OPTIONS.find(option => option.value === budget)?.label;
+
   // Controlled-only: filters come from parent (single source of truth)
   // No internal filter state
 
@@ -111,6 +120,14 @@ export default function GenerateSettings({
 
   return (
     <div>
+      {hasRecipes && <div className="hidden [@media(min-width:1280px)_and_(pointer:fine)]:flex items-center justify-between gap-4 rounded-xl border border-[#DDD0B0] bg-white px-4 py-3">
+        <div>
+          <p className="text-sm font-semibold text-[#3A2010]">目前設定：{daysPerWeek} 日 · {compositionLabel} · {servings} 人 · {budgetLabel}</p>
+          <p className="mt-1 text-xs text-[#66594B]">{activeCount > 0 ? `已選 ${activeCount} 個篩選條件。` : ''}修改設定後，按「一鍵生成」更新餐單。</p>
+        </div>
+        <button type="button" aria-expanded={!desktopCollapsed} aria-controls={settingsId} onClick={() => setEditingSettings(value => !value)} className="shrink-0 min-h-10 rounded-lg border border-[#DDD0B0] px-3 text-sm font-medium text-[#65482F] hover:bg-[#F8F3E8]">{desktopCollapsed ? '修改設定' : '收起設定'}</button>
+      </div>}
+      <div id={settingsId} className={desktopCollapsed ? '[@media(min-width:1280px)_and_(pointer:fine)]:hidden' : hasRecipes ? 'mt-3' : ''}>
       {/* Planning Controls - embedded in header */}
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls */}
@@ -162,8 +179,9 @@ export default function GenerateSettings({
 
             {/* Group 3: 份量 - out of scope: remains the existing native select */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-medium text-[#7A5A38]">份量</span>
+              <label htmlFor={`${settingsId}-servings`} className="text-xs font-medium text-[#7A5A38]">用餐人數</label>
               <select
+                id={`${settingsId}-servings`}
                 value={servings}
                 onChange={(e) => setServings(parseInt(e.target.value))}
                 className="w-24 px-3 py-1.5 rounded-full text-xs font-medium bg-white border border-[#E5DCC8] text-[#3A2010] focus:outline-none"
@@ -195,6 +213,7 @@ export default function GenerateSettings({
           {filterSections.length > 0 && <FilterGroupList sections={filterSections} />}
           <FilterFooter onClear={showClear ? onClearAll : undefined} clearLabel="重設所有設定" />
         </FilterShell>
+      </div>
     </div>
   );
 }

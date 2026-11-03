@@ -34,6 +34,7 @@ export default function GenerateActions({
 }: GenerateActionsProps) {
   const actionButton = 'min-h-11 min-w-0 rounded-xl px-2 py-2.5 text-sm font-semibold whitespace-nowrap touch-manipulation transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9B6035] disabled:opacity-50 disabled:cursor-not-allowed';
   const secondaryButton = actionButton + ' border border-[#DDD0B0] bg-[#FAF5E9] text-[#765C42] enabled:hover:bg-[#F1E7D3]';
+  const primaryButton = actionButton + " bg-[#9B6035] text-white enabled:hover:bg-[#84502D]";
   const cannotGenerate = isLoadingRecipes || filteredRecipeCount === 0;
 
   return (
@@ -49,7 +50,7 @@ export default function GenerateActions({
             onTouchStart={() => {}}
             className={UI.buttonGhost}
           >
-            🗑️ 清空
+            清空餐單
           </button>
         )}
       </div>
@@ -58,7 +59,7 @@ export default function GenerateActions({
           onClick={onShoppingList}
             onTouchStart={() => {}}
           disabled={!hasRecipes}
-          className={secondaryButton}
+          className={hasRecipes ? primaryButton : secondaryButton}
         >
           購物清單
         </button>
@@ -66,7 +67,7 @@ export default function GenerateActions({
           onClick={onGenerate}
             onTouchStart={() => {}}
           disabled={cannotGenerate}
-          className={actionButton + " bg-[#9B6035] text-white enabled:hover:bg-[#84502D]"}
+          className={hasRecipes ? secondaryButton : primaryButton}
         >
           一鍵生成
         </button>
