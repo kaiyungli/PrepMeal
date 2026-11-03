@@ -223,9 +223,11 @@ export default function WeeklyPlanGrid({
                           >
                             {isLocked ? '解鎖' : '鎖定'}
                           </button>
-                          <details className="group">
+                          <details className="group relative shrink-0">
                             <summary aria-label={`${day.label}第${index + 1}道更多操作`} className="flex min-h-10 min-w-10 cursor-pointer list-none items-center justify-center rounded-lg text-[#66594B] hover:bg-[#F8F3E8] focus-visible:outline-2 focus-visible:outline-[#9B6035]">⋯</summary>
-                            <button type="button" onClick={() => onRemove(day.key, index)} className="min-h-10 rounded-lg px-3 py-2 text-sm text-[#A12E2E] hover:bg-red-50">移除</button>
+                            <div className="absolute bottom-full right-0 z-20 mb-2 min-w-28 rounded-lg border border-[#DDD0B0] bg-white p-1 shadow-lg">
+                              <button type="button" onClick={() => onRemove(day.key, index)} className="block w-full min-h-10 whitespace-nowrap rounded-md px-3 py-2 text-left text-sm text-[#A12E2E] hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-[#9B6035]">移除</button>
+                            </div>
                           </details>
                         </div>
                       </div>
