@@ -50,7 +50,8 @@ export function useFilteredRecipes(
   const [hasMore, setHasMore] = useState((initialRecipes?.length || 0) < (options.initialTotalCount ?? initialRecipes?.length ?? 0));
   
   const fetchIdRef = useRef(0);
-  const hasSkippedInitialFetchRef = useRef(false);
+  const canUseInitialDataRef = useRef(true);
+  const hasBeenEnabledRef = useRef(false);
   const listSettledRef = useRef(false);
   const isListSettled = useCallback(() => listSettledRef.current, []);
   
@@ -72,17 +73,17 @@ export function useFilteredRecipes(
     return retireSession;
   }, [queryKey, enabled, retireSession]);
   
-  // Check if we should skip initial fetch (homepage case)
-  const hasNoFilters = !filters || Object.keys(filters).every(k => !filters[k] || filters[k].length === 0);
-  const hasNoSearch = !searchQuery || searchQuery.trim() === '';
-  const isDefaultSort = sortBy === 'newest';
-  const shouldSkipInitialFetch = 
-    !hasSkippedInitialFetchRef.current &&
-    (initialRecipes?.length > 0) &&
-    hasNoFilters &&
-    hasNoSearch &&
-    isDefaultSort;
-  
+  // Capture the SSR seed once. Fresh but equivalent filter objects must not
+  // restart page-one requests or reset foreground pagination.
+  const [initialSeed] = useState(() => ({
+    queryKey,
+    count: initialRecipes?.length || 0,
+    total: options.initialTotalCount,
+    eligible: (initialRecipes?.length > 0)
+      && (!filters || Object.values(filters).every(values => !values?.length))
+      && !searchQuery?.trim() && sortBy === 'newest',
+  }));
+
   // Prefetch a page
   const prefetchPage = useCallback((page: number) => {
     if (!enabled || !activeRef.current || scopeRef.current !== queryKey || !listSettledRef.current || loadMoreLockRef.current) return;
@@ -174,18 +175,23 @@ export function useFilteredRecipes(
 
   // Initial fetch effect with cache
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      if (hasBeenEnabledRef.current) canUseInitialDataRef.current = false;
+      return;
+    }
+    hasBeenEnabledRef.current = true;
+    // Read request inputs from the scope key rather than an unstable object.
+    const { filters, searchQuery, sortBy } = JSON.parse(queryKey) as {
+      filters: Record<string, string[]>; searchQuery: string; sortBy: string;
+    };
+    if (queryKey !== initialSeed.queryKey) canUseInitialDataRef.current = false;
     setLoadingMore(false);
-    if (shouldSkipInitialFetch) {
+    if (canUseInitialDataRef.current && initialSeed.eligible) {
       listSettledRef.current = true;
       console.log('[recipes-client] initial_fetch_skipped', {
-        initial_count: initialRecipes?.length || 0,
-        initialTotalCount: options.initialTotalCount,
-        hasNoFilters,
-        hasNoSearch,
-        isDefaultSort
+        initial_count: initialSeed.count,
+        initialTotalCount: initialSeed.total,
       });
-      hasSkippedInitialFetchRef.current = true;
       return;
     }
     
@@ -265,7 +271,7 @@ export function useFilteredRecipes(
     }, 300);
     
     return () => { clearTimeout(timer); retireInitialFetch(); };
-  }, [enabled, searchQuery, sortBy, JSON.stringify(filters), queryKey, retireInitialFetch]);
+  }, [enabled, queryKey, initialSeed, retireInitialFetch]);
   
   // Reset on filter change
   useEffect(() => {
