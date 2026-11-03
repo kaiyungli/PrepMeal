@@ -39,21 +39,6 @@ const DAYS = [
   { key: 'sun', label: '第七天', isWeekend: true },
 ]
 
-// Generate dates for current week
-function getWeekDates() {
-  const today = new Date()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() - (today.getDay() - 1))
-  
-  return DAYS.map((day, i) => {
-    const date = new Date(monday)
-    date.setDate(monday.getDate() + i)
-    const month = date.getMonth() + 1
-    const dayNum = date.getDate()
-    return { ...day, date: `${month}月${dayNum}日` }
-  })
-}
-
 interface Recipe {
   id: string
   name: string
@@ -114,8 +99,8 @@ export default function WeeklyPlanGrid({
   onRemove,
   onAddRandom,
 }: WeeklyPlanGridProps) {
-  const weekDates = getWeekDates()
-  const days = weekDates.slice(0, daysPerWeek)
+  // Meal-plan slots are relative days, not dates in the current calendar week.
+  const days = DAYS.slice(0, daysPerWeek)
   const handleRecipePrefetch = (recipe: Recipe, source: string) => {
     if (!recipe?.id) return;
     console.log('[recipe-card] prefetch_triggered', { recipeId: recipe.id, source, entry: 'generate' });

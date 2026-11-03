@@ -54,3 +54,33 @@ describe('generated meal card interactions', () => {
     expect(props.onAddRandom).toHaveBeenCalledWith('tue', 0);
   });
 });
+
+describe('relative meal days across calendar boundaries', () => {
+  it.each([
+    ['Sunday', '2026-11-01T12:00:00+08:00'],
+    ['year end', '2026-12-31T12:00:00+08:00'],
+    ['new year', '2027-01-01T12:00:00+08:00'],
+  ])('keeps seven meal slots independent of the calendar on %s', (_label, instant) => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(instant));
+      const callbacks = {
+        onRecipeClick: vi.fn(), onReplace: vi.fn(), onLock: vi.fn(),
+        onUnlock: vi.fn(), onRemove: vi.fn(), onAddRandom: vi.fn(),
+      };
+      render(createElement(WeeklyPlanGrid, {
+        weeklyPlan: {}, lockedSlots: {}, daysPerWeek: 7, dishesPerDay: 1,
+        dailyComposition: 'complete_meal', ...callbacks,
+      }));
+      for (let day = 1; day <= 7; day++) {
+        expect(screen.getByText(['第一天', '第二天', '第三天', '第四天', '第五天', '第六天', '第七天'][day - 1])).toBeTruthy();
+      }
+      fireEvent.click(screen.getByRole('button', { name: '第七天第1道：添加完整餐' }));
+      expect(callbacks.onAddRandom).toHaveBeenCalledWith('sun', 0);
+      expect(callbacks.onAddRandom).toHaveBeenCalledTimes(1);
+    } finally {
+      cleanup();
+      vi.useRealTimers();
+    }
+  });
+});
