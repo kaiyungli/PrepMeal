@@ -1,7 +1,6 @@
 import type { mapPlanResponse, mapItemsWithRecipes } from '../mappers/mapMenuPlanResponse';
 type PlanDetail = { plan: ReturnType<typeof mapPlanResponse>; items: ReturnType<typeof mapItemsWithRecipes> };
 export async function getPlanDetail(planId: string, token?: string): Promise<PlanDetail> {
-  const fetchStart = Date.now();
 
   const res = await fetch(`/api/user/menus/${planId}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {}

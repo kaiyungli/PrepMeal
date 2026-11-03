@@ -88,71 +88,6 @@ export type WeeklyPlanResult = Record<string, PlanSlot[]>
 const WEIGHTS = PLANNER_WEIGHTS;
 
 /**
- * Calculate protein diversity score
- */
-function scoreProteinDiversity(
-  protein: string | null | undefined,
-  recentProteins: string[]
-): { score: number; reason: string } {
-  if (!protein) return { score: 0, reason: '' }
-  if (recentProteins.length === 0) return { score: WEIGHTS.PROTEIN_NEW, reason: 'protein_new' }
-  
-  if (recentProteins[0] === protein) {
-    return { score: WEIGHTS.PROTEIN_SAME_DAY, reason: 'protein_same_day' }
-  }
-  
-  const recentWindow = recentProteins.slice(0, 2)
-  if (recentWindow.includes(protein)) {
-    return { score: WEIGHTS.PROTEIN_WITHIN_2_DAYS, reason: 'protein_within_2_days' }
-  }
-  
-  return { score: WEIGHTS.PROTEIN_NEW, reason: 'protein_new' }
-}
-
-/**
- * Calculate method diversity score
- */
-function scoreMethodDiversity(
-  method: string | undefined,
-  recentMethods: string[]
-): { score: number; reason: string } {
-  if (!method) return { score: 0, reason: '' }
-  if (recentMethods.length === 0) return { score: WEIGHTS.METHOD_NEW, reason: 'method_new' }
-  
-  if (recentMethods[0] === method) {
-    return { score: WEIGHTS.METHOD_SAME_DAY, reason: 'method_same_day' }
-  }
-  
-  return { score: WEIGHTS.METHOD_NEW, reason: 'method_new' }
-}
-
-/**
- * Calculate weekday speed bias
- */
-function scoreWeekdaySpeed(speed: string | undefined, isWeekday: boolean): { score: number; reason: string } {
-  if (!isWeekday || !speed) return { score: 0, reason: '' }
-  
-  if (speed === 'quick') return { score: WEIGHTS.SPEED_QUICK, reason: 'weekday_quick' }
-  if (speed === 'normal') return { score: WEIGHTS.SPEED_NORMAL, reason: 'weekday_normal' }
-  if (speed === 'slow') return { score: WEIGHTS.SPEED_SLOW, reason: 'weekday_slow' }
-  
-  return { score: 0, reason: '' }
-}
-
-/**
- * Calculate difficulty bias
- */
-function scoreDifficulty(difficulty: string | undefined): { score: number; reason: string } {
-  if (!difficulty) return { score: 0, reason: '' }
-  
-  if (difficulty === 'easy') return { score: WEIGHTS.DIFFICULTY_EASY, reason: 'easy_difficulty' }
-  if (difficulty === 'medium') return { score: WEIGHTS.DIFFICULTY_MEDIUM, reason: 'medium_difficulty' }
-  if (difficulty === 'hard') return { score: WEIGHTS.DIFFICULTY_HARD, reason: 'hard_difficulty' }
-  
-  return { score: 0, reason: '' }
-}
-
-/**
  * Select the best recipe for a slot
  */
 export function calculatePlanScore(
@@ -248,10 +183,8 @@ export function planWeekAdvanced(
     daysPerWeek,
     dishesPerDay,
     slotRoles,
-    isWeekend,
     cuisines = [],
     exclusions = [],
-    cookingConstraints = [],
     budget,
     pantryIngredients = [],
     lockedSlots = {},
@@ -446,9 +379,6 @@ export function planWeekAdvanced(
       const mealPosition = dayIndex * effectiveSlotRoles.length + dish;
       const diminishingFactor = mealPosition < 3 ? 1.0 : (mealPosition < 5 ? 0.5 : 0.2);
       
-      // Pre-normalize pantry ONCE before scoring loop (optimization)
-      const scoringNormPantry = normPantry;
-      
       // Get candidates matching this slot role (with fallback chain)
       const eligibleCandidates = getCandidatesWithFallback(filtered, slotRole, usedRecipeIds, compositionKey, config.allowCompleteMeal)
         .filter(r => fitsDailyCompleteMealLimit(r, otherSlotsInDay));
@@ -605,7 +535,6 @@ export function planWeekAdvanced(
       if (selected && pantryIngredients.length > 0) {
         // Use canonical ingredients for tracking (same as scoring)
         const recipeCanonical = selected.canonical_ingredients ? new Set(selected.canonical_ingredients) : getRecipeCanonicalSet(selected);
-        const pantryForScoring = normPantry;
         
         // Primary: track canonical matches
         let selectedMatches = normPantry.filter(p => recipeCanonical.has(p));

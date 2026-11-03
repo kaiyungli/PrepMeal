@@ -35,36 +35,6 @@ function HomeHero({
   shoppingListInitialized = false,
 }: HomeHeroProps) {
   const router = useRouter();
-  
-  // Handler to continue with current plan in Generate page
-  const handleContinueInGenerate = useCallback(() => {
-    // Filter valid items only
-    const validPlan = weeklyPlan
-      .filter(day => day.items && day.items.some(item => item.recipeId))
-      .map(day => ({
-        dayIndex: day.dayIndex,
-        dayLabel: day.dayName,
-        items: day.items
-          .filter(item => item.recipeId)
-          .map(item => ({
-            recipeId: String(item.recipeId),
-            recipeName: item.recipeName || '',
-            servings: item.servings || 2
-          }))
-      }));
-    
-    if (validPlan.length > 0 && validPlan.some(d => d.items.length > 0)) {
-      const payload = {
-        source: 'home',
-        createdAt: Date.now(),
-        weeklyPlan: validPlan
-      };
-      sessionStorage.setItem('prepmeal:generateSeedPlan', JSON.stringify(payload));
-      router.push('/generate?source=home-plan');
-    } else {
-      router.push('/generate');
-    }
-  }, [weeklyPlan, router]);
 
   const groupedDays = groupPlanByDay(weeklyPlan);
   

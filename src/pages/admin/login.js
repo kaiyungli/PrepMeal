@@ -33,7 +33,7 @@ export default function AdminLogin() {
       } else {
         setError(data.error || '登入失敗');
       }
-    } catch (err) {
+    } catch {
       setError('發生錯誤');
     } finally {
       setLoading(false);

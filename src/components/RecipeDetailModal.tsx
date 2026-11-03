@@ -20,7 +20,6 @@ export default function RecipeDetailModal({
   onClose, 
   recipe, 
   loading,
-  error,
   isFavorite = false,
   favoriteLoading,
   onFavoriteClick

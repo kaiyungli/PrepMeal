@@ -9,7 +9,7 @@ interface HomeFiltersBarProps {
   clearFilters: () => void;
 }
 
-function HomeFiltersBar({ searchQuery, setSearchQuery, showFilters, setShowFilters, activeFilterCount, clearFilters }: HomeFiltersBarProps) {
+function HomeFiltersBar({ showFilters, setShowFilters, activeFilterCount, clearFilters }: HomeFiltersBarProps) {
   return (
     <div className="flex items-center justify-between">
       <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-[#E8DCC8] bg-white text-[#3A2010] hover:border-[#9B6035]">

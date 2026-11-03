@@ -65,7 +65,6 @@ export default function Header({
 
   // Render trust link for dropdown
   const renderTrustLink = (link: { label: string; path: string }) => {
-    const isActive = isActiveRoute(link.path);
     return (
       <Link
         key={link.path}

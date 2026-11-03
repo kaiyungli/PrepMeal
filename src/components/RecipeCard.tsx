@@ -44,7 +44,6 @@ function RecipeCard({
   isFavorite, 
   favoriteLoading,
   onFavoriteClick, 
-  isAuthenticated,
   className = '' 
 }: RecipeCardProps) {
   const recipeId = recipe?.id;

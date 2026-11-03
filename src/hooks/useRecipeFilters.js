@@ -43,7 +43,7 @@ export function useRecipeFilters(options = {}) {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setFilters(prev => ({
+    setFilters({
       cuisine: [],
       dish_type: [],
       protein: [],
@@ -52,7 +52,7 @@ export function useRecipeFilters(options = {}) {
       difficulty: [],
       diet: [],
       flavor: [],
-    }));
+    });
   };
 
   // Filter recipes function - memoized for stability

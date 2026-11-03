@@ -129,6 +129,7 @@ function GenerateWorkspace({ isAuthenticated }) {
           </div>}
           <fieldset disabled={!ctrl.draft.ready || ctrl.draft.conflict} className="space-y-4 min-w-0">
           <GenerateSettings
+            hasRecipes={hasRecipes}
             daysPerWeek={prefs.daysPerWeek}
             setDaysPerWeek={prefs.setDaysPerWeek}
             dailyComposition={prefs.dailyComposition}

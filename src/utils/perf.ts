@@ -80,7 +80,7 @@ export function measurePageLoadMetrics(): () => void {
 
   try {
     paintObserver.observe({ type: 'paint', buffered: true });
-  } catch (_) {}
+  } catch {}
 
   // LCP via PerformanceObserver
   let lcpLogged = false;
@@ -108,7 +108,7 @@ export function measurePageLoadMetrics(): () => void {
 
   try {
     lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-  } catch (_) {}
+  } catch {}
 
   return () => {
     paintObserver.disconnect();

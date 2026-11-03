@@ -44,7 +44,7 @@ export function useHeaderController() {
     setLoggingOut(true);
     try {
       await signOut();
-    } catch (err) {
+    } catch {
       // Silent fail - user may retry or refresh
     } finally {
       setLoggingOut(false);

@@ -34,7 +34,6 @@ export default async function handler(req, res) {
     const planId = req.query.id;
 
     if (req.method === 'GET') {
-      const getStart = Date.now();
 
       if (typeof planId !== 'string' || !UUID_RE.test(planId)) {
         return res.status(404).json(ApiResponse.notFound('Plan not found'));

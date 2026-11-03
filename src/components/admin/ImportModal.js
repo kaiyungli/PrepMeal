@@ -13,7 +13,7 @@ export default function ImportModal({ onClose, onSuccess }) {
   const handlePreview = () => {
     setError('');
     let parsed;
-    try { parsed = JSON.parse(jsonInput); } catch (e) { setError('Invalid JSON format'); return; }
+    try { parsed = JSON.parse(jsonInput); } catch { setError('Invalid JSON format'); return; }
     if (Array.isArray(parsed)) {
       setError('不支援舊版陣列格式，請使用「匯出」重新產生檔案後再匯入');
       return;
@@ -46,7 +46,7 @@ export default function ImportModal({ onClose, onSuccess }) {
       }
       setResults(data);
       if (data.success > 0) onSuccess();
-    } catch (err) { setError('Import failed'); }
+    } catch { setError('Import failed'); }
     finally { setLoading(false); }
   };
 
