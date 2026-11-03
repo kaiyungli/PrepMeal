@@ -61,6 +61,7 @@ export default defineConfig({
       'tests/homeShoppingPreview.runtime.test.tsx',
       'tests/recipesEmptyState.runtime.test.tsx',
       'tests/recipeDetailSsr.runtime.test.tsx',
+      'tests/recipeListImageLoading.runtime.test.tsx',
     ],
   },
 });
