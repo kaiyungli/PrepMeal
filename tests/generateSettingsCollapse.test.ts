@@ -68,11 +68,11 @@ describe('Generate settings responsive collapse', () => {
   it('keeps controlled setting callbacks working and reflects changed values in the summary', () => {
     const { handlers, update } = setup(true);
     fireEvent.click(screen.getByRole('button', { name: '修改設定' }));
-    fireEvent.change(screen.getByRole('radio', { name: '5天' }), { target: { checked: true } });
+    fireEvent.click(screen.getByRole('radio', { name: '5天' }));
     expect(handlers.setDaysPerWeek).toHaveBeenCalledWith(5);
     fireEvent.change(screen.getByRole('combobox', { name: '用餐人數' }), { target: { value: '2' } });
     expect(handlers.setServings).toHaveBeenCalledWith(2);
-    fireEvent.change(screen.getByRole('radio', { name: '省錢' }), { target: { checked: true } });
+    fireEvent.click(screen.getByRole('radio', { name: '省錢' }));
     expect(handlers.setBudget).toHaveBeenCalledWith('budget');
     update({ daysPerWeek: 5, servings: 2, budget: 'budget' });
     expect(screen.getByText(/目前設定：5 日 · 一份完整餐 · 2 人 · 省錢/)).toBeTruthy();
@@ -81,12 +81,13 @@ describe('Generate settings responsive collapse', () => {
 
   it('restores visible settings when the plan is cleared, including from a collapsed state', () => {
     const { update } = setup(true);
-    expect(controlsRegion().className).toContain(collapseClass);
+    const region = controlsRegion();
+    expect(region.className).toContain(collapseClass);
     update({ hasRecipes: false });
     expect(screen.queryByRole('button', { name: '修改設定' })).toBeNull();
     expect(screen.getByRole('combobox', { name: '用餐人數' })).toBeTruthy();
     expect(screen.getByRole('radio', { name: '3天' })).toBeTruthy();
     // The responsive hidden class must disappear when there is no plan.
-    expect(document.querySelectorAll('[class*="pointer:fine"]').length).toBe(0);
+    expect(region.className).not.toContain(collapseClass);
   });
 });
