@@ -9,9 +9,6 @@
 
 import { useCallback } from 'react';
 
-/** @type {import('./types').Recipe | import('./types').Recipe[]} */
-const any = undefined;
-
 export function useWeeklyPlanActions(
   /** @type {Function} */ setWeeklyPlan, 
   /** @type {Function} */ setLockedSlots

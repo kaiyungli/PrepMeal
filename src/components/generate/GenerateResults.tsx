@@ -51,7 +51,6 @@ export default function GenerateResults({
   daysPerWeek,
   dishesPerDay,
   dailyComposition,
-  filteredRecipes,
   onLock,
   onUnlock,
   onRemove,

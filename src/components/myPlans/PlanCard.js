@@ -5,19 +5,6 @@ import Link from 'next/link';
  * Shows date range, metadata, recipe preview, and actions
  */
 export default function PlanCard({ plan, onDelete, isDeleting }) {
-  // Format date range - handle timezone safely
-  const formatDateRange = (startDate, daysCount) => {
-    if (!startDate) return '未設定日期';
-    
-    // Parse as local date to avoid timezone shift
-    const [year, month, day] = startDate.split('-').map(Number);
-    const start = new Date(year, month - 1, day);
-    const end = new Date(start);
-    end.setDate(end.getDate() + (daysCount || 7) - 1);
-    
-    const format = (d) => `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-    return `${format(start)} - ${format(end)}`;
-  };
 
   // Format last updated
   const formatLastUpdated = (date) => {
@@ -82,8 +69,6 @@ export default function PlanCard({ plan, onDelete, isDeleting }) {
       'dinner': '晚餐'
     }[slot] || '晚餐';
   };
-
-  const dateRange = formatDateRange(plan.week_start_date, plan.days_count);
   const metadata = getMetadata(plan);
   const previewItems = getPreviewItems(plan);
   const lastUpdated = formatLastUpdated(plan.updated_at || plan.created_at);

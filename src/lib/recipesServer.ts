@@ -62,7 +62,7 @@ export async function fetchRecipesForServer(limit = 24) {
 
     if (error) return [];
     return data || [];
-  } catch (err) {
+  } catch {
     return [];
   }
 }
@@ -87,7 +87,7 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
       recipes: data || [],
       total: count ?? 0
     };
-  } catch (err) {
+  } catch {
     return { recipes: [], total: 0 };
   }
 }

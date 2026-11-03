@@ -167,7 +167,6 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
   const showErrorState = !loading && fetchError;
   const showEmptyState = !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
-  const resultCountText = hasFilters && totalCount > 0 ? `共 ${totalCount} 個食譜` : '';
 
   return (
     <Layout>

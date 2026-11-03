@@ -29,24 +29,6 @@ function getDifficultyLabel(difficulty?: string): string | null {
   return map[difficulty] || null;
 }
 
-// Get cuisine label
-function getCuisineLabel(cuisine?: string): string | null {
-  if (!cuisine) return null;
-  const map: Record<string, string> = { 
-    japanese: '日式', chinese: '中式', western: '西式', 
-    italian: '意大利', korean: '韓式', thai: '泰式',
-    港式: '港式', 川菜: '川菜', 臺式: '臺式'
-  };
-  return map[cuisine] || cuisine;
-}
-
-// Get speed label  
-function getSpeedLabel(speed?: string): string | null {
-  if (!speed) return null;
-  const map: Record<string, string> = { quick: '快手', normal: '普通', slow: '慢煮' };
-  return map[speed] || null;
-}
-
 const DAYS = [
   { key: 'mon', label: '第一天', isWeekend: false },
   { key: 'tue', label: '第二天', isWeekend: false },

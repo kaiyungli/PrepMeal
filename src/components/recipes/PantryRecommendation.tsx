@@ -29,7 +29,7 @@ export default function PantryRecommendation({ recipes, pantryIngredients = [] }
       {recommendations.length > 0 && (
         <div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {recommendations.map(({ recipe, matchScore, matchedIngredients }) => (
+            {recommendations.map(({ recipe, matchedIngredients }) => (
               <Link 
                 key={recipe.id}
                 href={`/recipes/${recipe.slug || recipe.id}`}

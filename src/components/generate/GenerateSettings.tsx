@@ -83,7 +83,6 @@ export default function GenerateSettings({
   setFilters,
   onClearAll,
   isFilterExpanded,
-  setIsFilterExpanded,
   handleToggleFilterExpanded
 }: GenerateSettingsProps) {
   
