@@ -125,7 +125,7 @@ export default function WeeklyPlanGrid({
   // Prefetch helper
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
       {days.map(day => (
         <div 
           key={day.key}
@@ -209,22 +209,22 @@ export default function WeeklyPlanGrid({
                             )}
                           </div>
                         ) : null}
-                        <div className="mt-4 flex items-center gap-2">
+                        <div className="mt-4 flex flex-wrap items-center gap-2">
                           <button
                             onClick={() => onReplace(day.key, index)}
-                            className="flex-1 text-sm font-medium bg-[#A66336] text-white rounded-full px-4 py-1.5 shadow-sm hover:bg-[#8B5230] active:scale-95 transition-all"
+                            className="flex-1 whitespace-nowrap text-sm font-medium bg-[#A66336] text-white rounded-full px-4 py-1.5 shadow-sm hover:bg-[#8B5230] active:scale-95 transition-all"
                           >
                             換一道
                           </button>
                           <button
                             onClick={() => isLocked ? onUnlock(day.key, index) : onLock(day.key, index)}
-                            className="text-sm bg-white/70 border border-[#E0CBB2] text-[#8B5A2B] rounded-full px-3 py-1.5 hover:bg-white active:scale-95 transition-all"
+                            className="whitespace-nowrap text-sm bg-white/70 border border-[#E0CBB2] text-[#8B5A2B] rounded-full px-3 py-1.5 hover:bg-white active:scale-95 transition-all"
                           >
                             {isLocked ? '解鎖' : '鎖定'}
                           </button>
                           <button
                             onClick={() => onRemove(day.key, index)}
-                            className="text-sm bg-red-50 border border-red-100 text-red-500 rounded-full px-3 py-1.5 hover:bg-red-100 active:scale-95 transition-all"
+                            className="whitespace-nowrap text-sm bg-red-50 border border-red-100 text-red-500 rounded-full px-3 py-1.5 hover:bg-red-100 active:scale-95 transition-all"
                           >
                             移除
                           </button>
