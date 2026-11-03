@@ -96,3 +96,57 @@ it('loadMore cannot append old-list pages while a new query is still debouncing'
   expect(fetchRecipesFromAPI).not.toHaveBeenCalled();
   await tick(300); expect(fetchRecipesFromAPI).toHaveBeenCalledTimes(1); expect(vi.mocked(fetchRecipesFromAPI).mock.calls[0][0]?.page).toBe(1);
 });
+
+it('Strict Mode replays effects without refetching a complete SSR seed', async () => {
+  const { StrictMode, createElement } = await import('react');
+  const page = renderHook(() => useFilteredRecipes([{ id: 'strict-seed' }], {
+    filters: { flavor: [] }, searchQuery: '', initialTotalCount: 1,
+  }), { wrapper: ({ children }) => createElement(StrictMode, null, children) });
+  await tick(1000);
+  expect(fetchRecipesFromAPI).not.toHaveBeenCalled();
+  expect(page.result.current.recipes.map(r => r.id)).toEqual(['strict-seed']);
+  expect(page.result.current.isListSettled()).toBe(true);
+});
+
+it('equivalent filters do not retire a pending first-page request', async () => {
+  const pending = deferred();
+  vi.mocked(fetchRecipesFromAPI).mockReturnValueOnce(pending.promise);
+  const page = renderHook(({ filters }) => useFilteredRecipes([], {
+    filters, searchQuery: 'pending-scope-snapshot',
+  }), { initialProps: { filters: { cuisine: ['chinese'] } } });
+  await tick(300);
+  page.rerender({ filters: { cuisine: ['chinese'] } });
+  await act(async () => { pending.resolve(result('current-first', 1)); });
+  expect(fetchRecipesFromAPI).toHaveBeenCalledTimes(1);
+  expect(vi.mocked(fetchRecipesFromAPI).mock.calls[0][0]?.cuisine).toBe('chinese');
+  expect(page.result.current.recipes.map(r => r.id)).toEqual(['current-first']);
+});
+
+it('returning from a search refreshes page one instead of retaining the search result as the SSR seed', async () => {
+  const page = renderHook(({ search }) => useFilteredRecipes([{ id: 'initial-seed' }], {
+    filters: { diet: [] }, searchQuery: search, initialTotalCount: 1,
+  }), { initialProps: { search: '' } });
+  page.rerender({ search: 'leave-initial-seed' });
+  vi.mocked(fetchRecipesFromAPI).mockResolvedValueOnce(result('search-result', 1));
+  await tick(300);
+  expect(page.result.current.recipes.map(r => r.id)).toEqual(['search-result']);
+  page.rerender({ search: '' });
+  vi.mocked(fetchRecipesFromAPI).mockResolvedValueOnce(result('refreshed-default', 1));
+  await tick(300);
+  expect(fetchRecipesFromAPI).toHaveBeenCalledTimes(2);
+  expect(page.result.current.recipes.map(r => r.id)).toEqual(['refreshed-default']);
+});
+
+
+it('first activation can still use the SSR seed when initially disabled', async () => {
+  const page = renderHook(({ enabled }) => useFilteredRecipes([{ id: 'delayed-seed' }], {
+    filters: { method: [] }, searchQuery: '', initialTotalCount: 1, enabled,
+  }), { initialProps: { enabled: false } });
+  await tick(1000);
+  expect(fetchRecipesFromAPI).not.toHaveBeenCalled();
+  page.rerender({ enabled: true });
+  await tick(1000);
+  expect(fetchRecipesFromAPI).not.toHaveBeenCalled();
+  expect(page.result.current.isListSettled()).toBe(true);
+  expect(page.result.current.recipes.map(r => r.id)).toEqual(['delayed-seed']);
+});
