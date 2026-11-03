@@ -3,6 +3,9 @@ import path from 'path';
 
 export default defineConfig({
   test: {
+    // PGlite and jsdom suites compete for memory/CPU when Vitest uses all cores.
+    // Keep assertions and timeouts unchanged; bound file-level parallelism instead.
+    maxWorkers: 2,
     environment: 'node',
     include: ['tests/**/*.test.ts', 'src/__tests__/constants/*.test.ts'],
     exclude: ['tests/**/*.test.tsx'],
