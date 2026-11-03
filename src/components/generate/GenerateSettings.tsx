@@ -120,14 +120,14 @@ export default function GenerateSettings({
 
   return (
     <div>
-      {hasRecipes && <div className="hidden [@media(min-width:1280px)_and_(pointer:fine)]:flex items-center justify-between gap-4 rounded-xl border border-[#DDD0B0] bg-white px-4 py-3">
+      {hasRecipes && <div className="hidden xl:flex items-center justify-between gap-4 rounded-xl border border-[#DDD0B0] bg-white px-4 py-3">
         <div>
           <p className="text-sm font-semibold text-[#3A2010]">目前設定：{daysPerWeek} 日 · {compositionLabel} · {servings} 人 · {budgetLabel}</p>
           <p className="mt-1 text-xs text-[#66594B]">{activeCount > 0 ? `已選 ${activeCount} 個篩選條件。` : ''}修改設定後，按「一鍵生成」更新餐單。</p>
         </div>
         <button type="button" aria-expanded={!desktopCollapsed} aria-controls={settingsId} onClick={() => setEditingSettings(value => !value)} className="shrink-0 min-h-10 rounded-lg border border-[#DDD0B0] px-3 text-sm font-medium text-[#65482F] hover:bg-[#F8F3E8]">{desktopCollapsed ? '修改設定' : '收起設定'}</button>
       </div>}
-      <div id={settingsId} className={desktopCollapsed ? '[@media(min-width:1280px)_and_(pointer:fine)]:hidden' : hasRecipes ? 'mt-3' : ''}>
+      <div id={settingsId} className={desktopCollapsed ? 'xl:hidden' : hasRecipes ? 'mt-3' : ''}>
       {/* Planning Controls - embedded in header */}
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls */}
