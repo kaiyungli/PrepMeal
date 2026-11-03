@@ -42,7 +42,13 @@ describe('generated meal card interactions', () => {
     expect(disclosure.open).toBe(false);
     fireEvent.click(more);
     expect(disclosure.open).toBe(true);
-    fireEvent.click(screen.getByRole('button', { name: '移除' }));
+    // Menu overlays the card instead of taking a new flex row below the ellipsis.
+    expect(disclosure.className).toContain('relative');
+    const remove = screen.getByRole('button', { name: '移除' });
+    expect(remove.parentElement?.className).toContain('absolute');
+    expect(remove.parentElement?.className).toContain('bottom-full');
+    expect(remove.parentElement?.className).toContain('right-0');
+    fireEvent.click(remove);
     expect(props.onRemove).toHaveBeenCalledWith('mon', 0);
     fireEvent.click(screen.getByRole('button', { name: '第二天第1道：添加完整餐' }));
     expect(props.onAddRandom).toHaveBeenCalledWith('tue', 0);
