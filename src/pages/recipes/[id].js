@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { RecipeStructuredData } from '@/lib/recipeStructuredData.tsx';
-import Link from 'next/link';
+import Layout from '@/components/layout/Layout';
 import { useEffect } from 'react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { loadRecipeDetail } from '@/features/recipes';
@@ -30,9 +30,11 @@ export default function RecipeDetail({ recipe, error }) {
   // Guard: error
   if (error || !recipe) {
     return (
-      <div className="min-h-screen bg-[#F8F3E8] py-10 text-center">
-        <p className="text-[#3A2010]">找不到食譜</p>
-      </div>
+      <Layout>
+        <div className="min-h-screen bg-[#F8F3E8] py-10 text-center">
+          <p className="text-[#3A2010]">找不到食譜</p>
+        </div>
+      </Layout>
     );
   }
 
@@ -53,21 +55,15 @@ export default function RecipeDetail({ recipe, error }) {
       </Head>
       <RecipeStructuredData recipe={safeRecipe} />
       
-      {/* Page Shell - dumb wrapper */}
-      <header className="sticky top-0 bg-[#F8F3E8] border-b border-[#DDD0B0] z-[100] px-5 py-3">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 no-underline text-[#9B6035]">
-            <span className="text-xl">←</span>
-            <span className="text-lg font-bold">今晚食乜</span>
-          </Link>
+      {/* Shared site header/footer: navigation and policy links on every recipe page */}
+      <Layout>
+        <div className="min-h-screen bg-[#F8F3E8]">
+          <div className="max-w-[800px] mx-auto py-6 px-4">
+            {/* Standalone page: full recipe in server HTML, hero is the LCP image */}
+            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority />
+          </div>
         </div>
-      </header>
-
-      <div className="min-h-screen bg-[#F8F3E8]">
-        <div className="max-w-[800px] mx-auto py-6 px-4">
-          <RecipeDetailContent recipe={safeRecipe} showAds />
-        </div>
-      </div>
+      </Layout>
     </>
   );
 }

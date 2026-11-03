@@ -60,6 +60,7 @@ export default defineConfig({
       'tests/generateToast.runtime.test.tsx',
       'tests/homeShoppingPreview.runtime.test.tsx',
       'tests/recipesEmptyState.runtime.test.tsx',
+      'tests/recipeDetailSsr.runtime.test.tsx',
     ],
   },
 });
