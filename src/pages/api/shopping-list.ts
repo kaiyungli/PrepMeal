@@ -52,14 +52,29 @@ function pantryNameKey(name: string): string {
 
 // Convert only fixed-ratio units when the same ingredient occurs with multiple
 // units in one measurement family. Do not infer ingredient-dependent density,
-// grams per clove, or amounts for count-based units.
-const CONVERSION: Record<string, { family: string; multiplier: number; target: string }> = {
-  g: { family: 'mass', multiplier: 1, target: 'g' },
-  kg: { family: 'mass', multiplier: 1000, target: 'g' },
-  ml: { family: 'volume', multiplier: 1, target: 'ml' },
-  l: { family: 'volume', multiplier: 1000, target: 'ml' },
-  tsp: { family: 'spoons', multiplier: 1, target: 'tsp' },
-  tbsp: { family: 'spoons', multiplier: 3, target: 'tsp' },
+// grams per clove, or amounts for count-based units. Multipliers are in the
+// family's base unit and match the units table (1 tsp = 5 ml, 1 tbsp = 15 ml).
+const CONVERSION: Record<string, { family: 'mass' | 'volume'; multiplier: number }> = {
+  g: { family: 'mass', multiplier: 1 },
+  kg: { family: 'mass', multiplier: 1000 },
+  ml: { family: 'volume', multiplier: 1 },
+  l: { family: 'volume', multiplier: 1000 },
+  tsp: { family: 'volume', multiplier: 5 },
+  tbsp: { family: 'volume', multiplier: 15 },
+};
+
+// Spoon-only seasonings stay in spoons; once millilitres are involved the
+// total is shown in millilitres.
+function conversionTarget(family: 'mass' | 'volume', units: Set<string>): { code: string; multiplier: number } {
+  if (family === 'mass') return { code: 'g', multiplier: 1 };
+  return units.has('ml') || units.has('l') ? { code: 'ml', multiplier: 1 } : { code: 'tsp', multiplier: 5 };
+}
+
+// Converted totals are labelled in the reader's language, never with a code.
+const TARGET_UNIT_LABELS: Record<string, { zh: string; en: string }> = {
+  g: { zh: '克', en: 'g' },
+  ml: { zh: '毫升', en: 'ml' },
+  tsp: { zh: '茶匙', en: 'tsp' },
 };
 
 // An explicit identifier has priority over a display name; keep namespaces
@@ -68,7 +83,7 @@ function itemIdentity(item: ShoppingListBuyItem): string {
   return item.ingredientId ? `id:${item.ingredientId}` : `name:${item.name}`;
 }
 
-function convertMixedUnits(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+function convertMixedUnits(items: ShoppingListBuyItem[], unitLanguage: string): ShoppingListBuyItem[] {
   const unitsByGroup = new Map<string, Set<string>>();
   for (const item of items) {
     const unit = normalizeUnit(item.unit);
@@ -82,24 +97,25 @@ function convertMixedUnits(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] 
   return items.map(item => {
     const unit = normalizeUnit(item.unit);
     const spec = CONVERSION[unit];
-    if (!spec || (unitsByGroup.get(`${itemIdentity(item)}__${spec.family}`)?.size ?? 0) < 2) return item;
+    const units = spec && unitsByGroup.get(`${itemIdentity(item)}__${spec.family}`);
+    if (!spec || !units || units.size < 2) return item;
+    const target = conversionTarget(spec.family, units);
+    const label = TARGET_UNIT_LABELS[target.code];
     return {
       ...item,
-      quantity: item.quantity === null ? null : item.quantity * spec.multiplier,
-      unit: spec.target,
-      // Mixed source displays may be "湯匙" or "千克", neither of which
-      // describes the converted target. Use the canonical target code.
-      unitDisplay: spec.target,
+      quantity: item.quantity === null ? null : item.quantity * spec.multiplier / target.multiplier,
+      unit: target.code,
+      unitDisplay: unitLanguage === 'en' ? label.en : label.zh,
     };
   });
 }
 
 // Merge by ingredient identity plus normalized (and, when safe, converted)
 // unit. Non-convertible units always remain separate.
-function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
+function mergeItems(items: ShoppingListBuyItem[], unitLanguage: string): ShoppingListBuyItem[] {
   const map = new Map<string, ShoppingListBuyItem>();
 
-  for (const item of convertMixedUnits(items)) {
+  for (const item of convertMixedUnits(items, unitLanguage)) {
     const normalizedUnit = normalizeUnit(item.unit);
     const key = item.ingredientId
       ? `id:${item.ingredientId}__${normalizedUnit}`
@@ -115,6 +131,9 @@ function mergeItems(items: ShoppingListBuyItem[]): ShoppingListBuyItem[] {
 
   return Array.from(map.values());
 }
+
+// Tap water is never bought; it stays in the recipe but not the shopping list.
+const NOT_PURCHASED_SLUGS = new Set(['water']);
 
 // recipe_ingredients.quantity has no CHECK constraint. A missing, negative or
 // non-finite amount is an unknown amount and counts as 0 (as NULL always has),
@@ -335,6 +354,7 @@ export async function handleShoppingList(
       const recipe = Array.isArray(ri.recipes) ? ri.recipes[0] : (ri.recipes || null);
       const unitRow = Array.isArray(ri.units) ? ri.units[0] : (ri.units || null);
       if (!ing || !ing.name) continue;
+      if (ing.slug && NOT_PURCHASED_SLUGS.has(ing.slug)) continue;
       // Vegetarian tags describe the base recipe. Animal add-ons are not
       // selected by recipeIds alone; keep all required ingredients unchanged.
       if (ri.is_optional === true && vegetarianRecipeIds.has(canonicalRecipeId(String(ri.recipe_id)))
@@ -388,7 +408,7 @@ export async function handleShoppingList(
     }
 
     
-    const mergedItems = mergeItems(allItems);
+    const mergedItems = mergeItems(allItems, unitLanguage);
 
     const pantryNames = new Set(pantryIngredients.map(pantryNameKey).filter(Boolean));
     const isInPantry = (item: ShoppingListBuyItem) => pantryNames.has(pantryNameKey(item.name));
@@ -420,7 +440,7 @@ export async function handleShoppingList(
       }
       const arr = categoryMap.get(cat)!;
       arr.push(item);
-      categoryMap.set(cat, mergeItems(arr));
+      categoryMap.set(cat, mergeItems(arr, unitLanguage));
     }
 
 
@@ -448,7 +468,7 @@ export async function handleShoppingList(
     // Merge items within each recipe group
     const byRecipe: ShoppingListRecipeGroup[] = [];
     for (const [, group] of recipeGroups) {
-      const mergedInRecipe = mergeItems(group.items);
+      const mergedInRecipe = mergeItems(group.items, unitLanguage);
       const pantryInRecipe = mergedInRecipe.filter(isInPantry);
       byRecipe.push({
         recipeId: group.recipeId,

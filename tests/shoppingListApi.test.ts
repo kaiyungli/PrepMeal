@@ -47,7 +47,8 @@ function createDatabase({
   ingredientRows = [] as unknown[],
   failingTable = null as string | null,
   queryError = null as unknown,
-}: { visibleRecipeIds?: string[]; ingredientRows?: unknown[]; failingTable?: string | null; queryError?: unknown } = {}) {
+  unitLanguage = 'zh',
+}: { visibleRecipeIds?: string[]; ingredientRows?: unknown[]; failingTable?: string | null; queryError?: unknown; unitLanguage?: string } = {}) {
   const preferenceUserIds: string[] = [];
   let ingredientQueryCount = 0;
 
@@ -58,7 +59,7 @@ function createDatabase({
           select: () => ({
             eq: (_column: string, userId: string) => {
               preferenceUserIds.push(userId);
-              return { single: async () => ({ data: { unit_language: 'zh' } }) };
+              return { single: async () => ({ data: { unit_language: unitLanguage } }) };
             },
           }),
         };
@@ -309,7 +310,7 @@ describe('/api/shopping-list security boundary', () => {
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
     // 200 g + 0.2 kg = 400 g, never 200.2 g.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'beef-1', quantity: 400, unit: 'g', unitDisplay: 'g' }),
+      expect.objectContaining({ ingredientId: 'beef-1', quantity: 400, unit: 'g', unitDisplay: '克' }),
     ]);
   });
 
@@ -348,7 +349,7 @@ describe('/api/shopping-list security boundary', () => {
     const items = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
     // 2 tsp + 3 tbsp = 11 tsp.
     expect(items).toEqual([
-      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: 'tsp' }),
+      expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: '茶匙' }),
     ]);
   });
 
@@ -375,6 +376,77 @@ describe('/api/shopping-list security boundary', () => {
       expect.objectContaining({ ingredientId: 'stock-1', quantity: 750, unit: 'ml' }),
       expect.objectContaining({ ingredientId: 'stock-1', quantity: 10, unit: 'g' }),
     ]);
+  });
+
+  it('merges millilitres with spoons at 5 ml per tsp and 15 ml per tbsp, labelled in Chinese', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const units = (code: string, zh: string) => ({ id: code, code, display_name_en: code, display_name_zh: zh });
+    const makeRow = (recipeId: string, quantity: number, code: string, zh: string) => ({
+      quantity, recipe_id: recipeId, ingredient_id: 'soy-1',
+      ingredients: { id: 'soy-1', name: '生抽', slug: 'soy-sauce', shopping_category: 'seasoning' },
+      recipes: { id: recipeId, name: recipeId }, units: units(code, zh),
+    });
+    const database = createDatabase({ visibleRecipeIds: ['recipe-1', 'recipe-2'], ingredientRows: [
+      makeRow('recipe-1', 15, 'ml', '毫升'), makeRow('recipe-1', 1, 'tbsp', '湯匙'),
+      makeRow('recipe-2', 2, 'tsp', '茶匙'), makeRow('recipe-2', 20, 'g', '克'),
+    ] });
+    createClientMock.mockReturnValue(database.client);
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST', headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1', 'recipe-2'], servings: 1 },
+    }), apiResponse);
+    expect(response.statusCode).toBe(200);
+    const result = response.body as ShoppingListResponse;
+    // 15 ml + 15 ml + 10 ml = 40 ml; grams need a density and stay separate.
+    expect(result.toBuy.flatMap(section => section.items)).toEqual([
+      expect.objectContaining({ ingredientId: 'soy-1', quantity: 40, unit: 'ml', unitDisplay: '毫升' }),
+      expect.objectContaining({ ingredientId: 'soy-1', quantity: 20, unit: 'g', unitDisplay: '克' }),
+    ]);
+    // Each recipe view converts only within its own recipe.
+    expect(result.byRecipe.map(group => group.toBuy.map(item => [item.quantity, item.unit]))).toEqual([
+      [[30, '毫升']], [[2, '茶匙'], [20, '克']],
+    ]);
+  });
+
+  it('labels converted totals in English for English unit preference', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const makeRow = (quantity: number, code: string) => ({
+      quantity, recipe_id: 'recipe-1', ingredient_id: 'sugar-1',
+      ingredients: { id: 'sugar-1', name: 'Sugar', shopping_category: 'seasoning' },
+      recipes: { id: 'recipe-1', name: 'Recipe One' }, units: { id: code, code, display_name_en: code, display_name_zh: code },
+    });
+    const database = createDatabase({ ingredientRows: [makeRow(1, 'tsp'), makeRow(1, 'tbsp')], unitLanguage: 'en' });
+    createClientMock.mockReturnValue(database.client);
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST', headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+    expect((response.body as ShoppingListResponse).toBuy.flatMap(section => section.items)).toEqual([
+      expect.objectContaining({ quantity: 4, unit: 'tsp', unitDisplay: 'tsp' }),
+    ]);
+  });
+
+  it('never lists tap water as something to buy', async () => {
+    requireAuthMock.mockResolvedValue('verified-user');
+    const makeRow = (id: string, name: string, slug: string, quantity: number) => ({
+      quantity, recipe_id: 'recipe-1', ingredient_id: id,
+      ingredients: { id, name, slug, shopping_category: 'other' },
+      recipes: { id: 'recipe-1', name: 'Recipe One' }, units: { id: 'ml', code: 'ml', display_name_en: 'ml', display_name_zh: '毫升' },
+    });
+    const database = createDatabase({ ingredientRows: [
+      makeRow('water-1', '水', 'water', 500), makeRow('coconut-1', '椰子水', 'unsweetened-coconut-water', 200),
+    ] });
+    createClientMock.mockReturnValue(database.client);
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST', headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['recipe-1'], servings: 1 },
+    }), apiResponse);
+    const result = response.body as ShoppingListResponse;
+    expect(result.toBuy.flatMap(section => section.items).map(item => item.name)).toEqual(['椰子水']);
+    expect(result.byRecipe[0].toBuy.map(item => item.name)).toEqual(['椰子水']);
   });
 
   it('removes pantry ingredients from both buy views without matching a different oil', async () => {
