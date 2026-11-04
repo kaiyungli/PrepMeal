@@ -20,6 +20,16 @@ interface ListState {
   loading: boolean;
 }
 
+export const SESSION_EXPIRED_MESSAGE = '登入已失效，請重新登入';
+export const SHOPPING_LIST_LOAD_FAILED_MESSAGE = '暫時未能整理購物清單，請稍後再試。';
+
+// The service error carries the HTTP status and raw response body for logs;
+// people only see a fixed message (the session one tells them what to do).
+export function shoppingListErrorMessage(error: unknown): string {
+  return error instanceof Error && error.message === SESSION_EXPIRED_MESSAGE
+    ? SESSION_EXPIRED_MESSAGE
+    : SHOPPING_LIST_LOAD_FAILED_MESSAGE;
+}
 export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servings,
   isAuthenticated, userId, getAccessToken, traceId }: Options) {
   // Preserve repeated recipes: each occurrence contributes to shopping quantities.
@@ -61,7 +71,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
     try {
       const token = isAuthenticated && userId ? await getAccessToken() : null;
       if (!request.active) return;
-      if (isAuthenticated && !token) throw new Error('登入已失效，請重新登入');
+      if (isAuthenticated && !token) throw new Error(SESSION_EXPIRED_MESSAGE);
       const started = Date.now();
       const view = await fetchGeneratedPlanShoppingList(weeklyPlan, pantryIngredients, servings,
         { traceId, token, cacheScope: userId || 'guest-preview', optionalSelections: selections });
@@ -70,7 +80,7 @@ export function useGeneratedShoppingList({ weeklyPlan, pantryIngredients, servin
       log(preload ? 'preload_ready' : 'ready', Date.now() - started, view.summary);
     } catch (error) {
       if (!request.active) return;
-      setState({ key, view: null, error: preload ? null : (error as Error).message, loading: false });
+      setState({ key, view: null, error: preload ? null : shoppingListErrorMessage(error), loading: false });
       log(preload ? 'preload_error' : 'error', 0, { message: (error as Error).message });
     } finally {
       if (requestRef.current === request) requestRef.current = null;

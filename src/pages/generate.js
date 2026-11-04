@@ -204,6 +204,7 @@ function GenerateWorkspace({ isAuthenticated }) {
           shoppingListView={shoppingListView}
           loading={isShoppingListLoading}
           error={shoppingListError}
+          onRetry={handleOpenShoppingList}
           onCopy={handleCopyShoppingList}
         />
 

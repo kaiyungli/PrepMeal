@@ -3,7 +3,8 @@ import { cleanup, fireEvent, render, renderHook, screen, act } from '@testing-li
 import type { ReactNode } from 'react';
 
 const state = vi.hoisted(() => ({ loading: false, fetchError: '' }));
-vi.mock('next/head', () => ({ default: () => null }));
+// Render head tags inline so the page's SEO metadata can be asserted.
+vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> }));
 vi.mock('@/components', () => ({ Layout: ({ children }: { children: ReactNode }) => <>{children}</> }));
 vi.mock('@/components/RecipeList', () => ({ default: () => <div>測試食譜列表</div> }));
 vi.mock('@/components/RecipeModalController', () => ({ default: () => null }));
@@ -30,6 +31,17 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 const search = () => fireEvent.change(screen.getByRole('textbox', { name: '搜尋食譜' }), { target: { value: 'QA_NO_RECIPE' } });
 const emptyTitle = '暫時冇符合條件嘅食譜';
+
+describe('Recipe list page metadata', () => {
+  it('has a title, description, canonical URL and a visible H1', () => {
+    render(<RecipesPage initialRecipes={[]} initialTotalCount={0} />);
+    // React 19 hoists title, meta and link tags into document.head.
+    expect(document.head.querySelector('title')?.textContent).toBe('食譜 | 今晚食乜');
+    expect(document.head.querySelector('meta[name="description"]')?.getAttribute('content')).toContain('香港家常食譜');
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://eatwhathk.com/recipes');
+    expect(screen.getByRole('heading', { level: 1, name: '食譜' })).toBeTruthy();
+  });
+});
 
 describe('Recipe search empty state and recovery', () => {
   it('shows an empty-state message for search-only zero results', () => {

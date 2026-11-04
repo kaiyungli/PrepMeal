@@ -1,6 +1,6 @@
 'use client';
 import { useState, useCallback, useEffect, useRef } from 'react';
-import Head from 'next/head';
+import SEO from '@/components/seo/SEO';
 import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
@@ -170,10 +170,15 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
 
   return (
     <Layout>
-      <Head><title>食譜 - 今晚食乜</title></Head>
+      <SEO
+        title="食譜"
+        description="香港家常食譜：按菜系、主要蛋白、烹調方式同所需時間篩選，每個食譜都有 1 人份材料同步驟。"
+        canonical="https://eatwhathk.com/recipes"
+      />
 
       <div className="min-h-screen bg-[#F8F3E8] py-8">
         <div className="max-w-[1100px] mx-auto px-6 md:px-8 lg:px-10 w-full">
+          <h1 className="text-2xl font-bold text-[#3A2010] mb-6">食譜</h1>
           <div className="w-full">
             <RecipeFilters
             searchQuery={searchQuery}

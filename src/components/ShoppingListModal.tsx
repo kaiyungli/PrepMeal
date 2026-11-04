@@ -20,6 +20,7 @@ interface ShoppingListModalProps {
   shoppingListView: ShoppingListViewModel | null;
   loading?: boolean;
   error?: string | null;
+  onRetry?: () => void;
   onCopy: () => Promise<boolean> | boolean;
 }
 
@@ -38,6 +39,7 @@ export default function ShoppingListModal({
   shoppingListView,
   loading = false,
   error = null,
+  onRetry,
   onCopy,
 }: ShoppingListModalProps) {
   const [copied, setCopied] = useState(false);
@@ -84,8 +86,10 @@ export default function ShoppingListModal({
 
   if (!isOpen) return null;
 
+  const retryButton = onRetry ? <button type="button" className="mt-4 min-h-11 rounded-xl border px-4" onClick={onRetry}>重試</button> : null;
+
   if (progress && onProgressChange) return <ShoppingListSheet isOpen={isOpen} onClose={onClose}>
-    {loading ? <p role="status" className="p-6">正在整理購物清單...</p> : error ? <p role="alert" className="p-6 text-red-700">{error}</p> : shoppingListView ?
+    {loading ? <p role="status" className="p-6">正在整理購物清單...</p> : error ? <div className="p-6"><p role="alert" className="text-red-700">{error}</p>{retryButton}</div> : shoppingListView ?
       <ShoppingListV2 view={viewModel} progress={progress} onChange={onProgressChange} disabled={progressDisabled} status={progressStatus} /> : <p className="p-6">暫無食材</p>}
   </ShoppingListSheet>;
   const isEmpty = viewModel.isEmpty;
@@ -135,8 +139,9 @@ export default function ShoppingListModal({
           <div className="text-[#AA7A50]">正在整理購物清單...</div>
         </div>
       ) : error ? (
-        <div className="flex justify-center py-12">
-          <div className="text-red-500">❌ {error}</div>
+        <div className="flex flex-col items-center py-12">
+          <div role="alert" className="text-red-500">❌ {error}</div>
+          {retryButton}
         </div>
       ) : isEmpty ? (
         <div className="flex justify-center py-12">

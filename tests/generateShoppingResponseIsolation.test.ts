@@ -129,10 +129,26 @@ describe('Generate shopping list response isolation', () => {
     service.fetchGeneratedPlanShoppingList.mockRejectedValueOnce(new Error('temporary failure')).mockResolvedValueOnce(view('retried'));
     const { result } = mount();
     await act(async () => { await result.current.handleOpenShoppingList(); });
-    expect(result.current.shoppingListError).toBe('temporary failure');
+    expect(result.current.shoppingListError).toBe('暫時未能整理購物清單，請稍後再試。');
     await act(async () => { await result.current.handleOpenShoppingList(); });
     expect(result.current.shoppingListError).toBeNull();
     expect(result.current.shoppingListView).toEqual(view('retried'));
+  });
+
+  it('shows a fixed message instead of the raw HTTP status and response body', async () => {
+    service.fetchGeneratedPlanShoppingList.mockRejectedValueOnce(new Error('API error: 500 - {"error":"relation does not exist"}'));
+    const { result } = mount();
+    await act(async () => { await result.current.handleOpenShoppingList(); });
+    expect(result.current.shoppingListError).toBe('暫時未能整理購物清單，請稍後再試。');
+    expect(result.current.shoppingListError).not.toMatch(/API error|500|relation/);
+  });
+
+  it('keeps the session-expired message, which tells the person what to do', async () => {
+    const { result } = renderHook(props => useGenerateActions(props),
+      { initialProps: { ...defaults, getAccessToken: async () => null } });
+    await act(async () => { await result.current.handleOpenShoppingList(); });
+    expect(result.current.shoppingListError).toBe('登入已失效，請重新登入');
+    expect(service.fetchGeneratedPlanShoppingList).not.toHaveBeenCalled();
   });
 
   it('close invalidates pending work and reopening requests a fresh list', async () => {

@@ -21,7 +21,8 @@ export default function SEO({
   ogType = 'website',
   noIndex = false,
 }: SEOProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  // A page titled with the site name itself (the home page) gets it once.
+  const fullTitle = title && title !== SITE_NAME ? `${title} | ${SITE_NAME}` : SITE_NAME;
   const url = canonical || BASE_URL;
 
   return (
