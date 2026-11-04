@@ -20,6 +20,7 @@ vi.mock('next/link', () => ({ default: ({ children, href }: { children: ReactNod
 vi.mock('@/components/RecipeDetailContent', () => ({ default: ({ recipe }: { recipe: { name: string } }) => <h1>{recipe.name}</h1> }));
 vi.mock('@/lib/recipeStructuredData.tsx', () => ({ RecipeStructuredData: () => null }));
 vi.mock('@/components/seo/SEO', () => ({ default: () => null }));
+vi.mock('@/components/layout/Layout', () => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> }));
 vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics }));
 vi.mock('@/features/recipes', () => ({ loadRecipeDetail }));
 

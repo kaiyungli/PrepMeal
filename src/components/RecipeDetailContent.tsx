@@ -48,6 +48,14 @@ export interface RecipeDetailContentProps {
   isFavorite?: boolean
   favoriteLoading?: boolean
   onFavoriteClick?: () => void | Promise<void>
+  /**
+   * Defer ingredients and steps by one frame after mount. Kept for the modal,
+   * where it lowers the opening paint cost; the standalone page passes false
+   * so its server HTML contains the full recipe.
+   */
+  deferHeavySections?: boolean
+  /** The hero image is the page's LCP element: load it eagerly at high priority. */
+  heroPriority?: boolean
 }
 
 // Skeleton component for loading sections
@@ -65,7 +73,8 @@ const getUnitLabel = (unit?: string | { code?: string; name?: string; display_na
   return typeof unit === 'object' ? unit.display_name_zh || formatUnit(unit) : formatUnit(unit);
 };
 
-export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false }: RecipeDetailContentProps) {
+export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false,
+  deferHeavySections = true, heroPriority = false }: RecipeDetailContentProps) {
   // Defer heavy sections to reduce initial paint cost on iPad
   const recipeId = recipe?.id;
   const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
@@ -74,11 +83,11 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
   if (deferredSections.recipeId !== recipeId) {
     setDeferredSections({ recipeId, ready: false });
   }
-  const showHeavySections = deferredSections.recipeId === recipeId && deferredSections.ready;
+  const showHeavySections = !deferHeavySections || (deferredSections.recipeId === recipeId && deferredSections.ready);
   
   // Reset and defer heavy sections when recipe changes
   useEffect(() => {
-    if (!recipeId) return;
+    if (!recipeId || !deferHeavySections) return;
     let active = true;
     const id = requestAnimationFrame(() => {
       if (active) setDeferredSections({ recipeId, ready: true });
@@ -87,7 +96,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
       active = false;
       cancelAnimationFrame(id);
     };
-  }, [recipeId]);
+  }, [recipeId, deferHeavySections]);
 
   // Hooks must run even when the recipe is temporarily absent.
   if (!recipe) return null
@@ -117,6 +126,8 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             alt={recipe.name || '食譜'}
             fill 
             className="object-cover"
+            loading={heroPriority ? 'eager' : undefined}
+            fetchPriority={heroPriority ? 'high' : undefined}
             sizes="(max-width: 600px) 100vw, (max-width: 900px) 80vw, 1200px" />
         ) : (
           <div className="h-full flex items-center justify-center" style={{ backgroundColor: '#C8D49A' }}>
