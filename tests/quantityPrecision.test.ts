@@ -9,8 +9,10 @@ import { formatQuantityDisplay } from '@/features/shopping-list/types';
 
 describe('measured ingredient amounts retain their actual quantity', () => {
   it.each([
-    [166.666667, 'g', '約166.7'], [0.666667, '克', '約0.67'],
-    [33.333333, 'ml', '約33.3'], [0.033333, 'g', '約0.033'],
+    [166.666667, 'g', '約165'], [0.666667, '克', '約0.67'],
+    [33.333333, 'ml', '約33'], [0.033333, 'g', '約0.033'],
+    [113.4, 'g', '約115'], [59.15, 'ml', '約59'], [1533.333333, 'ml', '約1535'],
+    [150, 'g', '150'], [37.5, 'g', '約38'], [340, 'g', '340'],
     [0.00001, 'g', '0.00001'], [0.15, 'g', '0.15'],
     [0.333333, 'tsp', '1/3'], [0.666667, 'pc', '2/3'],
   ])('shows readable one-person amount %s %s without altering its input', (quantity, unit, expected) => {

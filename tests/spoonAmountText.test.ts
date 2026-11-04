@@ -59,3 +59,20 @@ describe('spoon amounts read in the spoon a cook reaches for', () => {
     expect(formatQuantityDisplay(null, '茶匙', true)).toBe('（數量待補）');
   });
 });
+
+describe('grams and millilitres read as whole numbers', () => {
+  it.each([
+    [113.4, 'g', '克', '約115 克'],
+    [226.8, 'g', '克', '約225 克'],
+    [66.6667, 'g', '克', '約67 克'],
+    [4, 'g', '克', '4 克'],
+    [295.75, 'ml', '毫升', '約295 毫升'],
+    [0.3, 'g', '克', '少許'],
+  ])('%s %s → %s', (quantity, unit, label, expected) => {
+    expect(formatAmountText(quantity, unit, label)).toBe(expected);
+  });
+
+  it('shows the same rounding in the shopping list', () => {
+    expect(formatQuantityDisplay(113.4, '克', false)).toBe('約115 克');
+  });
+});

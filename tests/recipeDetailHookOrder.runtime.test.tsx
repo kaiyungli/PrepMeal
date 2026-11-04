@@ -40,9 +40,9 @@ describe('recipe detail content hook order and deferred rendering', () => {
     expect(screen.queryByText(/03-01/)).toBeNull();
   });
   it.each(['g', { code: 'g' }, { code: 'g', name: 'gram' }])('renders a meaningful localized unit for %j', unit => {
-    render(<RecipeDetailContent recipe={{ ...a, ingredients: [{ name: '食材', quantity: 0.15, unit }] }} />);
+    render(<RecipeDetailContent recipe={{ ...a, ingredients: [{ name: '食材', quantity: 150, unit }] }} />);
     flushFrame();
-    expect(screen.getByText('0.15 克')).toBeTruthy();
+    expect(screen.getByText('150 克')).toBeTruthy();
   });
   it('shows servings, estimate, sources and allergens in the shared detail content', () => {
     render(<RecipeDetailContent recipe={{ ...a, base_servings: 2, nutrition_is_estimate: true,
