@@ -119,6 +119,14 @@ describe('/api/shopping-list aggregation', () => {
     expect((await post({ recipeIds: [R1], optionalSelections }, [])).status).toBe(400);
   });
 
+  it.each([101, 1e9, 0, -1])('rejects out-of-range servings: %s', async servings => {
+    expect((await post({ recipeIds: [R1], servings }, [])).status).toBe(400);
+  });
+
+  it('accepts the largest servings it allows', async () => {
+    expect((await post({ recipeIds: [R1], servings: 100 }, [row(R1, 'chicken', '雞肉', 1, 'g')])).status).toBe(200);
+  });
+
   it('requires a vegetarian-labelled composite product and does not expose animal add-ons as choices', async () => {
     const kimchi = row(R1, 'kimchi', '泡菜', 80, 'g'); kimchi.ingredients.slug = 'kimchi';
     const chicken = { ...row(R1, 'chicken', '雞肉', 80, 'g'), is_optional: true };

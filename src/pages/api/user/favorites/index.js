@@ -24,6 +24,10 @@ function createUserClient(supabaseUrl, anonKey, token) {
   });
 }
 
+// Database error text stays in server logs; clients get a fixed message.
+const FAVORITES_READ_FAILED = 'Failed to load favorites';
+const FAVORITES_WRITE_FAILED = 'Failed to update favorites';
+
 export default async function handler(req, res) {
   const timing = createFavoritesServerTiming(req, res);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -106,7 +110,7 @@ export default async function handler(req, res) {
             message: joinError.message,
             details: joinError
           });
-          return res.status(500).json(ApiResponse.error(joinError.message));
+          return res.status(500).json(ApiResponse.error(FAVORITES_READ_FAILED));
         }
         if (timing.enabled || previewRpc || productionRpc) {
           res.setHeader?.('X-PrepMeal-Favorites-Read-Path', readPath);
@@ -131,7 +135,8 @@ export default async function handler(req, res) {
         .eq('user_id', userId)));
       
       if (favError) {
-        return res.status(500).json(ApiResponse.error(favError.message));
+        console.error('[favorites-api] read_error', { message: favError.message });
+        return res.status(500).json(ApiResponse.error(FAVORITES_READ_FAILED));
       }
       
       const result = timing.prepare(() => ApiResponse.success({ favorites: (favData || []).map(f => String(f.recipe_id)) }));
@@ -158,7 +163,8 @@ export default async function handler(req, res) {
         if (error.code === '23505') {
           return res.status(200).json(ApiResponse.success({ message: 'Already favorited' }));
         }
-        return res.status(500).json(ApiResponse.error(error.message));
+        console.error('[favorites-api] write_error', { message: error.message });
+        return res.status(500).json(ApiResponse.error(FAVORITES_WRITE_FAILED));
       }
       
       return res.status(201).json(ApiResponse.created({ recipe_id }));
@@ -182,7 +188,8 @@ export default async function handler(req, res) {
         .select('recipe_id'));
       
       if (error) {
-        return res.status(500).json(ApiResponse.error(error.message));
+        console.error('[favorites-api] write_error', { message: error.message });
+        return res.status(500).json(ApiResponse.error(FAVORITES_WRITE_FAILED));
       }
 
       if (!deletedFavorites?.length) {
@@ -198,6 +205,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && readPath === 'rpc') {
       return res.status(500).json(ApiResponse.error('RPC comparison read failed'));
     }
-    return res.status(500).json(ApiResponse.error(err.message || 'Internal server error'));
+    console.error('[favorites-api] unexpected_error', { message: err?.message });
+    return res.status(500).json(ApiResponse.error('Internal server error'));
   }
 }
