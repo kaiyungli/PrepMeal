@@ -4,6 +4,11 @@ import React from 'react';
 import RecipeCard from '@/components/RecipeCard';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 
+// The grid is 1 column on phones and up to 4 on desktop: the first card is the
+// likely LCP image, the first row loads eagerly, everything below stays lazy.
+const EAGER_IMAGE_COUNT = 4;
+const imageLoadingFor = (index: number) => index === 0 ? 'high' as const : index < EAGER_IMAGE_COUNT ? 'eager' as const : undefined;
+
 interface RecipeListProps {
   recipes: CardRecipe[];
   onRecipeClick?: (recipe: CardRecipe) => void;
@@ -40,7 +45,7 @@ function RecipeList({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {recipes.map((recipe) => {
+      {recipes.map((recipe, index) => {
         const handlePrefetch = () => {
           if (recipe?.id) {
             prefetchRecipeDetail(recipe.id);
@@ -61,6 +66,7 @@ function RecipeList({
               favoriteLoading={typeof isPending === 'function' ? isPending(recipe.id) : undefined}
               onFavoriteClick={typeof onFavoriteClick === 'function' ? () => onFavoriteClick(recipe.id) : undefined}
               isAuthenticated={isAuthenticated}
+              imageLoading={imageLoadingFor(index)}
             />
           </div>
         );

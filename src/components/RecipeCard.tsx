@@ -28,6 +28,11 @@ interface RecipeCardProps {
   onFavoriteClick?: () => void | Promise<void>;
   isAuthenticated?: boolean;
   className?: string;
+  /**
+   * Above-the-fold loading for the card image: 'high' for the likely LCP card,
+   * 'eager' for the rest of the first row. Omitted cards stay lazy.
+   */
+  imageLoading?: 'high' | 'eager';
 }
 
 /**
@@ -44,7 +49,8 @@ function RecipeCard({
   isFavorite, 
   favoriteLoading,
   onFavoriteClick, 
-  className = '' 
+  className = '',
+  imageLoading,
 }: RecipeCardProps) {
   const recipeId = recipe?.id;
   const recipeName = recipe?.name || '無名食譜';
@@ -112,6 +118,8 @@ function RecipeCard({
             width={500}
             height={400}
             className="object-contain rounded-xl" 
+            loading={imageLoading ? 'eager' : undefined}
+            fetchPriority={imageLoading === 'high' ? 'high' : undefined}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </div>
