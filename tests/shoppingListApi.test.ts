@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { ShoppingListResponse } from '@/features/shopping-list/types';
+import { formatAmountText } from '@/lib/quantityFormatter';
 
 const { requireAuthMock, createClientMock } = vi.hoisted(() => ({
   requireAuthMock: vi.fn(),
@@ -351,6 +352,36 @@ describe('/api/shopping-list security boundary', () => {
     expect(items).toEqual([
       expect.objectContaining({ ingredientId: 'ginger-1', quantity: 11, unit: 'tsp', unitDisplay: '茶匙' }),
     ]);
+  });
+
+  it('shows a two-recipe salt total of 5/8 茶匙 as an easy spoon measure', async () => {
+    // Review case: 白汁雞肉意粉 (1/2 茶匙) + 粟米魚柳飯 (1/8 茶匙), one serving each.
+    requireAuthMock.mockResolvedValue('verified-user');
+    const salt = (recipeId: string, quantity: number) => ({
+      quantity,
+      recipe_id: recipeId,
+      ingredient_id: 'salt-1',
+      ingredients: { id: 'salt-1', name: '鹽', shopping_category: 'seasoning' },
+      recipes: { id: recipeId, name: recipeId },
+      units: { id: 'u1', code: 'tsp', display_name_en: 'teaspoon', display_name_zh: '茶匙' },
+    });
+    const database = createDatabase({
+      visibleRecipeIds: ['cream-chicken-pasta', 'corn-fish-rice'],
+      ingredientRows: [salt('cream-chicken-pasta', 0.5), salt('corn-fish-rice', 0.125)],
+    });
+    createClientMock.mockReturnValue(database.client);
+
+    const { response, apiResponse } = createResponse();
+    await handler(createRequest({
+      method: 'POST',
+      headers: { authorization: 'Bearer valid-token' },
+      body: { recipeIds: ['cream-chicken-pasta', 'corn-fish-rice'], servings: 1 },
+    }), apiResponse);
+
+    expect(response.statusCode).toBe(200);
+    const [item] = (response.body as ShoppingListResponse).toBuy.flatMap((section) => section.items);
+    expect(item).toEqual(expect.objectContaining({ ingredientId: 'salt-1', quantity: 0.625, unit: 'tsp' }));
+    expect(formatAmountText(item.quantity, item.unit, item.unitDisplay ?? '')).toBe('約3/4 茶匙');
   });
 
   it('converts ml and l, but never combines mass and volume for one ingredient', async () => {
