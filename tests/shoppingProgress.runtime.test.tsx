@@ -251,12 +251,14 @@ describe('per-recipe quantities with whole-week purchase progress', () => {
     expect(screen.getByRole('checkbox', { name: '薯仔 180 g' })).toBeTruthy();
     expect(screen.queryByRole('checkbox', { name: '薯仔 330 g' })).toBeNull();
     expect(screen.queryByRole('checkbox', { name: '薯仔 90 g' })).toBeNull();
-    expect(screen.queryByRole('checkbox', { name: '薯仔 2 pc' })).toBeNull();
+    expect(screen.queryByRole('checkbox', { name: '薯仔 330 g + 2 pc' })).toBeNull();
     fireEvent.click(screen.getByRole('checkbox', { name: '薯仔 150 g' }));
     expect(screen.queryByRole('checkbox', { name: '薯仔 180 g' })).toBeNull();
     fireEvent.change(screen.getByLabelText('清單排列'), { target: { value: 'category' } });
-    expect(screen.getByText('已買 1／共 3 項')).toBeTruthy();
+    // One potato row (grams and pieces listed together) is bought; the other
+    // ingredient sharing the name stays separate and unbought.
+    expect(screen.getByText('已買 1／共 2 項')).toBeTruthy();
     expect(screen.getByRole('checkbox', { name: '薯仔 90 g' })).toBeTruthy();
-    expect(screen.getByRole('checkbox', { name: '薯仔 2 pc' })).toBeTruthy();
+    expect(screen.queryByRole('checkbox', { name: '薯仔 330 g + 2 pc' })).toBeNull();
   });
 });

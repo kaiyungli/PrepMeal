@@ -87,7 +87,7 @@ describe('fetchGeneratedPlanShoppingList consumer-boundary unit safety', () => {
     });
   });
 
-  it('preserves two rows sharing an ingredientId but incompatible normalized units as two distinct view-model items', async () => {
+  it('shows two unit rows of one ingredient on one line without summing their quantities', async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       json: async () => ({
@@ -128,9 +128,10 @@ describe('fetchGeneratedPlanShoppingList consumer-boundary unit safety', () => {
     });
 
     expect(viewModel.sections).toHaveLength(1);
+    // The client never converts or adds units itself: both amounts are listed.
     expect(viewModel.sections[0].items).toEqual([
-      { ingredientId: 'beef-1', name: '牛肉', quantityText: '200 克', quantityPending: false, quantity: 200, unit: 'g' },
-      { ingredientId: 'beef-1', name: '牛肉', quantityText: '2 千克', quantityPending: false, quantity: 2, unit: 'kg' },
+      { ingredientId: 'beef-1', name: '牛肉', quantityText: '200 克 + 2 千克', quantityPending: false, quantity: null, unit: 'g+kg' },
     ]);
+    expect(viewModel.summary.toBuyCount).toBe(1);
   });
 });

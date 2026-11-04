@@ -9,6 +9,31 @@ import type {
 } from '../types';
 import { SHOPPING_CATEGORY_ORDER, SHOPPING_CATEGORY_META, CATEGORY_LABELS, CATEGORY_ICONS } from '../constants';
 import { formatQuantityDisplay } from '../types';
+import { GROUPED_UNIT_SEPARATOR } from '../recipeQuantities';
+
+// One ingredient, one row: amounts in units that cannot be converted without a
+// density (克 and 湯匙, 克 and 瓣) are listed together, never summed. A single
+// unit keeps its own quantity and progress key unchanged.
+export function groupSameIngredient(items: ShoppingListItemViewModel[]): ShoppingListItemViewModel[] {
+  const groups = new Map<string, ShoppingListItemViewModel[]>();
+  for (const item of items) {
+    const key = item.ingredientId ? `id:${item.ingredientId}` : `name:${item.name.trim().toLowerCase()}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(item);
+  }
+  return [...groups.values()].map(group => {
+    if (group.length === 1) return group[0];
+    const parts = group.filter(item => item.quantityPending || item.quantityText);
+    return {
+      ingredientId: group[0].ingredientId,
+      name: group[0].name,
+      quantity: null,
+      unit: group.map(item => item.unit || '').join(GROUPED_UNIT_SEPARATOR),
+      quantityText: parts.map(item => item.quantityPending ? '（數量待補）' : item.quantityText).join(' + '),
+      quantityPending: parts.length > 0 && parts.every(item => item.quantityPending),
+    };
+  });
+}
 
 // Map raw category string to canonical key (English aliases only)
 export function mapRawCategoryToKey(raw: string | null | undefined): ShoppingCategoryKey {
@@ -76,14 +101,14 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
   
   const sections: ShoppingListSectionViewModel[] = toBuyRaw.map((section): ShoppingListSectionViewModel => {
     const category = mapRawCategoryToKey(section.category);
-    const items: ShoppingListItemViewModel[] = (section.items || []).map((item): ShoppingListItemViewModel => ({
+    const items: ShoppingListItemViewModel[] = groupSameIngredient((section.items || []).map((item): ShoppingListItemViewModel => ({
       ingredientId: item.ingredientId,
       quantity: item.quantity,
       unit: item.unit || '',
       name: item.name,
       quantityText: formatQuantityDisplay(item.quantity, item.unitDisplay || item.unit || '', item.quantityPending),
       quantityPending: item.quantityPending,
-    }));
+    })));
     
     return {
       categoryKey: category,
@@ -100,8 +125,9 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
   });
   
   const toBuyCount = sections.reduce((sum, s) => sum + s.items.length, 0);
+  // Rows are counted after grouping, so the count matches what is shown.
   const summary = validSummary 
-    ? response.summary 
+    ? { ...response.summary, toBuyCount }
     : { pantryCount: pantry.length, toBuyCount, sectionCount: sections.length };
   
   // Map byRecipe if present in response
@@ -111,14 +137,14 @@ export function mapShoppingListResponseToViewModel(response: ShoppingListRespons
         recipeName: rb.recipeName || 'Unknown',
         pantry: Array.isArray(rb.pantry) ? rb.pantry : [],
         toBuy: Array.isArray(rb.toBuy) 
-          ? rb.toBuy.map((i) => ({
+          ? groupSameIngredient(rb.toBuy.map((i) => ({
               ingredientId: i.ingredientId ?? null,
               name: i.name,
               quantity: i.quantity,
               unit: i.unit || '',
               quantityPending: i.quantityPending === true,
               quantityText: formatQuantityDisplay(i.quantity, i.unitDisplay || i.unit || '', i.quantityPending === true),
-            }))
+            })))
           : [],
       }))
     : [];
