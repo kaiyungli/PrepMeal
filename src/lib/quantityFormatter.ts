@@ -113,18 +113,43 @@ const SPOON_LABELS = {
   en: { tsp: 'tsp', tbsp: 'tbsp', pinch: 'a pinch' },
 };
 
+// The fractions a set of measuring spoons can show. 1/8 茶匙 is the smallest
+// spoon on its own; other eighths (3/8, 5/8, 7/8) are not easy to measure.
+const SPOON_FRACTIONS: Record<'tsp' | 'tbsp', Array<[number, string]>> = {
+  tsp: [[0.25, '1/4'], [0.5, '1/2'], [0.75, '3/4']],
+  tbsp: [[0.25, '1/4'], [1 / 3, '1/3'], [0.5, '1/2'], [2 / 3, '2/3'], [0.75, '3/4']],
+};
+
+function spoonMeasure(amount: number, unit: 'tsp' | 'tbsp'): string | null {
+  const tolerance = 5e-7;
+  const whole = Math.floor(amount + tolerance);
+  const frac = amount - whole;
+  if (Math.abs(frac) < tolerance) return whole > 0 ? String(whole) : null;
+  if (unit === 'tsp' && whole === 0 && Math.abs(frac - 0.125) < tolerance) return '1/8';
+  const match = SPOON_FRACTIONS[unit].find(([value]) => Math.abs(frac - value) < tolerance);
+  if (!match) return null;
+  return whole > 0 ? `${whole} ${match[1]}` : match[1];
+}
+
 function spoonText(ml: number, english: boolean): string {
   const labels = english ? SPOON_LABELS.en : SPOON_LABELS.zh;
   if (ml < SMALLEST_SPOON_ML - 1e-9) return labels.pinch;
-  const unit = ml >= 15 - 1e-9 ? 'tbsp' : 'tsp';
-  const amount = ml / SPOON_ML[unit];
-  const whole = Math.round(amount);
-  const exact = Math.abs(amount - whole) < 5e-7 ? String(whole) : findFraction(amount);
-  if (exact) return `${exact} ${labels[unit]}`;
-  const step = unit === 'tbsp' ? 4 : 8;
-  const rounded = Math.max(Math.round(amount * step) / step, 1 / step);
-  const roundedText = Number.isInteger(rounded) ? String(rounded) : findFraction(rounded) || String(rounded);
-  return `約${roundedText} ${labels[unit]}`;
+  const tsp = ml / SPOON_ML.tsp;
+  const tbsp = ml / SPOON_ML.tbsp;
+  if (ml >= 15 - 1e-9) {
+    const exactTbsp = spoonMeasure(tbsp, 'tbsp');
+    if (exactTbsp) return `${exactTbsp} ${labels.tbsp}`;
+    const exactTsp = spoonMeasure(tsp, 'tsp');
+    if (exactTsp) return `${exactTsp} ${labels.tsp}`;
+    return `約${spoonMeasure(Math.round(tbsp * 4) / 4, 'tbsp')} ${labels.tbsp}`;
+  }
+  const exactTsp = spoonMeasure(tsp, 'tsp');
+  if (exactTsp) return `${exactTsp} ${labels.tsp}`;
+  // Below 3/16 茶匙 the nearest spoon is the 1/8 茶匙 one.
+  if (tsp < 0.1875) return `約1/8 ${labels.tsp}`;
+  const rounded = Math.round(tsp * 4) / 4;
+  if (rounded >= 3) return `約1 ${labels.tbsp}`;
+  return `約${spoonMeasure(rounded, 'tsp')} ${labels.tsp}`;
 }
 
 type UnitInput = string | { code?: string; name?: string; display_name_zh?: string } | null | undefined;
