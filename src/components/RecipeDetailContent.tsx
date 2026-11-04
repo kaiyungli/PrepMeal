@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
 import { useState, useEffect } from 'react';
-import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+import { formatAmountText } from '@/lib/quantityFormatter';
 import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
@@ -216,7 +216,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                     {ing.is_optional && <span className="ml-2 text-xs" style={{ color: '#AA7A50' }}>選配</span>}
                     {ingredientPrepNote(ing.prep_note) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note)}</p>}
                   </div>
-                  <span className="shrink-0 ml-3" style={{ color: '#AA7A50' }}>{formatQuantityForDisplay(ing.quantity, ing.unit, { roundCount: false })} {getUnitLabel(ing.unit)}</span>
+                  <span className="shrink-0 ml-3" style={{ color: '#AA7A50' }}>{formatAmountText(ing.quantity, ing.unit, getUnitLabel(ing.unit), { roundCount: false })}</span>
                 </li>
               ))}
             </ul>

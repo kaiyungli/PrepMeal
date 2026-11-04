@@ -103,4 +103,41 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
   return (Math.ceil(qty * 100) / 100).toFixed(2).replace(/\.?0+$/, '');
 }
 
+// Spoon measures read best in the size a cook reaches for: 3 茶匙 or more is
+// shown in 湯匙, and amounts below 1/8 茶匙 are 少許. The stored quantity keeps
+// its exact value, so scaling and shopping totals stay accurate.
+const SPOON_ML: Record<string, number> = { tsp: 5, tbsp: 15 };
+const SMALLEST_SPOON_ML = 0.625; // 1/8 茶匙
+const SPOON_LABELS = {
+  zh: { tsp: '茶匙', tbsp: '湯匙', pinch: '少許' },
+  en: { tsp: 'tsp', tbsp: 'tbsp', pinch: 'a pinch' },
+};
+
+function spoonText(ml: number, english: boolean): string {
+  const labels = english ? SPOON_LABELS.en : SPOON_LABELS.zh;
+  if (ml < SMALLEST_SPOON_ML - 1e-9) return labels.pinch;
+  const unit = ml >= 15 - 1e-9 ? 'tbsp' : 'tsp';
+  const amount = ml / SPOON_ML[unit];
+  const whole = Math.round(amount);
+  const exact = Math.abs(amount - whole) < 5e-7 ? String(whole) : findFraction(amount);
+  if (exact) return `${exact} ${labels[unit]}`;
+  const step = unit === 'tbsp' ? 4 : 8;
+  const rounded = Math.max(Math.round(amount * step) / step, 1 / step);
+  const roundedText = Number.isInteger(rounded) ? String(rounded) : findFraction(rounded) || String(rounded);
+  return `約${roundedText} ${labels[unit]}`;
+}
+
+type UnitInput = string | { code?: string; name?: string; display_name_zh?: string } | null | undefined;
+
+// Quantity and unit label together, as a reader sees them.
+export function formatAmountText(quantity: number | null | undefined, unit: UnitInput, unitLabel: string, options: { roundCount?: boolean } = {}): string {
+  if (quantity == null || !Number.isFinite(quantity)) return '';
+  const code = normalizeUnit(typeof unit === 'object' && unit ? unit.code || unit.display_name_zh || unit.name : unit);
+  if (SPOON_ML[code] && quantity > 0) {
+    return spoonText(quantity * SPOON_ML[code], /^[A-Za-z\s]+$/.test(unitLabel));
+  }
+  const formatted = formatQuantityForDisplay(quantity, unit, options);
+  return unitLabel ? `${formatted} ${unitLabel}` : formatted;
+}
+
 export default formatQuantityForDisplay;
