@@ -62,6 +62,17 @@ describe('core reliability', () => {
     expect(screen.queryByText('✅ 已複製!')).toBeNull();
   });
 
+  it.each([
+    ['without progress', {}],
+    ['with progress', { progress: { version: 1 as const, items: {}, extras: [] }, onProgressChange: () => {} }],
+  ] as const)('offers a retry button on a shopping list error (%s)', (_label, extra) => {
+    const onRetry = vi.fn();
+    render(<ShoppingListModal isOpen onClose={() => {}} shoppingListView={null} error="暫時未能整理購物清單，請稍後再試。" onRetry={onRetry} onCopy={() => true} {...(extra as object)} />);
+    expect(screen.getByRole('alert').textContent).toContain('暫時未能整理購物清單');
+    fireEvent.click(screen.getByRole('button', { name: '重試' }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
   it('exposes a failed catalogue request and recovers on retry', async () => {
     mocks.fetchRecipes.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([{ id: 'a' }]);
     const { result } = renderHook(() => useGenerateData());

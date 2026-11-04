@@ -63,6 +63,7 @@ export default defineConfig({
       'tests/recipeDetailSsr.runtime.test.tsx',
       'tests/recipeListImageLoading.runtime.test.tsx',
       'tests/appNoIndex.runtime.test.tsx',
+      'tests/seoTitle.runtime.test.tsx',
     ],
   },
 });

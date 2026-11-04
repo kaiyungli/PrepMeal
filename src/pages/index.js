@@ -86,6 +86,7 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
       <SEO
         title="今晚食乜"
         description="為香港日常晚餐而設：搜尋家常食譜、按條件安排3、5或7日餐單，並整理購物清單。"
+        canonical="https://eatwhathk.com/"
         ogType="website"
       />
       <main className="flex-1">
