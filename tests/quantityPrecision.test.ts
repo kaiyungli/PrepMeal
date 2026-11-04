@@ -30,6 +30,8 @@ describe('measured ingredient amounts retain their actual quantity', () => {
   });
   it('preserves the same measurement in the shopping-list presentation', () => {
     expect(formatQuantityDisplay(0.25, '杯', false)).toBe('1/4 杯');
-    expect(formatQuantityDisplay(0.1, '茶匙', false)).toBe('0.1 茶匙');
+    // Below 1/8 茶匙 the list says 少許 rather than rounding the amount up.
+    expect(formatQuantityDisplay(0.1, '茶匙', false)).toBe('少許');
+    expect(formatQuantityDisplay(0.25, '茶匙', false)).toBe('1/4 茶匙');
   });
 });

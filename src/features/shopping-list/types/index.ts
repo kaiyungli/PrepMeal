@@ -127,7 +127,7 @@ export function createEmptyViewModel(): ShoppingListViewModel {
   };
 }
 
-import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
+import { formatAmountText } from '@/lib/quantityFormatter';
 
 // Single source of truth for quantity display
 export function formatQuantityDisplay(
@@ -142,6 +142,5 @@ export function formatQuantityDisplay(
     return '';
   }
   
-  const formatted = formatQuantityForDisplay(quantity, unitDisplay);
-  return unitDisplay ? `${formatted} ${unitDisplay}` : formatted;
+  return formatAmountText(quantity, unitDisplay, unitDisplay);
 }

@@ -4,7 +4,8 @@ import { mapShoppingListResponseToViewModel } from '@/features/shopping-list/map
 import { useState, useEffect, useId, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 
-import { formatUnit, formatQuantity } from '@/lib/formatters';
+import { formatUnit } from '@/lib/formatters';
+import { formatAmountText } from '@/lib/quantityFormatter';
 import { CATEGORY_LABELS as LABELS, CATEGORY_ICONS } from '@/features/shopping-list/constants';
 import { useDialogFocus } from '@/hooks/useDialogFocus';
 import OptionalIngredientChoices from './OptionalIngredientChoices';
@@ -106,7 +107,7 @@ export default function ShoppingListDrawer({
                 {items.map((item, idx) => (
                   <div key={idx} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{formatQuantity(item.quantity, item.unit)} {formatUnit(item.unit)}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{formatAmountText(item.quantity, item.unit, formatUnit(item.unit))}</span>
                   </div>
                 ))}
               </div>
@@ -148,7 +149,7 @@ export default function ShoppingListDrawer({
                 {recipe.toBuy.map((item, i) => (
                   <div key={i} className="flex justify-between py-2 px-3 bg-[#F8F3E8] rounded-lg">
                     <span>{item.name}</span>
-                    <span className="text-sm text-[var(--color-text-muted)]">{formatQuantity(item.quantity, item.unit)} {formatUnit(item.unit)}</span>
+                    <span className="text-sm text-[var(--color-text-muted)]">{formatAmountText(item.quantity, item.unit, formatUnit(item.unit))}</span>
                   </div>
                 ))}
               </div>
