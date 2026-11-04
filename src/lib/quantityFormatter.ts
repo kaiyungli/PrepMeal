@@ -139,9 +139,12 @@ function spoonText(ml: number, english: boolean): string {
   if (ml >= 15 - 1e-9) {
     const exactTbsp = spoonMeasure(tbsp, 'tbsp');
     if (exactTbsp) return `${exactTbsp} ${labels.tbsp}`;
-    const exactTsp = spoonMeasure(tsp, 'tsp');
+    // Up to 2 湯匙, an even 茶匙 amount (e.g. 3 1/2 茶匙) reads better than
+    // an odd 湯匙 fraction; above that, 14 1/2 茶匙 is too many spoons to count.
+    const exactTsp = tsp < 6 - 1e-9 ? spoonMeasure(tsp, 'tsp') : null;
     if (exactTsp) return `${exactTsp} ${labels.tsp}`;
-    return `約${spoonMeasure(Math.round(tbsp * 4) / 4, 'tbsp')} ${labels.tbsp}`;
+    const step = tbsp < 2 ? 4 : 2;
+    return `約${spoonMeasure(Math.round(tbsp * step) / step, 'tbsp')} ${labels.tbsp}`;
   }
   const exactTsp = spoonMeasure(tsp, 'tsp');
   if (exactTsp) return `${exactTsp} ${labels.tsp}`;

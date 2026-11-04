@@ -23,7 +23,9 @@ describe('spoon amounts read in the spoon a cook reaches for', () => {
   });
 
   it('rounds an uneven spoon total to an easy measure and marks it approximate', () => {
-    expect(formatAmountText(8.4, 'tsp', '茶匙')).toBe('約2 3/4 湯匙');
+    expect(formatAmountText(8.4, 'tsp', '茶匙')).toBe('約3 湯匙');
+    expect(formatAmountText(14.5, 'tsp', '茶匙')).toBe('約5 湯匙');
+    expect(formatAmountText(11.5, 'tsp', '茶匙')).toBe('約4 湯匙');
     expect(formatAmountText(1.3, 'tsp', '茶匙')).toBe('約1 1/4 茶匙');
   });
 
