@@ -78,11 +78,14 @@ describe('DELETE /api/user/favorites response contract', () => {
     expect(res.body).toEqual({ success: false, error: 'Favorite not found' });
   });
 
-  it('returns 500 on a DB error', async () => {
-    clientWithDeleteResult({ data: null, error: { message: 'database unavailable' } });
+  it('returns 500 on a DB error without sending the database message to the client', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    clientWithDeleteResult({ data: null, error: { message: 'relation "user_favorites" does not exist' } });
     const res = response();
     await handler(request() as never, res as never);
     expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({ success: false, error: 'Failed to update favorites' });
+    expect(JSON.stringify(res.body)).not.toContain('relation');
   });
 
   it('rejects missing recipe_id without a delete query', async () => {

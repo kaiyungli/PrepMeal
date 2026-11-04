@@ -149,7 +149,6 @@ export async function handleShoppingList(
   res: NextApiResponse<ShoppingListResponse | { error: string }>,
   publicPreview: boolean
 ) {
-  console.log('[shopping-list-api] handler hit');
   
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -209,7 +208,8 @@ export async function handleShoppingList(
   if (recipeIds.length > 200) {
     return res.status(400).json({ error: 'Too many recipeIds' });
   }
-  if (!Number.isFinite(servings) || servings <= 0) {
+  // Same bound as recipeServings; the planner offers 1–6 people.
+  if (!Number.isFinite(servings) || servings <= 0 || servings > 100) {
     return res.status(400).json({ error: 'Invalid servings' });
   }
 
@@ -237,7 +237,6 @@ export async function handleShoppingList(
       unitLanguage = prefs.unit_language;
     }
   }
-  console.log('[shopping-list api] user unit_language:', unitLanguage);
 
   try {
     // The service-role client bypasses RLS, so recipe visibility must be
@@ -285,7 +284,6 @@ export async function handleShoppingList(
     }
 
     const dbStart = performance.now();
-    console.log('[shopping-list-api] db fetch start', { recipeCount: visibleRecipeIds.length });
     
     // SINGLE query with embedded relations
     const { data: recipeIngredients, error: ingError } = await supabase
@@ -302,7 +300,7 @@ export async function handleShoppingList(
       .in('recipe_id', visibleRecipeIds);
 
     if (ingError) {
-      console.log('[shopping-list api] fetch error:', ingError);
+      console.error('[shopping-list api] fetch error:', ingError);
       throw ingError;
     }
     
@@ -315,10 +313,8 @@ export async function handleShoppingList(
       meta: { recipeCount: visibleRecipeIds.length },
     });
     
-    console.log('[shopping-list api] fetched ri rows:', recipeIngredients?.length ?? 0);
     
     if (!recipeIngredients || recipeIngredients.length === 0) {
-      console.log('[shopping-list api] no ingredients found');
       return res.status(200).json({
         pantry: [],
         toBuy: [],
@@ -328,7 +324,6 @@ export async function handleShoppingList(
       });
     }
 
-    console.log('[shopping-list api] building items');
     const allItems: ShoppingListBuyItem[] = [];
     const optionalGroups = new Map<string, OptionalIngredientGroup>();
     const dietaryNotes = new Set<string>();
@@ -392,11 +387,8 @@ export async function handleShoppingList(
       });
     }
 
-    console.log('[shopping-list api] items before merge:', allItems.length);
-    console.log('[shopping-list api] first item sample:', allItems[0] || null);
     
     const mergedItems = mergeItems(allItems);
-    console.log('[shopping-list api] items after merge:', mergedItems.length);
 
     const pantryNames = new Set(pantryIngredients.map(pantryNameKey).filter(Boolean));
     const isInPantry = (item: ShoppingListBuyItem) => pantryNames.has(pantryNameKey(item.name));
@@ -431,14 +423,12 @@ export async function handleShoppingList(
       categoryMap.set(cat, mergeItems(arr));
     }
 
-    console.log('[shopping-list api] categoryMap keys:', Array.from(categoryMap.keys()));
 
     const toBuy: ShoppingListSection[] = [];
     categoryMap.forEach((items, cat) => {
       toBuy.push({ category: cat, items });
     });
 
-    console.log('[shopping-list api] toBuy sections:', toBuy.length);
 
     // Build byRecipe from allItems (before merge to keep recipe tracking)
     const recipeGroups = new Map<string, { recipeId: string; recipeName: string; items: ShoppingListBuyItem[] }>();
@@ -483,9 +473,6 @@ export async function handleShoppingList(
       sectionCount: toBuy.length,
     };
 
-    console.log('[shopping-list api] summary:', summary);
-    console.log('[shopping-list api] byRecipe count:', byRecipe.length);
-    console.log('[shopping-list api] returning response');
 
     res.status(200).json({ pantry, toBuy, byRecipe, summary, unavailableRecipeCount,
       optionalIngredients: [...optionalGroups.values()], dietaryNotes: [...dietaryNotes] });

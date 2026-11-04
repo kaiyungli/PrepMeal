@@ -1,6 +1,12 @@
 import { supabase } from '@/lib/supabaseClient'
+import { requireAdmin } from '@/lib/adminAuth'
 
+// Internal data-quality report: admin only, like the other admin tools.
 export default async function handler(req, res) {
+  if (!requireAdmin(req)) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
   try {
     if (!supabase) {
       return res.status(500).json({ error: 'Supabase not configured' })
