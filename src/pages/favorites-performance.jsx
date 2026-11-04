@@ -7,6 +7,12 @@ import { benchmarkSummary, runFavoritesBenchmark } from '@/features/favorites/se
 import { COMPARISON_SAMPLES, runFavoritesComparison } from '@/features/favorites/services/favoritesComparison';
 import { NavigationMeasurementLauncher } from '@/features/performance/NavigationMeasurement';
 import { getNavigationMeasurement, getServerNavigationMeasurement, subscribeNavigationMeasurement } from '@/features/performance/navigationMeasurement';
+import { isDiagnosticsPageEnabled } from '@/lib/seoIndexing';
+
+// Team measurement tool: a 404 on the production deployment, available on preview.
+export function getStaticProps() {
+  return isDiagnosticsPageEnabled() ? { props: {} } : { notFound: true };
+}
 
 export default function FavoritesPerformancePage() {
   const auth = useAuthGuard(); const header = useHeaderController();

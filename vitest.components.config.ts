@@ -14,7 +14,7 @@ import baseConfig from './vitest.config';
 // `npm run test:all`.
 
 const MY_PLANS_JSX_JS = [
-  /[\\/]src[\\/]pages[\\/](login|profile|generate)\.js$/,
+  /[\\/]src[\\/]pages[\\/](login|profile|generate|_app)\.js$/,
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans\.js$/,
   /[\\/]src[\\/]pages[\\/]favorites\.js$/,
@@ -62,6 +62,7 @@ export default defineConfig({
       'tests/recipesEmptyState.runtime.test.tsx',
       'tests/recipeDetailSsr.runtime.test.tsx',
       'tests/recipeListImageLoading.runtime.test.tsx',
+      'tests/appNoIndex.runtime.test.tsx',
     ],
   },
 });
