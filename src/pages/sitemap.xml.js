@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const BASE_URL = 'https://eatwhathk.com';
+const PAGE_SIZE = 1000;
 
 const STATIC_URLS = [
   { loc: '/', changefreq: 'daily', priority: 1.0 },
@@ -33,15 +34,24 @@ function toAbsoluteUrl(loc) {
   return `${BASE_URL}${loc.startsWith('/') ? loc : '/' + loc}`;
 }
 
+// W3C date (YYYY-MM-DD) from a database timestamp; omitted when unknown, since
+// a guessed lastmod is worse than none.
+export function toLastmod(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+}
+
 function generateUrlEntry(url) {
+  const lastmod = toLastmod(url.lastmod);
   return `  <url>
     <loc>${escapeXml(toAbsoluteUrl(url.loc))}</loc>
-    <changefreq>${escapeXml(url.changefreq)}</changefreq>
+${lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : ''}    <changefreq>${escapeXml(url.changefreq)}</changefreq>
     <priority>${url.priority}</priority>
   </url>`;
 }
 
-function generateSitemap(urls) {
+export function generateSitemap(urls) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(generateUrlEntry).join('\n')}
@@ -57,26 +67,32 @@ async function fetchRecipeSlugs() {
       || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
     if (!supabaseKey) {
-      console.log('[sitemap] no supabase key');
+      console.error('[sitemap] no supabase key');
       return [];
     }
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    const { data, error } = await supabase
-      .from('recipes')
-      .select('slug')
-      .eq('is_public', true)
-      .limit(500);
-    
-    if (error) {
-      console.log('[sitemap] query error:', error.message);
-      return [];
+    // Page through every public recipe; a fixed limit would silently drop
+    // recipes once the catalogue outgrows it.
+    const rows = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('slug, updated_at')
+        .eq('is_public', true)
+        .order('slug', { ascending: true })
+        .range(from, from + PAGE_SIZE - 1);
+
+      if (error) {
+        console.error('[sitemap] query error:', error.message);
+        return rows;
+      }
+      rows.push(...(data || []));
+      if (!data || data.length < PAGE_SIZE) return rows;
     }
-    
-    return data || [];
   } catch (err) {
-    console.log('[sitemap] exception:', err.message);
+    console.error('[sitemap] exception:', err.message);
     return [];
   }
 }
@@ -93,6 +109,7 @@ export async function getServerSideProps({ res }) {
       if (recipe.slug) {
         urls.push({
           loc: `/recipes/${recipe.slug}`,
+          lastmod: recipe.updated_at,
           changefreq: 'weekly',
           priority: 0.8,
         });
