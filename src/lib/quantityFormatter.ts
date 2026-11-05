@@ -70,6 +70,13 @@ function readableMeasurement(qty: number): string {
   return `${approximate ? '約' : ''}${rounded}`;
 }
 
+function wholeMeasurement(qty: number): string {
+  const step = Math.abs(qty) >= 100 ? 5 : 1;
+  const rounded = Math.round(qty / step) * step;
+  const approximate = Math.abs(qty - rounded) > 1e-6;
+  return `${approximate ? '約' : ''}${rounded}`;
+}
+
 export function formatQuantityForDisplay(quantity: number | null | undefined, unit: string | { code?: string; name?: string; display_name_zh?: string } | null | undefined, options: { roundCount?: boolean } = {}): string {
   if (quantity == null || !Number.isFinite(quantity)) return '';
   if (quantity === 0) return '0';
@@ -77,9 +84,12 @@ export function formatQuantityForDisplay(quantity: number | null | undefined, un
   const qty = quantity;
   const normUnit = normalizeUnit(typeof unit === 'object' && unit ? unit.code || unit.display_name_zh || unit.name : unit);
   
-  // Measurement units retain small quantities (e.g. 0.15g of seasoning).
+  // Grams and millilitres read as whole numbers: below 100 to the nearest
+  // 1, from 100 to the nearest 5 (113.4 克 → 約115). Amounts under 1 keep
+  // their value; formatAmountText shows those as 少許.
   if (MASS_UNITS.includes(normUnit) || VOLUME_UNITS.includes(normUnit)) {
-    return readableMeasurement(qty);
+    if (Math.abs(qty) < 1) return readableMeasurement(qty);
+    return wholeMeasurement(qty);
   }
   
   // Cooking measures may use familiar exact fractions. Other amounts must
@@ -163,6 +173,9 @@ export function formatAmountText(quantity: number | null | undefined, unit: Unit
   const code = normalizeUnit(typeof unit === 'object' && unit ? unit.code || unit.display_name_zh || unit.name : unit);
   if (SPOON_ML[code] && quantity > 0) {
     return spoonText(quantity * SPOON_ML[code], /^[A-Za-z\s]+$/.test(unitLabel));
+  }
+  if ((MASS_UNITS.includes(code) || VOLUME_UNITS.includes(code)) && quantity > 0 && quantity < 1) {
+    return /^[A-Za-z\s]+$/.test(unitLabel) ? SPOON_LABELS.en.pinch : SPOON_LABELS.zh.pinch;
   }
   const formatted = formatQuantityForDisplay(quantity, unit, options);
   return unitLabel ? `${formatted} ${unitLabel}` : formatted;
