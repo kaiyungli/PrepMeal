@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import MyPlansPage from '@/pages/my-plans';
+import { clearMyPlans } from '@/features/plans/myPlansCache';
 import { StrictMode } from 'react';
 
 // Runtime render tests for concurrent deletes on the real My Plans page
@@ -114,6 +115,8 @@ async function renderWithPlans() {
 }
 
 beforeEach(() => {
+  // The list cache is module state; each test starts from a cold page.
+  clearMyPlans();
   authGuard.user = { id: 'user-1' };
   authGuard.isAuthenticated = true;
   authGuard.loading = false;

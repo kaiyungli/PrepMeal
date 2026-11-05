@@ -47,7 +47,7 @@ it('touch followed by focus and pointer intent through Layout shares one pending
 it('mobile touch starts intent without closing the menu; the subsequent click retains normal navigation', () => {
   const intent = vi.fn();
   render(createElement(Header, { navLinks: [{ path: '/favorites', label: '收藏' }], onFavoritesIntent: intent }));
-  fireEvent.click(screen.getByRole('button', { name: '' }));
+  fireEvent.click(screen.getByRole('button', { name: '打開選單' }));
   const favorite = within(screen.getAllByRole('navigation')[1]).getByRole('link', { name: '收藏' });
   fireEvent.touchStart(favorite);
   expect(intent).toHaveBeenCalledTimes(1); expect(screen.getAllByRole('navigation')).toHaveLength(2);

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LogoMark } from '@/components/ui/Icons';
 import PrivacyOptionsButton from '@/components/ads/PrivacyOptionsButton';
 
 export default function Footer() {
@@ -8,7 +9,7 @@ export default function Footer() {
         <div className="mb-8 grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <span className="text-2xl">🍜</span>
+              <LogoMark size={32} />
               <span className="text-xl font-bold">今晚食乜</span>
             </div>
             <p className="text-sm opacity-80">每日晚餐話你知，一按生成一週餐單</p>

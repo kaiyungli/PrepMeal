@@ -5,6 +5,7 @@ import { localDateISO } from '@/utils/dateUtils';
  * Saves the generated weekly plan to the user's account.
  */
 import { perfNow, perfMeasure } from '@/utils/perf';
+import { invalidateMyPlans } from '@/features/plans/myPlansCache';
 
 export interface PlanItem {
   day_index: number;
@@ -41,6 +42,8 @@ export async function saveGeneratedPlan(payload: SavePlanPayload, token: string)
     });
     
     perfMeasure('generate.savePlan', t0);
+    // The server may have saved even if the reply below is unusable.
+    invalidateMyPlans();
     
     const data = await res.json();
     

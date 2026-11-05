@@ -17,13 +17,28 @@ const PLAN_NOT_FOUND_CODE = 'PGRST116';
 // Use any for supabase client to avoid complex type matching
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getMenuPlanDetail(supabase: any, planId: string, userId: string) {
-  // Get plan
-  const { data: plan, error: planError } = await supabase
+  // Plan and items are read at the same time (one round trip instead of two).
+  // RLS already limits items to the caller's own plans; the plan read below
+  // still decides "not found" first, exactly as before.
+  const planQuery = supabase
     .from('menu_plans')
     .select('*')
     .eq('id', planId)
     .eq('user_id', userId)
     .single();
+  // Get items ordered by date then item_order
+  const itemsQuery = Promise.resolve(
+    supabase
+      .from('menu_plan_items')
+      .select('*')
+      .eq('menu_plan_id', planId)
+      .order('date', { ascending: true })
+      .order('item_order', { ascending: true })
+  );
+  // Read below; this only stops an early rejection being reported as unhandled.
+  itemsQuery.catch(() => {});
+
+  const { data: plan, error: planError } = await planQuery;
   
   if (planError && planError.code !== PLAN_NOT_FOUND_CODE) {
     return { plan: null, items: null, recipes: null, error: planError };
@@ -33,13 +48,7 @@ export async function getMenuPlanDetail(supabase: any, planId: string, userId: s
     return { plan: null, items: null, recipes: null, error: null };
   }
   
-  // Get items ordered by date then item_order
-  const { data: items, error: itemsError } = await supabase
-    .from('menu_plan_items')
-    .select('*')
-    .eq('menu_plan_id', planId)
-    .order('date', { ascending: true })
-    .order('item_order', { ascending: true });
+  const { data: items, error: itemsError } = await itemsQuery;
   
   if (itemsError) {
     return { plan, items: null, recipes: null, error: itemsError };
