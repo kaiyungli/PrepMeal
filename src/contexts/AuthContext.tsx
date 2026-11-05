@@ -7,6 +7,7 @@ import supabase from '@/lib/supabase';
 import { buildOAuthRedirectUrl } from '@/lib/authRedirect';
 import { invalidateFavoritesCache } from '@/hooks/useFavorites';
 import { favoritesSessionIdentity } from '@/utils/favoritesSession';
+import { clearMyPlans } from '@/features/plans/myPlansCache';
 
 interface AuthContextValue {
   user: User | null;
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const next = favoritesSessionIdentity(s);
     if (favoriteIdentity.current !== next) {
       invalidateFavoritesCache();
+      clearMyPlans();
       favoriteIdentity.current = next;
       setFavoritesEpoch(epoch => epoch + 1);
     }
@@ -125,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase?.auth.signOut();
     if (error) throw error;
     syncFavoriteIdentity(null);
+    clearMyPlans();
   }, [syncFavoriteIdentity]);
 
   const value: AuthContextValue = {

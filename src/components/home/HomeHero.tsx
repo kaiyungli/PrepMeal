@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { formatUnit } from '@/lib/formatters'
 import { useRouter } from 'next/router';
 import { groupPlanByDay, PlanDay } from '@/services/weeklyPlan';
+import { BowlIcon, CalendarIcon, CartIcon, RefreshIcon } from '@/components/ui/Icons';
 
 interface ShoppingItem {
   name: string;
@@ -93,14 +94,14 @@ function HomeHero({
                   {onRefreshPlan && (
                     <button 
                       onClick={onRefreshPlan}
-                      className="w-10 h-10 rounded-xl bg-[#F8F3E8] flex items-center justify-center text-lg hover:bg-[#F4EDDD] transition-colors"
+                      className="group w-10 h-10 rounded-xl bg-[#F8F3E8] text-[#9B6035] flex items-center justify-center hover:bg-[#F4EDDD] transition-colors"
                       title="刷新本週餐單" aria-label="刷新本週餐單"
                     >
-                      🔄
+                      <RefreshIcon size={20} className="transition-transform duration-300 group-hover:rotate-90" />
                     </button>
                   )}
-                  <div className="w-10 h-10 rounded-xl bg-[#9B6035] flex items-center justify-center text-xl">
-                    🍜
+                  <div className="w-10 h-10 rounded-xl bg-[#9B6035] text-white flex items-center justify-center" aria-hidden="true">
+                    <BowlIcon size={24} />
                   </div>
                 </div>
               </div>
@@ -108,7 +109,7 @@ function HomeHero({
               <div className="grid grid-cols-2 gap-4">
                 {/* 左欄：本週餐單 - ONE dish per day only */}
                 <div>
-                  <div className="text-sm font-bold text-[#3A2010] mb-2">📅 本週餐單</div>
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-[#3A2010] mb-2"><CalendarIcon size={16} className="text-[#9B6035]" />本週餐單</div>
                   <div className="space-y-1">
                     {groupedDays.length > 0 ? (
                       groupedDays.map((day) => {
@@ -150,7 +151,7 @@ function HomeHero({
                   aria-busy={shoppingLoading}
                   aria-disabled={!shoppingListInitialized && shoppingLoading ? true : undefined}
                 >
-                  <div className="text-sm font-bold text-[#3A2010] mb-2">🛒 購物清單</div>
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-[#3A2010] mb-2"><CartIcon size={16} className="text-[#9B6035]" />購物清單</div>
                   <div className="space-y-1">
                     {shoppingLoading ? (
                       // Loading state

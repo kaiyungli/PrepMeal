@@ -1,10 +1,11 @@
 /**
  * useHeaderController - Header logic extracted from Header.tsx
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavoritesPrefetch } from '@/hooks/useFavorites';
+import { prefetchMyPlans, isMyPlansStale } from '@/features/plans/myPlansCache';
 
 export function useHeaderController() {
   const pathname = usePathname();
@@ -12,6 +13,16 @@ export function useHeaderController() {
   const { user, signOut, isAuthenticated, loading } = auth;
   const onFavoritesIntent = useFavoritesPrefetch(auth);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  // Start loading "我的餐單" when the user points at / touches its link.
+  const { getAccessToken } = auth;
+  const userId = user?.id;
+  const onMyPlansIntent = useCallback(() => {
+    if (loading || !isAuthenticated || !userId || !isMyPlansStale(userId)) return;
+    getAccessToken()
+      .then((token: string | null) => { if (token) prefetchMyPlans(userId, token); })
+      .catch(() => {});
+  }, [loading, isAuthenticated, userId, getAccessToken]);
 
   // Nav links - can be customized if needed
   // Main navigation links
@@ -23,7 +34,20 @@ export function useHeaderController() {
     { label: "我的餐單", path: "/my-plans" },
   ], []);
 
-  // Trust/legal pages for mobile menu
+  // Guide pages (also listed in the footer) so they are reachable from the header
+  const guideLinks = useMemo(() => [
+    { label: "健康晚餐", path: "/healthy-dinner-guide" },
+    { label: "食材配搭", path: "/ingredient-pairing-guide" },
+    { label: "晚餐靈感", path: "/hk-dinner-ideas" },
+    { label: "一週餐單範例", path: "/meal-plan-example" },
+  ], []);
+
+  // Signed-in account pages
+  const accountLinks = useMemo(() => [
+    { label: "個人資料", path: "/profile" },
+  ], []);
+
+  // Trust/legal pages for the "更多" menu
   const trustLinks = useMemo(() => [
     { label: "關於我們", path: "/about" },
     { label: "聯絡我們", path: "/contact" },
@@ -61,11 +85,14 @@ export function useHeaderController() {
     // Navigation
     pathname,
     navLinks,
+    guideLinks,
+    accountLinks,
     trustLinks,
     isActiveRoute,
 
     // Actions
     handleLogout,
     onFavoritesIntent,
+    onMyPlansIntent,
   };
 }

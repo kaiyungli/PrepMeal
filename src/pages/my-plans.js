@@ -9,20 +9,27 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { UI } from '@/styles/ui';
 import PlanCard from '@/components/myPlans/PlanCard';
+import { clearMyPlans, isMyPlansStale, loadMyPlans, peekMyPlans, setMyPlans } from '@/features/plans/myPlansCache';
 
 export default function MyPlansPage() {
   const auth = useAuthGuard();
   // Remount account-owned state before rendering a different auth scope.
   // Logout -> login must also discard the earlier list, delete locks and toast.
   const accountKey = JSON.stringify([auth.isAuthenticated, auth.user?.id]);
+  // Signed out: forget the cached list so the next sign-in reloads it.
+  if (!auth.loading && !auth.isAuthenticated) clearMyPlans();
   return <AccountPlansPage key={accountKey} auth={auth} />;
 }
 
 function AccountPlansPage({ auth }) {
   const headerCtrl = useHeaderController();
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = auth;
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // A list shown earlier in this tab appears at once; it is refreshed below.
+  // After a save (stale) the old list is not shown, so it can't look like
+  // the new plan is missing.
+  const [initialPlans] = useState(() => (isMyPlansStale(user?.id) ? null : peekMyPlans(user?.id)));
+  const [plans, setPlans] = useState(() => initialPlans || []);
+  const [loading, setLoading] = useState(() => !initialPlans);
   const [loadError, setLoadError] = useState(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [deletingIds, setDeletingIds] = useState(() => new Set());
@@ -55,47 +62,23 @@ function AccountPlansPage({ auth }) {
     let cancelled = false;
 
     const fetchPlans = async () => {
-      setLoading(true);
+      // Keep showing the cached list while refreshing; only spin when empty.
+      const hasShownList = !isMyPlansStale(user.id);
+      if (!hasShownList) setLoading(true);
       setLoadError(null);
       try {
         const token = await tokenGetterRef.current();
         if (cancelled) return;
         if (!token) throw new Error('Missing access token');
 
-        const fetchStart = Date.now();
-        console.log('[my-plans-page] plans_fetch_start');
-
-        const res = await fetch('/api/user/menus', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Shares a request already started by hovering the "我的餐單" link.
+        const plansData = await loadMyPlans(user.id, token);
         if (cancelled) return;
-
-        console.log('[my-plans-page] plans_response_received', {
-          duration_ms: Date.now() - fetchStart,
-          status: res.status
-        });
-
-        const data = await res.json();
-        if (cancelled) return;
-        if (!res.ok || !data?.success || !Array.isArray(data?.data?.plans)) {
-          throw new Error('Invalid menus response');
-        }
-        const plansData = data.data.plans;
-
-        console.log('[my-plans-page] plans_json_parsed', {
-          duration_ms: Date.now() - fetchStart,
-          count: plansData.length
-        });
-
-        if (cancelled) return;
-
-        if (data?.success) {
-          setPlans(plansData);
-        }
+        setPlans(plansData);
       } catch (err) {
         if (!cancelled) {
           console.error('Failed to load plans:', err);
-          setLoadError('餐單載入失敗，請重試');
+          if (!hasShownList) setLoadError('餐單載入失敗，請重試');
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -134,7 +117,11 @@ function AccountPlansPage({ auth }) {
       const payload = res.ok ? await res.json() : null;
       if (!request.active) return;
       if (res.ok && payload?.success === true && payload?.data?.deleted === true) {
-        setPlans(prev => prev.filter(p => p.id !== planId));
+        setPlans(prev => {
+          const next = prev.filter(p => p.id !== planId);
+          if (user?.id) setMyPlans(user.id, next);
+          return next;
+        });
         showToast('已刪除', 'success');
       } else {
         showToast('刪除失敗', 'error');
@@ -191,8 +178,20 @@ function AccountPlansPage({ auth }) {
           </div>
 
           {loading ? (
-            <div className="text-center py-20">
-              <p className="text-[#AA7A50]">正在載入餐單...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="status">
+              <span className="sr-only">正在載入餐單...</span>
+              {[0, 1, 2].map(i => (
+                <div key={i} className="bg-white rounded-xl border border-[#E5E5E5] shadow-sm p-5 animate-pulse" aria-hidden="true">
+                  <div className="h-5 w-2/3 rounded bg-[#F1E9DA] mb-4" />
+                  <div className="flex gap-2 mb-4">
+                    <div className="h-5 w-10 rounded bg-[#F8F3E8]" />
+                    <div className="h-5 w-12 rounded bg-[#F8F3E8]" />
+                  </div>
+                  <div className="h-4 w-full rounded bg-[#F8F3E8] mb-2" />
+                  <div className="h-4 w-4/5 rounded bg-[#F8F3E8] mb-5" />
+                  <div className="h-9 w-full rounded-lg bg-[#EEF1E0]" />
+                </div>
+              ))}
             </div>
           ) : loadError ? (
             <div className="text-center py-20" role="alert">
