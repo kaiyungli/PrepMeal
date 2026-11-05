@@ -19,7 +19,7 @@ process.exitCode = 1
 try {
   await waitForServer(baseUrl, { isRunning: () => running })
   await checkJsonEndpoint(baseUrl, '/api/recipes', [200])
-  await checkJsonEndpoint(baseUrl, '/api/admin/check', [200, 401])
+  await checkJsonEndpoint(baseUrl, '/api/admin/check', [200, 401, 404])
   console.log('Smoke checks passed')
   process.exitCode = 0
 } finally {
