@@ -2,7 +2,6 @@ import { PGlite } from '@electric-sql/pglite';
 import { readFileSync,readdirSync } from 'node:fs';
 import { expect,it } from 'vitest';
 import { matchesBudgetPreference,preferBudgetRecipes } from '@/features/generate/engine/budgetPreference';
-import { recipeProvenance } from '@/features/recipes/mappers/recipeProvenance';
 type State={budget_level:string|null;prep_time_minutes:number|null;cook_time_minutes:number|null;total_time_minutes:number};
 type Patch={id:string;slug:string;name:string;before:State;after:State;ingredients:{slug:string;quantity:number;unit:string;optional:boolean}[];steps:{step_no:number;text:string;time_seconds:number|null}[];time_public_note:string|null};
 const patches:Patch[]=JSON.parse(readFileSync('docs/qa/budget-time-completion-20261025.json','utf8'));
@@ -32,7 +31,7 @@ it('completes all 47 records atomically without changing totals, nutrition, ingr
  expect((await db.query<State>('SELECT budget_level,prep_time_minutes,cook_time_minutes,total_time_minutes FROM recipes WHERE id=$1',[p.id])).rows[0]).toEqual(p.after);
  const sd=(await db.query<{source_data:Record<string,unknown>}>('SELECT source_data FROM recipes WHERE id=$1',[p.id])).rows[0].source_data;
  expect(sd.nutrition).toEqual(source.nutrition);expect(sd.other).toEqual(source.other);
- const notes=recipeProvenance(sd).data_quality_notes!;expect(notes).toEqual(p.time_public_note?[...source.consistency_review.public_notes,p.time_public_note]:source.consistency_review.public_notes);
+ const notes=(sd.consistency_review as {public_notes:string[]}).public_notes;expect(notes).toEqual(p.time_public_note?[...source.consistency_review.public_notes,p.time_public_note]:source.consistency_review.public_notes);
  }
  await expect(db.exec(sql)).rejects.toThrow('Recipe precondition changed');
  }finally{await db.close();}

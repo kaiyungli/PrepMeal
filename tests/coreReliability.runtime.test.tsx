@@ -26,7 +26,14 @@ beforeEach(() => { vi.clearAllMocks(); });
 afterEach(() => { cleanup(); });
 
 describe('core reliability', () => {
-  it.each(['Google', 'Apple', 'Facebook'])('unlocks %s login after provider failure and allows retry', async provider => {
+  it('hides Apple and Facebook login until those providers are enabled', () => {
+    render(<LoginPage />);
+    expect(screen.getByRole('button', { name: '使用 Google 登入' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '使用 Apple 登入' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '使用 Facebook 登入' })).toBeNull();
+  });
+
+  it.each(['Google'])('unlocks %s login after provider failure and allows retry', async provider => {
     let reject!: (reason: Error) => void;
     mocks.oauth.mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; })).mockResolvedValueOnce({});
     render(<LoginPage />);

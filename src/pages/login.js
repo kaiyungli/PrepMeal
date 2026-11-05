@@ -25,6 +25,11 @@ const colors = {
   yellow: '#F0A060',
 };
 
+// Apple and Facebook are not enabled in Supabase Auth yet, so their buttons
+// would only show a provider error. Set to true once a provider is enabled.
+const SHOW_APPLE_LOGIN = false;
+const SHOW_FACEBOOK_LOGIN = false;
+
 export default function LoginPage() {
   const headerCtrl = useHeaderController();
   const router = useRouter();
@@ -86,7 +91,7 @@ export default function LoginPage() {
           password,
         });
         if (error) throw error;
-        setMessage('註冊申請已提交。如需驗證，請查看 Email（包括垃圾郵件）。如果你曾用 Google、Apple 或 Facebook 建立帳戶，請使用原本方式登入。');
+        setMessage('註冊申請已提交。如需驗證，請查看 Email（包括垃圾郵件）。如果你曾用 Google 建立帳戶，請使用原本方式登入。');
       } else {
         const { error } = await supabase?.auth.signInWithPassword({
           email,
@@ -147,6 +152,7 @@ export default function LoginPage() {
             {googleLoading ? '處理中...' : '使用 Google 登入'}
           </button>
 
+          {SHOW_APPLE_LOGIN && (
           <button
             type="button"
             onClick={() => handleOAuthLogin('apple', signInWithApple)}
@@ -158,7 +164,9 @@ export default function LoginPage() {
             </svg>
             {appleLoading ? '處理中...' : '使用 Apple 登入'}
           </button>
+          )}
 
+          {SHOW_FACEBOOK_LOGIN && (
           <button
             type="button"
             onClick={() => handleOAuthLogin('facebook', signInWithFacebook)}
@@ -170,6 +178,7 @@ export default function LoginPage() {
             </svg>
             {facebookLoading ? '處理中...' : '使用 Facebook 登入'}
           </button>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
             <div style={{ flex: 1, height: '1px', background: '#E5DCC8' }}></div>

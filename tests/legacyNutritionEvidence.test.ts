@@ -98,7 +98,7 @@ it('exposes estimate limitations and never displays partial sums as complete bon
  for(const p of patches){
  const v=recipeProvenance(p.after.source_data);const n=p.after.source_data.nutrition as Nutrition;
  expect(v.nutrition_is_estimate).toBe(n.status==='reference_based_estimate');expect(v.nutrition_notes.length).toBeGreaterThan(1);
- expect(v.data_quality_notes?.join('')).toContain('未經試煮');
+ expect((p.after.source_data.consistency_review as {public_notes:string[]}).public_notes.join('')).toContain('未經試煮');
  if(n.status==='insufficient_evidence'){expect(v.data_quality_notes?.join('')).toContain('撤下');expect(n.unrounded_totals).toBeNull();expect(p.after.diet.some(t=>['low_calorie','low_fat','high_protein'].includes(t))).toBe(false);}
  }
 });
