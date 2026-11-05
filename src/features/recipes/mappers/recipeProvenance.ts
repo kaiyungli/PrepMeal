@@ -35,6 +35,23 @@ export function readerNote(note: string): string | null {
   return note.replace('，未經實煮；', '；');
 }
 
+// Adaptation notes keep the useful "what changed from the source" detail, but
+// drop the editor's not-test-cooked disclaimers in the same way as readerNote.
+const SOURCE_NOTE_REWRITES: Array<[string, string]> = [
+  ['；全部克重、毫升及兩人份為本版編定，並非宣稱原作者定量或試煮認可。', ''],
+  ['圖片為AI生成示意，非實煮照片。', '圖片為AI生成示意圖。'],
+  ['圖片為AI生成示意，未經實煮。', '圖片為AI生成示意圖。'],
+  ['，因此只作靈感，未作試煮或營養證明。', '，因此只作靈感。'],
+  ['；未經實煮。', '。'],
+  ['；未試煮。', '。'],
+  ['，未試煮。', '。'],
+  ['，未經試煮。', '。'],
+];
+
+export function readerSourceNote(note: string): string {
+  return SOURCE_NOTE_REWRITES.reduce((text, [from, to]) => text.split(from).join(to), note).trim();
+}
+
 // Publish only reader-facing evidence; never serialize the entire import ledger.
 export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   const source = record(sourceData);
@@ -43,7 +60,7 @@ export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   const url = safeUrl(attribution.original_recipe_url) || safeUrl(source.source_url);
   const website = text(attribution.website) || text(source.publisher);
   const author = text(attribution.author) || text(source.source_author);
-  const note = text(attribution.adaptation_note);
+  const note = readerSourceNote(text(attribution.adaptation_note));
   // Import notes can describe alternative products across an entire batch.
   // Do not present that free-text ledger as ingredients in this recipe.
   const hasAllergenNote = Boolean(text(source.allergen_note) || text(source.allergen_notes));

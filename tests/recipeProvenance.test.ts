@@ -103,4 +103,14 @@ describe('nutrition note formats', () => {
     ]);
     expect(recipeProvenance({ consistency_review: { public_notes: ['原始食譜來源仍未核實。'] } }).data_quality_notes).toBeUndefined();
   });
+  it('drops not-test-cooked disclaimers from source adaptation notes', () => {
+    const note = (adaptation_note: string) => recipeProvenance({ source_attribution: { website: 'x', adaptation_note } }).source_attribution?.note;
+    expect(note('改1.5cm去骨豬扒明確厚度，全部牛油忌廉重算。；全部克重、毫升及兩人份為本版編定，並非宣稱原作者定量或試煮認可。')).toBe('改1.5cm去骨豬扒明確厚度，全部牛油忌廉重算。');
+    expect(note('刪去蛋、蠔油、辣椒等，非原文轉載；未試煮。 圖片為AI生成示意，非實煮照片。')).toBe('刪去蛋、蠔油、辣椒等，非原文轉載。 圖片為AI生成示意圖。');
+    expect(note('本站編寫的家常參考配方；未經實煮。營養按所列材料及來源估算。圖片為AI生成示意圖。')).toBe('本站編寫的家常參考配方。營養按所列材料及來源估算。圖片為AI生成示意圖。');
+    expect(note('營養自行估算，非原文轉載；圖片為AI生成示意，未經實煮。')).toBe('營養自行估算，非原文轉載；圖片為AI生成示意圖。');
+    expect(note('補齊做法，未試煮。')).toBe('補齊做法。');
+    expect(note('刪去香草，未經試煮。')).toBe('刪去香草。');
+    expect(note('原頁註明部分內容由AI協助生成，因此只作靈感，未作試煮或營養證明。')).toBe('原頁註明部分內容由AI協助生成，因此只作靈感。');
+  });
 });
