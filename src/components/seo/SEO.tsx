@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { DEFAULT_OG_IMAGE } from '@/constants/site';
 
 interface SEOProps {
   title?: string;
@@ -17,7 +18,7 @@ export default function SEO({
   title,
   description = DEFAULT_DESC,
   canonical,
-  ogImage,
+  ogImage = DEFAULT_OG_IMAGE,
   ogType = 'website',
   noIndex = false,
 }: SEOProps) {
@@ -42,13 +43,13 @@ export default function SEO({
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={ogType} />
-      {ogImage && <meta property="og:image" content={ogImage} />}
+      <meta property="og:image" content={ogImage} />
 
       {/* Twitter Card */}
       <meta name="twitter:title" content={fullTitle} />
       {description && <meta name="twitter:description" content={description} />}
       <meta name="twitter:url" content={url} />
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      <meta name="twitter:image" content={ogImage} />
     </Head>
   );
 }

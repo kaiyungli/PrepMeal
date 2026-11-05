@@ -11,7 +11,7 @@ export default function Footer() {
               <span className="text-2xl">🍜</span>
               <span className="text-xl font-bold">今晚食乜</span>
             </div>
-            <p className="text-sm opacity-80">每日晚餐話你知，一click生成一週餐單</p>
+            <p className="text-sm opacity-80">每日晚餐話你知，一按生成一週餐單</p>
           </div>
 
           <div>
@@ -61,7 +61,7 @@ export default function Footer() {
               <Link href="/terms" className="hover:opacity-100">服務條款</Link>
             </div>
             <div>
-              © 2026 今晚食乜 Made with ❤️
+              © 2026 今晚食乜
             </div>
           </div>
         </div>

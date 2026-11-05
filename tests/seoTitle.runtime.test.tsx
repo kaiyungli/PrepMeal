@@ -20,4 +20,9 @@ describe('SEO title', () => {
   it('uses the site name when no title is given', () => {
     expect(titleOf(renderToStaticMarkup(<SEO />))).toBe('今晚食乜');
   });
+
+  it('always gives a share image, defaulting to the site card', () => {
+    expect(renderToStaticMarkup(<SEO title="食譜" />)).toContain('<meta property="og:image" content="https://eatwhathk.com/og-default.png"/>');
+    expect(renderToStaticMarkup(<SEO title="食譜" ogImage="https://x.test/a.jpg" />)).toContain('<meta property="og:image" content="https://x.test/a.jpg"/>');
+  });
 });

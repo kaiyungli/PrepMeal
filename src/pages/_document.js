@@ -9,7 +9,6 @@ export default function Document() {
     <Html lang="zh-HK">
       <Head>
         {/* OpenGraph */}
-        <meta property="og:type" content="website" />
         <meta property="og:site_name" content="今晚食乜" />
         <meta property="og:locale" content="zh_HK" />
         
