@@ -9,7 +9,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { UI } from '@/styles/ui';
 import PlanCard from '@/components/myPlans/PlanCard';
-import { clearMyPlans, loadMyPlans, peekMyPlans, setMyPlans } from '@/features/plans/myPlansCache';
+import { clearMyPlans, isMyPlansStale, loadMyPlans, peekMyPlans, setMyPlans } from '@/features/plans/myPlansCache';
 
 export default function MyPlansPage() {
   const auth = useAuthGuard();
@@ -25,7 +25,9 @@ function AccountPlansPage({ auth }) {
   const headerCtrl = useHeaderController();
   const { isAuthenticated, loading: authLoading, getAccessToken, requireAuth, user } = auth;
   // A list shown earlier in this tab appears at once; it is refreshed below.
-  const [initialPlans] = useState(() => peekMyPlans(user?.id));
+  // After a save (stale) the old list is not shown, so it can't look like
+  // the new plan is missing.
+  const [initialPlans] = useState(() => (isMyPlansStale(user?.id) ? null : peekMyPlans(user?.id)));
   const [plans, setPlans] = useState(() => initialPlans || []);
   const [loading, setLoading] = useState(() => !initialPlans);
   const [loadError, setLoadError] = useState(null);
@@ -61,7 +63,7 @@ function AccountPlansPage({ auth }) {
 
     const fetchPlans = async () => {
       // Keep showing the cached list while refreshing; only spin when empty.
-      const hasShownList = peekMyPlans(user.id) !== null;
+      const hasShownList = !isMyPlansStale(user.id);
       if (!hasShownList) setLoading(true);
       setLoadError(null);
       try {

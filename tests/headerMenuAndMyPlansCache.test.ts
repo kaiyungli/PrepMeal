@@ -76,6 +76,16 @@ describe('my plans cache', () => {
     expect(isMyPlansStale('u1')).toBe(true);
   });
 
+  it('a saved plan makes the cached list stale until the refresh lands', async () => {
+    await loadMyPlans('u1', 't');
+    invalidateMyPlans();
+    expect(isMyPlansStale('u1')).toBe(true);
+    vi.mocked(fetch).mockResolvedValueOnce(reply([{ id: 'p1' }, { id: 'p2' }]) as never);
+    await loadMyPlans('u1', 't');
+    expect(isMyPlansStale('u1')).toBe(false);
+    expect(peekMyPlans('u1')).toHaveLength(2);
+  });
+
   it('delete keeps the cache in step; logout clears it', async () => {
     await loadMyPlans('u1', 't');
     setMyPlans('u1', []);
