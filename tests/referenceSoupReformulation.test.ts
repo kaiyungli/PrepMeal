@@ -52,7 +52,7 @@ it('applies the three full reformulations, preserving identity, images and histo
       expect((await db.query('SELECT step_no,text,time_seconds FROM recipe_steps s JOIN recipes r ON r.id=s.recipe_id WHERE r.slug=$1 ORDER BY step_no', [p.slug])).rows).toEqual(p.steps_after);
       expect(row.source_data.nutrition_review_20261025).toEqual(p.before.source_data.nutrition_review_20261025);
       expect(recipeProvenance(row.source_data).nutrition_is_estimate).toBe(true);
-      expect(recipeProvenance(row.source_data).data_quality_notes?.join('')).toContain('未經試煮');
+      expect((row.source_data as { consistency_review: { public_notes: string[] } }).consistency_review.public_notes.join('')).toContain('未經試煮');
     }
     const fresh = (await db.query<{ name: string; shopping_category: string; aliases: string[] }>('SELECT name,shopping_category,aliases FROM ingredients WHERE slug=$1', ['fresh-duck-gizzard'])).rows[0];
     expect(fresh).toMatchObject({ name: '鮮鴨腎', shopping_category: 'meat_seafood' });

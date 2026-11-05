@@ -86,4 +86,21 @@ describe('nutrition note formats', () => {
   it('does not publish an unrelated policy ledger', () => {
     expect(recipeProvenance({ nutrition: { policy: '內部記錄', evidence_cautions: [] } }).nutrition_notes).toEqual([]);
   });
+  it('keeps internal review status out of reader-facing notes', () => {
+    const notes = recipeProvenance({ consistency_review: { public_notes: [
+      '原始食譜來源仍未核實；本輪補充按材料表計算的營養參考，未經試煮或成品化驗。',
+      '本版為重新整理的家庭配方，並非已尋回原始食譜；新增及調整用量已列入材料表，尚未試煮。',
+      '本頁是重新訂定的一人份參考配方，原始配方來源仍未核實；營養按可食材料估算，未經試煮或成品化驗。',
+      '備料及烹調時間按現有做法估算，未經計時試煮。按食材已解凍計；列明的醃製或冷藏等待計入備料時間。',
+      '備料及烹調時間按現有做法估算，未經計時試煮。',
+      '時間為一人份估計，未經實煮；增加份量可能需更長時間。',
+      '圖片為AI生成示意圖。',
+    ] } }).data_quality_notes;
+    expect(notes).toEqual([
+      '時間為估算：按食材已解凍計；列明的醃製或冷藏等待計入備料時間。',
+      '時間為一人份估計；增加份量可能需更長時間。',
+      '圖片為AI生成示意圖。',
+    ]);
+    expect(recipeProvenance({ consistency_review: { public_notes: ['原始食譜來源仍未核實。'] } }).data_quality_notes).toBeUndefined();
+  });
 });
