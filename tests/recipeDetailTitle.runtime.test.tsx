@@ -114,4 +114,10 @@ describe('Recipe detail page title', () => {
     await expect(getStaticProps({ params: { id: 'private-recipe' } })).resolves.toEqual({ notFound: true, revalidate: 300 });
     expect(loadRecipeDetail).toHaveBeenCalledWith('private-recipe');
   });
+
+  it('uses the recipe photo as the share image, else the site card', () => {
+    const og = (recipe: object) => renderToString(<RecipeDetail recipe={recipe} error={null} />).match(/property="og:image" content="([^"]+)"/)?.[1];
+    expect(og({ ...RECIPE, image_url: 'https://img.test/egg.jpg' })).toBe('https://img.test/egg.jpg');
+    expect(og(RECIPE)).toBe('https://eatwhathk.com/og-default.png');
+  });
 });

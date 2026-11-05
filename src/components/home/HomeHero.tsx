@@ -87,7 +87,7 @@ function HomeHero({
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <span className="text-xs font-bold text-[#C0A080]">本週計劃</span>
-                  <div className="text-base font-extrabold text-[#9B6035]">WEEKLY PLAN</div>
+                  <div className="text-base font-extrabold text-[#9B6035]">一週晚餐</div>
                 </div>
                 <div className="flex items-center gap-2">
                   {onRefreshPlan && (
