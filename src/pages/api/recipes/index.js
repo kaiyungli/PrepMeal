@@ -2,6 +2,7 @@
 import { supabaseServer } from '@/lib/supabaseServer';
 import { perfNow, perfMeasure } from '@/utils/perf';
 import { findCatalogueIdProblem } from '@/features/generate/services/catalogueIdentity';
+import { setPublicCache, RECIPE_LIST_CACHE } from '@/lib/publicCache';
 
 export const config = {
   api: {
@@ -308,6 +309,8 @@ async function handleGenerateCatalogue(req, res) {
       if (!result.inconsistency) {
         // hasMore:false stops pre-contract clients (stale bundles that loop on
         // hasMore) after this single complete response.
+        // Only a verified, complete catalogue is cached at the edge.
+        setPublicCache(res, RECIPE_LIST_CACHE.seconds, RECIPE_LIST_CACHE.stale);
         return res.status(200).json({ recipes: result.recipes, total: result.total, complete: true, hasMore: false });
       }
       lastInconsistency = result.inconsistency;
@@ -437,6 +440,7 @@ export default async function handler(req, res) {
     const recipesList = Array.isArray(recipes) ? recipes : [];
     const total = count ?? 0;
 
+    setPublicCache(res, RECIPE_LIST_CACHE.seconds, RECIPE_LIST_CACHE.stale);
     return res.status(200).json({
       recipes: recipesList,
       total,

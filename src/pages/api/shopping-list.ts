@@ -244,18 +244,18 @@ export async function handleShoppingList(
     { auth: { persistSession: false, autoRefreshToken: false } }
   );
 
-  // Get user preference for unit language
+  // Get user preference for unit language. Started now and read after the
+  // recipe query below, so the two run at the same time.
   let unitLanguage = 'zh'; // default
-  if (userId) {
-    const { data: prefs } = await supabase
+  const prefsRequest: Promise<{ data: { unit_language?: string } | null }> | null = userId
+    ? Promise.resolve(supabase
       .from('user_preferences')
       .select('unit_language')
       .eq('user_id', userId)
-      .single();
-    if (prefs?.unit_language) {
-      unitLanguage = prefs.unit_language;
-    }
-  }
+      .single())
+    : null;
+  // Read below; this only stops an early rejection being reported as unhandled.
+  prefsRequest?.catch(() => {});
 
   try {
     // The service-role client bypasses RLS, so recipe visibility must be
@@ -267,6 +267,10 @@ export async function handleShoppingList(
       .eq('is_public', true);
 
     if (visibilityError) throw visibilityError;
+    if (prefsRequest) {
+      const { data: prefs } = await prefsRequest;
+      if (prefs?.unit_language) unitLanguage = prefs.unit_language;
+    }
     const servingScales = new Map((visibleRecipes || []).map(recipe => [
       canonicalRecipeId(String(recipe.id)), recipeServingScale(
         requestedServings.get(canonicalRecipeId(String(recipe.id))) ?? servings * (recipeOccurrences.get(canonicalRecipeId(String(recipe.id))) || 0), recipe.base_servings),

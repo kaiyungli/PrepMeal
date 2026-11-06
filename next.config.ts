@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Recipe photos use versioned file names (…-v1.webp); a new photo gets a
+    // new name. Keeping optimised copies for 31 days avoids re-fetching them
+    // from Supabase Storage (≈2 s per miss in the logs).
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       {
         protocol: 'https',

@@ -6,6 +6,7 @@
  */
 import { loadRecipeDetail } from '@/features/recipes';
 import { perfNow, perfLog } from '@/utils/perf';
+import { setPublicCache, RECIPE_DETAIL_CACHE } from '@/lib/publicCache';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -84,6 +85,7 @@ export default async function handler(req, res) {
       duration_ms: Math.round(perfNow() - start)
     });
 
+    setPublicCache(res, RECIPE_DETAIL_CACHE.seconds, RECIPE_DETAIL_CACHE.stale);
     return res.status(200).json({ recipe });
   } catch (err) {
     console.error('[recipe-detail-api] request_failed', {
