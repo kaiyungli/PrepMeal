@@ -92,10 +92,22 @@ describe('PlanRecipeCard with a valid recipe (unchanged)', () => {
     // A resized thumbnail through the image optimiser, not the full original.
     const src = img?.getAttribute('src') ?? '';
     expect(src).toContain(`url=${encodeURIComponent(RECIPE_A.image_url)}`);
-    expect(img?.getAttribute('sizes')).toBe('56px');
+    // Fixed 1x/2x thumbnail widths, never a full-width candidate.
+    expect(img?.getAttribute('sizes')).toBeNull();
+    expect(src).toMatch(/[?&]w=128&/);
+    const widths = [...(img?.getAttribute('srcset') ?? '').matchAll(/[?&]w=(\d+)/g)].map(m => Number(m[1]));
+    expect(widths).toEqual([64, 128]);
     expect(img?.getAttribute('alt')).toBe('番茄炒蛋');
     expect(img?.className).toContain('w-14 h-14');
     expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320 卡路里／人→');
+  });
+
+  it('F. Compact thumbnail (plan detail) asks for 48/96 px only', () => {
+    const { container } = render(<PlanRecipeCard item={planItem('v', 'dinner', RECIPE_A)} onClick={undefined} compact />);
+    const img = container.querySelector('img');
+    const widths = [...(img?.getAttribute('srcset') ?? '').matchAll(/[?&]w=(\d+)/g)].map(m => Number(m[1]));
+    expect(widths).toEqual([48, 96]);
+    expect(img?.getAttribute('src')).toMatch(/[?&]w=96&/);
   });
 
   it('F. Link mode without an image shows the placeholder', () => {

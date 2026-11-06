@@ -71,7 +71,6 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
             alt={recipe.name || ''}
             width={compact ? 40 : 56}
             height={compact ? 40 : 56}
-            sizes={compact ? '40px' : '56px'}
             className={(compact ? "w-10 h-10" : "w-14 h-14") + " object-cover rounded-lg"}
           />
         ) : (
