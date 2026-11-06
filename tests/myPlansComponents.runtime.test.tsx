@@ -89,7 +89,10 @@ describe('PlanRecipeCard with a valid recipe (unchanged)', () => {
     expect(link?.className).toBe('block group');
     expect(container.querySelector('button')).toBeNull();
     const img = container.querySelector('img');
-    expect(img?.getAttribute('src')).toBe(RECIPE_A.image_url);
+    // A resized thumbnail through the image optimiser, not the full original.
+    const src = img?.getAttribute('src') ?? '';
+    expect(src).toContain(`url=${encodeURIComponent(RECIPE_A.image_url)}`);
+    expect(img?.getAttribute('sizes')).toBe('56px');
     expect(img?.getAttribute('alt')).toBe('番茄炒蛋');
     expect(img?.className).toContain('w-14 h-14');
     expect(container.textContent).toBe('番茄炒蛋晚餐 · 2人份10分鐘 · 320 卡路里／人→');

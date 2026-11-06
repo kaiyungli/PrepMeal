@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { prefetchRecipeDetail } from '@/features/recipes/services/recipeDetailClientCache';
 import { getRecipeUrl } from '@/utils/planUtils';
@@ -64,9 +65,13 @@ export default function PlanRecipeCard({ item, onClick, compact = false }) {
       {/* Image */}
       <div className="flex-shrink-0">
         {recipe.image_url ? (
-          <img
+          // Resized thumbnail (the originals can be several MB).
+          <Image
             src={recipe.image_url}
-            alt={recipe.name}
+            alt={recipe.name || ''}
+            width={compact ? 40 : 56}
+            height={compact ? 40 : 56}
+            sizes={compact ? '40px' : '56px'}
             className={(compact ? "w-10 h-10" : "w-14 h-14") + " object-cover rounded-lg"}
           />
         ) : (

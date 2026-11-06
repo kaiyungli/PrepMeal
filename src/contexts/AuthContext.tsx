@@ -1,4 +1,4 @@
-import type { User, Session, OAuthResponse } from '@supabase/supabase-js';
+import type { User, Session, OAuthResponse } from '@supabase/auth-js';
 // Auth Context — shared auth state singleton
 // Mounted once in _app.js, consumed via useAuthContext
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';

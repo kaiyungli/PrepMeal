@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/seo/SEO';
 import { useHomePageActions } from '@/features/home/hooks/useHomePageActions';
@@ -17,7 +17,15 @@ import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
 import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
-export default function Home({ initialRecipes = [], initialTotalCount = 0, catalog = null }) {
+const HOME_FIRST_PAGE = 24;
+
+export default function Home({ initialRecipes: firstPage = [], initialTotalCount = 0, catalog = null }) {
+  // With the full catalogue in props, the first page is just its start (not
+  // sent twice in the HTML).
+  const initialRecipes = useMemo(
+    () => (catalog ? catalog.slice(0, HOME_FIRST_PAGE) : firstPage),
+    [catalog, firstPage],
+  );
   const { toast, showToast } = useToast();
 
   const { markDataReady } = useHomePerfLogging();
@@ -161,8 +169,8 @@ export default function Home({ initialRecipes = [], initialTotalCount = 0, catal
 export async function getStaticProps() {
   const catalog = await fetchHomeRecipeCatalog();
   const { recipes: initialRecipes, total: totalCount, error } = catalog
-    ? { recipes: catalog.slice(0, 24), total: catalog.length }
-    : await fetchRecipesForServerWithTotal(24);
+    ? { recipes: [], total: catalog.length }
+    : await fetchRecipesForServerWithTotal(HOME_FIRST_PAGE);
   if (error) {
     console.error('error loading homepage recipes:', error);
   }
