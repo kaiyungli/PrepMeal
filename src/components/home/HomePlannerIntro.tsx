@@ -46,11 +46,10 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
           <span className="pm-image-label">有飯氣嘅家常晚餐</span>
           {shared.length > 0 && (
             <div className="pm-mini-list">
-              <p className="pm-mini-head"><span className="pm-check-icon" aria-hidden="true">✓</span>餐單定好，材料合併</p>
+              <p className="pm-mini-head"><span className="pm-check-icon" aria-hidden="true">✓</span>示範清單節錄</p>
               {shared.map(item => <p className="pm-mini-line" key={item.name}>
                 <span>{item.name}</span><strong>{item.quantityText}</strong>
               </p>)}
-              <p className="pm-mini-caption">固定示範：{plan?.servings}人・{plan?.days.length}晚清單節錄</p>
             </div>
           )}
         </div>

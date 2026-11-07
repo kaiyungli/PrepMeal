@@ -80,11 +80,19 @@ describe('guide pages render real content on the server', () => {
 
   it('returns to the focusable original form without adding another submit form or demo parameters', () => {
     const container = document.createElement('div');
-    container.innerHTML = renderToString(<Home samplePlan={PLAN} featuredRecipes={[]} />);
+    const plan = { ...PLAN, days: [{ ...PLAN.days[0], dishes: [
+      { ...dish('curry-chicken'), image_url: 'https://images.unsplash.com/test.jpg' }, dish('b'),
+    ] }] };
+    container.innerHTML = renderToString(<Home samplePlan={plan} featuredRecipes={[{ id: 'featured', slug: 'featured', name: '精選菜式', total_time_minutes: 20 }]} />);
     expect(container.querySelectorAll('form')).toHaveLength(1);
     expect(container.querySelector('#home-plan-form')?.getAttribute('tabindex')).toBe('-1');
     expect(container.querySelector('.pm-example-action a')?.getAttribute('href')).toBe('#home-plan-form');
-    expect(container.textContent).toContain('固定示範：2人・1晚');
+    expect(container.textContent).toContain('2人・1晚示範');
+    expect(container.querySelector('.pm-example-action a')?.textContent).toContain('設定我的餐單');
+    expect(container.textContent).not.toContain('固定示範');
+    expect(container.textContent?.match(/1 人份/g)).toHaveLength(1);
+    expect(container.querySelector('.pm-mini-head')?.textContent).toContain('示範清單節錄');
+    expect(container.textContent).toContain('白飯另計');
     expect(container.textContent).toContain('生成後按所選人數計算材料');
     expect(container.textContent).toContain('毋須登入，即可生成');
     expect(container.textContent).toContain('揀口味及更多設定');

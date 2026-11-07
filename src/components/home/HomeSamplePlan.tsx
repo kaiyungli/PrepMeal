@@ -33,8 +33,8 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
           <div>
             <p className="pm-eyebrow">一週餐單示範</p>
             <h2 id="home-sample-plan">一週晚餐，就咁安排。</h2>
-            <p className="pm-fixed-example">固定示範：{plan.servings}人・{plan.days.length}晚</p>
-            <p>此示範不會隨上方設定改變，你可以另行生成自己的版本。</p>
+            <p className="pm-fixed-example">{plan.servings}人・{plan.days.length}晚示範</p>
+            <p>上方設定只套用你的餐單。</p>
           </div>
         </div>
         <div className="pm-example-layout">
@@ -47,7 +47,7 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
                   <div className="pm-day" aria-label={day.day}><span aria-hidden="true">DAY</span><strong aria-hidden="true">{String(index + 1).padStart(2, '0')}</strong></div>
                   <div className="pm-meal-content">
                     {mainDish && <Link href={`/recipes/${encodeURIComponent(mainDish.slug)}`} prefetch={false} className="pm-meal-main" title={mainDish.name}>
-                      {mainDish.image_url && <Image src={mainDish.image_url} alt="" width={106} height={106} sizes="53px" className="pm-meal-photo" />}
+                      {mainDish.image_url && <Image src={mainDish.image_url} alt="" width={176} height={176} sizes="88px" className="pm-meal-photo" />}
                       <span className="pm-meal-name">{sampleDishName(mainDish)}</span>
                       <span className="pm-meal-arrow" aria-hidden="true">↗</span>
                     </Link>}
@@ -59,7 +59,7 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
           </div>
           <div className="pm-panel">
             <div className="pm-panel-head"><h3>一張清單，合埋買。</h3><span className="pm-tag">{totalCount} 項材料</span></div>
-            <p className="pm-shopping-note">主要食材 {mainCount} 項，已按固定示範的 {plan.servings} 人份合併。</p>
+            <p className="pm-shopping-note">主要食材 {mainCount} 項</p>
             <IngredientSections sections={main} />
             {extraCount > 0 && <details className="pm-extra-ingredients">
               <summary>
@@ -71,10 +71,9 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
             </details>}
           </div>
         </div>
-        <div className="pm-example-foot"><p>所有食譜以 1 人份為基準；固定示範清單已換算為 {plan.servings} 人份。白飯另計。</p><Link href="/meal-plan-example">睇兩人五晚示例與買餸安排 ↗</Link></div>
+        <div className="pm-example-foot"><p>原食譜以 1 人份為基準；清單已換算為 {plan.servings} 人份，白飯另計。</p><Link href="/meal-plan-example">睇兩人五晚示例與買餸安排 ↗</Link></div>
         <div className="pm-example-action">
-          <a href="#home-plan-form" className="pm-primary" aria-describedby="home-return-note">生成我的餐單 <span aria-hidden="true">↑</span></a>
-          <p id="home-return-note">先檢查人數及日數，再生成你的版本。</p>
+          <a href="#home-plan-form" className="pm-primary">設定我的餐單 <span aria-hidden="true">↑</span></a>
         </div>
       </div>
     </section>
