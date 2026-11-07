@@ -5,6 +5,7 @@ import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
+import { RecipeIndex } from '@/components/recipes/RecipeLinkSections';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
@@ -13,7 +14,7 @@ import { useRecipeDetailPrefetch } from '@/features/recipes/hooks/useRecipeDetai
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
-export default function RecipesPage({ initialRecipes, initialTotalCount }) {
+export default function RecipesPage({ initialRecipes, initialTotalCount, recipeIndex = null }) {
   const firstLoadStartRef = useRef(perfNow());
   const dataReadyLogged = useRef(false);
   
@@ -242,6 +243,8 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
               )}
             </div>
           )}
+
+          <RecipeIndex groups={recipeIndex} />
         </div>
       </div>
 
@@ -261,10 +264,14 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
 export async function getStaticProps() {
   const _start = Date.now();
   console.log('[recipes-page] getStaticProps_start');
-  const { fetchRecipesForServerWithTotal } = await import('@/lib/recipesServer');
+  const { fetchRecipesForServerWithTotal, fetchRecipeLinkCatalog } = await import('@/lib/recipesServer');
+  const { groupRecipeIndex } = await import('@/features/recipes/recipeLinks');
   try {
-    const { recipes: initialRecipes, total: initialTotalCount } =
-      await fetchRecipesForServerWithTotal(24);
+    const [{ recipes: initialRecipes, total: initialTotalCount }, linkCatalogue] = await Promise.all([
+      fetchRecipesForServerWithTotal(24),
+      fetchRecipeLinkCatalog(),
+    ]);
+    const recipeIndex = linkCatalogue ? groupRecipeIndex(linkCatalogue) : null;
     const duration_ms = Date.now() - _start;
     console.log('[recipes-page] getStaticProps_done', {
       duration_ms,
@@ -272,7 +279,7 @@ export async function getStaticProps() {
       total: initialTotalCount
     });
     return {
-      props: { initialRecipes, initialTotalCount },
+      props: { initialRecipes, initialTotalCount, recipeIndex },
       revalidate: 60
     };
   } catch (err) {
