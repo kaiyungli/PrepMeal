@@ -121,9 +121,10 @@ export function getRecipeStructuredData(recipe?: RecipeData) {
   return schema;
 }
 
-export function RecipeStructuredData({ recipe }: { recipe?: RecipeData }) {
+export function RecipeStructuredData({ recipe, dateModified }: { recipe?: RecipeData; dateModified?: string | null }) {
   const schema = getRecipeStructuredData(recipe);
   if (!schema) return null;
+  if (dateModified) schema.dateModified = dateModified;
 
   return (
     <script

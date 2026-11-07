@@ -91,3 +91,21 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
     return { recipes: [], total: 0 };
   }
 }
+
+/** Last change date of one public recipe (YYYY-MM-DD), or null. */
+export async function fetchRecipeUpdatedAt(recipeId: string): Promise<string | null> {
+  if (!supabaseServer || !recipeId) return null;
+  try {
+    const { data, error } = await supabaseServer
+      .from('recipes')
+      .select('updated_at')
+      .eq('id', recipeId)
+      .eq('is_public', true)
+      .maybeSingle();
+    if (error || !data?.updated_at) return null;
+    const date = new Date(data.updated_at);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+  } catch {
+    return null;
+  }
+}
