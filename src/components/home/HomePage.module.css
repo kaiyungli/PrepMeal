@@ -1240,12 +1240,13 @@
 .home :global(.pm-tag) { line-height: 1.6; }
 .home :global(.pm-meal-row) { align-items: start; gap: 10px; padding-block: 4px; }
 .home :global(.pm-day) { width: 30px; padding-top: 6px; }
-.home :global(.pm-meal-content) { flex: 1; min-width: 0; }
-.home :global(.pm-meal-main) { display: grid; grid-template-columns: 53px minmax(0,1fr) 18px; align-items: center; gap: 10px; min-height: 56px; padding: 2px 5px; margin-inline: -5px; border-radius: 8px; font-size: 15px; font-weight: 650; line-height: 1.6; }
+.home :global(.pm-meal-content) { flex: 1; min-width: 0; position: relative; padding-left: 76px; }
+.home :global(.pm-meal-content):not(:has(img)) { padding-left: 0; }
+.home :global(.pm-meal-main) { display: grid; grid-template-columns: minmax(0,1fr) 18px; align-items: center; gap: 10px; min-height: 44px; padding: 2px 5px; margin-inline: -5px; border-radius: 8px; font-size: 15px; font-weight: 650; line-height: 1.6; }
 .home :global(.pm-meal-main):not(:has(img)) { grid-template-columns: minmax(0,1fr) 18px; }
 .home :global(.pm-meal-main) :global(.pm-meal-name) { min-width: 0; overflow-wrap: anywhere; }
 .home :global(.pm-meal-arrow) { margin: 0; color: var(--accent); }
-.home :global(.pm-meal-side) { display: flex; align-items: center; min-height: 44px; margin-left: 58px; padding: 8px 5px; border-radius: 6px; font-size: 14px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
+.home :global(.pm-meal-side) { display: flex; align-items: center; min-height: 44px; margin-left: 0; padding: 8px 5px; border-radius: 6px; font-size: 14px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
 .home :global(.pm-meal-main):hover, .home :global(.pm-meal-main):focus-visible { background: #f5efe5; }
 .home :global(.pm-meal-main):hover :global(.pm-meal-name), .home :global(.pm-meal-side):hover { text-decoration: underline; text-underline-offset: 4px; color: var(--accent); }
 .home :global(.pm-meal-side):hover, .home :global(.pm-meal-side):focus-visible { background: #f5efe5; }
@@ -1282,3 +1283,20 @@
 }
 
 .home :global(.pm-field) select { font-size: 15px; }
+
+/* The photo spans the main and side dish rows; both recipe links stay independent. */
+.home :global(.pm-meal-content) :global(.pm-meal-photo) {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 64px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.home :global(.pm-meal-content):has(:global(.pm-meal-main):focus-visible) {
+  outline: 3px solid #73855a;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+.home :global(.pm-meal-row) { padding-block: 8px; }
