@@ -8,6 +8,12 @@ import HomeGuides from '@/components/home/HomeGuides';
 import styles from '@/components/home/HomePage.module.css';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
+/**
+ * @param {{
+ *   featuredRecipes?: import('react').ComponentProps<typeof HomeFeaturedRecipes>['recipes'];
+ *   samplePlan: import('@/features/guides/samplePlan').SamplePlan;
+ * }} props
+ */
 export default function Home({ featuredRecipes = [], samplePlan }) {
   useNavigationDataReady('home', true);
   return (
