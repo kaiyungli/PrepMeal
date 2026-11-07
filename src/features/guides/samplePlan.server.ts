@@ -30,7 +30,7 @@ export async function loadSamplePlan(days = SAMPLE_PLAN_DAYS): Promise<SamplePla
   try {
     const { data, error } = await supabaseServer
       .from('recipes')
-      .select('id, slug, name, total_time_minutes')
+      .select('id, slug, name, image_url, total_time_minutes')
       .eq('is_public', true)
       .in('slug', slugs);
     if (error || !data) return null;
@@ -61,7 +61,7 @@ export async function loadSamplePlan(days = SAMPLE_PLAN_DAYS): Promise<SamplePla
         day: d.day, note: d.note,
         dishes: d.slugs.map(slug => {
           const r = bySlug.get(slug)!;
-          return { slug, name: String(r.name), total_time_minutes: typeof r.total_time_minutes === 'number' ? r.total_time_minutes : null };
+          return { slug, name: String(r.name), image_url: typeof r.image_url === 'string' ? r.image_url : null, total_time_minutes: typeof r.total_time_minutes === 'number' ? r.total_time_minutes : null };
         }),
       })),
       sections,

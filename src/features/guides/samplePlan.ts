@@ -21,7 +21,7 @@ export const HOME_SAMPLE_PLAN_DAYS = [
 
 export const SAMPLE_PLAN_SLUGS = SAMPLE_PLAN_DAYS.flatMap(d => d.slugs);
 
-export interface SamplePlanDish { slug: string; name: string; total_time_minutes: number | null }
+export interface SamplePlanDish { slug: string; name: string; image_url?: string | null; total_time_minutes: number | null }
 
 export interface SamplePlanItem { name: string; quantityText: string; dishCount: number; category: string }
 
