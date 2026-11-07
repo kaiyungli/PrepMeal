@@ -75,12 +75,22 @@ function RecipeCard({
 
   // Build href - either from onClick prop or default routing
   const href = recipeSlug ? `/recipes/${recipeSlug}` : '#';
-  const needsNavigation = !onClick && !!recipeSlug;
+  const hasDetailPage = !!recipeSlug;
 
   const handleCardClick = () => {
     if (onClick) {
       onClick();
     }
+  };
+
+  // A plain click opens the in-page modal; modified clicks (new tab, middle
+  // click) keep the browser's default link behaviour. Either way the card is a
+  // real <a href> so visitors and crawlers can reach every recipe page.
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!onClick) return;
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    onClick();
   };
 
   // Static heart for homepage (no interaction)
@@ -202,10 +212,11 @@ function RecipeCard({
   );
 
   // Always use Link when slug exists for consistent navigation
-  if (needsNavigation) {
+  if (hasDetailPage) {
     return (
       <Link
         href={href}
+        onClick={handleLinkClick}
         className={`group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
       >
         {imageContainer}
