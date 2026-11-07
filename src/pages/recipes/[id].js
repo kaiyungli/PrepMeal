@@ -6,6 +6,7 @@ import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { loadRecipeDetail } from '@/features/recipes';
 import { measurePageLoadMetrics } from '@/utils/perf';
 import { DEFAULT_OG_IMAGE } from '@/constants/site';
+import { RECIPE_SLUG_RENAMES } from '@/constants/recipeSlugRenames';
 
 /**
  * Recipe Detail Page - dumb shell only
@@ -93,6 +94,15 @@ export async function getStaticProps({ params }) {
   
   
   if (!recipe) {
+    // Old internal-batch URL after the rename: send visitors and search
+    // engines to the readable URL instead of a 404.
+    const renamed = RECIPE_SLUG_RENAMES[params.id];
+    if (renamed) {
+      return {
+        redirect: { destination: `/recipes/${encodeURIComponent(renamed)}`, permanent: true },
+        revalidate: 300
+      };
+    }
     return {
       notFound: true,
       revalidate: 300

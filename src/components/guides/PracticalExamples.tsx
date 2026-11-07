@@ -4,7 +4,7 @@ import type { PracticalRecipe } from '@/features/guides/practicalExamples';
 
 export function ExampleLink({ examples, slug }: { examples: PracticalRecipe[]; slug: string }) {
   const recipe = examples.find(r => r.slug === slug);
-  return recipe ? <Link className="underline text-[#9B6035]" href={`/recipes/${encodeURIComponent(recipe.slug)}`}>{recipe.name}</Link>
+  return recipe ? <Link className="underline text-[#9B6035]" href={`/recipes/${encodeURIComponent(recipe.url_slug || recipe.slug)}`}>{recipe.name}</Link>
     : <span>示例食譜暫未可用，請到食譜列表另選</span>;
 }
 
