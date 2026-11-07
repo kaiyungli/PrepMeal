@@ -194,14 +194,14 @@ describe('homepage shopping preview', () => {
       return <HomeHero {...controller} onRefreshPlan={controller.handleRefreshPlan} onRefreshShoppingList={controller.refreshShoppingList} />;
     }
     render(<Harness />);
-    const button = screen.getByText('點擊載入').closest('[role="button"]')!;
+    const button = screen.getByText('撳呢度計算合併購物清單').closest('[role="button"]')!;
     await act(async () => { fireEvent.keyDown(button, { key: 'Enter' }); });
     expect(screen.getByText('測試洋蔥')).toBeTruthy();
-    expect(screen.queryByText('點擊載入')).toBeNull();
+    expect(screen.queryByText('撳呢度計算合併購物清單')).toBeNull();
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: '刷新本週餐單' })); });
     expect(screen.queryByText('測試洋蔥')).toBeNull();
     fetchMock.mockResolvedValue(response([]));
-    await act(async () => { fireEvent.click(screen.getByText('點擊載入')); });
+    await act(async () => { fireEvent.click(screen.getByText('撳呢度計算合併購物清單')); });
     expect(screen.getByText('無需購買')).toBeTruthy();
   });
 

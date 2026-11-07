@@ -11,6 +11,7 @@ import { useHomePageController } from '@/features/home';
 import Toast, { useToast } from '@/components/ui/Toast';
 import HomeHero from '@/components/home/HomeHero';
 import HomeHowItWorks from '@/components/home/HomeHowItWorks';
+import HomeSamplePlan from '@/components/home/HomeSamplePlan';
 import HomeAboutSection from '@/components/home/HomeAboutSection';
 import HomeRecipesSection from '@/components/home/HomeRecipesSection';
 import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
@@ -19,7 +20,7 @@ import { useNavigationDataReady } from '@/features/performance/useNavigationData
 
 const HOME_FIRST_PAGE = 24;
 
-export default function Home({ initialRecipes: firstPage = [], initialTotalCount = 0, catalog = null }) {
+export default function Home({ initialRecipes: firstPage = [], initialTotalCount = 0, catalog = null, samplePlan = null }) {
   // With the full catalogue in props, the first page is just its start (not
   // sent twice in the HTML).
   const initialRecipes = useMemo(
@@ -110,6 +111,7 @@ export default function Home({ initialRecipes: firstPage = [], initialTotalCount
           onRefreshShoppingList={refreshShoppingList}
         />
         <HomeHowItWorks />
+        <HomeSamplePlan plan={samplePlan} />
         <div className="max-w-[1200px] mx-auto px-4">
           <HomeFiltersSection
             searchQuery={searchQuery}
@@ -167,7 +169,9 @@ export default function Home({ initialRecipes: firstPage = [], initialTotalCount
 }
 
 export async function getStaticProps() {
-  const catalog = await fetchHomeRecipeCatalog();
+  const { loadSamplePlan } = await import('@/features/guides/samplePlan.server');
+  // The example is optional on the home page: null simply hides it.
+  const [catalog, samplePlan] = await Promise.all([fetchHomeRecipeCatalog(), loadSamplePlan()]);
   const { recipes: initialRecipes, total: totalCount, error } = catalog
     ? { recipes: [], total: catalog.length }
     : await fetchRecipesForServerWithTotal(HOME_FIRST_PAGE);
@@ -179,6 +183,7 @@ export async function getStaticProps() {
       initialRecipes: initialRecipes || [],
       initialTotalCount: totalCount || 0,
       catalog,
+      samplePlan,
     },
     revalidate: 300,
   };

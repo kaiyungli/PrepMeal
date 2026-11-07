@@ -21,10 +21,12 @@ export default function Footer() {
               <Link href="/" className="hover:opacity-100">首頁</Link>
               <Link href="/generate" className="hover:opacity-100">生成餐單</Link>
               <Link href="/recipes" className="hover:opacity-100">食譜</Link>
+              <Link href="/30-minute-dinner-recipes">30分鐘快手菜</Link>
+              <Link href="/50-classic-hk-recipes">家常菜靈感</Link>
+              <Link href="/7-day-dinner-plan">一週晚餐示例</Link>
+              <Link href="/hong-kong-market-shopping-guide">買餸攻略</Link>
               <Link href="/healthy-dinner-guide">健康晚餐</Link>
-              <Link href="/ingredient-pairing-guide">食材配搭</Link>
-              <Link href="/hk-dinner-ideas">晚餐靈感</Link>
-              <Link href="/meal-plan-example">一週餐單範例</Link>
+              <Link href="/ingredient-pairing-guide">按材料揀菜</Link>
               <Link href="/contact">聯絡我們</Link>
               <Link href="/about" className="hover:opacity-100">關於</Link>
             </div>

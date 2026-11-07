@@ -36,10 +36,12 @@ export function useHeaderController() {
 
   // Guide pages (also listed in the footer) so they are reachable from the header
   const guideLinks = useMemo(() => [
+    { label: "30分鐘快手菜", path: "/30-minute-dinner-recipes" },
+    { label: "家常菜靈感", path: "/50-classic-hk-recipes" },
+    { label: "一週晚餐示例", path: "/7-day-dinner-plan" },
+    { label: "買餸攻略", path: "/hong-kong-market-shopping-guide" },
     { label: "健康晚餐", path: "/healthy-dinner-guide" },
-    { label: "食材配搭", path: "/ingredient-pairing-guide" },
-    { label: "晚餐靈感", path: "/hk-dinner-ideas" },
-    { label: "一週餐單範例", path: "/meal-plan-example" },
+    { label: "按材料揀菜", path: "/ingredient-pairing-guide" },
   ], []);
 
   // Signed-in account pages
