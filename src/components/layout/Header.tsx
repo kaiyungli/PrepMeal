@@ -12,6 +12,7 @@ interface NavLink {
 
 interface HeaderProps {
   showNav?: boolean;
+  home?: boolean;
   // Data props
   navLinks?: NavLink[];
   guideLinks?: NavLink[];
@@ -30,6 +31,7 @@ interface HeaderProps {
 
 export default function Header({
   showNav = true,
+  home = false,
   navLinks = [],
   guideLinks = [],
   accountLinks = [],
@@ -75,6 +77,13 @@ export default function Header({
   const intentFor = (path: string) =>
     path === '/favorites' ? onFavoritesIntent : path === '/my-plans' ? onMyPlansIntent : undefined;
 
+  const homeNavLinks = [
+    { label: '一週餐單', path: '/generate' },
+    { label: '搜尋食譜', path: '/recipes' },
+    { label: '晚餐指南', path: '/#home-guides' },
+  ];
+  const homeTools = navLinks.filter(link => link.path === '/favorites' || link.path === '/my-plans');
+
   // Generate nav link class based on active state
   const getNavLinkClass = (isActive: boolean) => {
     return isActive
@@ -113,6 +122,9 @@ export default function Header({
         aria-current={isActive ? 'page' : undefined}
         className={`block px-4 py-2 text-sm transition-colors hover:bg-[#F8F3E8] hover:text-[#9B6035] ${isActive ? 'font-semibold text-[#9B6035]' : 'text-[#5A4030]'}`}
         onClick={() => setMoreOpen(false)}
+        onPointerEnter={intentFor(link.path)}
+        onTouchStart={intentFor(link.path)}
+        onFocus={intentFor(link.path)}
       >
         {link.label}
       </Link>
@@ -130,9 +142,9 @@ export default function Header({
   return (
     <>
       <header className="h-16 bg-[#F8F3E8] border-b border-[#DDD0B0]">
-        <div className="h-full max-w-[1200px] mx-auto px-4 flex items-center justify-between">
+        <div className={`h-full max-w-[1200px] mx-auto px-4 flex items-center justify-between ${home ? 'pm-header-inner pm-wrap' : ''}`}>
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-lg font-extrabold text-[#9B6035]">
+          <Link href="/" className={`flex items-center gap-2 text-lg font-extrabold text-[#9B6035] ${home ? 'pm-logo' : ''}`}>
             <LogoMark size={32} />
             <span>今晚食乜</span>
           </Link>
@@ -140,7 +152,7 @@ export default function Header({
           {/* Desktop Nav */}
           {showNav && (
             <nav className="hidden md:flex items-center gap-6">
-              {navLinks.map((link) => renderNavLink(link))}
+              {(home ? homeNavLinks : navLinks).map((link) => renderNavLink(link))}
               {/* More dropdown */}
               <div
                 className="relative"
@@ -164,6 +176,7 @@ export default function Header({
                     role="menu"
                     className="absolute right-0 mt-3 w-48 rounded-2xl border border-[#E8D9C9] bg-[#FFFDF8] shadow-[0_12px_32px_rgba(58,32,16,0.12)] py-2 z-50"
                   >
+                    {home && homeTools.length > 0 && <>{menuHeading('我的工具')}{homeTools.map(renderMenuLink)}<hr className="my-2 border-[#EFE6D6]" /></>}
                     {guideLinks.length > 0 && (
                       <>
                         {menuHeading('晚餐指南')}
@@ -198,7 +211,7 @@ export default function Header({
                 ) : (
                   <Link
                     href="/login"
-                    className="text-sm font-semibold text-[#3A2010] bg-[#C8D49A] px-4 py-2 rounded-lg hover:bg-[#B8C489] transition-colors"
+                    className={`text-sm font-semibold text-[#3A2010] bg-[#C8D49A] px-4 py-2 rounded-lg hover:bg-[#B8C489] transition-colors ${home ? 'pm-login' : ''}`}
                   >
                     登入
                   </Link>
@@ -206,6 +219,8 @@ export default function Header({
               )}
             </div>
           )}
+
+          {home && showNav && <Link href="/recipes" className="pm-mobile-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="1.7" /><path d="m16 16 4.5 4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>搜尋食譜</Link>}
 
           {/* Mobile Hamburger */}
           {showNav && (

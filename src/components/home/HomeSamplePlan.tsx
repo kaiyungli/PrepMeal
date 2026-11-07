@@ -1,36 +1,51 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 
-/** Server-rendered example of a generated plan and its merged shopping list. */
+/** All dishes and materials remain visible in server HTML; no tabs or disclosure. */
 export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
   if (!plan) return null;
-  const shared = plan.sharedItems.slice(0, 6);
   return (
-    <section className="max-w-[1100px] mx-auto px-6 md:px-8 lg:px-10 py-10" aria-labelledby="home-sample-plan">
-      <div className="rounded-2xl border border-[#DDD0B0] bg-white p-6 shadow-sm text-[#5A4030]">
-        <h2 id="home-sample-plan" className="text-xl font-bold text-[#3A2010]">示例：兩人五晚「一肉一菜」</h2>
-        <p className="mt-2 text-sm">生成器配好菜式之後，會將十道菜嘅材料按人數加埋，變成一張購物清單。</p>
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ol className="space-y-2">
-            {plan.days.map(d => (
-              <li key={d.day} className="rounded-lg bg-[#faf7f0] border border-[#DDD0B0] px-3 py-2 text-sm">
-                <span className="font-semibold text-[#9B6035] mr-2">{d.day}</span>
-                {d.dishes.map((dish, i) => <span key={dish.slug}>{i > 0 && '＋'}<Link href={`/recipes/${encodeURIComponent(dish.slug)}`} prefetch={false} className="underline">{dish.name}</Link></span>)}
-              </li>
-            ))}
-          </ol>
+    <section className="pm-wrap" aria-labelledby="home-sample-plan">
+      <div className="pm-example">
+        <div className="pm-section-head">
           <div>
-            <p className="font-semibold text-[#3A2010]">購物清單共 {plan.itemCount} 項，其中幾樣幾道菜都用到：</p>
-            <ul className="mt-2 space-y-1 text-sm">
-              {shared.map(i => (
-                <li key={i.name + i.quantityText} className="flex justify-between gap-3 border-b border-[#EFE6D2] py-1">
-                  <span>{i.name}（{i.dishCount}道菜）</span><span className="whitespace-nowrap">{i.quantityText}</span>
+            <p className="pm-eyebrow">一週餐單示範</p>
+            <h2 id="home-sample-plan">一週晚餐，就咁安排。</h2>
+            <p>先睇一份 {plan.servings} 人 {plan.days.length} 晚示範，再生成你自己嘅版本。</p>
+          </div>
+          <a href="#home-title" className="pm-text-action">我都想安排一份 →</a>
+        </div>
+        <div className="pm-example-layout">
+          <div className="pm-panel">
+            <div className="pm-panel-head"><h3>七晚食啲乜</h3><span className="pm-tag">{plan.servings} 人 · {plan.days.length} 晚</span></div>
+            <ol className="pm-meal-list">
+              {plan.days.map((day, index) => (
+                <li className="pm-meal-row" key={day.day}>
+                  <div className="pm-day" aria-label={day.day}><span aria-hidden="true">DAY</span><strong aria-hidden="true">{String(index + 1).padStart(2, '0')}</strong></div>
+                  {day.dishes[0]?.image_url && <Image src={day.dishes[0].image_url} alt="" width={106} height={106} sizes="53px" className="pm-meal-photo" />}
+                  <div className="pm-meal-titles">
+                    {day.dishes.map((dish, dishIndex) => <Link key={dish.slug} href={`/recipes/${encodeURIComponent(dish.slug)}`} prefetch={false} className={dishIndex ? 'pm-meal-side' : 'pm-meal-main'}>{dishIndex > 0 && '配 '}{dish.name}</Link>)}
+                  </div>
+                  <span className="pm-meal-arrow" aria-hidden="true">↗</span>
                 </li>
               ))}
-            </ul>
-            <p className="mt-4 text-sm"><Link href="/meal-plan-example" className="underline font-medium text-[#9B6035]">睇完整示例同購物清單</Link>　或者　<Link href="/generate" className="underline font-medium text-[#9B6035]">生成你自己嘅餐單</Link></p>
+            </ol>
+          </div>
+          <div className="pm-panel">
+            <div className="pm-panel-head"><h3>一張清單，合埋買。</h3><span className="pm-tag">{plan.itemCount} 項材料</span></div>
+            <p className="pm-shopping-note">已按 {plan.servings} 人份合併；家中已有嘅材料可自行略過。</p>
+            <div className="pm-shopping-columns">
+              {plan.sections.map(section => (
+                <section className="pm-ingredient-group" key={section.key} aria-label={section.label}>
+                  <h4>{section.label}</h4>
+                  <ul>{section.items.map((item, index) => <li key={`${item.name}-${index}`}><span>{item.name}</span><strong>{item.quantityText}</strong></li>)}</ul>
+                </section>
+              ))}
+            </div>
           </div>
         </div>
+        <div className="pm-example-foot"><p>編輯挑選示範 · 所有原食譜均為 1 人份，清單已換算為 {plan.servings} 人份。白飯另計。</p><Link href="/meal-plan-example">睇兩人五晚示例與買餸安排 ↗</Link></div>
       </div>
     </section>
   );

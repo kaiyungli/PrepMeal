@@ -2,6 +2,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useGeneratePreferences } from '@/hooks/useGeneratePreferences';
 import { useGeneratePageController } from '@/features/generate';
+import { useHomeGenerateEntry } from '@/features/generate/hooks/useHomeGenerateEntry';
 import { getDefaultPlanName } from '@/features/generate/mappers/normalizePlanForSave';
 
 import SEO from '@/components/seo/SEO';
@@ -45,6 +46,11 @@ function GenerateWorkspace({ isAuthenticated }) {
   const preferences = useGeneratePreferences();
   const { toast, showToast } = useToast();
   const ctrl = useGeneratePageController({ preferences, traceId: traceId, showToast });
+  const homeEntry = useHomeGenerateEntry({
+    ready: ctrl.draft.ready, conflict: ctrl.draft.conflict, loading: ctrl.loadingRecipes,
+    error: ctrl.recipesError, hasRecipes: ctrl.hasRecipes, preferences,
+    generate: ctrl.handleGenerate, clear: () => { ctrl.handleClearAll(); ctrl.draft.setPlanName(''); },
+  });
   const [isSaveDialogOpen, setSaveDialogOpen] = useState(false);
   const { planName, setPlanName } = ctrl.draft;
   const [defaultPlanName, setDefaultPlanName] = useState('');
@@ -126,6 +132,13 @@ function GenerateWorkspace({ isAuthenticated }) {
           {ctrl.recipesError && <div role="alert" className="rounded-xl bg-white border border-red-300 p-4">
             <p>{ctrl.recipesError}</p>
             <button type="button" className={UI.buttonGhost} onClick={ctrl.retryRecipes} disabled={loadingRecipes}>重新載入食譜</button>
+          </div>}
+          {homeEntry.pending && <div className="rounded-xl border border-[#DDD0B0] bg-white p-4 text-[#3A2010]" role="region" aria-label="首頁生成設定">
+            <p>你已有草稿。要改用首頁設定（{homeEntry.pending.servings} 人・{homeEntry.pending.days} 日，一肉一菜）生成新餐單嗎？這會取代此瀏覽器目前嘅草稿，已保存嘅餐單不受影響。</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <button type="button" className={UI.buttonPrimary} disabled={!ctrl.draft.ready || ctrl.draft.conflict || loadingRecipes || !!ctrl.recipesError} onClick={homeEntry.accept}>套用設定並生成新餐單</button>
+              <button type="button" className={UI.buttonGhost} onClick={homeEntry.dismiss}>保留現有草稿</button>
+            </div>
           </div>}
           <fieldset disabled={!ctrl.draft.ready || ctrl.draft.conflict} className="space-y-4 min-w-0">
           <GenerateSettings

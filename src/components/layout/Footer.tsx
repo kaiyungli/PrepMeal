@@ -2,7 +2,23 @@ import Link from 'next/link';
 import { LogoMark } from '@/components/ui/Icons';
 import PrivacyOptionsButton from '@/components/ads/PrivacyOptionsButton';
 
-export default function Footer() {
+const HOME_GUIDES = [
+  ['/30-minute-dinner-recipes', '30分鐘快手菜'], ['/50-classic-hk-recipes', '家常菜靈感'],
+  ['/7-day-dinner-plan', '一週晚餐示例'], ['/hong-kong-market-shopping-guide', '買餸攻略'],
+  ['/healthy-dinner-guide', '健康晚餐'], ['/ingredient-pairing-guide', '按材料揀菜'],
+];
+
+export default function Footer({ compact = false }: { compact?: boolean }) {
+  if (compact) return (
+    <footer className="pm-home-footer">
+      <div className="pm-wrap pm-footer-inner">
+        <Link href="/" className="pm-logo">今晚食乜 <span className="pm-footer-tagline">日日好好食飯。</span></Link>
+        <div className="pm-footer-links"><Link href="/about">關於我們</Link><Link href="/contact">聯絡我們</Link><Link href="/privacy">私隱政策</Link><PrivacyOptionsButton /><Link href="/terms">使用條款</Link></div>
+        <span>© {new Date().getFullYear()} 今晚食乜</span>
+        <nav className="pm-footer-guides" aria-label="晚餐指南">{HOME_GUIDES.map(([href, label]) => <Link href={href} key={href}>{label}</Link>)}</nav>
+      </div>
+    </footer>
+  );
   return (
     <footer className="bg-footer py-12 text-bg">
       <div className="mx-auto max-w-[1200px] px-4">
