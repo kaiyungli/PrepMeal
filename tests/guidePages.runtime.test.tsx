@@ -43,6 +43,53 @@ describe('guide pages render real content on the server', () => {
     expect(html).not.toContain('點擊載入');
   });
 
+  it('keeps collapsed materials in HTML and derives counts from the actual items', () => {
+    const plan: SamplePlan = { ...PLAN, itemCount: 999, sections: [
+      ...PLAN.sections,
+      { key: 'seasoning', label: '調味料', items: [{ name: '鹽', quantityText: '2 茶匙', dishCount: 2, category: 'seasoning' }] },
+      { key: 'pantry', label: '儲備', items: [{ name: '雞湯', quantityText: '600 毫升', dishCount: 2, category: 'pantry' }] },
+    ] };
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<HomeSamplePlan plan={plan} />);
+    const details = container.querySelector('details')!;
+    expect(details.hasAttribute('open')).toBe(false);
+    expect(details.querySelector('summary')?.textContent).toContain('查看全部 3 項材料');
+    expect(details.textContent).toContain('共 2 項');
+    expect(details.textContent).toContain('600 毫升');
+    expect(details.textContent).toContain('2 茶匙');
+    expect(container.querySelectorAll('.pm-ingredient-group li')).toHaveLength(3);
+    expect(details.querySelectorAll('.pm-ingredient-group li')).toHaveLength(2);
+    expect(container.textContent).not.toContain('999');
+  });
+
+  it('gives the main photo and name one link, with a separate side link and no nested anchors', () => {
+    const main = { ...dish('prepmeal-batch3-16'), name: '薑蔥豉油蒸豆腐（簡易版）', image_url: 'https://images.unsplash.com/test.jpg' };
+    const plan = { ...PLAN, days: [{ day: '第一天', note: '', dishes: [main, dish('b')] }] };
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<HomeSamplePlan plan={plan} />);
+    const mainLink = container.querySelector('.pm-meal-main')!;
+    expect(mainLink.getAttribute('href')).toBe('/recipes/prepmeal-batch3-16');
+    expect(mainLink.querySelector('img')).toBeTruthy();
+    expect(mainLink.textContent).toContain('薑蔥豉油蒸豆腐');
+    expect(mainLink.textContent).not.toContain('簡易版');
+    expect(mainLink.querySelector('.pm-meal-arrow')).toBeTruthy();
+    expect(container.querySelector('.pm-meal-side')?.getAttribute('href')).toBe('/recipes/b');
+    expect(container.querySelector('a a')).toBeNull();
+    expect(main.name).toBe('薑蔥豉油蒸豆腐（簡易版）');
+  });
+
+  it('returns to the focusable original form without adding another submit form or demo parameters', () => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<Home samplePlan={PLAN} featuredRecipes={[]} />);
+    expect(container.querySelectorAll('form')).toHaveLength(1);
+    expect(container.querySelector('#home-plan-form')?.getAttribute('tabindex')).toBe('-1');
+    expect(container.querySelector('.pm-example-action a')?.getAttribute('href')).toBe('#home-plan-form');
+    expect(container.textContent).toContain('固定示範：2人・1晚');
+    expect(container.textContent).toContain('生成後按所選人數計算材料');
+    expect(container.textContent).toContain('毋須登入，即可生成');
+    expect(container.textContent).toContain('揀口味及更多設定');
+  });
+
   it('sample plan page lists dishes as links and the merged list', () => {
     const html = renderToString(<MealPlanExample plan={PLAN} />);
     expect(html).toContain('href="/recipes/a"');

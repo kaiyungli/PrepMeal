@@ -14,8 +14,9 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
       <div>
         <p className="pm-eyebrow">為香港日常晚餐而設</p>
         <h1 id="home-title">今晚食乜，<br /><em>一週都諗好。</em></h1>
-        <p className="pm-hero-copy">揀人數同日數，配好一週晚餐。<br />想食其他餸？換完菜，再跟合併清單買餸。</p>
-        <form action="/generate" method="get" className="pm-starter">
+        <p className="pm-hero-copy"><strong>毋須登入，即可生成。</strong><br />揀人數同日數，換完菜，再跟合併清單買餸。</p>
+        <p className="pm-form-note" id="home-form-note">生成後按所選人數計算材料。</p>
+        <form id="home-plan-form" tabIndex={-1} aria-label="一週餐單設定" aria-describedby="home-form-note" action="/generate" method="get" className="pm-starter">
           <input type="hidden" name="source" value="home" />
           <label className="pm-field">幾多人食
             <select name="servings" defaultValue="2" aria-label="用餐人數">
@@ -36,8 +37,7 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
           <button type="submit" className="pm-primary">生成餐單 <span aria-hidden="true">→</span></button>
         </form>
         <div className="pm-starter-links">
-          <span>毋須登入 · 食譜以 1 人份為基準</span>
-          <Link href="/generate" className="pm-textlink">詳細設定與草稿 ↗</Link>
+          <Link href="/generate" className="pm-textlink">揀口味及更多設定 ↗</Link>
         </div>
       </div>
       {hero?.image_url && (
@@ -48,9 +48,9 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
             <div className="pm-mini-list">
               <p className="pm-mini-head"><span className="pm-check-icon" aria-hidden="true">✓</span>餐單定好，材料合併</p>
               {shared.map(item => <p className="pm-mini-line" key={item.name}>
-                <span>{item.name} · {item.dishCount} 道菜共用</span><strong>{item.quantityText}</strong>
+                <span>{item.name}</span><strong>{item.quantityText}</strong>
               </p>)}
-              <p className="pm-mini-caption">下方 {plan?.servings} 人份示範清單節錄</p>
+              <p className="pm-mini-caption">固定示範：{plan?.servings}人・{plan?.days.length}晚清單節錄</p>
             </div>
           )}
         </div>
