@@ -12,6 +12,13 @@ export const SAMPLE_PLAN_DAYS: { day: string; slugs: string[]; note: string }[] 
   { day: '第五天', slugs: ['garlic-chicken-wings', 'garlic-spinach'], note: '雞翼可以前一晚醃定；菠菜同其他葉菜一樣，買返嚟盡快食。' },
 ];
 
+// Keep the five-night guide unchanged; the homepage shows all seven dinners.
+export const HOME_SAMPLE_PLAN_DAYS = [
+  ...SAMPLE_PLAN_DAYS,
+  { day: '第六天', slugs: ['prepmeal-batch3-16', 'poached-baby-napa'], note: '先蒸豆腐，再煮娃娃菜；白飯另計。' },
+  { day: '第七天', slugs: ['prepmeal-batch4-15', 'poached-spinach-broth'], note: '葉菜可於週中補買，按包裝指示保存。' },
+];
+
 export const SAMPLE_PLAN_SLUGS = SAMPLE_PLAN_DAYS.flatMap(d => d.slugs);
 
 export interface SamplePlanDish { slug: string; name: string; total_time_minutes: number | null }
@@ -23,6 +30,6 @@ export interface SamplePlan {
   days: { day: string; note: string; dishes: SamplePlanDish[] }[];
   sections: { key: string; label: string; items: SamplePlanItem[] }[];
   itemCount: number;
-  /** Ingredients that appear in more than one of the ten dishes. */
+  /** Ingredients that appear in more than one dish. */
   sharedItems: SamplePlanItem[];
 }

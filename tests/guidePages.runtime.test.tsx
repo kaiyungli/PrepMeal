@@ -5,6 +5,12 @@ import type { ReactNode } from 'react';
 vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => <>{children}</> }));
 vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/', asPath: '/', events: { on() {}, off() {} } }) }));
 
+vi.mock('@/features/layout/hooks/useHeaderController', () => ({
+  useHeaderController: () => ({ isAuthenticated: false, loading: false, loggingOut: false,
+    navLinks: [], guideLinks: [], accountLinks: [], trustLinks: [], isActiveRoute: () => false, handleLogout() {} }),
+}));
+
+import Home from '@/pages/index';
 import MealPlanExample from '@/pages/meal-plan-example';
 import HealthyDinnerGuide from '@/pages/healthy-dinner-guide';
 import IngredientPairingGuide from '@/pages/ingredient-pairing-guide';
@@ -22,6 +28,21 @@ const PLAN: SamplePlan = {
 const recipe = (id: string, extra = {}) => ({ id, slug: `s${id}`, name: `菜${id}`, total_time_minutes: 10, calories_per_serving: 300, protein_g: 28, ...extra });
 
 describe('guide pages render real content on the server', () => {
+  it('homepage renders its form, complete sample, steps and links without interaction', () => {
+    const html = renderToString(<Home samplePlan={PLAN} featuredRecipes={[]} />);
+    expect(html).toContain('action="/generate"');
+    expect(html).toContain('name="servings"');
+    expect(html).toContain('name="days"');
+    expect(html).toContain('蒜頭');
+    expect(html).toContain('6 瓣');
+    expect(html).toContain('href="/recipes/a"');
+    expect(html).toContain('href="/recipes"');
+    expect(html).toContain('href="/hong-kong-market-shopping-guide"');
+    expect(html.indexOf('一週餐單示範')).toBeLessThan(html.indexOf('如何使用今晚食乜'));
+    expect(html.indexOf('如何使用今晚食乜')).toBeLessThan(html.indexOf('精選食譜'));
+    expect(html).not.toContain('點擊載入');
+  });
+
   it('sample plan page lists dishes as links and the merged list', () => {
     const html = renderToString(<MealPlanExample plan={PLAN} />);
     expect(html).toContain('href="/recipes/a"');

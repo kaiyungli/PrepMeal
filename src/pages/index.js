@@ -1,190 +1,53 @@
-'use client';
-
-import { useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import SEO from '@/components/seo/SEO';
-import { useHomePageActions } from '@/features/home/hooks/useHomePageActions';
-import { useHomeRecipeFilters } from '@/features/home/hooks/useHomeRecipeFilters';
-import { useHomePerfLogging } from '@/features/home/hooks/useHomePerfLogging';
-import { useHomePageViewState } from '@/features/home/hooks/useHomePageViewState';
-import { useHomePageController } from '@/features/home';
-import Toast, { useToast } from '@/components/ui/Toast';
-import HomeHero from '@/components/home/HomeHero';
-import HomeHowItWorks from '@/components/home/HomeHowItWorks';
+import RecipeCard from '@/components/RecipeCard';
+import HomePlannerIntro from '@/components/home/HomePlannerIntro';
 import HomeSamplePlan from '@/components/home/HomeSamplePlan';
-import HomeAboutSection from '@/components/home/HomeAboutSection';
-import HomeRecipesSection from '@/components/home/HomeRecipesSection';
-import HomeFiltersSection from '@/features/home/components/HomeFiltersSection';
-import { fetchRecipesForServerWithTotal, fetchHomeRecipeCatalog } from '@/lib/recipesServer';
+import HomeHowItWorks from '@/components/home/HomeHowItWorks';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
-const HOME_FIRST_PAGE = 24;
+const GUIDES = [
+  ['/30-minute-dinner-recipes', '30 分鐘快手菜', '趕時間，先揀做法同備料都合適嘅晚餐。'],
+  ['/hong-kong-market-shopping-guide', '買餸攻略', '按餐單安排採購，留意鮮貨保存同補貨。'],
+  ['/ingredient-pairing-guide', '按材料揀晚餐', '由主要材料出發，搵主菜同蔬菜配搭。'],
+];
 
-export default function Home({ initialRecipes: firstPage = [], initialTotalCount = 0, catalog = null, samplePlan = null }) {
-  // With the full catalogue in props, the first page is just its start (not
-  // sent twice in the HTML).
-  const initialRecipes = useMemo(
-    () => (catalog ? catalog.slice(0, HOME_FIRST_PAGE) : firstPage),
-    [catalog, firstPage],
-  );
-  const { toast, showToast } = useToast();
-
-  const { markDataReady } = useHomePerfLogging();
-  const { handlePrimaryAction } = useHomePageActions();
-
-  const {
-    searchQuery,
-    setSearchQuery,
-    sortBy,
-    setSortBy,
-    showFilters,
-    setShowFilters,
-    recipeFilterSections,
-    hasFilters,
-    hasDraftSelection,
-    appliedFilterCount,
-    appliedFilterChips,
-    appliedSearchQuery,
-    removeDraftFilterValue,
-    removeDraftSearch,
-    clearFilters,
-    clearAppliedFilters,
-    applyFilters,
-    hasPendingChanges,
-    recipesList,
-    totalCount,
-    loading,
-    fetchError,
-    loadMore,
-    hasMore,
-    loadingMore,
-    isListSettled,
-  } = useHomeRecipeFilters({
-    initialRecipes: initialRecipes || [],
-    initialTotalCount,
-    catalog,
-  });
-
-  const { weeklyPlan, handleRefreshPlan, isFavorite, handleFavoriteToggle, shoppingList, shoppingLoading, shoppingError, shoppingListInitialized, isAuthRequired, refreshShoppingList } = useHomePageController({
-    planRecipes: initialRecipes,
-    showToast,
-  });
-  useNavigationDataReady('home', () => !loading && isListSettled(), Boolean(fetchError));
-
-  useEffect(() => {
-    if (!recipesList || recipesList.length === 0) return;
-    markDataReady();
-  }, [recipesList, markDataReady]);
-
-  const {
-    showErrorState,
-    showEmptyState,
-    showResults,
-    resultCountText,
-  } = useHomePageViewState({
-    loading,
-    fetchError,
-    recipesList,
-    totalCount,
-    hasFilters,
-    searchQuery,
-  });
-
+export default function Home({ featuredRecipes = [], samplePlan }) {
+  useNavigationDataReady('home', true);
   return (
     <Layout>
-      <SEO
-        title="今晚食乜"
-        description="為香港日常晚餐而設：搜尋家常食譜、按條件安排3、5或7日餐單，並整理購物清單。"
-        canonical="https://eatwhathk.com/"
-        ogType="website"
-      />
-      <main className="flex-1">
-        <HomeHero
-          onPrimaryAction={handlePrimaryAction}
-          weeklyPlan={weeklyPlan}
-          shoppingList={shoppingList}
-          shoppingLoading={shoppingLoading}
-          shoppingError={shoppingError}
-          shoppingListInitialized={shoppingListInitialized}
-          isAuthRequired={isAuthRequired}
-          onRefreshPlan={handleRefreshPlan}
-          onRefreshShoppingList={refreshShoppingList}
-        />
-        <HomeHowItWorks />
+      <SEO title="一週餐單與合併購物清單" description="揀人數同3、5或7日餐單，換菜後按份量合併買餸材料。先睇兩人一週晚餐示例，再生成自己的餐單。" canonical="https://eatwhathk.com/" ogType="website" />
+      <main className="flex-1 bg-[#F8F3E8]">
+        <HomePlannerIntro />
         <HomeSamplePlan plan={samplePlan} />
-        <div className="max-w-[1200px] mx-auto px-4">
-          <HomeFiltersSection
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            recipeFilterSections={recipeFilterSections}
-            hasDraftSelection={hasDraftSelection}
-            hasPendingChanges={hasPendingChanges}
-            appliedFilterCount={appliedFilterCount}
-            clearFilters={clearFilters}
-            applyFilters={applyFilters}
-            showSummary={showResults || showEmptyState}
-            appliedFilterChips={appliedFilterChips}
-            appliedSearchQuery={appliedSearchQuery}
-            resultCountText={resultCountText}
-            removeDraftFilterValue={removeDraftFilterValue}
-            removeDraftSearch={removeDraftSearch}
-            clearAppliedFilters={clearAppliedFilters}
-          />
-          {showResults && (
-            <HomeRecipesSection
-              recipes={recipesList}
-              isFavorite={isFavorite}
-              onFavoriteClick={handleFavoriteToggle}
-              loadMore={loadMore}
-              hasMore={hasMore}
-              loadingMore={loadingMore}
-            />
-          )}
-        </div>
-
-        {loading && (
-          <div className="text-center py-12 text-[#AA7A50]">載入中...</div>
-        )}
-
-        {showErrorState && (
-          <div className="text-center py-12 text-red-600">
-            載入失敗，請重試
+        <HomeHowItWorks />
+        <section className="mx-auto max-w-[1100px] px-4 py-10" aria-labelledby="featured-recipes">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+            <div><h2 id="featured-recipes" className="text-2xl font-bold text-[#3A2010]">精選食譜</h2><p className="mt-2 text-sm text-[#7A5A38]">由家常菜開始，所有食譜均以 1 人份計。</p></div>
+            <Link href="/recipes" className="rounded-xl border border-[#9B6035] bg-white px-5 py-3 font-semibold text-[#9B6035] hover:bg-[#FEFCF8]">搜尋全部食譜 →</Link>
           </div>
-        )}
-
-        {showEmptyState && (
-          <div className="text-center py-12">
-            <p className="text-[#AA7A50]">沒有找到食譜</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredRecipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)}
           </div>
-        )}
-        <HomeAboutSection />
+        </section>
+        <section className="mx-auto max-w-[1100px] px-4 pb-12" aria-labelledby="home-guides">
+          <h2 id="home-guides" className="mb-5 text-2xl font-bold text-[#3A2010]">晚餐同買餸實用指南</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {GUIDES.map(([href, title, description]) => <Link key={href} href={href} className="rounded-2xl border border-[#DDD0B0] bg-white p-6 hover:shadow-md"><h3 className="font-semibold text-[#9B6035]">{title} →</h3><p className="mt-2 text-sm text-[#7A5A38]">{description}</p></Link>)}
+          </div>
+        </section>
       </main>
-      {toast && <Toast {...toast} />}
     </Layout>
   );
 }
 
 export async function getStaticProps() {
   const { loadSamplePlan } = await import('@/features/guides/samplePlan.server');
-  // The example is optional on the home page: null simply hides it.
-  const [catalog, samplePlan] = await Promise.all([fetchHomeRecipeCatalog(), loadSamplePlan()]);
-  const { recipes: initialRecipes, total: totalCount, error } = catalog
-    ? { recipes: [], total: catalog.length }
-    : await fetchRecipesForServerWithTotal(HOME_FIRST_PAGE);
-  if (error) {
-    console.error('error loading homepage recipes:', error);
-  }
-  return {
-    props: {
-      initialRecipes: initialRecipes || [],
-      initialTotalCount: totalCount || 0,
-      catalog,
-      samplePlan,
-    },
-    revalidate: 300,
-  };
+  const { HOME_SAMPLE_PLAN_DAYS } = await import('@/features/guides/samplePlan');
+  const { fetchRecipesForServer } = await import('@/lib/recipesServer');
+  const [samplePlan, recipes] = await Promise.all([loadSamplePlan(HOME_SAMPLE_PLAN_DAYS), fetchRecipesForServer(6)]);
+  // Keep the last complete ISR page if upstream data is unavailable.
+  if (!samplePlan) throw new Error('Unable to load the homepage sample meal plan');
+  return { props: { samplePlan, featuredRecipes: recipes.filter(r => r.slug) }, revalidate: 300 };
 }

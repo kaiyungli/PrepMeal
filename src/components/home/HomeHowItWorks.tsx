@@ -7,18 +7,18 @@ export default function HomeHowItWorks() {
   const steps = [
     {
       number: '1',
-      title: '搵食譜',
-      description: '按食材、時間或難度揀餸。',
+      title: '生成餐單',
+      description: '揀人數同3、5或7日，詳細配搭同飲食條件喺生成頁設定。',
     },
     {
       number: '2',
-      title: '安排餐單',
-      description: '選擇3、5或7日，按條件配對現有食譜。',
+      title: '按口味換菜',
+      description: '鎖定想保留嘅菜，再逐道替換唔啱口味嘅菜式。',
     },
     {
       number: '3',
-      title: '整理購物清單',
-      description: '按餐單人數查看材料；登入後可保存餐單。',
+      title: '跟清單買餸',
+      description: '開啟合併購物清單，按人數核對材料；登入後可保存餐單同勾選已買材料。',
     },
   ];
 
