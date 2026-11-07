@@ -56,7 +56,14 @@ export interface RecipeDetailContentProps {
   deferHeavySections?: boolean
   /** The hero image is the page's LCP element: load it eagerly at high priority. */
   heroPriority?: boolean
+  /** Date the recipe data last changed (YYYY-MM-DD); standalone page only. */
+  updatedAt?: string | null
 }
+
+const formatZhDate = (value: string) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  return m ? `${m[1]}年${Number(m[2])}月${Number(m[3])}日` : '';
+};
 
 // Skeleton component for loading sections
 function SectionSkeleton({ height = 'h-4' }: { height?: string }) {
@@ -74,7 +81,7 @@ const getUnitLabel = (unit?: string | { code?: string; name?: string; display_na
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false,
-  deferHeavySections = true, heroPriority = false }: RecipeDetailContentProps) {
+  deferHeavySections = true, heroPriority = false, updatedAt = null }: RecipeDetailContentProps) {
   // Defer heavy sections to reduce initial paint cost on iPad
   const recipeId = recipe?.id;
   const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
@@ -187,6 +194,9 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
 
       {/* Content */}
       <div className="max-w-[1200px] mx-auto px-4 py-8">
+        {updatedAt && formatZhDate(updatedAt) && (
+          <p className="text-sm mb-4" style={{ color: '#AA7A50' }}>{`今晚食乜編輯整理・最後更新：${formatZhDate(updatedAt)}`}</p>
+        )}
         
         {/* Description Card */}
         {recipe.description && (

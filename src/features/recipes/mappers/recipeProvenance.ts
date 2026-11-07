@@ -42,6 +42,11 @@ const SOURCE_NOTE_REWRITES: Array<[string, string]> = [
   ['圖片為AI生成示意，非實煮照片。', '圖片為AI生成示意圖。'],
   ['圖片為AI生成示意，未經實煮。', '圖片為AI生成示意圖。'],
   ['，因此只作靈感，未作試煮或營養證明。', '，因此只作靈感。'],
+  // Editorial workflow wording (approval / labelling rules) is for editors only.
+  ['依批准菜式整理中文材料、用量及步驟；任何本版編定須明示。；', ''],
+  ['任何本版編定須明示。', ''],
+  // One shared adaptation line on ~50 recipes: keep its meaning, say it shortly.
+  ['本版用量、材料選項及步驟有整理或改編；參考連結並不表示原作者認可本版，亦非原文轉載。', '本站按原食譜改編用量及步驟，並非原文轉載。'],
   ['；未經實煮。', '。'],
   ['；未試煮。', '。'],
   ['，未試煮。', '。'],
@@ -51,6 +56,11 @@ const SOURCE_NOTE_REWRITES: Array<[string, string]> = [
 export function readerSourceNote(note: string): string {
   return SOURCE_NOTE_REWRITES.reduce((text, [from, to]) => text.split(from).join(to), note).trim();
 }
+
+// The stored nutrition policies are written for editors; readers get the same
+// facts in plain words.
+export const SHARED_POLICY_READER_TEXT = '營養按基本材料（不含選配）全部投入量估算，未扣除骨、殼及冇食落肚嘅油鹽。';
+export const ALTERNATIVE_POLICY_READER_TEXT = '營養按基本材料（不含選配）嘅可食部分估算，並非化驗結果。';
 
 // Publish only reader-facing evidence; never serialize the entire import ledger.
 export function recipeProvenance(sourceData: unknown): RecipeProvenance {
@@ -73,8 +83,8 @@ export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   const nutritionNotes = [...new Set([
     ...strings(nutrition.limitations).map(note => note.trim()),
     ...strings(nutrition.evidence_cautions).map(note => note.trim()),
-    ...(policy.startsWith(sharedPolicyPrefix) ? [sharedPolicyPrefix] : []),
-    ...(policy.startsWith(alternativePolicyPrefix) ? [alternativePolicyPrefix] : []),
+    ...(policy.startsWith(sharedPolicyPrefix) ? [SHARED_POLICY_READER_TEXT] : []),
+    ...(policy.startsWith(alternativePolicyPrefix) ? [ALTERNATIVE_POLICY_READER_TEXT] : []),
   ])];
   return {
     ...(qualityNotes.length ? { data_quality_notes: qualityNotes } : {}),

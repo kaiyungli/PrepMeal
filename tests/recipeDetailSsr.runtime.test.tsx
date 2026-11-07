@@ -42,6 +42,12 @@ describe('Recipe detail server HTML', () => {
     expect(html).toContain('href="/terms"');
   });
 
+  it('standalone page shows when the recipe was last updated', () => {
+    const html = renderToString(<RecipeDetail recipe={RECIPE} error={null} updatedAt="2026-11-06" />);
+    expect(html).toContain('最後更新：2026年11月6日');
+    expect(renderToString(<RecipeDetail recipe={RECIPE} error={null} />)).not.toContain('最後更新');
+  });
+
   it('standalone page loads the hero image eagerly at high priority', () => {
     const tag = heroTag(renderToString(<RecipeDetail recipe={RECIPE} error={null} />));
     expect(tag).toMatch(/fetchPriority="high"|fetchpriority="high"/i);

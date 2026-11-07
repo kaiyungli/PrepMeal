@@ -9,8 +9,9 @@ import { DEFAULT_OG_IMAGE } from '@/constants/site';
 
 /**
  * Recipe Detail Page - dumb shell only
+ * @param {{ recipe: any, error: any, updatedAt?: string | null }} props
  */
-export default function RecipeDetail({ recipe, error }) {
+export default function RecipeDetail({ recipe, error, updatedAt = null }) {
   // Keep hook order stable across loading, error and successful renders.
   // Metrics still start only when there is a recipe to display.
   const hasRecipe = Boolean(recipe && !error);
@@ -64,14 +65,14 @@ export default function RecipeDetail({ recipe, error }) {
         <meta name="twitter:title" content={`${safeRecipe.name} - 今晚食乜`} />
         <meta name="twitter:image" content={safeRecipe.image_url || DEFAULT_OG_IMAGE} />
       </Head>
-      <RecipeStructuredData recipe={safeRecipe} />
+      <RecipeStructuredData recipe={safeRecipe} dateModified={updatedAt} />
       
       {/* Shared site header/footer: navigation and policy links on every recipe page */}
       <Layout>
         <div className="min-h-screen bg-[#F8F3E8]">
           <div className="max-w-[800px] mx-auto py-6 px-4">
             {/* Standalone page: full recipe in server HTML, hero is the LCP image */}
-            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority />
+            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority updatedAt={updatedAt} />
           </div>
         </div>
       </Layout>
@@ -99,10 +100,14 @@ export async function getStaticProps({ params }) {
     };
   }
   
+  const { fetchRecipeUpdatedAt } = await import('@/lib/recipesServer');
+  const updatedAt = recipe.id ? await fetchRecipeUpdatedAt(String(recipe.id)) : null;
+
   return {
     props: {
       recipe,
-      error: error || null
+      error: error || null,
+      updatedAt
     },
     revalidate: 300
   };
