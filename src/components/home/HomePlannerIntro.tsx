@@ -2,9 +2,9 @@ import Image from 'next/image';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 
 /** Native form submits directly to the existing generator, even before hydration. */
-export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null }) {
-  const dishes = plan?.days.flatMap(day => day.dishes) ?? [];
-  const hero = dishes.find(dish => dish.slug === 'curry-chicken' && dish.image_url)
+export default function HomePlannerIntro({ plan, heroSlug }: { plan?: SamplePlan | null; heroSlug?: string }) {
+  const dishes = plan?.days.map(day => day.dishes[0]).filter(Boolean) ?? [];
+  const hero = dishes.find(dish => dish.slug === heroSlug && dish.image_url)
     ?? dishes.find(dish => dish.image_url);
   const categoryPriority: Record<string, number> = { meat: 0, vegetable: 1, tofu_egg: 2 };
   // Take one real main ingredient per category; aromatics belong in the full list.

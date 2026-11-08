@@ -47,6 +47,7 @@ export default defineConfig({
     include: [
       'tests/adPolicy.runtime.test.tsx',
       'tests/homeGenerateEntry.runtime.test.tsx',
+      'tests/homeFeaturedLifecycle.runtime.test.tsx',
       'tests/guidePages.runtime.test.tsx',
       'tests/privacyOptions.runtime.test.tsx',
       'tests/shoppingProgress.runtime.test.tsx',

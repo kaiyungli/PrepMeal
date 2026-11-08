@@ -1,0 +1,443 @@
+[
+  {
+    "id": "example-1",
+    "label": "蒸煮家常",
+    "heroSlug": "steamed-pork-patty",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "steamed-pork-patty",
+          "garlic-romaine-lettuce"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "black-bean-steamed-fish-fillet",
+          "garlic-broccoli"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "curry-chicken",
+          "garlic-lettuce"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "beef-onion-stir-fry",
+          "stir-fried-bok-choy"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "garlic-steamed-shrimp",
+          "poached-baby-napa"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "mapo-tofu",
+          "garlic-spinach"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "steamed-skinless-chicken-thigh-enoki",
+          "stir-fried-cabbage"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-2",
+    "label": "日式與清爽配搭",
+    "heroSlug": "teriyaki-salmon",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "black-bean-steamed-pork-ribs",
+          "stir-fried-choy-sum"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "teriyaki-salmon",
+          "prepmeal-batch2-12"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "ginger-teriyaki-chicken-meatballs",
+          "cold-cucumber-salad"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "green-pepper-beef",
+          "garlic-napa-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "prepmeal-batch2-11",
+          "oyster-broccoli"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "tofu-hamburg-mixed-mushroom-sauce",
+          "steamed-garlic-pumpkin"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "potato-braised-chicken-wings",
+          "garlic-water-spinach"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-3",
+    "label": "薑蔥與香料",
+    "heroSlug": "kung-pao-chicken",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "prepmeal-batch2-02",
+          "garlic-pea-shoots-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "thai-lime-steamed-fish",
+          "prepmeal-batch3-09"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "kung-pao-chicken",
+          "soybean-sprout-stir-fry"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "bitter-melon-beef",
+          "poached-spinach-broth"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "prepmeal-batch3-10",
+          "stir-fried-gai-lan-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "prepmeal-batch4-03",
+          "prepmeal-batch3-25"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "prepmeal-25-22-chicken-adobo",
+          "garlic-enoki-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-4",
+    "label": "家常跨菜系",
+    "heroSlug": "prepmeal-25-01-nikujaga",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "prepmeal-batch3-08",
+          "prepmeal-batch3-03"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "miso-salmon",
+          "prepmeal-25-04-kinpira-gobo"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "prepmeal-batch2-05",
+          "cold-tossed-baby-napa-cabbage"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "prepmeal-25-01-nikujaga",
+          "oyster-lettuce-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "poached-shrimp",
+          "prepmeal-batch3-20"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "tofu-egg-napa-cabbage-rolls",
+          "pan-fried-king-oyster-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "prepmeal-batch4-15",
+          "celery-lily-stir-fry"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-5",
+    "label": "焗烤與咖喱",
+    "heroSlug": "prepmeal-batch3-02",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "onion-pork-chop",
+          "garlic-broccoli"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "herb-pan-fried-cod",
+          "prepmeal-25-21-miso-butter-mushrooms"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "japanese-sweet-vinegar-chicken-lotus-root",
+          "stir-fried-choy-sum"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "prepmeal-batch4-08",
+          "cold-black-fungus-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "prepmeal-batch3-02",
+          "garlic-romaine-lettuce"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "cumin-spicy-baked-tofu",
+          "prepmeal-25-25-spinach-chickpeas"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "prepmeal-batch3-11",
+          "braised-eggplant"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-6",
+    "label": "蒸煎交替",
+    "heroSlug": "prepmeal-batch2-14",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "steamed-pork-patty-with-preserved-mustard",
+          "garlic-lettuce"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "prepmeal-batch4-02",
+          "prepmeal-batch4-14"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "garlic-chicken-with-vegetables",
+          "stir-fried-cabbage"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "black-pepper-beef-xhs",
+          "prepmeal-batch3-03"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "butter-shrimp",
+          "poached-baby-napa"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "prepmeal-batch2-14",
+          "garlic-spinach"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "prepmeal-batch4-11",
+          "prepmeal-batch3-09"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  },
+  {
+    "id": "example-7",
+    "label": "鑊氣與清蔬",
+    "heroSlug": "prepmeal-batch3-18",
+    "days": [
+      {
+        "day": "第一天",
+        "slugs": [
+          "prepmeal-25-18-lemongrass-pork",
+          "prepmeal-25-16-chickpea-salad"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第二天",
+        "slugs": [
+          "tomato-braised-fish-fillet",
+          "stir-fried-bok-choy"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第三天",
+        "slugs": [
+          "teriyaki-chicken-thigh",
+          "cold-okra-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第四天",
+        "slugs": [
+          "prepmeal-batch3-15",
+          "garlic-napa-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第五天",
+        "slugs": [
+          "black-bean-clams",
+          "prepmeal-batch3-25"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第六天",
+        "slugs": [
+          "tomato-potato-minced-pork",
+          "stir-fried-gai-lan-xhs"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      },
+      {
+        "day": "第七天",
+        "slugs": [
+          "prepmeal-batch3-18",
+          "prepmeal-25-09-gamja-jorim"
+        ],
+        "note": "按食譜步驟準備主菜及配菜，白飯另計。"
+      }
+    ]
+  }
+]

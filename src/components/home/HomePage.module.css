@@ -432,6 +432,9 @@
 
 .home :global(.pm-recipe-card) { display: flex; flex-direction: column; min-width: 0; overflow: hidden; background: #fffefb; border: 1px solid var(--line); border-radius: 14px; transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
 
+/* No-JavaScript/blocked-storage fallback remains three complete SSR cards. */
+.home :global(.pm-recipe-card):nth-child(n+4) { display: none; }
+
 .home :global(.pm-recipe-photo) { position: relative; aspect-ratio: 1.7; overflow: hidden; background: #eee8dc; }
 
 .home :global(.pm-recipe-photo) img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 180ms ease; }

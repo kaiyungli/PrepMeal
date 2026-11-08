@@ -11,19 +11,23 @@ import { useNavigationDataReady } from '@/features/performance/useNavigationData
 /**
  * @param {{
  *   featuredRecipes?: import('react').ComponentProps<typeof HomeFeaturedRecipes>['recipes'];
+ *   heroSlug?: string;
+ *   homeExampleId?: string;
+ *   requestedExampleId?: string;
+ *   featuredBootstrap?: string;
  *   samplePlan: import('@/features/guides/samplePlan').SamplePlan;
  * }} props
  */
-export default function Home({ featuredRecipes = [], samplePlan }) {
+export default function Home({ featuredRecipes = [], samplePlan, heroSlug, homeExampleId, featuredBootstrap }) {
   useNavigationDataReady('home', true);
   return (
     <Layout className={styles.home}>
       <SEO title="一週餐單與合併購物清單" description="揀人數同3、5或7日餐單，換菜後按份量合併買餸材料。先睇兩人一週晚餐示例，再生成自己的餐單。" canonical="https://eatwhathk.com/" ogType="website" />
-      <main className="flex-1">
-        <HomePlannerIntro plan={samplePlan} />
+      <main className="flex-1" data-home-example={homeExampleId}>
+        <HomePlannerIntro plan={samplePlan} heroSlug={heroSlug} />
         <HomeSamplePlan plan={samplePlan} />
         <HomeHowItWorks />
-        <HomeFeaturedRecipes recipes={featuredRecipes} />
+        <HomeFeaturedRecipes recipes={featuredRecipes} bootstrap={featuredBootstrap} />
         <HomeGuides />
       </main>
     </Layout>
@@ -31,11 +35,8 @@ export default function Home({ featuredRecipes = [], samplePlan }) {
 }
 
 export async function getStaticProps() {
-  const { loadSamplePlan } = await import('@/features/guides/samplePlan.server');
-  const { HOME_SAMPLE_PLAN_DAYS } = await import('@/features/guides/samplePlan');
-  const { fetchRecipesForServer } = await import('@/lib/recipesServer');
-  const [samplePlan, recipes] = await Promise.all([loadSamplePlan(HOME_SAMPLE_PLAN_DAYS), fetchRecipesForServer(3)]);
-  // Keep the last complete ISR page if upstream data is unavailable.
-  if (!samplePlan) throw new Error('Unable to load the homepage sample meal plan');
-  return { props: { samplePlan, featuredRecipes: recipes.filter(r => r.slug) }, revalidate: 300 };
+  const { loadHomeContent } = await import('@/features/home/homeContent.server');
+  const { homeExampleIndex } = await import('@/features/home/homeCalendar');
+  const { HOME_ISR_SECONDS } = await import('@/features/home/homeRotation');
+  return { props: await loadHomeContent(homeExampleIndex()), revalidate: HOME_ISR_SECONDS };
 }
