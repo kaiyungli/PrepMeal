@@ -17,7 +17,7 @@ export default function HomeFeaturedRecipes({ recipes }: { recipes: FeaturedReci
               {recipe.image_url && <Image src={recipe.image_url} alt={recipe.name} width={600} height={400} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 30vw, 370px" />}
               {typeof recipe.total_time_minutes === 'number' && recipe.total_time_minutes > 0 && <span>{recipe.total_time_minutes} 分鐘</span>}
             </div>
-            <h3>{recipe.name}</h3><p>查看食譜 <span className="pm-recipe-arrow" aria-hidden="true">→</span></p>
+            <div className="pm-recipe-body"><h3>{recipe.name}</h3><p>查看食譜 <span className="pm-recipe-arrow" aria-hidden="true">→</span></p></div>
           </Link>
         ))}
       </div>
