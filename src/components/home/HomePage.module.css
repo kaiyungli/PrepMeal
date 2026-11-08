@@ -124,67 +124,57 @@
   margin: 0;
 }
 
-.home :global(.pm-starter) {
-  margin-top: 27px;
-  display: flex;
-  align-items: end;
-  gap: 10px;
-}
+/* Native label and legend use the same 20px line box and 8px control gap. */
 
-.home :global(.pm-field) {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 600;
-}
+.home :global(.pm-starter) { display: flex; align-items: flex-end; gap: 10px; margin-top: 24px; border-radius: 10px; scroll-margin-block: 32px; }
 
-.home :global(.pm-field) select {
-  width: 85px;
-  height: 46px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: white;
-  padding: 0 12px;
-  color: var(--ink);
-  font-size: 13px;
-}
+.home :global(.pm-field) { display: grid; gap: 8px; font-size: 13px; font-weight: 600; line-height: 20px; color: var(--muted); }
 
-.home :global(.pm-segments) {
-  height: 46px;
-  display: flex;
-  background: #efeae2;
-  border-radius: 9px;
-  padding: 4px;
-  gap: 2px;
-}
+.home :global(.pm-field-label) { line-height: 20px; }
 
-.home :global(.pm-primary) {
-  height: 46px;
-  background: var(--accent);
-  color: #fff;
-  border: 0;
-  border-radius: 9px;
-  padding: 0 19px;
-  font-size: 15px;
-  font-weight: 650;
-  white-space: nowrap;
-}
+.home :global(.pm-field) select { width: 85px; height: 48px; border: 1px solid var(--line); border-radius: 9px; background: white; padding: 0 12px; color: var(--ink); font-size: 15px; }
 
-.home :global(.pm-starter-links) {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 16px;
-}
+.home :global(.pm-days-field) { display: flow-root; min-width: 0; margin: 0; padding: 0; border: 0; }
 
-.home :global(.pm-starter-links) :global(.pm-textlink) {
-  border-bottom: 1px solid #b7a18f;
-  padding-bottom: 2px;
-  color: var(--accent);
+.home :global(.pm-days-field) legend { float: left; width: 100%; margin: 0 0 8px; padding: 0; line-height: 20px; }
+
+.home :global(.pm-segments) { clear: both; height: 48px; display: flex; gap: 2px; padding: 4px; border-radius: 9px; background: #efeae2; }
+
+.home :global(.pm-segments) label { display: grid; place-items: center; flex: 1; height: 40px; padding: 0 12px; border-radius: 6px; font-size: 14px; line-height: 20px; font-weight: 500; cursor: pointer; color: var(--muted); }
+
+.home :global(.pm-segments) label:has(input:checked) { background: white; color: var(--ink); box-shadow: 0 1px 5px #342a2410; }
+
+.home :global(.pm-segments) label:has(input:focus-visible) { outline: 3px solid #73855a; outline-offset: 3px; }
+
+.home :global(.pm-primary) { display: inline-flex; align-items: center; justify-content: center; height: 48px; min-height: 48px; border: 0; border-radius: 9px; padding: 0 19px; font-size: 15px; font-weight: 650; line-height: 1.5; white-space: nowrap; background: var(--accent); color: white; }
+
+.home :global(.pm-primary) span { margin-left: 12px; }
+
+.home :global(.pm-primary):hover { background: #8b4e2a; }
+
+.home :global(.pm-starter):focus, .home :global(.pm-starter):target { outline: 2px solid var(--green); outline-offset: 8px; }
+
+.home :global(.pm-starter-links) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; margin-top: 14px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+
+.home :global(.pm-form-note) { margin: 0; font-size: 14px; line-height: 1.7; }
+
+.home :global(.pm-starter-links) :global(.pm-textlink) { border-bottom: 1px solid #b7a18f; padding-bottom: 2px; color: var(--accent); }
+
+.home :global(.pm-example-heading) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 9px 0 10px; }
+
+.home :global(.pm-example-heading) h2 { margin: 0; }
+
+.home :global(.pm-recipe-card) p { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
+
+@media (max-width:900px) { .home :global(.pm-starter) { flex-wrap: wrap; } }
+
+@media (max-width:650px) {
+ .home :global(.pm-starter) { display: grid; grid-template-columns: 82px minmax(0,1fr); gap: 12px; }
+ .home :global(.pm-field) select { width: 100%; }
+ .home :global(.pm-segments) { width: 100%; gap: 3px; }
+ .home :global(.pm-segments) label { padding-inline: 10px; }
+ .home :global(.pm-starter)>:global(.pm-primary) { grid-column: 1/-1; width: 100%; }
+ .home :global(.pm-example-action) :global(.pm-primary) { width: 100%; }
 }
 
 .home :global(.pm-hero-photo) {
@@ -343,7 +333,7 @@
 
 .home :global(.pm-meal-list) { list-style: none; padding: 0 18px; margin: 0; }
 
-.home :global(.pm-meal-row) { display: flex; align-items: start; gap: 10px; padding-block: 2px; border-bottom: 1px solid #f0ebe5; }
+.home :global(.pm-meal-row) { display: flex; align-items: start; gap: 10px; padding-block: 6px; border-bottom: 1px solid #f0ebe5; }
 
 .home :global(.pm-meal-row):last-child { border-bottom: 0; }
 
@@ -369,7 +359,7 @@
 
 .home :global(.pm-meal-main):hover, .home :global(.pm-meal-main):focus-visible, .home :global(.pm-meal-side):hover, .home :global(.pm-meal-side):focus-visible { background: #f5efe5; }
 
-.home :global(.pm-meal-main):hover :global(.pm-meal-name), .home :global(.pm-meal-side):hover { text-decoration: underline; text-underline-offset: 4px; color: var(--accent); }
+.home :global(.pm-meal-main):is(:hover,:focus-visible) :global(.pm-meal-name), .home :global(.pm-meal-side):is(:hover,:focus-visible) { text-decoration: underline; text-underline-offset: 4px; color: var(--accent); }
 
 .home :global(.pm-meal-main):hover :global(.pm-meal-photo) { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -517,18 +507,8 @@
   font-weight: 650;
 }
 
-.home :global(.pm-recipe-card) p {
-  font-size: 13px;
-  margin: 0;
-  color: var(--muted);
-}
-
-.home :global(.pm-recipe-card) p span {
-  margin: 0 3px;
-}
-
 .home :global(.pm-guides) {
-  padding: 48px 0 57px;
+  padding: 44px 0 57px;
 }
 
 .home :global(.pm-guide-grid) {
@@ -615,14 +595,6 @@
     font-size: 41px;
   }
 
-  .home :global(.pm-starter) {
-    flex-wrap: wrap;
-  }
-
-  .home :global(.pm-primary) {
-    padding: 0 15px;
-  }
-
   .home :global(.pm-shopping-columns) {
     padding: 12px 14px;
     column-gap: 14px;
@@ -680,42 +652,6 @@
     font-size: 14px;
     line-height: 1.85;
     max-width: 310px;
-  }
-
-  .home :global(.pm-starter) {
-    display: grid;
-    grid-template-columns: 82px 1fr;
-    gap: 12px;
-    margin-top: 22px;
-  }
-
-  .home :global(.pm-field) {
-    gap: 7px;
-    font-size: 13px;
-  }
-
-  .home :global(.pm-field) select {
-    width: 100%;
-    height: 43px;
-  }
-
-  .home :global(.pm-segments) {
-    width: 100%;
-    height: 43px;
-    gap: 3px;
-  }
-
-  .home :global(.pm-primary) {
-    grid-column: 1/-1;
-    width: 100%;
-    height: 45px;
-  }
-
-  .home :global(.pm-starter-links) {
-    font-size: 13px;
-    gap: 13px;
-    margin-top: 12px;
-    justify-content: space-between;
   }
 
   .home :global(.pm-hero-photo) {
@@ -902,12 +838,8 @@
     margin: 11px 0 6px;
   }
 
-  .home :global(.pm-recipe-card) p {
-    font-size: 13px;
-  }
-
   .home :global(.pm-guides) {
-    padding: 31px 0;
+    padding: 36px 0 31px;
   }
 
   .home :global(.pm-guide-title) {
@@ -961,32 +893,6 @@
   color: var(--ink);
 }
 
-.home :global(.pm-segments) label {
-  display: grid;
-  place-items: center;
-  height: 38px;
-  border-radius: 6px;
-  padding: 0 12px;
-  cursor: pointer;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.home :global(.pm-segments) label:has(input:checked) {
-  background: white;
-  color: var(--ink);
-  box-shadow: 0 1px 5px #342a2410;
-}
-
-.home :global(.pm-segments) label:has(input:focus-visible) {
-  outline: 3px solid #73855a;
-  outline-offset: 3px;
-}
-
-.home :global(.pm-primary) span {
-  margin-left: 12px;
-}
-
 .home :global(.pm-eyebrow), .home :global(.pm-mini-head), .home :global(.pm-mini-line) {
   margin-top: 0;
 }
@@ -1023,7 +929,6 @@
 }
 
 .home :global(.pm-recipe-arrow) {
-  float: right;
   color: var(--accent);
   font-size: 16px;
 }
@@ -1106,12 +1011,6 @@
 
 @media (max-width: 650px) {
 
-  .home :global(.pm-segments) label {
-    flex: 1;
-    height: 35px;
-    padding: 0 10px;
-  }
-
   .home :global(.pm-recipe-photo) {
     aspect-ratio: 1.7;
   }
@@ -1140,17 +1039,8 @@
 
 /* Readable controls and material text at every viewport. */
 .home :global(.pm-hero-copy) strong { color: var(--ink); font-weight: 650; }
-.home :global(.pm-form-note) { margin: 18px 0 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
-.home :global(.pm-starter) { margin-top: 12px; scroll-margin-block: 32px; border-radius: 10px; }
-.home :global(.pm-starter):focus, .home :global(.pm-starter):target { outline: 2px solid var(--green); outline-offset: 8px; }
-.home :global(.pm-field) select { height: 48px; }
-.home :global(.pm-segments) { height: 48px; }
-.home :global(.pm-segments) label { height: 40px; }
-.home :global(.pm-primary) { min-height: 48px; height: auto; padding-block: 12px; display: inline-flex; align-items: center; justify-content: center; line-height: 1.5; }
-.home :global(.pm-primary):hover { background: #8b4e2a; }
-.home :global(.pm-starter-links) { line-height: 1.7; }
 .home :global(.pm-mini-line) { line-height: 1.6; }
-.home :global(.pm-section-head) :global(.pm-fixed-example) { display: inline-block; margin: 12px 0 8px; padding: 5px 10px; font-size: 13px; font-weight: 650; color: var(--green); background: var(--sage); border-radius: 6px; }
+.home :global(.pm-section-head) :global(.pm-fixed-example) { display: inline-block; margin: 0; padding: 5px 10px; font-size: 13px; font-weight: 650; color: var(--green); background: var(--sage); border-radius: 6px; }
 .home :global(.pm-panel-head) { gap: 12px; flex-wrap: wrap; }
 .home :global(.pm-tag) { line-height: 1.6; }
 .home :global(.pm-ingredient-group) h4 { line-height: 1.6; }
@@ -1165,7 +1055,6 @@
 .home :global(.pm-extra-ingredients)[open] :global(.pm-summary-open) { display: inline; }
 .home :global(.pm-example-action) { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-top: 25px; }
 .home :global(.pm-step) p, .home :global(.pm-guide) p { line-height: 1.8; }
-.home :global(.pm-recipe-card) p { line-height: 1.7; }
 @media (max-width: 900px) {
  .home :global(.pm-example-layout) { grid-template-columns: 1fr; }
 }
@@ -1178,9 +1067,5 @@
  .home :global(.pm-extra-ingredients) summary { padding-inline: 14px; }
  .home :global(.pm-example-foot) { margin-top: 18px; }
  .home :global(.pm-example-action) { display: block; }
-
- .home :global(.pm-example-action) :global(.pm-primary) { width: 100%; }
  .home :global(.pm-steps) { gap: 24px; }
 }
-
-.home :global(.pm-field) select { font-size: 15px; }

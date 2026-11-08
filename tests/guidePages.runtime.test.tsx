@@ -96,6 +96,16 @@ describe('guide pages render real content on the server', () => {
     expect(container.textContent).toContain('生成後按所選人數計算材料');
     expect(container.textContent).toContain('毋須登入，即可生成');
     expect(container.textContent).toContain('揀口味及更多設定');
+    const form = container.querySelector('#home-plan-form')!;
+    const note = container.querySelector(`#${form.getAttribute('aria-describedby')}`)!;
+    expect(note.textContent).toContain('生成後按所選人數計算材料');
+    expect(note.parentElement?.className).toBe('pm-starter-links');
+    expect(form.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(form.querySelector('label .pm-field-label')?.textContent).toBe('幾多人食');
+    expect(form.querySelector('fieldset legend')?.textContent).toBe('安排幾日');
+    expect(container.querySelector('.pm-example-heading h2 + .pm-fixed-example')?.textContent).toBe('2人・1晚示範');
+    expect(container.querySelector('main')?.textContent).not.toContain('↗');
+    expect(container.querySelector('.pm-example-action a')?.textContent).toContain('↑');
   });
 
   it('sample plan page lists dishes as links and the merged list', () => {

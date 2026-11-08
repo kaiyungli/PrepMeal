@@ -11,7 +11,7 @@ export default function HomeGuides() {
     <section className="pm-wrap" aria-labelledby="home-guides">
       <div className="pm-guides">
         <h2 id="home-guides" className="pm-guide-title">由諗餸到買餸，都有啲小貼士。</h2>
-        <div className="pm-guide-grid">{GUIDES.map(guide => <Link href={guide.href} key={guide.href} className="pm-guide"><span className="pm-category">{guide.category}</span><h3>{guide.title} <span aria-hidden="true">↗</span></h3><p>{guide.description}</p></Link>)}</div>
+        <div className="pm-guide-grid">{GUIDES.map(guide => <Link href={guide.href} key={guide.href} className="pm-guide"><span className="pm-category">{guide.category}</span><h3>{guide.title} <span aria-hidden="true">→</span></h3><p>{guide.description}</p></Link>)}</div>
       </div>
     </section>
   );

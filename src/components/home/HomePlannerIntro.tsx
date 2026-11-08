@@ -15,10 +15,9 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
         <p className="pm-eyebrow">為香港日常晚餐而設</p>
         <h1 id="home-title">今晚食乜，<br /><em>一週都諗好。</em></h1>
         <p className="pm-hero-copy"><strong>毋須登入，即可生成。</strong><br />揀人數同日數，換完菜，再跟合併清單買餸。</p>
-        <p className="pm-form-note" id="home-form-note">生成後按所選人數計算材料。</p>
         <form id="home-plan-form" tabIndex={-1} aria-label="一週餐單設定" aria-describedby="home-form-note" action="/generate" method="get" className="pm-starter">
           <input type="hidden" name="source" value="home" />
-          <label className="pm-field">幾多人食
+          <label className="pm-field"><span className="pm-field-label">幾多人食</span>
             <select name="servings" defaultValue="2" aria-label="用餐人數">
               {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} 人</option>)}
             </select>
@@ -37,7 +36,8 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
           <button type="submit" className="pm-primary">生成餐單 <span aria-hidden="true">→</span></button>
         </form>
         <div className="pm-starter-links">
-          <Link href="/generate" className="pm-textlink">揀口味及更多設定 ↗</Link>
+          <p className="pm-form-note" id="home-form-note">生成後按所選人數計算材料。</p>
+          <Link href="/generate" className="pm-textlink">揀口味及更多設定 →</Link>
         </div>
       </div>
       {hero?.image_url && (

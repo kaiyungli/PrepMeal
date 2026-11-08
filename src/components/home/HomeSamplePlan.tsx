@@ -32,8 +32,10 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
         <div className="pm-section-head">
           <div>
             <p className="pm-eyebrow">一週餐單示範</p>
-            <h2 id="home-sample-plan">一週晚餐，就咁安排。</h2>
-            <p className="pm-fixed-example">{plan.servings}人・{plan.days.length}晚示範</p>
+            <div className="pm-example-heading">
+              <h2 id="home-sample-plan">一週晚餐，就咁安排。</h2>
+              <p className="pm-fixed-example">{plan.servings}人・{plan.days.length}晚示範</p>
+            </div>
             <p>上方設定只套用你的餐單。</p>
           </div>
         </div>
@@ -49,7 +51,7 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
                     {mainDish && <Link href={`/recipes/${encodeURIComponent(mainDish.slug)}`} prefetch={false} className="pm-meal-main" title={mainDish.name}>
                       {mainDish.image_url && <Image src={mainDish.image_url} alt="" width={176} height={176} sizes="88px" className="pm-meal-photo" />}
                       <span className="pm-meal-name">{sampleDishName(mainDish)}</span>
-                      <span className="pm-meal-arrow" aria-hidden="true">↗</span>
+                      <span className="pm-meal-arrow" aria-hidden="true">→</span>
                     </Link>}
                     {sides.map(dish => <Link key={dish.slug} href={`/recipes/${encodeURIComponent(dish.slug)}`} prefetch={false} className="pm-meal-side" title={dish.name}>配 {sampleDishName(dish)}</Link>)}
                   </div>
@@ -71,7 +73,7 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
             </details>}
           </div>
         </div>
-        <div className="pm-example-foot"><p>原食譜以 1 人份為基準；清單已換算為 {plan.servings} 人份，白飯另計。</p><Link href="/meal-plan-example">睇兩人五晚示例與買餸安排 ↗</Link></div>
+        <div className="pm-example-foot"><p>原食譜以 1 人份為基準；清單已換算為 {plan.servings} 人份，白飯另計。</p><Link href="/meal-plan-example">睇兩人五晚示例與買餸安排 →</Link></div>
         <div className="pm-example-action">
           <a href="#home-plan-form" className="pm-primary">設定我的餐單 <span aria-hidden="true">↑</span></a>
         </div>
