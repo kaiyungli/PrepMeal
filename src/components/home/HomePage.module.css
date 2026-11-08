@@ -121,7 +121,12 @@
 
 .home :global(.pm-primary):hover { background: #8b4e2a; }
 
-.home :global(.pm-starter):focus, .home :global(.pm-starter):target { outline: 2px solid var(--green); outline-offset: 8px; }
+/* The form receives return-link focus, but only its controls show focus rings. */
+.home :global(.pm-starter):focus { outline: none; }
+.home :global(.pm-field) select:is(:hover,:active) { border-color: #b7a18f; }
+.home :global(.pm-primary):active { background: #794326; }
+.home :global(.pm-starter-links) :global(.pm-textlink):hover { background: #f5efe5; }
+.home :global(.pm-starter-links) :global(.pm-textlink):active { background: #efe5d7; }
 
 .home :global(.pm-starter-links) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; margin-top: 14px; font-size: 14px; line-height: 1.7; color: var(--muted); }
 
