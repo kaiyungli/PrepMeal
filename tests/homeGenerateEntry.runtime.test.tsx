@@ -73,4 +73,42 @@ describe('homepage generator handoff', () => {
     expect(result.current.preferences.servings).toBe(2);
     expect(router.replace).toHaveBeenCalledTimes(1);
   });
+  it('carries people and days into preferences without clearing, generating or resetting tastes', () => {
+    router.query.intent = 'preferences';
+    const generate = vi.fn(), clear = vi.fn();
+    const { result } = renderHook(() => {
+      const preferences = useGeneratePreferences();
+      useHomeGenerateEntry({ ready: true, loading: false, error: null, conflict: false, hasRecipes: false, preferences, generate, clear });
+      return preferences;
+    });
+    expect(result.current.servings).toBe(4);
+    expect(result.current.daysPerWeek).toBe(5);
+    expect(generate).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+    expect(router.replace).toHaveBeenCalledWith({ pathname: '/generate', query: {} }, undefined, { shallow: true });
+  });
+
+  it('protects an existing draft before applying preferences and never generates on acceptance', () => {
+    router.query.intent = 'preferences';
+    const { result } = renderHook(() => useHarness({ hasRecipes: true }));
+    expect(result.current.pending?.intent).toBe('preferences');
+    act(() => result.current.preferences.setExclusions(['芫荽']));
+    expect(result.current.preferences.servings).toBe(2);
+    act(() => result.current.accept());
+    expect(result.current.preferences.servings).toBe(4);
+    expect(result.current.preferences.daysPerWeek).toBe(5);
+    expect(result.current.preferences.exclusions).toEqual(['芫荽']);
+    expect(result.current.generate).not.toHaveBeenCalled();
+    expect(result.current.clear).not.toHaveBeenCalled();
+  });
+
+  it('dismisses preferences without replacing draft settings and rejects unknown intents', () => {
+    router.query.intent = 'preferences';
+    const { result } = renderHook(() => useHarness({ hasRecipes: true }));
+    act(() => result.current.dismiss());
+    expect(result.current.preferences.servings).toBe(2);
+    expect(result.current.generate).not.toHaveBeenCalled();
+    expect(parseHomeGenerateEntry({ source: 'home', days: '7', servings: '2', intent: 'unknown' })).toBeNull();
+  });
+
 });

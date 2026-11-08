@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 
 /** Native form submits directly to the existing generator, even before hydration. */
@@ -7,7 +6,13 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
   const dishes = plan?.days.flatMap(day => day.dishes) ?? [];
   const hero = dishes.find(dish => dish.slug === 'curry-chicken' && dish.image_url)
     ?? dishes.find(dish => dish.image_url);
-  const shared = plan?.sharedItems.filter(item => item.name === '豬肉碎' || item.name === '蒜頭').slice(0, 2) ?? [];
+  const categoryPriority: Record<string, number> = { meat: 0, vegetable: 1, tofu_egg: 2 };
+  // Take one real main ingredient per category; aromatics belong in the full list.
+  const ingredients = plan?.sections
+    .filter(section => !['seasoning', 'pantry'].includes(section.key))
+    .sort((a, b) => (categoryPriority[a.key] ?? 3) - (categoryPriority[b.key] ?? 3))
+    .flatMap(section => section.items.filter(item => !/^(蒜頭|蒜蓉|蒜|薑|生薑|蔥|葱)$/.test(item.name)).slice(0, 1))
+    .slice(0, 2) ?? [];
 
   return (
     <section className={`pm-wrap pm-hero ${hero ? '' : 'pm-hero-text-only'}`} aria-labelledby="home-title">
@@ -37,19 +42,19 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
         </form>
         <div className="pm-starter-links">
           <p className="pm-form-note" id="home-form-note">生成後按所選人數計算材料。</p>
-          <Link href="/generate" className="pm-textlink">揀口味及更多設定 →</Link>
+          <button type="submit" form="home-plan-form" name="intent" value="preferences" className="pm-textlink">加入口味偏好 →</button>
         </div>
       </div>
       {hero?.image_url && (
         <div className="pm-hero-photo">
           <Image src={hero.image_url} alt={hero.name} width={640} height={480} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 44vw, 500px" priority className="pm-main-photo" />
           <span className="pm-image-label">有飯氣嘅家常晚餐</span>
-          {shared.length > 0 && (
+          {ingredients.length > 0 && (
             <div className="pm-mini-list">
-              <p className="pm-mini-head"><span className="pm-check-icon" aria-hidden="true">✓</span>示範清單節錄</p>
-              {shared.map(item => <p className="pm-mini-line" key={item.name}>
-                <span>{item.name}</span><strong>{item.quantityText}</strong>
-              </p>)}
+              <p className="pm-mini-head">示範清單節錄</p>
+              <ul className="pm-mini-items">{ingredients.map(item => <li className="pm-mini-line" key={item.name}>
+                <span className="pm-mini-marker" aria-hidden="true" /><span className="pm-mini-name">{item.name}</span><strong>{item.quantityText}</strong>
+              </li>)}</ul>
             </div>
           )}
         </div>

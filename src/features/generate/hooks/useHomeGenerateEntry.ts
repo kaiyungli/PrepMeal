@@ -20,10 +20,18 @@ export function useHomeGenerateEntry(options: Options) {
   const { ready, conflict, loading, error, hasRecipes, preferences, generate, clear } = options;
   const consumeUrl = useCallback(() => {
     const query = { ...router.query };
-    delete query.source; delete query.days; delete query.servings;
+    delete query.source; delete query.days; delete query.servings; delete query.intent;
     void router.replace({ pathname: '/generate', query }, undefined, { shallow: true });
   }, [router]);
   const apply = useCallback((request: Request) => {
+    if (request.intent === 'preferences') {
+      // Settings-only navigation must not clear meals, filters or generate a plan.
+      preferences.setDaysPerWeek(request.days);
+      preferences.setServings(request.servings);
+      setPending(null);
+      consumeUrl();
+      return;
+    }
     clear();
     preferences.clearFilters();
     preferences.setExclusions([]);

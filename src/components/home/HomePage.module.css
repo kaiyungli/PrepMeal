@@ -158,7 +158,7 @@
 
 .home :global(.pm-form-note) { margin: 0; font-size: 14px; line-height: 1.7; }
 
-.home :global(.pm-starter-links) :global(.pm-textlink) { border-bottom: 1px solid #b7a18f; padding-bottom: 2px; color: var(--accent); }
+.home :global(.pm-starter-links) :global(.pm-textlink) { border: 0; background: transparent; cursor: pointer; padding: 0; font: inherit; border-bottom: 1px solid #b7a18f; padding-bottom: 2px; color: var(--accent); }
 
 .home :global(.pm-example-heading) { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 9px 0 10px; }
 
@@ -206,13 +206,12 @@
   position: absolute;
   bottom: 0;
   right: -17px;
-  width: 228px;
-  background: #fff;
-  box-shadow: 0 12px 30px #342a2414;
+  width: 248px;
+  background: #FFFEFB;
+  box-shadow: 0 8px 24px #342a2410;
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 17px 19px;
-  transform: rotate(-3deg);
+  padding: 14px 16px;
 }
 
 .home :global(.pm-mini-head) {
@@ -224,30 +223,13 @@
   margin-bottom: 7px;
 }
 
-.home :global(.pm-check-icon) {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  background: var(--sage);
-  border-radius: 100%;
-  color: var(--green);
-  font-size: 12px;
-}
-
-.home :global(.pm-mini-line) {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 6px 0;
-  border-top: 1px solid #f1ede6;
-  color: var(--muted);
-}
-
-.home :global(.pm-mini-line) strong {
-  color: var(--ink);
-  font-weight: 500;
-}
+/* Static excerpt mirrors the list rows without pretending to be interactive. */
+.home :global(.pm-mini-items) { list-style: none; margin: 0; padding: 0; }
+.home :global(.pm-mini-line) { display: flex; align-items: center; gap: 8px; min-height: 36px; padding-block: 5px; border-bottom: 1px solid #F0ECE5; color: #30271F; font-size: 14px; line-height: 1.5; }
+.home :global(.pm-mini-line):last-child { border-bottom: 0; }
+.home :global(.pm-mini-name) { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.home :global(.pm-mini-marker) { width: 16px; height: 16px; flex: 0 0 16px; border: 1.5px solid #B5AB9E; border-radius: 50%; }
+.home :global(.pm-mini-line) strong { max-width: 40%; font-size: 13px; font-weight: 400; color: #635344; text-align: right; font-variant-numeric: tabular-nums; }
 
 .home :global(.pm-section-head) {
   display: flex;
@@ -675,29 +657,17 @@
   }
 
   .home :global(.pm-mini-list) {
-    width: 170px;
+    width: 204px;
     padding: 10px 12px;
     right: -2px;
     bottom: 0;
     border-radius: 10px;
-    transform: rotate(-3deg);
   }
 
   .home :global(.pm-mini-head) {
     font-size: 13px;
     margin-bottom: 4px;
     gap: 5px;
-  }
-
-  .home :global(.pm-check-icon) {
-    width: 16px;
-    height: 16px;
-    font-size: 12px;
-  }
-
-  .home :global(.pm-mini-line) {
-    font-size: 12px;
-    padding: 3px 0;
   }
 
   .home :global(.pm-section-head) {

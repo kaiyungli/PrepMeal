@@ -15,6 +15,7 @@ import MealPlanExample from '@/pages/meal-plan-example';
 import HealthyDinnerGuide from '@/pages/healthy-dinner-guide';
 import IngredientPairingGuide from '@/pages/ingredient-pairing-guide';
 import HomeSamplePlan from '@/components/home/HomeSamplePlan';
+import HomePlannerIntro from '@/components/home/HomePlannerIntro';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 
 const dish = (slug: string) => ({ slug, name: `菜${slug}`, total_time_minutes: 15 });
@@ -80,7 +81,7 @@ describe('guide pages render real content on the server', () => {
 
   it('returns to the focusable original form without adding another submit form or demo parameters', () => {
     const container = document.createElement('div');
-    const plan = { ...PLAN, days: [{ ...PLAN.days[0], dishes: [
+    const plan = { ...PLAN, sections: [{ key: 'meat', label: '肉類', items: [{ name: '雞肉', quantityText: '300 克', dishCount: 1, category: 'meat' }] }], days: [{ ...PLAN.days[0], dishes: [
       { ...dish('curry-chicken'), image_url: 'https://images.unsplash.com/test.jpg' }, dish('b'),
     ] }] };
     container.innerHTML = renderToString(<Home samplePlan={plan} featuredRecipes={[{ id: 'featured', slug: 'featured', name: '精選菜式', total_time_minutes: 20 }]} />);
@@ -95,7 +96,7 @@ describe('guide pages render real content on the server', () => {
     expect(container.textContent).toContain('白飯另計');
     expect(container.textContent).toContain('生成後按所選人數計算材料');
     expect(container.textContent).toContain('毋須登入，即可生成');
-    expect(container.textContent).toContain('揀口味及更多設定');
+    expect(container.textContent).toContain('加入口味偏好');
     const form = container.querySelector('#home-plan-form')!;
     const note = container.querySelector(`#${form.getAttribute('aria-describedby')}`)!;
     expect(note.textContent).toContain('生成後按所選人數計算材料');
@@ -106,6 +107,24 @@ describe('guide pages render real content on the server', () => {
     expect(container.querySelector('.pm-example-heading h2 + .pm-fixed-example')?.textContent).toBe('2人・1晚示範');
     expect(container.querySelector('main')?.textContent).not.toContain('↗');
     expect(container.querySelector('.pm-example-action a')?.textContent).toContain('↑');
+  });
+
+  it('submits preferences with the same native form and previews real main ingredients', () => {
+    const main = { name: '雞肉', quantityText: '300 克', dishCount: 1, category: 'meat' };
+    const plan = { ...PLAN, days: [{ ...PLAN.days[0], dishes: [{ ...dish('a'), image_url: 'https://images.unsplash.com/test.jpg' }] }],
+      sections: [{ key: 'seasoning', label: '調味料', items: [{ ...main, name: '鹽' }] },
+        { key: 'meat', label: '肉類', items: [main] },
+        { key: 'vegetable', label: '蔬菜', items: [{ ...main, name: '蒜頭' }, { ...main, name: '菠菜', quantityText: '680 克' }] }] };
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<HomePlannerIntro plan={plan} />);
+    const button = container.querySelector('button[name="intent"]') as HTMLButtonElement;
+    expect(button.type).toBe('submit');
+    expect(button.getAttribute('form')).toBe('home-plan-form');
+    expect(button.value).toBe('preferences');
+    expect(container.querySelectorAll('form')).toHaveLength(1);
+    expect(container.querySelector('.pm-mini-items')?.textContent).toBe('雞肉300 克菠菜680 克');
+    expect(container.querySelector('.pm-mini-items')?.textContent).not.toMatch(/蒜頭|鹽/);
+    expect(container.querySelectorAll('.pm-mini-items input')).toHaveLength(0);
   });
 
   it('sample plan page lists dishes as links and the merged list', () => {

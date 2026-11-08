@@ -134,9 +134,9 @@ function GenerateWorkspace({ isAuthenticated }) {
             <button type="button" className={UI.buttonGhost} onClick={ctrl.retryRecipes} disabled={loadingRecipes}>重新載入食譜</button>
           </div>}
           {homeEntry.pending && <div className="rounded-xl border border-[#DDD0B0] bg-white p-4 text-[#3A2010]" role="region" aria-label="首頁生成設定">
-            <p>你已有草稿。要改用首頁設定（{homeEntry.pending.servings} 人・{homeEntry.pending.days} 日，一肉一菜）生成新餐單嗎？這會取代此瀏覽器目前嘅草稿，已保存嘅餐單不受影響。</p>
+            {homeEntry.pending.intent === 'preferences' ? <p>你已有草稿。要套用首頁人數及日數（{homeEntry.pending.servings} 人・{homeEntry.pending.days} 日）嗎？現有菜式及口味偏好會保留，不會自動生成新餐單。</p> : <p>你已有草稿。要改用首頁設定（{homeEntry.pending.servings} 人・{homeEntry.pending.days} 日，一肉一菜）生成新餐單嗎？這會取代此瀏覽器目前嘅草稿，已保存嘅餐單不受影響。</p>}
             <div className="mt-3 flex flex-wrap gap-3">
-              <button type="button" className={UI.buttonPrimary} disabled={!ctrl.draft.ready || ctrl.draft.conflict || loadingRecipes || !!ctrl.recipesError} onClick={homeEntry.accept}>套用設定並生成新餐單</button>
+              <button type="button" className={UI.buttonPrimary} disabled={!ctrl.draft.ready || ctrl.draft.conflict || loadingRecipes || !!ctrl.recipesError} onClick={homeEntry.accept}>{homeEntry.pending.intent === 'preferences' ? '套用人數及日數' : '套用設定並生成新餐單'}</button>
               <button type="button" className={UI.buttonGhost} onClick={homeEntry.dismiss}>保留現有草稿</button>
             </div>
           </div>}
