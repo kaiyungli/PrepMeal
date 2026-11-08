@@ -17,7 +17,7 @@ import { useNavigationDataReady } from '@/features/performance/useNavigationData
 export default function Home({ featuredRecipes = [], samplePlan }) {
   useNavigationDataReady('home', true);
   return (
-    <Layout home className={styles.home}>
+    <Layout className={styles.home}>
       <SEO title="一週餐單與合併購物清單" description="揀人數同3、5或7日餐單，換菜後按份量合併買餸材料。先睇兩人一週晚餐示例，再生成自己的餐單。" canonical="https://eatwhathk.com/" ogType="website" />
       <main className="flex-1">
         <HomePlannerIntro plan={samplePlan} />

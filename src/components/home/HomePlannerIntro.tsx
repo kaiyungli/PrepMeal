@@ -53,7 +53,7 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
             <div className="pm-mini-list">
               <p className="pm-mini-head">示範清單節錄</p>
               <ul className="pm-mini-items">{ingredients.map(item => <li className="pm-mini-line" key={item.name}>
-                <span className="pm-mini-marker" aria-hidden="true" /><span className="pm-mini-name">{item.name}</span><strong>{item.quantityText}</strong>
+                <span className="pm-mini-name">{item.name}</span><strong>{item.quantityText}</strong>
               </li>)}</ul>
             </div>
           )}

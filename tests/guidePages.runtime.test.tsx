@@ -124,7 +124,8 @@ describe('guide pages render real content on the server', () => {
     expect(container.querySelectorAll('form')).toHaveLength(1);
     expect(container.querySelector('.pm-mini-items')?.textContent).toBe('雞肉300 克菠菜680 克');
     expect(container.querySelector('.pm-mini-items')?.textContent).not.toMatch(/蒜頭|鹽/);
-    expect(container.querySelectorAll('.pm-mini-items input')).toHaveLength(0);
+    expect(container.querySelectorAll('.pm-mini-items input,.pm-mini-marker')).toHaveLength(0);
+    expect(container.querySelectorAll('.pm-mini-items li')).toHaveLength(2);
   });
 
   it('sample plan page lists dishes as links and the merged list', () => {

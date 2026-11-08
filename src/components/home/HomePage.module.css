@@ -45,37 +45,6 @@
   padding: 0 28px;
 }
 
-.home header {
-  height: 78px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(250,248,243,.96);
-}
-
-.home :global(.pm-header-inner) {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-}
-
-.home :global(.pm-logo) {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  font-size: 21px;
-  letter-spacing: -.6px;
-}
-
-.home :global(.pm-login) {
-  font-size: 13px;
-  padding: 10px 19px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: transparent;
-}
-
 .home :global(.pm-hero) {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -228,7 +197,6 @@
 .home :global(.pm-mini-line) { display: flex; align-items: center; gap: 8px; min-height: 36px; padding-block: 5px; border-bottom: 1px solid #F0ECE5; color: #30271F; font-size: 14px; line-height: 1.5; }
 .home :global(.pm-mini-line):last-child { border-bottom: 0; }
 .home :global(.pm-mini-name) { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.home :global(.pm-mini-marker) { width: 16px; height: 16px; flex: 0 0 16px; border: 1.5px solid #B5AB9E; border-radius: 50%; }
 .home :global(.pm-mini-line) strong { max-width: 40%; font-size: 13px; font-weight: 400; color: #635344; text-align: right; font-variant-numeric: tabular-nums; }
 
 .home :global(.pm-section-head) {
@@ -530,28 +498,6 @@
   margin: 0 0 19px;
 }
 
-.home footer {
-  background: #eee8dc;
-  padding: 29px 0;
-}
-
-.home :global(.pm-footer-inner) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.home :global(.pm-footer-inner) :global(.pm-logo) {
-  font-size: 16px;
-}
-
-.home :global(.pm-footer-links) {
-  display: flex;
-  gap: 19px;
-}
-
 @media(min-width:1400px) {
 
   .home :global(.pm-wrap) {
@@ -595,19 +541,6 @@
 
   .home :global(.pm-wrap) {
     padding: 0 21px;
-  }
-
-  .home header {
-    height: 62px;
-  }
-
-  .home :global(.pm-logo) {
-    font-size: 18px;
-    gap: 6px;
-  }
-
-  .home :global(.pm-login) {
-    display: none;
   }
 
   .home :global(.pm-hero) {
@@ -838,29 +771,6 @@
   .home :global(.pm-guide) p {
     font-size: 14px;
   }
-
-  .home :global(.pm-footer-inner) {
-    align-items: start;
-    gap: 15px;
-    flex-direction: column;
-    font-size: 13px;
-  }
-
-  .home :global(.pm-footer-links) {
-    gap: 17px;
-  }
-
-  .home :global(.pm-footer-inner) :global(.pm-logo) {
-    font-size: 16px;
-  }
-
-  .home footer {
-    padding: 24px 0;
-  }
-}
-
-.home :global(.pm-logo) {
-  color: var(--ink);
 }
 
 .home :global(.pm-eyebrow), .home :global(.pm-mini-head), .home :global(.pm-mini-line) {
@@ -919,74 +829,14 @@
   transform: scale(1.025);
 }
 
-.home :global(.pm-mobile-search) {
-  display: none;
-}
-
-.home :global(.pm-home-footer) {
-  color: var(--muted);
-}
-
-.home :global(.pm-footer-inner) {
-  flex-wrap: wrap;
-  row-gap: 22px;
-}
-
-.home :global(.pm-footer-guides) {
-  flex-basis: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 22px;
-  padding-top: 16px;
-  border-top: 1px solid #ddd5c9;
-}
-
-.home :global(.pm-footer-links) {
-  flex-wrap: wrap;
-  align-items: baseline;
-}
-
-.home :global(.pm-footer-links) button {
-  font-size: inherit;
-}
-
-.home :global(.pm-footer-links) [role=status] {
-  max-width: 30rem;
-}
-
 .home :global(.pm-hero-text-only) {
   grid-template-columns: 1fr;
-}
-
-@media (max-width: 767px) {
-
-  .home header {
-    height: 62px;
-  }
-
-  .home :global(.pm-header-inner) {
-    padding-inline: 21px;
-  }
-
-  .home :global(.pm-mobile-search) {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 13px;
-    color: var(--muted);
-    margin-left: auto;
-    margin-right: 18px;
-  }
 }
 
 @media (max-width: 650px) {
 
   .home :global(.pm-recipe-photo) {
     aspect-ratio: 1.7;
-  }
-
-  .home :global(.pm-footer-guides) {
-    gap: 10px 17px;
   }
 }
 
@@ -996,14 +846,6 @@
     transition: none;
   }
 }
-
-
-@media (max-width: 767px) {
-  .home :global(.pm-header-inner) { gap: 10px; }
-  .home :global(.pm-mobile-search) { margin-right: 0; white-space: nowrap; }
-  .home :global(.pm-logo) { white-space: nowrap; }
-}
-.home :global(.pm-footer-tagline) { color: var(--muted); font-size: 12px; font-weight: 400; }
 
 .home h2 { font-weight: 700; }
 

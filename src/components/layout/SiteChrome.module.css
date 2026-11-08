@@ -1,0 +1,47 @@
+/* Shared site chrome, independent of page content styles. */
+.header, .footer { color: #342a24; font-family: "Noto Sans CJK TC","PingFang TC","Microsoft JhengHei",sans-serif; line-height: 1.5; }
+.header *, .footer * { box-sizing: border-box; }
+.header a, .footer a { color: inherit; text-decoration: none; }
+.header button, .footer button { font: inherit; cursor: pointer; }
+.header a:focus-visible, .header button:focus-visible, .footer a:focus-visible, .footer button:focus-visible { outline: 3px solid #73855a; outline-offset: 4px; border-radius: 4px; }
+.header { font-size: 14px; background: #faf8f3; border-bottom: 1px solid #e8e1d8; }
+.inner { max-width: 1200px; height: 78px; margin: auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 800; letter-spacing: -.6px; white-space: nowrap; flex-shrink: 0; }
+.desktopNav, .desktopAuth { display: flex; align-items: center; gap: 24px; }
+.navLink, .moreButton { font-size: 14px; font-weight: 500; min-height: 44px; display: inline-flex; align-items: center; gap: 5px; }
+.navLink:hover, .footer a:hover { color: #a35f36; text-decoration: underline; text-underline-offset: 4px; }
+.navLink[aria-current=page], .moreButton[data-active] { color: #a35f36; font-weight: 700; text-decoration: underline; text-underline-offset: 6px; }
+.more { position: relative; }
+.moreButton { border: 0; padding: 0; background: transparent; color: #a35f36; }
+.dropdown { position: absolute; right: 0; top: 100%; width: 224px; max-height: min(75vh,650px); overflow-y: auto; background: #fffdf8; border: 1px solid #e8e1d8; border-radius: 12px; padding: 8px; box-shadow: 0 12px 32px #342a241a; z-index: 50; }
+.dropdown .navLink { display: flex; padding: 8px 12px; border-radius: 6px; }
+.dropdown .navLink:hover { background: #f5efe5; }
+.dropdown p, .mobileMenu p { margin: 8px 0 0; padding: 8px 12px 0; font-size: 12px; color: #776d64; font-weight: 650; }
+.authLink { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 9px 19px; border: 1px solid #e8e1d8; border-radius: 9px; background: transparent; font-size: 14px; font-weight: 600; }
+.authLink:hover { background: #f5efe5; }
+.authLink:disabled { opacity: .6; cursor: wait; }
+.mobileSearch, .mobileToggle, .mobileMenu { display: none; }
+.footer { background: #f0ece3; padding: 30px 0; color: #776d64; font-size: 13px; }
+.footerInner { max-width: 1200px; padding: 0 28px; margin: auto; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 20px 24px; }
+.footer .footerBrand { font-size: 18px; font-weight: 800; color: #342a24; display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 12px; }
+.footerBrand span { font-size: 12px; color: #776d64; font-weight: 400; }
+.footerLinks, .footerRow, .footerContact { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 22px; }
+.footerLinks button { font-size: inherit; }
+.footerLinks [role=status] { max-width: 30rem; }
+.footerRow { flex-basis: 100%; border-top: 1px solid #ddd5c9; padding-top: 14px; }
+.footerContact { flex-basis: 100%; }
+@media (max-width: 900px) { .inner, .desktopNav, .desktopAuth { gap: 16px; } }
+@media (max-width: 767px) {
+ .inner { height: 62px; padding-inline: 21px; gap: 10px; }
+ .logo { font-size: 19px; gap: 8px; }
+ .desktopNav, .desktopAuth { display: none; }
+ .header .mobileSearch { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; margin-left: auto; font-size: 13px; color: #776d64; white-space: nowrap; }
+ .mobileToggle { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 8px; border: 0; background: transparent; color: #a35f36; }
+ .mobileMenu { display: flex; flex-direction: column; padding: 12px 21px 20px; border-top: 1px solid #e8e1d8; }
+ .mobileMenu .navLink { padding: 8px 12px; }
+ .mobileAuth { border-top: 1px solid #e8e1d8; margin-top: 12px; padding-top: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+ .footer { padding-block: 24px; }
+ .footerInner { padding-inline: 21px; gap: 16px; }
+ .footerLinks, .footerRow, .footerContact { gap: 10px 17px; }
+ .footer .footerBrand { font-size: 16px; }
+}

@@ -5,17 +5,15 @@ import { useHeaderController } from '@/features/layout/hooks/useHeaderController
 interface LayoutProps {
   children: React.ReactNode;
   showNav?: boolean;
-  home?: boolean;
   className?: string;
 }
 
-export default function Layout({ children, showNav = true, home = false, className = '' }: LayoutProps) {
+export default function Layout({ children, showNav = true, className = '' }: LayoutProps) {
   const { isAuthenticated, loading, loggingOut, navLinks, guideLinks, accountLinks, trustLinks, isActiveRoute, handleLogout, onFavoritesIntent, onMyPlansIntent } = useHeaderController();
 
   return (
     <div className={`min-h-screen bg-bg font-sans ${className}`}>
       <Header
-        home={home}
         showNav={showNav}
         navLinks={navLinks}
         guideLinks={guideLinks}
@@ -30,7 +28,7 @@ export default function Layout({ children, showNav = true, home = false, classNa
         onMyPlansIntent={onMyPlansIntent}
       />
       {children}
-      <Footer compact={home} />
+      <Footer />
     </div>
   );
 }
