@@ -13,7 +13,7 @@ export type HomeRecipe = SlotRoleRecipe & Partial<CardFacts> & {
   method?: string | null;
 };
 export type FeaturedRecipe = Pick<HomeRecipe, 'id' | 'slug' | 'name'> &
-  Partial<Pick<HomeRecipe, 'image_url' | 'total_time_minutes' | 'difficulty' | 'calories_per_serving' | 'protein_g'>>;
+  Partial<Pick<HomeRecipe, 'image_url' | 'total_time_minutes' | 'difficulty' | 'calories_per_serving' | 'protein_g' | 'method' | 'primary_protein' | 'dish_type'>>;
 
 export function hasUsablePhoto(url: unknown): url is string {
   if (typeof url !== 'string') return false;
@@ -47,8 +47,9 @@ export function featuredCandidates(catalogue: FeaturedRecipe[], limit = 36): Fea
     if (!recipe.slug?.trim() || /[\s/?#\\<>]/.test(recipe.slug) || !hasUsablePhoto(recipe.image_url) || seen.has(recipe.slug)) return false;
     seen.add(recipe.slug); return true;
   }).sort((a, b) => hash(a.slug) - hash(b.slug) || a.slug.localeCompare(b.slug)).slice(0, limit)
-    .map(({ id, slug, name, image_url, total_time_minutes, difficulty, calories_per_serving, protein_g }) => ({
+    .map(({ id, slug, name, image_url, total_time_minutes, difficulty, calories_per_serving, protein_g, method, primary_protein, dish_type }) => ({
       id, slug, name, image_url, total_time_minutes, difficulty: difficulty ?? null,
       calories_per_serving: calories_per_serving ?? null, protein_g: protein_g ?? null,
+      method: method ?? null, primary_protein: primary_protein ?? null, dish_type: dish_type ?? null,
     }));
 }

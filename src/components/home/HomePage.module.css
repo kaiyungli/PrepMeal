@@ -430,40 +430,22 @@
   gap: 22px;
 }
 
-.home :global(.pm-recipe-card) { display: grid; grid-template-rows: subgrid; grid-row: span 5; row-gap: 0; min-width: 0; overflow: hidden; background: #fffefb; border: 1px solid var(--line); border-radius: 14px; transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.home :global(.pm-recipe-card) { min-width: 0; }
 
-/* No-JavaScript/blocked-storage fallback remains three complete SSR cards. */
+/* Same public SSR candidates; only the chosen three are visible. */
 .home :global(.pm-recipe-card):nth-child(n+4) { display: none; }
 
-.home :global(.pm-recipe-photo) { position: relative; aspect-ratio: 1.7; overflow: hidden; background: #eee8dc; }
+.home :global(.pm-featured-link) { color: inherit; text-decoration: none; }
 
-.home :global(.pm-recipe-photo) img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 180ms ease; }
+.home :global(.pm-featured-body) { overflow-wrap: anywhere; }
 
-.home :global(.pm-recipe-body) { display: grid; grid-template-rows: subgrid; grid-row: span 4; row-gap: 8px; padding: 16px; }
+.home :global(.pm-recipe-card:has(> .pm-featured-link:focus-visible)) { outline: 3px solid var(--green); outline-offset: 4px; }
 
-.home :global(.pm-recipe-card) h3 { margin: 0; font-size: 16px; font-weight: 650; line-height: 1.6; overflow-wrap: anywhere; }
+.home :global(.pm-featured-link):focus-visible { outline: none; }
 
-.home :global(.pm-recipe-meta), .home :global(.pm-recipe-nutrition) { font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.home :global(.pm-recipe-card) button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
 
-.home :global(.pm-recipe-meta) { color: #5b4f42; }
-
-.home :global(.pm-recipe-nutrition) { color: var(--muted); }
-
-.home :global(.pm-recipe-cta) { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
-
-.home :global(.pm-recipe-arrow) { color: var(--accent); font-size: 16px; }
-
-.home :global(.pm-recipe-card):hover { border-color: #cbb7a5; background: #fffaf2; box-shadow: 0 4px 14px #342a240c; }
-
-.home :global(.pm-recipe-card):hover img { transform: scale(1.025); }
-
-.home :global(.pm-recipe-card):active { background: #f5efe5; border-color: #a88970; box-shadow: inset 0 0 0 1px #a88970; }
-
-.home :global(.pm-recipe-card):focus-visible { outline: 3px solid var(--green); outline-offset: 4px; border-color: var(--green); background: #fffaf2; }
-
-@media (max-width:650px) { .home :global(.pm-recipe-card) h3 { font-size: 15px; } }
-
-@media (prefers-reduced-motion:reduce) { .home :global(.pm-recipe-card), .home :global(.pm-recipe-card) img { transition: none; } }
+@media (prefers-reduced-motion:reduce) { .home :global(.pm-recipe-card) { transition: none; } }
 
 .home :global(.pm-guides) {
   padding: 44px 0 57px;

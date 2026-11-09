@@ -10,6 +10,7 @@ vi.mock('@/features/layout/hooks/useHeaderController', () => ({
     navLinks: [], guideLinks: [], accountLinks: [], trustLinks: [], isActiveRoute: () => false, handleLogout() {} }),
 }));
 
+vi.mock('@/features/home/hooks/useHomeFeaturedFavorites', () => ({ useHomeFeaturedFavorites: () => ({ isFavorite: () => false, isPending: () => false, onFavoriteClick: vi.fn(), toast: null }) }));
 import Home from '@/pages/index';
 import MealPlanExample from '@/pages/meal-plan-example';
 import HealthyDinnerGuide from '@/pages/healthy-dinner-guide';

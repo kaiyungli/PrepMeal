@@ -4,6 +4,8 @@ import React, { useCallback } from 'react';
 interface FavoriteButtonProps {
   /** Whether the recipe is currently favorited */
   active?: boolean;
+  /** Optional contextual name for cards with separate sibling controls. */
+  recipeName?: string;
   /** Whether a toggle operation is in progress */
   loading?: boolean;
   /** Callback when button is clicked */
@@ -22,7 +24,8 @@ interface FavoriteButtonProps {
  * - Visually reflects active/loading/disabled state
  */
 function FavoriteButton({ 
-  active = false, 
+  active = false,
+  recipeName,
   loading = false,
   onClick,
   className = '',
@@ -68,7 +71,8 @@ function FavoriteButton({
         ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}
         ${className}
       `}
-      aria-label={active ? "取消收藏" : "收藏"}
+      aria-label={`${active ? "取消收藏" : "收藏"}${recipeName ? `：${recipeName}` : ''}`}
+      aria-pressed={recipeName ? active : undefined}
       aria-busy={loading}
       type="button"
     >
