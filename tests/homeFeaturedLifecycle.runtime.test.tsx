@@ -36,6 +36,24 @@ describe('featured SSR and hydration lifecycle', () => {
     expect(window.__prepmealHomeFeatured!.mount(recipes.map(r => r.slug), false)).toEqual(first);
     expect(error).not.toHaveBeenCalled();
   });
+  it('uses DOM order for the visible cards even when the saved draw order differs', async () => {
+    const selected = ['food-7', 'food-1', 'food-4'];
+    sessionStorage.setItem('prepmeal:home-featured:v1', JSON.stringify(selected));
+    const element = <HomeFeaturedRecipes recipes={rows} bootstrap={source} />;
+    const container = document.createElement('div'); document.body.appendChild(container);
+    container.innerHTML = renderToString(element);
+    window.eval(source);
+    expect(window.__prepmealHomeFeatured!.mount(rows.map(r => r.slug), false)).toEqual(selected);
+    const visible = () => Array.from(container.querySelectorAll<HTMLAnchorElement>('.pm-recipe-card'))
+      .filter(card => getComputedStyle(card).display !== 'none');
+    const before = visible().map(card => card.getAttribute('href'));
+    expect(before).toEqual(['/recipes/food-1', '/recipes/food-4', '/recipes/food-7']);
+    expect(visible().every(card => !card.hasAttribute('tabindex') && !getComputedStyle(card).order)).toBe(true);
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await act(async () => { root = hydrateRoot(container, element); });
+    expect(visible().map(card => card.getAttribute('href'))).toEqual(before);
+    expect(error).not.toHaveBeenCalled();
+  });
   it('escapes a closing script tag in serialized recipe identities', () => {
     const html = renderToString(<HomeFeaturedRecipes recipes={[{ ...rows[0], slug: '</script><script>alert(1)</script>' }]} bootstrap={source} />);
     const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? '';

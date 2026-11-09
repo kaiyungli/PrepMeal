@@ -1,6 +1,8 @@
 // This same file is bundled for client navigation and inlined before the SSR
 // cards. Only an unmanaged, scoped stylesheet changes: React hydrates identical
 // card markup, with no post-paint replacement or per-visitor catalogue request.
+// Selection controls visibility only: visual, reading and keyboard order all
+// follow the server-rendered DOM rather than the randomized draw order.
 (function installHomeFeatured() {
   if (typeof window === 'undefined' || window.__prepmealHomeFeatured) return;
   const sessionKey = 'prepmeal:home-featured:v1';
@@ -51,8 +53,8 @@
     write(session, sessionKey, current); write(local, previousKey, current);
     let style = document.getElementById('home-featured-visibility');
     if (!style) { style = document.createElement('style'); style.id = 'home-featured-visibility'; document.head.appendChild(style); }
-    style.textContent = '#home-featured-list>.pm-recipe-card{display:none}' + current.map((slug, order) =>
-      `#home-featured-list>.pm-recipe-card:nth-child(${pool.indexOf(slug) + 1}){display:flex;order:${order}}`).join('');
+    style.textContent = '#home-featured-list>.pm-recipe-card{display:none}' + current.map(slug =>
+      `#home-featured-list>.pm-recipe-card:nth-child(${pool.indexOf(slug) + 1}){display:flex}`).join('');
     return current.slice();
   }
   window.__prepmealHomeFeatured = { mount };

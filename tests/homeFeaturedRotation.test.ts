@@ -52,6 +52,7 @@ describe('featured recipes have a document lifetime, not a render/focus lifetime
   it('only writes scoped numeric nth-child rules, never recipe strings into CSS', () => {
     const b = browser(); b.api.mount(pool, true);
     expect(b.styles['home-featured-visibility'].textContent).toContain('#home-featured-list>');
+    expect(b.styles['home-featured-visibility'].textContent).not.toMatch(/(?:^|[;{])\s*order\s*:/);
     for (const slug of pool) expect(b.styles['home-featured-visibility'].textContent).not.toContain(slug);
   });
 });
