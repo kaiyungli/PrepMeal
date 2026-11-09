@@ -1,16 +1,19 @@
 import examples from './homeExamples.json';
+import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
 import { matchesSlotRole, type SlotRoleRecipe } from '@/lib/slotRoles';
 
 export const HOME_EXAMPLES = examples;
 export const HOME_ISR_SECONDS = 300;
 export { homeExampleIndex, hongKongDateKey } from './homeCalendar';
 
-export type HomeRecipe = SlotRoleRecipe & {
+type CardFacts = Pick<RecipeDetailRow, 'difficulty' | 'calories_per_serving' | 'protein_g'>;
+export type HomeRecipe = SlotRoleRecipe & Partial<CardFacts> & {
   id: string | number; slug: string; name: string; image_url: string | null;
   total_time_minutes: number | null; base_servings: number; is_public: boolean;
   method?: string | null;
 };
-export type FeaturedRecipe = Pick<HomeRecipe, 'id' | 'slug' | 'name' | 'image_url' | 'total_time_minutes'>;
+export type FeaturedRecipe = Pick<HomeRecipe, 'id' | 'slug' | 'name'> &
+  Partial<Pick<HomeRecipe, 'image_url' | 'total_time_minutes' | 'difficulty' | 'calories_per_serving' | 'protein_g'>>;
 
 export function hasUsablePhoto(url: unknown): url is string {
   if (typeof url !== 'string') return false;
@@ -44,5 +47,8 @@ export function featuredCandidates(catalogue: FeaturedRecipe[], limit = 36): Fea
     if (!recipe.slug?.trim() || /[\s/?#\\<>]/.test(recipe.slug) || !hasUsablePhoto(recipe.image_url) || seen.has(recipe.slug)) return false;
     seen.add(recipe.slug); return true;
   }).sort((a, b) => hash(a.slug) - hash(b.slug) || a.slug.localeCompare(b.slug)).slice(0, limit)
-    .map(({ id, slug, name, image_url, total_time_minutes }) => ({ id, slug, name, image_url, total_time_minutes }));
+    .map(({ id, slug, name, image_url, total_time_minutes, difficulty, calories_per_serving, protein_g }) => ({
+      id, slug, name, image_url, total_time_minutes, difficulty: difficulty ?? null,
+      calories_per_serving: calories_per_serving ?? null, protein_g: protein_g ?? null,
+    }));
 }

@@ -3,7 +3,9 @@ import { useLayoutEffect } from 'react';
 import '@/features/home/featuredBootstrap';
 import Link from 'next/link';
 
-type FeaturedRecipe = { id: string | number; slug: string; name: string; image_url?: string | null; total_time_minutes?: number | null };
+import type { FeaturedRecipe } from '@/features/home/homeRotation';
+import { DIFFICULTY_MAP } from '@/constants/taxonomy';
+import { formatCalories, nutritionValue } from '@/lib/utils';
 
 declare global {
   interface Window { __prepmealHomeFeatured?: { mount: (slugs: string[], newDocument: boolean) => string[] } }
@@ -28,15 +30,26 @@ export default function HomeFeaturedRecipes({ recipes, bootstrap }: { recipes: F
       </div>
       {boot && <script dangerouslySetInnerHTML={{ __html: boot }} />}
       <div className="pm-recipe-grid" id="home-featured-list">
-        {recipes.map(recipe => (
-          <Link className="pm-recipe-card" href={`/recipes/${encodeURIComponent(recipe.slug)}`} key={recipe.id} prefetch={false}>
-            <div className="pm-recipe-photo">
-              {recipe.image_url && <Image src={recipe.image_url} alt={recipe.name} width={600} height={400} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 30vw, 370px" />}
-              {typeof recipe.total_time_minutes === 'number' && recipe.total_time_minutes > 0 && <span>{recipe.total_time_minutes} 分鐘</span>}
-            </div>
-            <div className="pm-recipe-body"><h3>{recipe.name}</h3><p>查看食譜 <span className="pm-recipe-arrow" aria-hidden="true">→</span></p></div>
-          </Link>
-        ))}
+        {recipes.map(recipe => {
+          const minutes = nutritionValue(recipe.total_time_minutes);
+          const difficulty = recipe.difficulty && Object.hasOwn(DIFFICULTY_MAP, recipe.difficulty) ? DIFFICULTY_MAP[recipe.difficulty] : null;
+          const meta = [minutes !== null ? `${minutes} 分鐘` : null, difficulty].filter(Boolean).join(' · ');
+          const calories = nutritionValue(recipe.calories_per_serving), protein = nutritionValue(recipe.protein_g);
+          const nutrition = [calories !== null ? formatCalories(calories) : null, protein !== null ? `蛋白質 ${protein} g` : null].filter(Boolean).join(' · ');
+          return (
+            <Link className="pm-recipe-card" href={`/recipes/${encodeURIComponent(recipe.slug)}`} key={recipe.id} prefetch={false}>
+              <div className="pm-recipe-photo">
+                {recipe.image_url && <Image src={recipe.image_url} alt={recipe.name} width={600} height={400} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 30vw, 370px" />}
+              </div>
+              <div className="pm-recipe-body">
+                <h3>{recipe.name}</h3>
+                <div className="pm-recipe-meta">{meta}</div>
+                <div className="pm-recipe-nutrition">{nutrition && `每人份估算：${nutrition}`}</div>
+                <p className="pm-recipe-cta">查看食譜 <span className="pm-recipe-arrow" aria-hidden="true">→</span></p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

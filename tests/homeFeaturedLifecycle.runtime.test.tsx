@@ -5,9 +5,12 @@ import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ComponentProps } from 'react';
 import HomeFeaturedRecipes from '@/components/home/HomeFeaturedRecipes';
+import RecipeDetailContent from '@/components/RecipeDetailContent';
+import { normalizeRecipeDetail } from '@/features/recipes/mappers/normalizeRecipeDetail';
+import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
 vi.mock('next/link', () => ({ default: ({ href, children, prefetch, ...props }: ComponentProps<'a'> & { prefetch?: boolean }) => { void prefetch; return <a href={href} {...props}>{children}</a>; } }));
 const source = readFileSync('src/features/home/featuredBootstrap.js', 'utf8');
-const rows = Array.from({ length: 8 }, (_, i) => ({ id: `${i}`, slug: `food-${i}`, name: `菜式${i}`, image_url: 'https://images.unsplash.com/test.jpg', total_time_minutes: 20 }));
+const rows = Array.from({ length: 8 }, (_, i) => ({ id: `${i}`, slug: `food-${i}`, name: `菜式${i}`, image_url: 'https://images.unsplash.com/test.jpg', total_time_minutes: 20, difficulty: 'easy', calories_per_serving: 361, protein_g: 37 }));
 let root: Root | undefined;
 beforeEach(() => {
   delete window.__prepmealHomeFeatured;
@@ -59,5 +62,37 @@ describe('featured SSR and hydration lifecycle', () => {
     const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1] ?? '';
     expect(script).toContain('\\u003c/script>');
     expect(script).not.toContain('</script>');
+  });
+});
+
+
+describe('home card facts and per-person detail values', () => {
+  it.each([
+    { facts: { total_time_minutes: 30, difficulty: 'easy', calories_per_serving: 361, protein_g: 37 }, meta: '30 分鐘 · 容易', nutrition: '每人份估算：361 kcal · 蛋白質 37 g' },
+    { facts: { total_time_minutes: null, difficulty: 'medium', calories_per_serving: null, protein_g: 12.5 }, meta: '中等', nutrition: '每人份估算：蛋白質 12.5 g' },
+    { facts: { total_time_minutes: 15, difficulty: null, calories_per_serving: 83.5, protein_g: null }, meta: '15 分鐘', nutrition: '每人份估算：83.5 kcal' },
+    { facts: { total_time_minutes: 0, difficulty: '簡單', calories_per_serving: 0, protein_g: 0 }, meta: '0 分鐘 · 容易', nutrition: '每人份估算：0 kcal · 蛋白質 0 g' },
+    { facts: { total_time_minutes: Infinity, difficulty: 'unknown', calories_per_serving: NaN, protein_g: -1 }, meta: '', nutrition: '' },
+    { facts: { total_time_minutes: undefined, difficulty: undefined, calories_per_serving: undefined, protein_g: undefined }, meta: '', nutrition: '' },
+  ])('renders only valid facts: $meta / $nutrition', ({ facts, meta, nutrition }) => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<HomeFeaturedRecipes recipes={[{ ...rows[0], ...facts }]} />);
+    expect(container.querySelector('.pm-recipe-meta')?.textContent).toBe(meta);
+    expect(container.querySelector('.pm-recipe-nutrition')?.textContent).toBe(nutrition);
+    expect(container.querySelector('.pm-recipe-photo span')).toBeNull();
+    expect(container.querySelectorAll('.pm-recipe-card a, .pm-recipe-card button')).toHaveLength(0);
+    expect(container.querySelector('.pm-recipe-card')?.children[1].children[0].tagName).toBe('H3');
+    expect(container.querySelector('.pm-recipe-cta')?.textContent).toBe('查看食譜 →');
+  });
+  it.each([0, 37.25])('matches detail normalization and display for a real per-person value %s', value => {
+    const row = { ...rows[0], calories_per_serving: value, protein_g: value, base_servings: 1, ingredients: [], steps: [] } as unknown as RecipeDetailRow;
+    const normalized = normalizeRecipeDetail(row);
+    expect(normalized.calories_per_serving).toBe(value); expect(normalized.protein_g).toBe(value);
+    const detail = document.createElement('div'); detail.innerHTML = renderToString(<RecipeDetailContent recipe={normalized} deferHeavySections={false} />);
+    const nutrition = Array.from(detail.querySelectorAll('h3')).find(h => h.textContent?.includes('營養資料（每人份）'))!.parentElement!;
+    const values = nutrition.querySelectorAll('.text-xl');
+    expect(values[0].textContent).toBe(String(value)); expect(values[1].textContent).toBe(String(value));
+    const card = renderToString(<HomeFeaturedRecipes recipes={[{ ...rows[0], calories_per_serving: value, protein_g: value }]} />);
+    expect(card).toContain(`每人份估算：${value} kcal · 蛋白質 ${value} g`);
   });
 });

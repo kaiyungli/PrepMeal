@@ -18,7 +18,7 @@ export async function publicImageAvailable(url: string): Promise<boolean> {
 export async function loadHomeCatalogue(): Promise<HomeRecipe[] | null> {
   if (!supabaseServer) return null;
   const { data, error } = await supabaseServer.from('recipes')
-    .select('id,slug,name,image_url,total_time_minutes,base_servings,primary_protein,dish_type,meal_role,method,is_complete_meal,is_public')
+    .select('id,slug,name,image_url,total_time_minutes,difficulty,calories_per_serving,protein_g,base_servings,primary_protein,dish_type,meal_role,method,is_complete_meal,is_public')
     .eq('is_public', true).order('slug').limit(1000);
   return error || !data ? null : data;
 }

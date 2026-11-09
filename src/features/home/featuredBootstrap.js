@@ -54,7 +54,7 @@
     let style = document.getElementById('home-featured-visibility');
     if (!style) { style = document.createElement('style'); style.id = 'home-featured-visibility'; document.head.appendChild(style); }
     style.textContent = '#home-featured-list>.pm-recipe-card{display:none}' + current.map(slug =>
-      `#home-featured-list>.pm-recipe-card:nth-child(${pool.indexOf(slug) + 1}){display:flex}`).join('');
+      `#home-featured-list>.pm-recipe-card:nth-child(${pool.indexOf(slug) + 1}){display:grid}`).join('');
     return current.slice();
   }
   window.__prepmealHomeFeatured = { mount };
