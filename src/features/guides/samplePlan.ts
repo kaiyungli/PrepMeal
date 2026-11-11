@@ -14,7 +14,14 @@ export const SAMPLE_PLAN_DAYS: { day: string; slugs: string[]; note: string }[] 
 
 export const SAMPLE_PLAN_SLUGS = SAMPLE_PLAN_DAYS.flatMap(d => d.slugs);
 
-export interface SamplePlanDish { slug: string; name: string; image_url?: string | null; total_time_minutes: number | null }
+export interface SamplePlanDish {
+  slug: string;
+  name: string;
+  image_url?: string | null;
+  total_time_minutes: number | null;
+  /** Existing per-recipe shopping calculation, scaled to sample-plan servings. */
+  ingredientExcerpt?: { name: string; quantityText: string }[];
+}
 
 export interface SamplePlanItem { name: string; quantityText: string; dishCount: number; category: string }
 

@@ -49,6 +49,7 @@ export default defineConfig({
       'tests/homeGenerateEntry.runtime.test.tsx',
       'tests/homeFeaturedLifecycle.runtime.test.tsx',
       'tests/homeFeaturedFavorites.runtime.test.tsx',
+      'tests/homeRecipeImages.runtime.test.tsx',
       'tests/guidePages.runtime.test.tsx',
       'tests/privacyOptions.runtime.test.tsx',
       'tests/shoppingProgress.runtime.test.tsx',

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import HomeRecipeImage from './HomeRecipeImage';
 import Link from 'next/link';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 import { sampleDishName } from '@/features/home/samplePresentation';
@@ -49,7 +49,7 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
                   <div className="pm-day" aria-label={day.day}><span aria-hidden="true">DAY</span><strong aria-hidden="true">{String(index + 1).padStart(2, '0')}</strong></div>
                   <div className="pm-meal-content">
                     {mainDish && <Link href={`/recipes/${encodeURIComponent(mainDish.slug)}`} prefetch={false} className="pm-meal-main" title={mainDish.name}>
-                      {mainDish.image_url && <Image src={mainDish.image_url} alt="" width={176} height={176} sizes="88px" className="pm-meal-photo" />}
+                      <HomeRecipeImage key={mainDish.image_url} src={mainDish.image_url} alt="" width={176} height={176} sizes="88px" className="pm-meal-photo" />
                       <span className="pm-meal-name">{sampleDishName(mainDish)}</span>
                       <span className="pm-meal-arrow" aria-hidden="true">→</span>
                     </Link>}

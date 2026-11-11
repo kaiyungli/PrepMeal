@@ -1,18 +1,14 @@
-import Image from 'next/image';
+import { useState } from 'react';
+import HomeRecipeImage from './HomeRecipeImage';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 
 /** Native form submits directly to the existing generator, even before hydration. */
 export default function HomePlannerIntro({ plan, heroSlug }: { plan?: SamplePlan | null; heroSlug?: string }) {
   const dishes = plan?.days.map(day => day.dishes[0]).filter(Boolean) ?? [];
-  const hero = dishes.find(dish => dish.slug === heroSlug && dish.image_url)
-    ?? dishes.find(dish => dish.image_url);
-  const categoryPriority: Record<string, number> = { meat: 0, vegetable: 1, tofu_egg: 2 };
-  // Take one real main ingredient per category; aromatics belong in the full list.
-  const ingredients = plan?.sections
-    .filter(section => !['seasoning', 'pantry'].includes(section.key))
-    .sort((a, b) => (categoryPriority[a.key] ?? 3) - (categoryPriority[b.key] ?? 3))
-    .flatMap(section => section.items.filter(item => !/^(蒜頭|蒜蓉|蒜|薑|生薑|蔥|葱)$/.test(item.name)).slice(0, 1))
-    .slice(0, 2) ?? [];
+  const [unavailable, setUnavailable] = useState<string[]>([]);
+  const usable = dishes.filter(dish => dish.image_url && !unavailable.includes(dish.image_url));
+  const hero = usable.find(dish => dish.slug === heroSlug) ?? usable[0];
+  const ingredients = hero?.ingredientExcerpt ?? [];
 
   return (
     <section className={`pm-wrap pm-hero ${hero ? '' : 'pm-hero-text-only'}`} aria-labelledby="home-title">
@@ -46,12 +42,13 @@ export default function HomePlannerIntro({ plan, heroSlug }: { plan?: SamplePlan
         </div>
       </div>
       {hero?.image_url && (
-        <div className="pm-hero-photo">
-          <Image src={hero.image_url} alt={hero.name} width={640} height={480} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 44vw, 500px" priority className="pm-main-photo" />
+        <div className="pm-hero-photo" data-hero-slug={hero.slug}>
+          <HomeRecipeImage key={hero.image_url} src={hero.image_url} alt={hero.name} width={640} height={480} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 44vw, 500px" priority className="pm-main-photo" onUnavailable={() => setUnavailable(previous => [...new Set([...previous, hero.image_url!])])} />
           <span className="pm-image-label">有飯氣嘅家常晚餐</span>
           {ingredients.length > 0 && (
             <div className="pm-mini-list">
-              <p className="pm-mini-head">示範清單節錄</p>
+              <p className="pm-mini-head">呢道菜嘅材料節錄</p>
+              <p className="pm-mini-dish">{hero.name}（{plan?.servings}人份）</p>
               <ul className="pm-mini-items">{ingredients.map(item => <li className="pm-mini-line" key={item.name}>
                 <span className="pm-mini-name">{item.name}</span><strong>{item.quantityText}</strong>
               </li>)}</ul>

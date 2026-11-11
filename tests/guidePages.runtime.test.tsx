@@ -93,7 +93,7 @@ describe('guide pages render real content on the server', () => {
     expect(container.querySelector('.pm-example-action a')?.textContent).toContain('設定我的餐單');
     expect(container.textContent).not.toContain('固定示範');
     expect(container.textContent?.match(/1 人份/g)).toHaveLength(1);
-    expect(container.querySelector('.pm-mini-head')?.textContent).toContain('示範清單節錄');
+    expect(container.querySelector('.pm-mini-list')).toBeNull(); // Missing per-recipe data stays hidden.
     expect(container.textContent).toContain('白飯另計');
     expect(container.textContent).toContain('生成後按所選人數計算材料');
     expect(container.textContent).toContain('毋須登入，即可生成');
@@ -112,7 +112,7 @@ describe('guide pages render real content on the server', () => {
 
   it('submits preferences with the same native form and previews real main ingredients', () => {
     const main = { name: '雞肉', quantityText: '300 克', dishCount: 1, category: 'meat' };
-    const plan = { ...PLAN, days: [{ ...PLAN.days[0], dishes: [{ ...dish('a'), image_url: 'https://images.unsplash.com/test.jpg' }] }],
+    const plan = { ...PLAN, days: [{ ...PLAN.days[0], dishes: [{ ...dish('a'), image_url: 'https://images.unsplash.com/test.jpg', ingredientExcerpt: [{ name: '雞肉', quantityText: '300 克' }, { name: '菠菜', quantityText: '180 克' }] }] }],
       sections: [{ key: 'seasoning', label: '調味料', items: [{ ...main, name: '鹽' }] },
         { key: 'meat', label: '肉類', items: [main] },
         { key: 'vegetable', label: '蔬菜', items: [{ ...main, name: '蒜頭' }, { ...main, name: '菠菜', quantityText: '680 克' }] }] };
@@ -123,8 +123,10 @@ describe('guide pages render real content on the server', () => {
     expect(button.getAttribute('form')).toBe('home-plan-form');
     expect(button.value).toBe('preferences');
     expect(container.querySelectorAll('form')).toHaveLength(1);
-    expect(container.querySelector('.pm-mini-items')?.textContent).toBe('雞肉300 克菠菜680 克');
+    expect(container.querySelector('.pm-mini-items')?.textContent).toBe('雞肉300 克菠菜180 克');
     expect(container.querySelector('.pm-mini-items')?.textContent).not.toMatch(/蒜頭|鹽/);
+    expect(container.querySelector('.pm-mini-head')?.textContent).toBe('呢道菜嘅材料節錄');
+    expect(container.querySelector('.pm-mini-dish')?.textContent).toContain('菜a（2人份）');
     expect(container.querySelectorAll('.pm-mini-items input,.pm-mini-marker')).toHaveLength(0);
     expect(container.querySelectorAll('.pm-mini-items li')).toHaveLength(2);
   });

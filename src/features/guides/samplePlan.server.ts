@@ -1,3 +1,4 @@
+import { sampleDishIngredients } from './samplePlanIngredients';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { handleShoppingList } from '@/pages/api/shopping-list';
@@ -66,7 +67,12 @@ export async function loadSamplePlan(days = SAMPLE_PLAN_DAYS, catalogue?: Sample
         day: d.day, note: d.note,
         dishes: d.slugs.map(slug => {
           const r = bySlug.get(slug)!;
-          return { slug, name: String(r.name), image_url: typeof r.image_url === 'string' ? r.image_url : null, total_time_minutes: typeof r.total_time_minutes === 'number' ? r.total_time_minutes : null };
+          return {
+            slug, name: String(r.name),
+            image_url: typeof r.image_url === 'string' ? r.image_url : null,
+            total_time_minutes: typeof r.total_time_minutes === 'number' ? r.total_time_minutes : null,
+            ...(requireCompleteIngredients ? { ingredientExcerpt: sampleDishIngredients(String(r.id), view) } : {}),
+          };
         }),
       })),
       sections,
