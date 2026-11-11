@@ -1,3 +1,5 @@
+import { loadHeroCandidates } from './homeHero.server';
+import { usableHero, HOME_HERO_SERVINGS } from './homeHero';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { supabaseServer } from '@/lib/supabaseServer';
@@ -27,6 +29,7 @@ type Dependencies = {
   catalogue?: typeof loadHomeCatalogue;
   plan?: (days: typeof HOME_EXAMPLES[number]['days'], rows: HomeRecipe[], requireCompleteIngredients: boolean) => ReturnType<typeof loadSamplePlan>;
   image?: typeof publicImageAvailable;
+  hero?: typeof loadHeroCandidates;
 };
 
 /** Only called by shared ISR regeneration, never by a per-visitor API. */
@@ -50,9 +53,12 @@ export async function loadHomeContent(requested: number, dependencies: Dependenc
     // The selected, fully validated example also supplies a safe card fallback.
     const fallback = featuredCandidates(rows);
     const featuredRecipes = candidates.length >= 3 ? candidates : featuredCandidates([...candidates, ...fallback]);
+    const independentHeroes = await (dependencies.hero ?? loadHeroCandidates)(catalogue, image);
+    const fallbackHeroes = samplePlan.days.map(day => ({ ...day.dishes[0], servings: HOME_HERO_SERVINGS })).filter(usableHero);
+    const heroCandidates = independentHeroes.length ? independentHeroes : fallbackHeroes;
     const featuredBootstrap = await readFile(path.join(process.cwd(), 'src/features/home/featuredBootstrap.js'), 'utf8');
     return {
-      samplePlan, heroSlug: example.heroSlug, homeExampleId: example.id,
+      samplePlan, heroCandidates, homeExampleId: example.id,
       requestedExampleId: HOME_EXAMPLES[requested].id, featuredRecipes, featuredBootstrap,
     };
   }

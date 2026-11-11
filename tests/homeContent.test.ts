@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: vi.fn() }));
+vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: vi.fn(), loadRecipePreviews: vi.fn().mockResolvedValue([]) }));
 vi.mock('@/lib/supabaseServer', () => ({ supabaseServer: null }));
 import { loadHomeContent } from '@/features/home/homeContent.server';
 import { HOME_EXAMPLES, type HomeRecipe } from '@/features/home/homeRotation';
@@ -28,7 +28,7 @@ describe('homepage ISR content and safe fallbacks', () => {
       const plan = vi.fn(fakePlan), image = vi.fn().mockResolvedValue(true), fetchCatalogue = vi.fn().mockResolvedValue(rows);
       const content = await loadHomeContent(index, { catalogue: fetchCatalogue, plan, image });
       expect(content.homeExampleId).toBe(HOME_EXAMPLES[index].id);
-      expect(content.heroSlug).toBe(HOME_EXAMPLES[index].heroSlug);
+      expect(content.heroCandidates).toEqual([]);
       expect(content.samplePlan.sections[0].items[0].quantityText).toBe('from-existing-handler');
       expect(plan).toHaveBeenCalledTimes(1);
       expect(plan).toHaveBeenCalledWith(HOME_EXAMPLES[index].days, expect.any(Array), true);
@@ -52,7 +52,7 @@ describe('homepage ISR content and safe fallbacks', () => {
     expect(content.homeExampleId).toBe(HOME_EXAMPLES[1].id);
     expect(content.requestedExampleId).toBe(HOME_EXAMPLES[0].id);
     expect(content.samplePlan.days).toHaveLength(7);
-    expect(content.heroSlug).toBe(HOME_EXAMPLES[1].heroSlug);
+    expect(content.heroCandidates).toEqual([]);
     expect(content.featuredRecipes.some(r => r.slug === slug)).toBe(false);
   });
   it('tries a complete alternative after shopping calculation fails, without mixing days', async () => {
@@ -66,4 +66,15 @@ describe('homepage ISR content and safe fallbacks', () => {
     await expect(loadHomeContent(0, { catalogue: async () => catalogue(), image: async () => false })).rejects.toThrow('last complete');
     await expect(loadHomeContent(-1)).rejects.toThrow('Invalid home example');
   });
+});
+
+
+it('uses an independent cached hero pool without changing any daily menu', async () => {
+  const outside = { slug: 'outside-main', name: '另一道主菜', image_url: 'https://images.unsplash.com/outside.jpg', total_time_minutes: 20, servings: 2, ingredientExcerpt: [{ name: '材料', quantityText: 'from-existing-calculator' }] };
+  const hero = vi.fn().mockResolvedValue([outside]);
+  for (let index = 0; index < 7; index++) {
+    const content = await loadHomeContent(index, { catalogue: async () => catalogue(), plan: vi.fn(fakePlan), image: async () => true, hero });
+    expect(content.heroCandidates).toEqual([outside]);
+    expect(content.samplePlan.days.map(d => d.dishes.map(r => r.slug))).toEqual(HOME_EXAMPLES[index].days.map(d => d.slugs));
+  }
 });

@@ -149,6 +149,10 @@
  .home :global(.pm-example-action) :global(.pm-primary) { width: 100%; }
 }
 
+.home :global(#home-hero-list) { min-width: 0; }
+
+.home :global(.pm-hero-item):not(:first-child) { display: none; }
+
 .home :global(.pm-hero-photo) {
   position: relative;
   padding: 6px 0 30px;

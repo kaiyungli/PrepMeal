@@ -4,7 +4,7 @@ const query = vi.hoisted(() => {
   q.select.mockReturnValue(q); q.eq.mockReturnValue(q); q.order.mockReturnValue(q);
   return q;
 });
-vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: vi.fn() }));
+vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: vi.fn(), loadRecipePreviews: vi.fn().mockResolvedValue([]) }));
 vi.mock('@/lib/supabaseServer', () => ({ supabaseServer: { from: () => query } }));
 import { loadHomeCatalogue } from '@/features/home/homeContent.server';
 import { featuredCandidates } from '@/features/home/homeRotation';

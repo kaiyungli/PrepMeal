@@ -117,7 +117,7 @@ describe('guide pages render real content on the server', () => {
         { key: 'meat', label: '肉類', items: [main] },
         { key: 'vegetable', label: '蔬菜', items: [{ ...main, name: '蒜頭' }, { ...main, name: '菠菜', quantityText: '680 克' }] }] };
     const container = document.createElement('div');
-    container.innerHTML = renderToString(<HomePlannerIntro plan={plan} />);
+    container.innerHTML = renderToString(<HomePlannerIntro recipes={plan.days.map(day => ({ ...day.dishes[0], servings: 2 }))} />);
     const button = container.querySelector('button[name="intent"]') as HTMLButtonElement;
     expect(button.type).toBe('submit');
     expect(button.getAttribute('form')).toBe('home-plan-form');

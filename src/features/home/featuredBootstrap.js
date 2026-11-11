@@ -5,9 +5,7 @@
 // follow the server-rendered DOM rather than the randomized draw order.
 (function installHomeFeatured() {
   if (typeof window === 'undefined' || window.__prepmealHomeFeatured) return;
-  const sessionKey = 'prepmeal:home-featured:v1';
-  const previousKey = 'prepmeal:home-featured:last:v1';
-  let current = null;
+  const channels = new Map();
   function read(store, key) {
     try { const value = JSON.parse(store.getItem(key)); return Array.isArray(value) ? value.filter(v => typeof v === 'string') : []; }
     catch { return []; }
@@ -25,8 +23,8 @@
     }
     return result;
   }
-  function choose(pool, priors) {
-    const shuffled = shuffle(pool), count = Math.min(3, pool.length);
+  function choose(pool, priors, count) {
+    const shuffled = shuffle(pool);
     const previous = new Set(priors.flat());
     const ordered = shuffled.filter(slug => !previous.has(slug)).concat(shuffled.filter(slug => previous.has(slug)));
     const chosen = ordered.slice(0, count);
@@ -38,23 +36,34 @@
         }
       }
     }
+    // If two tabs exhaust a tiny pool, prioritize this tab's previous choice.
+    if (pool.length > count && same(chosen, priors[0])) {
+      const replacement = shuffled.find(slug => !chosen.includes(slug));
+      if (replacement) chosen[0] = replacement;
+    }
     return chosen;
   }
-  function mount(input, newDocument) {
+  function mount(input, newDocument, channel = 'featured', excluded = []) {
+    channel = channel === 'hero' ? 'hero' : 'featured';
+    const sessionKey = `prepmeal:home-${channel}:v1`, previousKey = `prepmeal:home-${channel}:last:v1`;
+    const hero = channel === 'hero';
     const pool = Array.from(new Set(input.filter(value => typeof value === 'string' && value)));
-    if (!pool.length) return [];
+    const eligible = pool.filter(slug => !excluded.includes(slug)), count = Math.min(hero ? 1 : 3, eligible.length);
+    let current = channels.get(channel);
     const session = storage('sessionStorage'), local = storage('localStorage');
     const saved = read(session, sessionKey), previous = read(local, previousKey);
-    const usable = values => values && values.length === Math.min(3, pool.length) && new Set(values).size === values.length && values.every(value => pool.includes(value));
+    const usable = values => values && values.length === count && new Set(values).size === values.length && values.every(value => eligible.includes(value));
     const back = window.performance?.getEntriesByType('navigation')[0]?.type === 'back_forward';
     if (!(usable(current) && !newDocument)) {
-      current = (!newDocument || back) && usable(saved) ? saved : choose(pool, [saved, previous]);
+      current = (!newDocument || back) && usable(saved) ? saved : choose(eligible, [saved, previous], count);
     }
+    channels.set(channel, current);
     write(session, sessionKey, current); write(local, previousKey, current);
-    let style = document.getElementById('home-featured-visibility');
-    if (!style) { style = document.createElement('style'); style.id = 'home-featured-visibility'; document.head.appendChild(style); }
-    style.textContent = '#home-featured-list>.pm-recipe-card{display:none}' + current.map(slug =>
-      `#home-featured-list>.pm-recipe-card:nth-child(${pool.indexOf(slug) + 1}){display:block}`).join('');
+    const id = `home-${channel}-visibility`, selector = hero ? '#home-hero-list>.pm-hero-item' : '#home-featured-list>.pm-recipe-card';
+    let style = document.getElementById(id);
+    if (!style) { style = document.createElement('style'); style.id = id; document.head.appendChild(style); }
+    style.textContent = selector + '{display:none}' + current.map(slug =>
+      `${selector}:nth-child(${pool.indexOf(slug) + 1}){display:block}`).join('');
     return current.slice();
   }
   window.__prepmealHomeFeatured = { mount };

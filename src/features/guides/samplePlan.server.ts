@@ -26,6 +26,19 @@ async function computeShoppingList(recipeIds: string[], servings: number): Promi
     ? payload as ShoppingListResponse : null;
 }
 
+/** Independent recipe previews: a single batch using the same serving calculator. */
+export async function loadRecipePreviews(recipes: SampleRecipe[], servings = SAMPLE_PLAN_SERVINGS) {
+  if (!recipes.length) return [];
+  const response = await computeShoppingList(recipes.map(recipe => String(recipe.id)), servings);
+  if (!response) return [];
+  const view = mapShoppingListResponseToViewModel(response);
+  return recipes.map(recipe => ({
+    slug: recipe.slug, name: recipe.name, image_url: recipe.image_url ?? null,
+    total_time_minutes: recipe.total_time_minutes ?? null, servings,
+    ingredientExcerpt: sampleDishIngredients(String(recipe.id), view),
+  })).filter(recipe => recipe.ingredientExcerpt.length > 0);
+}
+
 /** null when any dish is missing or the calculation fails: never show a partial example. */
 export async function loadSamplePlan(days = SAMPLE_PLAN_DAYS, catalogue?: SampleRecipe[], requireCompleteIngredients = false): Promise<SamplePlan | null> {
   if (!supabaseServer) return null;

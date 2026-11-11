@@ -11,20 +11,20 @@ import { useNavigationDataReady } from '@/features/performance/useNavigationData
 /**
  * @param {{
  *   featuredRecipes?: import('react').ComponentProps<typeof HomeFeaturedRecipes>['recipes'];
- *   heroSlug?: string;
+ *   heroCandidates?: import('react').ComponentProps<typeof HomePlannerIntro>['recipes'];
  *   homeExampleId?: string;
  *   requestedExampleId?: string;
  *   featuredBootstrap?: string;
  *   samplePlan: import('@/features/guides/samplePlan').SamplePlan;
  * }} props
  */
-export default function Home({ featuredRecipes = [], samplePlan, heroSlug, homeExampleId, featuredBootstrap }) {
+export default function Home({ featuredRecipes = [], samplePlan, heroCandidates, homeExampleId, featuredBootstrap }) {
   useNavigationDataReady('home', true);
   return (
     <Layout className={styles.home}>
       <SEO title="一週餐單與合併購物清單" description="揀人數同3、5或7日餐單，換菜後按份量合併買餸材料。先睇兩人一週晚餐示例，再生成自己的餐單。" canonical="https://eatwhathk.com/" ogType="website" />
       <main className="flex-1" data-home-example={homeExampleId}>
-        <HomePlannerIntro plan={samplePlan} heroSlug={heroSlug} />
+        <HomePlannerIntro recipes={heroCandidates} bootstrap={featuredBootstrap} />
         <HomeSamplePlan plan={samplePlan} />
         <HomeHowItWorks />
         <HomeFeaturedRecipes recipes={featuredRecipes} bootstrap={featuredBootstrap} />

@@ -5,10 +5,11 @@ import { useLayoutEffect } from 'react';
 import '@/features/home/featuredBootstrap';
 import Link from 'next/link';
 
+import { homeSelectionScript } from '@/features/home/homeHero';
 import type { FeaturedRecipe } from '@/features/home/homeRotation';
 
 declare global {
-  interface Window { __prepmealHomeFeatured?: { mount: (slugs: string[], newDocument: boolean) => string[] } }
+  interface Window { __prepmealHomeFeatured?: { mount: (slugs: string[], newDocument: boolean, channel?: 'hero' | 'featured', excluded?: string[]) => string[] } }
 }
 
 export default function HomeFeaturedRecipes({ recipes, bootstrap }: { recipes: FeaturedRecipe[]; bootstrap?: string }) {
@@ -19,10 +20,7 @@ export default function HomeFeaturedRecipes({ recipes, bootstrap }: { recipes: F
     // Reuse this tab's selection on client navigation; never on focus or timers.
     window.__prepmealHomeFeatured?.mount(JSON.parse(signature), false);
   }, [signature]);
-  const safeSignature = signature.replace(/</g, String.raw`\u003c`)
-    .replace(/\u2028/g, String.raw`\u2028`).replace(/\u2029/g, String.raw`\u2029`);
-  const boot = bootstrap ? `${bootstrap}
-;window.__prepmealHomeFeatured.mount(${safeSignature},true);` : null;
+  const boot = homeSelectionScript(bootstrap, slugs, 'featured');
   return (
     <section className="pm-wrap" aria-labelledby="featured-recipes">
       <div className="pm-section-head">
