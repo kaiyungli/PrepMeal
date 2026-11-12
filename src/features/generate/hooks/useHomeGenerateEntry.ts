@@ -16,6 +16,7 @@ export function useHomeGenerateEntry(options: Options) {
   const router = useRouter();
   const handled = useRef(false);
   const [pending, setPending] = useState<Request | null>(null);
+  const [preferencesOpenRequest, setPreferencesOpenRequest] = useState(0);
   const [applied, setApplied] = useState<Request | null>(null);
   const { ready, conflict, loading, error, hasRecipes, preferences, generate, clear } = options;
   const consumeUrl = useCallback(() => {
@@ -28,6 +29,7 @@ export function useHomeGenerateEntry(options: Options) {
       // Settings-only navigation must not clear meals, filters or generate a plan.
       preferences.setDaysPerWeek(request.days);
       preferences.setServings(request.servings);
+      setPreferencesOpenRequest(value => value + 1);
       setPending(null);
       consumeUrl();
       return;
@@ -63,7 +65,7 @@ export function useHomeGenerateEntry(options: Options) {
   }, [applied, ready, conflict, loading, error, preferences, generate]);
 
   return {
-    pending,
+    pending, preferencesOpenRequest,
     accept: () => { if (pending && ready && !conflict && !loading && !error) apply(pending); },
     dismiss: () => { setPending(null); consumeUrl(); },
   };

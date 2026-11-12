@@ -16,7 +16,7 @@ function setup(hasRecipes = false) {
     onClearAll: vi.fn(), handleToggleFilterExpanded: vi.fn(),
   };
   const props = {
-    hasRecipes, daysPerWeek: 3, dailyComposition: 'complete_meal',
+    preferencesOpenRequest: 0, hasRecipes, daysPerWeek: 3, dailyComposition: 'complete_meal',
     allowCompleteMeal: false, servings: 1, budget: 'normal',
     filters: { cuisine: [], dish_type: [], protein: [], method: [], speed: [],
       difficulty: [], diet: [], flavor: [] },
@@ -38,6 +38,18 @@ function controlsRegion(): HTMLElement {
 }
 
 describe('Generate settings responsive collapse', () => {
+  it('focuses an accepted preference entry once, including without a draft', () => {
+    const { update } = setup(false);
+    update({ preferencesOpenRequest: 1 });
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: '3天' }));
+    fireEvent.focus(screen.getByRole('combobox', { name: '用餐人數' }));
+    update({ preferencesOpenRequest: 1, hasRecipes: true });
+    expect(screen.getByRole('button', { name: '收起設定' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '收起設定' }));
+    update({ preferencesOpenRequest: 1, hasRecipes: true });
+    expect(screen.getByRole('button', { name: '修改設定' }).getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('shows planning controls before a plan exists and has no collapse toggle', () => {
     setup(false);
     expect(screen.queryByRole('button', { name: '修改設定' })).toBeNull();

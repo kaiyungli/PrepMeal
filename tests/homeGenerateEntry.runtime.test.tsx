@@ -92,12 +92,14 @@ describe('homepage generator handoff', () => {
     router.query.intent = 'preferences';
     const { result } = renderHook(() => useHarness({ hasRecipes: true }));
     expect(result.current.pending?.intent).toBe('preferences');
+    expect(result.current.preferencesOpenRequest).toBe(0);
     act(() => result.current.preferences.setExclusions(['芫荽']));
     expect(result.current.preferences.servings).toBe(2);
     act(() => result.current.accept());
     expect(result.current.preferences.servings).toBe(4);
     expect(result.current.preferences.daysPerWeek).toBe(5);
     expect(result.current.preferences.exclusions).toEqual(['芫荽']);
+    expect(result.current.preferencesOpenRequest).toBe(1);
     expect(result.current.generate).not.toHaveBeenCalled();
     expect(result.current.clear).not.toHaveBeenCalled();
   });
@@ -106,6 +108,7 @@ describe('homepage generator handoff', () => {
     router.query.intent = 'preferences';
     const { result } = renderHook(() => useHarness({ hasRecipes: true }));
     act(() => result.current.dismiss());
+    expect(result.current.preferencesOpenRequest).toBe(0);
     expect(result.current.preferences.servings).toBe(2);
     expect(result.current.generate).not.toHaveBeenCalled();
     expect(parseHomeGenerateEntry({ source: 'home', days: '7', servings: '2', intent: 'unknown' })).toBeNull();
