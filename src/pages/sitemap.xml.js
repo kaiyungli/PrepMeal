@@ -14,7 +14,6 @@ const STATIC_URLS = [
   { loc: '/terms', changefreq: 'monthly', priority: 0.5 },
   { loc: '/faq', changefreq: 'monthly', priority: 0.6 },
   { loc: '/meal-plan-example', changefreq: 'weekly', priority: 0.8 },
-  { loc: '/hk-dinner-ideas', changefreq: 'weekly', priority: 0.8 },
   { loc: '/ingredient-pairing-guide', changefreq: 'weekly', priority: 0.8 },
   { loc: '/healthy-dinner-guide', changefreq: 'weekly', priority: 0.8 },
   { loc: '/30-minute-dinner-recipes', changefreq: 'weekly', priority: 0.8 },

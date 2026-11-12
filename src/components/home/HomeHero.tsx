@@ -22,7 +22,6 @@ interface HomeHeroProps {
   shoppingListInitialized?: boolean;
 }
 
-const DAYS = ['週一', '週二', '週三', '週四', '週五'];
 
 function HomeHero({ 
   onPrimaryAction, 
@@ -128,15 +127,8 @@ function HomeHero({
                         );
                       })
                     ) : (
-                      DAYS.map((day) => (
-                        <div 
-                          key={day} 
-                          className="flex items-center gap-2 py-1.5 px-2 rounded bg-[#faf7f0] border border-[#DDD0B0]"
-                        >
-                          <span className="text-xs text-[#9B6035] font-medium">{day}</span>
-                          <span className="flex-1 text-sm text-[#AA7A50]">未生成</span>
-                        </div>
-                      ))
+                      // Before the plan is generated on the client: one prompt, not five empty rows.
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">撳「生成新餐單」，即刻配好五晚晚餐。</div>
                     )}
                   </div>
                 </div>
@@ -164,7 +156,7 @@ function HomeHero({
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">未生成</div>
                     ) : !shoppingListInitialized ? (
                       // Not yet loaded - prompt user to click
-                      <div className="py-2 px-2 text-sm text-[#AA7A50]">點擊載入</div>
+                      <div className="py-2 px-2 text-sm text-[#AA7A50]">撳呢度計算合併購物清單</div>
                     ) : shoppingList.length === 0 ? (
                       // Empty but authenticated
                       <div className="py-2 px-2 text-sm text-[#AA7A50]">無需購買</div>

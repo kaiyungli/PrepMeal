@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
     return [
       // Retired legacy weekly-menu page; /generate is the current planner.
       { source: '/menu', destination: '/generate', permanent: true },
+      // Generic dinner-ideas page merged into the home-style recipe guide.
+      { source: '/hk-dinner-ideas', destination: '/50-classic-hk-recipes', permanent: true },
     ];
   },
 };
