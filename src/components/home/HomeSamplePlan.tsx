@@ -17,7 +17,7 @@ function IngredientSections({ sections }: { sections: Sections }) {
 }
 
 /** Native disclosure keeps every material and quantity in server HTML. */
-export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
+export default function HomeSamplePlan({ plan, headingId = 'home-sample-plan' }: { plan?: SamplePlan | null; headingId?: string }) {
   if (!plan) return null;
   const main = plan.sections.filter(section => !['seasoning', 'pantry'].includes(section.key));
   const extra = plan.sections.filter(section => ['seasoning', 'pantry'].includes(section.key));
@@ -27,14 +27,14 @@ export default function HomeSamplePlan({ plan }: { plan?: SamplePlan | null }) {
   const extraCount = countItems(extra);
 
   return (
-    <section className="pm-wrap" aria-labelledby="home-sample-plan">
+    <section className="pm-wrap" aria-labelledby={headingId}>
       <div className="pm-example">
         <div className="pm-section-head">
           <div>
             <p className="pm-eyebrow">一週餐單示範</p>
             <div className="pm-example-heading">
-              <h2 id="home-sample-plan">一週晚餐，就咁安排。</h2>
-              <p className="pm-fixed-example">{plan.servings}人・{plan.days.length}晚示範</p>
+              <h2 id={headingId}>一週晚餐，就咁安排。</h2>
+              <p className="pm-fixed-example">{plan.servings}人・{plan.days.length}晚・家常易煮</p>
             </div>
             <p>上方設定只套用你的餐單。</p>
           </div>

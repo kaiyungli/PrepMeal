@@ -1,10 +1,10 @@
 import { loadHeroCandidates } from './homeHero.server';
+import { createSampleLoader, loadSampleCandidates, type HomePlanLoader } from './homeSamples.server';
 import { usableHero, HOME_HERO_SERVINGS } from './homeHero';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { supabaseServer } from '@/lib/supabaseServer';
-import { loadSamplePlan } from '@/features/guides/samplePlan.server';
-import { HOME_EXAMPLES, featuredCandidates, hasUsablePhoto, validHomeExample, type HomeRecipe } from './homeRotation';
+import { HOME_EXAMPLES, featuredCandidates, hasUsablePhoto, type HomeRecipe } from './homeRotation';
 
 const imageChecks = new Map<string, { expires: number; result: Promise<boolean> }>();
 export async function publicImageAvailable(url: string): Promise<boolean> {
@@ -20,14 +20,14 @@ export async function publicImageAvailable(url: string): Promise<boolean> {
 export async function loadHomeCatalogue(): Promise<HomeRecipe[] | null> {
   if (!supabaseServer) return null;
   const { data, error } = await supabaseServer.from('recipes')
-    .select('id,slug,name,image_url,total_time_minutes,difficulty,calories_per_serving,protein_g,base_servings,primary_protein,dish_type,meal_role,method,is_complete_meal,is_public')
+    .select('id,slug,name,image_url,total_time_minutes,difficulty,flavor,calories_per_serving,protein_g,base_servings,primary_protein,dish_type,meal_role,method,is_complete_meal,is_public')
     .eq('is_public', true).order('slug').limit(1000);
   return error || !data ? null : data;
 }
 
 type Dependencies = {
   catalogue?: typeof loadHomeCatalogue;
-  plan?: (days: typeof HOME_EXAMPLES[number]['days'], rows: HomeRecipe[], requireCompleteIngredients: boolean) => ReturnType<typeof loadSamplePlan>;
+  plan?: HomePlanLoader;
   image?: typeof publicImageAvailable;
   hero?: typeof loadHeroCandidates;
 };
@@ -38,15 +38,13 @@ export async function loadHomeContent(requested: number, dependencies: Dependenc
   const catalogue = await (dependencies.catalogue ?? loadHomeCatalogue)();
   if (!catalogue?.length) throw new Error('Keep the last complete home ISR result: catalogue unavailable');
   const image = dependencies.image ?? publicImageAvailable;
-  const planLoader = dependencies.plan ?? loadSamplePlan;
+  const sampleCandidates = await (dependencies.plan ? createSampleLoader(dependencies.plan) : loadSampleCandidates)(catalogue, image);
   for (let offset = 0; offset < HOME_EXAMPLES.length; offset++) {
     const index = (requested + offset) % HOME_EXAMPLES.length;
     const example = HOME_EXAMPLES[index];
-    if (!validHomeExample(example, catalogue)) continue;
+    const samplePlan = sampleCandidates.find(candidate => candidate.id === example.id)?.plan;
+    if (!samplePlan) continue;
     const rows = catalogue.filter(recipe => example.days.some(day => day.slugs.includes(recipe.slug)));
-    if (!(await Promise.all(rows.map(recipe => image(recipe.image_url!)))).every(Boolean)) continue;
-    const samplePlan = await planLoader(example.days, rows, true);
-    if (!samplePlan || samplePlan.days.length !== 7 || samplePlan.days.some(day => day.dishes.length !== 2) || !samplePlan.sections.length) continue;
     const pool = featuredCandidates(catalogue.filter(recipe => recipe.is_public));
     const healthy = await Promise.all(pool.map(async recipe => await image(recipe.image_url!) ? recipe : null));
     const candidates = healthy.filter((recipe): recipe is NonNullable<typeof recipe> => recipe !== null);
@@ -58,7 +56,7 @@ export async function loadHomeContent(requested: number, dependencies: Dependenc
     const heroCandidates = independentHeroes.length ? independentHeroes : fallbackHeroes;
     const featuredBootstrap = await readFile(path.join(process.cwd(), 'src/features/home/featuredBootstrap.js'), 'utf8');
     return {
-      samplePlan, heroCandidates, homeExampleId: example.id,
+      samplePlan, sampleCandidates, heroCandidates, homeExampleId: example.id,
       requestedExampleId: HOME_EXAMPLES[requested].id, featuredRecipes, featuredBootstrap,
     };
   }

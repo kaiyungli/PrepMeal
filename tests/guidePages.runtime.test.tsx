@@ -31,7 +31,7 @@ const recipe = (id: string, extra = {}) => ({ id, slug: `s${id}`, name: `菜${id
 
 describe('guide pages render real content on the server', () => {
   it('homepage renders its form, complete sample, steps and links without interaction', () => {
-    const html = renderToString(<Home samplePlan={PLAN} featuredRecipes={[]} />);
+    const html = renderToString(<Home sampleCandidates={[{ id: 'test', plan: PLAN }]} featuredRecipes={[]} />);
     expect(html).toContain('action="/generate"');
     expect(html).toContain('name="servings"');
     expect(html).toContain('name="days"');
@@ -85,11 +85,11 @@ describe('guide pages render real content on the server', () => {
     const plan = { ...PLAN, sections: [{ key: 'meat', label: '肉類', items: [{ name: '雞肉', quantityText: '300 克', dishCount: 1, category: 'meat' }] }], days: [{ ...PLAN.days[0], dishes: [
       { ...dish('curry-chicken'), image_url: 'https://images.unsplash.com/test.jpg' }, dish('b'),
     ] }] };
-    container.innerHTML = renderToString(<Home samplePlan={plan} featuredRecipes={[{ id: 'featured', slug: 'featured', name: '精選菜式', total_time_minutes: 20 }]} />);
+    container.innerHTML = renderToString(<Home sampleCandidates={[{ id: 'test', plan }]} featuredRecipes={[{ id: 'featured', slug: 'featured', name: '精選菜式', total_time_minutes: 20 }]} />);
     expect(container.querySelectorAll('form')).toHaveLength(1);
     expect(container.querySelector('#home-plan-form')?.getAttribute('tabindex')).toBe('-1');
     expect(container.querySelector('.pm-example-action a')?.getAttribute('href')).toBe('#home-plan-form');
-    expect(container.textContent).toContain('2人・1晚示範');
+    expect(container.textContent).toContain('2人・1晚・家常易煮');
     expect(container.querySelector('.pm-example-action a')?.textContent).toContain('設定我的餐單');
     expect(container.textContent).not.toContain('固定示範');
     expect(container.textContent?.match(/1 人份/g)).toHaveLength(1);
@@ -105,7 +105,7 @@ describe('guide pages render real content on the server', () => {
     expect(form.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(form.querySelector('label .pm-field-label')?.textContent).toBe('幾多人食');
     expect(form.querySelector('fieldset legend')?.textContent).toBe('安排幾日');
-    expect(container.querySelector('.pm-example-heading h2 + .pm-fixed-example')?.textContent).toBe('2人・1晚示範');
+    expect(container.querySelector('.pm-example-heading h2 + .pm-fixed-example')?.textContent).toBe('2人・1晚・家常易煮');
     expect(container.querySelector('main')?.textContent).not.toContain('↗');
     expect(container.querySelector('.pm-example-action a')?.textContent).toContain('↑');
   });

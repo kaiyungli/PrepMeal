@@ -1,4 +1,3 @@
-import { homeExampleIndex } from '@/features/home/homeCalendar';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // The admin tools (recipe editor, import/export, uploads, data audit) are
@@ -6,9 +5,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 // set to "true" in the deployment's environment variables.
 export function proxy(request?: NextRequest) {
   if (request?.nextUrl.pathname === '/') {
-    const destination = request.nextUrl.clone();
-    destination.pathname = `/home-rotation/${homeExampleIndex()}`;
-    return NextResponse.rewrite(destination);
+    // One shared ISR document contains all precomputed sample candidates.
+    // Selection happens before paint, independently of the server date.
+    return NextResponse.next();
   }
   // Internal ISR variants have a single public canonical URL. Framework data
   // requests may read them; direct visits return to the homepage.

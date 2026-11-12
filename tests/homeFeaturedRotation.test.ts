@@ -10,7 +10,7 @@ function store(initial: Record<string, string> = {}, blocked = false) {
 function browser(session = store(), local = store(), navigation = 'navigate') {
   const styles: Record<string, { id?: string; textContent?: string }> = {};
   const window = { sessionStorage: session, localStorage: local, performance: { getEntriesByType: () => [{ type: navigation }] },
-    __prepmealHomeFeatured: undefined as undefined | { mount: (pool: string[], fresh: boolean, channel?: 'hero' | 'featured', excluded?: string[]) => string[] } };
+    __prepmealHomeFeatured: undefined as undefined | { mount: (pool: string[], fresh: boolean, channel?: 'hero' | 'featured' | 'sample', excluded?: string[]) => string[] } };
   const document = { getElementById: (id: string) => styles[id], createElement: () => ({}), head: { appendChild: (style: { id: string }) => { styles[style.id] = style; } } };
   vm.runInNewContext(source, { window, document });
   return { api: window.__prepmealHomeFeatured!, window, document, styles };
@@ -85,5 +85,31 @@ describe('the shared picker has independent hero and featured lifetimes', () => 
   it("avoids this tab's previous hero even if another tab chose the other of two candidates", () => {
     const session = store({ 'prepmeal:home-hero:v1': JSON.stringify([pool[0]]) }), local = store({ 'prepmeal:home-hero:last:v1': JSON.stringify([pool[1]]) });
     expect(browser(session, local, 'reload').api.mount(pool.slice(0,2), true, 'hero')).toEqual([pool[1]]);
+  });
+});
+
+
+describe('whole weekly samples share the picker without sharing other selections', () => {
+  const menus = Array.from({ length: 7 }, (_, i) => `example-${i + 1}`);
+  it('rotates complete sample IDs on new documents and preserves returns independently', () => {
+    const session = store(), local = store(), b = browser(session, local);
+    const hero = b.api.mount(pool, true, 'hero'), featured = b.api.mount(pool, true);
+    const sample = b.api.mount(menus, true, 'sample');
+    expect(sample).toHaveLength(1);
+    for (let i = 0; i < 10; i++) expect(b.api.mount(menus, false, 'sample')).toEqual(sample);
+    expect(b.api.mount(pool, false, 'hero')).toEqual(hero);
+    expect(b.api.mount(pool, false)).toEqual(featured);
+    expect(b.styles['home-sample-visibility'].textContent).toBe('#home-sample-list>.pm-sample-item{display:none}#home-sample-list>.pm-sample-item:nth-child(' + (menus.indexOf(sample[0]) + 1) + '){display:block}');
+    const next = browser(session, local, 'reload').api.mount(menus, true, 'sample');
+    expect(next).not.toEqual(sample);
+    expect(browser(session, local, 'back_forward').api.mount(menus, true, 'sample')).toEqual(next);
+    expect(browser(store(), local).api.mount(menus, true, 'sample')).not.toEqual(next);
+  });
+  it.each([0, 1, 2, 7])('handles %i complete candidates and blocked storage without loops', count => {
+    const b = browser(store({}, true), store({}, true));
+    const selected = b.api.mount(menus.slice(0, count), true, 'sample');
+    expect(selected).toHaveLength(Math.min(1, count));
+    expect(b.api.mount(menus.slice(0, count), false, 'sample')).toEqual(selected);
+    if (count > 1) expect(b.api.mount(menus.slice(0, count), true, 'sample')).toHaveLength(1);
   });
 });

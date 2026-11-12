@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: vi.fn(), loadRecipePreviews: vi.fn().mockResolvedValue([]) }));
 vi.mock('@/lib/supabaseServer', () => ({ supabaseServer: null }));
+import { createSampleLoader } from '@/features/home/homeSamples.server';
 import { loadHomeContent } from '@/features/home/homeContent.server';
 import { HOME_EXAMPLES, type HomeRecipe } from '@/features/home/homeRotation';
 import type { SamplePlan } from '@/features/guides/samplePlan';
@@ -9,7 +10,7 @@ function catalogue(): HomeRecipe[] {
   const rows = new Map<string, HomeRecipe>();
   for (const example of HOME_EXAMPLES) for (const day of example.days) day.slugs.forEach((slug, index) => rows.set(slug, {
     id: slug, slug, name: slug, image_url: `https://images.unsplash.com/${slug}.jpg`, total_time_minutes: 20,
-    base_servings: 1, is_public: true, meal_role: index === 0 ? 'protein_main' : 'veg_side', is_complete_meal: false,
+    base_servings: 1, is_public: true, difficulty: 'easy', flavor: ['salty'], meal_role: index === 0 ? 'protein_main' : 'veg_side', is_complete_meal: false,
     primary_protein: index === 0 ? ['pork','fish','chicken','beef','shrimp','tofu','chicken'][example.days.indexOf(day)] : 'vegetarian',
     method: example.days.indexOf(day) % 2 ? 'steamed' : 'stir_fry',
   }));
@@ -30,9 +31,10 @@ describe('homepage ISR content and safe fallbacks', () => {
       expect(content.homeExampleId).toBe(HOME_EXAMPLES[index].id);
       expect(content.heroCandidates).toEqual([]);
       expect(content.samplePlan.sections[0].items[0].quantityText).toBe('from-existing-handler');
-      expect(plan).toHaveBeenCalledTimes(1);
+      expect(plan).toHaveBeenCalledTimes(7);
+      expect(content.sampleCandidates).toHaveLength(7);
       expect(plan).toHaveBeenCalledWith(HOME_EXAMPLES[index].days, expect.any(Array), true);
-      const [days, selected] = plan.mock.calls[0];
+      const [days, selected] = plan.mock.calls[index];
       expect(days).toEqual(HOME_EXAMPLES[index].days);
       expect(selected).toHaveLength(14);
       expect(selected?.map(r => r.slug).sort()).toEqual(days.flatMap(d => d.slugs).sort());
@@ -58,7 +60,8 @@ describe('homepage ISR content and safe fallbacks', () => {
   it('tries a complete alternative after shopping calculation fails, without mixing days', async () => {
     const plan = vi.fn(fakePlan).mockResolvedValueOnce(null);
     const content = await loadHomeContent(0, { catalogue: async () => catalogue(), plan, image: async () => true });
-    expect(plan).toHaveBeenCalledTimes(2);
+    expect(plan).toHaveBeenCalledTimes(7);
+    expect(content.sampleCandidates).toHaveLength(6);
     expect(content.samplePlan.days.map(d => d.dishes.map(r => r.slug))).toEqual(HOME_EXAMPLES[1].days.map(d => d.slugs));
   });
   it('throws on unavailable catalogue or all broken examples so ISR retains its complete prior page', async () => {
@@ -77,4 +80,34 @@ it('uses an independent cached hero pool without changing any daily menu', async
     expect(content.heroCandidates).toEqual([outside]);
     expect(content.samplePlan.days.map(d => d.dishes.map(r => r.slug))).toEqual(HOME_EXAMPLES[index].days.map(d => d.slugs));
   }
+});
+
+
+it('caches all complete menus and in-flight calculations, invalidating on catalogue changes', async () => {
+  const rows = catalogue(), plan = vi.fn(fakePlan), image = vi.fn().mockResolvedValue(true);
+  const loader = createSampleLoader(plan);
+  const [a, b] = await Promise.all([loader(rows, image), loader(rows, image)]);
+  expect(a).toBe(b); expect(a).toHaveLength(7); expect(plan).toHaveBeenCalledTimes(7);
+  await loader(rows, image); expect(plan).toHaveBeenCalledTimes(7);
+  await loader(rows.map(r => ({ ...r, name: 'Updated ' + r.name })), image);
+  expect(plan).toHaveBeenCalledTimes(14);
+});
+
+it('expires the shared complete-candidate cache after the existing ISR interval', async () => {
+  const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+  try {
+    const plan = vi.fn(fakePlan), loader = createSampleLoader(plan), rows = catalogue();
+    await loader(rows, async () => true);
+    now.mockReturnValue(301001); await loader(rows, async () => true);
+    expect(plan).toHaveBeenCalledTimes(14);
+  } finally { now.mockRestore(); }
+});
+
+it('excludes a corrupt or throwing calculation as a whole and retains other complete groups', async () => {
+  const plan = vi.fn(fakePlan).mockRejectedValueOnce(Error('unavailable')).mockImplementationOnce(async (days, rows) => {
+    const corrupt = (await fakePlan(days, rows))!;
+    corrupt.days[0].dishes[0].slug = 'wrong-dish'; return corrupt;
+  });
+  const candidates = await createSampleLoader(plan)(catalogue(), async () => true);
+  expect(candidates.map(c => c.id)).toEqual(HOME_EXAMPLES.slice(2).map(e => e.id));
 });

@@ -23,7 +23,7 @@
       {
         "day": "第三天",
         "slugs": [
-          "curry-chicken",
+          "onion-chicken-steak-stir-fry",
           "garlic-lettuce"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -47,7 +47,7 @@
       {
         "day": "第六天",
         "slugs": [
-          "mapo-tofu",
+          "minced-pork-tofu",
           "garlic-spinach"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -55,7 +55,7 @@
       {
         "day": "第七天",
         "slugs": [
-          "steamed-skinless-chicken-thigh-enoki",
+          "garlic-chicken-wings",
           "stir-fried-cabbage"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -70,7 +70,7 @@
       {
         "day": "第一天",
         "slugs": [
-          "black-bean-steamed-pork-ribs",
+          "pork-cabbage-stir-fry",
           "stir-fried-choy-sum"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -86,7 +86,7 @@
       {
         "day": "第三天",
         "slugs": [
-          "ginger-teriyaki-chicken-meatballs",
+          "garlic-chicken-xhs",
           "cold-cucumber-salad"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -110,7 +110,7 @@
       {
         "day": "第六天",
         "slugs": [
-          "tofu-hamburg-mixed-mushroom-sauce",
+          "omelette",
           "steamed-garlic-pumpkin"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -127,8 +127,8 @@
   },
   {
     "id": "example-3",
-    "label": "薑蔥與香料",
-    "heroSlug": "kung-pao-chicken",
+    "label": "薑蔥與清蒸",
+    "heroSlug": "zucchini-mushroom-chicken-stir-fry",
     "days": [
       {
         "day": "第一天",
@@ -141,7 +141,7 @@
       {
         "day": "第二天",
         "slugs": [
-          "thai-lime-steamed-fish",
+          "steamed-fish",
           "prepmeal-batch3-09"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -149,7 +149,7 @@
       {
         "day": "第三天",
         "slugs": [
-          "kung-pao-chicken",
+          "zucchini-mushroom-chicken-stir-fry",
           "soybean-sprout-stir-fry"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -157,7 +157,7 @@
       {
         "day": "第四天",
         "slugs": [
-          "bitter-melon-beef",
+          "beef-with-scrambled-egg",
           "poached-spinach-broth"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -181,7 +181,7 @@
       {
         "day": "第七天",
         "slugs": [
-          "prepmeal-25-22-chicken-adobo",
+          "lemon-butter-fish-fillet",
           "garlic-enoki-xhs"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -191,7 +191,7 @@
   {
     "id": "example-4",
     "label": "家常跨菜系",
-    "heroSlug": "prepmeal-25-01-nikujaga",
+    "heroSlug": "garlic-beef-cubes",
     "days": [
       {
         "day": "第一天",
@@ -205,22 +205,22 @@
         "day": "第二天",
         "slugs": [
           "miso-salmon",
-          "prepmeal-25-04-kinpira-gobo"
+          "dry-fried-green-beans"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       },
       {
         "day": "第三天",
         "slugs": [
-          "prepmeal-batch2-05",
-          "cold-tossed-baby-napa-cabbage"
+          "pan-fried-chicken-breast-xhs",
+          "cold-cucumber-salad"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       },
       {
         "day": "第四天",
         "slugs": [
-          "prepmeal-25-01-nikujaga",
+          "garlic-beef-cubes",
           "oyster-lettuce-xhs"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -236,7 +236,7 @@
       {
         "day": "第六天",
         "slugs": [
-          "tofu-egg-napa-cabbage-rolls",
+          "minced-pork-vermicelli-pot",
           "pan-fried-king-oyster-xhs"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -253,8 +253,8 @@
   },
   {
     "id": "example-5",
-    "label": "焗烤與咖喱",
-    "heroSlug": "prepmeal-batch3-02",
+    "label": "煎炒家常",
+    "heroSlug": "prepmeal-batch4-25",
     "days": [
       {
         "day": "第一天",
@@ -268,7 +268,7 @@
         "day": "第二天",
         "slugs": [
           "herb-pan-fried-cod",
-          "prepmeal-25-21-miso-butter-mushrooms"
+          "mushroom-in-oyster-sauce"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       },
@@ -291,7 +291,7 @@
       {
         "day": "第五天",
         "slugs": [
-          "prepmeal-batch3-02",
+          "prepmeal-batch4-25",
           "garlic-romaine-lettuce"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -299,15 +299,15 @@
       {
         "day": "第六天",
         "slugs": [
-          "cumin-spicy-baked-tofu",
-          "prepmeal-25-25-spinach-chickpeas"
+          "corn-minced-pork",
+          "garlic-spinach"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       },
       {
         "day": "第七天",
         "slugs": [
-          "prepmeal-batch3-11",
+          "pan-seared-pork-chop-with-apple-onion-sauce",
           "braised-eggplant"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -317,7 +317,7 @@
   {
     "id": "example-6",
     "label": "蒸煎交替",
-    "heroSlug": "prepmeal-batch2-14",
+    "heroSlug": "salted-fish-steamed-pork-patty",
     "days": [
       {
         "day": "第一天",
@@ -330,7 +330,7 @@
       {
         "day": "第二天",
         "slugs": [
-          "prepmeal-batch4-02",
+          "miso-simmered-mackerel",
           "prepmeal-batch4-14"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -362,7 +362,7 @@
       {
         "day": "第六天",
         "slugs": [
-          "prepmeal-batch2-14",
+          "salted-fish-steamed-pork-patty",
           "garlic-spinach"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -370,7 +370,7 @@
       {
         "day": "第七天",
         "slugs": [
-          "prepmeal-batch4-11",
+          "prepmeal-batch2-24",
           "prepmeal-batch3-09"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -380,13 +380,13 @@
   {
     "id": "example-7",
     "label": "鑊氣與清蔬",
-    "heroSlug": "prepmeal-batch3-18",
+    "heroSlug": "prepmeal-batch3-06",
     "days": [
       {
         "day": "第一天",
         "slugs": [
-          "prepmeal-25-18-lemongrass-pork",
-          "prepmeal-25-16-chickpea-salad"
+          "prepmeal-batch4-09",
+          "cold-tomato-xhs"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       },
@@ -409,7 +409,7 @@
       {
         "day": "第四天",
         "slugs": [
-          "prepmeal-batch3-15",
+          "garlic-beef-cubes-slices",
           "garlic-napa-xhs"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -417,7 +417,7 @@
       {
         "day": "第五天",
         "slugs": [
-          "black-bean-clams",
+          "spinach-oat-shrimp-cakes",
           "prepmeal-batch3-25"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
@@ -433,8 +433,8 @@
       {
         "day": "第七天",
         "slugs": [
-          "prepmeal-batch3-18",
-          "prepmeal-25-09-gamja-jorim"
+          "prepmeal-batch3-06",
+          "cucumber-vermicelli-salad"
         ],
         "note": "按食譜步驟準備主菜及配菜，白飯另計。"
       }

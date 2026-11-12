@@ -152,6 +152,7 @@
 .home :global(#home-hero-list) { min-width: 0; }
 
 .home :global(.pm-hero-item):not(:first-child) { display: none; }
+.home :global(.pm-sample-item):not(:first-child) { display: none; }
 
 .home :global(.pm-hero-photo) {
   position: relative;

@@ -4,6 +4,7 @@ import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import HomePlannerIntro from '@/components/home/HomePlannerIntro';
 import HomeSamplePlan from '@/components/home/HomeSamplePlan';
+import HomeSamplePlans from '@/components/home/HomeSamplePlans';
 import { readFileSync } from 'node:fs';
 import type { SamplePlan } from '@/features/guides/samplePlan';
 beforeEach(() => {
@@ -87,5 +88,31 @@ it('hydrates the prepaint hero without replacing its image or ingredients, and k
   window.dispatchEvent(new Event('focus'));
   expect(window.__prepmealHomeFeatured!.mount(recipes.map(r => r.slug), false, 'hero')).toEqual(chosen);
   expect(active(container).textContent).toBe(before); expect(errors).toEqual([]);
+  await act(async () => root!.unmount()); container.remove();
+});
+
+it('SSR includes complete menu/list pairs with unique headings; hydration preserves the prepaint whole group', async () => {
+  const source = readFileSync('src/features/home/featuredBootstrap.js', 'utf8');
+  const candidates = [
+    { id: 'one', plan },
+    { id: 'two', plan: { ...plan, days: [{ ...plan.days[1], dishes: [plan.days[1].dishes[0]] }],
+      sections: [{ ...plan.sections[0], items: [{ ...plan.sections[0].items[0], name: '另一組魚柳', quantityText: '360 克' }] }] } },
+  ];
+  const element = <HomeSamplePlans candidates={candidates} bootstrap={source} />;
+  const container = document.createElement('div'); document.body.appendChild(container);
+  container.innerHTML = renderToString(element);
+  const headings = [...container.querySelectorAll('h2')].map(h => h.id);
+  expect(new Set(headings).size).toBe(2);
+  expect(container.textContent).toContain('900 克'); expect(container.textContent).toContain('360 克');
+  expect(container.querySelectorAll('details')).toHaveLength(0);
+  const chosen = window.__prepmealHomeFeatured!.mount(candidates.map(c => c.id), true, 'sample');
+  const selected = () => [...container.querySelectorAll<HTMLElement>('.pm-sample-item')].find(e => getComputedStyle(e).display !== 'none')!;
+  const before = selected().textContent, image = selected().querySelector('img'), errors: unknown[] = [];
+  let root: ReturnType<typeof hydrateRoot>;
+  await act(async () => { root = hydrateRoot(container, element, { onRecoverableError: error => errors.push(error) }); });
+  expect(selected().dataset.sampleId).toBe(chosen[0]); expect(selected().textContent).toBe(before); expect(selected().querySelector('img')).toBe(image);
+  await act(async () => root!.render(<HomeSamplePlans candidates={candidates.map(c => ({ ...c }))} bootstrap={source} />));
+  window.dispatchEvent(new Event('focus')); document.dispatchEvent(new Event('visibilitychange'));
+  expect(selected().dataset.sampleId).toBe(chosen[0]); expect(selected().textContent).toBe(before); expect(errors).toEqual([]);
   await act(async () => root!.unmount()); container.remove();
 });

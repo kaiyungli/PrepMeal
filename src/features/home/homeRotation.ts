@@ -11,6 +11,7 @@ export type HomeRecipe = SlotRoleRecipe & Partial<CardFacts> & {
   id: string | number; slug: string; name: string; image_url: string | null;
   total_time_minutes: number | null; base_servings: number; is_public: boolean;
   method?: string | null;
+  flavor?: string[] | null;
 };
 export type FeaturedRecipe = Pick<HomeRecipe, 'id' | 'slug' | 'name'> &
   Partial<Pick<HomeRecipe, 'image_url' | 'total_time_minutes' | 'difficulty' | 'calories_per_serving' | 'protein_g' | 'method' | 'primary_protein' | 'dish_type'>>;
@@ -35,6 +36,9 @@ export function validHomeExample(example: typeof HOME_EXAMPLES[number], catalogu
   return example.days.every(day => day.slugs.length === 2 && day.slugs.every((slug, index) => {
     const recipe = bySlug.get(slug);
     return !!recipe && recipe.is_public && recipe.base_servings === 1 && !recipe.is_complete_meal
+      && recipe.difficulty === 'easy' && typeof recipe.total_time_minutes === 'number'
+      && recipe.total_time_minutes > 0 && recipe.total_time_minutes <= 30
+      && Array.isArray(recipe.flavor) && !recipe.flavor.includes('spicy')
       && hasUsablePhoto(recipe.image_url) && matchesSlotRole(recipe, index === 0 ? 'protein_main' : 'veg_side');
   }));
 }

@@ -9,7 +9,7 @@ import { homeSelectionScript } from '@/features/home/homeHero';
 import type { FeaturedRecipe } from '@/features/home/homeRotation';
 
 declare global {
-  interface Window { __prepmealHomeFeatured?: { mount: (slugs: string[], newDocument: boolean, channel?: 'hero' | 'featured', excluded?: string[]) => string[] } }
+  interface Window { __prepmealHomeFeatured?: { mount: (slugs: string[], newDocument: boolean, channel?: 'hero' | 'featured' | 'sample', excluded?: string[]) => string[] } }
 }
 
 export default function HomeFeaturedRecipes({ recipes, bootstrap }: { recipes: FeaturedRecipe[]; bootstrap?: string }) {

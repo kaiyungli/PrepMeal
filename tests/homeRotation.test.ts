@@ -9,14 +9,14 @@ export function exampleCatalogue(): HomeRecipe[] {
   const recipes = new Map<string, HomeRecipe>();
   for (const example of HOME_EXAMPLES) for (const day of example.days) day.slugs.forEach((slug, index) => recipes.set(slug, {
     id: slug, slug, name: slug, image_url: 'https://images.unsplash.com/test.jpg', total_time_minutes: 20,
-    base_servings: 1, is_public: true, meal_role: index === 0 ? 'protein_main' : 'veg_side', is_complete_meal: false,
+    base_servings: 1, is_public: true, difficulty: 'easy', flavor: ['salty'], meal_role: index === 0 ? 'protein_main' : 'veg_side', is_complete_meal: false,
     primary_protein: index === 0 ? ['pork','fish','chicken','beef','shrimp','tofu','chicken'][example.days.indexOf(day)] : 'vegetarian',
     method: example.days.indexOf(day) % 2 ? 'steamed' : 'stir_fry',
   }));
   return [...recipes.values()];
 }
 
-describe('Hong Kong daily homepage cache selection', () => {
+describe('homepage shared cache and legacy daily helpers', () => {
   it('selects seven consecutive days and cycles independent of timestamp timezone representation', () => {
     expect(HOME_EXAMPLES).toHaveLength(HOME_EXAMPLE_COUNT);
     for (let day = 0; day < 14; day++) {
@@ -29,12 +29,13 @@ describe('Hong Kong daily homepage cache selection', () => {
     expect(hongKongDateKey(new Date('2026-11-08T16:00:00Z'))).toBe('2026-11-09');
     expect(homeExampleIndex(new Date('2026-11-08T16:00:00Z'))).toBe(0);
   });
-  it('rewrites each date to a separate shared ISR key and keeps the root URL public', () => {
+  it('uses one shared root ISR cache independent of date and retains legacy variant redirects', () => {
     vi.useFakeTimers();
     for (let day = 0; day < 7; day++) {
       vi.setSystemTime(Date.parse('2026-11-09T00:00:00+08:00') + day * 86400000);
       const response = proxy(new NextRequest('https://eatwhathk.com/'));
-      expect(response.headers.get('x-middleware-rewrite')).toBe(`https://eatwhathk.com/home-rotation/${day}`);
+      expect(response.headers.get('x-middleware-rewrite')).toBeNull();
+      expect(response.headers.get('x-middleware-next')).toBe('1');
       expect(response.headers.get('set-cookie')).toBeNull();
     }
     expect(proxy(new NextRequest('https://eatwhathk.com/home-rotation/0')).headers.get('location')).toBe('https://eatwhathk.com/');
@@ -72,4 +73,12 @@ describe('reviewed examples and card candidates', () => {
     const pool = featuredCandidates([one, one, { ...one, slug: 'bad/slug' }, { ...one, slug: 'missing', image_url: null }, { ...one, slug: 'unsafe', image_url: 'http://127.0.0.1/private' }]);
     expect(pool.map(r => r.slug)).toEqual([one.slug]);
   });
+});
+
+it.each([
+  { difficulty: 'hard' }, { difficulty: 'medium' }, { total_time_minutes: 90 },
+  { total_time_minutes: null }, { total_time_minutes: 0 }, { flavor: ['spicy'] }, { flavor: null },
+])('excludes a group when its recipe no longer meets reviewed defaults: %j', change => {
+  const rows = exampleCatalogue(), slug = HOME_EXAMPLES[0].days[0].slugs[0];
+  expect(validHomeExample(HOME_EXAMPLES[0], rows.map(r => r.slug === slug ? { ...r, ...change } : r))).toBe(false);
 });

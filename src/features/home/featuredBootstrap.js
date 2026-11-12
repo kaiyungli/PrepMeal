@@ -44,11 +44,10 @@
     return chosen;
   }
   function mount(input, newDocument, channel = 'featured', excluded = []) {
-    channel = channel === 'hero' ? 'hero' : 'featured';
+    channel = ['hero', 'sample'].includes(channel) ? channel : 'featured';
     const sessionKey = `prepmeal:home-${channel}:v1`, previousKey = `prepmeal:home-${channel}:last:v1`;
-    const hero = channel === 'hero';
     const pool = Array.from(new Set(input.filter(value => typeof value === 'string' && value)));
-    const eligible = pool.filter(slug => !excluded.includes(slug)), count = Math.min(hero ? 1 : 3, eligible.length);
+    const eligible = pool.filter(slug => !excluded.includes(slug)), count = Math.min(channel === 'featured' ? 3 : 1, eligible.length);
     let current = channels.get(channel);
     const session = storage('sessionStorage'), local = storage('localStorage');
     const saved = read(session, sessionKey), previous = read(local, previousKey);
@@ -59,7 +58,8 @@
     }
     channels.set(channel, current);
     write(session, sessionKey, current); write(local, previousKey, current);
-    const id = `home-${channel}-visibility`, selector = hero ? '#home-hero-list>.pm-hero-item' : '#home-featured-list>.pm-recipe-card';
+    const id = `home-${channel}-visibility`, selector = channel === 'hero' ? '#home-hero-list>.pm-hero-item'
+      : channel === 'sample' ? '#home-sample-list>.pm-sample-item' : '#home-featured-list>.pm-recipe-card';
     let style = document.getElementById(id);
     if (!style) { style = document.createElement('style'); style.id = id; document.head.appendChild(style); }
     style.textContent = selector + '{display:none}' + current.map(slug =>
