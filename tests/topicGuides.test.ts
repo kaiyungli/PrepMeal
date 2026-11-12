@@ -48,7 +48,9 @@ describe('guide text matches the 1-person rule', () => {
 describe('sample plan', () => {
   it('computes the list with the planner code and hides when a dish is missing', async () => {
     vi.resetModules();
-    const { SAMPLE_PLAN_SLUGS, HOME_SAMPLE_PLAN_DAYS } = await import('@/features/guides/samplePlan');
+    const { SAMPLE_PLAN_SLUGS } = await import('@/features/guides/samplePlan');
+    const { HOME_EXAMPLES } = await import('@/features/home/homeRotation');
+    const HOME_SAMPLE_PLAN_DAYS = HOME_EXAMPLES[0].days;
     let rows = SAMPLE_PLAN_SLUGS.map((slug, i) => ({ id: `id-${i}`, slug, name: `菜${i}`, total_time_minutes: 10 }));
     vi.doMock('@/lib/supabaseServer', () => ({ supabaseServer: { from: () => ({ select: () => ({ eq: () => ({ in: async () => ({ data: rows, error: null }) }) }) }) } }));
     const handle = vi.fn(async (req: { body: { recipeIds: string[]; servings: number } }, res: { status: (n: number) => { json: (b: unknown) => void } }) => {
@@ -80,6 +82,8 @@ describe('sample plan', () => {
     expect(homePlan?.days.flatMap(d => d.dishes)).toHaveLength(14);
     expect(homePlan?.servings).toBe(2);
     expect(handle.mock.calls.at(-1)?.[0].body).toEqual({ recipeIds: rows.map(r => r.id), servings: 2 });
+    // Homepage strict mode rejects missing ingredient groups; legacy guide mode is unchanged.
+    expect(await loadSamplePlan(HOME_SAMPLE_PLAN_DAYS, rows, true)).toBeNull();
     rows = rows.slice(1);
     expect(await loadSamplePlan()).toBeNull();
     vi.doUnmock('@/lib/supabaseServer');

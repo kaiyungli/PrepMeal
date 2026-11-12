@@ -1,13 +1,16 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { createElement, type ComponentProps } from 'react';
 import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import { PRIMARY_LINKS, TOOL_LINKS, GUIDE_LINKS, TRUST_LINKS, isNavigationRouteActive } from '@/features/layout/navigation';
 import {
   clearMyPlans, invalidateMyPlans, isMyPlansStale, loadMyPlans, peekMyPlans, prefetchMyPlans, setMyPlans,
 } from '@/features/plans/myPlansCache';
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/recipes' }));
+const route = vi.hoisted(() => ({ pathname: '/recipes' }));
+vi.mock('next/navigation', () => ({ usePathname: () => route.pathname }));
 vi.mock('next/link', () => ({ default: ({ href, children, ...props }: ComponentProps<'a'>) => createElement('a', { ...props, href }, children) }));
 
 const trustLinks = [{ label: '關於我們', path: '/about' }];
@@ -47,6 +50,69 @@ describe('Header "更多" menu', () => {
   it('hides 個人資料 when signed out', () => {
     render(createElement(Header, { trustLinks, guideLinks, accountLinks, isAuthenticated: false }));
     expect(screen.queryByRole('link', { name: '個人資料' })).toBeNull();
+  });
+});
+
+describe('shared site navigation and footer', () => {
+  beforeEach(() => { route.pathname = '/'; });
+  afterEach(cleanup);
+
+  it('uses the same primary labels and destinations, with correct active routes', () => {
+    route.pathname = '/generate';
+    render(createElement(Header, { isActiveRoute: path => isNavigationRouteActive(route.pathname, path) }));
+    const nav = screen.getByRole('navigation', { name: '主要導航' });
+    expect(within(nav).getAllByRole('link').map(link => [link.textContent, link.getAttribute('href')])).toEqual(PRIMARY_LINKS.map(link => [link.label, link.path]));
+    expect(within(nav).getByRole('link', { name: '一週餐單' }).getAttribute('aria-current')).toBe('page');
+    expect(isNavigationRouteActive('/', '/#home-guides')).toBe(false);
+    expect(isNavigationRouteActive('/recipes/a', '/recipes')).toBe(true);
+    expect(isNavigationRouteActive('/recipes-other', '/recipes')).toBe(false);
+  });
+
+  it('keeps tools reachable and preserves intent prefetch handlers', () => {
+    const favorites = vi.fn(), plans = vi.fn();
+    render(createElement(Header, { onFavoritesIntent: favorites, onMyPlansIntent: plans }));
+    fireEvent.click(screen.getByRole('button', { name: '更多' }));
+    for (const link of TOOL_LINKS) expect(screen.getByRole('menuitem', { name: link.label }).getAttribute('href')).toBe(link.path);
+    fireEvent.focus(screen.getByRole('menuitem', { name: '收藏' }));
+    fireEvent.touchStart(screen.getByRole('menuitem', { name: '我的餐單' }));
+    expect(favorites).toHaveBeenCalledTimes(1); expect(plans).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: '更多' }));
+  });
+
+  it('shares mobile labels, shows login, and closes on Escape and route changes', () => {
+    const view = render(createElement(Header));
+    fireEvent.click(screen.getByRole('button', { name: '打開選單' }));
+    const nav = screen.getByRole('navigation', { name: '手機導航' });
+    for (const link of [...PRIMARY_LINKS, ...TOOL_LINKS, ...GUIDE_LINKS, ...TRUST_LINKS]) expect(within(nav).getByRole('link', { name: link.label }).getAttribute('href')).toBe(link.path);
+    expect(within(nav).getByRole('link', { name: '登入' }).getAttribute('href')).toBe('/login');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('navigation', { name: '手機導航' })).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: '打開選單' }));
+    fireEvent.click(screen.getByRole('button', { name: '打開選單' }));
+    route.pathname = '/generate'; view.rerender(createElement(Header));
+    expect(screen.queryByRole('navigation', { name: '手機導航' })).toBeNull();
+  });
+
+  it('shows account and logout in both signed-in menus and respects logout pending', () => {
+    const logout = vi.fn();
+    render(createElement(Header, { isAuthenticated: true, handleLogout: logout }));
+    fireEvent.click(screen.getByRole('button', { name: '打開選單' }));
+    const nav = screen.getByRole('navigation', { name: '手機導航' });
+    expect(within(nav).getByRole('link', { name: '個人資料' }).getAttribute('href')).toBe('/profile');
+    expect(within(nav).queryByRole('link', { name: '登入' })).toBeNull();
+    fireEvent.click(within(nav).getByRole('button', { name: '登出' }));
+    expect(logout).toHaveBeenCalledTimes(1);
+    cleanup(); render(createElement(Header, { isAuthenticated: true, loggingOut: true }));
+    expect((screen.getByRole('button', { name: '登出中...' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('keeps all existing footer destinations and privacy controls in the single footer', () => {
+    render(createElement(Footer));
+    const footer = screen.getByRole('contentinfo');
+    const hrefs = within(footer).getAllByRole('link').map(link => link.getAttribute('href'));
+    for (const path of ['/', '/generate', '/recipes', '/favorites', '/my-plans', '/profile', '/login', ...GUIDE_LINKS.map(link => link.path), ...TRUST_LINKS.map(link => link.path), 'mailto:eatwhathk247@gmail.com', 'tel:+85294959673']) expect(hrefs).toContain(path);
+    expect(within(footer).getByRole('button', { name: '管理私隱選項' })).toBeTruthy();
   });
 });
 

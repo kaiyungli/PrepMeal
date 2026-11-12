@@ -1,23 +1,28 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import type { SamplePlan } from '@/features/guides/samplePlan';
+import { useLayoutEffect, useState } from 'react';
+import '@/features/home/featuredBootstrap';
+import { homeSelectionScript, usableHero, type HomeHeroRecipe } from '@/features/home/homeHero';
+import HomeRecipeImage from './HomeRecipeImage';
 
 /** Native form submits directly to the existing generator, even before hydration. */
-export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null }) {
-  const dishes = plan?.days.flatMap(day => day.dishes) ?? [];
-  const hero = dishes.find(dish => dish.slug === 'curry-chicken' && dish.image_url)
-    ?? dishes.find(dish => dish.image_url);
-  const shared = plan?.sharedItems.filter(item => item.name === '豬肉碎' || item.name === '蒜頭').slice(0, 2) ?? [];
+export default function HomePlannerIntro({ recipes = [], bootstrap }: { recipes?: HomeHeroRecipe[]; bootstrap?: string }) {
+  const candidates = recipes.filter(usableHero);
+  const [unavailable, setUnavailable] = useState<string[]>([]);
+  const signature = JSON.stringify(candidates.map(recipe => recipe.slug));
+  const usable = candidates.filter(recipe => !unavailable.includes(recipe.slug));
+  useLayoutEffect(() => {
+    window.__prepmealHomeFeatured?.mount(JSON.parse(signature), false, 'hero', unavailable);
+  }, [signature, unavailable]);
+  const boot = homeSelectionScript(bootstrap, candidates.map(recipe => recipe.slug), 'hero');
 
   return (
-    <section className={`pm-wrap pm-hero ${hero ? '' : 'pm-hero-text-only'}`} aria-labelledby="home-title">
+    <section className={`pm-wrap pm-hero ${usable.length ? '' : 'pm-hero-text-only'}`} aria-labelledby="home-title">
       <div>
         <p className="pm-eyebrow">為香港日常晚餐而設</p>
         <h1 id="home-title">今晚食乜，<br /><em>一週都諗好。</em></h1>
-        <p className="pm-hero-copy">揀人數同日數，配好一週晚餐。<br />想食其他餸？換完菜，再跟合併清單買餸。</p>
-        <form action="/generate" method="get" className="pm-starter">
+        <p className="pm-hero-copy"><strong>毋須登入，即可生成。</strong><br />揀人數同日數，換完菜，再跟合併清單買餸。</p>
+        <form id="home-plan-form" tabIndex={-1} aria-label="一週餐單設定" aria-describedby="home-form-note" action="/generate" method="get" className="pm-starter">
           <input type="hidden" name="source" value="home" />
-          <label className="pm-field">幾多人食
+          <label className="pm-field"><span className="pm-field-label">幾多人食</span>
             <select name="servings" defaultValue="2" aria-label="用餐人數">
               {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} 人</option>)}
             </select>
@@ -36,25 +41,24 @@ export default function HomePlannerIntro({ plan }: { plan?: SamplePlan | null })
           <button type="submit" className="pm-primary">生成餐單 <span aria-hidden="true">→</span></button>
         </form>
         <div className="pm-starter-links">
-          <span>毋須登入 · 食譜以 1 人份為基準</span>
-          <Link href="/generate" className="pm-textlink">詳細設定與草稿 ↗</Link>
+          <p className="pm-form-note" id="home-form-note">生成後按所選人數計算材料。</p>
+          <button type="submit" form="home-plan-form" name="intent" value="preferences" className="pm-textlink">加入口味偏好 →</button>
         </div>
       </div>
-      {hero?.image_url && (
-        <div className="pm-hero-photo">
-          <Image src={hero.image_url} alt={hero.name} width={640} height={480} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 44vw, 500px" priority className="pm-main-photo" />
+      {boot && <script dangerouslySetInnerHTML={{ __html: boot }} />}
+      {candidates.length > 0 && <div id="home-hero-list" hidden={!usable.length}>
+        {candidates.map(hero => <div className="pm-hero-photo pm-hero-item" data-hero-slug={hero.slug} key={hero.slug}>
+          <HomeRecipeImage src={hero.image_url} alt={hero.name} width={640} height={480} sizes="(max-width: 767px) calc(100vw - 42px), (max-width: 1200px) 44vw, 500px" className="pm-main-photo" onUnavailable={() => setUnavailable(previous => [...new Set([...previous, hero.slug])])} />
           <span className="pm-image-label">有飯氣嘅家常晚餐</span>
-          {shared.length > 0 && (
-            <div className="pm-mini-list">
-              <p className="pm-mini-head"><span className="pm-check-icon" aria-hidden="true">✓</span>餐單定好，材料合併</p>
-              {shared.map(item => <p className="pm-mini-line" key={item.name}>
-                <span>{item.name} · {item.dishCount} 道菜共用</span><strong>{item.quantityText}</strong>
-              </p>)}
-              <p className="pm-mini-caption">下方 {plan?.servings} 人份示範清單節錄</p>
-            </div>
-          )}
-        </div>
-      )}
+          <div className="pm-mini-list">
+            <p className="pm-mini-head">呢道菜嘅材料節錄</p>
+            <p className="pm-mini-dish">{hero.name}（{hero.servings}人份）</p>
+            <ul className="pm-mini-items">{hero.ingredientExcerpt!.map(item => <li className="pm-mini-line" key={item.name}>
+              <span className="pm-mini-name">{item.name}</span><strong>{item.quantityText}</strong>
+            </li>)}</ul>
+          </div>
+        </div>)}
+      </div>}
     </section>
   );
 }

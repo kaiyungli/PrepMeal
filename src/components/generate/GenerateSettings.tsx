@@ -3,11 +3,12 @@
 import { FilterShell, FilterGroupList, FilterFooter } from '@/components/filters';
 import { FILTER_GROUPS } from '@/constants/filters';
 import { buildFilterSections } from '@/constants/filterGroups';
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import SegmentedControl from '@/components/ui/SegmentedControl';
 
 interface GenerateSettingsProps {
   hasRecipes?: boolean;
+  preferencesOpenRequest?: number;
   daysPerWeek: number;
   setDaysPerWeek: (v: number) => void;
   
@@ -78,6 +79,7 @@ function CheckIcon() {
 
 export default function GenerateSettings({ 
   hasRecipes = false,
+  preferencesOpenRequest = 0,
   daysPerWeek, setDaysPerWeek,
   dailyComposition, setDailyComposition, allowCompleteMeal, setAllowCompleteMeal,
   servings, setServings,
@@ -90,6 +92,19 @@ export default function GenerateSettings({
 }: GenerateSettingsProps) {
   
   const [editingSettings, setEditingSettings] = useState(false);
+  const [handledOpenRequest, setHandledOpenRequest] = useState(0);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  // An accepted homepage preference entry opens this instance once. Manual
+  // collapse remains available after the URL parameters have been consumed.
+  if (handledOpenRequest !== preferencesOpenRequest) {
+    setHandledOpenRequest(preferencesOpenRequest);
+    setEditingSettings(true);
+  }
+  useEffect(() => {
+    if (!preferencesOpenRequest) return;
+    const target = settingsRef.current?.querySelector<HTMLElement>('input:checked, button, select');
+    target?.focus();
+  }, [preferencesOpenRequest]);
   const settingsId = useId();
   const desktopCollapsed = hasRecipes && !editingSettings;
   const compositionLabel = DAILY_COMPOSITION_OPTIONS.find(option => option.value === dailyComposition)?.label;
@@ -127,7 +142,7 @@ export default function GenerateSettings({
         </div>
         <button type="button" aria-expanded={!desktopCollapsed} aria-controls={settingsId} onClick={() => setEditingSettings(value => !value)} className="shrink-0 min-h-10 rounded-lg border border-[#DDD0B0] px-3 text-sm font-medium text-[#65482F] hover:bg-[#F8F3E8]">{desktopCollapsed ? '修改設定' : '收起設定'}</button>
       </div>}
-      <div id={settingsId} className={desktopCollapsed ? 'xl:hidden' : hasRecipes ? 'mt-3' : ''}>
+      <div ref={settingsRef} id={settingsId} className={desktopCollapsed ? 'xl:hidden' : hasRecipes ? 'mt-3' : ''}>
       {/* Planning Controls - embedded in header */}
       <div className="bg-white rounded-xl border border-[#DDD0B0] px-4 py-3">
           {/* Grouped controls */}

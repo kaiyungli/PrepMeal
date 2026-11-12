@@ -1,4 +1,5 @@
 import { generateCookingTips, generatePairingSuggestions, generateStorageTips, STORAGE_GUIDANCE_SOURCE } from '@/lib/recipes/recipeGuidance';
+import { nutritionValue } from '@/lib/utils';
 import Image from 'next/image'
 import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
@@ -290,11 +291,11 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           {!!recipe.nutrition_notes?.length && <ul className="text-sm mb-3 list-disc pl-5" style={{ color: '#5A4030' }}>{recipe.nutrition_notes.map((note, i) => <li key={i}>{note}</li>)}</ul>}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.calories_per_serving || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.calories_per_serving) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>卡路里</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.protein_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.protein_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>蛋白質(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
