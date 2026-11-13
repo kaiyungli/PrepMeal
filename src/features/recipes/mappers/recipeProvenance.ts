@@ -43,10 +43,12 @@ const SOURCE_NOTE_REWRITES: Array<[string, string]> = [
   ['圖片為AI生成示意，未經實煮。', '圖片為AI生成示意圖。'],
   ['，因此只作靈感，未作試煮或營養證明。', '，因此只作靈感。'],
   // Editorial workflow wording (approval / labelling rules) is for editors only.
-  ['依批准菜式整理中文材料、用量及步驟；任何本版編定須明示。；', ''],
+  ['依批准菜式整理中文材料、用量及步驟；', ''],
+  ['依批准菜式整理中文材料、用量及步驟。', ''],
+  ['任何本版編定須明示。；', ''],
   ['任何本版編定須明示。', ''],
   // One shared adaptation line on ~50 recipes: keep its meaning, say it shortly.
-  ['本版用量、材料選項及步驟有整理或改編；參考連結並不表示原作者認可本版，亦非原文轉載。', '本站按原食譜改編用量及步驟，並非原文轉載。'],
+  ['本版用量、材料選項及步驟有整理或改編；參考連結並不表示原作者認可本版，亦非原文轉載。', '本站按原食譜改編用量及步驟，並非原文轉載；參考連結不代表原作者認可本站版本。'],
   ['；未經實煮。', '。'],
   ['；未試煮。', '。'],
   ['，未試煮。', '。'],
@@ -59,8 +61,8 @@ export function readerSourceNote(note: string): string {
 
 // The stored nutrition policies are written for editors; readers get the same
 // facts in plain words.
-export const SHARED_POLICY_READER_TEXT = '營養按基本材料（不含選配）全部投入量估算，未扣除骨、殼及冇食落肚嘅油鹽。';
-export const ALTERNATIVE_POLICY_READER_TEXT = '營養按基本材料（不含選配）嘅可食部分估算，並非化驗結果。';
+export const SHARED_POLICY_READER_TEXT = '營養資料按基本材料（不含選配）的全部用量估算；骨殼去除、油鹽吸收及酒精揮發未經實測，實際攝取量可能不同。';
+export const ALTERNATIVE_POLICY_READER_TEXT = '營養資料按基本材料（不含選配）的可食部分及烹調後保留量估算，並非化驗結果。';
 
 // Publish only reader-facing evidence; never serialize the entire import ledger.
 export function recipeProvenance(sourceData: unknown): RecipeProvenance {

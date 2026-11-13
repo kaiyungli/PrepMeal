@@ -7,8 +7,9 @@
 import type { RecipeDetailRow, RecipeIngredient } from '../services/getRecipeDetail';
 import { recipeProvenance, type RecipeProvenance } from './recipeProvenance';
 import { vegetarianProductNote } from '@/constants/vegetarianProductNotes';
+import { recipeEditorialGuidance, type EditorialGuidance } from './recipeEditorialGuidance';
 
-export interface NormalizedRecipe extends RecipeProvenance {
+export interface NormalizedRecipe extends RecipeProvenance, EditorialGuidance {
   dietary_notes?: string[];
   slug: string | null;
   base_servings: number | null;
@@ -72,6 +73,7 @@ export function normalizeRecipeDetail(recipe: RecipeDetailRow): NormalizedRecipe
     dietary_notes: [vegetarianProductNote(recipe.diet, recipe.ingredients || [])].filter((note): note is string => Boolean(note)),
     slug: recipe.slug || null,
     ...recipeProvenance(recipe.source_data),
+    ...recipeEditorialGuidance(recipe),
     base_servings: Number.isFinite(Number(recipe.base_servings)) && Number(recipe.base_servings) > 0 ? Number(recipe.base_servings) : null,
     description: recipe.description || null,
     id: recipe.id,

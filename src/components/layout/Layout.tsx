@@ -5,14 +5,15 @@ import { useHeaderController } from '@/features/layout/hooks/useHeaderController
 interface LayoutProps {
   children: React.ReactNode;
   showNav?: boolean;
+  className?: string;
 }
 
-export default function Layout({ children, showNav = true }: LayoutProps) {
+export default function Layout({ children, showNav = true, className = '' }: LayoutProps) {
   const { isAuthenticated, loading, loggingOut, navLinks, guideLinks, accountLinks, trustLinks, isActiveRoute, handleLogout, onFavoritesIntent, onMyPlansIntent } = useHeaderController();
 
   return (
-    <div className="min-h-screen bg-bg font-sans">
-      <Header 
+    <div className={`min-h-screen bg-bg font-sans ${className}`}>
+      <Header
         showNav={showNav}
         navLinks={navLinks}
         guideLinks={guideLinks}

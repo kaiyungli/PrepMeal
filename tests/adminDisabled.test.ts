@@ -14,7 +14,7 @@ describe('admin tools are switched off', () => {
     expect(proxy().headers.get('x-middleware-next')).toBe('1');
   });
 
-  it('covers every admin route and nothing public', () => {
-    expect(config.matcher).toEqual(['/admin', '/admin/:path*', '/api/admin/:path*', '/api/audit', '/api/audit/:path*']);
+  it('keeps admin coverage and adds only the homepage cache selectors', () => {
+    expect(config.matcher).toEqual(['/', '/home-rotation/:path*', '/admin', '/admin/:path*', '/api/admin/:path*', '/api/audit', '/api/audit/:path*']);
   });
 });

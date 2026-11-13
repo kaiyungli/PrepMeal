@@ -1,0 +1,67 @@
+{
+  "S1": [
+    "Made With Lau：Tomato & Eggs",
+    "https://www.madewithlau.com/recipes/tomato-and-eggs",
+    "只參考蛋與蕃茄分段烹調、成熟蕃茄與酸甜調整；不採用原方的薑、茄汁、生粉或額外油。"
+  ],
+  "S2": [
+    "Made With Lau：Steamed Eggs",
+    "https://www.madewithlau.com/recipes/steamed-egg",
+    "參考蛋面泡沫、蒸氣強弱與容器影響；保留本站1隻蛋、120毫升水，安全熟度依F1。"
+  ],
+  "S3": [
+    "Christine Ho：魚香豆腐",
+    "https://www.christinesrecipes.com/2017/03/tofu-and-pork-in-chilli-bean-sauce.html?m=0",
+    "只參考先處理肉碎、炆豆腐後勾芡的次序；不改成魚香口味，不加入辣豆瓣醬或原方其他材料。"
+  ],
+  "S4": [
+    "Made With Lau：Steamed Spare Ribs",
+    "https://www.madewithlau.com/recipes/steamed-spare-ribs",
+    "只參考斬件大小、醃料拌勻與單層蒸；不採用其63°C判熟或清洗生肉做法，食安處理依F1、F2。"
+  ],
+  "S5": [
+    "李錦記香港：蜜糖雞中翼",
+    "https://hk.lkk.com/zh-hk/recipes/honey-chicken-wing",
+    "參考煎雞翼後加水烹調及掛汁的做法；本站仍用生抽、蒜蓉及1湯匙蜜糖，不照搬原方蠔油和份量。"
+  ],
+  "S6": [
+    "Kikkoman：Teriyaki Chicken",
+    "https://www.kikkoman.com/en/cookbook/recipe/00000185.html",
+    "參考皮面先煎、加蓋煮熟後收汁；本站保留現成照燒汁，不加原方味醂或配菜。"
+  ],
+  "S7": [
+    "Made With Lau：Broccoli Stir Fry",
+    "https://www.madewithlau.com/recipes/broccoli-stir-fry",
+    "參考切件、汆水後瀝乾及先炒香蒜蓉；不採用原方冰水、酒、雞粉、蠔油或生粉。"
+  ],
+  "S8": [
+    "李錦記台灣：蠔油的家常用法",
+    "https://tw.lkk.com/zh-hk/cooking-stories/oyster-sauce-usage",
+    "只參考蒜香蠔油與生菜的搭配；該頁為汆燙後淋汁，本版保留原有快炒做法。"
+  ],
+  "S9": [
+    "Made With Lau：Egg Drop Soup",
+    "https://www.madewithlau.com/recipes/egg-drop-soup",
+    "只參考蛋液細流加入與輕攪形成蛋花；本站仍是番茄清湯，不加原方蝦、豆腐、上湯或澱粉。"
+  ],
+  "S10": [
+    "Kikkoman：Oyakodon",
+    "https://www.kikkoman.com/en/cookbook/washoku/oyakodon.html",
+    "參考雞肉煮好後分兩次加入蛋液及小鍋加蓋；本站保留現成照燒汁的簡化版，雞肉與雞蛋全熟，不照搬半熟蛋或原方調味份量。"
+  ],
+  "F1": [
+    "食物安全中心：烹煮及翻熱",
+    "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html",
+    "用食物溫度計量度最厚處；本稿統一採75°C、至少30秒作保守完成條件，蛋類煮熟。"
+  ],
+  "F2": [
+    "食物安全中心：清潔、消毒與衞生",
+    "https://www.cfs.gov.hk/tc_chi/consumer_zone/safefood_all/clean_hygiene.html",
+    "生肉／家禽在水龍頭下清洗可能濺散致病菌；生熟器具分開及處理後清潔。"
+  ],
+  "F3": [
+    "食物安全中心：未煮熟豆類中的天然毒素",
+    "https://www.cfs.gov.hk/tc_chi/multimedia/multimedia_pub/multimedia_pub_fsf_139_04.html",
+    "豆角及四季豆須徹底煮熟，不能以生豆配製沙律。"
+  ]
+}

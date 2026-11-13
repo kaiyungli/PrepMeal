@@ -4,16 +4,16 @@ import type { GuideRecipe } from '@/features/guides/guideRecipes';
 import type { PracticalRecipe } from '@/features/guides/practicalExamples';
 import { ExampleLink, GuideTable } from '@/components/guides/PracticalExamples';
 export default function MarketGuide({ recipes, examples = [] }: { recipes: GuideRecipe[]; examples?: PracticalRecipe[] }) {
-  return <GuidePage updated="2026-10-28" title="香港買餸與一週採購攻略" path="/hong-kong-market-shopping-guide" description="跟兩人五日晚餐例子，核對材料總量、家中存貨及一次或兩次採購安排。">
+  return <GuidePage updated="2026-11-07" title="香港買餸與一週採購攻略" path="/hong-kong-market-shopping-guide" description="跟兩人五日晚餐例子，核對材料總量、家中存貨及一次或兩次採購安排。">
     <GuideSection title="將五日晚餐變成一張買餸清單">
-      <p className="mb-4">先用<Link className="underline" href="/7-day-dinner-plan">兩人五日晚餐示例</Link>決定要煮邊幾餐，唔好見到特價先買一大袋再諗。以下按2026年10月28日核對嘅原食譜，用兩人份示範部分重複材料；唔係整週完整購物清單，調味料及其他鮮貨仍要逐道核對。</p>
+      <p className="mb-4">先用<Link className="underline" href="/7-day-dinner-plan">兩人五日晚餐示例</Link>決定要煮邊幾餐，唔好見到特價先買一大袋再諗。以下按2026年11月7日核對嘅原食譜，用兩人份示範部分重複材料；唔係整週完整購物清單，調味料及其他鮮貨仍要逐道核對。</p>
       <GuideTable caption="兩人份材料換算例子（部分材料）" headers={['材料與菜式', '兩人需要', '買之前點核對']} rows={[
         [<span key="onion"><ExampleLink examples={examples} slug="tomato-tofu-rice" />＋<ExampleLink examples={examples} slug="prepmeal-batch2-04" />＋<ExampleLink examples={examples} slug="vegetable-egg-fried-rice" />嘅洋蔥</span>, '100g＋80g＋80g＝260g', '假設家中已量好可用洋蔥80g，尚欠180g；要比較去皮後可用重量，唔可直接當1個等於180g。'],
         [<span key="pasta"><ExampleLink examples={examples} slug="garlic-chicken-pasta" />＋<ExampleLink examples={examples} slug="garlic-butter-shrimp-pasta" />嘅意粉</span>, '200g＋180g＝380g乾重', '假設屋企有200g，尚欠180g；購買包裝係500g亦唔代表要一次煮晒。'],
         ['三道飯類嘅白飯', '360g＋500g＋360g＝1,220g熟飯', '呢個係煮好後重量，唔係買1,220g生米；唔好將乾米直接當熟飯等重。'],
         ['雞肉與蝦', '星期一雞胸240g；星期四蝦240g', '分開列出肉類、部位及處理後重量。唔好將不同肉類合成一行「肉480g」。'],
       ]} />
-      <p className="mt-3">公式係「原用量 × 目標人數 ÷ 原配方人數」。例如壽喜燒原本已係2人份，洋蔥80g唔使再乘2。不同單位先保留，唔自行估算一瓣蒜幾克。生成器按餐單重算需求；家中存貨差額仍由你量度核對，唔係自動庫存扣減。</p>
+      <p className="mt-3">網站所有食譜都以1人份計，公式係「1人份用量 × 人數」。例如壽喜燒1人份用洋蔥40g，兩人就係80g。不同單位先保留，唔自行估算一瓣蒜幾克。生成器按餐單重算需求；家中存貨差額仍由你量度核對，唔係自動庫存扣減。</p>
     </GuideSection>
     <GuideSection title="兩次採購示例：星期日＋星期三">
       <ul className="list-disc pl-5 space-y-2"><li>星期日前先核對乾意粉、米、油、鹽、牛油及壽喜燒調味料，缺先買；鮮貨按星期一至三菜式同標籤期限決定。</li><li>星期三再核對星期四蝦意粉所需蝦、車厘茄，以及星期五雜菜蛋炒飯嘅蛋、粟米、甘筍。洋蔥如之前已買且仍適合使用，唔重複買。</li><li>只想去一次，就先確認雪櫃容量、食用期限及後半週食材可否按包裝急凍保存；唔好將五日鮮貨一律放保鮮格。未能安排就換菜或改兩次採購。</li></ul>

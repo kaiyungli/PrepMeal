@@ -7,7 +7,7 @@ import { TRANSFER_KEY, draftKey, encodeDraft, parseDraft, type DraftSnapshot } f
 
 const state = vi.hoisted(() => ({ user: { id: 'A' } as { id: string } | null, loading: false, notice: vi.fn(), query: {} as Record<string, string>, save: vi.fn() }));
 vi.mock('@/hooks/useAuth', () => ({ useAuth: () => ({ user: state.user, loading: state.loading, isAuthenticated: !!state.user, getAccessToken: async () => 'test-token' }) }));
-vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: state.query }) }));
+vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: state.query, replace: vi.fn().mockResolvedValue(true) }) }));
 vi.mock('@/features/generate/services/saveGeneratedPlan', () => ({ saveGeneratedPlan: (...args: unknown[]) => state.save(...args) }));
 vi.mock('next/head', () => ({ default: ({ children }: { children: ReactNode }) => children }));
 vi.mock('@/components/layout/Header', () => ({ default: () => null }));
@@ -31,6 +31,20 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('real generate page draft integration', () => {
+  it('opens and focuses settings after accepting homepage preferences, retaining draft meals', async () => {
+    state.query = { source: 'home', days: '5', servings: '1', intent: 'preferences' };
+    render(<GeneratePage />);
+    const apply = await screen.findByRole('button', { name: '套用人數及日數' });
+    expect(screen.getByRole('button', { name: '修改設定' }).getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(apply);
+    await waitFor(() => expect(screen.getByRole('button', { name: '收起設定' }).getAttribute('aria-expanded')).toBe('true'));
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: '5天' }));
+    expect((screen.getByRole('combobox', { name: '用餐人數' }) as HTMLSelectElement).value).toBe('1');
+    expect(screen.getByRole('heading', { name: '帳戶A晚餐' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '收起設定' }));
+    expect(screen.getByRole('button', { name: '修改設定' }).getAttribute('aria-expanded')).toBe('false');
+  });
+
   it('keeps the default naming behavior for old drafts without a custom name', async () => {
     render(<GeneratePage />);
     await waitFor(() => expect((screen.getByRole('button', { name: /^保存$/ }) as HTMLButtonElement).disabled).toBe(false));

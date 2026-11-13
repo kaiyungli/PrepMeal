@@ -4,13 +4,13 @@ import type { GuideRecipe } from '@/features/guides/guideRecipes';
 import type { PracticalRecipe } from '@/features/guides/practicalExamples';
 import { ExampleLink, ExampleTiming, GuideTable } from '@/components/guides/PracticalExamples';
 export default function QuickDinnerRecipes({ recipes, examples = [] }: { recipes: GuideRecipe[]; examples?: PracticalRecipe[] }) {
-  return <GuidePage updated="2026-10-28" title="30分鐘快手家常菜" path="/30-minute-dinner-recipes" description="由真實食譜分清備料、烹調及熟飯前提，安排放工後嘅晚餐次序。">
+  return <GuidePage updated="2026-11-07" title="30分鐘快手家常菜" path="/30-minute-dinner-recipes" description="由真實食譜分清備料、烹調及熟飯前提，安排放工後嘅晚餐次序。">
     <GuideSection title="今晚有半個鐘，先揀唔使額外等待嘅菜">
       <p className="mb-4">由放低手袋到開飯，仲包括洗手、取材料、煲水同盛碟。網站食譜時間係估算，唔係兩人整餐保證時間。先睇材料是否已解凍、飯是否已煮好，以及有冇同時用煲同鑊嘅空間；第一次做唔好排得剛剛好。</p>
       <GuideTable caption="三款晚餐嘅時間前提" headers={['食譜', '原配方時間', '容易漏計嘅部分']} rows={[
         [<ExampleLink key="chicken" examples={examples} slug="garlic-chicken-pasta" />, <ExampleTiming key="ct" examples={examples} slug="garlic-chicken-pasta" />, '意粉要按包裝煮；雞肉要先可處理，雙爐可同時煮麵及煎雞，單爐就依次完成。'],
         [<ExampleLink key="tofu" examples={examples} slug="tomato-tofu-rice" />, <ExampleTiming key="tt" examples={examples} slug="tomato-tofu-rice" />, '材料寫白飯，即已熟飯。由生米煮起，須加上電飯煲實際所需時間。'],
-        [<ExampleLink key="beef" examples={examples} slug="prepmeal-batch2-04" />, <ExampleTiming key="bt" examples={examples} slug="prepmeal-batch2-04" />, '原配方已係2人份；先有熟飯、薄切牛肉及所需調味料，唔好臨開煮先解凍。'],
+        [<ExampleLink key="beef" examples={examples} slug="prepmeal-batch2-04" />, <ExampleTiming key="bt" examples={examples} slug="prepmeal-batch2-04" />, '原配方1人份，兩人材料乘2（牛肉約170g、熟飯500g）；先有熟飯、薄切牛肉及所需調味料，唔好臨開煮先解凍。'],
       ]} />
     </GuideSection>
     <GuideSection title="實際次序：兩人蒜香雞肉意粉">

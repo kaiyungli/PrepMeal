@@ -27,9 +27,12 @@ it('mounting the Header controller does not fetch favorites or retrieve a token'
 });
 it('only the Favorites link pointer/focus/touch triggers intent, without changing normal navigation', () => {
   const intent = vi.fn(); render(createElement(Header, { navLinks: [{ path: '/recipes', label: '食譜' }, { path: '/favorites', label: '收藏' }], onFavoritesIntent: intent }));
-  fireEvent.pointerEnter(screen.getByRole('link', { name: '食譜' })); expect(intent).not.toHaveBeenCalled();
-  fireEvent.touchStart(screen.getByRole('link', { name: '食譜' })); expect(intent).not.toHaveBeenCalled();
-  const favorite = screen.getByRole('link', { name: '收藏' }); fireEvent.pointerEnter(favorite); fireEvent.focus(favorite);
+  const search = within(screen.getByRole('navigation', { name: '主要導航' })).getByRole('link', { name: '搜尋食譜' });
+  expect(search.getAttribute('href')).toBe('/recipes');
+  fireEvent.pointerEnter(search); expect(intent).not.toHaveBeenCalled();
+  fireEvent.touchStart(search); expect(intent).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: '更多' }));
+  const favorite = screen.getByRole('menuitem', { name: '收藏' }); fireEvent.pointerEnter(favorite); fireEvent.focus(favorite);
   fireEvent.touchStart(favorite);
   expect(intent).toHaveBeenCalledTimes(3); expect(favorite.getAttribute('href')).toBe('/favorites');
 });
@@ -38,7 +41,8 @@ it('touch followed by focus and pointer intent through Layout shares one pending
   vi.mocked(fetch).mockImplementationOnce(() => new Promise(resolve => { complete = resolve; }) as never);
   const PageLayout = Layout as ComponentType<{ children: ReactNode }>;
   render(createElement(PageLayout, null, 'mobile intent'));
-  const favorite = within(screen.getByRole('navigation')).getByRole('link', { name: '收藏' });
+  fireEvent.click(screen.getByRole('button', { name: '更多' }));
+  const favorite = screen.getByRole('menuitem', { name: '收藏' });
   fireEvent.touchStart(favorite); fireEvent.focus(favorite); fireEvent.pointerEnter(favorite);
   await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
   await act(async () => { complete(response()); });
@@ -48,7 +52,7 @@ it('mobile touch starts intent without closing the menu; the subsequent click re
   const intent = vi.fn();
   render(createElement(Header, { navLinks: [{ path: '/favorites', label: '收藏' }], onFavoritesIntent: intent }));
   fireEvent.click(screen.getByRole('button', { name: '打開選單' }));
-  const favorite = within(screen.getAllByRole('navigation')[1]).getByRole('link', { name: '收藏' });
+  const favorite = within(screen.getByRole('navigation', { name: '手機導航' })).getByRole('link', { name: '收藏' });
   fireEvent.touchStart(favorite);
   expect(intent).toHaveBeenCalledTimes(1); expect(screen.getAllByRole('navigation')).toHaveLength(2);
   expect(favorite.getAttribute('href')).toBe('/favorites');
@@ -58,7 +62,8 @@ it('the real Layout forwards authenticated intent through controller and Header 
   const PageLayout = Layout as ComponentType<{ children?: ReactNode }>;
   render(createElement(PageLayout, null, createElement('div', {}, 'Recipe page content')));
   await act(async () => {}); expect(fetch).not.toHaveBeenCalled();
-  const link = within(screen.getByRole('navigation')).getByRole('link', { name: '收藏' });
+  fireEvent.click(screen.getByRole('button', { name: '更多' }));
+  const link = screen.getByRole('menuitem', { name: '收藏' });
   fireEvent.focus(link); await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
   expect(vi.mocked(fetch).mock.calls[0][0]).toBe('/api/user/favorites?include=recipes');
   expect(vi.mocked(fetch).mock.calls[0][1]?.headers).toEqual({ Authorization: 'Bearer synthetic-token-A' });

@@ -6,12 +6,17 @@ import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { loadRecipeDetail } from '@/features/recipes';
 import { measurePageLoadMetrics } from '@/utils/perf';
 import { DEFAULT_OG_IMAGE } from '@/constants/site';
+import { RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
 
 /**
  * Recipe Detail Page - dumb shell only
- * @param {{ recipe: any, error: any, updatedAt?: string | null }} props
+ * @param {{
+ *   recipe?: object | null,
+ *   error?: string | null,
+ *   related?: import('@/features/recipes/recipeLinks').RelatedRecipes | null
+ * }} props
  */
-export default function RecipeDetail({ recipe, error, updatedAt = null }) {
+export default function RecipeDetail({ recipe, error, related = null }) {
   // Keep hook order stable across loading, error and successful renders.
   // Metrics still start only when there is a recipe to display.
   const hasRecipe = Boolean(recipe && !error);
@@ -65,14 +70,15 @@ export default function RecipeDetail({ recipe, error, updatedAt = null }) {
         <meta name="twitter:title" content={`${safeRecipe.name} - 今晚食乜`} />
         <meta name="twitter:image" content={safeRecipe.image_url || DEFAULT_OG_IMAGE} />
       </Head>
-      <RecipeStructuredData recipe={safeRecipe} dateModified={updatedAt} />
+      <RecipeStructuredData recipe={safeRecipe} />
       
       {/* Shared site header/footer: navigation and policy links on every recipe page */}
       <Layout>
         <div className="min-h-screen bg-[#F8F3E8]">
           <div className="max-w-[800px] mx-auto py-6 px-4">
             {/* Standalone page: full recipe in server HTML, hero is the LCP image */}
-            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority updatedAt={updatedAt} />
+            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority />
+            <RelatedRecipeLinks related={related} />
           </div>
         </div>
       </Layout>
@@ -90,9 +96,13 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   
-  const { recipe, error } = await loadRecipeDetail(params.id);
-  
-  
+  const { fetchRecipeLinkCatalog } = await import('@/lib/recipesServer');
+  const { selectRelatedRecipes } = await import('@/features/recipes/recipeLinks');
+  const [{ recipe, error }, linkCatalogue] = await Promise.all([
+    loadRecipeDetail(params.id),
+    fetchRecipeLinkCatalog(),
+  ]);
+
   if (!recipe) {
     return {
       notFound: true,
@@ -100,14 +110,12 @@ export async function getStaticProps({ params }) {
     };
   }
   
-  const { fetchRecipeUpdatedAt } = await import('@/lib/recipesServer');
-  const updatedAt = recipe.id ? await fetchRecipeUpdatedAt(String(recipe.id)) : null;
-
   return {
     props: {
       recipe,
       error: error || null,
-      updatedAt
+      // Links only: a failed catalogue fetch renders the page without them.
+      related: linkCatalogue && recipe.slug ? selectRelatedRecipes(recipe, linkCatalogue) : null
     },
     revalidate: 300
   };

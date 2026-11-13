@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { getRecipeStructuredData } from '@/lib/recipeStructuredData';
 
 describe('recipe JSON-LD matches normalized and legacy detail shapes', () => {
+  it('does not treat a database update timestamp as an editorial modification date', () => {
+    const recipe = { id: 'r', name: '炒麵', created_at: '2026-10-01T00:00:00Z', updated_at: '2026-11-14T00:00:00Z' };
+    const schema = getRecipeStructuredData(recipe);
+    expect(schema?.datePublished).toBe('2026-10-01');
+    expect(schema).not.toHaveProperty('dateModified');
+  });
   it('publishes actual steps, unit labels and the recipe base yield', () => {
     const schema = getRecipeStructuredData({ id: 'r', name: '炒麵', base_servings: 2,
       calories_per_serving: 578,
