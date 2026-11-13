@@ -1,5 +1,7 @@
 /** Display guidance uses catalogue codes, not translated labels. */
 export interface GuidanceRecipe {
+  cooking_tips?: string[];
+  pairing_suggestions?: string[];
   method?: string | null;
   dish_type?: string | null;
   meal_role?: string | null;
@@ -10,6 +12,7 @@ export interface GuidanceRecipe {
 export const STORAGE_GUIDANCE_SOURCE = 'https://www.cfs.gov.hk/tc_chi/consumer_zone/safefood_all/five_keys_apply_leftovers.html';
 
 export function generateCookingTips(recipe: GuidanceRecipe): string[] {
+  if (recipe.cooking_tips?.length) return recipe.cooking_tips;
   switch (recipe.method) {
     case 'stir_fry':
       return ['先備妥材料，再按食譜次序下鑊；份量較多時分批炒，避免材料出水。'];
@@ -31,6 +34,7 @@ export function generateCookingTips(recipe: GuidanceRecipe): string[] {
 }
 
 export function generatePairingSuggestions(recipe: GuidanceRecipe): string[] {
+  if (recipe.pairing_suggestions?.length) return recipe.pairing_suggestions;
   if (recipe.meal_role === 'complete_meal' || recipe.is_complete_meal || recipe.dish_type === 'staple') {
     return ['這道飯麵可作主食，按已有材料搭配一份蔬菜或清湯。'];
   }

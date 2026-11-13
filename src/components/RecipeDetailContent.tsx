@@ -10,9 +10,10 @@ import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
+import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
 
 export interface RecipeDetailContentProps {
-  recipe: Partial<Provenance> & {
+  recipe: Partial<Provenance> & EditorialGuidance & {
     meal_role?: string | null
     dish_type?: string | null
     is_complete_meal?: boolean | null
@@ -336,6 +337,17 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
         </div>
 
         <div className="mt-8"><RecipeProvenance recipe={recipe} /></div>
+
+        {!!recipe.editorial_sources?.length && (
+          <div className="mt-6 text-sm" style={{ color: '#5A4030' }}>
+            <p className="font-semibold mb-2">烹調參考</p>
+            <ul className="space-y-2">
+              {recipe.editorial_sources.map(source => (
+                <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">{source.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* SEO Section: 保存方法 */}
         <div className="mt-8">

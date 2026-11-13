@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-13",
+  "project": "hivnajhqqvaokthzhugx",
+  "public_recipes": 303,
+  "cooking_tips": 606,
+  "pairing_suggestions": 303,
+  "full_target_content_mismatches": [],
+  "protected_recipe_field_mismatches": 0,
+  "existing_metadata_mismatches": 0,
+  "non_water_ingredient_row_mismatches": 0,
+  "transaction": "COMMITTED",
+  "rollback": "tested locally, not executed remotely"
+}
