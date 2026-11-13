@@ -7,6 +7,7 @@ import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetai
 import { selectRelatedRecipes } from '@/features/recipes/recipeLinks';
 import { loadRecipeDetail } from '@/features/recipes';
 import { fetchRecipeLinkCatalog } from '@/lib/recipesServer';
+import { recipeProvenance } from '@/features/recipes/mappers/recipeProvenance';
 
 // The standalone recipe page must put the full recipe (ingredients and steps)
 // and the site navigation into its server HTML, and load its hero image (the
@@ -40,6 +41,21 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it('renders reader-facing notes and preserves source links without an editorial update date', () => {
+    const provenance = recipeProvenance({
+      consistency_review: { public_notes: ['圖片為AI生成示意圖。'] },
+      source_attribution: { website: '參考網站', original_recipe_url: 'https://example.com/recipe',
+        adaptation_note: '依批准菜式整理中文材料、用量及步驟；任何本版編定須明示。；本版保留薑汁。' },
+      nutrition: { policy: '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。' },
+    });
+    const html = renderToString(<RecipeDetail recipe={{ ...RECIPE, ...provenance }} error={null} />);
+    expect(html).toContain('烹調前須知');
+    expect(html).toContain('圖片為AI生成示意圖。');
+    expect(html).toContain('本版保留薑汁。');
+    expect(html).toContain('href="https://example.com/recipe"');
+    expect(html).toContain('酒精揮發未經實測');
+    expect(html).not.toMatch(/依批准|須明示|最後更新|編輯整理/);
+  });
   it('keeps reviewed cold guidance and adds related links in the same server HTML after main integration', () => {
     const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
     const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
