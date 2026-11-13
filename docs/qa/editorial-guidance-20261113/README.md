@@ -6,7 +6,9 @@ All 303 public recipes receive two cooking tips and one meal-pairing suggestion.
 
 This is a desk review, **not a cooking trial**. No new cooking-time measurements or nutrition calculations are claimed. References describe the technique being consulted, not an assertion that another author's complete recipe or quantities are reproduced. Existing provenance and nutrition evidence remain intact.
 
-The review also corrects 119 step texts across 45 recipes: missing or duplicated water allocation, instructions using unlisted ingredients, cooking completion checks, bean preparation, shellfish cooking, raw-meat handling and unsuitable generic covering instructions. Ten missing water rows and three existing water notes are included; no existing ingredient amount or nutrition field changes. One salad's method changes to `boiled` because its beans must actually be cooked. The ten approved descriptions change; other descriptions remain unchanged.
+The review also corrects 120 step texts across 45 recipes: missing or duplicated water allocation, instructions using unlisted ingredients, cooking completion checks, bean preparation, shellfish cooking, raw-meat handling and unsuitable generic covering instructions. Ten missing water rows and three existing water notes are included; no existing ingredient amount or nutrition field changes. One salad's method changes to `boiled` because its beans must actually be cooked. The ten approved descriptions change; other descriptions remain unchanged.
+
+Browser review caught a remaining “no heat needed” sentence in the papaya salad after the bean preparation changed. That sentence and its tip are corrected. Thirteen cold salads also carry a reviewed cold-serving marker, so boiled or fried ingredients do not make the shared storage section instruct reheating a cold dish. The explicitly warm German potato salad keeps the existing hot-food handling. `cold-dish-followup.sql` records the guarded follow-up that was applied after the original 119-step transaction; the generated apply/rollback files now describe the complete final 120-step state.
 
 ## Files
 
@@ -34,7 +36,8 @@ The content transaction checks all 303 originals before changing anything, locks
 - Full suite: 2,519 unit tests and 296 component tests passed. TypeScript, changed-file lint and diff whitespace checks passed.
 - The content transaction was committed to the existing PrepMeal database. A fresh read matched all 303 full target recipes and guidance entries. Protected recipe fields (including nutrition), existing metadata and every non-water ingredient row matched all 303 baseline hashes. See `database-verification.json`.
 - The 45 corrected recipes' steps and ten descriptions are data updates and can appear on the existing site as its caches refresh. The new dedicated guidance requires this branch's code, which is not merged or deployed to production.
-- Preview build and browser verification: pending.
+- Initial code SHA `18264dce44017d1fd65e66fcd4eb25d90392ad6b`: Vercel Preview READY; CI run 43408894949 passed. Browser checks covered chicken meatballs and tomato eggs in modal/full details, tomato reload, keyboard Enter/Escape, a complete-meal pairing and the papaya salad. The cold-serving fix was found during this review. Final SHA, Preview, CI and follow-up browser results are recorded in the PR description after the final build, to keep this committed log distinct from subsequent remote verification.
+- After the cold-serving fix, targeted unit/component tests, TypeScript and changed-file lint were rerun. All 303 final target recipes and guidance records were read back again without differences; all protected baseline hashes still matched.
 - Not executed: cooking trials, real-device checks, screen reader checks, or an AdSense approval assessment.
 
 This branch is based on main `3b8c14d3b0aafe675918c5d52c580b910f404260`. It does not merge or depend on PR #170, #172, #173 or the on-hold #137. No production code deployment is authorized by this content work.

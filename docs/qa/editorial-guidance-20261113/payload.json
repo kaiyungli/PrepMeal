@@ -702,7 +702,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2138,7 +2139,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2194,10 +2196,10 @@
       "version": 1,
       "reviewed_on": "2026-11-13",
       "review_method": "desk_review_not_test_cooked",
-      "source_fingerprint": "975eeb2ab4d975b8514bb53fad086b11a8eff92a79091463523532bec684a9c7",
+      "source_fingerprint": "1fcfb6f5cbccf78a8b71137e2e4d9bcaa29ff448548d3f2424af4712537eb1ea",
       "cooking_tips": [
         "青木瓜刨絲後才輕壓拌汁，不必把瓜絲壓至爛；棕櫚糖先在汁中調開。",
-        "如用四季豆或來源未明的豆角，須先煮熟降溫再拌，不能把醬汁的酸味當成煮熟處理。"
+        "豆角須先用沸水徹底煮熟、降溫再拌，不能把醬汁的酸味當成煮熟處理。"
       ],
       "pairing_suggestions": [
         "可配「豆腐雞蛋白菜卷」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
@@ -2207,7 +2209,8 @@
           "title": "食物安全中心：未煮熟豆類中的天然毒素",
           "url": "https://www.cfs.gov.hk/tc_chi/multimedia/multimedia_pub/multimedia_pub_fsf_139_04.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {
       "method": "boiled"
@@ -2217,6 +2220,11 @@
         "step_no": 3,
         "old": "長豆角輕拍切段，車厘茄切半。",
         "text": "豆角洗淨後用沸水徹底煮熟，再用可飲用冷水降溫、瀝乾切段；不可用未煮熟豆角拌沙律。車厘茄洗淨切半。"
+      },
+      {
+        "step_no": 4,
+        "old": "大碗中把所有材料拌勻並輕壓，至木瓜絲稍軟；使用已烘花生可免開火。",
+        "text": "大碗中把木瓜絲、已煮熟並降溫的豆角、其他材料及醬汁拌勻並輕壓，至木瓜絲稍軟；拌好盡快食用。"
       }
     ],
     "ingredient_changes": []
@@ -2261,7 +2269,8 @@
       "pairing_suggestions": [
         "這道菜已有白米，可配「蒜蓉生菜」；其他主食按整餐份量安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2376,7 +2385,8 @@
       "pairing_suggestions": [
         "可配「豆腐雞蛋白菜卷」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2399,7 +2409,8 @@
       "pairing_suggestions": [
         "可配「孜然香辣烤豆腐」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2427,7 +2438,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2450,7 +2462,8 @@
       "pairing_suggestions": [
         "可配「孜然香辣烤豆腐」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2473,7 +2486,8 @@
       "pairing_suggestions": [
         "可配「薑蔥豉油蒸豆腐（簡易版）」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2501,7 +2515,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -2524,7 +2539,8 @@
       "pairing_suggestions": [
         "這道菜已有乾綠豆粉絲，可配「蒜蓉生菜」；其他主食按整餐份量安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -7063,7 +7079,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -7518,7 +7535,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],

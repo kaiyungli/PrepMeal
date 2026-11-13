@@ -7,6 +7,7 @@ const snapshot = JSON.parse(readFileSync(root + 'recipe-snapshot.json', 'utf8'))
 const payload = JSON.parse(readFileSync(root + 'payload.json', 'utf8'));
 const apply = readFileSync(root + 'apply.sql', 'utf8');
 const rollback = readFileSync(root + 'rollback.sql', 'utf8');
+const coldFollowup = readFileSync(root + 'cold-dish-followup.sql', 'utf8');
 const catalogue = readFileSync(root + 'catalogue-query.sql', 'utf8').trim().replace(/;$/, '');
 const quote = (value: unknown) => "'" + JSON.stringify(value).replaceAll("'", "''") + "'::jsonb";
 let db: PGlite;
@@ -64,6 +65,22 @@ describe.sequential('303-recipe content transaction', () => {
       expect(now.find(i => i.id === ingredient.id)).toEqual(ingredient);
     }
   }, 30000);
+  it('replays the browser-discovered cold-dish follow-up to the exact final content', async () => {
+    const final = await state();
+    const coldPatches = JSON.parse(coldFollowup.split('$cold_patch$')[1]);
+    expect(coldPatches).toHaveLength(13);
+    for (const p of coldPatches) await db.query("update recipes set source_data=jsonb_set(source_data,'{editorial_guidance}',$1::jsonb,true) where id=$2", [JSON.stringify(p.old), p.id]);
+    const salad = snapshot.find((r: { slug: string }) => r.slug === 'prepmeal-25-14-som-tam');
+    await db.query('update recipe_steps set text=$1 where recipe_id=$2 and step_no=4', [salad.steps.find((s: { step_no: number }) => s.step_no === 4).text, salad.id]);
+    await db.exec(coldFollowup);
+    expect(await state()).toEqual(final);
+  });
+  it('rejects repeated cold-dish patches atomically', async () => {
+    const before = await state();
+    await expect(db.exec(coldFollowup)).rejects.toThrow(/precondition changed/);
+    await db.exec('ROLLBACK');
+    expect(await state()).toEqual(before);
+  });
   it('rejects a repeated apply without partially overwriting content', async () => {
     const before = await state();
     await expect(db.exec(apply)).rejects.toThrow(/precondition changed/);

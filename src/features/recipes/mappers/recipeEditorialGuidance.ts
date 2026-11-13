@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import type { RecipeDetailRow } from '../services/getRecipeDetail';
 
 export interface EditorialGuidance {
+  served_cold?: boolean;
   cooking_tips?: string[];
   pairing_suggestions?: string[];
   editorial_sources?: { title: string; url: string }[];
@@ -63,6 +64,7 @@ export function recipeEditorialGuidance(recipe: RecipeDetailRow): EditorialGuida
     } catch { return []; }
   }).slice(0, 6) : [];
   return {
+    ...(editorial.served_cold === true ? { served_cold: true } : {}),
     cooking_tips: cooking,
     pairing_suggestions: pairing,
     ...(sources.length ? { editorial_sources: sources } : {}),

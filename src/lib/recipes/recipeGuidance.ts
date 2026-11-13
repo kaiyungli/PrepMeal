@@ -1,5 +1,6 @@
 /** Display guidance uses catalogue codes, not translated labels. */
 export interface GuidanceRecipe {
+  served_cold?: boolean;
   cooking_tips?: string[];
   pairing_suggestions?: string[];
   method?: string | null;
@@ -56,7 +57,7 @@ export function generatePairingSuggestions(recipe: GuidanceRecipe): string[] {
 }
 
 export function generateStorageTips(recipe: GuidanceRecipe): string[] {
-  if (recipe.method === 'no_cook') {
+  if (recipe.served_cold === true || recipe.method === 'no_cook') {
     return ['拌好後盡快食用；易腐壞的材料及成品須保持冷藏，避免長時間放在室溫。',
       '如材料曾經煮熟，應分成小份或放入淺容器，盡快冷卻，並在兩小時內放進攝氏4度或以下的雪櫃。'];
   }

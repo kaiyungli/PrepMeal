@@ -58,6 +58,7 @@ step('豬肉炒椰菜', 1, '豬肉切薄片，加入材料表生抽的一半拌�
 step('豬肉炒椰菜', 5, '加入餘下生抽及材料表的蠔油拌勻，調整火力避免燒焦，不再加入另一份調味料。')
 step('豬肉炒椰菜', 6, '炒至椰菜熟軟而仍有口感，並確認豬肉中心達75°C並維持至少30秒後上碟。')
 step('泰式青木瓜沙律', 3, '豆角洗淨後用沸水徹底煮熟，再用可飲用冷水降溫、瀝乾切段；不可用未煮熟豆角拌沙律。車厘茄洗淨切半。')
+step('泰式青木瓜沙律', 4, '大碗中把木瓜絲、已煮熟並降溫的豆角、其他材料及醬汁拌勻並輕壓，至木瓜絲稍軟；拌好盡快食用。')
 by_name['泰式青木瓜沙律']['method'] = 'boiled'
 step('豉椒炒蜆', 5, '加入生抽、糖及材料表的水，加蓋煮至湯汁重新沸騰，再保持滾煮至少5分鐘，確認蜆肉熟透；留意鍋內水量，避免燒乾。')
 step('豉椒炒蜆', 6, '蜆肉徹底煮熟後才上碟，不能一見開殼便停火；煮後仍不開殼的蜆棄掉。')
@@ -151,6 +152,8 @@ for before,after in zip(original,target):
     if not refs and any(any(key in t for key in ['75°C','巴士德','生蛋液','長放室溫','冷藏','開殼']) for t in entry['cooking_tips']): refs=['F1']
     if after['name'] in ['泰式青木瓜沙律','乾煸四季豆','芝麻醬拌四季豆（現成醬版）','豆角炒蛋','豆角炒肉碎']: refs=list(dict.fromkeys(refs+['F3']))
     guidance=dict(version=1,reviewed_on='2026-11-13',review_method='desk_review_not_test_cooked',source_fingerprint=fingerprint(after),cooking_tips=entry['cooking_tips'],pairing_suggestions=entry.get('pairing_suggestions',[pairing(after)]),references=[dict(title=references[k][0],url=references[k][1]) for k in refs])
+    if any(word in after['name'] for word in ['涼拌','沙律']) and '暖沙律' not in after['name']:
+        guidance['served_cold']=True
     assert len(guidance['cooking_tips'])==2 and len(guidance['pairing_suggestions'])==1
     assert all(0<len(t)<=500 for t in guidance['cooking_tips']+guidance['pairing_suggestions'])
     payload.append(dict(expected=before,target=after,guidance=guidance))

@@ -36,6 +36,7 @@ describe('reviewed recipe guidance', () => {
       const normalized = normalizeRecipeDetail(r);
       expect(normalized.cooking_tips, entry.target.name).toEqual(entry.guidance.cooking_tips);
       expect(normalized.pairing_suggestions).toEqual(entry.guidance.pairing_suggestions);
+      expect(normalized.served_cold).toBe(entry.guidance.served_cold);
       expect(normalized.cooking_tips).toHaveLength(2);
       expect(normalized.pairing_suggestions).toHaveLength(1);
       expect(generateCookingTips(normalized)).toEqual(entry.guidance.cooking_tips);
