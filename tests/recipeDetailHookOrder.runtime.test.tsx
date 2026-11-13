@@ -27,6 +27,19 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('recipe detail content hook order and deferred rendering', () => {
+  it('does not flash generic reheating advice while cold recipe details are still loading', () => {
+    const summary = { ...a, method: 'boiled' };
+    const view = render(<RecipeDetailContent recipe={summary} isLoading />);
+    expect(screen.getByRole('status', { name: '載入食譜建議' })).toBeTruthy();
+    expect(screen.queryByText(/徹底翻熱至滾燙/)).toBeNull();
+    expect(screen.queryByRole('heading', { name: '💡 烹飪貼士' })).toBeNull();
+    view.rerender(<RecipeDetailContent recipe={{ ...summary, served_cold: true }} isLoading={false} />);
+    expect(screen.queryByRole('status', { name: '載入食譜建議' })).toBeNull();
+    expect(screen.getByText(/保持冷藏/)).toBeTruthy();
+    expect(screen.queryByText(/徹底翻熱至滾燙/)).toBeNull();
+    view.rerender(<RecipeDetailContent recipe={summary} isLoading={false} />);
+    expect(screen.getByText(/徹底翻熱至滾燙/)).toBeTruthy();
+  });
   it('renders the same specific guidance in server HTML and the deferred modal content', () => {
     const recipe = { ...a, method: 'steamed', cooking_tips: ['蛋液過篩後才倒進淺碟。', '碟面蓋耐熱碟，避免倒汗水滴入。'],
       pairing_suggestions: ['配清炒菜心，按需要加飯。'], editorial_sources: [{ title: 'Cooking reference', url: 'https://www.cfs.gov.hk/' }] };

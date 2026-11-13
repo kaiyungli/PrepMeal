@@ -310,6 +310,14 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </div>
         </div>
 
+        {/* Summary cards lack serving-style metadata until detail loading finishes. */}
+        {isLoading ? (
+          <div className="mt-8 space-y-4" role="status" aria-label="載入食譜建議">
+            <SectionSkeleton height="h-16" />
+            <SectionSkeleton height="h-16" />
+          </div>
+        ) : (
+        <>
         {/* SEO Section: 烹飪貼士 */}
         <div className="mt-8">
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>💡 烹飪貼士</h3>
@@ -362,6 +370,8 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </ul>
           <a href={STORAGE_GUIDANCE_SOURCE} target="_blank" rel="noopener noreferrer" className="text-sm underline" style={{ color: '#9B6035' }}>參考：食物安全中心剩食處理指引</a>
         </div>
+        </>
+        )}
 
       </div>
     </div>
