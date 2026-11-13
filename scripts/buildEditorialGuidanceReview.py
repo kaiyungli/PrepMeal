@@ -7,6 +7,13 @@ ROOT = Path('docs/qa/editorial-guidance-20261113')
 original = json.loads((ROOT / 'recipe-snapshot.json').read_text())
 approved = json.loads((ROOT / 'approved-ten.json').read_text())
 references = json.loads((ROOT / 'references.json').read_text())
+cold_served = json.loads((ROOT / 'cold-served-recipes.json').read_text())
+cold_ids = {entry['id'] for entry in cold_served}
+assert len(cold_ids) == len(cold_served)
+original_by_id = {row['id']: row for row in original}
+for entry in cold_served:
+    assert entry['id'] in original_by_id
+    assert all(original_by_id[entry['id']][key] == entry[key] for key in ['name', 'slug'])
 copy = {r['id']: r for p in sorted(ROOT.glob('batch-*.json')) for r in json.loads(p.read_text())}
 assert len(original) == len(copy) == 303
 target = json.loads(json.dumps(original, ensure_ascii=False))
@@ -152,7 +159,7 @@ for before,after in zip(original,target):
     if not refs and any(any(key in t for key in ['75°C','巴士德','生蛋液','長放室溫','冷藏','開殼']) for t in entry['cooking_tips']): refs=['F1']
     if after['name'] in ['泰式青木瓜沙律','乾煸四季豆','芝麻醬拌四季豆（現成醬版）','豆角炒蛋','豆角炒肉碎']: refs=list(dict.fromkeys(refs+['F3']))
     guidance=dict(version=1,reviewed_on='2026-11-13',review_method='desk_review_not_test_cooked',source_fingerprint=fingerprint(after),cooking_tips=entry['cooking_tips'],pairing_suggestions=entry.get('pairing_suggestions',[pairing(after)]),references=[dict(title=references[k][0],url=references[k][1]) for k in refs])
-    if any(word in after['name'] for word in ['涼拌','沙律']) and '暖沙律' not in after['name']:
+    if after['id'] in cold_ids:
         guidance['served_cold']=True
     assert len(guidance['cooking_tips'])==2 and len(guidance['pairing_suggestions'])==1
     assert all(0<len(t)<=500 for t in guidance['cooking_tips']+guidance['pairing_suggestions'])

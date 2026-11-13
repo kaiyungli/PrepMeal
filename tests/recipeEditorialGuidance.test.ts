@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { editorialRecipeFingerprint, recipeEditorialGuidance } from '../src/features/recipes/mappers/recipeEditorialGuidance';
 import { normalizeRecipeDetail } from '../src/features/recipes/mappers/normalizeRecipeDetail';
 import type { RecipeDetailRow } from '../src/features/recipes/services/getRecipeDetail';
-import { generateCookingTips, generatePairingSuggestions } from '../src/lib/recipes/recipeGuidance';
+import { generateCookingTips, generatePairingSuggestions, generateStorageTips } from '../src/lib/recipes/recipeGuidance';
 
 const root = 'docs/qa/editorial-guidance-20261113/';
 const originals = JSON.parse(readFileSync(root + 'recipe-snapshot.json', 'utf8'));
@@ -28,6 +28,27 @@ function row(entry = targets[0]): RecipeDetailRow {
 }
 
 describe('reviewed recipe guidance', () => {
+  it.each(['日式冷蕎麥麵', '青瓜雞絲蕎麥麵', '日式芝麻拌菠菜', '芝麻醬拌四季豆（現成醬版）'])('keeps %s cold after normalizing the actual catalogue entry', name => {
+    const entry = targets.find((entry: { target: { name: string } }) => entry.target.name === name);
+    expect(entry).toBeDefined();
+    const recipe = normalizeRecipeDetail(row(entry));
+    expect(recipe.served_cold).toBe(true);
+    const advice = generateStorageTips(recipe).join('');
+    expect(advice).toContain('保持冷藏');
+    expect(advice).toContain('兩小時內');
+    expect(advice).not.toContain('翻熱至滾燙');
+  });
+  it('matches the reviewed ID list and preserves reheating for warm dishes', () => {
+    const cold = JSON.parse(readFileSync(root + 'cold-served-recipes.json', 'utf8'));
+    expect(cold).toHaveLength(17);
+    const actualIds = targets.filter((entry: { guidance: { served_cold?: boolean } }) => entry.guidance.served_cold).map((entry: { target: { id: string } }) => entry.target.id).sort();
+    expect(actualIds).toEqual(cold.map((entry: { id: string }) => entry.id).sort());
+    for (const name of ['德式煙肉薯仔暖沙律（普通黃芥末版）', '蜜糖雞翼']) {
+      const recipe = normalizeRecipeDetail(row(targets.find((entry: { target: { name: string } }) => entry.target.name === name)));
+      expect(recipe.served_cold).toBeUndefined();
+      expect(generateStorageTips(recipe).join('')).toContain('翻熱至滾燙');
+    }
+  });
   it('binds all 303 reviewed entries to their actual materials, steps and recipe roles', () => {
     expect(targets).toHaveLength(303);
     for (const entry of targets) {

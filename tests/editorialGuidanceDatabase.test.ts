@@ -8,6 +8,8 @@ const payload = JSON.parse(readFileSync(root + 'payload.json', 'utf8'));
 const apply = readFileSync(root + 'apply.sql', 'utf8');
 const rollback = readFileSync(root + 'rollback.sql', 'utf8');
 const coldFollowup = readFileSync(root + 'cold-dish-followup.sql', 'utf8');
+const servingFollowup = readFileSync(root + 'serving-style-followup.sql', 'utf8');
+const servingRollback = readFileSync(root + 'serving-style-followup-rollback.sql', 'utf8');
 const catalogue = readFileSync(root + 'catalogue-query.sql', 'utf8').trim().replace(/;$/, '');
 const quote = (value: unknown) => "'" + JSON.stringify(value).replaceAll("'", "''") + "'::jsonb";
 let db: PGlite;
@@ -78,6 +80,25 @@ describe.sequential('303-recipe content transaction', () => {
   it('rejects repeated cold-dish patches atomically', async () => {
     const before = await state();
     await expect(db.exec(coldFollowup)).rejects.toThrow(/precondition changed/);
+    await db.exec('ROLLBACK');
+    expect(await state()).toEqual(before);
+  });
+  it('applies and rolls back the four missing cold markers without changing other data', async () => {
+    const final = await state();
+    const patches = JSON.parse(servingFollowup.split('$serving_patch$')[1]);
+    expect(patches).toHaveLength(4);
+    for (const p of patches) await db.query("update recipes set source_data=jsonb_set(source_data,'{editorial_guidance}',$1::jsonb,true) where id=$2", [JSON.stringify(p.old), p.id]);
+    const initial = await state();
+    await db.exec(servingFollowup);
+    expect(await state()).toEqual(final);
+    await db.exec(servingRollback);
+    expect(await state()).toEqual(initial);
+    await db.exec(servingFollowup);
+    expect(await state()).toEqual(final);
+  });
+  it('rejects repeated serving-style patches atomically', async () => {
+    const before = await state();
+    await expect(db.exec(servingFollowup)).rejects.toThrow(/precondition changed/);
     await db.exec('ROLLBACK');
     expect(await state()).toEqual(before);
   });

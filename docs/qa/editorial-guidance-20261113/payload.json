@@ -1056,7 +1056,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -1383,7 +1384,8 @@
       "pairing_suggestions": [
         "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
       ],
-      "references": []
+      "references": [],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -4498,7 +4500,8 @@
           "title": "食物安全中心：未煮熟豆類中的天然毒素",
           "url": "https://www.cfs.gov.hk/tc_chi/multimedia/multimedia_pub/multimedia_pub_fsf_139_04.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
@@ -7289,7 +7292,8 @@
           "title": "食物安全中心：烹煮及翻熱",
           "url": "https://www.cfs.gov.hk/tc_chi/trade_zone/safe_kitchen/Cooking_and_reheating.html"
         }
-      ]
+      ],
+      "served_cold": true
     },
     "recipe_updates": {},
     "changed_steps": [],
