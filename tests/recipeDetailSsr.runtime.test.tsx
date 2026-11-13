@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import type { ReactNode } from 'react';
+import { readFileSync } from 'node:fs';
+import { normalizeRecipeDetail, type NormalizedRecipe } from '@/features/recipes/mappers/normalizeRecipeDetail';
+import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
+import { selectRelatedRecipes } from '@/features/recipes/recipeLinks';
+import { loadRecipeDetail } from '@/features/recipes';
+import { fetchRecipeLinkCatalog } from '@/lib/recipesServer';
 
 // The standalone recipe page must put the full recipe (ingredients and steps)
 // and the site navigation into its server HTML, and load its hero image (the
@@ -16,9 +22,10 @@ vi.mock('@/features/layout/hooks/useHeaderController', () => ({
 }));
 vi.mock('@/lib/recipeStructuredData.tsx', () => ({ RecipeStructuredData: () => null }));
 vi.mock('@/features/recipes', () => ({ loadRecipeDetail: vi.fn() }));
+vi.mock('@/lib/recipesServer', () => ({ fetchRecipeLinkCatalog: vi.fn() }));
 vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics: () => () => {} }));
 
-import RecipeDetail from '@/pages/recipes/[id]';
+import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 
 const RECIPE = {
@@ -33,6 +40,39 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it('keeps reviewed cold guidance and adds related links in the same server HTML after main integration', () => {
+    const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
+    const current = catalogue.find((recipe: { slug: string }) => recipe.slug === 'prepmeal-25-23-zaru-soba');
+    const guidance = payload.find((recipe: { id: string }) => recipe.id === current.id).guidance;
+    const row = { ...current, source_data: { editorial_guidance: guidance },
+      ingredients: current.ingredients.map((ingredient: { note: string; optional: boolean; unit: string }) => ({ ...ingredient,
+        prep_note: ingredient.note, is_optional: ingredient.optional, unit: { code: ingredient.unit, name: ingredient.unit } })),
+    } as RecipeDetailRow;
+    const recipe = normalizeRecipeDetail(row);
+    const html = renderToString(<RecipeDetail recipe={recipe} error={null} related={selectRelatedRecipes(current, catalogue)} />);
+    expect(html).toContain(guidance.cooking_tips[0]);
+    expect(html).toContain('保持冷藏');
+    expect(html).not.toContain('翻熱至滾燙');
+    const container = document.createElement('div'); container.innerHTML = html;
+    const related = container.querySelector('section[aria-labelledby="related-recipes"]')!;
+    expect(related.querySelectorAll('a[href^="/recipes/"]')).toHaveLength(8);
+    expect(related.querySelector(`a[href="/recipes/${current.slug}"]`)).toBeNull();
+    expect(container.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(`https://eatwhathk.com/recipes/${current.slug}`);
+  });
+  it('preserves the complete detail recipe when a catalogue fetch is unavailable', async () => {
+    const recipe = { ...RECIPE, served_cold: true, cooking_tips: ['保留已核對貼士'] };
+    vi.mocked(loadRecipeDetail).mockResolvedValueOnce({ recipe: recipe as unknown as NormalizedRecipe, error: null });
+    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce(null);
+    const result = await getStaticProps({ params: { id: RECIPE.slug } });
+    expect(result).toEqual({ props: { recipe, error: null, related: null }, revalidate: 300 });
+  });
+  it('returns notFound for an absent primary recipe even when recommendations are available', async () => {
+    vi.mocked(loadRecipeDetail).mockResolvedValueOnce({ recipe: null, error: 'Recipe not found' });
+    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ slug: 'other', name: '其他菜', meal_role: null,
+      is_complete_meal: false, primary_protein: null, cuisine: null }]);
+    expect(await getStaticProps({ params: { id: 'missing' } })).toEqual({ notFound: true, revalidate: 300 });
+  });
   it('standalone page renders ingredients, steps, site navigation and footer on the server', () => {
     const html = renderToString(<RecipeDetail recipe={RECIPE} error={null} />);
     expect(html).toContain('娃娃菜切半後瀝乾');

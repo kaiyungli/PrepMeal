@@ -65,10 +65,12 @@ export default defineConfig({
       'tests/generateToast.runtime.test.tsx',
       'tests/homeShoppingPreview.runtime.test.tsx',
       'tests/recipesEmptyState.runtime.test.tsx',
+      'tests/recipesListEnd.runtime.test.tsx',
       'tests/recipeDetailSsr.runtime.test.tsx',
       'tests/recipeListImageLoading.runtime.test.tsx',
       'tests/appNoIndex.runtime.test.tsx',
       'tests/seoTitle.runtime.test.tsx',
+      'tests/recipeCardLinks.runtime.test.tsx',
     ],
   },
 });

@@ -42,8 +42,8 @@ interface RecipeCardProps {
  * RecipeCard - entire card is clickable, uses Link wrapper
  * 
  * Structure:
- * - Link wraps entire card for navigation
- * - FavoriteButton handles its own stopPropagation internally
+ * - Link covers the card content; FavoriteButton is an independent sibling
+ * - Modified clicks preserve native link navigation
  * - onClick prop provides custom click behavior
  */
 function RecipeCard({ 
@@ -88,13 +88,21 @@ function RecipeCard({
   const visibleTags = featured ? tags.filter(Boolean) : tags;
 
   // Build href - either from onClick prop or default routing
-  const href = recipeSlug ? `/recipes/${featured ? encodeURIComponent(String(recipeSlug)) : recipeSlug}` : '#';
-  const needsNavigation = !onClick && !!recipeSlug;
+  const href = recipeSlug ? `/recipes/${encodeURIComponent(String(recipeSlug))}` : '#';
+  const hasDetailPage = !!recipeSlug;
 
   const handleCardClick = () => {
     if (onClick) {
       onClick();
     }
+  };
+
+  // Plain activation opens the modal. Modified clicks retain native navigation.
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!onClick) return;
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    onClick();
   };
 
   // Static fallback for non-interactive cards.
@@ -109,17 +117,6 @@ function RecipeCard({
   // Image container
   const imageContainer = (
     <div className={`relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]${featured ? ' pm-featured-photo' : ''}`}>
-      {/* FavoriteButton - absolute top-right */}
-      {!featured && onFavoriteClick && (
-        <div className="absolute top-3 right-3 z-50">
-          <FavoriteButton
-            active={isFavorite}
-            loading={favoriteLoading}
-            onClick={onFavoriteClick}
-          />
-        </div>
-      )}
-
       {/* Static fallback for non-interactive cards */}
       {!featured && !onFavoriteClick && staticHeart}
 
@@ -221,7 +218,7 @@ function RecipeCard({
   if (featured) {
     return (
       <article className={`pm-recipe-card group relative block bg-[#fffefb] border border-[#e8dfd3] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:shadow-sm active:translate-y-0 active:border-[#cbb7a5] transition-all duration-200 ${className}`}>
-        <Link href={href} prefetch={false} className="pm-featured-link block h-full" aria-labelledby={`home-featured-title-${recipeId}`}>
+        <Link href={href} onClick={handleLinkClick} prefetch={false} className="pm-featured-link block h-full" aria-labelledby={`home-featured-title-${recipeId}`}>
           {imageContainer}
           {contentBody}
         </Link>
@@ -233,15 +230,19 @@ function RecipeCard({
   }
 
   // Always use Link when slug exists for consistent navigation
-  if (needsNavigation) {
+  if (hasDetailPage) {
     return (
-      <Link
-        href={href}
-        className={`group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
-      >
-        {imageContainer}
-        {contentBody}
-      </Link>
+      <article className={`group relative block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
+        <Link href={href} onClick={handleLinkClick} prefetch={onClick ? false : undefined} className="block h-full rounded-2xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#9B6035]">
+          {imageContainer}
+          {contentBody}
+        </Link>
+        {onFavoriteClick && (
+          <div className="absolute top-3 right-3 z-50">
+            <FavoriteButton active={isFavorite} loading={favoriteLoading} onClick={onFavoriteClick} recipeName={recipeName} />
+          </div>
+        )}
+      </article>
     );
   }
 
@@ -261,6 +262,11 @@ function RecipeCard({
     >
       {imageContainer}
       {contentBody}
+      {onFavoriteClick && (
+        <div className="absolute top-3 right-3 z-50">
+          <FavoriteButton active={isFavorite} loading={favoriteLoading} onClick={onFavoriteClick} />
+        </div>
+      )}
     </article>
   );
 }

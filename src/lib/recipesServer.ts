@@ -91,3 +91,38 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
     return { recipes: [], total: 0 };
   }
 }
+
+const LINK_FIELDS = 'slug, name, meal_role, is_complete_meal, primary_protein, cuisine';
+const LINK_PAGE_SIZE = 1000;
+
+/**
+ * Light list of every public recipe for crawlable internal links (recipe index
+ * on /recipes, related recipes on detail pages). Returns null on any error so
+ * callers render without links rather than a partial list.
+ */
+export async function fetchRecipeLinkCatalog() {
+  if (!supabaseServer) return null;
+  try {
+    const rows = [];
+    let total: number | null = null;
+    for (let from = 0; ; from += LINK_PAGE_SIZE) {
+      const { data, error, count } = await supabaseServer
+        .from('recipes')
+        .select(LINK_FIELDS, { count: 'exact' })
+        .eq('is_public', true)
+        .not('slug', 'is', null)
+        .order('slug', { ascending: true })
+        .range(from, from + LINK_PAGE_SIZE - 1);
+      if (error || !data || count == null) return null;
+      if (total !== null && count !== total) return null;
+      total = count;
+      rows.push(...data);
+      if (rows.length === total) break;
+      // A lower API row limit must not turn an incomplete list into the full index.
+      if (data.length < LINK_PAGE_SIZE || rows.length > total) return null;
+    }
+    return rows;
+  } catch {
+    return null;
+  }
+}
