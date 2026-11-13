@@ -29,9 +29,19 @@ const toLink = (r: LinkRecipe): RecipeLink => ({ slug: r.slug, name: r.name });
 
 const byName = (a: RecipeLink, b: RecipeLink) => a.name.localeCompare(b.name, 'zh-Hant-HK');
 
+// A repeated catalogue row must not create duplicate anchors or recommendations.
+function uniqueRecipes(catalogue: LinkRecipe[]): LinkRecipe[] {
+  const seen = new Set<string>();
+  return catalogue.filter(recipe => {
+    if (!recipe.slug || !recipe.name || seen.has(recipe.slug)) return false;
+    seen.add(recipe.slug);
+    return true;
+  });
+}
+
 /** Every public recipe, grouped by meal role and sorted by name. */
 export function groupRecipeIndex(catalogue: LinkRecipe[]): RecipeIndexGroup[] {
-  const usable = catalogue.filter(r => r.slug && r.name);
+  const usable = uniqueRecipes(catalogue);
   const groups = INDEX_GROUPS.map(g => ({
     ...g,
     recipes: usable.filter(r => roleOf(r) === g.key).map(toLink).sort(byName),
@@ -72,7 +82,7 @@ const PAIR_ROLES: Record<string, string[]> = {
 export interface RelatedRecipes { pairWith: RecipeLink[]; similar: RecipeLink[] }
 
 export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[], count = 4): RelatedRecipes {
-  const others = catalogue.filter(r => r.slug && r.name && r.slug !== current.slug);
+  const others = uniqueRecipes(catalogue).filter(r => r.slug !== current.slug);
   const role = roleOf(current);
 
   const pairRoles = PAIR_ROLES[role] || [];

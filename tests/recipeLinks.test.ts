@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { groupRecipeIndex, selectRelatedRecipes, type LinkRecipe } from '@/features/recipes/recipeLinks';
 
 const r = (slug: string, meal_role: string, extra: Partial<LinkRecipe> = {}): LinkRecipe =>
@@ -24,6 +25,10 @@ describe('recipe index', () => {
   it('puts unknown roles under 其他 and skips rows without slug', () => {
     const groups = groupRecipeIndex([r('x', 'dessert'), { slug: '', name: '冇slug', meal_role: 'soup' }]);
     expect(groups).toEqual([{ key: 'other', title: '其他', recipes: [{ slug: 'x', name: '菜x' }] }]);
+  });
+  it('does not duplicate links if catalogue input repeats a slug', () => {
+    const groups = groupRecipeIndex([...CATALOGUE, CATALOGUE[0]]);
+    expect(groups.flatMap(group => group.recipes)).toHaveLength(CATALOGUE.length);
   });
 });
 
@@ -51,5 +56,26 @@ describe('related recipes', () => {
 
   it('is stable for the same page', () => {
     expect(selectRelatedRecipes(CATALOGUE[4], CATALOGUE)).toEqual(selectRelatedRecipes(CATALOGUE[4], CATALOGUE));
+  });
+  it('deduplicates repeated candidates within and across the recommendation groups', () => {
+    const related = selectRelatedRecipes(CATALOGUE[0], [...CATALOGUE, ...CATALOGUE]);
+    const slugs = [...related.pairWith, ...related.similar].map(recipe => recipe.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    expect(slugs).not.toContain(CATALOGUE[0].slug);
+  });
+  it('covers every existing public recipe without self-links or duplicate recommendations', () => {
+    const catalogue: LinkRecipe[] = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    expect(catalogue).toHaveLength(303);
+    const indexed = groupRecipeIndex(catalogue).flatMap(group => group.recipes.map(recipe => recipe.slug));
+    expect(indexed.sort()).toEqual(catalogue.map(recipe => recipe.slug).sort());
+    for (const current of catalogue) {
+      const related = selectRelatedRecipes(current, catalogue);
+      const slugs = [...related.pairWith, ...related.similar].map(recipe => recipe.slug);
+      expect(slugs, current.name).not.toContain(current.slug);
+      expect(new Set(slugs).size, current.name).toBe(slugs.length);
+      expect(related.pairWith.length).toBeLessThanOrEqual(4);
+      expect(related.similar.length).toBeLessThanOrEqual(4);
+      expect(slugs.every(slug => catalogue.some(recipe => recipe.slug === slug))).toBe(true);
+    }
   });
 });

@@ -10,6 +10,11 @@ import { RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
 
 /**
  * Recipe Detail Page - dumb shell only
+ * @param {{
+ *   recipe?: object | null,
+ *   error?: string | null,
+ *   related?: import('@/features/recipes/recipeLinks').RelatedRecipes | null
+ * }} props
  */
 export default function RecipeDetail({ recipe, error, related = null }) {
   // Keep hook order stable across loading, error and successful renders.

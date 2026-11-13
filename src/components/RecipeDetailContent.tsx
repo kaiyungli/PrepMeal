@@ -10,9 +10,10 @@ import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
+import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
 
 export interface RecipeDetailContentProps {
-  recipe: Partial<Provenance> & {
+  recipe: Partial<Provenance> & EditorialGuidance & {
     meal_role?: string | null
     dish_type?: string | null
     is_complete_meal?: boolean | null
@@ -309,6 +310,14 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </div>
         </div>
 
+        {/* Summary cards lack serving-style metadata until detail loading finishes. */}
+        {isLoading ? (
+          <div className="mt-8 space-y-4" role="status" aria-label="載入食譜建議">
+            <SectionSkeleton height="h-16" />
+            <SectionSkeleton height="h-16" />
+          </div>
+        ) : (
+        <>
         {/* SEO Section: 烹飪貼士 */}
         <div className="mt-8">
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>💡 烹飪貼士</h3>
@@ -337,6 +346,17 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
 
         <div className="mt-8"><RecipeProvenance recipe={recipe} /></div>
 
+        {!!recipe.editorial_sources?.length && (
+          <div className="mt-6 text-sm" style={{ color: '#5A4030' }}>
+            <p className="font-semibold mb-2">烹調參考</p>
+            <ul className="space-y-2">
+              {recipe.editorial_sources.map(source => (
+                <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">{source.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* SEO Section: 保存方法 */}
         <div className="mt-8">
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>❄️ 保存方法</h3>
@@ -350,6 +370,8 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </ul>
           <a href={STORAGE_GUIDANCE_SOURCE} target="_blank" rel="noopener noreferrer" className="text-sm underline" style={{ color: '#9B6035' }}>參考：食物安全中心剩食處理指引</a>
         </div>
+        </>
+        )}
 
       </div>
     </div>

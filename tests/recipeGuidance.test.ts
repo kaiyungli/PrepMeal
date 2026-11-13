@@ -37,4 +37,10 @@ describe('recipe guidance uses catalogue values',()=>{
    expect(tips).toContain('保持冷藏'); expect(tips).toContain('兩小時內');
    expect(tips).not.toContain('徹底翻熱');
  });
+ it.each(['boiled','fried'])('keeps a reviewed cold dish chilled even when its ingredients were %s',method=>{
+   const tips=storage({method,served_cold:true}).join('');
+   expect(tips).toContain('保持冷藏');
+   expect(tips).toContain('兩小時內');
+   expect(tips).not.toContain('徹底翻熱');
+ });
 });

@@ -6,6 +6,8 @@ import RecipeList from '@/components/RecipeList';
 import RecipeCard from '@/components/RecipeCard';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { groupRecipeIndex, type LinkRecipe } from '@/features/recipes/recipeLinks';
 afterEach(cleanup);
 import { RecipeIndex, RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
 
@@ -76,6 +78,26 @@ describe('card interaction boundaries', () => {
 });
 
 describe('recipe link sections' , () => {
+  it('renders all 303 catalogue links in server HTML without JavaScript', () => {
+    const catalogue: LinkRecipe[] = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    const html = renderToString(<RecipeIndex groups={groupRecipeIndex(catalogue)} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const links = Array.from(container.querySelectorAll<HTMLAnchorElement>('a'));
+    expect(links).toHaveLength(303);
+    expect(links.map(link => link.getAttribute('href')).sort()).toEqual(catalogue.map(recipe => `/recipes/${encodeURIComponent(recipe.slug)}`).sort());
+    expect(new Set(links.map(link => link.getAttribute('href'))).size).toBe(303);
+  });
+  it('escapes recipe names and encodes slugs in the index and related links', () => {
+    const recipe = { name: '<script>unsafe & name</script>', slug: 'food /?#"' };
+    const groups = [{ key: 'other', title: '其他', recipes: [recipe] }];
+    const html = renderToString(<RecipeIndex groups={groups} />);
+    expect(html).not.toContain('<script>');
+    const container = document.createElement('div'); container.innerHTML = html;
+    expect(container.querySelector('a')?.textContent).toBe(recipe.name);
+    expect(container.querySelector('a')?.getAttribute('href')).toBe(`/recipes/${encodeURIComponent(recipe.slug)}`);
+    expect(renderToString(<RecipeIndex groups={[]} />)).toBe('');
+    expect(renderToString(<RelatedRecipeLinks related={{ pairWith: [], similar: [] }} />)).toBe('');
+  });
   it('index and related sections render plain links', () => {
     const index = renderToString(<RecipeIndex groups={[{ key: 'soup', title: '湯', recipes: [{ slug: 'corn-soup', name: '粟米湯' }] }]} />);
     expect(index).toContain('全部食譜目錄');
