@@ -14,9 +14,17 @@ import { useRecipeDetailPrefetch } from '@/features/recipes/hooks/useRecipeDetai
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
+/**
+ * @param {{
+ *   initialRecipes: import('react').ComponentProps<typeof RecipeList>['recipes'],
+ *   initialTotalCount: number,
+ *   recipeIndex?: import('@/features/recipes/recipeLinks').RecipeIndexGroup[] | null
+ * }} props
+ */
 export default function RecipesPage({ initialRecipes, initialTotalCount, recipeIndex = null }) {
   const firstLoadStartRef = useRef(perfNow());
   const dataReadyLogged = useRef(false);
+  const listEndRef = useRef(null);
   
   const { 
     isAuthenticated,
@@ -134,37 +142,22 @@ export default function RecipesPage({ initialRecipes, initialTotalCount, recipeI
     }
   }, [recipes.length, totalCount, hasFilters, searchQuery, sortBy]);
   
-  // Infinite scroll detection for /recipes page
+  // Load relative to the card list, independently of the full index below it.
   useEffect(() => {
     const handleScroll = () => {
-      if (!hasMore || loadingMore || loading) return;
-      
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const distanceFromBottom = documentHeight - (scrollY + windowHeight);
-      
-      // Load more when 1000px from bottom (trigger earlier)
-      if (distanceFromBottom <= 1000) {
-        console.log('[recipes-scroll] load_more_triggered', {
-          scrollY,
-          windowHeight,
-          documentHeight,
-          distanceFromBottom,
-          hasMore,
-          loadingMore,
-          loading,
-          currentCount: recipes.length,
-          totalCount
-        });
-        loadMore();
-      }
+      if (!hasMore || loadingMore || loading || fetchError || !listEndRef.current) return;
+      const distanceFromListEnd = listEndRef.current.getBoundingClientRect().top - window.innerHeight;
+      if (distanceFromListEnd <= 1000) loadMore();
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loadingMore, loading, loadMore, recipes.length, totalCount]);
-  
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [hasMore, loadingMore, loading, fetchError, loadMore]);
+
   const showErrorState = !loading && fetchError;
   const showEmptyState = !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
@@ -231,6 +224,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount, recipeI
                 isPending={isPending}
                 onFavoriteClick={handleFavoriteToggle}
               />
+              <div ref={listEndRef} data-recipe-list-end aria-hidden="true" className="h-px" />
               {loadingMore && (
                 <div className="text-center py-6 text-[#AA7A50]">
                   載入更多...
