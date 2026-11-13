@@ -11,11 +11,11 @@ export default function SevenDayPlan({ recipes, examples = [] }: { recipes: Guid
     ['星期四', 'garlic-butter-shrimp-pasta', '沿用星期一買嘅乾意粉，但轉蝦及牛油風味；蝦另外安排採購或解凍。'],
     ['星期五', 'vegetable-egg-fried-rice', '以蛋同雜菜收尾；須先有妥善保存嘅熟飯，唔係由生米開始計16分鐘。'],
   ];
-  return <GuidePage updated="2026-10-28" title="一週晚餐安排示例" path="/7-day-dinner-plan" description="以星期一至五兩人晚餐示範揀菜、換算份量及集中買餸，再按自己的時間調整。">
+  return <GuidePage updated="2026-11-07" title="一週晚餐安排示例" path="/7-day-dinner-plan" description="以星期一至五兩人晚餐示範揀菜、換算份量及集中買餸，再按自己的時間調整。">
     <GuideSection title="上班族兩人五日晚餐：一個可調整起點">
       <p className="mb-4">假設星期一至五都返工，每晚兩人食，家中有一個鑊、一個煲及電飯煲。以下係編輯安排，唔係系統替你保存咗嘅餐單。先核對兩人食量、材料限制同器具；列出嘅時間係原食譜估算，增加份量可能需要分批煮。</p>
       <GuideTable caption="星期一至五兩人晚餐示例" headers={['日子及菜式', '份量與時間', '點解咁安排']} rows={days.map(([day, slug, reason]) => [<span key={day}>{day}<br /><ExampleLink examples={examples} slug={slug} /></span>, <ExampleTiming key={slug} examples={examples} slug={slug} />, reason])} />
-      <p className="mt-3">原配方1人份，兩人食時材料乘2；原配方2人份則用原份量。先到生成器選5日、2人，再逐個位置選擇或換成想食嘅菜；本表唔會一按自動匯入。完整餐係網站分類，唔等於個人化營養評估。</p>
+      <p className="mt-3">網站所有食譜都以1人份計，兩人食時材料乘2。先到生成器選5日、2人，再逐個位置選擇或換成想食嘅菜；本表唔會一按自動匯入。完整餐係網站分類，唔等於個人化營養評估。</p>
     </GuideSection>
     <GuideSection title="一次買齊，定分兩次？先睇自己嘅一週">
       <p>例如星期日買星期一至三所需材料及全週乾貨，星期三放工再補星期四、五鮮貨。呢個係行程示例，唔代表所有鮮貨都可放到指定日子；先睇食用期限、包裝保存指示同雪櫃空間。只有一日買餸，就先決定後半週材料可否按標籤急凍保存，或改用合適嘅耐存材料食譜。</p>

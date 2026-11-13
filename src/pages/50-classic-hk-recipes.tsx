@@ -4,14 +4,14 @@ import type { GuideRecipe } from '@/features/guides/guideRecipes';
 import type { PracticalRecipe } from '@/features/guides/practicalExamples';
 import { ExampleLink, ExampleTiming, GuideTable } from '@/components/guides/PracticalExamples';
 export default function ClassicRecipes({ recipes, examples = [] }: { recipes: GuideRecipe[]; examples?: PracticalRecipe[] }) {
-  return <GuidePage updated="2026-10-28" title={`${recipes.length}款家常菜靈感`} path="/50-classic-hk-recipes" description="用具體一肉一菜及豆腐配菜示例，核對兩人份量、主食同爐具安排。">
+  return <GuidePage updated="2026-11-07" title={`${recipes.length}款家常菜靈感`} path="/50-classic-hk-recipes" description="用具體一肉一菜及豆腐配菜示例，核對兩人份量、主食同爐具安排。">
     <GuideSection title="兩人一肉一菜：唔使每道都搶同一個鑊">
       <p className="mb-4">想食家常餸飯，可以先選一個主菜，再用另一種烹調方法做配菜。以下兩組係配搭例子，白飯要另外安排；網站嘅主菜／配菜分類唔代表一餐已符合每個人嘅營養需要。</p>
       <GuideTable caption="兩組家常餸飯配搭" headers={['配搭', '兩人份量點核對', '器具與次序']} rows={[
-        [<span key="meat"><ExampleLink examples={examples} slug="prepmeal-batch4-15" />＋<ExampleLink examples={examples} slug="poached-baby-napa" /></span>, '雞球原配方2人份，毋須乘2；娃娃菜原配方1人份，兩人材料乘2，娃娃菜360g。白飯另計。', '電飯煲先開；雞球用鑊，娃娃菜用小煲。有兩爐才考慮並行，否則先完成一道再做另一道。'],
-        [<span key="tofu"><ExampleLink examples={examples} slug="prepmeal-batch3-16" />＋<ExampleLink examples={examples} slug="poached-spinach-broth" /></span>, '蒸豆腐原配方4人份，兩人按一半材料計；菠菜原配方1人份，兩人按2倍，菠菜320g。白飯另計。', '豆腐需要蒸架，菠菜用小煲；只有一個煲就要先後煮，或改選不用蒸架嘅菜式。'],
+        [<span key="meat"><ExampleLink examples={examples} slug="prepmeal-batch4-15" />＋<ExampleLink examples={examples} slug="poached-baby-napa" /></span>, '兩道都係1人份配方，兩人材料各乘2：去骨雞腿肉350g、娃娃菜360g。白飯另計。', '電飯煲先開；雞球用鑊，娃娃菜用小煲。有兩爐才考慮並行，否則先完成一道再做另一道。'],
+        [<span key="tofu"><ExampleLink examples={examples} slug="prepmeal-batch3-16" />＋<ExampleLink examples={examples} slug="poached-spinach-broth" /></span>, '兩道都係1人份配方，兩人材料各乘2：嫩豆腐約230g、菠菜320g。白飯另計。', '豆腐需要蒸架，菠菜用小煲；只有一個煲就要先後煮，或改選不用蒸架嘅菜式。'],
       ]} />
-      <p className="mt-3">以上份量例子按2026年10月28日公開配方核對，實際煮之前再睇最新詳情。原配方係幾多人份，要逐道睇，唔好所有菜一律乘2。</p>
+      <p className="mt-3">以上份量例子按2026年11月7日公開配方核對，實際煮之前再睇最新詳情。網站所有食譜都以1人份計，幾多人食就將材料乘幾多；調味料可以先按比例，再試味調整。</p>
     </GuideSection>
     <GuideSection title="點比較時間同材料，先唔會煮到手忙腳亂？">
       <p><ExampleLink examples={examples} slug="prepmeal-batch4-15" />：<ExampleTiming examples={examples} slug="prepmeal-batch4-15" />；<ExampleLink examples={examples} slug="poached-baby-napa" />：<ExampleTiming examples={examples} slug="poached-baby-napa" />。兩道並行唔代表一定30分鐘完成，備料、煮飯、清洗器具同分批煮都會影響。</p>

@@ -86,5 +86,9 @@ export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[
   if (similar.length < count) {
     similar.push(...pick(sameCuisine, `${current.slug}:cuisine`, count - similar.length));
   }
+  if (similar.length < count) {
+    const selected = new Set(similar.map(r => r.slug));
+    similar.push(...pick(sameRole.filter(r => !selected.has(r.slug)), `${current.slug}:role`, count - similar.length));
+  }
   return { pairWith, similar };
 }

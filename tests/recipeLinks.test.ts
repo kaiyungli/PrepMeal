@@ -39,7 +39,14 @@ describe('related recipes', () => {
     const { similar } = selectRelatedRecipes(CATALOGUE[0], CATALOGUE);
     expect(similar[0].slug).toBe('m2');
     expect(similar.map(x => x.slug)).toContain('m3');
-    expect(similar.map(x => x.slug)).not.toContain('m4');
+    expect(similar.map(x => x.slug)).toEqual(['m2', 'm3', 'm4']);
+  });
+
+  it('still offers same-role recipes when protein and cuisine do not match', () => {
+    const current = r('current', 'protein_main', { primary_protein: 'fish', cuisine: 'thai' });
+    const related = selectRelatedRecipes(current, CATALOGUE);
+    expect(related.similar).toHaveLength(4);
+    expect(new Set(related.similar.map(x => x.slug)).size).toBe(4);
   });
 
   it('is stable for the same page', () => {

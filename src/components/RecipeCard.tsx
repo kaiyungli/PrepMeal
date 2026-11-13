@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getLabel, DIFFICULTY_MAP, METHOD_MAP, PROTEIN_MAP, DISH_TYPE_MAP, DIET_MAP } from '@/constants/taxonomy';
 import FavoriteButton from './FavoriteButton';
+import { nutritionValue } from '@/lib/utils';
 
 interface RecipeCardProps {
   recipe: {
@@ -11,17 +12,19 @@ interface RecipeCardProps {
     image_url?: string | null;
     slug?: string;
     cuisine?: string;
-    difficulty?: string;
-    method?: string;
+    difficulty?: string | null;
+    method?: string | null;
     total_time_minutes?: number | null;
     cook_time_minutes?: number | null;
     prep_time_minutes?: number | null;
     calories_per_serving?: number | null;
     protein_g?: number | null;
-    primary_protein?: string;
-    dish_type?: string;
+    primary_protein?: string | null;
+    dish_type?: string | null;
     diet?: string[];
   };
+  /** Homepage opts into the reference design with sibling navigation/favorite controls. */
+  variant?: 'default' | 'home-featured';
   onClick?: () => void;
   isFavorite?: boolean;
   favoriteLoading?: boolean;
@@ -39,12 +42,13 @@ interface RecipeCardProps {
  * RecipeCard - entire card is clickable, uses Link wrapper
  * 
  * Structure:
- * - Link wraps entire card for navigation
- * - FavoriteButton handles its own stopPropagation internally
+ * - Link covers the card content; FavoriteButton is an independent sibling
+ * - Modified clicks preserve native link navigation
  * - onClick prop provides custom click behavior
  */
 function RecipeCard({ 
-  recipe, 
+  recipe,
+  variant = 'default',
   onClick, 
   isFavorite, 
   favoriteLoading,
@@ -52,29 +56,39 @@ function RecipeCard({
   className = '',
   imageLoading,
 }: RecipeCardProps) {
+  const featured = variant === 'home-featured';
+  const label = (map: Record<string, string>, value?: string) =>
+    getLabel(map, featured && value && !Object.hasOwn(map, value) ? undefined : value);
   const recipeId = recipe?.id;
   const recipeName = recipe?.name || '無名食譜';
   const recipeImage = recipe?.image_url || null;
   const recipeSlug = recipe?.slug || recipeId;
-  const recipeTime = recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null;
+  const recipeTime = featured ? nutritionValue(recipe?.total_time_minutes) : recipe?.total_time_minutes || recipe?.cook_time_minutes || recipe?.prep_time_minutes || null;
   const recipeDifficulty = recipe?.difficulty || '';
   const recipeMethod = recipe?.method || '';
-  const recipeCalories = recipe?.calories_per_serving || null;
-  const recipeProteinGrams = recipe?.protein_g ?? null;
+  const recipeCalories = featured ? nutritionValue(recipe?.calories_per_serving) : recipe?.calories_per_serving || null;
+  const recipeProteinGrams = featured ? nutritionValue(recipe?.protein_g) : recipe?.protein_g ?? null;
   const recipePrimaryProtein = recipe?.primary_protein || '';
   const recipeDiet = Array.isArray(recipe?.diet) ? recipe.diet : [];
   const recipeDishType = recipe?.dish_type || '';
   
   const tags: string[] = [];
   if (recipePrimaryProtein) {
-    tags.push(getLabel(PROTEIN_MAP, recipePrimaryProtein));
+    tags.push(label(PROTEIN_MAP, recipePrimaryProtein));
   }
   if (recipeDishType) {
-    tags.push(getLabel(DISH_TYPE_MAP, recipeDishType));
+    tags.push(label(DISH_TYPE_MAP, recipeDishType));
   }
 
+  const difficultyLabel = label(DIFFICULTY_MAP, recipeDifficulty);
+  const methodLabel = label(METHOD_MAP, recipeMethod);
+  const hasTime = featured ? recipeTime !== null : Boolean(recipeTime);
+  const hasCalories = featured ? recipeCalories !== null : Boolean(recipeCalories);
+  const hasProtein = featured ? recipeProteinGrams !== null : Boolean(recipeProteinGrams);
+  const visibleTags = featured ? tags.filter(Boolean) : tags;
+
   // Build href - either from onClick prop or default routing
-  const href = recipeSlug ? `/recipes/${recipeSlug}` : '#';
+  const href = recipeSlug ? `/recipes/${encodeURIComponent(String(recipeSlug))}` : '#';
   const hasDetailPage = !!recipeSlug;
 
   const handleCardClick = () => {
@@ -83,9 +97,7 @@ function RecipeCard({
     }
   };
 
-  // A plain click opens the in-page modal; modified clicks (new tab, middle
-  // click) keep the browser's default link behaviour. Either way the card is a
-  // real <a href> so visitors and crawlers can reach every recipe page.
+  // Plain activation opens the modal. Modified clicks retain native navigation.
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!onClick) return;
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -93,7 +105,7 @@ function RecipeCard({
     onClick();
   };
 
-  // Static heart for homepage (no interaction)
+  // Static fallback for non-interactive cards.
   const staticHeart = (
     <div className="absolute top-3 right-3 z-50 rounded-full w-9 h-9 flex items-center justify-center shadow-lg backdrop-blur-sm border border-white/20 bg-white/80 text-rose-400 pointer-events-none">
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -104,20 +116,9 @@ function RecipeCard({
 
   // Image container
   const imageContainer = (
-    <div className="relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]">
-      {/* FavoriteButton - absolute top-right */}
-      {onFavoriteClick && (
-        <div className="absolute top-3 right-3 z-50">
-          <FavoriteButton
-            active={isFavorite}
-            loading={favoriteLoading}
-            onClick={onFavoriteClick}
-          />
-        </div>
-      )}
-
-      {/* Static heart for homepage */}
-      {!onFavoriteClick && staticHeart}
+    <div className={`relative aspect-[5/4] overflow-hidden rounded-t-2xl bg-[#F8F3E8]${featured ? ' pm-featured-photo' : ''}`}>
+      {/* Static fallback for non-interactive cards */}
+      {!featured && !onFavoriteClick && staticHeart}
 
       {/* Image */}
       {recipeImage ? (
@@ -147,40 +148,40 @@ function RecipeCard({
   );
 
   const contentBody = (
-    <div className="p-4">
-      <h3 className="font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight">
+    <div className={`p-4${featured ? ' pm-featured-body' : ''}`}>
+      <h3 id={featured ? `home-featured-title-${recipeId}` : undefined} className={featured ? "font-bold text-lg text-[#3A2010] mb-2 leading-relaxed break-words" : "font-semibold text-base text-[#3A2010] mb-2 line-clamp-2 leading-tight"}>
         {recipeName}
       </h3>
       
-      <div className="flex items-center gap-2 text-xs text-[#7A746B] mb-3">
-        {recipeTime && (
+      <div className={featured ? "pm-featured-meta flex flex-wrap items-center gap-1 text-[13px] leading-relaxed text-[#7A746B] mb-3" : "flex items-center gap-2 text-xs text-[#7A746B] mb-3"}>
+        {hasTime && (
           <span className="flex items-center gap-1">
             <span>⏱️</span>
             <span>{recipeTime}分鐘</span>
           </span>
         )}
-        {recipeTime && recipeDifficulty && <span>·</span>}
-        {recipeDifficulty && getLabel(DIFFICULTY_MAP, recipeDifficulty) && (
+        {hasTime && (featured ? difficultyLabel : recipeDifficulty) && <span aria-hidden={featured || undefined}>·</span>}
+        {recipeDifficulty && label(DIFFICULTY_MAP, recipeDifficulty) && (
           <span className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full ${
-              recipeDifficulty === 'easy' ? 'bg-green-400' : 
-              recipeDifficulty === 'medium' ? 'bg-yellow-400' : 'bg-red-400'
+              (featured ? difficultyLabel === '容易' : recipeDifficulty === 'easy') ? 'bg-green-400' :
+              (featured ? difficultyLabel === '中等' : recipeDifficulty === 'medium') ? 'bg-yellow-400' : 'bg-red-400'
             }`}></span>
-            <span>{getLabel(DIFFICULTY_MAP, recipeDifficulty)}</span>
+            <span>{label(DIFFICULTY_MAP, recipeDifficulty)}</span>
           </span>
         )}
-        {(recipeTime || recipeDifficulty) && recipeMethod && getLabel(METHOD_MAP, recipeMethod) && <span>·</span>}
-        {recipeMethod && getLabel(METHOD_MAP, recipeMethod) && (
+        {(featured ? hasTime || difficultyLabel : recipeTime || recipeDifficulty) && recipeMethod && methodLabel && <span aria-hidden={featured || undefined}>·</span>}
+        {recipeMethod && label(METHOD_MAP, recipeMethod) && (
           <span className="flex items-center gap-1">
             <span>🥘</span>
-            <span>{getLabel(METHOD_MAP, recipeMethod)}</span>
+            <span>{label(METHOD_MAP, recipeMethod)}</span>
           </span>
         )}
       </div>
       
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {tags.map((tag, i) => (
+      {visibleTags.length > 0 && (
+        <div className={`flex flex-wrap gap-1.5 mb-3${featured ? ' pm-featured-tags' : ''}`}>
+          {visibleTags.map((tag, i) => (
             <span key={i} className="text-xs px-2 py-0.5 bg-[#F8F3E8] text-[#9B6035] rounded-md font-medium">
               {tag}
             </span>
@@ -188,40 +189,60 @@ function RecipeCard({
         </div>
       )}
       
-      <div className="flex flex-wrap items-center gap-3 text-xs text-[#AA7A50]">
-        {recipeCalories && (
+      <div className={featured ? "pm-featured-nutrition flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-relaxed text-[#AA7A50]" : "flex flex-wrap items-center gap-3 text-xs text-[#AA7A50]"}>
+        {hasCalories && (
           <span className="flex items-center gap-1">
             <span>🔥</span>
             <span>{recipeCalories} 卡路里／人</span>
           </span>
         )}
-        {recipeProteinGrams && (
+        {featured && hasCalories && hasProtein && <span aria-hidden="true">·</span>}
+        {(featured ? hasProtein : recipeProteinGrams) && (
           <span className="flex items-center gap-1">
             <span>💪</span>
             <span>{recipeProteinGrams}g 蛋白質／人</span>
           </span>
         )}
-        {recipeDiet.length > 0 && !recipeProteinGrams && (
+        {!featured && recipeDiet.length > 0 && !recipeProteinGrams && (
           <span className="flex items-center gap-1">
             <span>🥗</span>
-            <span>{getLabel(DIET_MAP, recipeDiet[0]) || recipeDiet[0]}</span>
+            <span>{label(DIET_MAP, recipeDiet[0]) || recipeDiet[0]}</span>
           </span>
         )}
       </div>
     </div>
   );
 
+  // An actual anchor covers image, text and padding. Favorite is its sibling,
+  // so both controls retain native keyboard behavior without nested interaction.
+  if (featured) {
+    return (
+      <article className={`pm-recipe-card group relative block bg-[#fffefb] border border-[#e8dfd3] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:shadow-sm active:translate-y-0 active:border-[#cbb7a5] transition-all duration-200 ${className}`}>
+        <Link href={href} onClick={handleLinkClick} prefetch={false} className="pm-featured-link block h-full" aria-labelledby={`home-featured-title-${recipeId}`}>
+          {imageContainer}
+          {contentBody}
+        </Link>
+        <div className="absolute top-3 right-3 z-50">
+          <FavoriteButton active={isFavorite} loading={favoriteLoading} onClick={onFavoriteClick} recipeName={recipeName} />
+        </div>
+      </article>
+    );
+  }
+
   // Always use Link when slug exists for consistent navigation
   if (hasDetailPage) {
     return (
-      <Link
-        href={href}
-        onClick={handleLinkClick}
-        className={`group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}
-      >
-        {imageContainer}
-        {contentBody}
-      </Link>
+      <article className={`group relative block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ${className}`}>
+        <Link href={href} onClick={handleLinkClick} prefetch={onClick ? false : undefined} className="block h-full rounded-2xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#9B6035]">
+          {imageContainer}
+          {contentBody}
+        </Link>
+        {onFavoriteClick && (
+          <div className="absolute top-3 right-3 z-50">
+            <FavoriteButton active={isFavorite} loading={favoriteLoading} onClick={onFavoriteClick} recipeName={recipeName} />
+          </div>
+        )}
+      </article>
     );
   }
 
@@ -241,6 +262,11 @@ function RecipeCard({
     >
       {imageContainer}
       {contentBody}
+      {onFavoriteClick && (
+        <div className="absolute top-3 right-3 z-50">
+          <FavoriteButton active={isFavorite} loading={favoriteLoading} onClick={onFavoriteClick} />
+        </div>
+      )}
     </article>
   );
 }

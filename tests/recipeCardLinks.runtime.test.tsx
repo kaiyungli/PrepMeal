@@ -3,6 +3,10 @@ import { renderToString } from 'react-dom/server';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react';
 import RecipeList from '@/components/RecipeList';
+import RecipeCard from '@/components/RecipeCard';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach } from 'vitest';
+afterEach(cleanup);
 import { RecipeIndex, RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
 
 // Cards that open the in-page modal must still be real links in the server
@@ -45,7 +49,33 @@ describe('recipe cards', () => {
   });
 });
 
-describe('recipe link sections', () => {
+describe('card interaction boundaries', () => {
+  it.each([{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }])('preserves native link handling for %o', modifiers => {
+    const open = vi.fn();
+    const { container } = render(<RecipeCard recipe={recipes[0]} onClick={open} />);
+    const link = container.querySelector('a')!;
+    let prevented = true;
+    document.addEventListener('click', e => { prevented = e.defaultPrevented; e.preventDefault(); }, { once: true });
+    fireEvent.click(link, { button: 0, ...modifiers });
+    expect(open).not.toHaveBeenCalled();
+    expect(prevented).toBe(false);
+  });
+
+  it.each(['default', 'home-featured'] as const)('%s keeps favorite activation separate from navigation', variant => {
+    const open = vi.fn(), favorite = vi.fn();
+    const { container } = render(<RecipeCard variant={variant} recipe={recipes[0]} onClick={open} onFavoriteClick={favorite} />);
+    expect(container.querySelector('a button, button a')).toBeNull();
+    const button = screen.getByRole('button', { name: '收藏：麻婆豆腐' });
+    button.focus(); fireEvent.click(button, { detail: 0 });
+    expect(favorite).toHaveBeenCalledTimes(1);
+    expect(open).not.toHaveBeenCalled();
+    fireEvent.click(container.querySelector('a')!, { detail: 0 });
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(favorite).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('recipe link sections' , () => {
   it('index and related sections render plain links', () => {
     const index = renderToString(<RecipeIndex groups={[{ key: 'soup', title: '湯', recipes: [{ slug: 'corn-soup', name: '粟米湯' }] }]} />);
     expect(index).toContain('全部食譜目錄');

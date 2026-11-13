@@ -1,4 +1,5 @@
 import type { ReactNode, SVGProps } from 'react';
+import brandMark from '@/constants/brandMark.json';
 
 /**
  * Small line icons (24×24, stroke = currentColor). Used instead of emoji so
@@ -29,13 +30,8 @@ function Svg({ size = 20, children, ...rest }: IconProps & { children: ReactNode
 /** Rice bowl with steam and chopsticks. */
 export function BowlIcon(props: IconProps) {
   return (
-    <Svg {...props}>
-      <path d="M3.5 12h17a8.5 8.5 0 0 1-17 0Z" />
-      <path d="M9 20.5h6" />
-      <path d="M8.5 8.5c0-1 1-1.5 1-2.5s-1-1.5-1-2.5" />
-      <path d="M12 8.5c0-1 1-1.5 1-2.5s-1-1.5-1-2.5" />
-      <path d="m15.5 9 5-6.5" />
-      <path d="m17.5 9.5 4.5-5" />
+    <Svg strokeWidth={brandMark.strokeWidth} {...props}>
+      {brandMark.paths.map(d => <path key={d} d={d} />)}
     </Svg>
   );
 }
@@ -84,11 +80,11 @@ export function ChevronDownIcon(props: IconProps) {
 export function LogoMark({ className = '', size = 32 }: { className?: string; size?: number }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-xl bg-[#9B6035] text-white ${className}`}
-      style={{ width: size, height: size }}
+      className={`inline-flex shrink-0 items-center justify-center rounded-xl text-white ${className}`}
+      style={{ width: size, height: size, backgroundColor: brandMark.color }}
       aria-hidden="true"
     >
-      <BowlIcon size={Math.round(size * 0.62)} />
+      <BowlIcon size={Math.round(size * brandMark.glyphScale)} />
     </span>
   );
 }

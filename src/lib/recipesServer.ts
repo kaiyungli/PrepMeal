@@ -104,17 +104,22 @@ export async function fetchRecipeLinkCatalog() {
   if (!supabaseServer) return null;
   try {
     const rows = [];
+    let total: number | null = null;
     for (let from = 0; ; from += LINK_PAGE_SIZE) {
-      const { data, error } = await supabaseServer
+      const { data, error, count } = await supabaseServer
         .from('recipes')
-        .select(LINK_FIELDS)
+        .select(LINK_FIELDS, { count: 'exact' })
         .eq('is_public', true)
         .not('slug', 'is', null)
         .order('slug', { ascending: true })
         .range(from, from + LINK_PAGE_SIZE - 1);
-      if (error || !data) return null;
+      if (error || !data || count == null) return null;
+      if (total !== null && count !== total) return null;
+      total = count;
       rows.push(...data);
-      if (data.length < LINK_PAGE_SIZE) break;
+      if (rows.length === total) break;
+      // A lower API row limit must not turn an incomplete list into the full index.
+      if (data.length < LINK_PAGE_SIZE || rows.length > total) return null;
     }
     return rows;
   } catch {
