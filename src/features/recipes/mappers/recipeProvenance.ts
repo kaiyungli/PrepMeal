@@ -26,13 +26,24 @@ function safeUrl(value: unknown): string | null {
 const HIDDEN_NOTE_PREFIXES = ['原始食譜來源仍未核實', '本版為重新整理的家庭配方', '本頁是重新訂定的一人份參考配方'];
 const TIME_NOTE_PREFIX = '備料及烹調時間按現有做法估算，未經計時試煮。';
 
+/** Remove cooking-review disclaimers, retaining measurement and nutrition limits. */
+export function readerCookingNote(note: string): string {
+  return note
+    .replace(/，並非試煮量度/g, '')
+    .replace(/未(?:經)?實煮或化驗/g, '未經化驗')
+    .replace(/未(?:經(?:實際|計時)?)?(?:試煮|實煮)(?=估算|預估)/g, '')
+    .replace(/[，；]\s*(?:尚未|未經(?:實際|計時)?|未)(?:試煮|實煮)([。；，])/g, '$1')
+    .replace(/^(?:尚未|未經(?:實際|計時)?|未)(?:試煮|實煮)[。；，]?\s*/, '')
+    .trim();
+}
+
 export function readerNote(note: string): string | null {
   if (HIDDEN_NOTE_PREFIXES.some(prefix => note.startsWith(prefix))) return null;
   if (note.startsWith(TIME_NOTE_PREFIX)) {
     const rest = note.slice(TIME_NOTE_PREFIX.length).trim();
     return rest ? `時間為估算：${rest}` : null;
   }
-  return note.replace('，未經實煮；', '；');
+  return readerCookingNote(note) || null;
 }
 
 // Adaptation notes keep the useful "what changed from the source" detail, but
@@ -56,7 +67,7 @@ const SOURCE_NOTE_REWRITES: Array<[string, string]> = [
 ];
 
 export function readerSourceNote(note: string): string {
-  return SOURCE_NOTE_REWRITES.reduce((text, [from, to]) => text.split(from).join(to), note).trim();
+  return readerCookingNote(SOURCE_NOTE_REWRITES.reduce((text, [from, to]) => text.split(from).join(to), note));
 }
 
 // The stored nutrition policies are written for editors; readers get the same
@@ -83,8 +94,8 @@ export function recipeProvenance(sourceData: unknown): RecipeProvenance {
   const alternativePolicyPrefix = '基本版不含選配；依可食原料及保留情境估算，非化驗值。';
   const policy = text(nutrition.policy);
   const nutritionNotes = [...new Set([
-    ...strings(nutrition.limitations).map(note => note.trim()),
-    ...strings(nutrition.evidence_cautions).map(note => note.trim()),
+    ...strings(nutrition.limitations).map(readerCookingNote).filter(Boolean),
+    ...strings(nutrition.evidence_cautions).map(readerCookingNote).filter(Boolean),
     ...(policy.startsWith(sharedPolicyPrefix) ? [SHARED_POLICY_READER_TEXT] : []),
     ...(policy.startsWith(alternativePolicyPrefix) ? [ALTERNATIVE_POLICY_READER_TEXT] : []),
   ])];

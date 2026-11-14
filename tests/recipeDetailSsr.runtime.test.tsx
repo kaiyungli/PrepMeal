@@ -46,7 +46,8 @@ describe('Recipe detail server HTML', () => {
       consistency_review: { public_notes: ['圖片為AI生成示意圖。'] },
       source_attribution: { website: '參考網站', original_recipe_url: 'https://example.com/recipe',
         adaptation_note: '依批准菜式整理中文材料、用量及步驟；任何本版編定須明示。；本版保留薑汁。' },
-      nutrition: { policy: '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。' },
+      nutrition: { policy: '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。',
+        limitations: ['營養為估算，未經實煮或化驗。'] },
     });
     const html = renderToString(<RecipeDetail recipe={{ ...RECIPE, ...provenance }} error={null} />);
     expect(html).toContain('烹調前須知');
@@ -54,7 +55,8 @@ describe('Recipe detail server HTML', () => {
     expect(html).toContain('本版保留薑汁。');
     expect(html).toContain('href="https://example.com/recipe"');
     expect(html).toContain('酒精揮發未經實測');
-    expect(html).not.toMatch(/依批准|須明示|最後更新|編輯整理/);
+    expect(html).toContain('營養為估算，未經化驗。');
+    expect(html).not.toMatch(/依批准|須明示|最後更新|編輯整理|實煮|試煮|已實測/);
   });
   it('keeps reviewed cold guidance and adds related links in the same server HTML after main integration', () => {
     const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));

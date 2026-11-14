@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { recipeProvenance, readerSourceNote, SHARED_POLICY_READER_TEXT, ALTERNATIVE_POLICY_READER_TEXT } from '@/features/recipes/mappers/recipeProvenance';
+import { recipeProvenance, readerCookingNote, readerSourceNote, SHARED_POLICY_READER_TEXT, ALTERNATIVE_POLICY_READER_TEXT } from '@/features/recipes/mappers/recipeProvenance';
 import { normalizeRecipeDetail } from '@/features/recipes/mappers/normalizeRecipeDetail';
 import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
@@ -116,6 +116,28 @@ describe('nutrition note formats', () => {
 });
 
 describe('editor wording stays off the recipe page', () => {
+  it.each([
+    ['USDA SR28通用值估算，非品牌化驗；未經實際試煮。', 'USDA SR28通用值估算，非品牌化驗。'],
+    ['未校正烹調流失及殘留鍋油；未經實際試煮。', '未校正烹調流失及殘留鍋油。'],
+    ['營養按全部材料、湯汁、用油及最多調味量估算，未經實煮或化驗。', '營養按全部材料、湯汁、用油及最多調味量估算，未經化驗。'],
+    ['通用USDA SR28參考，非指定香港品牌標籤；未實煮或化驗，烹調流失及未吃下醬汁未量度。', '通用USDA SR28參考，非指定香港品牌標籤；未經化驗，烹調流失及未吃下醬汁未量度。'],
+    ['400毫升是食譜指定的成品湯量目標，並非試煮量度；隔出湯料後量度湯量。時間亦為做法估算，未經試煮。', '400毫升是食譜指定的成品湯量目標；隔出湯料後量度湯量。時間亦為做法估算。'],
+    ['USDA SR28通用值估算，非品牌標籤或成品化驗；未試煮。', 'USDA SR28通用值估算，非品牌標籤或成品化驗。'],
+  ])('removes cooking disclaimers while retaining the rest of %s', (input, expected) => {
+    expect(readerCookingNote(input)).toBe(expected);
+  });
+  it('cleans all public note channels without changing the source or adding a tested claim', () => {
+    const source = { consistency_review: { public_notes: ['時間為估計，未試煮；增加份量需加時。'] },
+      source_attribution: { adaptation_note: '按材料表整理，未經實際試煮。' },
+      nutrition: { limitations: ['未經實際試煮。', '未校正烹調流失；未試煮。'], evidence_cautions: ['營養為估算，未經實煮或化驗。'] } };
+    const before = JSON.stringify(source), result = recipeProvenance(source);
+    expect(result.data_quality_notes).toEqual(['時間為估計；增加份量需加時。']);
+    expect(result.source_attribution?.note).toBe('按材料表整理。');
+    expect(result.nutrition_notes).toEqual(['未校正烹調流失。', '營養為估算，未經化驗。']);
+    expect(JSON.stringify(result)).not.toMatch(/試煮|實煮|已實測/);
+    expect(JSON.stringify(source)).toBe(before);
+    expect(readerCookingNote('雞肉須煮至熟透；乾麵包糠吸水力不同，須試煮確認成形。')).toBe('雞肉須煮至熟透；乾麵包糠吸水力不同，須試煮確認成形。');
+  });
   it.each(['；', '。'])('removes editor instructions with %s punctuation without losing recipe-specific detail', separator => {
     expect(readerSourceNote(`依批准菜式整理中文材料、用量及步驟${separator}任何本版編定須明示。本版保留薑汁，豬肉切成薄片。`))
       .toBe('本版保留薑汁，豬肉切成薄片。');
