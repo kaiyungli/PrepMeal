@@ -1,5 +1,5 @@
 import { loadSamplePlan } from '@/features/guides/samplePlan.server';
-import { HOME_EXAMPLES, HOME_ISR_SECONDS, validHomeExample, type HomeRecipe } from './homeRotation';
+import { HOME_EXAMPLES, HOME_ISR_SECONDS, resolveHomeExample, validHomeExample, type HomeRecipe } from './homeRotation';
 import type { HomeSampleCandidate } from './homeSamples';
 
 /** Shared by ISR workers' routes; never calculate a weekly plan per visitor. */
@@ -13,13 +13,14 @@ export function createSampleLoader(planLoader: HomePlanLoader = loadSamplePlan) 
       const candidates: HomeSampleCandidate[] = [];
       for (const example of HOME_EXAMPLES) {
         if (!validHomeExample(example, catalogue)) continue;
-        const rows = catalogue.filter(recipe => example.days.some(day => day.slugs.includes(recipe.slug)));
+        const resolved = resolveHomeExample(example, catalogue);
+        const rows = catalogue.filter(recipe => resolved.days.some(day => day.slugs.includes(recipe.slug)));
         if (!(await Promise.all(rows.map(recipe => image(recipe.image_url!)))).every(Boolean)) continue;
         try {
-          const plan = await planLoader(example.days, rows, true);
+          const plan = await planLoader(resolved.days, rows, true);
           if (!plan || plan.servings !== 2 || plan.days.length !== 7 || !plan.sections.length
             || plan.days.some((day, index) => day.dishes.length !== 2
-              || day.dishes.some((dish, slot) => dish.slug !== example.days[index].slugs[slot]))) continue;
+              || day.dishes.some((dish, slot) => dish.slug !== resolved.days[index].slugs[slot]))) continue;
           candidates.push({ id: example.id, plan });
         } catch { /* Exclude an incomplete group as a whole; try the next reviewed group. */ }
       }

@@ -1,4 +1,5 @@
 import type { SamplePlanDish } from '@/features/guides/samplePlan';
+import { slugAliases } from '@/constants/recipeSlugRenames';
 
 // Homepage display labels only. Recipe identity and database names stay intact.
 const SHORT_NAMES: Record<string, string> = {
@@ -7,5 +8,5 @@ const SHORT_NAMES: Record<string, string> = {
 };
 
 export function sampleDishName(dish: SamplePlanDish): string {
-  return SHORT_NAMES[dish.slug] ?? dish.name;
+  return slugAliases(dish.slug).map(slug => SHORT_NAMES[slug]).find(Boolean) ?? dish.name;
 }

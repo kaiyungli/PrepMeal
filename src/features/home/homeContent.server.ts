@@ -4,7 +4,7 @@ import { usableHero, HOME_HERO_SERVINGS } from './homeHero';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { supabaseServer } from '@/lib/supabaseServer';
-import { HOME_EXAMPLES, featuredCandidates, hasUsablePhoto, type HomeRecipe } from './homeRotation';
+import { HOME_EXAMPLES, featuredCandidates, hasUsablePhoto, resolveHomeExample, type HomeRecipe } from './homeRotation';
 
 const imageChecks = new Map<string, { expires: number; result: Promise<boolean> }>();
 export async function publicImageAvailable(url: string): Promise<boolean> {
@@ -44,7 +44,8 @@ export async function loadHomeContent(requested: number, dependencies: Dependenc
     const example = HOME_EXAMPLES[index];
     const samplePlan = sampleCandidates.find(candidate => candidate.id === example.id)?.plan;
     if (!samplePlan) continue;
-    const rows = catalogue.filter(recipe => example.days.some(day => day.slugs.includes(recipe.slug)));
+    const resolved = resolveHomeExample(example, catalogue);
+    const rows = catalogue.filter(recipe => resolved.days.some(day => day.slugs.includes(recipe.slug)));
     const pool = featuredCandidates(catalogue.filter(recipe => recipe.is_public));
     const healthy = await Promise.all(pool.map(async recipe => await image(recipe.image_url!) ? recipe : null));
     const candidates = healthy.filter((recipe): recipe is NonNullable<typeof recipe> => recipe !== null);

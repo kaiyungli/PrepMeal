@@ -5,6 +5,9 @@ import { createSampleLoader } from '@/features/home/homeSamples.server';
 import { loadHomeContent } from '@/features/home/homeContent.server';
 import { HOME_EXAMPLES, type HomeRecipe } from '@/features/home/homeRotation';
 import type { SamplePlan } from '@/features/guides/samplePlan';
+import { canonicalRecipeSlug } from '@/constants/recipeSlugRenames';
+import { validHomeExample } from '@/features/home/homeRotation';
+import { sampleDishName } from '@/features/home/samplePresentation';
 
 function catalogue(): HomeRecipe[] {
   const rows = new Map<string, HomeRecipe>();
@@ -23,6 +26,35 @@ async function fakePlan(days: typeof HOME_EXAMPLES[number]['days'], rows?: HomeR
 }
 
 describe('homepage ISR content and safe fallbacks', () => {
+  it('keeps all seven complete two-person groups and original IDs with old, renamed or mixed catalogue slugs', async () => {
+    const original = catalogue();
+    for (const mode of ['old', 'new', 'mixed']) {
+      const rows = original.map((row, i) => ({ ...row,
+        slug: mode === 'old' || (mode === 'mixed' && i % 2) ? row.slug : canonicalRecipeSlug(row.slug),
+      }));
+      const before = JSON.stringify(rows), plan = vi.fn(fakePlan);
+      for (const example of HOME_EXAMPLES) expect(validHomeExample(example, rows)).toBe(true);
+      const candidates = await createSampleLoader(plan)(rows, async () => true);
+      expect(candidates.map(c => c.id)).toEqual(HOME_EXAMPLES.map(e => e.id));
+      for (const [i, candidate] of candidates.entries()) {
+        expect(candidate.plan.servings).toBe(2);
+        expect(candidate.plan.days.flatMap(d => d.dishes)).toHaveLength(14);
+        const expected = HOME_EXAMPLES[i].days.flatMap(d => d.slugs);
+        expect(candidate.plan.days.flatMap(d => d.dishes.map(r => canonicalRecipeSlug(r.slug))))
+          .toEqual(expected.map(canonicalRecipeSlug));
+        expect(plan.mock.calls[i][1]?.map(r => r.id).sort())
+          .toEqual(original.filter(r => expected.includes(r.slug)).map(r => r.id).sort());
+        expect(candidate.plan.days.every(d => d.dishes.every(dish => rows.some(r => r.slug === dish.slug)))).toBe(true);
+      }
+      const content = await loadHomeContent(0, { catalogue: async () => rows, plan: vi.fn(fakePlan), image: async () => true });
+      expect(content.homeExampleId).toBe(HOME_EXAMPLES[0].id);
+      expect(content.sampleCandidates).toHaveLength(7);
+      expect(content.featuredRecipes).toHaveLength(36);
+      expect(JSON.stringify(rows)).toBe(before);
+    }
+    expect(sampleDishName({ slug: canonicalRecipeSlug('prepmeal-batch3-16'), name: '原名稱', total_time_minutes: 20 })).toBe('薑蔥豉油蒸豆腐');
+    expect(sampleDishName({ slug: canonicalRecipeSlug('prepmeal-batch4-15'), name: '原名稱', total_time_minutes: 20 })).toBe('豉汁彩椒雞球');
+  });
   it('passes the exact reviewed 14 recipes to the existing plan loader for all seven variants', async () => {
     const rows = catalogue();
     for (let index = 0; index < 7; index++) {

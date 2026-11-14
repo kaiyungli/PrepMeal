@@ -1,6 +1,7 @@
 import examples from './homeExamples.json';
 import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
 import { matchesSlotRole, type SlotRoleRecipe } from '@/lib/slotRoles';
+import { findRecipeBySlug } from '@/constants/recipeSlugRenames';
 
 export const HOME_EXAMPLES = examples;
 export const HOME_ISR_SECONDS = 300;
@@ -29,18 +30,27 @@ export function validHomeExample(example: typeof HOME_EXAMPLES[number], catalogu
   if (example.days.length !== 7) return false;
   const slugs = example.days.flatMap(day => day.slugs);
   if (slugs.length !== 14 || new Set(slugs).size !== 14) return false;
-  const bySlug = new Map(catalogue.map(recipe => [recipe.slug, recipe]));
-  const mains = example.days.map(day => bySlug.get(day.slugs[0]));
+  const mains = example.days.map(day => findRecipeBySlug(day.slugs[0], catalogue));
   if (new Set(mains.map(recipe => recipe?.primary_protein).filter(Boolean)).size < 4
     || new Set(mains.map(recipe => recipe?.method).filter(Boolean)).size < 2) return false;
   return example.days.every(day => day.slugs.length === 2 && day.slugs.every((slug, index) => {
-    const recipe = bySlug.get(slug);
+    const recipe = findRecipeBySlug(slug, catalogue);
     return !!recipe && recipe.is_public && recipe.base_servings === 1 && !recipe.is_complete_meal
       && recipe.difficulty === 'easy' && typeof recipe.total_time_minutes === 'number'
       && recipe.total_time_minutes > 0 && recipe.total_time_minutes <= 30
       && Array.isArray(recipe.flavor) && !recipe.flavor.includes('spicy')
       && hasUsablePhoto(recipe.image_url) && matchesSlotRole(recipe, index === 0 ? 'protein_main' : 'veg_side');
   }));
+}
+
+/** Keep reviewed group IDs and dish identity; output current catalogue URLs. */
+export function resolveHomeExample(example: typeof HOME_EXAMPLES[number], catalogue: HomeRecipe[]) {
+  return { ...example,
+    heroSlug: findRecipeBySlug(example.heroSlug, catalogue)?.slug ?? example.heroSlug,
+    days: example.days.map(day => ({ ...day,
+      slugs: day.slugs.map(slug => findRecipeBySlug(slug, catalogue)?.slug ?? slug),
+    })),
+  };
 }
 
 export function featuredCandidates(catalogue: FeaturedRecipe[], limit = 36): FeaturedRecipe[] {

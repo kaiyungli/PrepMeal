@@ -67,6 +67,7 @@ export default defineConfig({
       'tests/recipesEmptyState.runtime.test.tsx',
       'tests/recipesListEnd.runtime.test.tsx',
       'tests/recipeDetailSsr.runtime.test.tsx',
+      'tests/recipeSlugRedirect.runtime.test.tsx',
       'tests/recipeListImageLoading.runtime.test.tsx',
       'tests/appNoIndex.runtime.test.tsx',
       'tests/seoTitle.runtime.test.tsx',

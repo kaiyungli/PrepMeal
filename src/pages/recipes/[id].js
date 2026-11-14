@@ -7,6 +7,7 @@ import { loadRecipeDetail } from '@/features/recipes';
 import { measurePageLoadMetrics } from '@/utils/perf';
 import { DEFAULT_OG_IMAGE } from '@/constants/site';
 import { RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
+import { canonicalRecipeSlug } from '@/constants/recipeSlugRenames';
 
 /**
  * Recipe Detail Page - dumb shell only
@@ -104,6 +105,18 @@ export async function getStaticProps({ params }) {
   ]);
 
   if (!recipe) {
+    const renamed = canonicalRecipeSlug(params.id);
+    // Never permanently cache a redirect caused by a fetch outage or a target
+    // that is missing/private. Next.js permanent:true emits HTTP 308.
+    if (error === 'Recipe not found' && renamed !== params.id) {
+      const target = await loadRecipeDetail(renamed);
+      if (!target.error && target.recipe?.slug === renamed) {
+        return {
+          redirect: { destination: `/recipes/${encodeURIComponent(renamed)}`, permanent: true },
+          revalidate: 300,
+        };
+      }
+    }
     return {
       notFound: true,
       revalidate: 300
