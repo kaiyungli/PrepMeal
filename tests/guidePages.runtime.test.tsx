@@ -12,9 +12,13 @@ vi.mock('@/features/layout/hooks/useHeaderController', () => ({
 
 vi.mock('@/features/home/hooks/useHomeFeaturedFavorites', () => ({ useHomeFeaturedFavorites: () => ({ isFavorite: () => false, isPending: () => false, onFavoriteClick: vi.fn(), toast: null }) }));
 import Home from '@/pages/index';
-import MealPlanExample from '@/pages/meal-plan-example';
+import MealPlanExample, { getStaticProps as getMealExampleProps } from '@/pages/meal-plan-example';
+import { SAMPLE_PLAN_DAYS } from '@/features/guides/samplePlan';
+const { loadSamplePlanMock } = vi.hoisted(() => ({ loadSamplePlanMock: vi.fn() }));
+vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: loadSamplePlanMock }));
 import HealthyDinnerGuide from '@/pages/healthy-dinner-guide';
 import IngredientPairingGuide from '@/pages/ingredient-pairing-guide';
+import About from '@/pages/about';
 import HomeSamplePlan from '@/components/home/HomeSamplePlan';
 import HomePlannerIntro from '@/components/home/HomePlannerIntro';
 import type { SamplePlan } from '@/features/guides/samplePlan';
@@ -30,6 +34,12 @@ const PLAN: SamplePlan = {
 const recipe = (id: string, extra = {}) => ({ id, slug: `s${id}`, name: `菜${id}`, total_time_minutes: 10, calories_per_serving: 300, protein_g: 28, ...extra });
 
 describe('guide pages render real content on the server', () => {
+  it('About omits the cooking disclaimer while retaining estimates and AI image disclosure', () => {
+    const html = renderToString(<About />);
+    expect(html).not.toMatch(/試煮|實煮|已實測/);
+    expect(html).toContain('時間同營養數字係參考估算');
+    expect(html).toContain('AI圖片亦只係菜式示意');
+  });
   it('homepage renders its form, complete sample, steps and links without interaction', () => {
     const html = renderToString(<Home sampleCandidates={[{ id: 'test', plan: PLAN }]} featuredRecipes={[]} />);
     expect(html).toContain('action="/generate"');
@@ -132,11 +142,53 @@ describe('guide pages render real content on the server', () => {
   });
 
   it('sample plan page lists dishes as links and the merged list', () => {
-    const html = renderToString(<MealPlanExample plan={PLAN} />);
+    const html = renderToString(<MealPlanExample plan={PLAN} firstTrip={PLAN} secondTrip={PLAN} />);
     expect(html).toContain('href="/recipes/a"');
     expect(html).toContain('蒜頭');
-    expect(html).toContain('2道菜');
+    const content = document.createElement('div');
+    content.innerHTML = html;
+    expect(content.textContent).toContain('2道菜');
     expect(html).toContain('href="/generate"');
+  });
+
+  it('separates fresh shopping by trip and checks weekly pantry once before shopping', () => {
+    const makeSection = (key: string, name: string, quantityText: string) => ({ key, label: key,
+      items: [{ name, quantityText, category: key, dishCount: 1 }] });
+    const pantry = makeSection('pantry', '全週食油', '80 毫升');
+    const firstTrip = { ...PLAN, sections: [makeSection('meat', '第一批肉碎', '380 克'), pantry] };
+    const secondTrip = { ...PLAN, sections: [makeSection('meat', '第二批雞肉', '300 克'), pantry] };
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<MealPlanExample plan={{ ...PLAN, sections: [...PLAN.sections, pantry] }} firstTrip={firstTrip} secondTrip={secondTrip} />);
+    const first = container.querySelector('[data-testid="first-trip"]')!;
+    const second = container.querySelector('[data-testid="second-trip"]')!;
+    expect(first.textContent).toContain('第一批肉碎380 克');
+    expect(first.textContent).not.toMatch(/第二批雞肉|全週食油/);
+    expect(second.textContent).toContain('第二批雞肉300 克');
+    expect(second.textContent).not.toMatch(/第一批肉碎|全週食油/);
+    expect(container.querySelector('[data-testid="weekly-pantry"]')?.textContent).toContain('全週食油80 毫升');
+    expect(container.textContent).not.toContain('待記錄');
+    for (const link of container.querySelectorAll('a[href^="#"]')) {
+      expect(container.querySelector(link.getAttribute('href')!)).not.toBeNull();
+    }
+  });
+
+  it('calculates complete five-night and separate three/two-night lists using the same servings calculator', async () => {
+    const firstTrip = { ...PLAN, itemCount: 12 };
+    const secondTrip = { ...PLAN, itemCount: 8 };
+    loadSamplePlanMock.mockReset().mockResolvedValueOnce(PLAN).mockResolvedValueOnce(firstTrip).mockResolvedValueOnce(secondTrip);
+    const result = await getMealExampleProps();
+    expect(loadSamplePlanMock.mock.calls).toEqual([
+      [SAMPLE_PLAN_DAYS, undefined, true],
+      [SAMPLE_PLAN_DAYS.slice(0, 3), undefined, true],
+      [SAMPLE_PLAN_DAYS.slice(3), undefined, true],
+    ]);
+    expect(result).toEqual({ props: { plan: PLAN, firstTrip, secondTrip }, revalidate: 3600 });
+  });
+
+  it.each([0, 1, 2])('keeps ISR from publishing partial shopping data when calculation %i fails', async (failed) => {
+    loadSamplePlanMock.mockReset();
+    for (let i = 0; i < 3; i++) loadSamplePlanMock.mockResolvedValueOnce(i === failed ? null : PLAN);
+    await expect(getMealExampleProps()).rejects.toThrow('Unable to load the sample meal plan');
   });
 
   it('home sample section links to the full example', () => {
