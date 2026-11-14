@@ -18,6 +18,7 @@ const { loadSamplePlanMock } = vi.hoisted(() => ({ loadSamplePlanMock: vi.fn() }
 vi.mock('@/features/guides/samplePlan.server', () => ({ loadSamplePlan: loadSamplePlanMock }));
 import HealthyDinnerGuide from '@/pages/healthy-dinner-guide';
 import IngredientPairingGuide from '@/pages/ingredient-pairing-guide';
+import About from '@/pages/about';
 import HomeSamplePlan from '@/components/home/HomeSamplePlan';
 import HomePlannerIntro from '@/components/home/HomePlannerIntro';
 import type { SamplePlan } from '@/features/guides/samplePlan';
@@ -33,6 +34,12 @@ const PLAN: SamplePlan = {
 const recipe = (id: string, extra = {}) => ({ id, slug: `s${id}`, name: `菜${id}`, total_time_minutes: 10, calories_per_serving: 300, protein_g: 28, ...extra });
 
 describe('guide pages render real content on the server', () => {
+  it('About omits the cooking disclaimer while retaining estimates and AI image disclosure', () => {
+    const html = renderToString(<About />);
+    expect(html).not.toMatch(/試煮|實煮|已實測/);
+    expect(html).toContain('時間同營養數字係參考估算');
+    expect(html).toContain('AI圖片亦只係菜式示意');
+  });
   it('homepage renders its form, complete sample, steps and links without interaction', () => {
     const html = renderToString(<Home sampleCandidates={[{ id: 'test', plan: PLAN }]} featuredRecipes={[]} />);
     expect(html).toContain('action="/generate"');

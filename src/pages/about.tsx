@@ -3,7 +3,7 @@ import InformationPage, { SiteContact } from '@/components/layout/InformationPag
 
 export default function About() {
   return (
-    <InformationPage title="關於今晚食乜" description="為香港家庭整理家常食譜、配對晚餐及準備購物清單，減少每日諗餸的時間。" path="/about" updatedDate="2026年11月12日">
+    <InformationPage title="關於今晚食乜" description="為香港家庭整理家常食譜、配對晚餐及準備購物清單，減少每日諗餸的時間。" path="/about" updatedDate="2026年11月14日">
       <section>
         <h2>點解整「今晚食乜」？</h2>
         <p>今晚煮一餐唔算難，難嘅係日日諗食乜，仲要計埋買幾多餸。</p>
@@ -19,7 +19,7 @@ export default function About() {
         <h2>食譜資料點樣整理？</h2>
         <p>食譜會參考不同來源，再整理用量及做法；相關連結同改編說明會放喺食譜頁，方便你對照。</p>
         <p>站內食譜以1人份為基準。揀兩個人食，清單就會換算兩人份，再將重複用到嘅材料加埋。白飯同其他另配食物，就按各份食譜嘅說明處理。</p>
-        <p>整理時會核對材料、單位、份量同步驟，亦會測試人數換算同清單計算。不過，呢啲核對唔等於每道菜都親自試煮過。時間同營養數字係參考估算，AI圖片亦只係菜式示意。</p>
+        <p>整理時會核對材料、單位、份量同步驟，亦會測試人數換算同清單計算。時間同營養數字係參考估算，AI圖片亦只係菜式示意。</p>
         <p>如果你發現份量唔合理、步驟唔清楚，或者功能有問題，歡迎附上食譜連結，話我哋知邊度需要改。</p>
       </section>
       <section>
