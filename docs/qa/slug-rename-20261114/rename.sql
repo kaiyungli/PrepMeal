@@ -47,9 +47,14 @@ BEGIN
     FROM slug_rename_expected p WHERE r.id=p.id AND r.slug=p.old_slug;
   GET DIAGNOSTICS affected = ROW_COUNT;
   IF affected<>100 THEN RAISE EXCEPTION 'Expected 100 updated recipes, found %',affected; END IF;
-  IF EXISTS (SELECT 1 FROM public.recipes r JOIN slug_rename_expected p ON r.id=p.id
-                JOIN slug_rename_before b ON b.id=r.id
-              WHERE r.slug IS DISTINCT FROM p.new_slug OR to_jsonb(r)-'slug'-'updated_at' IS DISTINCT FROM b.unchanged) THEN
+  -- ROW_COUNT alone does not prove that AFTER UPDATE triggers kept every row.
+  SELECT count(*) INTO new_count FROM slug_rename_expected p JOIN public.recipes r ON r.id=p.id AND r.slug=p.new_slug;
+  IF new_count<>100 OR EXISTS (
+       SELECT 1 FROM slug_rename_expected p
+       LEFT JOIN public.recipes r ON r.id=p.id
+       LEFT JOIN slug_rename_before b ON b.id=p.id
+       WHERE r.id IS NULL OR b.id IS NULL OR r.slug IS DISTINCT FROM p.new_slug
+          OR to_jsonb(r)-'slug'-'updated_at' IS DISTINCT FROM b.unchanged) THEN
     RAISE EXCEPTION 'Post-update validation failed; transaction must roll back';
   END IF;
 END;

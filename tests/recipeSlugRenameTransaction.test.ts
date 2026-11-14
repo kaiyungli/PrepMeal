@@ -84,6 +84,17 @@ it('rolls back all slugs when a trigger changes unrelated content during the upd
     CREATE TRIGGER unexpected_change BEFORE UPDATE ON recipes FOR EACH ROW EXECUTE FUNCTION damage_content();`);
   await rejectsUnchanged(/Post-update validation failed/);
 });
+it.each(['row', 'statement'])('rolls back all changes when an AFTER UPDATE %s trigger deletes target recipes', async mode => {
+  const body = mode === 'row'
+    ? 'DELETE FROM recipes WHERE id=NEW.id; RETURN NEW;'
+    : "DELETE FROM recipes WHERE slug<>'unrelated'; RETURN NULL;";
+  const trigger = mode === 'row'
+    ? `FOR EACH ROW WHEN (NEW.id='${rows[0].id}'::uuid)`
+    : 'FOR EACH STATEMENT';
+  await db.exec(`CREATE FUNCTION remove_targets() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN ${body} END$$;
+    CREATE TRIGGER unexpected_delete AFTER UPDATE ON recipes ${trigger} EXECUTE FUNCTION remove_targets();`);
+  await rejectsUnchanged(/Post-update validation failed/);
+});
 it('tolerates a view-count update before execution without resetting that count', async () => {
   await db.query('UPDATE recipes SET times_shown=99 WHERE id=$1', [rows[0].id]);
   await db.exec(sql);
