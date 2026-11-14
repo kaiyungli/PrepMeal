@@ -76,7 +76,7 @@ export default function MealPlanExample({ plan, firstTrip, secondTrip }: Props) 
     <section id="second-trip" className="scroll-mt-6 space-y-4">
       <div><p className="text-sm font-semibold text-[#9B6035]">第二次買餸・第四晚之前</p>
         <h2 className="mt-1 text-2xl font-semibold">再買雞肉、雞翼及後兩晚的菜</h2></div>
-      <p>先看看家中還有甚麼，再按清單補買咖哩雞、雞翼、生菜及菠菜的材料。蒜頭等跨兩次使用的鮮貨，亦會按各次需要列出；若第一次買了整包，今次可扣除仍然可用的存貨。</p>
+      <p>先看看家中還有甚麼，再按清單補買咖哩雞、雞翼、生菜及菠菜的材料。蒜頭、食油等共用材料已在第一次按全週用量合併，今次只需補不足的部分；清單上的材料如家中已有，亦可扣除仍然可用的存貨。</p>
       <div data-testid="second-trip"><IngredientGroups sections={secondTrip.sections.filter(section => !STORE_CATEGORIES.has(section.key))} /></div>
       <p className="rounded-xl bg-[#F2EBDD] p-5 text-sm">雞肉與雞翼分開包好、標明使用晚次。按包裝指示冷藏；未能及時使用便冷凍，並預留雪櫃解凍時間。葉菜分兩次買，可減少在家存放的時間。</p>
     </section>
