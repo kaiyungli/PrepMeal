@@ -1,100 +1,118 @@
 import Link from 'next/link';
 import { GuidePage, GuideSection } from '@/components/guides/GuidePage';
-import type { SamplePlan } from '@/features/guides/samplePlan';
+import { SAMPLE_PLAN_DAYS, type SamplePlan } from '@/features/guides/samplePlan';
 
-export default function MealPlanExample({ plan }: { plan: SamplePlan }) {
-  return <GuidePage updated="2026-11-14" title="示例：兩人五日晚餐同購物清單" path="/meal-plan-example"
-    description="用一週晚餐生成器嘅規則砌好兩人五晚「一肉一菜」，再睇十道菜合併之後要買幾多材料。">
-    <aside className="rounded-xl border border-[#DDD0B0] bg-[#F2EBDD] px-5 py-4 text-sm leading-6">
-      <p className="font-semibold text-[#5A4030]">紀錄版面示範</p>
-      <p>以下餐單及材料來自網站計算；煮食時間、實際購買及剩料尚未記錄。這一版用來預覽紀錄的呈現方式。</p>
-    </aside>
-    <GuideSection title="點解要先排好幾晚">
-      <p>逐晚諗餸，通常會買多咗或者漏買。先排好幾晚，就可以一次過計晒材料：同一樣材料喺唔同菜式用到，清單會自動加埋，唔使自己逐道菜計數。以下係編輯揀嘅一個例子，兩個人食、五晚、每晚一個主菜加一個蔬菜，白飯另外煮。</p>
-    </GuideSection>
-    <>
-      <GuideSection title={`五晚菜式（${plan.servings}人）`}>
-        <ol className="space-y-3">
-          {plan.days.map((d, index) => <li key={d.day} className="overflow-hidden bg-white rounded-xl border border-[#DDD0B0]">
-            <div className="p-5">
-              <p className="text-sm font-semibold text-[#9B6035]">{d.day}</p>
-              <p className="mt-2 font-semibold text-[#3A2010]">{d.dishes.map((dish, i) => <span key={dish.slug}>{i > 0 && <span className="px-2 font-normal text-[#AA7A50]">＋</span>}<Link className="text-[#9B6035] underline underline-offset-4" href={`/recipes/${encodeURIComponent(dish.slug)}`}>{dish.name}</Link></span>)}</p>
-              <p className="mt-3 text-sm">{d.note}</p>
-              <p className="mt-2 text-xs text-[#7A6553]">食譜參考時間：{d.dishes.map(dish => `${dish.name} ${dish.total_time_minutes ? `約${dish.total_time_minutes}分鐘` : '見食譜'}`).join('；')}。同時煮不代表時間直接相加。</p>
-            </div>
-            <details open={index === 0} className="border-t border-[#E9E0D0]">
-              <summary className="cursor-pointer px-5 py-3 text-sm font-semibold text-[#70543D] hover:bg-[#FBF8F2] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[#9B6035]">當晚煮食紀錄</summary>
-              <div className="bg-[#FBF8F2] px-5 pb-5 pt-2">
-                <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                  <div><dt className="text-[#70543D]">實際用時</dt><dd className="mt-1 text-[#8A7765]">待記錄開始及上枱時間</dd></div>
-                  <div><dt className="text-[#70543D]">兩人份量</dt><dd className="mt-1 text-[#8A7765]">待記錄是否足夠、有沒有剩餸</dd></div>
-                  <div className="sm:col-span-2"><dt className="text-[#70543D]">當晚調整</dt><dd className="mt-1 text-[#8A7765]">待記錄替換材料、先後次序或需要留意的地方</dd></div>
-                </dl>
-              </div>
-            </details>
-          </li>)}
-        </ol>
-      </GuideSection>
-      <GuideSection title={`合併後嘅購物清單（${plan.itemCount}項）`}>
-        <p className="mb-4">以下係網站購物清單按十道菜、每道{plan.servings}人份計出嚟嘅結果，同你喺生成器揀同樣菜式會見到嘅一樣。選配材料、清水同屋企已有嘅調味料可以喺清單入面再剔走。</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {plan.sections.map(s => <div key={s.key} className="bg-white rounded-xl border border-[#DDD0B0] p-4">
-            <h3 className="font-semibold text-[#3A2010] mb-2">{s.label}</h3>
-            <ul className="space-y-1 text-sm">
-              {s.items.map(i => <li key={i.name + i.quantityText} className="flex justify-between gap-3">
-                <span>{i.name}{i.dishCount > 1 ? <span className="text-[#AA7A50]">（{i.dishCount}道菜）</span> : null}</span>
-                <span className="text-[#7A6050] whitespace-nowrap">{i.quantityText}</span>
-              </li>)}
-            </ul>
-          </div>)}
-        </div>
-      </GuideSection>
-      {plan.sharedItems.length > 0 && <GuideSection title="邊啲材料可以一次過買">
-        <p>呢五晚有 {plan.sharedItems.length} 樣材料喺兩道或以上菜式用到，例如{plan.sharedItems.slice(0, 4).map(i => `${i.name}（${i.dishCount}道菜，共${i.quantityText}）`).join('、')}。逐道菜睇食譜好難發現，合併清單就一眼睇到總量，買一次就夠。</p>
-      </GuideSection>}
-      <GuideSection title="買完餸，再對一對">
-        <p className="mb-4">清單計的是食譜用量，買回來可能是一整包或一整棵。記下實際購入量，便知道哪些可留到下一餐。</p>
-        <ul className="space-y-3">
-          {plan.sharedItems.slice(0, 3).map(item => <li key={item.name} className="rounded-xl border border-[#DDD0B0] bg-white p-5">
-            <h3 className="font-semibold text-[#3A2010]">{item.name}<span className="ml-2 text-sm font-normal text-[#7A6553]">共用於{item.dishCount}道菜</span></h3>
-            <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-              <div><dt className="text-[#70543D]">餐單需要</dt><dd className="mt-1 font-semibold">{item.quantityText}</dd></div>
-              <div><dt className="text-[#70543D]">實際購入</dt><dd className="mt-1 text-[#8A7765]">待記錄</dd></div>
-              <div><dt className="text-[#70543D]">剩餘及安排</dt><dd className="mt-1 text-[#8A7765]">待記錄</dd></div>
-            </dl>
-          </li>)}
-        </ul>
-        <p className="mt-3 text-xs text-[#7A6553]">此處先以三樣共用材料展示紀錄方式；未填入實際採購或花費。</p>
-      </GuideSection>
-    </>
-    <GuideSection title="買餸同煮嘅次序">
-      <ul className="list-disc pl-5 space-y-2">
-        <li>週末買齊乾貨、調味料、豬肉碎同雞；魚柳買急凍，煮前一晚放雪櫃解凍。</li>
-        <li>葉菜唔耐放，可以分兩次買：第一次買頭兩三晚嘅菜，第三晚之後再補。</li>
-        <li>每晚先開電飯煲，再煮主菜；蒸或者炆緊主菜時炒蔬菜。</li>
+const STORE_CATEGORIES = new Set(['seasoning', 'pantry']);
+type Props = { plan: SamplePlan; firstTrip: SamplePlan; secondTrip: SamplePlan };
+
+function IngredientGroups({ sections }: { sections: SamplePlan['sections'] }) {
+  return <div className="grid gap-4 sm:grid-cols-2">
+    {sections.map(section => <div key={section.key} className="rounded-xl border border-[#DDD0B0] bg-white p-4">
+      <h3 className="mb-3 font-semibold text-[#3A2010]">{section.label}</h3>
+      <ul className="space-y-2 text-sm">
+        {section.items.map(item => <li key={item.name + item.quantityText} className="flex justify-between gap-4">
+          <span>{item.name}{item.dishCount > 1 && <span className="text-[#7A6553]">（{item.dishCount}道菜）</span>}</span>
+          <span className="shrink-0 text-[#7A6050]">{item.quantityText}</span>
+        </li>)}
       </ul>
-      <p className="mt-3">想睇更多採購安排，可以參考<Link className="underline" href="/hong-kong-market-shopping-guide">買餸攻略</Link>同<Link className="underline" href="/7-day-dinner-plan">一週晚餐示例</Link>。</p>
+    </div>)}
+  </div>;
+}
+
+const NIGHT_NOTES = [
+  '先蒸肉餅，蒸煮期間炒油麥菜。今晚將第二晚的急凍魚柳移到雪櫃保鮮格，放在有蓋容器內解凍；較厚的魚柳可能需要更長時間。',
+  '魚柳完全解凍後才按食譜烹調，配西蘭花。今晚將第三晚的豬肉碎從冰格移到雪櫃保鮮格解凍。',
+  '用已解凍的豬肉碎煮麻婆豆腐，配小白菜。煮完後檢查蒜頭、食油及調味料，第二次買餸只補不足的部分。',
+  '第二次買餸後，先炆咖哩雞，最後炒生菜。雞翼另行分裝；如前一晚醃好，須蓋好並放回雪櫃保鮮格。',
+  '按食譜煮雞翼及菠菜。再檢查剩下的材料及包裝期限，決定下一餐用甚麼，毋須為了清空材料而勉強使用。',
+];
+
+export default function MealPlanExample({ plan, firstTrip, secondTrip }: Props) {
+  const pantry = plan.sections.filter(section => STORE_CATEGORIES.has(section.key));
+  return <GuidePage updated="2026-11-14" title="兩人五日晚餐：分兩次買餸，逐晚有安排" path="/meal-plan-example"
+    description="第一次準備頭三晚，第四晚前再補買。從清單、分裝到每晚取用，看看一份餐單如何用在日常生活。">
+    <aside className="rounded-xl border border-[#DDD0B0] bg-[#F2EBDD] p-5">
+      <p className="font-semibold text-[#3A2010]">兩個人・五晚・每晚一肉一菜</p>
+      <p className="mt-2 text-sm">這是一份採購安排示例。兩張清單按本頁菜式及兩人份量分別計算，白飯另計；顯示的是食譜用量，並非超市包裝大小。</p>
+      <nav aria-label="採購安排" className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#9B6035]">
+        <a className="underline underline-offset-4" href="#first-trip">第一次：頭三晚</a>
+        <a className="underline underline-offset-4" href="#second-trip">第二次：後兩晚</a>
+        <a className="underline underline-offset-4" href="#nightly-plan">五晚取用次序</a>
+      </nav>
+    </aside>
+
+    <GuideSection title={`先看五晚吃甚麼（${plan.servings}人份）`}>
+      <ol className="divide-y divide-[#E9E0D0] rounded-xl border border-[#DDD0B0] bg-white px-5">
+        {plan.days.map(day => <li key={day.day} className="py-4 sm:flex sm:gap-6">
+          <span className="shrink-0 text-sm font-semibold text-[#7A6553]">{day.day}</span>
+          <p className="mt-1 font-semibold sm:mt-0">{day.dishes.map((dish, i) => <span key={dish.slug}>
+            {i > 0 && <span className="px-2 font-normal">＋</span>}
+            <Link className="text-[#9B6035] underline underline-offset-4" href={`/recipes/${encodeURIComponent(dish.slug)}`}>{dish.name}</Link>
+          </span>)}</p>
+        </li>)}
+      </ol>
     </GuideSection>
-    <GuideSection title="五晚之後，留低啲心得">
-      <div className="rounded-xl border border-[#DDD0B0] bg-white p-5 text-sm">
-        <dl className="space-y-4">
-          <div><dt className="font-semibold text-[#3A2010]">哪些材料最後仍有剩？</dt><dd className="mt-1 text-[#8A7765]">待記錄剩料及下一餐安排。</dd></div>
-          <div><dt className="font-semibold text-[#3A2010]">哪一晚最順手，哪一晚要改？</dt><dd className="mt-1 text-[#8A7765]">待記錄實際遇到的方便或困難。</dd></div>
-          <div><dt className="font-semibold text-[#3A2010]">下次會怎樣安排？</dt><dd className="mt-1 text-[#8A7765]">待記錄買餸次數、份量或菜式的調整。</dd></div>
-        </dl>
+
+    <section id="first-trip" className="scroll-mt-6 space-y-4">
+      <div><p className="text-sm font-semibold text-[#9B6035]">第一次買餸・第一晚之前</p>
+        <h2 className="mt-1 text-2xl font-semibold">先買頭三晚，肉碎分兩份</h2></div>
+      <p>買肉餅、蒸魚及麻婆豆腐需要的材料，連同油麥菜、西蘭花和小白菜。魚柳選急凍，按以下次序安排解凍；豆腐及蔬菜須留意包裝期限與新鮮程度，不適合存放至第三晚的便留待補買。</p>
+      <div data-testid="first-trip"><IngredientGroups sections={firstTrip.sections.filter(section => !STORE_CATEGORIES.has(section.key))} /></div>
+      <div className="rounded-xl bg-[#F2EBDD] p-5 text-sm">
+        <h3 className="font-semibold text-[#3A2010]">買回來先做這三件事</h3>
+        <ol className="mt-3 list-decimal space-y-2 pl-5">
+          <li>豬肉碎按肉餅及麻婆豆腐的食譜用量分裝，標上菜名與日期。第一晚那份放雪櫃保鮮格，第三晚那份即放冰格。</li>
+          <li>急凍魚柳先放冰格，第一晚移到雪櫃保鮮格解凍，與即食食物分開，並放在較低層。</li>
+          <li>蔬菜及豆腐按包裝指示存放，易變壞的先用；如狀態不理想，調整菜式或採購時間。</li>
+        </ol>
       </div>
+      {pantry.length > 0 && <details className="rounded-xl border border-[#DDD0B0] p-4">
+        <summary className="cursor-pointer font-semibold">出門前先檢查：全週調味料及家中儲備</summary>
+        <p className="my-3 text-sm">以下已合併五晚用量。家中足夠的不用再買，第二張清單亦不會重複列出。</p>
+        <div data-testid="weekly-pantry"><IngredientGroups sections={pantry} /></div>
+      </details>}
+    </section>
+
+    <section id="second-trip" className="scroll-mt-6 space-y-4">
+      <div><p className="text-sm font-semibold text-[#9B6035]">第二次買餸・第四晚之前</p>
+        <h2 className="mt-1 text-2xl font-semibold">再買雞肉、雞翼及後兩晚的菜</h2></div>
+      <p>先看看家中還有甚麼，再按清單補買咖哩雞、雞翼、生菜及菠菜的材料。蒜頭等跨兩次使用的鮮貨，亦會按各次需要列出；若第一次買了整包，今次可扣除仍然可用的存貨。</p>
+      <div data-testid="second-trip"><IngredientGroups sections={secondTrip.sections.filter(section => !STORE_CATEGORIES.has(section.key))} /></div>
+      <p className="rounded-xl bg-[#F2EBDD] p-5 text-sm">雞肉與雞翼分開包好、標明使用晚次。按包裝指示冷藏；未能及時使用便冷凍，並預留雪櫃解凍時間。葉菜分兩次買，可減少在家存放的時間。</p>
+    </section>
+
+    <section id="nightly-plan" className="scroll-mt-6 space-y-4">
+      <h2 className="text-2xl font-semibold">買好之後，每晚怎樣接下去？</h2>
+      <ol className="space-y-3">{plan.days.map((day, index) => <li key={day.day} className="rounded-xl border border-[#DDD0B0] bg-white p-5">
+        <h3 className="font-semibold text-[#9B6035]">{day.day}{index === 2 ? '・煮完再檢查存貨' : index === 3 ? '・第二次補買後' : ''}</h3>
+        <p className="mt-2 text-sm">{NIGHT_NOTES[index]}</p>
+      </li>)}</ol>
+    </section>
+
+    <details className="rounded-xl border border-[#DDD0B0] p-5">
+      <summary className="cursor-pointer font-semibold">查看全週合併清單（{plan.itemCount}項）</summary>
+      <p className="my-4 text-sm">這是兩次採購合計的食譜用量；選配材料及家中已有的材料可自行略過。</p>
+      <IngredientGroups sections={plan.sections} />
+    </details>
+
+    <GuideSection title="分裝及解凍，要留意甚麼？">
+      <p className="text-sm">易腐壞食物應在購買後兩小時內放入雪櫃。保鮮格維持4°C或以下，冰格為−18°C或以下；生肉、魚及家禽須包好，與熟食分開。解凍請在雪櫃保鮮格進行，不要放在室溫或用熱水解凍。所需時間視份量及厚度而定，本頁的晚次安排不代替包裝上的保存指示。</p>
+      <p className="mt-3 text-sm text-[#7A6553]">資料參考：食物安全中心〈<a className="underline" href="https://www.cfs.gov.hk/tc_chi/consumer_zone/safefood_all/five_keys_apply_store.html">貯存食物</a>〉及〈<a className="underline" href="https://www.cfs.gov.hk/tc_chi/consumer_zone/safefood_all/five_keys_defrosting.html">解凍食物</a>〉。</p>
     </GuideSection>
-    <GuideSection title="砌你自己嘅版本">
-      <p>喺<Link className="underline" href="/generate">一週晚餐生成器</Link>揀3、5或7日、用餐人數同「一肉一菜」，系統會配好菜式；唔啱口味可以鎖定想保留嘅菜，再逐道替換。毋須登入就可以睇購物清單，登入後可以保存餐單同勾選已買材料。</p>
+    <GuideSection title="換成你們的晚餐安排">
+      <p>到<Link className="text-[#9B6035] underline" href="/generate">一週晚餐生成器</Link>選擇人數、日數及「一肉一菜」，再按口味替換菜式。毋須登入即可查看購物清單，登入後可保存餐單。想調整採購方式，可參考<Link className="underline" href="/hong-kong-market-shopping-guide">買餸攻略</Link>。</p>
     </GuideSection>
   </GuidePage>;
 }
 
 export async function getStaticProps() {
   const { loadSamplePlan } = await import('@/features/guides/samplePlan.server');
-  // Same rule as the other guides: throw so ISR keeps the previous valid page
-  // instead of publishing an example with missing dishes.
-  const plan = await loadSamplePlan();
-  if (!plan) throw new Error('Unable to load the sample meal plan');
-  return { props: { plan }, revalidate: 3600 };
+  const [plan, firstTrip, secondTrip] = await Promise.all([
+    loadSamplePlan(SAMPLE_PLAN_DAYS, undefined, true),
+    loadSamplePlan(SAMPLE_PLAN_DAYS.slice(0, 3), undefined, true),
+    loadSamplePlan(SAMPLE_PLAN_DAYS.slice(3), undefined, true),
+  ]);
+  // Keep the previous ISR page if any dish or ingredient calculation is missing.
+  if (!plan || !firstTrip || !secondTrip) throw new Error('Unable to load the sample meal plan');
+  return { props: { plan, firstTrip, secondTrip }, revalidate: 3600 };
 }
