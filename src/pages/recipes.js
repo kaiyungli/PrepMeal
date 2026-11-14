@@ -5,6 +5,7 @@ import { Layout } from '@/components';
 import RecipeList from '@/components/RecipeList';
 import RecipeModalController from '@/components/RecipeModalController';
 import RecipeFilters from '@/components/recipes/RecipeFilters';
+import { RecipeIndex } from '@/components/recipes/RecipeLinkSections';
 import { useRecipeFilters } from '@/hooks/useRecipeFilters';
 import { useUserState } from '@/hooks/useUserState';
 import Toast, { useToast } from '@/components/ui/Toast';
@@ -13,9 +14,17 @@ import { useRecipeDetailPrefetch } from '@/features/recipes/hooks/useRecipeDetai
 import { perfNow, perfLog, measurePageLoadMetrics } from '@/utils/perf';
 import { useNavigationDataReady } from '@/features/performance/useNavigationDataReady';
 
-export default function RecipesPage({ initialRecipes, initialTotalCount }) {
+/**
+ * @param {{
+ *   initialRecipes: import('react').ComponentProps<typeof RecipeList>['recipes'],
+ *   initialTotalCount: number,
+ *   recipeIndex?: import('@/features/recipes/recipeLinks').RecipeIndexGroup[] | null
+ * }} props
+ */
+export default function RecipesPage({ initialRecipes, initialTotalCount, recipeIndex = null }) {
   const firstLoadStartRef = useRef(perfNow());
   const dataReadyLogged = useRef(false);
+  const listEndRef = useRef(null);
   
   const { 
     isAuthenticated,
@@ -133,37 +142,22 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
     }
   }, [recipes.length, totalCount, hasFilters, searchQuery, sortBy]);
   
-  // Infinite scroll detection for /recipes page
+  // Load relative to the card list, independently of the full index below it.
   useEffect(() => {
     const handleScroll = () => {
-      if (!hasMore || loadingMore || loading) return;
-      
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const distanceFromBottom = documentHeight - (scrollY + windowHeight);
-      
-      // Load more when 1000px from bottom (trigger earlier)
-      if (distanceFromBottom <= 1000) {
-        console.log('[recipes-scroll] load_more_triggered', {
-          scrollY,
-          windowHeight,
-          documentHeight,
-          distanceFromBottom,
-          hasMore,
-          loadingMore,
-          loading,
-          currentCount: recipes.length,
-          totalCount
-        });
-        loadMore();
-      }
+      if (!hasMore || loadingMore || loading || fetchError || !listEndRef.current) return;
+      const distanceFromListEnd = listEndRef.current.getBoundingClientRect().top - window.innerHeight;
+      if (distanceFromListEnd <= 1000) loadMore();
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasMore, loadingMore, loading, loadMore, recipes.length, totalCount]);
-  
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [hasMore, loadingMore, loading, fetchError, loadMore]);
+
   const showErrorState = !loading && fetchError;
   const showEmptyState = !loading && !fetchError && recipes.length === 0;
   const showResults = !loading && !fetchError && recipes.length > 0;
@@ -230,6 +224,7 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
                 isPending={isPending}
                 onFavoriteClick={handleFavoriteToggle}
               />
+              <div ref={listEndRef} data-recipe-list-end aria-hidden="true" className="h-px" />
               {loadingMore && (
                 <div className="text-center py-6 text-[#AA7A50]">
                   載入更多...
@@ -242,6 +237,8 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
               )}
             </div>
           )}
+
+          <RecipeIndex groups={recipeIndex} />
         </div>
       </div>
 
@@ -261,10 +258,14 @@ export default function RecipesPage({ initialRecipes, initialTotalCount }) {
 export async function getStaticProps() {
   const _start = Date.now();
   console.log('[recipes-page] getStaticProps_start');
-  const { fetchRecipesForServerWithTotal } = await import('@/lib/recipesServer');
+  const { fetchRecipesForServerWithTotal, fetchRecipeLinkCatalog } = await import('@/lib/recipesServer');
+  const { groupRecipeIndex } = await import('@/features/recipes/recipeLinks');
   try {
-    const { recipes: initialRecipes, total: initialTotalCount } =
-      await fetchRecipesForServerWithTotal(24);
+    const [{ recipes: initialRecipes, total: initialTotalCount }, linkCatalogue] = await Promise.all([
+      fetchRecipesForServerWithTotal(24),
+      fetchRecipeLinkCatalog(),
+    ]);
+    const recipeIndex = linkCatalogue ? groupRecipeIndex(linkCatalogue) : null;
     const duration_ms = Date.now() - _start;
     console.log('[recipes-page] getStaticProps_done', {
       duration_ms,
@@ -272,7 +273,7 @@ export async function getStaticProps() {
       total: initialTotalCount
     });
     return {
-      props: { initialRecipes, initialTotalCount },
+      props: { initialRecipes, initialTotalCount, recipeIndex },
       revalidate: 60
     };
   } catch (err) {

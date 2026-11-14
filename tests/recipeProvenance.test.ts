@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { recipeProvenance } from '@/features/recipes/mappers/recipeProvenance';
+import { recipeProvenance, readerSourceNote, SHARED_POLICY_READER_TEXT, ALTERNATIVE_POLICY_READER_TEXT } from '@/features/recipes/mappers/recipeProvenance';
 import { normalizeRecipeDetail } from '@/features/recipes/mappers/normalizeRecipeDetail';
 import type { RecipeDetailRow } from '@/features/recipes/services/getRecipeDetail';
 import { formatQuantityForDisplay } from '@/lib/quantityFormatter';
@@ -77,11 +77,11 @@ describe('nutrition note formats', () => {
   it('keeps existing notes, removes duplicates and excludes batch-specific policy details', () => {
     const prefix = '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。';
     const result = recipeProvenance({ nutrition: { limitations: [' 原有提示 '], evidence_cautions: ['原有提示', '另一提示', null], policy: prefix + '另一道菜的專屬資料。' } });
-    expect(result.nutrition_notes).toEqual(['原有提示', '另一提示', prefix]);
+    expect(result.nutrition_notes).toEqual(['原有提示', '另一提示', SHARED_POLICY_READER_TEXT]);
   });
   it('preserves the alternate shared estimate limitation', () => {
     const prefix = '基本版不含選配；依可食原料及保留情境估算，非化驗值。';
-    expect(recipeProvenance({ nutrition: { policy: prefix + '其他菜式的材料' } }).nutrition_notes).toEqual([prefix]);
+    expect(recipeProvenance({ nutrition: { policy: prefix + '其他菜式的材料' } }).nutrition_notes).toEqual([ALTERNATIVE_POLICY_READER_TEXT]);
   });
   it('does not publish an unrelated policy ledger', () => {
     expect(recipeProvenance({ nutrition: { policy: '內部記錄', evidence_cautions: [] } }).nutrition_notes).toEqual([]);
@@ -112,5 +112,37 @@ describe('nutrition note formats', () => {
     expect(note('補齊做法，未試煮。')).toBe('補齊做法。');
     expect(note('刪去香草，未經試煮。')).toBe('刪去香草。');
     expect(note('原頁註明部分內容由AI協助生成，因此只作靈感，未作試煮或營養證明。')).toBe('原頁註明部分內容由AI協助生成，因此只作靈感。');
+  });
+});
+
+describe('editor wording stays off the recipe page', () => {
+  it.each(['；', '。'])('removes editor instructions with %s punctuation without losing recipe-specific detail', separator => {
+    expect(readerSourceNote(`依批准菜式整理中文材料、用量及步驟${separator}任何本版編定須明示。本版保留薑汁，豬肉切成薄片。`))
+      .toBe('本版保留薑汁，豬肉切成薄片。');
+  });
+  it('preserves attribution, allergen warnings, nutrition limitations and the stored metadata', () => {
+    const source = {
+      source_attribution: { website: '來源網站', author: '原作者', original_recipe_url: 'https://example.com/recipe',
+        adaptation_note: '本版用量、材料選項及步驟有整理或改編；參考連結並不表示原作者認可本版，亦非原文轉載。' },
+      base_allergens: ['soy'], allergen_note: '請核對包裝',
+      nutrition: { policy: '基本版不含選配。全投入估算並非實際吃下量；骨殼去除率、油鹽吸收及酒精蒸發未實測。',
+        limitations: ['品牌不同，數值可能有差異。'] },
+    };
+    const before = JSON.stringify(source);
+    const result = recipeProvenance(source);
+    expect(result.source_attribution).toMatchObject({ website: '來源網站', author: '原作者', url: 'https://example.com/recipe' });
+    expect(result.source_attribution?.note).toContain('不代表原作者認可');
+    expect(result.allergens).toEqual(['soy']);
+    expect(result.allergen_note).toContain('致敏原');
+    expect(result.nutrition_notes).toContain('品牌不同，數值可能有差異。');
+    expect(result.nutrition_notes.join('')).toMatch(/骨殼去除、油鹽吸收及酒精揮發未經實測/);
+    expect(result.nutrition_notes.join('')).toContain('實際攝取量可能不同');
+    expect(JSON.stringify(source)).toBe(before);
+  });
+  it('drops approval and labelling instructions from source notes', () => {
+    expect(readerSourceNote('依批准菜式整理中文材料、用量及步驟；任何本版編定須明示。；本版以克／毫升編定家庭份量，並整理熟度檢查，非原文轉載。'))
+      .toBe('本版以克／毫升編定家庭份量，並整理熟度檢查，非原文轉載。');
+    expect(readerSourceNote('本版用量、材料選項及步驟有整理或改編；參考連結並不表示原作者認可本版，亦非原文轉載。'))
+      .toBe('本站按原食譜改編用量及步驟，並非原文轉載；參考連結不代表原作者認可本站版本。');
   });
 });

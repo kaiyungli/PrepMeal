@@ -14,7 +14,7 @@ import baseConfig from './vitest.config';
 // `npm run test:all`.
 
 const MY_PLANS_JSX_JS = [
-  /[\\/]src[\\/]pages[\\/](login|profile|generate|_app)\.js$/,
+  /[\\/]src[\\/]pages[\\/](login|profile|generate|index|_app)\.js$/,
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans\.js$/,
   /[\\/]src[\\/]pages[\\/]favorites\.js$/,
@@ -46,6 +46,11 @@ export default defineConfig({
     environment: 'jsdom',
     include: [
       'tests/adPolicy.runtime.test.tsx',
+      'tests/homeGenerateEntry.runtime.test.tsx',
+      'tests/homeFeaturedLifecycle.runtime.test.tsx',
+      'tests/homeFeaturedFavorites.runtime.test.tsx',
+      'tests/homeRecipeImages.runtime.test.tsx',
+      'tests/guidePages.runtime.test.tsx',
       'tests/privacyOptions.runtime.test.tsx',
       'tests/shoppingProgress.runtime.test.tsx',
       'tests/generateDraftPage.runtime.test.tsx',
@@ -60,11 +65,13 @@ export default defineConfig({
       'tests/generateToast.runtime.test.tsx',
       'tests/homeShoppingPreview.runtime.test.tsx',
       'tests/recipesEmptyState.runtime.test.tsx',
+      'tests/recipesListEnd.runtime.test.tsx',
       'tests/recipeDetailSsr.runtime.test.tsx',
       'tests/recipeSlugRedirect.runtime.test.tsx',
       'tests/recipeListImageLoading.runtime.test.tsx',
       'tests/appNoIndex.runtime.test.tsx',
       'tests/seoTitle.runtime.test.tsx',
+      'tests/recipeCardLinks.runtime.test.tsx',
     ],
   },
 });

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
+import { renderToString } from 'react-dom/server';
 
 vi.mock('next/image', () => ({ default: ({ alt }: { alt: string }) => <span role="img" aria-label={alt} /> }));
 vi.mock('@/components/ads/AdSlot', () => ({ RecipeDetailInArticleAd: () => null }));
@@ -26,6 +27,33 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('recipe detail content hook order and deferred rendering', () => {
+  it('does not flash generic reheating advice while cold recipe details are still loading', () => {
+    const summary = { ...a, method: 'boiled' };
+    const view = render(<RecipeDetailContent recipe={summary} isLoading />);
+    expect(screen.getByRole('status', { name: '載入食譜建議' })).toBeTruthy();
+    expect(screen.queryByText(/徹底翻熱至滾燙/)).toBeNull();
+    expect(screen.queryByRole('heading', { name: '💡 烹飪貼士' })).toBeNull();
+    view.rerender(<RecipeDetailContent recipe={{ ...summary, served_cold: true }} isLoading={false} />);
+    expect(screen.queryByRole('status', { name: '載入食譜建議' })).toBeNull();
+    expect(screen.getByText(/保持冷藏/)).toBeTruthy();
+    expect(screen.queryByText(/徹底翻熱至滾燙/)).toBeNull();
+    view.rerender(<RecipeDetailContent recipe={summary} isLoading={false} />);
+    expect(screen.getByText(/徹底翻熱至滾燙/)).toBeTruthy();
+  });
+  it('renders the same specific guidance in server HTML and the deferred modal content', () => {
+    const recipe = { ...a, method: 'steamed', cooking_tips: ['蛋液過篩後才倒進淺碟。', '碟面蓋耐熱碟，避免倒汗水滴入。'],
+      pairing_suggestions: ['配清炒菜心，按需要加飯。'], editorial_sources: [{ title: 'Cooking reference', url: 'https://www.cfs.gov.hk/' }] };
+    const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
+    expect(html).toContain(recipe.cooking_tips[0]);
+    expect(html).toContain(recipe.pairing_suggestions[0]);
+    render(<RecipeDetailContent recipe={recipe} />);
+    expect(screen.getByText(recipe.cooking_tips[0])).toBeTruthy();
+    expect(screen.getByText(recipe.pairing_suggestions[0])).toBeTruthy();
+    expect(screen.queryByText(/水滾後才放入食材/)).toBeNull();
+    const source = screen.getByRole('link', { name: 'Cooking reference' });
+    expect(source.getAttribute('href')).toBe('https://www.cfs.gov.hk/');
+    expect(source.getAttribute('rel')).toBe('noopener noreferrer');
+  });
   it('shows exact cooking fractions, optional markers and preparation notes', () => {
     render(<RecipeDetailContent recipe={{ ...a, ingredients: [
       { name: '洋蔥', quantity: 0.125, unit: 'pc', prep_note: '切幼絲' },
@@ -73,7 +101,7 @@ describe('recipe detail content hook order and deferred rendering', () => {
   it('shows actual incomplete recipe data clearly without inventing attribution', () => {
     render(<RecipeDetailContent recipe={{ ...a, data_quality_notes: ['材料表缺主材料，份量待核。'] }} />);
     flushFrame();
-    expect(screen.getByText('資料核對')).toBeTruthy();
+    expect(screen.getByText('烹調前須知')).toBeTruthy();
     expect(screen.getByText('材料表缺主材料，份量待核。')).toBeTruthy();
     expect(screen.queryByText('食譜來源')).toBeNull();
   });

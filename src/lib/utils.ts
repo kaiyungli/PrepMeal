@@ -20,6 +20,12 @@ export function formatTime(minutes: number): string {
   return `${hours}小時${mins}分鐘`;
 }
 
+// Nutrition uses the stored per-person value, without rounding or scaling.
+// Missing/invalid values stay missing; a real zero is valid.
+export function nutritionValue(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 // Format calories
 export function formatCalories(cal: number): string {
   return `${cal} kcal`;

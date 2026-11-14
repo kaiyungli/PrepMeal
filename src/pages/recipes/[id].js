@@ -6,12 +6,18 @@ import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { loadRecipeDetail } from '@/features/recipes';
 import { measurePageLoadMetrics } from '@/utils/perf';
 import { DEFAULT_OG_IMAGE } from '@/constants/site';
-import { RECIPE_SLUG_RENAMES } from '@/constants/recipeSlugRenames';
+import { RelatedRecipeLinks } from '@/components/recipes/RecipeLinkSections';
+import { canonicalRecipeSlug } from '@/constants/recipeSlugRenames';
 
 /**
  * Recipe Detail Page - dumb shell only
+ * @param {{
+ *   recipe?: object | null,
+ *   error?: string | null,
+ *   related?: import('@/features/recipes/recipeLinks').RelatedRecipes | null
+ * }} props
  */
-export default function RecipeDetail({ recipe, error }) {
+export default function RecipeDetail({ recipe, error, related = null }) {
   // Keep hook order stable across loading, error and successful renders.
   // Metrics still start only when there is a recipe to display.
   const hasRecipe = Boolean(recipe && !error);
@@ -73,6 +79,7 @@ export default function RecipeDetail({ recipe, error }) {
           <div className="max-w-[800px] mx-auto py-6 px-4">
             {/* Standalone page: full recipe in server HTML, hero is the LCP image */}
             <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority />
+            <RelatedRecipeLinks related={related} />
           </div>
         </div>
       </Layout>
@@ -90,18 +97,25 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   
-  const { recipe, error } = await loadRecipeDetail(params.id);
-  
-  
+  const { fetchRecipeLinkCatalog } = await import('@/lib/recipesServer');
+  const { selectRelatedRecipes } = await import('@/features/recipes/recipeLinks');
+  const [{ recipe, error }, linkCatalogue] = await Promise.all([
+    loadRecipeDetail(params.id),
+    fetchRecipeLinkCatalog(),
+  ]);
+
   if (!recipe) {
-    // Old internal-batch URL after the rename: send visitors and search
-    // engines to the readable URL instead of a 404.
-    const renamed = RECIPE_SLUG_RENAMES[params.id];
-    if (renamed) {
-      return {
-        redirect: { destination: `/recipes/${encodeURIComponent(renamed)}`, permanent: true },
-        revalidate: 300
-      };
+    const renamed = canonicalRecipeSlug(params.id);
+    // Never permanently cache a redirect caused by a fetch outage or a target
+    // that is missing/private. Next.js permanent:true emits HTTP 308.
+    if (error === 'Recipe not found' && renamed !== params.id) {
+      const target = await loadRecipeDetail(renamed);
+      if (!target.error && target.recipe?.slug === renamed) {
+        return {
+          redirect: { destination: `/recipes/${encodeURIComponent(renamed)}`, permanent: true },
+          revalidate: 300,
+        };
+      }
     }
     return {
       notFound: true,
@@ -112,7 +126,9 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       recipe,
-      error: error || null
+      error: error || null,
+      // Links only: a failed catalogue fetch renders the page without them.
+      related: linkCatalogue && recipe.slug ? selectRelatedRecipes(recipe, linkCatalogue) : null
     },
     revalidate: 300
   };

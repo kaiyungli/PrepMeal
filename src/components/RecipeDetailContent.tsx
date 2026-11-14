@@ -1,4 +1,5 @@
 import { generateCookingTips, generatePairingSuggestions, generateStorageTips, STORAGE_GUIDANCE_SOURCE } from '@/lib/recipes/recipeGuidance';
+import { nutritionValue } from '@/lib/utils';
 import Image from 'next/image'
 import { RecipeDetailInArticleAd } from '@/components/ads/AdSlot';
 import { METHOD_MAP, DIFFICULTY_MAP, SPEED_MAP } from '@/constants/taxonomy';
@@ -9,9 +10,10 @@ import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
+import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
 
 export interface RecipeDetailContentProps {
-  recipe: Partial<Provenance> & {
+  recipe: Partial<Provenance> & EditorialGuidance & {
     meal_role?: string | null
     dish_type?: string | null
     is_complete_meal?: boolean | null
@@ -290,11 +292,11 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           {!!recipe.nutrition_notes?.length && <ul className="text-sm mb-3 list-disc pl-5" style={{ color: '#5A4030' }}>{recipe.nutrition_notes.map((note, i) => <li key={i}>{note}</li>)}</ul>}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.calories_per_serving || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.calories_per_serving) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>卡路里</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.protein_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.protein_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>蛋白質(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
@@ -308,6 +310,14 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </div>
         </div>
 
+        {/* Summary cards lack serving-style metadata until detail loading finishes. */}
+        {isLoading ? (
+          <div className="mt-8 space-y-4" role="status" aria-label="載入食譜建議">
+            <SectionSkeleton height="h-16" />
+            <SectionSkeleton height="h-16" />
+          </div>
+        ) : (
+        <>
         {/* SEO Section: 烹飪貼士 */}
         <div className="mt-8">
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>💡 烹飪貼士</h3>
@@ -336,6 +346,17 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
 
         <div className="mt-8"><RecipeProvenance recipe={recipe} /></div>
 
+        {!!recipe.editorial_sources?.length && (
+          <div className="mt-6 text-sm" style={{ color: '#5A4030' }}>
+            <p className="font-semibold mb-2">烹調參考</p>
+            <ul className="space-y-2">
+              {recipe.editorial_sources.map(source => (
+                <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">{source.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* SEO Section: 保存方法 */}
         <div className="mt-8">
           <h3 className="text-lg font-bold mb-4" style={{ color: '#3A2010' }}>❄️ 保存方法</h3>
@@ -349,6 +370,8 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
           </ul>
           <a href={STORAGE_GUIDANCE_SOURCE} target="_blank" rel="noopener noreferrer" className="text-sm underline" style={{ color: '#9B6035' }}>參考：食物安全中心剩食處理指引</a>
         </div>
+        </>
+        )}
 
       </div>
     </div>

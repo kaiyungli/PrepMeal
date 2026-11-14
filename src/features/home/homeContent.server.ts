@@ -1,0 +1,66 @@
+import { loadHeroCandidates } from './homeHero.server';
+import { createSampleLoader, loadSampleCandidates, type HomePlanLoader } from './homeSamples.server';
+import { usableHero, HOME_HERO_SERVINGS } from './homeHero';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { supabaseServer } from '@/lib/supabaseServer';
+import { HOME_EXAMPLES, featuredCandidates, hasUsablePhoto, resolveHomeExample, type HomeRecipe } from './homeRotation';
+
+const imageChecks = new Map<string, { expires: number; result: Promise<boolean> }>();
+export async function publicImageAvailable(url: string): Promise<boolean> {
+  if (!hasUsablePhoto(url)) return false;
+  const cached = imageChecks.get(url);
+  if (cached && cached.expires > Date.now()) return cached.result;
+  const result = fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+    .then(response => response.ok && !!response.headers.get('content-type')?.startsWith('image/')).catch(() => false);
+  imageChecks.set(url, { expires: Date.now() + 300000, result });
+  return result;
+}
+
+export async function loadHomeCatalogue(): Promise<HomeRecipe[] | null> {
+  if (!supabaseServer) return null;
+  const { data, error } = await supabaseServer.from('recipes')
+    .select('id,slug,name,image_url,total_time_minutes,difficulty,flavor,calories_per_serving,protein_g,base_servings,primary_protein,dish_type,meal_role,method,is_complete_meal,is_public')
+    .eq('is_public', true).order('slug').limit(1000);
+  return error || !data ? null : data;
+}
+
+type Dependencies = {
+  catalogue?: typeof loadHomeCatalogue;
+  plan?: HomePlanLoader;
+  image?: typeof publicImageAvailable;
+  hero?: typeof loadHeroCandidates;
+};
+
+/** Only called by shared ISR regeneration, never by a per-visitor API. */
+export async function loadHomeContent(requested: number, dependencies: Dependencies = {}) {
+  if (!Number.isInteger(requested) || requested < 0 || requested >= HOME_EXAMPLES.length) throw new Error('Invalid home example');
+  const catalogue = await (dependencies.catalogue ?? loadHomeCatalogue)();
+  if (!catalogue?.length) throw new Error('Keep the last complete home ISR result: catalogue unavailable');
+  const image = dependencies.image ?? publicImageAvailable;
+  const sampleCandidates = await (dependencies.plan ? createSampleLoader(dependencies.plan) : loadSampleCandidates)(catalogue, image);
+  for (let offset = 0; offset < HOME_EXAMPLES.length; offset++) {
+    const index = (requested + offset) % HOME_EXAMPLES.length;
+    const example = HOME_EXAMPLES[index];
+    const samplePlan = sampleCandidates.find(candidate => candidate.id === example.id)?.plan;
+    if (!samplePlan) continue;
+    const resolved = resolveHomeExample(example, catalogue);
+    const rows = catalogue.filter(recipe => resolved.days.some(day => day.slugs.includes(recipe.slug)));
+    const pool = featuredCandidates(catalogue.filter(recipe => recipe.is_public));
+    const healthy = await Promise.all(pool.map(async recipe => await image(recipe.image_url!) ? recipe : null));
+    const candidates = healthy.filter((recipe): recipe is NonNullable<typeof recipe> => recipe !== null);
+    // The selected, fully validated example also supplies a safe card fallback.
+    const fallback = featuredCandidates(rows);
+    const featuredRecipes = candidates.length >= 3 ? candidates : featuredCandidates([...candidates, ...fallback]);
+    const independentHeroes = await (dependencies.hero ?? loadHeroCandidates)(catalogue, image);
+    const fallbackHeroes = samplePlan.days.map(day => ({ ...day.dishes[0], servings: HOME_HERO_SERVINGS })).filter(usableHero);
+    const heroCandidates = independentHeroes.length ? independentHeroes : fallbackHeroes;
+    const featuredBootstrap = await readFile(path.join(process.cwd(), 'src/features/home/featuredBootstrap.js'), 'utf8');
+    return {
+      samplePlan, sampleCandidates, heroCandidates, homeExampleId: example.id,
+      requestedExampleId: HOME_EXAMPLES[requested].id, featuredRecipes, featuredBootstrap,
+    };
+  }
+  // ISR retains the existing complete page on error. Do not cache a partial menu.
+  throw new Error('Keep the last complete home ISR result: no complete usable example');
+}

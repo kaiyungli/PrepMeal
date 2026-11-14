@@ -105,8 +105,27 @@ export const RECIPE_SLUG_RENAMES: Readonly<Record<string, string>> = {
   'prepmeal-batch4-25': 'garlic-pumpkin-shrimp',
 };
 
-/** Both spellings of a slug, old first, for lookups that must work before and after the rename. */
+const LEGACY_RECIPE_SLUGS: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(RECIPE_SLUG_RENAMES).map(([oldSlug, newSlug]) => [newSlug, oldSlug]),
+);
+
+/** Canonical identity for fixed editorial lookups; never rewrites a database row. */
+export function canonicalRecipeSlug(slug: string): string {
+  return Object.hasOwn(RECIPE_SLUG_RENAMES, slug) ? RECIPE_SLUG_RENAMES[slug] : slug;
+}
+
+/** Requested spelling first, then its alternate, before and after the rename. */
 export function slugAliases(slug: string): string[] {
-  const renamed = RECIPE_SLUG_RENAMES[slug];
-  return renamed ? [slug, renamed] : [slug];
+  const renamed = canonicalRecipeSlug(slug);
+  if (renamed !== slug) return [slug, renamed];
+  return Object.hasOwn(LEGACY_RECIPE_SLUGS, slug) ? [slug, LEGACY_RECIPE_SLUGS[slug]] : [slug];
+}
+
+/** Resolve a reviewed key to the current public catalogue's spelling. */
+export function findRecipeBySlug<T extends { slug: string }>(slug: string, catalogue: T[]): T | undefined {
+  for (const alias of slugAliases(slug)) {
+    const recipe = catalogue.find(row => row.slug === alias);
+    if (recipe) return recipe;
+  }
+  return undefined;
 }
