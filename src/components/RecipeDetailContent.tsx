@@ -12,8 +12,11 @@ import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNot
 import { recipeReaderStep } from '@/features/recipes/mappers/recipeReaderText';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
+import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
+import type { RecipeLink } from '@/features/recipes/recipeLinks';
 
 export interface RecipeDetailContentProps {
+  pairingLinks?: RecipeLink[];
   recipe: Partial<Provenance> & EditorialGuidance & {
     meal_role?: string | null
     dish_type?: string | null
@@ -77,7 +80,7 @@ const getUnitLabel = (unit?: string | { code?: string; name?: string; display_na
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false,
-  deferHeavySections = true, heroPriority = false }: RecipeDetailContentProps) {
+  deferHeavySections = true, heroPriority = false, pairingLinks }: RecipeDetailContentProps) {
   // Defer heavy sections to reduce initial paint cost on iPad
   const recipeId = recipe?.id;
   const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
@@ -339,7 +342,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             {generatePairingSuggestions(recipe).map((tip: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span>•</span>
-                <span>{tip}</span>
+                <span><PairingSuggestion text={tip} recipes={pairingLinks} /></span>
               </li>
             ))}
           </ul>

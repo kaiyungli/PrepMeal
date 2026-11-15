@@ -78,7 +78,7 @@ export default function RecipeDetail({ recipe, error, related = null }) {
         <div className="min-h-screen bg-[#F8F3E8]">
           <div className="max-w-[800px] mx-auto py-6 px-4">
             {/* Standalone page: full recipe in server HTML, hero is the LCP image */}
-            <RecipeDetailContent recipe={safeRecipe} showAds deferHeavySections={false} heroPriority />
+            <RecipeDetailContent recipe={safeRecipe} pairingLinks={related?.reviewedPairings} showAds deferHeavySections={false} heroPriority />
             <RelatedRecipeLinks related={related} />
           </div>
         </div>

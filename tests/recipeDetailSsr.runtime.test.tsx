@@ -28,6 +28,8 @@ vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics: () => () => {} }));
 
 import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
+import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
+import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
 
 const RECIPE = {
   id: 'recipe-a', slug: 'garlic-napa', name: '蒜蓉娃娃菜', description: '清甜帶蒜香', base_servings: 1,
@@ -41,6 +43,35 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it('links the named pairing in server HTML and prioritizes the same dish below', () => {
+    const [id, review] = Object.entries(REVIEWED_RECIPE_PAIRINGS)[0];
+    const current = { ...RECIPE, id, pairing_suggestions: [review.suggestion] };
+    const target = { id: review.recipeIds[0], slug: 'broccoli-current-slug', name: '蒜蓉西蘭花', meal_role: 'veg_side' };
+    const related = selectRelatedRecipes(current, [target]);
+    const html = renderToString(<RecipeDetail recipe={current} related={related} error={null} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
+    const pairing = heading.parentElement!;
+    expect(pairing.querySelector('a')?.getAttribute('href')).toBe('/recipes/broccoli-current-slug');
+    expect(pairing.textContent).toContain(review.suggestion);
+    expect(container.querySelector('#related-recipes')?.parentElement?.querySelector('a')?.getAttribute('href'))
+      .toBe('/recipes/broccoli-current-slug');
+  });
+  it('keeps plain copy when the public catalogue is unavailable', () => {
+    const text = '可配蒜蓉西蘭花及白飯。';
+    const html = renderToString(<PairingSuggestion text={text} />);
+    expect(html).toBe(text);
+  });
+  it('treats dish names as literal text and escapes URL path segments', () => {
+    const text = '可配菜式（A）及菜式A+B；菜式A+B。';
+    const html = renderToString(<PairingSuggestion text={text} recipes={[
+      { name: '菜式A+B', slug: 'a/b' }, { name: '菜式（A）', slug: 'a' },
+    ]} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    expect(container.textContent).toBe(text);
+    expect([...container.querySelectorAll('a')].map(a => a.getAttribute('href')))
+      .toEqual(['/recipes/a', '/recipes/a%2Fb', '/recipes/a%2Fb']);
+  });
   it.each([
     [0, '0'], [1.25, '1.25'], [null, '-'], [undefined, '-'],
     [-1, '-'], [Number.NaN, '-'], [Number.POSITIVE_INFINITY, '-'],
@@ -113,7 +144,7 @@ describe('Recipe detail server HTML', () => {
   });
   it('returns notFound for an absent primary recipe even when recommendations are available', async () => {
     vi.mocked(loadRecipeDetail).mockResolvedValueOnce({ recipe: null, error: 'Recipe not found' });
-    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ slug: 'other', name: '其他菜', meal_role: null,
+    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ id: 'other', slug: 'other', name: '其他菜', meal_role: null,
       is_complete_meal: false, primary_protein: null, cuisine: null }]);
     expect(await getStaticProps({ params: { id: 'missing' } })).toEqual({ notFound: true, revalidate: 300 });
   });
