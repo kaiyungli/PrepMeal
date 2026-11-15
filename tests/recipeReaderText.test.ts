@@ -12,7 +12,7 @@ describe('reader-facing recipe steps', () => {
   });
   it('describes the water-only tomato preparation consistently and preserves its total', () => {
     expect(recipeReaderGuidance('全份350毫升水分前段少量炒番茄與後段煮湯使用，不在兩段各加一份。'))
-      .toBe('先從350毫升水中取少量煮番茄，再加入餘下的水煮湯；兩段用水合共350毫升。');
+      .toBe('先從350毫升水中取少量煮番茄，再加入餘下的水煮湯。');
   });
   it('clarifies separate staple portions without changing named dishes or unrelated copy', () => {
     expect(recipeReaderGuidance('可配「豉汁蒸排骨」與「蒜蓉生菜」，再按需要配主食；本頁的湯不是另外的飯量。'))

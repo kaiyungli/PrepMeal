@@ -64,7 +64,8 @@ describe('Recipe detail server HTML', () => {
     expect(relatedLinks.slice(0, expected.length).map(a => a.getAttribute('href'))).toEqual(expected);
     expect(html).not.toContain('本頁的湯不是另外的飯量');
     if (current.slug === 'tomato-fish-fillet-soup-xhs') {
-      expect(html).toContain('兩段用水合共350毫升');
+      expect(html).toContain('先從350毫升水中取少量煮番茄，再加入餘下的水煮湯。');
+      expect(html).not.toContain('兩段用水合共350毫升');
       expect(html).not.toContain('前段少量炒番茄');
     }
     if (current.slug === 'steamed-fish') {
