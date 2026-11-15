@@ -9,6 +9,7 @@ import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
+import { recipeReaderStep } from '@/features/recipes/mappers/recipeReaderText';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
 
@@ -261,7 +262,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                     {stepNo}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{stepText}</p>
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{recipeReaderStep(stepText)}</p>
                     {stepTime > 0 && (
                       <span className="text-xs mt-1 block" style={{ color: '#AA7A50' }}>
                         ⏱ {Math.floor(stepTime / 60)}分鐘
@@ -300,11 +301,11 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               <div className="text-xs" style={{ color: '#AA7A50' }}>蛋白質(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.carbs_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.carbs_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>碳水(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.fat_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.fat_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>脂肪(g)</div>
             </div>
           </div>

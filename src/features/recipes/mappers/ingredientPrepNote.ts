@@ -6,7 +6,8 @@ export function ingredientPrepNote(value: string | null | undefined): string {
   const notes = value.split(/\r?\n/).flatMap(line => {
     const summary = line.match(/^\d{2}-\d{2}\s+.*\(([^)]+)\)\s*$/);
     if (summary) return states[summary[1]] ? [states[summary[1]]] : [];
-    const note = line.replace(/^\d{2}-\d{2}[：:]\s*/, '').trim();
+    const note = line.replace(/^\d{2}-\d{2}[：:]\s*/, '')
+      .replace(/；本次重新訂定用量(?=[；。]|$)/g, '').trim();
     if (!note || note === '按表中生／熟／瀝水狀態備料；用量為每人份。') return [];
     // These lines describe import conversions rather than preparation.
     if (/^(合併採用編定參考克重|來源杯約)/.test(note)) return [];

@@ -41,6 +41,32 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it.each([
+    [0, '0'], [1.25, '1.25'], [null, '-'], [undefined, '-'],
+    [-1, '-'], [Number.NaN, '-'], [Number.POSITIVE_INFINITY, '-'],
+  ])('renders carbohydrate and fat value %s consistently', (value, expected) => {
+    const html = renderToString(<RecipeDetailContent
+      recipe={{ ...RECIPE, carbs_g: value, fat_g: value }} deferHeavySections={false} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    for (const label of ['碳水(g)', '脂肪(g)']) {
+      const caption = [...container.querySelectorAll('div')].find(el => el.textContent === label)!;
+      expect(caption.previousElementSibling?.textContent).toBe(expected);
+    }
+  });
+  it('renders reader-facing preparation and both step shapes without altering raw data', () => {
+    const recipe = { ...RECIPE,
+      ingredients: [{ name: '蒜頭', quantity: 1, unit: 'clove', prep_note: '去皮淨重，切碎；本次重新訂定用量' }],
+      steps: ['加入水120毫升及鹽1/8茶匙，攪拌均勻；本版不另改蛋水比例。',
+        { step_no: 2, text: '如水分不足，須補少量水並記錄實際用量，不能乾燒。' }],
+    };
+    const original = JSON.stringify(recipe);
+    const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
+    expect(html).toContain('去皮淨重，切碎');
+    expect(html).toContain('加入水120毫升及鹽1/8茶匙，攪拌均勻。');
+    expect(html).toContain('如水分不足，逐少補水，不能乾燒。');
+    expect(html).not.toMatch(/本次重新訂定用量|本版不另改蛋水比例|記錄實際用量/);
+    expect(JSON.stringify(recipe)).toBe(original);
+  });
   it('renders reader-facing notes and preserves source links without an editorial update date', () => {
     const provenance = recipeProvenance({
       consistency_review: { public_notes: ['圖片為AI生成示意圖。'] },
