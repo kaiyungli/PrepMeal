@@ -9,7 +9,7 @@ import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
-import { recipeReaderStep } from '@/features/recipes/mappers/recipeReaderText';
+import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
 import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
@@ -329,7 +329,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             {generateCookingTips(recipe).map((tip: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span>•</span>
-                <span>{tip}</span>
+                <span>{recipeReaderGuidance(tip)}</span>
               </li>
             ))}
           </ul>
@@ -342,7 +342,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             {generatePairingSuggestions(recipe).map((tip: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span>•</span>
-                <span><PairingSuggestion text={tip} recipes={pairingLinks} /></span>
+                <span><PairingSuggestion text={recipeReaderGuidance(tip)} recipes={pairingLinks} /></span>
               </li>
             ))}
           </ul>

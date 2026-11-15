@@ -30,6 +30,7 @@ import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
 import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
+import { recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 const RECIPE = {
   id: 'recipe-a', slug: 'garlic-napa', name: '蒜蓉娃娃菜', description: '清甜帶蒜香', base_servings: 1,
@@ -43,6 +44,36 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it.each(Object.entries(REVIEWED_RECIPE_PAIRINGS))('renders matching inline and related links for reviewed recipe %s', (id, review) => {
+    const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
+    const guidance = payload.find((entry: { id: string }) => entry.id === id).guidance;
+    const current = { ...catalogue.find((recipe: { id: string }) => recipe.id === id),
+      cooking_tips: guidance.cooking_tips, pairing_suggestions: guidance.pairing_suggestions };
+    const original = JSON.stringify(current);
+    const related = selectRelatedRecipes(current, catalogue);
+    const html = renderToString(<RecipeDetail recipe={current} related={related} error={null} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
+    const section = heading.parentElement!;
+    const hrefs = [...section.querySelectorAll('a')].map(a => a.getAttribute('href'));
+    const expected = review.recipeIds.map(target => `/recipes/${encodeURIComponent(catalogue.find((recipe: { id: string }) => recipe.id === target).slug)}`);
+    expect(hrefs).toEqual(expected);
+    expect(section.textContent).toContain(recipeReaderGuidance(review.suggestion));
+    const relatedLinks = [...container.querySelector('#related-recipes')!.parentElement!.querySelectorAll('a')];
+    expect(relatedLinks.slice(0, expected.length).map(a => a.getAttribute('href'))).toEqual(expected);
+    expect(html).not.toContain('本頁的湯不是另外的飯量');
+    if (current.slug === 'tomato-fish-fillet-soup-xhs') {
+      expect(html).toContain('兩段用水合共350毫升');
+      expect(html).not.toContain('前段少量炒番茄');
+    }
+    if (current.slug === 'steamed-fish') {
+      expect(html).toContain('確認魚柳最厚處中心熟透');
+      expect(html).not.toContain('魚肉變白並容易分開後取出');
+    }
+    if (current.slug === 'scallion-omelette-xhs') expect(html).toContain('中心蛋液完全凝固');
+    expect(JSON.stringify(current)).toBe(original);
+  });
   it('links the named pairing in server HTML and prioritizes the same dish below', () => {
     const [id, review] = Object.entries(REVIEWED_RECIPE_PAIRINGS)[0];
     const current = { ...RECIPE, id, pairing_suggestions: [review.suggestion] };
