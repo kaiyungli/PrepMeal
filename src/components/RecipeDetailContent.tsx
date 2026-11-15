@@ -9,10 +9,14 @@ import { formatUnit } from '@/lib/formatters';
 import FavoriteButton from './FavoriteButton'
 import RecipeProvenance from './RecipeProvenance';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
+import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 import type { RecipeProvenance as Provenance } from '@/features/recipes/mappers/recipeProvenance';
 import type { EditorialGuidance } from '@/features/recipes/mappers/recipeEditorialGuidance';
+import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
+import type { RecipeLink } from '@/features/recipes/recipeLinks';
 
 export interface RecipeDetailContentProps {
+  pairingLinks?: RecipeLink[];
   recipe: Partial<Provenance> & EditorialGuidance & {
     meal_role?: string | null
     dish_type?: string | null
@@ -76,7 +80,7 @@ const getUnitLabel = (unit?: string | { code?: string; name?: string; display_na
 };
 
 export default function RecipeDetailContent({ recipe, isLoading, isFavorite, favoriteLoading, onFavoriteClick, showAds = false,
-  deferHeavySections = true, heroPriority = false }: RecipeDetailContentProps) {
+  deferHeavySections = true, heroPriority = false, pairingLinks }: RecipeDetailContentProps) {
   // Defer heavy sections to reduce initial paint cost on iPad
   const recipeId = recipe?.id;
   const [deferredSections, setDeferredSections] = useState({ recipeId, ready: false });
@@ -216,7 +220,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                   <div style={{ color: '#3A2010' }}>
                     <span>{ing.display_name || ing.name || ing.slug}</span>
                     {ing.is_optional && <span className="ml-2 text-xs" style={{ color: '#AA7A50' }}>選配</span>}
-                    {ingredientPrepNote(ing.prep_note) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note)}</p>}
+                    {ingredientPrepNote(ing.prep_note, ing.unit) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note, ing.unit)}</p>}
                   </div>
                   <span className="shrink-0 ml-3" style={{ color: '#AA7A50' }}>{formatAmountText(ing.quantity, ing.unit, getUnitLabel(ing.unit), { roundCount: false })}</span>
                 </li>
@@ -261,7 +265,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                     {stepNo}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{stepText}</p>
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{recipeReaderStep(stepText, recipe.id)}</p>
                     {stepTime > 0 && (
                       <span className="text-xs mt-1 block" style={{ color: '#AA7A50' }}>
                         ⏱ {Math.floor(stepTime / 60)}分鐘
@@ -300,11 +304,11 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
               <div className="text-xs" style={{ color: '#AA7A50' }}>蛋白質(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.carbs_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.carbs_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>碳水(g)</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ backgroundColor: 'white' }}>
-              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{recipe.fat_g || '-'}</div>
+              <div className="text-xl font-bold" style={{ color: '#9B6035' }}>{nutritionValue(recipe.fat_g) ?? '-'}</div>
               <div className="text-xs" style={{ color: '#AA7A50' }}>脂肪(g)</div>
             </div>
           </div>
@@ -325,7 +329,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             {generateCookingTips(recipe).map((tip: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span>•</span>
-                <span>{tip}</span>
+                <span>{recipeReaderGuidance(tip)}</span>
               </li>
             ))}
           </ul>
@@ -338,7 +342,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
             {generatePairingSuggestions(recipe).map((tip: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span>•</span>
-                <span>{tip}</span>
+                <span><PairingSuggestion text={recipeReaderGuidance(tip)} recipes={pairingLinks} /></span>
               </li>
             ))}
           </ul>

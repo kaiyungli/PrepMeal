@@ -28,6 +28,9 @@ vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics: () => () => {} }));
 
 import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
+import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
+import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
+import { recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 const RECIPE = {
   id: 'recipe-a', slug: 'garlic-napa', name: '蒜蓉娃娃菜', description: '清甜帶蒜香', base_servings: 1,
@@ -41,6 +44,121 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
+  it.each(Object.entries(REVIEWED_RECIPE_PAIRINGS))('renders matching inline and related links for reviewed recipe %s', (id, review) => {
+    const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
+    const guidance = payload.find((entry: { id: string }) => entry.id === id).guidance;
+    const current = { ...catalogue.find((recipe: { id: string }) => recipe.id === id),
+      cooking_tips: guidance.cooking_tips, pairing_suggestions: guidance.pairing_suggestions };
+    const original = JSON.stringify(current);
+    const related = selectRelatedRecipes(current, catalogue);
+    const html = renderToString(<RecipeDetail recipe={current} related={related} error={null} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
+    const section = heading.parentElement!;
+    const hrefs = [...section.querySelectorAll('a')].map(a => a.getAttribute('href'));
+    const expected = review.recipeIds.map(target => `/recipes/${encodeURIComponent(catalogue.find((recipe: { id: string }) => recipe.id === target).slug)}`);
+    expect(hrefs).toEqual(expected);
+    expect(section.textContent).toContain(recipeReaderGuidance(review.suggestion));
+    const relatedLinks = [...container.querySelector('#related-recipes')!.parentElement!.querySelectorAll('a')];
+    expect(relatedLinks.slice(0, expected.length).map(a => a.getAttribute('href'))).toEqual(expected);
+    expect(html).not.toContain('本頁的湯不是另外的飯量');
+    if (current.slug === 'tomato-fish-fillet-soup-xhs') {
+      expect(html).toContain('先從350毫升水中取少量煮番茄，再加入餘下的水煮湯。');
+      expect(html).not.toContain('兩段用水合共350毫升');
+      expect(html).not.toContain('前段少量炒番茄');
+    }
+    if (current.slug === 'steamed-fish') {
+      expect(html).toContain('確認魚柳最厚處中心熟透');
+      expect(html).not.toContain('魚肉變白並容易分開後取出');
+    }
+    if (current.slug === 'scallion-omelette-xhs') expect(html).toContain('中心蛋液完全凝固');
+    if (current.slug === 'borscht-style-beef-vegetable-soup') {
+      expect(html).toContain('最後加入材料表的鹽及黑胡椒調味。');
+      expect(html).not.toContain('鹽少許和黑胡椒少許');
+    }
+    if (current.slug === 'prepmeal-batch3-16') {
+      expect(html).toContain('豉油、糖及約8毫升水');
+      expect(html).not.toContain('豉油、糖及材料表的清水');
+    }
+    if (current.slug === 'stir-fried-gai-lan-xhs') {
+      expect(html).toContain('糖屬選配，可先試味再決定是否加入');
+      expect(html).not.toContain('無限加糖');
+    }
+    if (current.slug === 'garlic-lettuce') expect(html).toContain('鑊內太乾時才逐少加入選配水，最多20毫升');
+    expect(JSON.stringify(current)).toBe(original);
+  });
+  it('links the named pairing in server HTML and prioritizes the same dish below', () => {
+    const [id, review] = Object.entries(REVIEWED_RECIPE_PAIRINGS)[0];
+    const current = { ...RECIPE, id, pairing_suggestions: [review.suggestion] };
+    const target = { id: review.recipeIds[0], slug: 'broccoli-current-slug', name: '蒜蓉西蘭花', meal_role: 'veg_side' };
+    const related = selectRelatedRecipes(current, [target]);
+    const html = renderToString(<RecipeDetail recipe={current} related={related} error={null} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
+    const pairing = heading.parentElement!;
+    expect(pairing.querySelector('a')?.getAttribute('href')).toBe('/recipes/broccoli-current-slug');
+    expect(pairing.textContent).toContain(review.suggestion);
+    expect(container.querySelector('#related-recipes')?.parentElement?.querySelector('a')?.getAttribute('href'))
+      .toBe('/recipes/broccoli-current-slug');
+  });
+  it('keeps plain copy when the public catalogue is unavailable', () => {
+    const text = '可配蒜蓉西蘭花及白飯。';
+    const html = renderToString(<PairingSuggestion text={text} />);
+    expect(html).toBe(text);
+  });
+  it('treats dish names as literal text and escapes URL path segments', () => {
+    const text = '可配菜式（A）及菜式A+B；菜式A+B。';
+    const html = renderToString(<PairingSuggestion text={text} recipes={[
+      { name: '菜式A+B', slug: 'a/b' }, { name: '菜式（A）', slug: 'a' },
+    ]} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    expect(container.textContent).toBe(text);
+    expect([...container.querySelectorAll('a')].map(a => a.getAttribute('href')))
+      .toEqual(['/recipes/a', '/recipes/a%2Fb', '/recipes/a%2Fb']);
+  });
+  it.each([
+    [0, '0'], [1.25, '1.25'], [null, '-'], [undefined, '-'],
+    [-1, '-'], [Number.NaN, '-'], [Number.POSITIVE_INFINITY, '-'],
+  ])('renders carbohydrate and fat value %s consistently', (value, expected) => {
+    const html = renderToString(<RecipeDetailContent
+      recipe={{ ...RECIPE, carbs_g: value, fat_g: value }} deferHeavySections={false} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    for (const label of ['碳水(g)', '脂肪(g)']) {
+      const caption = [...container.querySelectorAll('div')].find(el => el.textContent === label)!;
+      expect(caption.previousElementSibling?.textContent).toBe(expected);
+    }
+  });
+  it('renders reader-facing preparation and both step shapes without altering raw data', () => {
+    const recipe = { ...RECIPE,
+      ingredients: [{ name: '蒜頭', quantity: 1, unit: 'clove', prep_note: '去皮淨重，切碎；本次重新訂定用量' }],
+      steps: ['加入水120毫升及鹽1/8茶匙，攪拌均勻；本版不另改蛋水比例。',
+        { step_no: 2, text: '如水分不足，須補少量水並記錄實際用量，不能乾燒。' }],
+    };
+    const original = JSON.stringify(recipe);
+    const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
+    expect(html).toContain('去皮淨重，切碎');
+    expect(html).toContain('加入水120毫升及鹽1/8茶匙，攪拌均勻。');
+    expect(html).toContain('如水分不足，逐少補水，不能乾燒。');
+    expect(html).not.toMatch(/本次重新訂定用量|本版不另改蛋水比例|記錄實際用量/);
+    expect(JSON.stringify(recipe)).toBe(original);
+  });
+  it('clarifies count-based egg preparation while preserving gram-based notes and quantities', () => {
+    const recipe = { ...RECIPE, ingredients: [
+      { name: '雞蛋', quantity: 1, unit: { code: 'egg' }, prep_note: '去殼蛋液重量，約1隻' },
+      { name: '蛋液', quantity: 50, unit: { code: 'g' }, prep_note: '去殼蛋液重量，約1隻' },
+    ] };
+    const original = JSON.stringify(recipe);
+    const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const rows = [...container.querySelectorAll('li')].filter(row => row.textContent?.includes('去殼'));
+    expect(rows).toHaveLength(2);
+    expect(rows[0].textContent).toContain('去殼打散');
+    expect(rows[0].textContent).toContain('1');
+    expect(rows[1].textContent).toContain('去殼蛋液重量，約1隻');
+    expect(rows[1].textContent).toContain('50');
+    expect(JSON.stringify(recipe)).toBe(original);
+  });
   it('renders reader-facing notes and preserves source links without an editorial update date', () => {
     const provenance = recipeProvenance({
       consistency_review: { public_notes: ['圖片為AI生成示意圖。'] },
@@ -87,7 +205,7 @@ describe('Recipe detail server HTML', () => {
   });
   it('returns notFound for an absent primary recipe even when recommendations are available', async () => {
     vi.mocked(loadRecipeDetail).mockResolvedValueOnce({ recipe: null, error: 'Recipe not found' });
-    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ slug: 'other', name: '其他菜', meal_role: null,
+    vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ id: 'other', slug: 'other', name: '其他菜', meal_role: null,
       is_complete_meal: false, primary_protein: null, cuisine: null }]);
     expect(await getStaticProps({ params: { id: 'missing' } })).toEqual({ notFound: true, revalidate: 300 });
   });

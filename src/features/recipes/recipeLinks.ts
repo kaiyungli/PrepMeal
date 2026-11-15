@@ -1,7 +1,10 @@
 // Crawlable internal links between recipe pages: the full recipe index on
 // /recipes and the "配咩食" / "同類食譜" links on every recipe page.
+import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
 
 export interface LinkRecipe {
+  id?: string | number;
+  pairing_suggestions?: string[];
   slug: string;
   name: string;
   meal_role?: string | null;
@@ -79,14 +82,23 @@ const PAIR_ROLES: Record<string, string[]> = {
   complete_meal: ['veg_side', 'soup'],
 };
 
-export interface RelatedRecipes { pairWith: RecipeLink[]; similar: RecipeLink[] }
+export interface RelatedRecipes { pairWith: RecipeLink[]; similar: RecipeLink[]; reviewedPairings?: RecipeLink[] }
 
 export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[], count = 4): RelatedRecipes {
   const others = uniqueRecipes(catalogue).filter(r => r.slug !== current.slug);
   const role = roleOf(current);
 
   const pairRoles = PAIR_ROLES[role] || [];
-  const pairWith = pick(others.filter(r => pairRoles.includes(roleOf(r))), `${current.slug}:pair`, count);
+  const reviewed = current.id == null ? undefined : REVIEWED_RECIPE_PAIRINGS[String(current.id)];
+  const reviewedPairings = reviewed && current.pairing_suggestions?.includes(reviewed.suggestion)
+    ? reviewed.recipeIds.flatMap(id => {
+      const target = others.find(recipe => String(recipe.id) === id);
+      return target ? [toLink(target)] : [];
+    }).slice(0, count) : [];
+  const preferred = new Set(reviewedPairings.map(recipe => recipe.slug));
+  const pairWith = [...reviewedPairings, ...pick(
+    others.filter(r => !preferred.has(r.slug) && pairRoles.includes(roleOf(r))),
+    `${current.slug}:pair`, count - reviewedPairings.length)];
 
   const used = new Set(pairWith.map(r => r.slug));
   const sameRole = others.filter(r => !used.has(r.slug) && roleOf(r) === role);
@@ -100,5 +112,5 @@ export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[
     const selected = new Set(similar.map(r => r.slug));
     similar.push(...pick(sameRole.filter(r => !selected.has(r.slug)), `${current.slug}:role`, count - similar.length));
   }
-  return { pairWith, similar };
+  return { pairWith, similar, ...(reviewedPairings.length ? { reviewedPairings } : {}) };
 }

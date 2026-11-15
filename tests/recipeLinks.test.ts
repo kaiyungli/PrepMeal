@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { groupRecipeIndex, selectRelatedRecipes, type LinkRecipe } from '@/features/recipes/recipeLinks';
+import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
 
 const r = (slug: string, meal_role: string, extra: Partial<LinkRecipe> = {}): LinkRecipe =>
   ({ slug, name: `菜${slug}`, meal_role, is_complete_meal: meal_role === 'complete_meal', primary_protein: null, cuisine: 'chinese', ...extra });
@@ -33,6 +34,33 @@ describe('recipe index', () => {
 });
 
 describe('related recipes', () => {
+  it('resolves all reviewed named dishes by public recipe ID and prioritizes them', () => {
+    const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
+    const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
+    for (const [id, review] of Object.entries(REVIEWED_RECIPE_PAIRINGS)) {
+      expect(payload.find((entry: { id: string }) => entry.id === id).guidance.pairing_suggestions).toContain(review.suggestion);
+      for (const target of review.recipeIds) {
+        expect(review.suggestion).toContain(catalogue.find((recipe: LinkRecipe) => recipe.id === target).name);
+      }
+      const current = { ...catalogue.find((recipe: LinkRecipe) => recipe.id === id), pairing_suggestions: [review.suggestion] };
+      const related = selectRelatedRecipes(current, [...catalogue, ...catalogue]);
+      expect(related.reviewedPairings?.map(recipe => recipe.slug)).toEqual(review.recipeIds.map(
+        target => catalogue.find((recipe: LinkRecipe) => recipe.id === target).slug));
+      expect(related.pairWith.slice(0, review.recipeIds.length)).toEqual(related.reviewedPairings);
+      const slugs = [...related.pairWith, ...related.similar].map(recipe => recipe.slug);
+      expect(new Set(slugs).size).toBe(slugs.length);
+      expect(slugs).not.toContain(current.slug);
+    }
+  });
+  it('uses live slugs, skips absent public targets and rejects stale editorial copy', () => {
+    const [id, review] = Object.entries(REVIEWED_RECIPE_PAIRINGS)[0];
+    const current = r('current', 'protein_side', { id, pairing_suggestions: [review.suggestion] });
+    const renamed = r('new-public-slug', 'veg_side', { id: review.recipeIds[0], name: '蒜蓉西蘭花' });
+    expect(selectRelatedRecipes(current, [renamed]).reviewedPairings).toEqual([{ slug: renamed.slug, name: renamed.name }]);
+    expect(selectRelatedRecipes(current, CATALOGUE).reviewedPairings).toBeUndefined();
+    expect(selectRelatedRecipes({ ...current, pairing_suggestions: ['新的配搭建議'] }, [renamed]).reviewedPairings).toBeUndefined();
+    expect(selectRelatedRecipes(current, [renamed], 0).pairWith).toEqual([]);
+  });
   it('pairs a main dish with vegetables or soup and never links to itself', () => {
     const { pairWith, similar } = selectRelatedRecipes(CATALOGUE[0], CATALOGUE);
     expect(pairWith.length).toBe(4);

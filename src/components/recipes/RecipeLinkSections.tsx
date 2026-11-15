@@ -1,7 +1,28 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { RecipeIndexGroup, RecipeLink, RelatedRecipes } from '@/features/recipes/recipeLinks';
 
 const recipeHref = (slug: string) => `/recipes/${encodeURIComponent(slug)}`;
+
+/** Link only explicit reviewed public dishes; leave all other prose unchanged. */
+export function PairingSuggestion({ text, recipes = [] }: { text: string; recipes?: RecipeLink[] }) {
+  const links = recipes.filter(recipe => recipe.name && text.includes(recipe.name));
+  if (!links.length) return <>{text}</>;
+  const names = [...new Set(links.map(recipe => recipe.name))].sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(names.map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  for (const match of text.matchAll(pattern)) {
+    const index = match.index!;
+    parts.push(text.slice(cursor, index));
+    const recipe = links.find(recipe => recipe.name === match[0])!;
+    parts.push(<Link key={index} href={recipeHref(recipe.slug)} prefetch={false}
+      className="underline underline-offset-2 hover:text-[#9B6035] focus-visible:outline-2 focus-visible:outline-offset-2">{match[0]}</Link>);
+    cursor = index + match[0].length;
+  }
+  parts.push(text.slice(cursor));
+  return <>{parts}</>;
+}
 
 function LinkList({ recipes }: { recipes: RecipeLink[] }) {
   return (
