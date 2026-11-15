@@ -78,8 +78,8 @@ describe('Recipe detail server HTML', () => {
       expect(html).not.toContain('鹽少許和黑胡椒少許');
     }
     if (current.slug === 'prepmeal-batch3-16') {
-      expect(html).toContain('豉油、糖及材料表的清水');
-      expect(html).not.toContain('約8毫升水');
+      expect(html).toContain('豉油、糖及約8毫升水');
+      expect(html).not.toContain('豉油、糖及材料表的清水');
     }
     if (current.slug === 'stir-fried-gai-lan-xhs') {
       expect(html).toContain('糖屬選配，可先試味再決定是否加入');

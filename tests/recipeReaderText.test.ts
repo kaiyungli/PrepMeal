@@ -8,10 +8,9 @@ describe('reader-facing recipe steps', () => {
     expect(recipeReaderStep(step, 'other-recipe')).toBe(step);
     expect(recipeReaderStep(step)).toBe(step);
   });
-  it('aligns ginger-scallion tofu sauce water with its table without rounding other recipes', () => {
+  it('preserves the approved approximate water amount in ginger-scallion tofu', () => {
     const step = '加入蔥綠、豉油、糖及約8毫升水，煮至冒泡約30秒。';
-    expect(recipeReaderStep(step, '7975d3e4-6b85-428a-b7f0-8a9468d4302a'))
-      .toBe('加入蔥綠、豉油、糖及材料表的清水，煮至冒泡約30秒。');
+    expect(recipeReaderStep(step, '7975d3e4-6b85-428a-b7f0-8a9468d4302a')).toBe(step);
     expect(recipeReaderStep(step, 'other-recipe')).toBe(step);
   });
   it('keeps optional sugar and water guidance in natural reader-facing language', () => {

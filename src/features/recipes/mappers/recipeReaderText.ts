@@ -11,9 +11,6 @@ export function recipeReaderStep(text: string, recipeId?: string | number): stri
   if (recipeId === '52043e65-9e24-44a7-9434-dbc66ce36c02') {
     return copy.replaceAll('最後加入鹽少許和黑胡椒少許調味即可。', '最後加入材料表的鹽及黑胡椒調味。');
   }
-  if (recipeId === '7975d3e4-6b85-428a-b7f0-8a9468d4302a') {
-    return copy.replaceAll('豉油、糖及約8毫升水', '豉油、糖及材料表的清水');
-  }
   return copy;
 }
 
