@@ -2,6 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 describe('reader-facing recipe steps', () => {
+  it('ties the borscht seasoning wording to its stated ingredient amounts only for that recipe', () => {
+    const step = '最後加入鹽少許和黑胡椒少許調味即可。';
+    expect(recipeReaderStep(step, '52043e65-9e24-44a7-9434-dbc66ce36c02')).toBe('最後加入材料表的鹽及黑胡椒調味。');
+    expect(recipeReaderStep(step, 'other-recipe')).toBe(step);
+    expect(recipeReaderStep(step)).toBe(step);
+  });
+  it('aligns ginger-scallion tofu sauce water with its table without rounding other recipes', () => {
+    const step = '加入蔥綠、豉油、糖及約8毫升水，煮至冒泡約30秒。';
+    expect(recipeReaderStep(step, '7975d3e4-6b85-428a-b7f0-8a9468d4302a'))
+      .toBe('加入蔥綠、豉油、糖及材料表的清水，煮至冒泡約30秒。');
+    expect(recipeReaderStep(step, 'other-recipe')).toBe(step);
+  });
+  it('keeps optional sugar and water guidance in natural reader-facing language', () => {
+    expect(recipeReaderGuidance('糖是選配，不為去苦而無限加糖；鹽與水仍按材料表總量。'))
+      .toBe('糖屬選配，可先試味再決定是否加入；鹽及水按材料表用量。');
+    expect(recipeReaderGuidance('最多20毫升是選配水上限，不是每次必加；鹽按材料表調味，不再加生抽。'))
+      .toBe('鑊內太乾時才逐少加入選配水，最多20毫升；按材料表加入鹽調味。');
+  });
   it('uses the existing fish tip completion condition in the serving step', () => {
     expect(recipeReaderStep('魚肉變白並容易分開後取出，倒走多餘魚水。'))
       .toBe('確認魚柳最厚處中心熟透、魚肉容易分開後取出，倒走多餘魚水。');

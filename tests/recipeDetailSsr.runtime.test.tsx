@@ -73,6 +73,19 @@ describe('Recipe detail server HTML', () => {
       expect(html).not.toContain('魚肉變白並容易分開後取出');
     }
     if (current.slug === 'scallion-omelette-xhs') expect(html).toContain('中心蛋液完全凝固');
+    if (current.slug === 'borscht-style-beef-vegetable-soup') {
+      expect(html).toContain('最後加入材料表的鹽及黑胡椒調味。');
+      expect(html).not.toContain('鹽少許和黑胡椒少許');
+    }
+    if (current.slug === 'prepmeal-batch3-16') {
+      expect(html).toContain('豉油、糖及材料表的清水');
+      expect(html).not.toContain('約8毫升水');
+    }
+    if (current.slug === 'stir-fried-gai-lan-xhs') {
+      expect(html).toContain('糖屬選配，可先試味再決定是否加入');
+      expect(html).not.toContain('無限加糖');
+    }
+    if (current.slug === 'garlic-lettuce') expect(html).toContain('鑊內太乾時才逐少加入選配水，最多20毫升');
     expect(JSON.stringify(current)).toBe(original);
   });
   it('links the named pairing in server HTML and prioritizes the same dish below', () => {
@@ -128,6 +141,22 @@ describe('Recipe detail server HTML', () => {
     expect(html).toContain('加入水120毫升及鹽1/8茶匙，攪拌均勻。');
     expect(html).toContain('如水分不足，逐少補水，不能乾燒。');
     expect(html).not.toMatch(/本次重新訂定用量|本版不另改蛋水比例|記錄實際用量/);
+    expect(JSON.stringify(recipe)).toBe(original);
+  });
+  it('clarifies count-based egg preparation while preserving gram-based notes and quantities', () => {
+    const recipe = { ...RECIPE, ingredients: [
+      { name: '雞蛋', quantity: 1, unit: { code: 'egg' }, prep_note: '去殼蛋液重量，約1隻' },
+      { name: '蛋液', quantity: 50, unit: { code: 'g' }, prep_note: '去殼蛋液重量，約1隻' },
+    ] };
+    const original = JSON.stringify(recipe);
+    const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
+    const container = document.createElement('div'); container.innerHTML = html;
+    const rows = [...container.querySelectorAll('li')].filter(row => row.textContent?.includes('去殼'));
+    expect(rows).toHaveLength(2);
+    expect(rows[0].textContent).toContain('去殼打散');
+    expect(rows[0].textContent).toContain('1');
+    expect(rows[1].textContent).toContain('去殼蛋液重量，約1隻');
+    expect(rows[1].textContent).toContain('50');
     expect(JSON.stringify(recipe)).toBe(original);
   });
   it('renders reader-facing notes and preserves source links without an editorial update date', () => {

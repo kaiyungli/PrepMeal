@@ -220,7 +220,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                   <div style={{ color: '#3A2010' }}>
                     <span>{ing.display_name || ing.name || ing.slug}</span>
                     {ing.is_optional && <span className="ml-2 text-xs" style={{ color: '#AA7A50' }}>選配</span>}
-                    {ingredientPrepNote(ing.prep_note) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note)}</p>}
+                    {ingredientPrepNote(ing.prep_note, ing.unit) && <p className="mt-1 text-sm" style={{ color: '#AA7A50' }}>{ingredientPrepNote(ing.prep_note, ing.unit)}</p>}
                   </div>
                   <span className="shrink-0 ml-3" style={{ color: '#AA7A50' }}>{formatAmountText(ing.quantity, ing.unit, getUnitLabel(ing.unit), { roundCount: false })}</span>
                 </li>
@@ -265,7 +265,7 @@ export default function RecipeDetailContent({ recipe, isLoading, isFavorite, fav
                     {stepNo}
                   </div>
                   <div className="flex-1 pt-1">
-                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{recipeReaderStep(stepText)}</p>
+                    <p className="leading-relaxed" style={{ color: '#3A2010' }}>{recipeReaderStep(stepText, recipe.id)}</p>
                     {stepTime > 0 && (
                       <span className="text-xs mt-1 block" style={{ color: '#AA7A50' }}>
                         ⏱ {Math.floor(stepTime / 60)}分鐘

@@ -1,6 +1,14 @@
 import { expect, it } from 'vitest';
 import { ingredientPrepNote } from '@/features/recipes/mappers/ingredientPrepNote';
 
+it('clarifies the known count-based egg note without removing weight guidance on gram rows', () => {
+  const note = '去殼蛋液重量，約1隻';
+  expect(ingredientPrepNote(note, { code: 'egg' })).toBe('去殼打散');
+  expect(ingredientPrepNote(note, 'egg')).toBe('去殼打散');
+  expect(ingredientPrepNote(note, { code: 'g' })).toBe(note);
+  expect(ingredientPrepNote(note)).toBe(note);
+});
+
 it('removes the editorial quantity marker while preserving preparation and weight notes', () => {
   expect(ingredientPrepNote('去皮淨重，切碎；本次重新訂定用量')).toBe('去皮淨重，切碎');
   expect(ingredientPrepNote('切碎；本次重新訂定用量；避免切成蓉')).toBe('切碎；避免切成蓉');
