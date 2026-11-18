@@ -1,4 +1,4 @@
-// Reviewed named pairings for three ten-recipe editorial batches (one soup has no named dish).
+// Reviewed named pairings for four ten-recipe editorial batches (one soup has no named dish).
 // Immutable IDs resolve through the public catalogue, including after slug changes.
 // Exact copy matching prevents a future editorial change from using stale pairings.
 export const REVIEWED_RECIPE_PAIRINGS: Record<string, { suggestion: string; recipeIds: string[] }> = {
@@ -187,6 +187,72 @@ export const REVIEWED_RECIPE_PAIRINGS: Record<string, { suggestion: string; reci
     "recipeIds": [
       "2aaec965-feb8-4b14-a62a-5633ab8ceb19",
       "4b437b93-e3ec-4399-8f76-de6dac058eb7"
+    ]
+  },
+  "0aeb44cd-f33f-4b3a-bc87-8a7581c026a6": {
+    "suggestion": "可配「清炒椰菜」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "2aaec965-feb8-4b14-a62a-5633ab8ceb19",
+      "4b437b93-e3ec-4399-8f76-de6dac058eb7"
+    ]
+  },
+  "6d9a3e2d-31d9-4621-aef0-856038c1373b": {
+    "suggestion": "可配「清炒菜心」及白飯；如要加湯，可選「菠菜豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "b5402590-4c59-41b6-9a2d-69ccabb3b991",
+      "c5ba657e-15c2-4d48-9d33-bfc70ead04e9"
+    ]
+  },
+  "a2308bb5-667b-4221-b25d-a64f7c1069af": {
+    "suggestion": "可配「豆腐雞蛋白菜卷」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。",
+    "recipeIds": [
+      "78974fcd-ba79-402e-b6aa-2e0572c708e8"
+    ]
+  },
+  "aa83c327-b63c-4e3e-bcf5-1e99469c0ddf": {
+    "suggestion": "可配「孜然香辣烤豆腐」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。",
+    "recipeIds": [
+      "8c5a7274-16a5-492f-a7f3-1877c7ed9017"
+    ]
+  },
+  "706424ea-b414-44ae-972f-c93d6c39ff4f": {
+    "suggestion": "可配「蒜蓉西蘭花」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "1007e867-9dc6-44ab-868e-46b297f4710b",
+      "4b437b93-e3ec-4399-8f76-de6dac058eb7"
+    ]
+  },
+  "e45784b5-3593-4509-acc3-a2e02d3089b6": {
+    "suggestion": "可配「清炒菜心」及白飯；如要加湯，可選「菠菜豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "b5402590-4c59-41b6-9a2d-69ccabb3b991",
+      "c5ba657e-15c2-4d48-9d33-bfc70ead04e9"
+    ]
+  },
+  "10fdbf67-c387-49b9-8b48-ee775454eff5": {
+    "suggestion": "可配「清炒椰菜」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "2aaec965-feb8-4b14-a62a-5633ab8ceb19",
+      "4b437b93-e3ec-4399-8f76-de6dac058eb7"
+    ]
+  },
+  "bedaefbc-1601-411d-8aba-dc8ef234e96b": {
+    "suggestion": "可配「蒜蓉生菜」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。",
+    "recipeIds": [
+      "201affc0-a59d-4012-9656-346d4a1d5fff",
+      "4b437b93-e3ec-4399-8f76-de6dac058eb7"
+    ]
+  },
+  "30aaa4c4-48d3-4e2b-8d43-82e48087965b": {
+    "suggestion": "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。",
+    "recipeIds": [
+      "709f465d-f8db-439f-a76b-1991283aa424"
+    ]
+  },
+  "793ba258-c35b-4c26-a7cc-e08b64541dcf": {
+    "suggestion": "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。",
+    "recipeIds": [
+      "709f465d-f8db-439f-a76b-1991283aa424"
     ]
   }
 };

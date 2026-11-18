@@ -47,8 +47,17 @@ describe('Recipe detail server HTML', () => {
   it.each(Object.entries(REVIEWED_RECIPE_PAIRINGS))('renders matching inline and related links for reviewed recipe %s', (id, review) => {
     const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
     const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
-    const guidance = payload.find((entry: { id: string }) => entry.id === id).guidance;
-    const current = { ...catalogue.find((recipe: { id: string }) => recipe.id === id),
+    const patch = payload.find((entry: { id: string }) => entry.id === id);
+    const guidance = patch.guidance;
+    const target = structuredClone(catalogue.find((recipe: { id: string }) => recipe.id === id));
+    Object.assign(target, patch.recipe_updates);
+    for (const step of patch.changed_steps) target.steps.find((s: { step_no: number }) => s.step_no === step.step_no).text = step.text;
+    for (const change of patch.ingredient_changes) {
+      target.ingredients = target.ingredients.filter((ingredient: { id: string }) => ingredient.id !== change.new.id);
+      target.ingredients.push(change.new);
+    }
+    const current = { ...target,
+      ingredients: target.ingredients.map((i: { note: string; optional: boolean }) => ({ ...i, prep_note: i.note, is_optional: i.optional })),
       cooking_tips: guidance.cooking_tips, pairing_suggestions: guidance.pairing_suggestions };
     const original = JSON.stringify(current);
     const related = selectRelatedRecipes(current, catalogue);
@@ -86,6 +95,18 @@ describe('Recipe detail server HTML', () => {
       expect(html).not.toContain('無限加糖');
     }
     if (current.slug === 'garlic-lettuce') expect(html).toContain('鑊內太乾時才逐少加入選配水，最多20毫升');
+    if (current.slug === 'black-pepper-beef-xhs') {
+      expect(html).toContain('材料表的全部生粉');
+      expect(html).toContain('生粉全部用來醃肉');
+      expect(html).not.toContain('生抽、生粉與黑胡椒先分出');
+    }
+    if (current.slug === 'tofu-egg-pancake') {
+      expect(html).toContain('豆腐須在拌入蛋液前瀝乾');
+      expect(html).toContain('材料表的鹽');
+      expect(html).toContain('材料表的食油');
+      expect(html).toContain('食物中心達75°C並維持至少30秒後上碟');
+      expect(html).not.toContain('拌勻後的蛋糊可直接下鑊');
+    }
     expect(JSON.stringify(current)).toBe(original);
   });
   it('links the named pairing in server HTML and prioritizes the same dish below', () => {
