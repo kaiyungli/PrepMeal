@@ -2,6 +2,42 @@ import { describe, expect, it } from 'vitest';
 import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 describe('reader-facing recipe steps', () => {
+  it('splits the listed lemon-butter fish pepper between seasoning and sauce only for that recipe', () => {
+    const id = 'fe923544-02da-4eba-a61e-436366cf0d59';
+    const first = '魚柳用廚紙抹乾，兩面灑少量鹽和黑胡椒。';
+    expect(recipeReaderStep(first, id)).toBe('魚柳用廚紙抹乾，兩面灑上材料表的鹽及部分黑胡椒。');
+    expect(recipeReaderStep('加入檸檬汁和少量黑椒，轉小火輕輕拌成醬汁。', id)).toBe('加入檸檬汁及餘下黑胡椒，轉小火輕輕拌成醬汁。');
+    expect(recipeReaderStep(first, 'other')).toBe(first);
+    const optionalGarlic = '如選用蒜頭，先切碎；平底鑊加入牛油，小火炒香蒜頭，未選用則直接煮溶牛油。';
+    expect(recipeReaderStep(optionalGarlic, id)).toBe(optionalGarlic);
+  });
+  it('aligns tomato egg tofu oil and egg completion wording without changing the water amount', () => {
+    const id = '4355baeb-12b9-483b-9d61-696fcdb505ab';
+    expect(recipeReaderStep('鍋中加入少量油，中火炒番茄 2 分鐘至出汁。', id)).toBe('鍋中加入材料表的食油，中火炒番茄約2分鐘至出汁。');
+    const end = '蛋液剛熟即關火，上碟即可。';
+    expect(recipeReaderStep(end, id)).toBe('蛋液完全凝固後關火，上碟即可。');
+    expect(recipeReaderStep(end, 'other')).toBe(end);
+    const water = '加入豆腐和 2 湯匙水，輕輕推勻。';
+    expect(recipeReaderStep(water, id)).toBe(water);
+  });
+  it('removes editorial exclusions while keeping potato pork oil split and cooking completion', () => {
+    const id = '789c4dc7-e011-4813-8385-0da404e939e4';
+    const prep = '豬肉碎備用，不另加鹽、白胡椒或未列出的醃料。';
+    expect(recipeReaderStep(prep, id)).toBe('豬肉碎備用。');
+    expect(recipeReaderStep(prep, 'other')).toBe(prep);
+    expect(recipeReaderGuidance('一茶匙半油分兩段用，豬肉碎炒散至全熟才加蔥，不另添醃料或鹽。'))
+      .toBe('一茶匙半油分兩次使用；豬肉碎炒散至全熟後，再加入蔥花。');
+    const cooking = '加入生抽1茶匙、老抽半茶匙及糖1茶匙，炒至豬肉完全熟透、薯仔軟熟。';
+    expect(recipeReaderStep(cooking, id)).toBe(cooking);
+  });
+  it('retains useful shrimp egg water allocation and the radish egg completion condition in natural tips', () => {
+    expect(recipeReaderGuidance('45毫升水分成蛋液15毫升與鍋內30毫升，不在兩處各倒一次全份。'))
+      .toBe('先取15毫升水拌入蛋液，餘下30毫升用來煮豆腐和蝦仁。');
+    expect(recipeReaderGuidance('菜脯已有鹹味，本版不另加鹽；翻面後確認中心蛋液全熟才上碟。'))
+      .toBe('菜脯已有鹹味，毋須另加鹽；翻面後確認中心蛋液全熟才上碟。');
+    expect(recipeReaderGuidance('通菜瀝乾後快炒，腐乳汁已提供鹹味，不另加未列的鹽或生抽。'))
+      .toBe('通菜瀝乾後快炒；腐乳已有鹹味，毋須再加鹽或生抽。');
+  });
   it('matches salmon oil and celery garlic preparation to their ingredient tables only for those recipes', () => {
     const oil = '平底鑊加入少量油，中火加熱。';
     expect(recipeReaderStep(oil, '98324881-2f67-4fea-8c6b-95631c644f86')).toBe('平底鑊加入材料表的橄欖油，中火加熱。');
