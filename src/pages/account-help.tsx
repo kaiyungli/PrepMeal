@@ -17,6 +17,14 @@ export default function AccountHelp() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const busy = useRef(false);
+  const modeVersion = useRef(0);
+  useEffect(() => {
+    // A response belongs to the action that requested it, including when the
+    // user switches away and back before that request finishes.
+    modeVersion.current += 1;
+    setMessage('');
+    setError('');
+  }, [resend]);
   const until = useRef(0);
   const alive = useRef(true);
   useEffect(() => {
@@ -29,6 +37,7 @@ export default function AccountHelp() {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (busy.current || Date.now() < until.current) return;
+    const requestVersion = modeVersion.current;
     busy.current = true; setPending(true); setMessage(''); setError('');
     // Apply cooldown to failures too; the server remains responsible for rate limits.
     until.current = Date.now() + EMAIL_COOLDOWN_MS;
@@ -39,8 +48,8 @@ export default function AccountHelp() {
         ? await supabase.auth.resend({ type: 'signup', email: email.trim(), options: { emailRedirectTo: emailCallbackUrl(window.location.origin, 'signup', getRedirectUrl({ windowOrRouter: router })) } })
         : await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: emailCallbackUrl(window.location.origin, 'recovery') });
       if (result.error) throw result.error;
-      if (alive.current) setMessage(EMAIL_REQUEST_MESSAGE);
-    } catch (reason) { if (alive.current) setError(accountHelpError(reason)); }
+      if (alive.current && requestVersion === modeVersion.current) setMessage(EMAIL_REQUEST_MESSAGE);
+    } catch (reason) { if (alive.current && requestVersion === modeVersion.current) setError(accountHelpError(reason)); }
     finally { busy.current = false; if (alive.current) setPending(false); }
   };
   return <Layout><Head><meta name="referrer" content="no-referrer" key="referrer" /></Head><SEO title={resend ? '重發驗證郵件' : '忘記密碼'} noIndex />

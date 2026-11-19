@@ -130,3 +130,40 @@ it('does not update a changed account while server user validation is pending', 
   expect(state.update).not.toHaveBeenCalled();
   expect(screen.getByRole('alert').textContent).toContain('無效');
 });
+
+it('clears completed feedback when switching modes, retains email/cooldown and waits for an actual resend', async () => {
+  vi.useFakeTimers();
+  const { container, rerender } = render(<Help />);
+  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } });
+  await act(async () => { fireEvent.submit(container.querySelector('form')!); });
+  expect(screen.getByRole('status').textContent).toContain('如該地址');
+  state.query = { mode: 'resend', redirect: '/generate?draft=1' };
+  rerender(<Help />);
+  expect(screen.getByRole('heading', { name: '重發驗證郵件' })).toBeTruthy();
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect((screen.getByLabelText('Email') as HTMLInputElement).value).toBe('test@example.com');
+  expect(screen.getByRole('button').hasAttribute('disabled')).toBe(true);
+  fireEvent.submit(container.querySelector('form')!);
+  expect(state.resend).not.toHaveBeenCalled();
+  await act(async () => { vi.advanceTimersByTime(61_000); });
+  await act(async () => { fireEvent.submit(container.querySelector('form')!); });
+  expect(state.resend).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('status').textContent).toContain('如該地址');
+});
+it.each([{ error: null, switchBack: false }, { error: { status: 429 }, switchBack: false }, { error: null, switchBack: true }, { error: { status: 429 }, switchBack: true }])('ignores late old-mode responses: %j', async ({ error, switchBack }) => {
+  let resolve!: (value: { error: typeof error }) => void;
+  state.reset.mockReturnValue(new Promise(done => { resolve = done; }));
+  const { container, rerender } = render(<Help />);
+  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } });
+  fireEvent.submit(container.querySelector('form')!);
+  state.query = { mode: 'resend' }; rerender(<Help />);
+  if (switchBack) { state.query = {}; rerender(<Help />); }
+  await act(async () => resolve({ error }));
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByRole('alert')).toBeNull();
+  state.query = {}; rerender(<Help />);
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(state.resend).not.toHaveBeenCalled();
+});

@@ -37,3 +37,15 @@ Issue #139 remains open. Synthetic auth tests do **not** verify delivery or actu
 - Installed @supabase/auth-js 2.98.0 source: URL initialization saves the session then schedules PASSWORD_RECOVERY; the listener must be registered before component effects.
 
 The retained `docs/qa/account-recovery-20261026.md` is historical #125 evidence, not fresh validation of this branch.
+
+## Preview UX follow-up
+
+The live Preview exposed stale feedback when Next reused account-help while switching between reset and resend. Mode changes now clear completed success/error feedback and invalidate the prior mode's pending response, including switching away and back before it settles. Email input, shared cooldown, request guard and safe continuation are retained. No request is sent by switching mode.
+
+Re-ran all 17 account-recovery runtime tests (five new mode-switch cases), TypeScript, scoped ESLint and whitespace check: passed. Cases cover completed reset success followed by resend, retained email/cooldown, actual resend only after cooldown, and late success/error under the other mode or after switching back. Diff reviewed. The earlier production build predates this small feedback-state change; full catalogue build was not repeated. Hosted email/configuration acceptance is tracked separately by the parent; these local tests do not establish real delivery.
+
+### Parent's bounded live Preview evidence
+
+At Preview SHA `464a175` (READY), parent verified login → forgot-password navigation, accepted reset submission and retention of the shared 60-second cooldown when switching reset/resend. Bounded Supabase logs from 2026-11-19 14:26–14:30 UTC contain a `mail.send` event with `mail_type=recovery` for the explicitly designated controlled inbox. This is a send event, not inbox-delivery confirmation.
+
+The live resend attempt showed the generic error; browser console recorded `TypeError: Failed to fetch` in `auth.resend`. It is **not** a resend-delivery pass. No CAPTCHA/bot block was observed. Inbox confirmation, real password replacement and subsequent login remain unverified. The inbox address is intentionally omitted from this public record. These observations predate the feedback-state amendment; the amendment still requires live Preview recheck.
