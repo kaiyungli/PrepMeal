@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { renderToString } from 'react-dom/server';
+import { generatePairingSuggestions } from '@/lib/recipes/recipeGuidance';
 
 vi.mock('next/image', () => ({ default: ({ alt }: { alt: string }) => <span role="img" aria-label={alt} /> }));
 vi.mock('@/components/ads/AdSlot', () => ({ RecipeDetailInArticleAd: () => null }));
@@ -45,10 +46,12 @@ describe('recipe detail content hook order and deferred rendering', () => {
       pairing_suggestions: ['配清炒菜心，按需要加飯。'], editorial_sources: [{ title: 'Cooking reference', url: 'https://www.cfs.gov.hk/' }] };
     const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
     expect(html).toContain(recipe.cooking_tips[0]);
-    expect(html).toContain(recipe.pairing_suggestions[0]);
+    expect(html).toContain(generatePairingSuggestions(recipe)[0]);
+    expect(html).not.toContain(recipe.pairing_suggestions[0]);
     render(<RecipeDetailContent recipe={recipe} />);
     expect(screen.getByText(recipe.cooking_tips[0])).toBeTruthy();
-    expect(screen.getByText(recipe.pairing_suggestions[0])).toBeTruthy();
+    expect(screen.getByText(generatePairingSuggestions(recipe)[0])).toBeTruthy();
+    expect(screen.queryByText(recipe.pairing_suggestions[0])).toBeNull();
     expect(screen.queryByText(/水滾後才放入食材/)).toBeNull();
     const source = screen.getByRole('link', { name: 'Cooking reference' });
     expect(source.getAttribute('href')).toBe('https://www.cfs.gov.hk/');

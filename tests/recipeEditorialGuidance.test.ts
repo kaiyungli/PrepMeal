@@ -61,7 +61,9 @@ describe('reviewed recipe guidance', () => {
       expect(normalized.cooking_tips).toHaveLength(2);
       expect(normalized.pairing_suggestions).toHaveLength(1);
       expect(generateCookingTips(normalized)).toEqual(entry.guidance.cooking_tips);
-      expect(generatePairingSuggestions(normalized)).toEqual(entry.guidance.pairing_suggestions);
+      // Stored editorial metadata remains intact; rendering now uses catalogue results or generic role guidance.
+      expect(generatePairingSuggestions(normalized)).toEqual(generatePairingSuggestions({ ...normalized, pairing_suggestions: [] }));
+      expect(generatePairingSuggestions(normalized, [{ name: '當前公開配菜' }])).toEqual(['可從「當前公開配菜」中選擇配搭，按整餐份量安排。']);
       expect(normalized).not.toHaveProperty('source_data');
       expect(JSON.stringify(normalized)).not.toMatch(/internal_ledger|source_fingerprint|desk_review_not_test_cooked/);
     }
