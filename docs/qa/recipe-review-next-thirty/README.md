@@ -5,8 +5,8 @@ Status: Draft for user review. Thirty public pages returned HTTP 200 on
 This is a desk review, not a cooking trial. No DB write, merge or deployment.
 
 **12 recipes receive presentation-only wording changes (15 exact replacements);
-17 recipes remain unchanged; one recipe remains unchanged pending seasoning
-quantity/allocation review.** No numerical ingredient quantity, nutrition,
+17 recipes remain unchanged; one recipe has a separately approved seasoning reference reformulation
+applied under `cream-seasoning/` on 2026-11-19; readback verified.** No numerical ingredient quantity, nutrition,
 stored source data, source fingerprint or common pairing rule is changed.
 
 ## All thirty outcomes
@@ -42,7 +42,7 @@ stored source data, source fingerprint or common pairing rule is changed.
 | 27 | 孜然香辣烤豆腐 / cumin-spicy-baked-tofu | 修改文句 | 精簡重複上碟句；保留前步內外滾熱、邊緣金黃及原貼士避免燶黑。 |
 | 28 | 希臘檸檬香草焗雞配薯仔（簡易版） / prepmeal-batch3-11 | 修改文句 | 移除第一步重複份量／鍋具／補水段；後續焗盤、水到雞件半高及乾盤補水仍保留。 |
 | 29 | 德式煙肉薯仔暖沙律（普通黃芥末版） / prepmeal-batch2-23 | 修改文句 | 「本版」改成直接材料說明；保留黃芥末種類及非等量替代提醒。 |
-| 30 | 忌廉菠菜蘑菇雞肉飯 / creamy-spinach-mushroom-chicken-rice | 待確認；未改 | 暫不修改；鹽／黑胡椒各1茶匙與步驟只用部分的餘量安排待確認。 |
+| 30 | 忌廉菠菜蘑菇雞肉飯 / creamy-spinach-mushroom-chicken-rice | 已批准；待執行 | 用戶已批準鹽總量1/4茶匙、黑胡椒1/8茶匙，先用一半、餘下試味加入；交易及營養重算見cream-seasoning，尚待執行。 |
 
 ## Exact before/after text
 
@@ -69,15 +69,15 @@ fish/chicken/egg completion conditions.
 | 希臘檸檬香草焗雞配薯仔（簡易版） / 步驟 | 焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。 | 焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。 |
 | 德式煙肉薯仔暖沙律（普通黃芥末版） / 貼士 | 本版用普通美式黃芥末醬，不把芥末籽醬或辣芥末直接當同一份量替代。 | 使用普通美式黃芥末醬；芥末籽醬或辣芥末味道不同，不宜直接按相同份量替代。 |
 
-## Pending data clarification — not silently repaired
+## Approved data reformulation — executed separately
 
-忌廉菠菜蘑菇雞肉飯 (`creamy-spinach-mushroom-chicken-rice`): the live material
-table lists salt 1tsp and black pepper 1tsp. The first step uses part of both,
-but the final step only says to taste before serving, without assigning the
-remainder. This is an allocation/quantity-basis question, not a confirmed new
-replacement quantity. This batch does not force the remainder into the sauce,
-change either number, alter nutrition, or mark the question resolved. The user
-should review the seasoning basis before a later data correction is prepared.
+忌廉菠菜蘑菇雞肉飯 (`creamy-spinach-mushroom-chicken-rice`): the user has
+approved salt 0.25tsp and black pepper 0.125tsp total, half first and the
+remainder after tasting. The bounded before/after fixture, guarded apply and
+rollback SQL, recomputed reference nutrition and tests are in `cream-seasoning/`.
+This preparation did not execute a hosted write. It is a reference recipe
+reformulation, not test-cooked. The earlier unresolved allocation is addressed
+by the approved target. Hosted execution and DB readback completed; remote page cache verification remains outstanding.
 
 ## Validation scope
 
