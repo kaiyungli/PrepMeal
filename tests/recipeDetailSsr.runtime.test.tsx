@@ -105,6 +105,19 @@ describe('Recipe detail server HTML', () => {
       expect(html).toContain('食物中心達75°C並維持至少30秒後上碟');
       expect(html).not.toContain('拌勻後的蛋糊可直接下鑊');
     }
+    if (current.slug === 'pan-fried-salmon') expect(html).toContain('平底鑊加入材料表的橄欖油，中火加熱。');
+    if (current.slug === 'teriyaki-salmon') {
+      expect(html).toContain('三文魚熟透後盛起，按需要另配白飯。');
+      expect(html).not.toContain('可配 180 克白飯食用');
+    }
+    if (current.slug === 'celery-lily-stir-fry') expect(html).toContain('鑊中加入食油1茶匙及蒜片，中火炒香。');
+    if (current.slug === 'beef-onion-stir-fry') {
+      expect(html).toContain('冷藏醃約10分鐘');
+      expect(html).toContain('餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒');
+      expect(html).toContain('中心達75°C並維持至少30秒');
+      expect(html).not.toContain('本版不加入');
+      expect(html).not.toContain('本版不額外加入');
+    }
     expect(JSON.stringify(current)).toBe(original);
   });
   it('ignores stale named database pairings when the catalogue is unavailable', () => {

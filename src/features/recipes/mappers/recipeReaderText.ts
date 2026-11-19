@@ -8,6 +8,24 @@ export function recipeReaderStep(text: string, recipeId?: string | number): stri
     .replaceAll('魚肉變白並容易分開後取出，倒走多餘魚水。', '確認魚柳最厚處中心熟透、魚肉容易分開後取出，倒走多餘魚水。')
     .replaceAll('小心翻面，再煎 1 至 2 分鐘至兩面金黃。', '小心翻面，再煎約1至2分鐘，至兩面金黃、中心蛋液完全凝固；時間按蛋餅厚度調整。');
   // Recipe-specific wording must not introduce instructions into unrelated dishes.
+  if (recipeId === '98324881-2f67-4fea-8c6b-95631c644f86') {
+    return copy.replaceAll('平底鑊加入少量油，中火加熱。', '平底鑊加入材料表的橄欖油，中火加熱。');
+  }
+  if (recipeId === '42cacc97-ca27-4bbf-8f30-9b284160e223') {
+    return copy.replaceAll('三文魚剛熟後盛起，可配 180 克白飯食用。', '三文魚熟透後盛起，按需要另配白飯。');
+  }
+  if (recipeId === '66129a6f-9968-4737-b2ae-68c4b0dd3821') {
+    return copy.replaceAll('鑊中加入食油1茶匙及切碎的蒜頭，中火炒香。', '鑊中加入食油1茶匙及蒜片，中火炒香。');
+  }
+  if (recipeId === '68abae98-7609-4337-ab3b-4e4a6597bd76') {
+    return copy
+      .replaceAll('牛肉切薄片，拌入生抽1茶匙及材料表的一部分黑胡椒，冷藏醃10分鐘；本版不加入生粉。',
+        '牛肉切薄片，拌入生抽1茶匙及部分黑胡椒，冷藏醃約10分鐘。')
+      .replaceAll('洋蔥切絲，材料表的食油及餘下生抽、蠔油備用；本版不加入蒜頭。',
+        '洋蔥切絲，食油、餘下生抽及蠔油備用。')
+      .replaceAll('加入餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒拌勻；火太猛先調低，不另加未列出的醃料。',
+        '加入餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒拌勻；如火力太大，可先調低。');
+  }
   if (recipeId === '52043e65-9e24-44a7-9434-dbc66ce36c02') {
     return copy.replaceAll('最後加入鹽少許和黑胡椒少許調味即可。', '最後加入材料表的鹽及黑胡椒調味。');
   }
@@ -37,5 +55,7 @@ export function recipeReaderGuidance(text: string): string {
     .replaceAll('生抽、生粉與黑胡椒先分出醃肉部分，餘下才在炒肉時加，不重複用全份。',
       '生粉全部用來醃肉；生抽和黑胡椒分兩次加入，先用部分醃肉，餘下留待炒肉時加入。')
     .replaceAll('牛肉前段轉色後仍須回鑊煮熟，鹽是選配，不在已有蠔油汁外再無限加鹽。',
-      '牛肉回鑊後仍須煮熟；蠔油已有鹹味，先試味再決定是否加入選配鹽。');
+      '牛肉回鑊後仍須煮熟；蠔油已有鹹味，先試味再決定是否加入選配鹽。')
+    .replaceAll('按材料表使用生抽、蠔油與黑胡椒；本版不額外加入未列出的蒜蓉或生粉。',
+      '生抽和黑胡椒分兩次加入，先用部分醃肉，餘下留待炒肉時與蠔油一同加入。');
 }

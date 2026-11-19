@@ -2,6 +2,38 @@ import { describe, expect, it } from 'vitest';
 import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 describe('reader-facing recipe steps', () => {
+  it('matches salmon oil and celery garlic preparation to their ingredient tables only for those recipes', () => {
+    const oil = '平底鑊加入少量油，中火加熱。';
+    expect(recipeReaderStep(oil, '98324881-2f67-4fea-8c6b-95631c644f86')).toBe('平底鑊加入材料表的橄欖油，中火加熱。');
+    expect(recipeReaderStep(oil, 'other')).toBe(oil);
+    const garlic = '鑊中加入食油1茶匙及切碎的蒜頭，中火炒香。';
+    expect(recipeReaderStep(garlic, '66129a6f-9968-4737-b2ae-68c4b0dd3821')).toBe('鑊中加入食油1茶匙及蒜片，中火炒香。');
+    expect(recipeReaderStep(garlic, 'other')).toBe(garlic);
+  });
+  it('keeps teriyaki salmon as a fish dish without assigning an unlisted fixed rice portion', () => {
+    const step = '三文魚剛熟後盛起，可配 180 克白飯食用。';
+    expect(recipeReaderStep(step, '42cacc97-ca27-4bbf-8f30-9b284160e223')).toBe('三文魚熟透後盛起，按需要另配白飯。');
+    expect(recipeReaderStep(step, 'other')).toBe(step);
+  });
+  it('keeps onion beef seasoning allocation and doneness while removing editorial exclusions', () => {
+    const id = '68abae98-7609-4337-ab3b-4e4a6597bd76';
+    expect(recipeReaderStep('牛肉切薄片，拌入生抽1茶匙及材料表的一部分黑胡椒，冷藏醃10分鐘；本版不加入生粉。', id))
+      .toBe('牛肉切薄片，拌入生抽1茶匙及部分黑胡椒，冷藏醃約10分鐘。');
+    expect(recipeReaderStep('加入餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒拌勻；火太猛先調低，不另加未列出的醃料。', id))
+      .toBe('加入餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒拌勻；如火力太大，可先調低。');
+    const safety = '繼續翻炒至牛肉完全熟透，中心達75°C並維持至少30秒後盛起；時間按肉片厚度調整。';
+    expect(recipeReaderStep(safety, id)).toBe(safety);
+    expect(recipeReaderGuidance('按材料表使用生抽、蠔油與黑胡椒；本版不額外加入未列出的蒜蓉或生粉。'))
+      .toBe('生抽和黑胡椒分兩次加入，先用部分醃肉，餘下留待炒肉時與蠔油一同加入。');
+  });
+  it('preserves chicken-wing safety and the useful 120/15/105ml fish-sauce water split', () => {
+    const wing = '加蓋續煮，時間按雞翼大小調整；以探針量度最厚肉位，避開骨頭，達75°C並維持30秒。';
+    expect(recipeReaderStep(wing, 'af939a33-ebe9-4b4a-ae2d-07c46ba2331d')).toBe(wing);
+    const water = '先從全份120毫升水中取15毫升冷水，拌勻1茶匙生粉留用；魚柳抹乾，拌入材料表的鹽和白胡椒。';
+    expect(recipeReaderStep(water, '00049f07-c924-4c47-9a48-ff373b6c445b')).toBe(water);
+    const rest = '小鍋加入粟米粒及餘下105毫升水，中火煮約3分鐘至粟米熱透。';
+    expect(recipeReaderStep(rest, '00049f07-c924-4c47-9a48-ff373b6c445b')).toBe(rest);
+  });
   it('allocates all black-pepper beef starch to marinating without adding a new slurry', () => {
     const step = '牛肉切片，用材料表所列的部分生抽、生粉及黑胡椒拌勻，醃10分鐘。';
     expect(recipeReaderStep(step, '6d9a3e2d-31d9-4621-aef0-856038c1373b'))
