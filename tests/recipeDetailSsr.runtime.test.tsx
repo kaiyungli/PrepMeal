@@ -70,6 +70,45 @@ describe('Recipe detail server HTML', () => {
     const relatedLinks = [...container.querySelector('#related-recipes')!.parentElement!.querySelectorAll('a')];
     expect(relatedLinks.slice(0, expected.length).map(a => a.getAttribute('href'))).toEqual(expected);
     expect(html).not.toContain('本頁的湯不是另外的飯量');
+    if (current.slug === 'beef-chow-fun') {
+      expect(html).toContain('牛肉回鑊炒至全熟，河粉熱透，即可上碟。');
+    }
+    if (current.slug === 'luncheon-meat-scrambled-egg') {
+      expect(html).toContain('蛋液完全凝固後立即上碟，避免久炒。');
+      expect(html).toContain('午餐肉已有鹹味，毋須另加鹽；雞蛋完全凝固後才上碟。');
+    }
+    if (current.slug === 'pumpkin-soup') {
+      expect(html).toContain('最後加入材料表的鹽及黑胡椒調味。');
+    }
+    if (current.slug === 'prepmeal-batch4-22') {
+      expect(html).toContain('米用約1000毫升水浸20分鐘瀝乾；同時雞絲拌生抽、糖、粟粉、紹酒及1/4茶匙油，雪櫃醃20分鐘。南瓜切1厘米粒、冬菇切片、蒜蔥切碎。');
+    }
+    if (current.slug === 'tuna-corn-baked-potato') {
+      expect(html).toContain('吞拿魚瀝乾，與粟米粒和材料表的黑胡椒拌勻。');
+    }
+    if (current.slug === 'tuna-tofu-egg-pancake') {
+      expect(html).toContain('平底鑊加入材料表的食油，中小火加熱。');
+      expect(html).toContain('吞拿魚與豆腐先瀝乾，餅糊才較容易定形；生粉按材料表用量加入。');
+    }
+    if (current.slug === 'miso-baked-fish-fillet') {
+      expect(html).toContain('魚柳用廚紙抹乾備用。');
+    }
+    if (current.slug === 'omelette') {
+      expect(html).toContain('雞蛋打入碗中，加入牛奶及材料表的鹽和黑胡椒，打至蛋白蛋黃完全混合。');
+    }
+    if (current.slug === 'steamed-beef-tofu-baby-napa-rice') {
+      expect(html).toContain('用乾淨食物溫度計檢查最厚或重疊處的牛肉，中心達75°C並維持至少30秒。牛肉熟透後及時取出，避免久蒸變韌。');
+      expect(html).toContain('將蒸菜、豆腐、牛肉及盤汁配熟飯食用。');
+    }
+    if (current.slug === 'cumin-spicy-baked-tofu') {
+      expect(html).toContain('取出盛碟，不另淋油。');
+    }
+    if (current.slug === 'prepmeal-batch3-11') {
+      expect(html).toContain('焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。');
+    }
+    if (current.slug === 'prepmeal-batch2-23') {
+      expect(html).toContain('使用普通美式黃芥末醬；芥末籽醬或辣芥末味道不同，不宜直接按相同份量替代。');
+    }
     if (current.slug === 'tomato-fish-fillet-soup-xhs') {
       expect(html).toContain('先從350毫升水中取少量煮番茄，再加入餘下的水煮湯。');
       expect(html).not.toContain('兩段用水合共350毫升');

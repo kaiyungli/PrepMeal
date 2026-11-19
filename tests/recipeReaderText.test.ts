@@ -2,6 +2,48 @@ import { describe, expect, it } from 'vitest';
 import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 describe('reader-facing recipe steps', () => {
+  it('keeps listed seasoning amounts explicit without altering unrelated recipes', () => {
+    expect(recipeReaderStep('最後加入鹽約半茶匙和黑胡椒少許調味即可。', 'c33d2e50-6191-4830-8c20-368b188396e3')).toBe('最後加入材料表的鹽及黑胡椒調味。');
+    expect(recipeReaderStep('最後加入鹽約半茶匙和黑胡椒少許調味即可。', 'unrelated')).toBe('最後加入鹽約半茶匙和黑胡椒少許調味即可。');
+    expect(recipeReaderStep('吞拿魚瀝乾，與粟米粒和黑胡椒少許拌勻。', '8bb606da-1fa9-4a7b-b7c9-77a8c7286bce')).toBe('吞拿魚瀝乾，與粟米粒和材料表的黑胡椒拌勻。');
+    expect(recipeReaderStep('吞拿魚瀝乾，與粟米粒和黑胡椒少許拌勻。', 'unrelated')).toBe('吞拿魚瀝乾，與粟米粒和黑胡椒少許拌勻。');
+    expect(recipeReaderStep('雞蛋打入碗中，加入牛奶、鹽少許和黑椒少許，打至蛋白蛋黃完全混合。', '7a38108c-faf6-422c-b353-67581d940fb4')).toBe('雞蛋打入碗中，加入牛奶及材料表的鹽和黑胡椒，打至蛋白蛋黃完全混合。');
+    expect(recipeReaderStep('雞蛋打入碗中，加入牛奶、鹽少許和黑椒少許，打至蛋白蛋黃完全混合。', 'unrelated')).toBe('雞蛋打入碗中，加入牛奶、鹽少許和黑椒少許，打至蛋白蛋黃完全混合。');
+  });
+  it('preserves fully-set egg instructions and table oil for tuna pancakes', () => {
+    expect(recipeReaderStep('蛋剛熟仍滑嫩時立即上碟。', 'c987684d-6054-4a8e-8157-7634cbdda1e1')).toBe('蛋液完全凝固後立即上碟，避免久炒。');
+    expect(recipeReaderStep('蛋剛熟仍滑嫩時立即上碟。', 'unrelated')).toBe('蛋剛熟仍滑嫩時立即上碟。');
+    expect(recipeReaderStep('平底鑊加入少量油，中小火加熱。', '7bbaa915-bc87-4c6e-863c-206245a94af9')).toBe('平底鑊加入材料表的食油，中小火加熱。');
+    expect(recipeReaderStep('平底鑊加入少量油，中小火加熱。', 'unrelated')).toBe('平底鑊加入少量油，中小火加熱。');
+  });
+  it('keeps functional rice and tray preparation while removing duplicate editorial prose', () => {
+    expect(recipeReaderStep('米用約1000毫升水浸20分鐘瀝乾；同時雞絲拌生抽、糖、粟粉、紹酒及1/4茶匙油，雪櫃醃20分鐘。南瓜切1厘米粒、冬菇切片、蒜蔥切碎。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。', '07ae992e-ee0a-4002-b7b9-a8ec848d13da')).toBe('米用約1000毫升水浸20分鐘瀝乾；同時雞絲拌生抽、糖、粟粉、紹酒及1/4茶匙油，雪櫃醃20分鐘。南瓜切1厘米粒、冬菇切片、蒜蔥切碎。');
+    expect(recipeReaderStep('米用約1000毫升水浸20分鐘瀝乾；同時雞絲拌生抽、糖、粟粉、紹酒及1/4茶匙油，雪櫃醃20分鐘。南瓜切1厘米粒、冬菇切片、蒜蔥切碎。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。', 'unrelated')).toBe('米用約1000毫升水浸20分鐘瀝乾；同時雞絲拌生抽、糖、粟粉、紹酒及1/4茶匙油，雪櫃醃20分鐘。南瓜切1厘米粒、冬菇切片、蒜蔥切碎。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。');
+    expect(recipeReaderStep('魚柳用廚紙抹乾，放入焗盤。', 'dd1ee9ab-c33b-49e7-8fb0-769c6c908a69')).toBe('魚柳用廚紙抹乾備用。');
+    expect(recipeReaderStep('魚柳用廚紙抹乾，放入焗盤。', 'unrelated')).toBe('魚柳用廚紙抹乾，放入焗盤。');
+    expect(recipeReaderStep('焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。', '5ac57672-0c3c-4eec-8976-2f219e4c54ae')).toBe('焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。');
+    expect(recipeReaderStep('焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。', 'unrelated')).toBe('焗爐預熱180°C；雞件抹乾，不清洗生雞。薯仔切約3厘米角，雞件與薯仔在深焗盤單層排好。 份量按一人編定，選能容納材料的小型鍋具；湯汁煮食期間按蒸發量逐少補熱水，避免乾燒。');
+  });
+  it('removes audit prose without losing existing cooked-centre thresholds', () => {
+    expect(recipeReaderStep('牛肉回鑊炒至全熟，河粉熱透，即可上碟；本版不另加洋蔥或黑椒。', 'b43272f4-41a7-49b9-92cd-a273435cbf92')).toBe('牛肉回鑊炒至全熟，河粉熱透，即可上碟。');
+    expect(recipeReaderStep('牛肉回鑊炒至全熟，河粉熱透，即可上碟；本版不另加洋蔥或黑椒。', 'unrelated')).toBe('牛肉回鑊炒至全熟，河粉熱透，即可上碟；本版不另加洋蔥或黑椒。');
+    expect(recipeReaderStep('用乾淨食物溫度計檢查最厚或重疊處的牛肉，中心達75°C並維持至少30秒。這是本稿採用的保守熟度標準，薄牛肉熟透後應及時取出，避免繼續久蒸變韌。', '78e61036-69dc-4e9e-af32-da9a2f526031')).toBe('用乾淨食物溫度計檢查最厚或重疊處的牛肉，中心達75°C並維持至少30秒。牛肉熟透後及時取出，避免久蒸變韌。');
+    expect(recipeReaderStep('用乾淨食物溫度計檢查最厚或重疊處的牛肉，中心達75°C並維持至少30秒。這是本稿採用的保守熟度標準，薄牛肉熟透後應及時取出，避免繼續久蒸變韌。', 'unrelated')).toBe('用乾淨食物溫度計檢查最厚或重疊處的牛肉，中心達75°C並維持至少30秒。這是本稿採用的保守熟度標準，薄牛肉熟透後應及時取出，避免繼續久蒸變韌。');
+    expect(recipeReaderStep('將蒸菜、豆腐、牛肉及盤汁配熟飯食用。沒有額外調味料；若另加生抽、油、蛋或改用肥牛，需另計營養。', '78e61036-69dc-4e9e-af32-da9a2f526031')).toBe('將蒸菜、豆腐、牛肉及盤汁配熟飯食用。');
+    expect(recipeReaderStep('將蒸菜、豆腐、牛肉及盤汁配熟飯食用。沒有額外調味料；若另加生抽、油、蛋或改用肥牛，需另計營養。', 'unrelated')).toBe('將蒸菜、豆腐、牛肉及盤汁配熟飯食用。沒有額外調味料；若另加生抽、油、蛋或改用肥牛，需另計營養。');
+    expect(recipeReaderStep('不用追求油炸硬殼或大面積燶黑；取出盛碟，全部為一人份，不另淋油。', '8c5a7274-16a5-492f-a7f3-1877c7ed9017')).toBe('取出盛碟，不另淋油。');
+    expect(recipeReaderStep('不用追求油炸硬殼或大面積燶黑；取出盛碟，全部為一人份，不另淋油。', 'unrelated')).toBe('不用追求油炸硬殼或大面積燶黑；取出盛碟，全部為一人份，不另淋油。');
+  });
+  it('retains pasteurized-egg carbonara handling and useful cooking-water quantities', () => {
+    expect(recipeReaderStep('必須使用經巴士德消毒的全蛋；去殼後與巴馬臣芝士拌勻，生蛋器具與即食食物分開。')).toBe('必須使用經巴士德消毒的全蛋；去殼後與巴馬臣芝士拌勻，生蛋器具與即食食物分開。');
+    expect(recipeReaderStep('加入蛋芝士液，立即快速拌勻；這個做法不保證蛋液全熟，不能以普通生蛋代替。')).toBe('加入蛋芝士液，立即快速拌勻；這個做法不保證蛋液全熟，不能以普通生蛋代替。');
+    expect(recipeReaderStep('加入全部300毫升水及1茶匙生抽，煮滾後蓋好轉中小火約10–12分鐘，至冬瓜半透明且可輕易刺入。')).toBe('加入全部300毫升水及1茶匙生抽，煮滾後蓋好轉中小火約10–12分鐘，至冬瓜半透明且可輕易刺入。');
+  });
+  it('naturalizes named pantry guidance without changing the specified ingredients', () => {
+    expect(recipeReaderGuidance('午餐肉已有鹹味，本版不另加鹽；雞蛋須完全凝固後才上碟。')).toBe('午餐肉已有鹹味，毋須另加鹽；雞蛋完全凝固後才上碟。');
+    expect(recipeReaderGuidance('吞拿魚與豆腐先瀝乾，餅糊才較容易定形，不必為吸水而隨意加大量生粉。')).toBe('吞拿魚與豆腐先瀝乾，餅糊才較容易定形；生粉按材料表用量加入。');
+    expect(recipeReaderGuidance('本版用普通美式黃芥末醬，不把芥末籽醬或辣芥末直接當同一份量替代。')).toBe('使用普通美式黃芥末醬；芥末籽醬或辣芥末味道不同，不宜直接按相同份量替代。');
+  });
   it('splits the listed lemon-butter fish pepper between seasoning and sauce only for that recipe', () => {
     const id = 'fe923544-02da-4eba-a61e-436366cf0d59';
     const first = '魚柳用廚紙抹乾，兩面灑少量鹽和黑胡椒。';
