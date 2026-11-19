@@ -42,7 +42,7 @@ describe('recipe detail content hook order and deferred rendering', () => {
     expect(screen.getByText(/徹底翻熱至滾燙/)).toBeTruthy();
   });
   it('renders the same specific guidance in server HTML and the deferred modal content', () => {
-    const recipe = { ...a, meal_role: 'protein_main', method: 'steamed', cooking_tips: ['蛋液過篩後才倒進淺碟。', '碟面蓋耐熱碟，避免倒汗水滴入。'],
+    const recipe = { ...a, method: 'steamed', cooking_tips: ['蛋液過篩後才倒進淺碟。', '碟面蓋耐熱碟，避免倒汗水滴入。'],
       pairing_suggestions: ['配清炒菜心，按需要加飯。'], editorial_sources: [{ title: 'Cooking reference', url: 'https://www.cfs.gov.hk/' }] };
     const html = renderToString(<RecipeDetailContent recipe={recipe} deferHeavySections={false} />);
     expect(html).toContain(recipe.cooking_tips[0]);

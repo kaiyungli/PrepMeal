@@ -109,3 +109,13 @@ describe('related recipes', () => {
     }
   });
 });
+
+// Classification is catalogue data, not a recipe-specific recommendation exception.
+it('keeps a corrected rice congee out of soup pairings and offers it vegetable/soup complements', () => {
+  const congee = r('chicken-congee', 'complete_meal', { is_complete_meal: true, primary_protein: 'chicken' });
+  const catalogue = [...CATALOGUE, congee];
+  expect(selectRelatedRecipes(CATALOGUE[0], catalogue).pairWith.map(x => x.slug)).not.toContain(congee.slug);
+  const links = selectRelatedRecipes(congee, catalogue).pairWith;
+  expect(links.length).toBeGreaterThan(0);
+  expect(links.every(x => ['veg_side', 'soup'].includes(catalogue.find(r => r.slug === x.slug)!.meal_role!))).toBe(true);
+});
