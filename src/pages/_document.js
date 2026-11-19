@@ -1,4 +1,4 @@
-import { Html, Head, Main, NextScript } from 'next/document';
+import NextDocument, { Html, Head, Main, NextScript } from 'next/document';
 import brandMark from '@/constants/brandMark.json';
 import { version as iconVersion } from '@/constants/brandIconVersion.json';
 import { ADSENSE_CLIENT_ID } from '@/constants/ads';
@@ -6,7 +6,7 @@ import { ADSENSE_CLIENT_ID } from '@/constants/ads';
 /**
  * Custom document with SEO and non-executing AdSense verification
  */
-export default function Document() {
+export default function Document({ accountRecovery }) {
   return (
     <Html lang="zh-HK">
       <Head>
@@ -27,6 +27,7 @@ export default function Document() {
         
         {/* Non-executing ownership verification, including ad-free pages. */}
         <meta name="google-adsense-account" content={ADSENSE_CLIENT_ID} />
+        {accountRecovery && <meta name="referrer" content="no-referrer" />}
       </Head>
       <body>
         <Main />
@@ -35,3 +36,8 @@ export default function Document() {
     </Html>
   );
 }
+
+Document.getInitialProps = async (ctx) => ({
+  ...await NextDocument.getInitialProps(ctx),
+  accountRecovery: ctx.pathname === '/account-help' || ctx.pathname === '/auth/callback',
+});

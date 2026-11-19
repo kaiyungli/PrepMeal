@@ -10,6 +10,7 @@
  * defaults and storage key), so existing signed-in sessions keep working.
  */
 import { AuthClient } from '@supabase/auth-js';
+import { beginRecoveryAttempt, recordRecoveryEvent } from '@/features/auth/recoverySession';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -21,6 +22,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 const baseUrl = new URL(supabaseUrl.endsWith('/') ? supabaseUrl : `${supabaseUrl}/`);
+
+// Clear a previous UI handoff before the SDK handles a fresh link.
+if (typeof window !== 'undefined') {
+  const url = new URL(window.location.href);
+  const hash = new URLSearchParams(url.hash.slice(1));
+  if (['access_token', 'refresh_token', 'error', 'error_code', 'type'].some(key => hash.has(key))
+    || ['code', 'token_hash', 'error', 'error_code'].some(key => url.searchParams.has(key))) {
+    beginRecoveryAttempt(url.searchParams.get('flow') === 'recovery');
+  }
+}
 
 const auth = new AuthClient({
   url: new URL('auth/v1', baseUrl).href,
@@ -35,6 +46,11 @@ const auth = new AuthClient({
   detectSessionInUrl: true,
   flowType: 'implicit',
 });
+
+// Register synchronously before URL initialization can emit recovery.
+if (typeof window !== 'undefined') {
+  auth.onAuthStateChange((event, session) => recordRecoveryEvent(event, session?.user.id));
+}
 
 export const supabase = { auth };
 export default supabase;

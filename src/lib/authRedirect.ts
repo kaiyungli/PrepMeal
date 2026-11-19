@@ -1,13 +1,24 @@
 // Shared URL parsing helpers for auth flow
 
 interface RouterLike {
-  query?: Record<string, string | string[]>;
+  query?: Record<string, string | string[] | undefined>;
 }
 
 interface RedirectOptions {
   queryParam?: string;
   defaultUrl?: string;
   windowOrRouter?: RouterLike;
+}
+
+export function safeInternalRedirect(value: unknown, fallback = '/my-plans') {
+  if (typeof value !== 'string' || !value || /[\\\u0000-\u0020]/.test(value)) return fallback;
+  const path = value.startsWith('/') ? value : '/' + value;
+  try {
+    const decoded = decodeURIComponent(path);
+    if (decoded.startsWith('//') || /[\\\u0000-\u0020]/.test(decoded)) return fallback;
+    const parsed = new URL(path, 'https://internal.invalid');
+    return parsed.origin === 'https://internal.invalid' ? path : fallback;
+  } catch { return fallback; }
 }
 
 /**
@@ -22,7 +33,7 @@ export function getRedirectUrl(options: RedirectOptions = {}) {
   if (query) {
     const redirect = query[queryParam];
     if (redirect && typeof redirect === 'string') {
-      return redirect.startsWith('/') ? redirect : '/' + redirect;
+      return safeInternalRedirect(redirect, defaultUrl);
     }
     return defaultUrl;
   }
@@ -32,7 +43,7 @@ export function getRedirectUrl(options: RedirectOptions = {}) {
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get(queryParam);
     if (redirect) {
-      return redirect.startsWith('/') ? redirect : '/' + redirect;
+      return safeInternalRedirect(redirect, defaultUrl);
     }
   }
   

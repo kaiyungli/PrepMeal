@@ -3,12 +3,14 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import { useHeaderController } from '@/features/layout/hooks/useHeaderController';
 import { Button } from '@/components';
 import supabase from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { getRedirectUrl } from '@/lib/authRedirect';
+import { emailCallbackUrl } from '@/features/auth/accountHelp';
 
 const colors = {
   background: '#F8F3E8',
@@ -89,6 +91,7 @@ export default function LoginPage() {
         const { error } = await supabase?.auth.signUp({
           email,
           password,
+          options: { emailRedirectTo: emailCallbackUrl(window.location.origin, 'signup', getRedirectUrl({ windowOrRouter: router })) },
         });
         if (error) throw error;
         setMessage('註冊申請已提交。如需驗證，請查看 Email（包括垃圾郵件）。如果你曾用 Google 建立帳戶，請使用原本方式登入。');
@@ -208,6 +211,11 @@ export default function LoginPage() {
               {emailSubmitting ? '載入中...' : (isSignUp ? '註冊' : '登入')}
             </Button>
           </form>
+
+          <div className="flex flex-wrap justify-center gap-4 mb-5 text-sm">
+            <Link href={{ pathname: '/account-help', query: { redirect: getRedirectUrl({ windowOrRouter: router }) } }} className="underline">忘記密碼？</Link>
+            <Link href={{ pathname: '/account-help', query: { mode: 'resend', redirect: getRedirectUrl({ windowOrRouter: router }) } }} className="underline">收不到驗證郵件？</Link>
+          </div>
 
           <p style={{ textAlign: 'center', fontSize: '14px', color: colors.textLight }}>
             {isSignUp ? '已經有帳戶？' : '未有任何帳戶？'}
