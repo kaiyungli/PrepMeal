@@ -1,0 +1,624 @@
+[
+  {
+    "before": {
+      "id": "10fdbf67-c387-49b9-8b48-ee775454eff5",
+      "slug": "kimchi-egg-tofu",
+      "name": "韓式泡菜滑蛋豆腐",
+      "description": "泡菜配滑蛋和豆腐，微辣開胃，口感柔滑。",
+      "method": "braised",
+      "meal_role": "protein_side",
+      "is_complete_meal": false,
+      "primary_protein": "tofu",
+      "base_servings": 1,
+      "total_time_minutes": 16,
+      "diet": [
+        "vegetarian",
+        "egg_lacto",
+        "low_calorie"
+      ],
+      "flavor": [
+        "spicy",
+        "sour",
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "泡菜略切小塊，豆腐切件，雞蛋打散。",
+          "step_no": 1
+        },
+        {
+          "text": "小鍋加入少量油，中火炒泡菜 1 分鐘。",
+          "step_no": 2
+        },
+        {
+          "text": "加入豆腐和 2 湯匙水，煮 2 分鐘至豆腐熱透。",
+          "step_no": 3
+        },
+        {
+          "text": "加入生抽1茶匙拌勻。",
+          "step_no": 4
+        },
+        {
+          "text": "轉小火，倒入蛋液，輕輕推至半凝固。",
+          "step_no": 5
+        },
+        {
+          "text": "輕輕推至蛋液凝固熟透，即可上碟。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "02032659-7807-436b-b74d-779e60929489",
+          "name": "雞蛋",
+          "note": "打散",
+          "unit": "egg",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "06cd90da-5b61-40f0-8d42-159341436399",
+          "name": "生抽",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "c865db68-58df-48b0-baec-ce6ab89f4687",
+          "name": "泡菜",
+          "note": "略切",
+          "unit": "g",
+          "optional": false,
+          "quantity": 90
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "e1e7092a-1363-4e6b-b60c-fb332c7d0c82",
+          "name": "豆腐",
+          "note": "切件",
+          "unit": "g",
+          "optional": false,
+          "quantity": 120
+        }
+      ]
+    },
+    "after": {
+      "id": "10fdbf67-c387-49b9-8b48-ee775454eff5",
+      "slug": "kimchi-egg-tofu",
+      "name": "韓式泡菜滑蛋豆腐",
+      "description": "泡菜配滑蛋和豆腐，微辣開胃，口感柔滑。",
+      "method": "braised",
+      "meal_role": "protein_side",
+      "is_complete_meal": false,
+      "primary_protein": "tofu",
+      "base_servings": 1,
+      "total_time_minutes": 16,
+      "diet": [
+        "vegetarian",
+        "egg_lacto",
+        "low_calorie"
+      ],
+      "flavor": [
+        "spicy",
+        "sour",
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "泡菜略切小塊，豆腐切件，雞蛋打散。",
+          "step_no": 1
+        },
+        {
+          "text": "小鍋加入少量油，中火炒泡菜 1 分鐘。",
+          "step_no": 2
+        },
+        {
+          "text": "加入豆腐和 2 湯匙水，煮 2 分鐘至豆腐熱透。",
+          "step_no": 3
+        },
+        {
+          "text": "加入生抽1茶匙拌勻。",
+          "step_no": 4
+        },
+        {
+          "text": "轉小火，倒入蛋液，輕輕推至半凝固。",
+          "step_no": 5
+        },
+        {
+          "text": "輕輕推至蛋液凝固熟透，即可上碟。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "02032659-7807-436b-b74d-779e60929489",
+          "name": "雞蛋",
+          "note": "打散",
+          "unit": "egg",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "06cd90da-5b61-40f0-8d42-159341436399",
+          "name": "生抽",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "4d32e561-50ac-4bb4-be6e-43c12a72e397",
+          "name": "水",
+          "quantity": 30,
+          "unit": "ml",
+          "note": "煮豆腐用；原步驟兩湯匙",
+          "optional": false
+        },
+        {
+          "id": "c865db68-58df-48b0-baec-ce6ab89f4687",
+          "name": "泡菜",
+          "note": "略切",
+          "unit": "g",
+          "optional": false,
+          "quantity": 90
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "e1e7092a-1363-4e6b-b60c-fb332c7d0c82",
+          "name": "豆腐",
+          "note": "切件",
+          "unit": "g",
+          "optional": false,
+          "quantity": 120
+        }
+      ]
+    },
+    "guidanceBefore": {
+      "version": 1,
+      "reviewed_on": "2026-11-13",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "b8b237c68b3c71516541b70e0ac5c6a6c686df7a8f3ad0a9528be074ab3bcf38",
+      "cooking_tips": [
+        "豆腐先煮熱再倒蛋，加入後輕推，避免為炒散雞蛋而把豆腐全部打碎。",
+        "蛋液須完全凝固才盛起，泡菜與生抽已有鹹味，不再補未列出的鹽。"
+      ],
+      "pairing_suggestions": [
+        "可配「清炒椰菜」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。"
+      ],
+      "references": []
+    },
+    "guidanceAfter": {
+      "version": 1,
+      "reviewed_on": "2026-11-15",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "4cfbec4d20fca10af8842b97758242ca8f686af11f18116a9c2ad6f08e47bf0a",
+      "cooking_tips": [
+        "豆腐先煮熱再倒蛋，加入後輕推，避免為炒散雞蛋而把豆腐全部打碎。",
+        "蛋液須完全凝固才盛起，泡菜與生抽已有鹹味，不再補未列出的鹽。"
+      ],
+      "pairing_suggestions": [
+        "可配「清炒椰菜」及白飯；如要加湯，可選「海帶豆腐湯」，各道份量分開計。"
+      ],
+      "references": []
+    }
+  },
+  {
+    "before": {
+      "id": "30aaa4c4-48d3-4e2b-8d43-82e48087965b",
+      "slug": "poached-baby-napa",
+      "name": "上湯娃娃菜",
+      "description": "以高湯煮至娃娃菜菜梗軟身，配蒜蓉及少量鹽調味，連湯上碟的家常蔬菜配菜。",
+      "method": "boiled",
+      "meal_role": "veg_side",
+      "is_complete_meal": false,
+      "primary_protein": "vegetarian",
+      "base_servings": 1,
+      "total_time_minutes": 15,
+      "diet": [
+        "low_calorie"
+      ],
+      "flavor": [
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "娃娃菜洗淨後切半或切長條，蒜頭切碎。",
+          "step_no": 1
+        },
+        {
+          "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。",
+          "step_no": 2
+        },
+        {
+          "text": "放入娃娃菜，菜梗較厚的位置向下。",
+          "step_no": 3
+        },
+        {
+          "text": "加蓋中火煮 3 至 4 分鐘至菜梗軟身。",
+          "step_no": 4
+        },
+        {
+          "text": "試味後按需要加入鹽約1/8茶匙。",
+          "step_no": 5
+        },
+        {
+          "text": "連湯上碟即可。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "244b5f26-cb2f-440f-88f9-3adcb7185a97",
+          "name": "蒜頭",
+          "note": "切碎",
+          "unit": "clove",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "759f9450-3786-4169-ad71-67d121665d1b",
+          "name": "娃娃菜",
+          "note": "洗淨切半",
+          "unit": "g",
+          "optional": false,
+          "quantity": 180
+        },
+        {
+          "id": "92a6a27a-ad0b-4375-b166-935d7455c9ff",
+          "name": "鹽",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 0.125
+        },
+        {
+          "id": "a10b07f2-5c59-4f75-bc2d-ed79af879da9",
+          "name": "雞湯",
+          "note": null,
+          "unit": "ml",
+          "optional": false,
+          "quantity": 150
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        }
+      ]
+    },
+    "after": {
+      "id": "30aaa4c4-48d3-4e2b-8d43-82e48087965b",
+      "slug": "poached-baby-napa",
+      "name": "上湯娃娃菜",
+      "description": "以高湯煮至娃娃菜菜梗軟身，配蒜蓉及少量鹽調味，連湯上碟的家常蔬菜配菜。",
+      "method": "boiled",
+      "meal_role": "veg_side",
+      "is_complete_meal": false,
+      "primary_protein": "vegetarian",
+      "base_servings": 1,
+      "total_time_minutes": 15,
+      "diet": [
+        "low_calorie"
+      ],
+      "flavor": [
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "娃娃菜洗淨後切半或切長條，蒜頭切碎。",
+          "step_no": 1
+        },
+        {
+          "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。",
+          "step_no": 2
+        },
+        {
+          "text": "放入娃娃菜，菜梗較厚的位置向下。",
+          "step_no": 3
+        },
+        {
+          "text": "加蓋中火煮 3 至 4 分鐘至菜梗軟身。",
+          "step_no": 4
+        },
+        {
+          "text": "試味後按需要加入鹽約1/8茶匙。",
+          "step_no": 5
+        },
+        {
+          "text": "連湯上碟即可。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "244b5f26-cb2f-440f-88f9-3adcb7185a97",
+          "name": "蒜頭",
+          "note": "切碎",
+          "unit": "clove",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "759f9450-3786-4169-ad71-67d121665d1b",
+          "name": "娃娃菜",
+          "note": "洗淨切半",
+          "unit": "g",
+          "optional": false,
+          "quantity": 180
+        },
+        {
+          "id": "92a6a27a-ad0b-4375-b166-935d7455c9ff",
+          "name": "鹽",
+          "note": null,
+          "unit": "tsp",
+          "optional": true,
+          "quantity": 0.125
+        },
+        {
+          "id": "a10b07f2-5c59-4f75-bc2d-ed79af879da9",
+          "name": "雞湯",
+          "note": null,
+          "unit": "ml",
+          "optional": false,
+          "quantity": 150
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        }
+      ]
+    },
+    "guidanceBefore": {
+      "version": 1,
+      "reviewed_on": "2026-11-13",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "8867e526e34bd04828f07a7a83a06238d87e6da0419f9bf924b61dd965190cf4",
+      "cooking_tips": [
+        "娃娃菜厚梗向下接觸湯汁，讓菜梗與較薄菜葉較接近同時煮軟。",
+        "先試煮好的湯再決定是否加鹽，盒裝雞湯的鹹度會因品牌而異。"
+      ],
+      "pairing_suggestions": [
+        "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
+      ],
+      "references": []
+    },
+    "guidanceAfter": {
+      "version": 1,
+      "reviewed_on": "2026-11-15",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "bf5223256df96f4cb685bc8617ee07ff4c06fc9baffd12cf3c039588e53a0264",
+      "cooking_tips": [
+        "娃娃菜厚梗向下接觸湯汁，讓菜梗與較薄菜葉較接近同時煮軟。",
+        "先試煮好的湯再決定是否加鹽，盒裝雞湯的鹹度會因品牌而異。"
+      ],
+      "pairing_suggestions": [
+        "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
+      ],
+      "references": []
+    }
+  },
+  {
+    "before": {
+      "id": "793ba258-c35b-4c26-a7cc-e08b64541dcf",
+      "slug": "poached-spinach-broth",
+      "name": "上湯浸菠菜",
+      "description": "將菠菜放入煮滾的高湯中浸煮至剛熟軟身，簡單調味後連湯上碟。",
+      "method": "boiled",
+      "meal_role": "veg_side",
+      "is_complete_meal": false,
+      "primary_protein": "vegetarian",
+      "base_servings": 1,
+      "total_time_minutes": 10,
+      "diet": [
+        "low_calorie"
+      ],
+      "flavor": [
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "菠菜洗淨，切去較硬根部，瀝乾；蒜頭切碎。",
+          "step_no": 1
+        },
+        {
+          "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。",
+          "step_no": 2
+        },
+        {
+          "text": "如高湯味淡，可先加入鹽約1/8茶匙調味。",
+          "step_no": 3
+        },
+        {
+          "text": "加入菠菜，用筷子輕輕壓入湯中。",
+          "step_no": 4
+        },
+        {
+          "text": "煮 1 至 2 分鐘至菠菜剛熟變軟。",
+          "step_no": 5
+        },
+        {
+          "text": "試味後連湯上碟即可。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "244b5f26-cb2f-440f-88f9-3adcb7185a97",
+          "name": "蒜頭",
+          "note": "切碎",
+          "unit": "clove",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "92a6a27a-ad0b-4375-b166-935d7455c9ff",
+          "name": "鹽",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 0.125
+        },
+        {
+          "id": "a10b07f2-5c59-4f75-bc2d-ed79af879da9",
+          "name": "雞湯",
+          "note": null,
+          "unit": "ml",
+          "optional": false,
+          "quantity": 150
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "ee18904d-df59-496e-9894-4d82f32f1f47",
+          "name": "菠菜",
+          "note": "洗淨",
+          "unit": "g",
+          "optional": false,
+          "quantity": 160
+        }
+      ]
+    },
+    "after": {
+      "id": "793ba258-c35b-4c26-a7cc-e08b64541dcf",
+      "slug": "poached-spinach-broth",
+      "name": "上湯浸菠菜",
+      "description": "將菠菜放入煮滾的高湯中浸煮至剛熟軟身，簡單調味後連湯上碟。",
+      "method": "boiled",
+      "meal_role": "veg_side",
+      "is_complete_meal": false,
+      "primary_protein": "vegetarian",
+      "base_servings": 1,
+      "total_time_minutes": 10,
+      "diet": [
+        "low_calorie"
+      ],
+      "flavor": [
+        "salty"
+      ],
+      "steps": [
+        {
+          "text": "菠菜洗淨，切去較硬根部，瀝乾；蒜頭切碎。",
+          "step_no": 1
+        },
+        {
+          "text": "鍋中加入食油，炒香蒜頭，再加入高湯150毫升煮滾。",
+          "step_no": 2
+        },
+        {
+          "text": "如高湯味淡，可先加入鹽約1/8茶匙調味。",
+          "step_no": 3
+        },
+        {
+          "text": "加入菠菜，用筷子輕輕壓入湯中。",
+          "step_no": 4
+        },
+        {
+          "text": "煮 1 至 2 分鐘至菠菜剛熟變軟。",
+          "step_no": 5
+        },
+        {
+          "text": "試味後連湯上碟即可。",
+          "step_no": 6
+        }
+      ],
+      "ingredients": [
+        {
+          "id": "244b5f26-cb2f-440f-88f9-3adcb7185a97",
+          "name": "蒜頭",
+          "note": "切碎",
+          "unit": "clove",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "92a6a27a-ad0b-4375-b166-935d7455c9ff",
+          "name": "鹽",
+          "note": null,
+          "unit": "tsp",
+          "optional": true,
+          "quantity": 0.125
+        },
+        {
+          "id": "a10b07f2-5c59-4f75-bc2d-ed79af879da9",
+          "name": "雞湯",
+          "note": null,
+          "unit": "ml",
+          "optional": false,
+          "quantity": 150
+        },
+        {
+          "id": "dd93c4fd-df93-4017-9fdd-e73c55d09dc4",
+          "name": "食油",
+          "note": null,
+          "unit": "tsp",
+          "optional": false,
+          "quantity": 1
+        },
+        {
+          "id": "ee18904d-df59-496e-9894-4d82f32f1f47",
+          "name": "菠菜",
+          "note": "洗淨",
+          "unit": "g",
+          "optional": false,
+          "quantity": 160
+        }
+      ]
+    },
+    "guidanceBefore": {
+      "version": 1,
+      "reviewed_on": "2026-11-13",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "33494ae30d8b9da495bb7f0cac1293c437f8b49125d86aee92565cab922f9e7e",
+      "cooking_tips": [
+        "菠菜入湯後輕壓浸入熱湯，菜葉軟化便檢查，避免一直煮到葉爛。",
+        "洗菠菜時把葉柄間的泥沙沖淨並瀝水，才不會把多餘洗菜水帶入湯內。"
+      ],
+      "pairing_suggestions": [
+        "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
+      ],
+      "references": []
+    },
+    "guidanceAfter": {
+      "version": 1,
+      "reviewed_on": "2026-11-15",
+      "review_method": "desk_review_not_test_cooked",
+      "source_fingerprint": "d0811169cdfecafca2bceab1b6cad72e893a16f3c82960b3f4ed540ae440554a",
+      "cooking_tips": [
+        "菠菜入湯後輕壓浸入熱湯，菜葉軟化便檢查，避免一直煮到葉爛。",
+        "洗菠菜時把葉柄間的泥沙沖淨並瀝水，才不會把多餘洗菜水帶入湯內。"
+      ],
+      "pairing_suggestions": [
+        "可配「蒸水蛋」及白飯，把這道菜作蔬菜配搭；各道份量另按餐單安排。"
+      ],
+      "references": []
+    }
+  }
+]

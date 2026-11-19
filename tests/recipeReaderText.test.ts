@@ -2,6 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { recipeReaderStep, recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 describe('reader-facing recipe steps', () => {
+  it('allocates all black-pepper beef starch to marinating without adding a new slurry', () => {
+    const step = '牛肉切片，用材料表所列的部分生抽、生粉及黑胡椒拌勻，醃10分鐘。';
+    expect(recipeReaderStep(step, '6d9a3e2d-31d9-4621-aef0-856038c1373b'))
+      .toBe('牛肉切片，加入材料表的全部生粉，以及部分生抽和黑胡椒拌勻，醃約10分鐘。');
+    expect(recipeReaderStep(step, 'other')).toBe(step);
+    expect(recipeReaderGuidance('生抽、生粉與黑胡椒先分出醃肉部分，餘下才在炒肉時加，不重複用全份。'))
+      .toContain('生粉全部用來醃肉');
+  });
+  it('keeps pancake preparation in order and retains its existing doneness requirement', () => {
+    const id = 'e45784b5-3593-4509-acc3-a2e02d3089b6';
+    expect(recipeReaderStep('將豆腐、蛋液、蔥花和鹽少許放入碗中拌勻。', id)).toContain('材料表的鹽');
+    expect(recipeReaderStep('如材料太濕，先把豆腐多餘水分瀝去，再與蛋液拌勻；不另加未列入材料表的生粉。', id))
+      .toBe('豆腐須在拌入蛋液前瀝乾，較容易煎成形。');
+    expect(recipeReaderStep('平底鑊加入少量油，中小火加熱。', id)).toContain('材料表的食油');
+    const final = '小心翻面再煎約2至3分鐘，按厚度延長至中心蛋液全熟；食物中心達75°C並維持至少30秒後上碟。';
+    expect(recipeReaderStep(final, id)).toBe(final);
+  });
   it('ties the borscht seasoning wording to its stated ingredient amounts only for that recipe', () => {
     const step = '最後加入鹽少許和黑胡椒少許調味即可。';
     expect(recipeReaderStep(step, '52043e65-9e24-44a7-9434-dbc66ce36c02')).toBe('最後加入材料表的鹽及黑胡椒調味。');

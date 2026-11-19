@@ -92,7 +92,7 @@ export async function fetchRecipesForServerWithTotal(limit = 24) {
   }
 }
 
-const LINK_FIELDS = 'id, slug, name, meal_role, is_complete_meal, primary_protein, cuisine';
+const LINK_FIELDS = 'id, slug, name, meal_role, is_complete_meal, primary_protein, cuisine, method, flavor';
 const LINK_PAGE_SIZE = 1000;
 
 /**
