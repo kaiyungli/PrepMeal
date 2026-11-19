@@ -105,6 +105,40 @@ describe('Recipe detail server HTML', () => {
       expect(html).toContain('食物中心達75°C並維持至少30秒後上碟');
       expect(html).not.toContain('拌勻後的蛋糊可直接下鑊');
     }
+    if (current.slug === 'pan-fried-salmon') expect(html).toContain('平底鑊加入材料表的橄欖油，中火加熱。');
+    if (current.slug === 'lemon-butter-fish-fillet') {
+      expect(html).toContain('材料表的鹽及部分黑胡椒');
+      expect(html).toContain('加入檸檬汁及餘下黑胡椒');
+      expect(html).toContain('如選用蒜頭');
+    }
+    if (current.slug === 'tomato-egg-tofu-pot') {
+      expect(html).toContain('材料表的食油，中火炒番茄約2分鐘');
+      expect(html).toContain('蛋液完全凝固後關火');
+      expect(html).toContain('加入豆腐和 2 湯匙水');
+    }
+    if (current.slug === 'minced-pork-potato') {
+      expect(html).not.toContain('不另加鹽、白胡椒或未列出的醃料');
+      expect(html).toContain('一茶匙半油分兩次使用');
+      expect(html).toContain('豬肉完全熟透、薯仔軟熟');
+    }
+    if (current.slug === 'shrimp-egg-tofu-pot') expect(html).toContain('先取15毫升水拌入蛋液，餘下30毫升用來煮豆腐和蝦仁');
+    if (current.slug === 'fermented-beancurd-water-spinach') expect(html).toContain('腐乳已有鹹味，毋須再加鹽或生抽');
+    if (current.slug === 'preserved-radish-omelette') {
+      expect(html).toContain('菜脯已有鹹味，毋須另加鹽');
+      expect(html).toContain('確認中心蛋液全熟才上碟');
+    }
+    if (current.slug === 'teriyaki-salmon') {
+      expect(html).toContain('三文魚熟透後盛起，按需要另配白飯。');
+      expect(html).not.toContain('可配 180 克白飯食用');
+    }
+    if (current.slug === 'celery-lily-stir-fry') expect(html).toContain('鑊中加入食油1茶匙及蒜片，中火炒香。');
+    if (current.slug === 'beef-onion-stir-fry') {
+      expect(html).toContain('冷藏醃約10分鐘');
+      expect(html).toContain('餘下生抽1茶匙、蠔油1茶匙及餘下黑胡椒');
+      expect(html).toContain('中心達75°C並維持至少30秒');
+      expect(html).not.toContain('本版不加入');
+      expect(html).not.toContain('本版不額外加入');
+    }
     expect(JSON.stringify(current)).toBe(original);
   });
   it('ignores stale named database pairings when the catalogue is unavailable', () => {
