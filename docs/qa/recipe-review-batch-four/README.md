@@ -1,18 +1,18 @@
 # Fourth recipe batch — review and prepared data correction
 
-Status: Draft. The SQL files have **not been executed on the hosted database**.
+Status: Draft application changes. The three SQL data corrections were applied to the confirmed PrepMeal hosted database on 2026-11-19 after user approval. Readback confirmed the 30ml water row, two optional salt flags and all three updated fingerprints. Do not reapply `apply.sql`.
 
 The ten reviewed production pages returned HTTP 200 on 2026-11-15. They are
 green-pepper-beef, black-pepper-beef-xhs, garlic-eggplant, dry-fried-green-beans,
 tomato-tofu, tofu-egg-pancake, kimchi-egg-tofu, salt-pepper-tofu,
 poached-baby-napa and poached-spinach-broth.
 
-The application change adds their explicit named pairing IDs and cleans up
+The application change replaces per-recipe pairing mappings with shared catalogue-based recommendation rules and cleans up
 black-pepper beef starch allocation, pancake preparation order, and a rigid
 salt instruction. Ingredients, nutrition and stored guidance are unchanged
 by the application code.
 
-Three separate data corrections are prepared in `apply.sql`:
+Three separate data corrections were executed using `apply.sql`:
 
 | Recipe | Existing issue | Prepared correction |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ children, and verifies final inputs and protected recipe fields. Nutrition and
 other source metadata are preserved. The rollback checks the expected changed
 state before restoring the original flags and removing only the inserted row.
 
-Before applying, recheck the connected project and all three live recipes;
+For any future re-execution after an inspected rollback, recheck the connected project and all three live recipes;
 stale input must fail rather than be overwritten. Execute the transaction once
 through the existing authenticated database workflow, then read back the three
 records and verify their normalized guidance. Check both detail pages and the

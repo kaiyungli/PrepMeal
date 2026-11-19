@@ -1,6 +1,5 @@
 // Crawlable internal links between recipe pages: the full recipe index on
 // /recipes and the "配咩食" / "同類食譜" links on every recipe page.
-import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
 
 export interface LinkRecipe {
   id?: string | number;
@@ -11,6 +10,8 @@ export interface LinkRecipe {
   is_complete_meal?: boolean | null;
   primary_protein?: string | null;
   cuisine?: string | null;
+  method?: string | null;
+  flavor?: string[] | null;
 }
 
 export interface RecipeLink { slug: string; name: string }
@@ -76,29 +77,36 @@ function pick(candidates: LinkRecipe[], seed: string, count: number): RecipeLink
 // What usually completes a dinner with this kind of dish.
 const PAIR_ROLES: Record<string, string[]> = {
   protein_main: ['veg_side', 'soup'],
-  protein_side: ['veg_side', 'protein_main'],
+  protein_side: ['veg_side', 'soup'],
   veg_side: ['protein_main', 'protein_side'],
   soup: ['protein_main', 'veg_side'],
   complete_meal: ['veg_side', 'soup'],
 };
 
-export interface RelatedRecipes { pairWith: RecipeLink[]; similar: RecipeLink[]; reviewedPairings?: RecipeLink[] }
+export interface RelatedRecipes { pairWith: RecipeLink[]; similar: RecipeLink[] }
 
 export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[], count = 4): RelatedRecipes {
-  const others = uniqueRecipes(catalogue).filter(r => r.slug !== current.slug);
+  count = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
+  const others = uniqueRecipes(catalogue).filter(r => r.slug !== current.slug &&
+    (current.id == null || r.id == null || String(r.id) !== String(current.id)));
   const role = roleOf(current);
-
   const pairRoles = PAIR_ROLES[role] || [];
-  const reviewed = current.id == null ? undefined : REVIEWED_RECIPE_PAIRINGS[String(current.id)];
-  const reviewedPairings = reviewed && current.pairing_suggestions?.includes(reviewed.suggestion)
-    ? reviewed.recipeIds.flatMap(id => {
-      const target = others.find(recipe => String(recipe.id) === id);
-      return target ? [toLink(target)] : [];
-    }).slice(0, count) : [];
-  const preferred = new Set(reviewedPairings.map(recipe => recipe.slug));
-  const pairWith = [...reviewedPairings, ...pick(
-    others.filter(r => !preferred.has(r.slug) && pairRoles.includes(roleOf(r))),
-    `${current.slug}:pair`, count - reviewedPairings.length)];
+  // Rank complementary categories separately, then alternate them so a large
+  // vegetable catalogue cannot crowd out every soup (or vice versa).
+  const score = (candidate: LinkRecipe) =>
+    (current.primary_protein && current.primary_protein !== 'vegetarian' &&
+      current.primary_protein === candidate.primary_protein ? -4 : 0) +
+    (current.flavor?.includes('spicy') && candidate.flavor?.includes('spicy') ? -3 : 0) +
+    (current.method && current.method === candidate.method ? -1 : 0) +
+    (current.cuisine && current.cuisine === candidate.cuisine ? 1 : 0);
+  const pools = pairRoles.map(pairRole => others.filter(r => roleOf(r) === pairRole)
+    .sort((a, b) => score(b) - score(a) || hash(`${current.slug}:pair:${a.slug}`) - hash(`${current.slug}:pair:${b.slug}`) || a.slug.localeCompare(b.slug)));
+  const pairWith: RecipeLink[] = [];
+  for (let i = 0; pairWith.length < count && pools.some(pool => i < pool.length); i++) {
+    for (const pool of pools) {
+      if (pool[i] && pairWith.length < count) pairWith.push(toLink(pool[i]));
+    }
+  }
 
   const used = new Set(pairWith.map(r => r.slug));
   const sameRole = others.filter(r => !used.has(r.slug) && roleOf(r) === role);
@@ -112,5 +120,5 @@ export function selectRelatedRecipes(current: LinkRecipe, catalogue: LinkRecipe[
     const selected = new Set(similar.map(r => r.slug));
     similar.push(...pick(sameRole.filter(r => !selected.has(r.slug)), `${current.slug}:role`, count - similar.length));
   }
-  return { pairWith, similar, ...(reviewedPairings.length ? { reviewedPairings } : {}) };
+  return { pairWith, similar };
 }

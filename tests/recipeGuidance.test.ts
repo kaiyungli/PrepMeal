@@ -44,3 +44,9 @@ describe('recipe guidance uses catalogue values',()=>{
    expect(tips).not.toContain('徹底翻熱');
  });
 });
+
+// Public catalogue results replace stored names, including in fallback views.
+it('generates pairing copy from current results and ignores stale stored names', () => {
+  expect(pairing({ meal_role: 'protein_main', pairing_suggestions: ['舊菜名'] }, [{ name: '新菜名' }])).toEqual(['可從「新菜名」中選擇配搭，按整餐份量安排。']);
+  expect(pairing({ meal_role: 'protein_main', pairing_suggestions: ['舊菜名'] }).join('')).not.toContain('舊菜名');
+});

@@ -29,8 +29,6 @@ vi.mock('@/utils/perf', () => ({ measurePageLoadMetrics: () => () => {} }));
 import RecipeDetail, { getStaticProps } from '@/pages/recipes/[id]';
 import RecipeDetailContent from '@/components/RecipeDetailContent';
 import { PairingSuggestion } from '@/components/recipes/RecipeLinkSections';
-import { REVIEWED_RECIPE_PAIRINGS } from '@/constants/recipePairings';
-import { recipeReaderGuidance } from '@/features/recipes/mappers/recipeReaderText';
 
 const RECIPE = {
   id: 'recipe-a', slug: 'garlic-napa', name: '蒜蓉娃娃菜', description: '清甜帶蒜香', base_servings: 1,
@@ -44,7 +42,7 @@ const heroTag = (html: string) => html.match(/<img[^>]*alt="蒜蓉娃娃菜"[^>]
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('Recipe detail server HTML', () => {
-  it.each(Object.entries(REVIEWED_RECIPE_PAIRINGS))('renders matching inline and related links for reviewed recipe %s', (id, review) => {
+  it.each((JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8')) as { id: string }[]).map(r => r.id))('renders consistent dynamic pairings for recipe %s', (id) => {
     const catalogue = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/recipe-snapshot.json', 'utf8'));
     const payload = JSON.parse(readFileSync('docs/qa/editorial-guidance-20261113/payload.json', 'utf8'));
     const patch = payload.find((entry: { id: string }) => entry.id === id);
@@ -66,9 +64,9 @@ describe('Recipe detail server HTML', () => {
     const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
     const section = heading.parentElement!;
     const hrefs = [...section.querySelectorAll('a')].map(a => a.getAttribute('href'));
-    const expected = review.recipeIds.map(target => `/recipes/${encodeURIComponent(catalogue.find((recipe: { id: string }) => recipe.id === target).slug)}`);
+    const expected = related.pairWith.map(target => `/recipes/${encodeURIComponent(target.slug)}`);
     expect(hrefs).toEqual(expected);
-    expect(section.textContent).toContain(recipeReaderGuidance(review.suggestion));
+    for (const target of related.pairWith) expect(section.textContent).toContain(target.name);
     const relatedLinks = [...container.querySelector('#related-recipes')!.parentElement!.querySelectorAll('a')];
     expect(relatedLinks.slice(0, expected.length).map(a => a.getAttribute('href'))).toEqual(expected);
     expect(html).not.toContain('本頁的湯不是另外的飯量');
@@ -109,19 +107,11 @@ describe('Recipe detail server HTML', () => {
     }
     expect(JSON.stringify(current)).toBe(original);
   });
-  it('links the named pairing in server HTML and prioritizes the same dish below', () => {
-    const [id, review] = Object.entries(REVIEWED_RECIPE_PAIRINGS)[0];
-    const current = { ...RECIPE, id, pairing_suggestions: [review.suggestion] };
-    const target = { id: review.recipeIds[0], slug: 'broccoli-current-slug', name: '蒜蓉西蘭花', meal_role: 'veg_side' };
-    const related = selectRelatedRecipes(current, [target]);
-    const html = renderToString(<RecipeDetail recipe={current} related={related} error={null} />);
-    const container = document.createElement('div'); container.innerHTML = html;
-    const heading = [...container.querySelectorAll('h3')].find(el => el.textContent?.includes('配搭建議'))!;
-    const pairing = heading.parentElement!;
-    expect(pairing.querySelector('a')?.getAttribute('href')).toBe('/recipes/broccoli-current-slug');
-    expect(pairing.textContent).toContain(review.suggestion);
-    expect(container.querySelector('#related-recipes')?.parentElement?.querySelector('a')?.getAttribute('href'))
-      .toBe('/recipes/broccoli-current-slug');
+  it('ignores stale named database pairings when the catalogue is unavailable', () => {
+    const current = { ...RECIPE, meal_role: 'veg_side', pairing_suggestions: ['可配已下架菜式。'] };
+    const html = renderToString(<RecipeDetail recipe={current} related={null} error={null} />);
+    expect(html).not.toContain('已下架菜式');
+    expect(html).toContain('可搭配豆腐、蛋、魚或肉類主菜');
   });
   it('keeps plain copy when the public catalogue is unavailable', () => {
     const text = '可配蒜蓉西蘭花及白飯。';
@@ -227,7 +217,7 @@ describe('Recipe detail server HTML', () => {
   it('returns notFound for an absent primary recipe even when recommendations are available', async () => {
     vi.mocked(loadRecipeDetail).mockResolvedValueOnce({ recipe: null, error: 'Recipe not found' });
     vi.mocked(fetchRecipeLinkCatalog).mockResolvedValueOnce([{ id: 'other', slug: 'other', name: '其他菜', meal_role: null,
-      is_complete_meal: false, primary_protein: null, cuisine: null }]);
+      is_complete_meal: false, primary_protein: null, cuisine: null, method: null, flavor: null }]);
     expect(await getStaticProps({ params: { id: 'missing' } })).toEqual({ notFound: true, revalidate: 300 });
   });
   it('standalone page renders ingredients, steps, site navigation and footer on the server', () => {

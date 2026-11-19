@@ -34,8 +34,10 @@ export function generateCookingTips(recipe: GuidanceRecipe): string[] {
   }
 }
 
-export function generatePairingSuggestions(recipe: GuidanceRecipe): string[] {
-  if (recipe.pairing_suggestions?.length) return recipe.pairing_suggestions;
+export function generatePairingSuggestions(recipe: GuidanceRecipe, pairings?: { name: string }[]): string[] {
+  if (pairings?.length) return [`可從${pairings.map(r => `「${r.name}」`).join('、')}中選擇配搭，按整餐份量安排。`];
+  // Without a catalogue (for example in a modal), use role-based guidance;
+  // stored named suggestions may refer to dishes that are no longer public.
   if (recipe.meal_role === 'complete_meal' || recipe.is_complete_meal || recipe.dish_type === 'staple') {
     return ['這道飯麵可作主食，按已有材料搭配一份蔬菜或清湯。'];
   }

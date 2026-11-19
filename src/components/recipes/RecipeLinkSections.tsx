@@ -4,7 +4,7 @@ import type { RecipeIndexGroup, RecipeLink, RelatedRecipes } from '@/features/re
 
 const recipeHref = (slug: string) => `/recipes/${encodeURIComponent(slug)}`;
 
-/** Link only explicit reviewed public dishes; leave all other prose unchanged. */
+/** Link only supplied public dishes; leave all other prose unchanged. */
 export function PairingSuggestion({ text, recipes = [] }: { text: string; recipes?: RecipeLink[] }) {
   const links = recipes.filter(recipe => recipe.name && text.includes(recipe.name));
   if (!links.length) return <>{text}</>;
