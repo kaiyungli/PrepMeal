@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
 import Help from '@/pages/account-help';
 import Reset from '@/components/auth/ResetPassword';
 import Callback from '@/pages/auth/callback';
 import { beginRecoveryAttempt, recordRecoveryEvent, clearRecoverySession } from '@/features/auth/recoverySession';
-const state = vi.hoisted(() => ({ query: {} as Record<string, string>, session: { user: { id: 'A' } },
+const state = vi.hoisted(() => ({ routerReady: true, query: {} as Record<string, string>, session: { user: { id: 'A' } },
   user: { id: 'A' }, authChange: null as null | ((event: string, session: { user: { id: string } } | null) => void), getUser: vi.fn(), replace: vi.fn(), reset: vi.fn(), resend: vi.fn(), update: vi.fn(), signOut: vi.fn() }));
-vi.mock('next/router', () => ({ useRouter: () => ({ isReady: true, query: state.query, replace: state.replace, push: state.replace }) }));
+vi.mock('next/router', () => ({ useRouter: () => ({ isReady: state.routerReady, query: state.query, replace: state.replace, push: state.replace }) }));
 vi.mock('next/head', () => ({ default: () => null }));
 vi.mock('@/components/layout/Layout', () => ({ default: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock('@/lib/supabase', () => ({ default: { auth: {
@@ -16,12 +18,35 @@ vi.mock('@/lib/supabase', () => ({ default: { auth: {
   onAuthStateChange: (callback: (event: string, session: { user: { id: string } } | null) => void) => { state.authChange = callback; return { data: { subscription: { unsubscribe: vi.fn() } } }; },
 } } }));
 beforeEach(() => {
-  vi.useRealTimers(); sessionStorage.clear(); clearRecoverySession(); state.query = {}; state.user = { id: 'A' };
+  vi.useRealTimers(); sessionStorage.clear(); clearRecoverySession(); state.routerReady = true; state.query = {}; state.user = { id: 'A' };
   state.getUser.mockReset().mockImplementation(async () => ({ data: { user: state.user }, error: null }));
   state.session = { user: { id: 'A' } }; state.replace.mockReset(); state.reset.mockReset(); state.resend.mockReset(); state.update.mockReset(); state.signOut.mockReset();
   state.reset.mockResolvedValue({ error: null }); state.resend.mockResolvedValue({ error: null }); state.update.mockResolvedValue({ error: null }); state.signOut.mockResolvedValue({ error: null });
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
+it('enables the real submit button after SSR with an unready router hydrates with a ready router', async () => {
+  state.routerReady = false;
+  const container = document.createElement('div');
+  container.innerHTML = renderToString(<Help />);
+  document.body.appendChild(container);
+  expect(container.querySelector('button')?.disabled).toBe(true);
+  state.routerReady = true;
+  let root!: ReturnType<typeof hydrateRoot>;
+  const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+  try {
+    await act(async () => { root = hydrateRoot(container, <Help />); });
+    const button = container.querySelector('button')!;
+    expect(button.disabled).toBe(false);
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'test@example.com' } });
+    await act(async () => { fireEvent.click(button); });
+    expect(state.reset).toHaveBeenCalledTimes(1);
+    expect(button.disabled).toBe(true);
+    expect(errors).not.toHaveBeenCalled();
+  } finally {
+    if (root) await act(async () => root.unmount());
+    container.remove(); errors.mockRestore();
+  }
+});
 it('sends a reset request once, keeps the destination same-origin and starts cooldown', async () => {
   let resolve!: (value: unknown) => void;
   state.reset.mockReturnValue(new Promise(done => { resolve = done; }));

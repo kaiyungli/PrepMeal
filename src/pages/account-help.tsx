@@ -11,6 +11,10 @@ const button = 'min-h-11 w-full rounded-xl bg-[#9B6035] px-4 py-3 font-semibold 
 export default function AccountHelp() {
   const router = useRouter();
   const resend = router.query.mode === 'resend';
+  // Keep SSR and the first client render identical. A router that is already
+  // ready on hydration must not leave the server's disabled attribute behind.
+  const [mounted, setMounted] = useState(false);
+  const ready = mounted && router.isReady;
   const [email, setEmail] = useState('');
   const [pending, setPending] = useState(false);
   const [remaining, setRemaining] = useState(0);
@@ -32,11 +36,12 @@ export default function AccountHelp() {
     try { until.current = Math.min(Number(sessionStorage.getItem('prepmeal:email-cooldown')) || 0, Date.now() + EMAIL_COOLDOWN_MS); } catch { /* optional */ }
     const tick = () => setRemaining(Math.max(0, Math.ceil((until.current - Date.now()) / 1000)));
     tick(); const timer = setInterval(tick, 1000);
+    setMounted(true);
     return () => { alive.current = false; clearInterval(timer); };
   }, []);
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (busy.current || Date.now() < until.current) return;
+    if (!ready || busy.current || Date.now() < until.current) return;
     const requestVersion = modeVersion.current;
     busy.current = true; setPending(true); setMessage(''); setError('');
     // Apply cooldown to failures too; the server remains responsible for rate limits.
@@ -59,7 +64,7 @@ export default function AccountHelp() {
       <p className="text-sm mb-6">如果一直使用Google登入，請先使用原本方式登入。</p>
       <form onSubmit={submit} className="space-y-4">
         <label className="block">Email<input type="email" autoComplete="email" required maxLength={254} value={email} onChange={e => setEmail(e.target.value)} disabled={pending} className="block w-full border border-[#DDD0B0] rounded-lg p-3 mt-2 bg-white" /></label>
-        <button type="submit" style={{ color: '#FFFFFF' }} className={button} disabled={!router.isReady || pending || remaining > 0}>{pending ? '提交中…' : remaining > 0 ? `${remaining}秒後可再申請` : resend ? '重發驗證郵件' : '寄出重設連結'}</button>
+        <button type="submit" style={{ color: '#FFFFFF' }} className={button} disabled={!ready || pending || remaining > 0}>{pending ? '提交中…' : remaining > 0 ? `${remaining}秒後可再申請` : resend ? '重發驗證郵件' : '寄出重設連結'}</button>
       </form>
       {message && <p role="status" className="mt-4">{message}</p>}
       {error && <p role="alert" className="mt-4 text-red-700">{error}</p>}
