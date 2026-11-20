@@ -1,8 +1,6 @@
 'use client';
 import { useState } from 'react';
-
-const EXPECTED_FORMAT = 'prepmeal.recipe-export';
-const EXPECTED_VERSION = 1;
+import { parseImportEnvelope, EXPORT_FORMAT, EXPORT_VERSION } from '@/lib/adminRecipeImportResolve';
 
 export default function ImportModal({ onClose, onSuccess }) {
   const [jsonInput, setJsonInput] = useState('');
@@ -14,23 +12,16 @@ export default function ImportModal({ onClose, onSuccess }) {
     setError('');
     let parsed;
     try { parsed = JSON.parse(jsonInput); } catch { setError('Invalid JSON format'); return; }
-    if (Array.isArray(parsed)) {
-      setError('不支援舊版陣列格式，請使用「匯出」重新產生檔案後再匯入');
+    // Use the API's pure envelope validator so preview cannot offer a batch
+    // the server rejects before any recipe lookup or import takes place.
+    const validation = parseImportEnvelope(parsed);
+    if (validation.error) {
+      setError(Array.isArray(parsed)
+        ? '不支援舊版陣列格式，請使用「匯出」重新產生檔案後再匯入'
+        : validation.error);
       return;
     }
-    if (!parsed || typeof parsed !== 'object') {
-      setError('Invalid JSON format');
-      return;
-    }
-    if (parsed.format !== EXPECTED_FORMAT || parsed.version !== EXPECTED_VERSION) {
-      setError(`不支援的匯入格式，需要 format="${EXPECTED_FORMAT}"、version=${EXPECTED_VERSION}`);
-      return;
-    }
-    if (!Array.isArray(parsed.recipes) || parsed.recipes.length === 0) {
-      setError('No recipes to import');
-      return;
-    }
-    setResults({ preview: true, total: parsed.recipes.length, envelope: parsed });
+    setResults({ preview: true, total: validation.recipes.length, envelope: parsed });
   };
 
   const handleImport = async () => {
@@ -51,8 +42,8 @@ export default function ImportModal({ onClose, onSuccess }) {
   };
 
   const sampleJson = `{
-  "format": "prepmeal.recipe-export",
-  "version": 1,
+  "format": "${EXPORT_FORMAT}",
+  "version": ${EXPORT_VERSION},
   "exported_at": "2026-01-01T00:00:00.000Z",
   "recipes": [
     { "name": "蒜蓉西蘭花", "slug": "garlic-broccoli", "cuisine": "chinese", "dish_type": "side", "difficulty": "easy", "ingredients": [{ "ingredient_slug": "broccoli", "unit_code": "piece", "quantity": 1 }], "steps": [{ "text": "焯水備用" }] }
