@@ -1,9 +1,12 @@
+import Head from 'next/head';
 // OAuth callback page - handles session after OAuth redirect
 // Uses Supabase's auto detectSessionInUrl - no manual code exchange needed
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import supabase from '@/lib/supabase';
 import { getRedirectUrl } from '@/lib/authRedirect';
+import ResetPassword from '@/components/auth/ResetPassword';
+import SEO from '@/components/seo/SEO';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -13,12 +16,15 @@ export default function AuthCallback() {
   useEffect(() => {
     // Run callback handler when router is ready
     if (!router.isReady) return;
+    if (router.query.flow === 'recovery') return;
 
     const handleCallback = async () => {
       try {
         // 1. Check for OAuth error in URL
-        if (router.query.error) {
-          setError(router.query.error_description || router.query.error);
+        const hash = new URLSearchParams(window.location.hash.slice(1));
+        if (router.query.error || router.query.error_code || hash.get('error') || hash.get('error_code')) {
+          setError('驗證連結無效或已過期，請返回登入頁重新申請。');
+          window.history.replaceState(window.history.state, '', '/auth/callback');
           setProcessing(false);
           return;
         }
@@ -40,19 +46,21 @@ export default function AuthCallback() {
           setError('登入階段已過期，請重新登入');
           setProcessing(false);
         }
-      } catch (err) {
-        setError('處理登入時發生錯誤: ' + err.message);
+      } catch {
+        setError('處理登入時發生錯誤，請返回登入頁重試。');
         setProcessing(false);
       }
     };
 
     handleCallback();
-  }, [router.isReady, router.query.code, router.query.redirect, router.query.error, router.query.error_description]);
+  }, [router]);
+
+  if (router.isReady && router.query.flow === 'recovery') return <ResetPassword />;
 
   // Show loading state
   if (processing) {
     return (
-      <div style={{
+      <><Head><meta name="referrer" content="no-referrer" key="referrer" /></Head><SEO title="登入驗證" noIndex /><div style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -79,13 +87,13 @@ export default function AuthCallback() {
             正在完成登入...
           </p>
         </div>
-      </div>
+      </div></>
     );
   }
 
   // Show error state
   return (
-    <div style={{
+    <><Head><meta name="referrer" content="no-referrer" key="referrer" /></Head><SEO title="登入驗證" noIndex /><div style={{
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
@@ -118,6 +126,6 @@ export default function AuthCallback() {
           返回登入頁面
         </button>
       </div>
-    </div>
+    </div></>
   );
 }

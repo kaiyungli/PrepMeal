@@ -3,7 +3,7 @@ import { isDiagnosticsPageEnabled, isNoIndexRoute } from '@/lib/seoIndexing';
 
 describe('isNoIndexRoute', () => {
   it('marks account, admin and diagnostics routes as noindex', () => {
-    for (const route of ['/login', '/profile', '/favorites', '/my-plans', '/my-plans/[id]', '/auth/callback',
+    for (const route of ['/account-help', '/login', '/profile', '/favorites', '/my-plans', '/my-plans/[id]', '/auth/callback',
       '/favorites-performance', '/admin', '/admin/login', '/admin/recipes', '/admin/ingredients']) {
       expect(isNoIndexRoute(route), route).toBe(true);
     }

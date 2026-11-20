@@ -15,6 +15,7 @@ import baseConfig from './vitest.config';
 
 const MY_PLANS_JSX_JS = [
   /[\\/]src[\\/]pages[\\/](login|profile|generate|index|_app)\.js$/,
+  /[\\/]src[\\/]pages[\\/]auth[\\/]callback\.js$/,
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
   /[\\/]src[\\/]pages[\\/]my-plans\.js$/,
   /[\\/]src[\\/]pages[\\/]favorites\.js$/,
@@ -52,6 +53,7 @@ export default defineConfig({
       'tests/homeRecipeImages.runtime.test.tsx',
       'tests/guidePages.runtime.test.tsx',
       'tests/privacyOptions.runtime.test.tsx',
+      'tests/accountRecovery.runtime.test.tsx',
       'tests/shoppingProgress.runtime.test.tsx',
       'tests/generateDraftPage.runtime.test.tsx',
       'tests/generateDraft.runtime.test.tsx',

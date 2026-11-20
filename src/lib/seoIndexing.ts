@@ -3,6 +3,7 @@
 // them. Uses Next's route-file pathname (e.g. '/my-plans/[id]'), never a URL.
 const NOINDEX_ROUTES = new Set([
   '/login',
+  '/account-help',
   '/profile',
   '/favorites',
   '/my-plans',
