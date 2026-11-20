@@ -14,6 +14,7 @@ import baseConfig from './vitest.config';
 // `npm run test:all`.
 
 const MY_PLANS_JSX_JS = [
+  /[\\/]src[\\/]components[\\/]admin[\\/]ImportModal\.js$/,
   /[\\/]src[\\/]pages[\\/](login|profile|generate|index|_app)\.js$/,
   /[\\/]src[\\/]pages[\\/]auth[\\/]callback\.js$/,
   /[\\/]src[\\/]components[\\/]myPlans[\\/][^\\/]+\.js$/,
@@ -46,6 +47,7 @@ export default defineConfig({
     maxWorkers: 1,
     environment: 'jsdom',
     include: [
+      'tests/adminImportPreview.runtime.test.tsx',
       'tests/adPolicy.runtime.test.tsx',
       'tests/homeGenerateEntry.runtime.test.tsx',
       'tests/homeFeaturedLifecycle.runtime.test.tsx',
